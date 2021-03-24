@@ -1,0 +1,19 @@
+[package]
+name = "cargo-dylint"
+version = "0.1.0-pre.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A tool for running Rust lints from dynamic libraries"
+edition = "2018"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/trailofbits/dylint"
+
+[dependencies]
+anyhow = "1.0.38"
+env_logger = "0.8.3"
+
+dylint = { version = "=0.1.0-pre.0", path = "../dylint" }
+
+[dev-dependencies]
+cargo_metadata = "0.13.1"
+lazy_static = "1.4.0"
+semver = "0.11.0"

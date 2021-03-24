@@ -1,0 +1,28 @@
+[package]
+name = "dylint"
+version = "0.1.0-pre.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A tool for running Rust lints from dynamic libraries"
+edition = "2018"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/trailofbits/dylint"
+
+[dependencies]
+anyhow = "1.0.38"
+cargo_metadata = "0.13.1"
+clap = "3.0.0-beta.2"
+log = "0.4.14"
+serde_json = "1.0.64"
+tempfile = "3.2.0"
+
+dylint_env = { version = "=0.1.0-pre.0", path = "../env" }
+
+[dev-dependencies]
+lazy_static = "1.4.0"
+
+dylint_examples = { version = "=0.1.0-pre.0", path = "../examples" }
+dylint_testing = { version = "=0.1.0-pre.0", path = "../utils/testing" }
+
+[features]
+default = ["local_dylint_driver"]
+local_dylint_driver = []

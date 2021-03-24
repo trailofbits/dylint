@@ -1,0 +1,4 @@
+clippy::cargo_common_metadata
+clippy::empty_line_after_outer_attr
+clippy::missing_errors_doc
+clippy::missing_panics_doc

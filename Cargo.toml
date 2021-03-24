@@ -1,0 +1,13 @@
+# smoelius: `dylint_driver` is in its own workspace because it requires specific Rust components.
+
+[workspace]
+members = [
+    "cargo-dylint",  # publish
+    # "driver",        # publish
+    "dylint",        # publish
+    "dylint-link",   # publish
+    "env",
+    "examples",
+    "utils/linting", # publish
+    "utils/testing", # publish
+]

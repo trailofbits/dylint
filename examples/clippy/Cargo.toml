@@ -1,0 +1,32 @@
+[package]
+name = "clippy"
+version = "0.1.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "All of the Clippy lints as a Dylint library"
+edition = "2018"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_lints = { git = "https://github.com/rust-lang/rust-clippy", rev = "1a206fc4abae0b57a3f393481367cf3efca23586"}
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1a206fc4abae0b57a3f393481367cf3efca23586"}
+serde_json = "1.0.64"
+
+dylint_env = { path = "../../env" }
+dylint_linting = { path = "../../utils/linting" }
+
+[dev-dependencies]
+anyhow = "1.0.38"
+cargo_metadata = "0.13.1"
+env_logger = "0.8.3"
+git2 = "0.13.17"
+log = "0.4.14"
+tempfile = "3.2.0"
+
+dylint = { path = "../../dylint" }
+dylint_testing = { path = "../../utils/testing" }
+
+[workspace]
+members = ["."]

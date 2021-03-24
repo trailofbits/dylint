@@ -1,0 +1,13 @@
+[package]
+name = "dylint-link"
+version = "0.1.0-pre.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A wrapper around Rust's default linker to help create Dyling libraries"
+edition = "2018"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/trailofbits/dylint"
+
+[dependencies]
+anyhow = "1.0.38"
+
+dylint_env = { version = "=0.1.0-pre.0", path = "../env" }

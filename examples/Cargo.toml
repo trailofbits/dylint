@@ -1,0 +1,13 @@
+[package]
+name = "dylint_examples"
+version = "0.1.0-pre.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "Example Dylint libraries"
+edition = "2018"
+publish = false
+
+[dependencies]
+anyhow = "1.0.38"
+
+dylint_env = { version = "=0.1.0-pre.0", path = "../env" }
+dylint_testing = { version = "=0.1.0-pre.0", path = "../utils/testing" }

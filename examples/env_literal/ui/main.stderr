@@ -1,0 +1,19 @@
+error: referring to an environment variable with a string literal is error prone
+  --> $DIR/main.rs:2:27
+   |
+LL |     let _ = std::env::var("RUSTFLAGS");
+   |                           ^^^^^^^^^^^
+   |
+   = note: `-D env-literal` implied by `-D warnings`
+   = help: define a constant `RUSTFLAGS` and use it instead
+
+error: referring to an environment variable with a string literal is error prone
+  --> $DIR/main.rs:3:26
+   |
+LL |     std::env::remove_var("RUSTFALGS");
+   |                          ^^^^^^^^^^^
+   |
+   = help: define a constant `RUSTFALGS` and use it instead
+
+error: aborting due to 2 previous errors
+

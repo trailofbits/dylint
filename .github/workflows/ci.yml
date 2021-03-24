@@ -1,0 +1,40 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dylint-link
+      run: cargo install --path ./dylint-link
+
+    - name: Format
+      run: cargo fmt && git diff --exit-code
+
+    - name: Format example READMEs
+      run: ./scripts/update_example_READMEs.sh && git diff --exit-code
+
+    - name: Lint
+      run: ./scripts/lint.sh
+
+    - name: Udeps
+      run: |
+        rustup toolchain install nightly
+        cargo install cargo-udeps
+        cargo +nightly udeps --workspace --tests
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dylint-link
+      run: cargo install --path ./dylint-link
+
+    - name: Test
+      run: cargo test --workspace

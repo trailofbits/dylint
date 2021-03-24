@@ -1,0 +1,16 @@
+error: path separators in string literals is not portable
+  --> $DIR/main.rs:2:13
+   |
+LL |     let _ = std::path::Path::new("../target");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `&std::path::Path::new("..").join("target")`
+   |
+   = note: `-D path-separator-in-string-literal` implied by `-D warnings`
+
+error: path separators in string literals is not portable
+  --> $DIR/main.rs:3:13
+   |
+LL |     let _ = std::path::PathBuf::from("../target");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `std::path::PathBuf::from("..").join("target")`
+
+error: aborting due to 2 previous errors
+

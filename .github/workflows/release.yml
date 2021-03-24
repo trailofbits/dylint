@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login
+        run: echo ${{ secrets.CRATES_IO_TOKEN }} | cargo login
+
+      - name: Publish
+        run: |
+          # smoelius: Publishing the packages in this order ensures that all dependencies are met.
+          PKGS="utils/linting utils/testing dylint-link driver dylint cargo-dylint"
+          for PKG in $PKGS; do
+            # smoelius: Continue if a previous publish attempt failed.
+            TMP="$(mktemp)"
+            cargo publish --manifest-path "$PKG"/Cargo.toml 2>"$TMP" || (
+              cat "$TMP" |
+              tee /dev/stderr |
+              tail -n 1 |
+              grep '^error: [^:]*: crate version `[^`]*` is already uploaded$'
+            )
+            # smoelius: Give `crates.io` a chance to update.
+            sleep 1m
+          done
+
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: ${{ contains(github.ref, 'pre') || contains(github.ref, 'rc') }}

@@ -1,0 +1,10 @@
+[package]
+name = "dylint_env"
+version = "0.1.0-pre.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "Environment variables used by Dylint"
+edition = "2018"
+publish = false
+
+[dependencies]
+anyhow = "1.0.38"

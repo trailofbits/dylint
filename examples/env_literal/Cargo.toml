@@ -1,0 +1,22 @@
+[package]
+name = "env_literal"
+version = "0.1.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for environment variables referred to with string literals"
+edition = "2018"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1a206fc4abae0b57a3f393481367cf3efca23586"}
+if_chain = "1.0.1"
+
+dylint_linting = { path = "../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../utils/testing" }
+
+[workspace]
+members = ["."]

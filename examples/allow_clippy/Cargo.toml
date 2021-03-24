@@ -1,0 +1,22 @@
+[package]
+name = "allow_clippy"
+version = "0.1.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A tongue-in-cheek example of a Dylint library"
+edition = "2018"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "454515040a580f72c9b6366ee7d46256cfb4246f"}
+if_chain = "1.0.1"
+
+dylint_linting = { path = "../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../utils/testing" }
+
+[workspace]
+members = ["."]
