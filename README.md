@@ -49,7 +49,7 @@ A Dylint library must satisfy four requirements. **Note:** before trying to sati
     ```rust
     extern "C" fn dylint_version() -> *mut std::os::raw::c_char
     ```
-    This function should return the Dylint version the library is compiled for. The current Dylint version is `0.1.0-pre.0`.
+    This function should return the Dylint version the library is compiled for. The current Dylint version is `0.1.0-pre.1`.
 
 3. Export a `register_lints` function:
     ```rust
