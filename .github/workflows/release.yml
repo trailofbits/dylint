@@ -19,9 +19,10 @@ jobs:
           # smoelius: Publishing the packages in this order ensures that all dependencies are met.
           PKGS="env dylint-link driver dylint utils/linting utils/testing cargo-dylint"
           for PKG in $PKGS; do
+            pushd "$PKG"
             # smoelius: Continue if a previous publish attempt failed.
             TMP="$(mktemp)"
-            cargo publish --manifest-path "$PKG"/Cargo.toml 2>"$TMP" || (
+            cargo publish 2>"$TMP" || (
               cat "$TMP" |
               tee /dev/stderr |
               tail -n 1 |
@@ -29,6 +30,7 @@ jobs:
             )
             # smoelius: Give `crates.io` a chance to update.
             sleep 1m
+            popd
           done
 
       - name: Create release
