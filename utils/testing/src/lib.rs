@@ -1,12 +1,12 @@
-use anyhow::{anyhow, ensure, Result};
+use anyhow::{anyhow, Result};
 use compiletest_rs::{self as compiletest, common::Mode as TestMode};
 use dylint_env as env;
-use std::{env::set_var, path::Path, process::Command};
+use std::{env::set_var, ffi::OsStr, iter::empty, path::Path};
 
 pub fn ui_test(name: &str, src_base: &Path) {
     let _ = env_logger::builder().try_init();
 
-    build(None).unwrap();
+    dylint_building::build::<_, &OsStr, &OsStr>(empty(), None).unwrap();
 
     let dylint_libs = dylint_libs(name).unwrap();
     let driver = dylint::driver_builder::get(env!("RUSTUP_TOOLCHAIN")).unwrap();
@@ -25,18 +25,6 @@ pub fn ui_test(name: &str, src_base: &Path) {
         ..compiletest::Config::default()
     };
     compiletest::run_tests(&config);
-}
-
-pub fn build(path: Option<&Path>) -> Result<()> {
-    let mut command = Command::new("cargo");
-    command.args(&["build"]);
-    if let Some(path) = path {
-        command.current_dir(path);
-    }
-    log::debug!("{:?}", command);
-    let status = command.status()?;
-    ensure!(status.success(), "command failed: {:?}", command);
-    Ok(())
 }
 
 pub fn dylint_libs(name: &str) -> Result<String> {

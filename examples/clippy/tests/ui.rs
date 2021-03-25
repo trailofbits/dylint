@@ -3,8 +3,10 @@ use cargo_metadata::{Dependency, MetadataCommand};
 use dylint_env as env;
 use git2::{Oid, Repository, ResetType};
 use std::{
+    ffi::OsStr,
     fs::{read_to_string, write, OpenOptions},
     io::Write,
+    iter::empty,
     path::Path,
     process::Command,
 };
@@ -14,7 +16,7 @@ use tempfile::tempdir_in;
 fn ui() {
     let _ = env_logger::try_init();
 
-    dylint_testing::build(None).unwrap();
+    dylint_building::build::<_, &OsStr, &OsStr>(empty(), None).unwrap();
 
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 

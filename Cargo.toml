@@ -2,12 +2,13 @@
 
 [workspace]
 members = [
+    "building",
     "cargo-dylint",
     # "driver",
     "dylint",
     "dylint-link",
     "env",
-    "examples", # not published
+    "examples",
     "utils/linting",
     "utils/testing",
 ]

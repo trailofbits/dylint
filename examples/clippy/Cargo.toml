@@ -26,6 +26,7 @@ log = "0.4.14"
 tempfile = "3.2.0"
 
 dylint = { path = "../../dylint" }
+dylint_building = { path = "../../building" }
 dylint_testing = { path = "../../utils/testing" }
 
 [workspace]

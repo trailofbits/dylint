@@ -3,7 +3,6 @@ use dylint_env::{self as env, var};
 use std::{
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
-    process::Command,
 };
 use tempfile::tempdir;
 
@@ -107,22 +106,15 @@ fn build(toolchain: &str, driver: &Path) -> Result<()> {
     create_dir_all(&src)?;
     write(&src.join("main.rs"), MAIN_RS)?;
 
-    let mut command = Command::new("cargo");
-
-    let envs = vec![
-        (env::RUSTFLAGS, "-C rpath=yes"),
-        (env::RUSTUP_TOOLCHAIN, toolchain),
-    ];
-
-    log::debug!("{:?}", envs);
-
-    command.current_dir(&package).envs(envs).args(&["build"]);
-
-    log::debug!("{:?}", command);
-
-    let status = command.status()?;
-
-    ensure!(status.success(), "command failed: {:?}", command);
+    dylint_building::build(
+        [
+            (env::RUSTFLAGS, "-C rpath=yes"),
+            (env::RUSTUP_TOOLCHAIN, toolchain),
+        ]
+        .iter()
+        .cloned(),
+        Some(&package),
+    )?;
 
     copy(
         package

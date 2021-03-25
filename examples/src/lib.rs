@@ -1,21 +1,24 @@
 use anyhow::Result;
 use dylint_env as env;
 use std::path::Path;
-use std::{env::remove_var, fs::read_dir, path::PathBuf};
+use std::{env::remove_var, ffi::OsStr, fs::read_dir, iter::empty, path::PathBuf};
 
 pub fn build() -> Result<()> {
     sanitize_environment();
 
     // smoelius: The examples use `dylint-link` as the linker, so it must be built first.
-    dylint_testing::build(Some(
-        &Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("dylint-link"),
-    ))?;
+    dylint_building::build::<_, &OsStr, &OsStr>(
+        empty(),
+        Some(
+            &Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("..")
+                .join("dylint-link"),
+        ),
+    )?;
 
     for example in iter()? {
         let example = example?;
-        dylint_testing::build(Some(&example))?;
+        dylint_building::build::<_, &OsStr, &OsStr>(empty(), Some(&example))?;
     }
 
     Ok(())

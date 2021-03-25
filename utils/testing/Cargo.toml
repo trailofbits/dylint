@@ -15,4 +15,5 @@ log = "0.4.14"
 serde_json = "1.0.64"
 
 dylint = { version = "=0.1.0-pre.0", path = "../../dylint" }
+dylint_building = { version = "=0.1.0-pre.0", path = "../../building" }
 dylint_env = { version = "=0.1.0-pre.0", path = "../../env" }
