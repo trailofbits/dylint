@@ -2,12 +2,12 @@
 
 [workspace]
 members = [
-    "cargo-dylint",  # publish
-    # "driver",        # publish
-    "dylint",        # publish
-    "dylint-link",   # publish
+    "cargo-dylint",
+    # "driver",
+    "dylint",
+    "dylint-link",
     "env",
-    "examples",
-    "utils/linting", # publish
-    "utils/testing", # publish
+    "examples", # not published
+    "utils/linting",
+    "utils/testing",
 ]
