@@ -40,7 +40,7 @@ impl LoadedLibrary {
                 let version = Version::parse(env!("CARGO_PKG_VERSION"))?;
                 ensure!(
                     req.matches(&version),
-                    "`{}` has Dylint version {}, which does not match cargo-dylint version {}",
+                    "`{}` has dylint version {}, which does not match dylint_driver version {}",
                     self.path.to_string_lossy(),
                     req,
                     version
