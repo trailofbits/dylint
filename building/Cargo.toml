@@ -1,6 +1,6 @@
 [package]
 name = "dylint_building"
-version = "0.1.0-pre.1"
+version = "0.1.0-pre.2"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Utiltities for building Dylint libraries"
 edition = "2018"
