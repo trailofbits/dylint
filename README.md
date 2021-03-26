@@ -57,7 +57,7 @@ A Dylint library must satisfy four requirements. **Note:** before trying to sati
     ```
     This is a function called by the Rust compiler. It is documented [here](https://doc.rust-lang.org/stable/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints).
 
-4. Link against the `rustc_driver` dynamic library. This ensures the library uses Dylint's copies of the Rust compiler crates. This requirement can be satisfied by including the following declaration in your libraries `lib.rs` file:
+4. Link against the `rustc_driver` dynamic library. This ensures the library uses Dylint's copies of the Rust compiler crates. This requirement can be satisfied by including the following declaration in your library's `lib.rs` file:
     ```rust
     extern crate rustc_driver;
     ```
