@@ -83,20 +83,23 @@ fn build(toolchain: &str, driver: &Path) -> Result<()> {
     let tempdir = tempdir()?;
     let package = tempdir.path();
 
-    #[cfg(feature = "local_dylint_driver")]
-    let dylint_driver_spec = {
-        assert!(cfg!(debug_assertions));
-        format!(
-            "path = \"{}\"",
-            Path::new(env!("CARGO_MANIFEST_DIR"))
-                .parent()
-                .expect("Could not get parent directory")
-                .join("driver")
-                .to_string_lossy()
-        )
-    };
-    #[cfg(not(feature = "local_dylint_driver"))]
-    let dylint_driver_spec = format!("version = \"={}\"", env!("CARGO_PKG_VERSION"));
+    let version_spec = format!("version = \"={}\"", env!("CARGO_PKG_VERSION"));
+
+    // smoelius: Fetch the `dylint_driver` package from crates.io if built in release mode or if
+    // `dylint_driver_remote` is enabled.
+    #[cfg(any(not(debug_assertions), feature = "dylint_driver_remote"))]
+    let path_spec = "";
+    #[cfg(all(debug_assertions, not(feature = "dylint_driver_remote")))]
+    let path_spec = format!(
+        ", path = \"{}\"",
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .expect("Could not get parent directory")
+            .join("driver")
+            .to_string_lossy()
+    );
+
+    let dylint_driver_spec = format!("{}{}", version_spec, path_spec);
 
     write(
         package.join("Cargo.toml"),

@@ -23,5 +23,5 @@ lazy_static = "1.4.0"
 dylint_examples = { version = "=0.1.0-pre.2", path = "../examples" }
 
 [features]
-default = ["local_dylint_driver"]
-local_dylint_driver = []
+default = []
+dylint_driver_remote = []
