@@ -12,9 +12,10 @@ extern crate rustc_session;
 use rustc_session::{config::ErrorOutputType, early_error};
 
 use anyhow::{bail, ensure, Result};
-use dylint_env::{self as env, var};
-use semver::{Version, VersionReq};
+use dylint_internal::env::{self, var};
 use std::{ffi::OsStr, path::PathBuf};
+
+pub const DYLINT_VERSION: &str = "0.1.0";
 
 type DylintVersionFunc = unsafe fn() -> *mut std::os::raw::c_char;
 
@@ -35,15 +36,13 @@ impl LoadedLibrary {
     ) {
         (|| unsafe {
             if let Ok(func) = self.lib.get::<DylintVersionFunc>(b"dylint_version") {
-                let s = std::ffi::CString::from_raw(func()).into_string()?;
-                let req = VersionReq::parse(&s)?;
-                let version = Version::parse(env!("CARGO_PKG_VERSION"))?;
+                let dylint_version = std::ffi::CString::from_raw(func()).into_string()?;
                 ensure!(
-                    req.matches(&version),
-                    "`{}` has dylint version {}, which does not match dylint_driver version {}",
+                    dylint_version == DYLINT_VERSION,
+                    "`{}` has dylint version `{}`, but `{}` was expected",
                     self.path.to_string_lossy(),
-                    req,
-                    version
+                    dylint_version,
+                    DYLINT_VERSION
                 );
             } else {
                 bail!(
