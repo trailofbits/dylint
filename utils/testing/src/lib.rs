@@ -1,12 +1,12 @@
 use anyhow::{anyhow, Result};
 use compiletest_rs::{self as compiletest, common::Mode as TestMode};
 use dylint_internal::env;
-use std::{env::set_var, ffi::OsStr, iter::empty, path::Path};
+use std::{env::set_var, ffi::OsStr, path::Path};
 
 pub fn ui_test(name: &str, src_base: &Path) {
     let _ = env_logger::builder().try_init();
 
-    dylint_internal::build::<_, &OsStr, &OsStr>(empty(), None).unwrap();
+    dylint_internal::build::<&OsStr, &OsStr>(&[], None).unwrap();
 
     let dylint_libs = dylint_libs(name).unwrap();
     let driver = dylint::driver_builder::get(env!("RUSTUP_TOOLCHAIN")).unwrap();

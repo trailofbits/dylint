@@ -107,12 +107,10 @@ fn build(toolchain: &str, driver: &Path) -> Result<()> {
     write(&src.join("main.rs"), MAIN_RS)?;
 
     dylint_internal::build(
-        [
+        &[
             (env::RUSTFLAGS, "-C rpath=yes"),
             (env::RUSTUP_TOOLCHAIN, toolchain),
-        ]
-        .iter()
-        .cloned(),
+        ],
         Some(&package),
     )?;
 
