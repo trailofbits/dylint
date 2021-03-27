@@ -1,4 +1,4 @@
-pub const DYLINT_VERSION: &str = env!("CARGO_PKG_VERSION");
+pub const DYLINT_VERSION: &str = "0.1.0";
 
 // smoelius: Including `extern crate rustc_driver` causes the library to link against
 // `librustc_driver.so`, which dylint-driver also links against. So, essentially, the library uses
