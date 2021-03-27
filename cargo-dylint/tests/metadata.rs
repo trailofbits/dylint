@@ -7,7 +7,7 @@ lazy_static! {
 }
 
 #[test]
-fn check_versions_are_equal() {
+fn versions_are_equal() {
     for package in &METADATA.packages {
         assert_eq!(
             package.version.to_string(),
@@ -19,7 +19,7 @@ fn check_versions_are_equal() {
 }
 
 #[test]
-fn check_versions_are_exact_and_match() {
+fn versions_are_exact_and_match() {
     for package in &METADATA.packages {
         for Dependency { name: dep, req, .. } in &package.dependencies {
             if dep.starts_with("dylint") {
