@@ -1,5 +1,5 @@
 use anyhow::{ensure, Result};
-use dylint_env::{self as env, var};
+use dylint_internal::env::{self, var};
 use std::{
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
@@ -106,7 +106,7 @@ fn build(toolchain: &str, driver: &Path) -> Result<()> {
     create_dir_all(&src)?;
     write(&src.join("main.rs"), MAIN_RS)?;
 
-    dylint_building::build(
+    dylint_internal::build(
         [
             (env::RUSTFLAGS, "-C rpath=yes"),
             (env::RUSTUP_TOOLCHAIN, toolchain),
