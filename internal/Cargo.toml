@@ -1,11 +1,12 @@
 [package]
-name = "dylint_env"
+name = "dylint_internal"
 version = "0.1.0-pre.2"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "Environment variables used by Dylint"
+description = "Dylint internals"
 edition = "2018"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 anyhow = "1.0.38"
+log = "0.4.14"

@@ -3,7 +3,7 @@
 #![deny(clippy::panic)]
 
 use anyhow::{anyhow, ensure, Result};
-use dylint_env::{self as env, var};
+use dylint_internal::env::{self, var};
 use std::{
     env::consts,
     ffi::OsStr,

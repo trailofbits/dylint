@@ -10,5 +10,4 @@ repository = "https://github.com/trailofbits/dylint"
 [dependencies]
 anyhow = "1.0.38"
 
-dylint_building = { version = "=0.1.0-pre.2", path = "../building" }
-dylint_env = { version = "=0.1.0-pre.2", path = "../env" }
+dylint_internal = { version = "=0.1.0-pre.2", path = "../internal" }

@@ -6,7 +6,7 @@ dylint_linting::dylint_library!();
 extern crate rustc_lint;
 extern crate rustc_session;
 
-use dylint_env::{self as env, var};
+use dylint_internal::env::{self, var};
 use std::env::{remove_var, set_var};
 
 /// All of the Clippy lints as a Dylint library

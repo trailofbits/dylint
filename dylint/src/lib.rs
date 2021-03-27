@@ -5,7 +5,7 @@
 use anyhow::{anyhow, bail, ensure, Result};
 use cargo_metadata::MetadataCommand;
 use clap::{crate_version, lazy_static::lazy_static, Clap};
-use dylint_env::{self as env, var};
+use dylint_internal::env::{self, var};
 use std::{
     collections::{BTreeMap, BTreeSet},
     env::consts,

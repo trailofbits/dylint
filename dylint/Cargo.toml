@@ -15,8 +15,7 @@ log = "0.4.14"
 serde_json = "1.0.64"
 tempfile = "3.2.0"
 
-dylint_building = { version = "=0.1.0-pre.2", path = "../building" }
-dylint_env = { version = "=0.1.0-pre.2", path = "../env" }
+dylint_internal = { version = "=0.1.0-pre.2", path = "../internal" }
 
 [dev-dependencies]
 lazy_static = "1.4.0"
