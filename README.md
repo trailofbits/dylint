@@ -11,8 +11,8 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
 **Contents**
 
 * [Quick start](#quick-start)
-* [Library requirements](#library-requirements)
 * [How libraries are found](#how-libraries-are-found)
+* [Library requirements](#library-requirements)
 * [Utilities](#utilities)
 * [References](#references)
 
@@ -27,6 +27,24 @@ cargo dylint allow_clippy -- --manifest-path ../../Cargo.toml  # Run the library
 ```
 
 You can start writing your own Dylint libraries by forking the [`dylint-template`](https://github.com/trailofbits/dylint-template) repository.
+
+## How libraries are found
+
+When Dylint is started, the following locations are searched:
+
+* the colon-separated paths in `DYLINT_LIBRARY_PATH` (if set)
+* the current package's `target/debug` directory (if in a package)
+* the current package's `target/release` directory (if in a package)
+
+Any file found in the above locations with a name of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` (see [Library requirements](#library-requirements) below) is considered a Dylint library.
+
+In an invocation of the form `cargo dylint [names]`, each `name` in `names` is compared to the libraries found in the above manner. If `name` matches a discovered library's `LIBRARY_NAME`, then `name` resolves to that library. It is considered an error if a `name` resolves to multiple libraries.
+
+If the above process does not resolve `name` to a library, then `name` is treated as a path.
+
+If `--lib name` is used, then `name` is is treated only as a library name, and not as a path.
+
+If `--path name` is used, then `name` is is treated only as a path, and not as a library name.
 
 ## Library requirements
 
@@ -63,24 +81,6 @@ A Dylint library must satisfy four requirements. **Note:** before trying to sati
     ```
 
 Dylint provides [utilities](#utilities) to help meet the above requirements. If your library uses the [`dylint-link`](./dylint-link) tool and the [`dylint_library!`](./utils/linting) macro, then all you should have to do is implement the `register_lints` function.
-
-## How libraries are found
-
-When Dylint is started, the following locations are searched:
-
-* the colon-separated paths in `DYLINT_LIBRARY_PATH` (if set)
-* the current package's `target/debug` directory (if in a package)
-* the current package's `target/release` directory (if in a package)
-
-Any file found in the above locations with a name of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` is considered a Dylint library.
-
-In an invocation of the form `cargo dylint [names]`, each `name` in `names` is compared to the libraries found in the above manner. If `name` matches a discovered library's `LIBRARY_NAME`, then `name` resolves to that library. It is considered an error if a `name` resolves to multiple libraries.
-
-If the above process does not resolve `name` to a library, then `name` is treated as a path.
-
-If `--lib name` is used, then `name` is is treated only as a library name, and not as a path.
-
-If `--path name` is used, then `name` is is treated only as a path, and not as a library name.
 
 ## Utilities
 
