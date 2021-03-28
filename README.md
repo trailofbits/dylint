@@ -38,7 +38,7 @@ When Dylint is started, the following locations are searched:
 
 Any file found in the above locations with a name of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` (see [Library requirements](#library-requirements) below) is considered a Dylint library.
 
-In an invocation of the form `cargo dylint [names]`, each `name` in `names` is compared to the libraries found in the above manner. If `name` matches a discovered library's `LIBRARY_NAME`, then `name` resolves to that library. It is considered an error if a `name` resolves to multiple libraries.
+In an invocation of the form `cargo dylint <names>`, each `name` in `names` is compared to the libraries found in the above manner. If `name` matches a discovered library's `LIBRARY_NAME`, then `name` resolves to that library. It is considered an error if a `name` resolves to multiple libraries.
 
 If the above process does not resolve `name` to a library, then `name` is treated as a path.
 
