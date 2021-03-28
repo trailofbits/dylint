@@ -67,7 +67,7 @@ pub struct Dylint {
 
     #[clap(
         long = "list",
-        about = "List the name, toolchain, and location of known libraries"
+        about = "List the name, toolchain, and location of discovered libraries"
     )]
     pub list: bool,
 
