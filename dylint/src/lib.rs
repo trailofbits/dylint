@@ -368,6 +368,13 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
                 name,
                 *REQUIRED_FORM
             );
+
+            ensure!(
+                !name.contains(std::path::MAIN_SEPARATOR),
+                "`{}` looks like a path, but the filename does not have the required form: {}",
+                name,
+                *REQUIRED_FORM
+            );
         }
 
         ensure!(
