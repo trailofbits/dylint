@@ -1,12 +1,13 @@
 #! /bin/bash
 
-set -x
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
     echo "$0: expect one argument: version" >&2
     exit 1
 fi
+
+set -x
 
 VERSION="version = \"$1\""
 
