@@ -1,31 +1,30 @@
 use anyhow::Result;
-use dylint_internal::env;
-use std::path::Path;
-use std::{env::remove_var, ffi::OsStr, fs::read_dir, path::PathBuf};
+use dylint_internal::{self, cargo::*};
+use std::{
+    fs::read_dir,
+    path::{Path, PathBuf},
+};
 
 pub fn build() -> Result<()> {
-    sanitize_environment();
-
     // smoelius: The examples use `dylint-link` as the linker, so it must be built first.
-    dylint_internal::build::<&OsStr, &OsStr>(
-        &[],
-        Some(
-            &Path::new(env!("CARGO_MANIFEST_DIR"))
+    dylint_internal::build()
+        .sanitize_environment()
+        .current_dir(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join("..")
                 .join("dylint-link"),
-        ),
-    )?;
+        )
+        .success()?;
 
     for example in iter()? {
         let example = example?;
-        dylint_internal::build::<&OsStr, &OsStr>(&[], Some(&example))?;
+        dylint_internal::build()
+            .sanitize_environment()
+            .current_dir(&example)
+            .success()?;
     }
 
     Ok(())
-}
-
-fn sanitize_environment() {
-    remove_var(env::RUSTUP_TOOLCHAIN);
 }
 
 pub fn iter() -> Result<impl Iterator<Item = Result<PathBuf>>> {
@@ -51,16 +50,13 @@ mod test {
 
     #[test]
     fn examples() {
-        sanitize_environment();
-
         for path in iter().unwrap() {
             let path = path.unwrap();
-            assert!(std::process::Command::new("cargo")
+            dylint_internal::test()
+                .sanitize_environment()
                 .current_dir(path)
-                .args(&["test"])
-                .status()
-                .unwrap()
-                .success());
+                .success()
+                .unwrap();
         }
     }
 }

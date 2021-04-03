@@ -1,4 +1,8 @@
-mod build;
+pub mod cargo;
+pub use cargo::{build, check, test};
+
+mod command;
+pub use command::*;
+
 pub mod env;
 
-pub use build::build;
