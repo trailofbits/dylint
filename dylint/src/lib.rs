@@ -418,6 +418,7 @@ mod test {
     use dylint_examples as examples;
     use lazy_static::lazy_static;
     use std::env::set_var;
+    use test_env_log::test;
 
     lazy_static! {
         static ref NAME_TOOLCHAIN_MAP: NameToolchainMap = {
