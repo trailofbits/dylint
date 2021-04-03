@@ -25,9 +25,9 @@ lazy_static! {
     );
 }
 
-type ToolchainPathsMap = BTreeMap<String, BTreeSet<PathBuf>>;
+type ToolchainMap = BTreeMap<String, BTreeSet<PathBuf>>;
 
-pub type NameToolchainPathsMap = BTreeMap<String, ToolchainPathsMap>;
+pub type NameToolchainMap = BTreeMap<String, ToolchainMap>;
 
 #[derive(Clap, Debug)]
 struct Opts {
@@ -97,13 +97,13 @@ pub fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
 }
 
 pub fn run(opts: &Dylint) -> Result<()> {
-    let inventory = inventory()?;
+    let name_toolchain_map = name_toolchain_map()?;
 
-    run_with_inventory(opts, &inventory)
+    run_with_name_toolchain_map(opts, &name_toolchain_map)
 }
 
-pub fn inventory() -> Result<NameToolchainPathsMap> {
-    let mut map = NameToolchainPathsMap::new();
+pub fn name_toolchain_map() -> Result<NameToolchainMap> {
+    let mut name_toolchain_map = NameToolchainMap::new();
 
     let dylint_library_paths = dylint_library_paths()?;
     let profile_paths = profile_paths();
@@ -111,7 +111,8 @@ pub fn inventory() -> Result<NameToolchainPathsMap> {
     for path in dylint_library_paths.iter().chain(&profile_paths) {
         for entry in dylint_libraries_in(path)? {
             let (name, toolchain, path) = entry?;
-            map.entry(name)
+            name_toolchain_map
+                .entry(name)
                 .or_insert_with(Default::default)
                 .entry(toolchain)
                 .or_insert_with(Default::default)
@@ -119,7 +120,7 @@ pub fn inventory() -> Result<NameToolchainPathsMap> {
         }
     }
 
-    Ok(map)
+    Ok(name_toolchain_map)
 }
 
 fn dylint_library_paths() -> Result<Vec<PathBuf>> {
@@ -182,59 +183,33 @@ fn dylint_libraries_in(
         .filter_map(Result::transpose))
 }
 
-fn run_with_inventory(opts: &Dylint, inventory: &NameToolchainPathsMap) -> Result<()> {
+fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<()> {
     if opts.list {
-        return list(inventory);
+        return list(name_toolchain_map);
     }
 
-    let clippy_disable_docs_links = clippy_disable_docs_links()?;
+    let resolved = resolve(opts, name_toolchain_map)?;
 
-    let toolchain_paths_map = toolchain_paths_map(opts, inventory)?;
-
-    for (toolchain, paths) in toolchain_paths_map {
-        let driver = driver_builder::get(&toolchain)?;
-        let dylint_libs = serde_json::to_string(&paths)?;
-
-        // smoelius: Set CLIPPY_DISABLE_DOCS_LINKS to prevent lints from accidentally linking to the
-        // Clippy repository. But set it to the JSON-encoded original value so that the Clippy
-        // library can unset the variable.
-        // smoelius: This doesn't work if another library is loaded alongside Clippy.
-        // smoelius: This was fixed in `clippy_utils`:
-        // https://github.com/rust-lang/rust-clippy/commit/1a206fc4abae0b57a3f393481367cf3efca23586
-        // But I am going to continue to set CLIPPY_DISABLE_DOCS_LINKS because it doesn't seem to
-        // hurt and it provides a small amount of backward compatibility.
-        dylint_internal::check()
-            .envs(vec![
-                (
-                    env::CLIPPY_DISABLE_DOCS_LINKS.to_owned(),
-                    clippy_disable_docs_links.clone(),
-                ),
-                (env::DYLINT_LIBS.to_owned(), dylint_libs),
-                (
-                    env::RUSTC_WORKSPACE_WRAPPER.to_owned(),
-                    driver.to_string_lossy().to_string(),
-                ),
-                (env::RUSTUP_TOOLCHAIN.to_owned(), toolchain.clone()),
-            ])
-            .args(opts.args.clone())
-            .success()?;
-    }
-
-    Ok(())
+    check(opts, name_toolchain_map, &resolved)
 }
 
-fn list(inventory: &NameToolchainPathsMap) -> Result<()> {
-    let name_width = inventory.keys().map(String::len).max().unwrap_or_default();
-    let toolchain_width = inventory
-        .values()
-        .flat_map(ToolchainPathsMap::keys)
+fn list(name_toolchain_map: &NameToolchainMap) -> Result<()> {
+    let name_width = name_toolchain_map
+        .keys()
         .map(String::len)
         .max()
         .unwrap_or_default();
 
-    for (name, map) in inventory {
-        for (toolchain, set) in map {
-            for path in set {
+    let toolchain_width = name_toolchain_map
+        .values()
+        .flat_map(ToolchainMap::keys)
+        .map(String::len)
+        .max()
+        .unwrap_or_default();
+
+    for (name, toolchain_map) in name_toolchain_map {
+        for (toolchain, paths) in toolchain_map {
+            for path in paths {
                 let parent = path
                     .parent()
                     .ok_or_else(|| anyhow!("Could not get parent directory"))?;
@@ -253,41 +228,37 @@ fn list(inventory: &NameToolchainPathsMap) -> Result<()> {
     Ok(())
 }
 
-fn clippy_disable_docs_links() -> Result<String> {
-    let val = var(env::CLIPPY_DISABLE_DOCS_LINKS).ok();
-    serde_json::to_string(&val).map_err(Into::into)
-}
-
 #[allow(unknown_lints)]
 #[allow(question_mark_in_expression)]
-fn toolchain_paths_map(
-    opts: &Dylint,
-    inventory: &NameToolchainPathsMap,
-) -> Result<ToolchainPathsMap> {
-    let mut map = ToolchainPathsMap::new();
+fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<ToolchainMap> {
+    let mut toolchain_map = ToolchainMap::new();
 
     for name in &opts.libs {
         let (toolchain, path) =
-            name_as_lib(inventory, name, true)?.unwrap_or_else(|| unreachable!());
-        map.entry(toolchain)
+            name_as_lib(name_toolchain_map, name, true)?.unwrap_or_else(|| unreachable!());
+        toolchain_map
+            .entry(toolchain)
             .or_insert_with(Default::default)
             .insert(path);
     }
 
     for name in &opts.paths {
         let (toolchain, path) = name_as_path(name, true)?.unwrap_or_else(|| unreachable!());
-        map.entry(toolchain)
+        toolchain_map
+            .entry(toolchain)
             .or_insert_with(Default::default)
             .insert(path);
     }
 
     for name in &opts.names {
-        if let Some((toolchain, path)) = name_as_lib(inventory, name, false)? {
-            map.entry(toolchain)
+        if let Some((toolchain, path)) = name_as_lib(name_toolchain_map, name, false)? {
+            toolchain_map
+                .entry(toolchain)
                 .or_insert_with(Default::default)
                 .insert(path);
         } else if let Some((toolchain, path)) = name_as_path(name, false)? {
-            map.entry(toolchain)
+            toolchain_map
+                .entry(toolchain)
                 .or_insert_with(Default::default)
                 .insert(path);
         } else {
@@ -295,11 +266,11 @@ fn toolchain_paths_map(
         }
     }
 
-    Ok(map)
+    Ok(toolchain_map)
 }
 
 pub fn name_as_lib(
-    inventory: &NameToolchainPathsMap,
+    name_toolchain_map: &NameToolchainMap,
     name: &str,
     as_lib_only: bool,
 ) -> Result<Option<(String, PathBuf)>> {
@@ -308,16 +279,8 @@ pub fn name_as_lib(
         return Ok(None);
     }
 
-    if let Some(map) = inventory.get(name) {
-        let mut toolchain_paths: Vec<(String, PathBuf)> = map
-            .iter()
-            .flat_map(|(toolchain, paths)| {
-                paths
-                    .iter()
-                    .map(|path| (toolchain.clone(), path.clone()))
-                    .collect::<Vec<_>>()
-            })
-            .collect();
+    if let Some(toolchain_map) = name_toolchain_map.get(name) {
+        let mut toolchain_paths = flatten_toolchain_map(toolchain_map);
 
         return match toolchain_paths.len() {
             0 => Ok(None),
@@ -391,6 +354,62 @@ fn parse_target_name(target_name: &str) -> Option<(String, String)> {
     Some((lib_name.to_owned(), toolchain.to_owned()))
 }
 
+fn check(
+    opts: &Dylint,
+    _name_toolchain_map: &NameToolchainMap,
+    resolved: &ToolchainMap,
+) -> Result<()> {
+    let clippy_disable_docs_links = clippy_disable_docs_links()?;
+
+    for (toolchain, paths) in resolved {
+        let driver = driver_builder::get(&toolchain)?;
+        let dylint_libs = serde_json::to_string(&paths)?;
+
+        // smoelius: Set CLIPPY_DISABLE_DOCS_LINKS to prevent lints from accidentally linking to the
+        // Clippy repository. But set it to the JSON-encoded original value so that the Clippy
+        // library can unset the variable.
+        // smoelius: This doesn't work if another library is loaded alongside Clippy.
+        // smoelius: This was fixed in `clippy_utils`:
+        // https://github.com/rust-lang/rust-clippy/commit/1a206fc4abae0b57a3f393481367cf3efca23586
+        // But I am going to continue to set CLIPPY_DISABLE_DOCS_LINKS because it doesn't seem to
+        // hurt and it provides a small amount of backward compatibility.
+        dylint_internal::check()
+            .envs(vec![
+                (
+                    env::CLIPPY_DISABLE_DOCS_LINKS.to_owned(),
+                    clippy_disable_docs_links.clone(),
+                ),
+                (env::DYLINT_LIBS.to_owned(), dylint_libs),
+                (
+                    env::RUSTC_WORKSPACE_WRAPPER.to_owned(),
+                    driver.to_string_lossy().to_string(),
+                ),
+                (env::RUSTUP_TOOLCHAIN.to_owned(), toolchain.clone()),
+            ])
+            .args(opts.args.clone())
+            .success()?;
+    }
+
+    Ok(())
+}
+
+fn flatten_toolchain_map(toolchain_map: &ToolchainMap) -> Vec<(String, PathBuf)> {
+    toolchain_map
+        .iter()
+        .flat_map(|(toolchain, paths)| {
+            paths
+                .iter()
+                .map(|path| (toolchain.clone(), path.clone()))
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
+fn clippy_disable_docs_links() -> Result<String> {
+    let val = var(env::CLIPPY_DISABLE_DOCS_LINKS).ok();
+    serde_json::to_string(&val).map_err(Into::into)
+}
+
 #[cfg(test)]
 mod test {
     #![allow(clippy::unwrap_used)]
@@ -401,7 +420,7 @@ mod test {
     use std::env::set_var;
 
     lazy_static! {
-        static ref INVENTORY: NameToolchainPathsMap = {
+        static ref NAME_TOOLCHAIN_MAP: NameToolchainMap = {
             examples::build().unwrap();
             let dylint_library_path = examples::iter()
                 .unwrap()
@@ -416,14 +435,16 @@ mod test {
                 .collect::<Vec<_>>()
                 .join(":");
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-            inventory().unwrap()
+            name_toolchain_map().unwrap()
         };
     }
 
     #[test]
     fn multiple_libraries_multiple_toolchains() {
-        let allow_clippy = INVENTORY.get("allow_clippy").unwrap();
-        let question_mark_in_expression = INVENTORY.get("question_mark_in_expression").unwrap();
+        let allow_clippy = NAME_TOOLCHAIN_MAP.get("allow_clippy").unwrap();
+        let question_mark_in_expression = NAME_TOOLCHAIN_MAP
+            .get("question_mark_in_expression")
+            .unwrap();
 
         assert_ne!(
             allow_clippy.keys().collect::<Vec<_>>(),
@@ -438,7 +459,7 @@ mod test {
             ..Dylint::default()
         };
 
-        run_with_inventory(&opts, &INVENTORY).unwrap();
+        run_with_name_toolchain_map(&opts, &NAME_TOOLCHAIN_MAP).unwrap();
     }
 
     // smoelius: Check that loading multiple libraries with the same Rust toolchain works. At one point,
@@ -461,8 +482,10 @@ mod test {
     //
     #[test]
     fn multiple_libraries_one_toolchain() {
-        let clippy = INVENTORY.get("clippy").unwrap();
-        let question_mark_in_expression = INVENTORY.get("question_mark_in_expression").unwrap();
+        let clippy = NAME_TOOLCHAIN_MAP.get("clippy").unwrap();
+        let question_mark_in_expression = NAME_TOOLCHAIN_MAP
+            .get("question_mark_in_expression")
+            .unwrap();
 
         assert_eq!(
             clippy.keys().collect::<Vec<_>>(),
@@ -477,6 +500,6 @@ mod test {
             ..Dylint::default()
         };
 
-        run_with_inventory(&opts, &INVENTORY).unwrap();
+        run_with_name_toolchain_map(&opts, &NAME_TOOLCHAIN_MAP).unwrap();
     }
 }
