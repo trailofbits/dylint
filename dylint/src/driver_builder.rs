@@ -1,8 +1,10 @@
-use anyhow::{ensure, Result};
+use anyhow::{anyhow, ensure, Result};
 use dylint_internal::env::{self, var};
+use semver::{Version, VersionReq};
 use std::{
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
+    process::Command,
 };
 use tempfile::tempdir;
 
@@ -45,6 +47,8 @@ pub fn main() -> Result<()> {
 }
 "#;
 
+#[allow(unknown_lints)]
+#[allow(question_mark_in_expression)]
 pub fn get(toolchain: &str) -> Result<PathBuf> {
     let dylint_drivers = dylint_drivers()?;
 
@@ -54,7 +58,7 @@ pub fn get(toolchain: &str) -> Result<PathBuf> {
     }
 
     let driver = driver_dir.join("dylint-driver");
-    if !driver.exists() {
+    if !driver.exists() || is_outdated(&driver)? {
         build(toolchain, &driver)?;
     }
 
@@ -75,6 +79,24 @@ fn dylint_drivers() -> Result<PathBuf> {
         }
         Ok(dylint_drivers)
     }
+}
+
+fn is_outdated(driver: &Path) -> Result<bool> {
+    let output = Command::new(driver).args(&["-V"]).output()?;
+    let stdout = std::str::from_utf8(&output.stdout)?;
+    let theirs = stdout
+        .trim_end()
+        .rsplitn(2, ' ')
+        .next()
+        .ok_or_else(|| anyhow!("Could not parse driver version"))?;
+
+    let their_version = Version::parse(theirs)?;
+    let their_req = VersionReq::parse(theirs)?;
+
+    let our_version = Version::parse(env!("CARGO_PKG_VERSION"))?;
+    let our_req = VersionReq::parse(env!("CARGO_PKG_VERSION"))?;
+
+    Ok(their_req.matches(&our_version) && !our_req.matches(&their_version))
 }
 
 #[allow(clippy::assertions_on_constants)]
