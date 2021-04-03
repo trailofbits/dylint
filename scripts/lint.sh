@@ -19,7 +19,7 @@ eval "$("$SCRIPTS"/build_examples.sh)"
 # different toolchain than the other examples.
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<allow_clippy\>[[:space:]]*//')"
 
-DIRS="."
+DIRS=". driver"
 for EXAMPLE in $EXAMPLES; do
     DIRS="$DIRS examples/$EXAMPLE"
 done
