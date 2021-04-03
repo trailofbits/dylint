@@ -26,7 +26,7 @@ edition = "2018"
 anyhow = "1.0.38"
 env_logger = "0.8.3"
 dylint_driver = {{ {} }}
-        "#,
+"#,
         toolchain, dylint_driver_spec,
     )
 }
