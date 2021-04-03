@@ -6,3 +6,5 @@ pub use command::*;
 
 pub mod env;
 
+mod git;
+pub use git::*;

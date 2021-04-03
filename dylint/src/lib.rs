@@ -5,7 +5,10 @@
 use anyhow::{anyhow, bail, ensure, Result};
 use cargo_metadata::MetadataCommand;
 use clap::{crate_version, lazy_static::lazy_static, Clap};
-use dylint_internal::env::{self, var};
+use dylint_internal::{
+    env::{self, var},
+    Command,
+};
 use std::{
     collections::{BTreeMap, BTreeSet},
     env::consts,
@@ -184,16 +187,24 @@ fn dylint_libraries_in(
 }
 
 fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<()> {
-    if opts.list {
-        return list(name_toolchain_map);
+    if opts.list
+        && opts.libs.is_empty()
+        && opts.paths.is_empty()
+        && opts.names.is_empty()
+    {
+        return list_libs(name_toolchain_map);
     }
 
     let resolved = resolve(opts, name_toolchain_map)?;
 
-    check(opts, name_toolchain_map, &resolved)
+    if opts.list {
+        list_lints(opts, name_toolchain_map, &resolved)
+    } else {
+        check(opts, name_toolchain_map, &resolved)
+    }
 }
 
-fn list(name_toolchain_map: &NameToolchainMap) -> Result<()> {
+fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
     let name_width = name_toolchain_map
         .keys()
         .map(String::len)
@@ -352,6 +363,52 @@ fn parse_target_name(target_name: &str) -> Option<(String, String)> {
     let lib_name = iter.next()?;
     let toolchain = iter.next()?;
     Some((lib_name.to_owned(), toolchain.to_owned()))
+}
+
+fn list_lints(
+    _opts: &Dylint,
+    name_toolchain_map: &NameToolchainMap,
+    resolved: &ToolchainMap,
+) -> Result<()> {
+    for (name, toolchain_map) in name_toolchain_map {
+        for (toolchain, paths) in toolchain_map {
+            for path in paths {
+                if resolved
+                    .get(toolchain)
+                    .map_or(false, |paths| paths.contains(path))
+                {
+                    let driver = driver_builder::get(&toolchain)?;
+                    let dylint_libs = serde_json::to_string(&[path])?;
+
+                    print!("{}", name);
+                    if toolchain_map.keys().len() >= 2 {
+                        print!("@{}", toolchain);
+                    }
+                    if paths.len() >= 2 {
+                        let parent = path
+                            .parent()
+                            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+                        print!(" ({})", parent.to_string_lossy());
+                    }
+                    println!();
+
+                    // smoelius: `-W help` is the normal way to list lints, so we can be sure it
+                    // gets the lints loaded. However, we don't actually use it to list the lints.
+                    Command::new(driver)
+                        .envs(vec![
+                            (env::DYLINT_LIBS.to_owned(), dylint_libs),
+                            (env::DYLINT_LIST.to_owned(), "1".to_owned()),
+                        ])
+                        .args(vec!["rustc", "-W", "help"])
+                        .success()?;
+
+                    println!();
+                }
+            }
+        }
+    }
+
+    Ok(())
 }
 
 fn check(

@@ -1,7 +1,6 @@
 use anyhow::{anyhow, Result};
 use cargo_metadata::{Dependency, MetadataCommand};
 use dylint_internal::{env, Command};
-use git2::{Oid, Repository, ResetType};
 use std::{
     fs::{read_to_string, write, OpenOptions},
     io::Write,
@@ -56,13 +55,7 @@ fn checkout_rust_clippy(path: &Path) -> Result<()> {
         .rsplit('=')
         .next()
         .ok_or_else(|| anyhow!("Wrong suffix"))?;
-    let oid = Oid::from_str(rev)?;
-
-    let repository = Repository::clone(url, path)?;
-    let object = repository.find_object(oid, None)?;
-    repository.reset(&object, ResetType::Hard, None)?;
-
-    Ok(())
+    dylint_internal::checkout(url, rev, path)
 }
 
 fn clippy_lints_dependency() -> Result<Dependency> {

@@ -9,11 +9,12 @@ extern crate rustc_interface;
 extern crate rustc_lint;
 extern crate rustc_session;
 
+use rustc_lint::Level;
 use rustc_session::{config::ErrorOutputType, early_error};
 
 use anyhow::{bail, ensure, Result};
 use dylint_internal::env::{self, var};
-use std::{ffi::OsStr, path::PathBuf};
+use std::{collections::BTreeSet, ffi::OsStr, path::PathBuf};
 
 pub const DYLINT_VERSION: &str = "0.1.0";
 
@@ -26,6 +27,23 @@ type RegisterLintsFunc =
 struct LoadedLibrary {
     path: PathBuf,
     lib: libloading::Library,
+}
+
+#[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
+struct Lint {
+    name: &'static str,
+    level: Level,
+    desc: &'static str,
+}
+
+impl From<&rustc_lint::Lint> for Lint {
+    fn from(lint: &rustc_lint::Lint) -> Lint {
+        Lint {
+            name: lint.name,
+            level: lint.default_level,
+            desc: lint.desc,
+        }
+    }
 }
 
 impl LoadedLibrary {
@@ -118,8 +136,22 @@ impl rustc_driver::Callbacks for Callbacks {
             if let Some(previous) = &previous {
                 previous(sess, lint_store);
             }
+            let mut before = BTreeSet::<Lint>::new();
+            if list_enabled() {
+                lint_store.get_lints().iter().for_each(|lint| {
+                    before.insert((*lint).into());
+                });
+            }
             for loaded_lib in &loaded_libs {
                 loaded_lib.register_lints(sess, &mut lint_store);
+            }
+            if list_enabled() {
+                let mut after = BTreeSet::<Lint>::new();
+                lint_store.get_lints().iter().for_each(|lint| {
+                    after.insert((*lint).into());
+                });
+                list_lints(&before, &after);
+                std::process::exit(0);
             }
         }));
 
@@ -128,6 +160,38 @@ impl rustc_driver::Callbacks for Callbacks {
         // smoelius: `Zeroable` is a hack to make the next line compile for different Rust versions:
         // https://github.com/rust-lang/rust-clippy/commit/0941fc0bb5d655cdd0816f862af8cfe70556dad6
         config.opts.debugging_opts.mir_opt_level.zero();
+    }
+}
+
+#[must_use]
+fn list_enabled() -> bool {
+    var(env::DYLINT_LIST).map_or(false, |value| value != "0")
+}
+
+fn list_lints(before: &BTreeSet<Lint>, after: &BTreeSet<Lint>) {
+    let difference: Vec<Lint> = after.difference(&before).cloned().collect();
+
+    let name_width = difference
+        .iter()
+        .map(|lint| lint.name.len())
+        .max()
+        .unwrap_or_default();
+
+    let level_width = difference
+        .iter()
+        .map(|lint| lint.level.as_str().len())
+        .max()
+        .unwrap_or_default();
+
+    for Lint { name, level, desc } in difference {
+        println!(
+            "    {:<name_width$}    {:<level_width$}    {}",
+            name.to_lowercase(),
+            level.as_str(),
+            desc,
+            name_width = name_width,
+            level_width = level_width
+        );
     }
 }
 
@@ -147,15 +211,16 @@ pub fn dylint_driver<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
 }
 
 pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
-    let sysroot = sysroot()?;
     let rustflags = rustflags();
     let paths = paths()?;
 
-    let mut rustc_args = vec![
-        "rustc".to_owned(),
-        "--sysroot".to_owned(),
-        sysroot.to_string_lossy().to_string(),
-    ];
+    let mut rustc_args = vec!["rustc".to_owned()];
+    if let Ok(sysroot) = sysroot() {
+        rustc_args.extend(vec![
+            "--sysroot".to_owned(),
+            sysroot.to_string_lossy().to_string(),
+        ]);
+    }
     rustc_args.extend(
         args.iter()
             .map(|s| s.as_ref().to_string_lossy().to_string()),
