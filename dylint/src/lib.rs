@@ -56,6 +56,9 @@ for libraries.
 ",
 )]
 pub struct Dylint {
+    #[clap(long = "all", about = "Load all discovered libraries")]
+    pub all: bool,
+
     #[clap(
         multiple = true,
         number_of_values = 1,
@@ -69,7 +72,10 @@ pub struct Dylint {
 
     #[clap(
         long = "list",
-        about = "List the name, toolchain, and location of discovered libraries"
+        about = "If no libaries are named, list the name, toolchain, and location of all \
+        discovered libraries. If at least one library is named, list the name, level, and \
+        description of all lints in all named libraries. Combine with `--all` to list all \
+        lints in all discovered libraries."
     )]
     pub list: bool,
 
@@ -191,6 +197,7 @@ fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchain
         && opts.libs.is_empty()
         && opts.paths.is_empty()
         && opts.names.is_empty()
+        && !opts.all
     {
         return list_libs(name_toolchain_map);
     }
@@ -244,7 +251,19 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
 fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<ToolchainMap> {
     let mut toolchain_map = ToolchainMap::new();
 
+    if opts.all {
+        name_toolchain_map.values().cloned().for_each(|other| {
+            for (toolchain, mut paths) in other {
+                toolchain_map
+                    .entry(toolchain)
+                    .or_insert_with(Default::default)
+                    .append(&mut paths);
+            }
+        });
+    }
+
     for name in &opts.libs {
+        ensure!(!opts.all, "`--lib` cannot be used with `--all`");
         let (toolchain, path) =
             name_as_lib(name_toolchain_map, name, true)?.unwrap_or_else(|| unreachable!());
         toolchain_map
@@ -263,6 +282,12 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
 
     for name in &opts.names {
         if let Some((toolchain, path)) = name_as_lib(name_toolchain_map, name, false)? {
+            ensure!(
+                !opts.all,
+                "`{}` is a library name and cannot be used with `--all`; if a path was meant, use `--path {}`",
+                name,
+                name
+            );
             toolchain_map
                 .entry(toolchain)
                 .or_insert_with(Default::default)
