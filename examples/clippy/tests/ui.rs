@@ -1,19 +1,17 @@
-use anyhow::{anyhow, ensure, Result};
+use anyhow::{anyhow, Result};
 use cargo_metadata::{Dependency, MetadataCommand};
-use dylint_internal::env;
+use dylint_internal::{env, Command};
 use git2::{Oid, Repository, ResetType};
 use std::{
     fs::{read_to_string, write, OpenOptions},
     io::Write,
     path::Path,
-    process::Command,
 };
 use tempfile::tempdir_in;
+use test_env_log::test;
 
 #[test]
 fn ui() {
-    let _ = env_logger::try_init();
-
     dylint_internal::build().success().unwrap();
 
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
@@ -103,18 +101,16 @@ members = ["."]
 
 // smoelius: FIXME: Shell
 fn disable_rustfix(src_base: &Path) -> Result<()> {
-    let mut command = Command::new("sh");
-    command.current_dir(&src_base).args(&[
-        "-c",
-        r#"
-            sed -i -e 's,\<run-rustfix\>,,' *.rs &&
-            rm -f *.fixed
-        "#,
-    ]);
-    log::debug!("{:?}", command);
-    let status = command.status()?;
-    ensure!(status.success(), "command failed: {:?}", command);
-    Ok(())
+    Command::new("sh")
+        .current_dir(&src_base)
+        .args(&[
+            "-c",
+            r#"
+                sed -i -e 's,\<run-rustfix\>,,' *.rs &&
+                rm -f *.fixed
+            "#,
+        ])
+        .success()
 }
 
 // smoelius: The `macro_use_imports` test produces the right errors, but not in the right order.

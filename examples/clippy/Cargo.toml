@@ -24,6 +24,7 @@ env_logger = "0.8.3"
 git2 = "0.13.17"
 log = "0.4.14"
 tempfile = "3.2.0"
+test-env-log = "0.2.6"
 
 dylint = { path = "../../dylint" }
 dylint_testing = { path = "../../utils/testing" }

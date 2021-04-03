@@ -2,26 +2,24 @@
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
 
-use anyhow::{anyhow, ensure, Result};
-use dylint_internal::env::{self, var};
+use anyhow::{anyhow, Result};
+use dylint_internal::{
+    env::{self, var},
+    Command,
+};
 use std::{
     env::consts,
     ffi::OsStr,
     fs::copy,
     path::{Path, PathBuf},
-    process::Command,
 };
 
 fn main() -> Result<()> {
+    env_logger::init();
+
     let args: Vec<String> = std::env::args().collect();
 
-    let mut command = Command::new("cc");
-
-    command.args(&args[1..]);
-
-    let status = command.status()?;
-
-    ensure!(status.success(), "command failed: {:?}", command);
+    Command::new("cc").args(&args[1..]).success()?;
 
     let cargo_pkg_name = var(env::CARGO_PKG_NAME)?;
     let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;

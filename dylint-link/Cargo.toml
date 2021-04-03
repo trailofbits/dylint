@@ -9,5 +9,6 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 anyhow = "1.0.38"
+env_logger = "0.8.3"
 
 dylint_internal = { version = "=0.1.0-pre.3", path = "../internal" }
