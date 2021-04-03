@@ -60,7 +60,8 @@ for DIR in $DIRS; do
             continue
         fi
 
-        cargo clean
+        # smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
+        rm -rf target/debug/deps
 
         export DYLINT_RUSTFLAGS="$(
             cat "$TMP" |
