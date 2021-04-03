@@ -33,7 +33,7 @@ IFS='' command eval "$(
                 if [[ "$cmd" = dylint ]]; then\
                     if [[ "$prev" != --path ]]; then\
                         if [[ "$prev" != --lib ]]; then\
-                            opt__dylint="--lib --list --path"\
+                            opt__dylint="--all --lib --list --path"\
                         fi\
                         opt__dylint="$opt__dylint $(cargo dylint --list | while read X Y; do echo "$X"; done)"\
                     fi\
