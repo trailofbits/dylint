@@ -28,8 +28,8 @@ pub fn ui_test(name: &str, src_base: &Path) {
 }
 
 pub fn dylint_libs(name: &str) -> Result<String> {
-    let inventory = dylint::inventory()?;
-    let entry = dylint::name_as_lib(&inventory, name, false)?;
+    let name_toolchain_map = dylint::name_toolchain_map()?;
+    let entry = dylint::name_as_lib(&name_toolchain_map, name, false)?;
     let (_, path) = entry.ok_or_else(|| anyhow!("Could not find library"))?;
     let paths = vec![path];
     serde_json::to_string(&paths).map_err(Into::into)
