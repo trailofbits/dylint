@@ -13,7 +13,6 @@ use std::{
     fmt::Debug,
     fs::read_dir,
     path::{Path, PathBuf},
-    process::Command,
 };
 
 pub mod driver_builder;
@@ -196,8 +195,6 @@ fn run_with_inventory(opts: &Dylint, inventory: &NameToolchainPathsMap) -> Resul
         let driver = driver_builder::get(&toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
 
-        let mut command = Command::new("cargo");
-
         // smoelius: Set CLIPPY_DISABLE_DOCS_LINKS to prevent lints from accidentally linking to the
         // Clippy repository. But set it to the JSON-encoded original value so that the Clippy
         // library can unset the variable.
@@ -206,31 +203,21 @@ fn run_with_inventory(opts: &Dylint, inventory: &NameToolchainPathsMap) -> Resul
         // https://github.com/rust-lang/rust-clippy/commit/1a206fc4abae0b57a3f393481367cf3efca23586
         // But I am going to continue to set CLIPPY_DISABLE_DOCS_LINKS because it doesn't seem to
         // hurt and it provides a small amount of backward compatibility.
-        let envs = vec![
-            (
-                env::CLIPPY_DISABLE_DOCS_LINKS.to_owned(),
-                clippy_disable_docs_links.clone(),
-            ),
-            (env::DYLINT_LIBS.to_owned(), dylint_libs),
-            (
-                env::RUSTC_WORKSPACE_WRAPPER.to_owned(),
-                driver.to_string_lossy().to_string(),
-            ),
-            (env::RUSTUP_TOOLCHAIN.to_owned(), toolchain),
-        ];
-
-        let mut args = vec!["check".to_owned()];
-        args.extend(opts.args.clone());
-
-        log::debug!("{:?}", envs);
-
-        command.envs(envs).args(args);
-
-        log::debug!("{:?}", command);
-
-        let status = command.status()?;
-
-        ensure!(status.success(), "command failed: {:?}", command);
+        dylint_internal::check()
+            .envs(vec![
+                (
+                    env::CLIPPY_DISABLE_DOCS_LINKS.to_owned(),
+                    clippy_disable_docs_links.clone(),
+                ),
+                (env::DYLINT_LIBS.to_owned(), dylint_libs),
+                (
+                    env::RUSTC_WORKSPACE_WRAPPER.to_owned(),
+                    driver.to_string_lossy().to_string(),
+                ),
+                (env::RUSTUP_TOOLCHAIN.to_owned(), toolchain.clone()),
+            ])
+            .args(opts.args.clone())
+            .success()?;
     }
 
     Ok(())

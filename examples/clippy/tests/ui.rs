@@ -3,7 +3,6 @@ use cargo_metadata::{Dependency, MetadataCommand};
 use dylint_internal::env;
 use git2::{Oid, Repository, ResetType};
 use std::{
-    ffi::OsStr,
     fs::{read_to_string, write, OpenOptions},
     io::Write,
     path::Path,
@@ -15,7 +14,7 @@ use tempfile::tempdir_in;
 fn ui() {
     let _ = env_logger::try_init();
 
-    dylint_internal::build::<&OsStr, &OsStr>(&[], None).unwrap();
+    dylint_internal::build().success().unwrap();
 
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 
@@ -31,9 +30,7 @@ fn ui() {
     let dylint_libs = dylint_testing::dylint_libs("clippy").unwrap();
     let driver = dylint::driver_builder::get(env!("RUSTUP_TOOLCHAIN")).unwrap();
 
-    let mut command = Command::new("cargo");
-
-    command
+    dylint_internal::test()
         .current_dir(tempdir.path())
         .envs(vec![
             (env::DYLINT_LIBS, dylint_libs),
@@ -46,9 +43,9 @@ fn ui() {
                 r#"--cfg feature="cargo-clippy""#.to_owned(),
             ),
         ])
-        .args(&["test", "--test", "compile-test"]);
-
-    assert!(command.status().unwrap().success());
+        .args(&["--test", "compile-test"])
+        .success()
+        .unwrap();
 }
 
 fn checkout_rust_clippy(path: &Path) -> Result<()> {

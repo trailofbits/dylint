@@ -109,13 +109,13 @@ fn build(toolchain: &str, driver: &Path) -> Result<()> {
     create_dir_all(&src)?;
     write(&src.join("main.rs"), MAIN_RS)?;
 
-    dylint_internal::build(
-        &[
+    dylint_internal::build()
+        .envs(vec![
             (env::RUSTFLAGS, "-C rpath=yes"),
             (env::RUSTUP_TOOLCHAIN, toolchain),
-        ],
-        Some(&package),
-    )?;
+        ])
+        .current_dir(&package)
+        .success()?;
 
     copy(
         package
