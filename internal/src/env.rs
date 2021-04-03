@@ -6,6 +6,7 @@ pub const CLIPPY_DRIVER_PATH: &str = "CLIPPY_DRIVER_PATH";
 pub const DYLINT_DRIVER_PATH: &str = "DYLINT_DRIVER_PATH";
 pub const DYLINT_LIBRARY_PATH: &str = "DYLINT_LIBRARY_PATH";
 pub const DYLINT_LIBS: &str = "DYLINT_LIBS";
+pub const DYLINT_LIST: &str = "DYLINT_LIST";
 pub const DYLINT_RUSTFLAGS: &str = "DYLINT_RUSTFLAGS";
 pub const HOME: &str = "HOME";
 pub const RUSTC_WORKSPACE_WRAPPER: &str = "RUSTC_WORKSPACE_WRAPPER";
