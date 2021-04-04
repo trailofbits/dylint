@@ -20,6 +20,10 @@ use std::{
 
 pub mod driver_builder;
 
+mod error;
+use error::warn;
+pub use error::{ColorizedError, ColorizedResult};
+
 lazy_static! {
     static ref REQUIRED_FORM: String = format!(
         r#""{}" LIBRARY_NAME "@" TOOLCHAIN "{}""#,
@@ -88,6 +92,9 @@ pub struct Dylint {
     )]
     pub paths: Vec<String>,
 
+    #[clap(short = 'q', long = "quiet", about = "Suppress warnings")]
+    pub quiet: bool,
+
     #[clap(
         about = "Libraries to load lints from. Each <name> is searched for as described under \
         `--lib`. If no library is found, <name> is treated as path. To avoid ambiguity, use \
@@ -99,10 +106,11 @@ pub struct Dylint {
     pub args: Vec<String>,
 }
 
-pub fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
+pub fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> ColorizedResult<()> {
     match Opts::parse_from(args).subcmd {
         SubCommand::Dylint(opts) => run(&opts),
     }
+    .map_err(ColorizedError::new)
 }
 
 pub fn run(opts: &Dylint) -> Result<()> {
@@ -203,6 +211,20 @@ fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchain
     }
 
     let resolved = resolve(opts, name_toolchain_map)?;
+
+    if resolved.is_empty() {
+        assert!(opts.libs.is_empty());
+        assert!(opts.paths.is_empty());
+        assert!(opts.names.is_empty());
+
+        if name_toolchain_map.is_empty() {
+            warn(opts, "No libraries were found.");
+            return Ok(());
+        }
+
+        warn(opts, "Nothing to do. Did you forget `--all`?");
+        return Ok(());
+    }
 
     if opts.list {
         list_lints(opts, name_toolchain_map, &resolved)

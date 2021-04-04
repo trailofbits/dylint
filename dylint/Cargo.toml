@@ -8,6 +8,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
+ansi_term = "0.12.1"
 anyhow = "1.0.38"
 cargo_metadata = "0.13.1"
 clap = "3.0.0-beta.2"
