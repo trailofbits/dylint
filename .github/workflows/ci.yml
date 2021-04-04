@@ -18,6 +18,11 @@ jobs:
     - name: Format example READMEs
       run: ./scripts/update_example_READMEs.sh && git diff --exit-code
 
+    - name: License
+      run: |
+        cargo install cargo-license
+        ./scripts/check_licenses.sh
+
     - name: Lint
       run: ./scripts/lint.sh
 
