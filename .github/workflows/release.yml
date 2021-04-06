@@ -15,23 +15,7 @@ jobs:
         run: echo ${{ secrets.CRATES_IO_TOKEN }} | cargo login
 
       - name: Publish
-        run: |
-          # smoelius: Publishing the packages in this order ensures that all dependencies are met.
-          PKGS="internal driver dylint-link examples dylint cargo-dylint utils/linting utils/testing"
-          for PKG in $PKGS; do
-            pushd "$PKG"
-            # smoelius: Continue if a previous publish attempt failed.
-            TMP="$(mktemp)"
-            cargo publish 2>"$TMP" || (
-              cat "$TMP" |
-              tee /dev/stderr |
-              tail -n 1 |
-              grep '^error: [^:]*: crate version `[^`]*` is already uploaded$'
-            )
-            # smoelius: Give `crates.io` a chance to update.
-            sleep 1m
-            popd
-          done
+        run: ./scripts/publish.sh
 
       - name: Create release
         uses: actions/create-release@v1
