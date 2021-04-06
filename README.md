@@ -18,6 +18,8 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
 
 ## Quick start
 
+The next five commands install Dylint, build one of its example libraries, and run the library's lint the Dylint source code itself:
+
 ```sh
 cargo install cargo-dylint dylint-link --version '>=0.1.0-pre' # Install cargo-dylint and dylint-link
 git clone https://github.com/trailofbits/dylint                # Clone the Dylint repository
