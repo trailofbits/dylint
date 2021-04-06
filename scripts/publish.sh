@@ -38,13 +38,13 @@ for DIR in $DIRS; do
 
     if published "$NAME" "$VERSION"; then
         popd
-        continue;
+        continue
     fi
 
     cargo publish
 
     while ! published "$NAME" "$VERSION"; do
-        sleep 10s;
+        sleep 10s
     done
 
     popd
