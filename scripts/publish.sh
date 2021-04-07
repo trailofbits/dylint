@@ -18,13 +18,16 @@ package_version() {
     sed 's/^version = "\([^"]*\)"$/\1/'
 }
 
-crates_io_newest_version() {
-    curl "https://crates.io/api/v1/crates/$1" |
-    jq -r '.crate | .newest_version'
+crates_io_versions() {
+    curl "https://crates.io/api/v1/crates/$1/versions" |
+    jq -r '.versions | map(.num) | .[]'
 }
 
+# smoelius: Previously, I was checking `newest_version`, but that was producing false positives in
+# the sense that `cargo build` couldn't find the new version. So now I am listing the available
+# versions and checking whether the new one is included.
 published() {
-    [[ "$(crates_io_newest_version "$1")" = "$2" ]]
+    crates_io_versions "$1" | grep "^$2$"
 }
 
 # smoelius: Publishing in this order ensures that all dependencies are met.
