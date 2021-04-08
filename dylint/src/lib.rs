@@ -222,6 +222,8 @@ fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchain
             return Ok(());
         }
 
+        assert!(!opts.all);
+
         warn(opts, "Nothing to do. Did you forget `--all`?");
         return Ok(());
     }
