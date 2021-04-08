@@ -29,6 +29,6 @@ pub type ColorizedResult<T> = Result<T, ColorizedError<anyhow::Error>>;
 
 pub fn warn(opts: &crate::Dylint, message: &str) {
     if !opts.quiet {
-        println!("{}: {}", Yellow.bold().paint("Warning"), message);
+        eprintln!("{}: {}", Yellow.bold().paint("Warning"), message);
     }
 }
