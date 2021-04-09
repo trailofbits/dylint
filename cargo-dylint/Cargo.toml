@@ -1,6 +1,6 @@
 [package]
 name = "cargo-dylint"
-version = "0.1.0-pre.7"
+version = "0.1.0-pre.8"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
 edition = "2018"
@@ -11,7 +11,7 @@ repository = "https://github.com/trailofbits/dylint"
 anyhow = "1.0.38"
 env_logger = "0.8.3"
 
-dylint = { version = "=0.1.0-pre.7", path = "../dylint" }
+dylint = { version = "=0.1.0-pre.8", path = "../dylint" }
 
 [dev-dependencies]
 assert_cmd = "1.0.3"
@@ -23,5 +23,5 @@ semver = "0.11.0"
 tempfile = "3.2.0"
 test-env-log = "0.2.6"
 
-dylint_examples = { version = "=0.1.0-pre.7", path = "../examples" }
-dylint_internal = { version = "=0.1.0-pre.7", path = "../internal" }
+dylint_examples = { version = "=0.1.0-pre.8", path = "../examples" }
+dylint_internal = { version = "=0.1.0-pre.8", path = "../internal" }
