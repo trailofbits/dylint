@@ -23,9 +23,6 @@ crates_io_versions() {
     jq -r '.versions | map(.num) | .[]'
 }
 
-# smoelius: Previously, I was checking `newest_version`, but that was producing false positives in
-# the sense that `cargo build` couldn't find the new version. So now I am listing the available
-# versions and checking whether the new one is included.
 published() {
     crates_io_versions "$1" | grep "^$2$"
 }
@@ -44,11 +41,13 @@ for DIR in $DIRS; do
         continue
     fi
 
-    cargo publish
-
-    while ! published "$NAME" "$VERSION"; do
+    # smoelius: It appears that crates.io sometimes needs a chance to update, and I haven't found a
+    # reliable way to tell whether a package is ready to be depended upon.
+    while ! cargo check; do
         sleep 10s
     done
+
+    cargo publish
 
     popd
 done
