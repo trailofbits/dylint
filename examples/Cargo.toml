@@ -1,6 +1,6 @@
 [package]
 name = "dylint_examples"
-version = "0.1.0-pre.9"
+version = "0.1.0-pre.10"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Example Dylint libraries"
 edition = "2018"
@@ -10,4 +10,4 @@ repository = "https://github.com/trailofbits/dylint"
 [dependencies]
 anyhow = "1.0.38"
 
-dylint_internal = { version = "=0.1.0-pre.9", path = "../internal" }
+dylint_internal = { version = "=0.1.0-pre.10", path = "../internal" }
