@@ -27,7 +27,16 @@ package_version() {
 #     no matching package named `dylint` found
 #     location searched: registry `https://github.com/rust-lang/crates.io-index`
 #
-# No doubt, there are better ways to check `crates.io-index` than this.
+# My current method for checking whether a package is ready to be depended upon is to create a
+# temporary package with one dependency (the matching package) and to run `cargo check` on it.
+#
+# This solution is less than ideal because, e.g., `cargo check` could fail for reasons other than
+# the package being unavailable. But every other approach I've tried has definitely *not* worked,
+# including checking `https://crates.io/api/v1/crates` with curl.
+#
+# The ideal solution would likely be to check `https://github.com/rust-lang/crates.io-index`. But
+# the index's structure is not obvious, nor is how one would check it from the command line. This
+# should be investigated further.
 published() {
     pushd "$(mktemp --tmpdir -d tmp-XXXXXXXXXX)"
     trap popd RETURN
@@ -37,7 +46,7 @@ published() {
 [workspace]
 members = []
 EOF
-    cat >> rust-toolchain << EOF
+    cat > rust-toolchain << EOF
 [toolchain]
 channel = "nightly"
 components = ["llvm-tools-preview", "rustc-dev"]
