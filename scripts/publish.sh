@@ -18,11 +18,31 @@ package_version() {
     sed 's/^version = "\([^"]*\)"$/\1/'
 }
 
-# smoelius: Previously, I was checking crates.io using curl, but that was producing false positives
-# in the sense that subsequent runs of `cargo build` couldn't find the package. So now I am using
-# `cargo search`.
+# smoelius: I have been getting messages like the following from `cargo publish` in cases where the
+# matching package was just published:
+#
+#   error: failed to prepare local package for uploading
+#
+#   Caused by:
+#     no matching package named `dylint` found
+#     location searched: registry `https://github.com/rust-lang/crates.io-index`
+#
+# No doubt, there are better ways to check `crates.io-index` than this.
 published() {
-    cargo search "$1" | grep "^$1 = \"$2\""
+    pushd "$(mktemp --tmpdir -d tmp-XXXXXXXXXX)"
+    trap popd RETURN
+    cargo init
+    sed -i "/^\[dependencies\]$/a $1 = \"$2\"" Cargo.toml
+    cat >> Cargo.toml << EOF
+[workspace]
+members = []
+EOF
+    cat >> rust-toolchain << EOF
+[toolchain]
+channel = "nightly"
+components = ["llvm-tools-preview", "rustc-dev"]
+EOF
+    RUSTFLAGS='-A non_snake_case' cargo check
 }
 
 # smoelius: Publishing in this order ensures that all dependencies are met.
