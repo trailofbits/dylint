@@ -426,7 +426,7 @@ fn list_lints(
                     .get(toolchain)
                     .map_or(false, |paths| paths.contains(path))
                 {
-                    let driver = driver_builder::get(&toolchain)?;
+                    let driver = driver_builder::get(toolchain)?;
                     let dylint_libs = serde_json::to_string(&[path])?;
 
                     print!("{}", name);
@@ -468,7 +468,7 @@ fn check(
     let clippy_disable_docs_links = clippy_disable_docs_links()?;
 
     for (toolchain, paths) in resolved {
-        let driver = driver_builder::get(&toolchain)?;
+        let driver = driver_builder::get(toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
 
         // smoelius: Set CLIPPY_DISABLE_DOCS_LINKS to prevent lints from accidentally linking to the

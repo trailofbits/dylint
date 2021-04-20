@@ -37,8 +37,8 @@ struct Lint {
 }
 
 impl From<&rustc_lint::Lint> for Lint {
-    fn from(lint: &rustc_lint::Lint) -> Lint {
-        Lint {
+    fn from(lint: &rustc_lint::Lint) -> Self {
+        Self {
             name: lint.name,
             level: lint.default_level,
             desc: lint.desc,
@@ -169,7 +169,7 @@ fn list_enabled() -> bool {
 }
 
 fn list_lints(before: &BTreeSet<Lint>, after: &BTreeSet<Lint>) {
-    let difference: Vec<Lint> = after.difference(&before).cloned().collect();
+    let difference: Vec<Lint> = after.difference(before).cloned().collect();
 
     let name_width = difference
         .iter()

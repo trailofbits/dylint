@@ -11,14 +11,17 @@ impl SanitizeEnvironment for crate::Command {
     }
 }
 
+#[must_use]
 pub fn build() -> crate::Command {
     cargo("build")
 }
 
+#[must_use]
 pub fn check() -> crate::Command {
     cargo("check")
 }
 
+#[must_use]
 pub fn test() -> crate::Command {
     cargo("test")
 }
