@@ -1,4 +1,5 @@
 use anyhow::Result;
+#[allow(clippy::wildcard_imports)]
 use dylint_internal::{self, cargo::*};
 use std::{
     fs::read_dir,

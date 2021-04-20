@@ -31,6 +31,9 @@ EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<clippy\>[[:space:]]*//')"
 for DIR in $DIRS; do
     pushd "$DIR"
     for LINTS in "$EXAMPLES" clippy; do
+        # smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
+        rm -rf target/debug/deps
+
         unset DYLINT_RUSTFLAGS
         if [[ "$LINTS" = clippy ]]; then
             export DYLINT_RUSTFLAGS='
@@ -60,7 +63,6 @@ for DIR in $DIRS; do
             continue
         fi
 
-        # smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
         rm -rf target/debug/deps
 
         export DYLINT_RUSTFLAGS="$(

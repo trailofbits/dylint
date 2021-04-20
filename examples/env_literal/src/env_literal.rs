@@ -42,7 +42,7 @@ impl<'tcx> LateLintPass<'tcx> for EnvLiteral {
             if let ExprKind::Call(callee, args) = expr.kind;
             if let ExprKind::Path(path) = &callee.kind;
             if match_qpath(path, &REMOVE_VAR) || match_qpath(path, &SET_VAR) || match_qpath(path, &VAR);
-            if args.len() >= 1;
+            if !args.is_empty();
             if let ExprKind::Lit(lit) = &args[0].kind;
             if let LitKind::Str(symbol, _) = lit.node;
             let ident = symbol.to_ident_string();

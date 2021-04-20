@@ -1,5 +1,6 @@
 use ansi_term::Color::{Red, Yellow};
 
+#[allow(clippy::module_name_repetitions)]
 pub struct ColorizedError<E>(E)
 where
     E: std::fmt::Debug;
@@ -9,7 +10,7 @@ where
     E: std::fmt::Debug,
 {
     pub fn new(error: E) -> Self {
-        ColorizedError(error)
+        Self(error)
     }
 }
 
