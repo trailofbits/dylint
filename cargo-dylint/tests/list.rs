@@ -10,10 +10,10 @@ const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-templat
 const DYLINT_TEMPLATE_REV: &str = "43fec254e0e3cae1ba3e2e483585e333539ad192";
 
 const CHANNEL_A: &str = "nightly-2021-02-11";
-const CHANNEL_B: &str = "nightly-2021-03-11";
+const CHANNEL_B: &str = "nightly-2021-04-08";
 
 const CLIPPY_UTILS_REV_A: &str = "454515040a580f72c9b6366ee7d46256cfb4246f";
-const CLIPPY_UTILS_REV_B: &str = "1a206fc4abae0b57a3f393481367cf3efca23586";
+const CLIPPY_UTILS_REV_B: &str = "586a99348c6a6f5309e82b340193067b7d76e37c";
 
 #[test]
 fn one_name_mutltiple_toolchains() {
@@ -107,6 +107,8 @@ fn one_name_mutltiple_paths() {
         );
 }
 
+// smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is
+// symlinked to `/private/var`.
 fn target_debug(path: &Path) -> PathBuf {
-    path.join("target").join("debug")
+    path.canonicalize().unwrap().join("target").join("debug")
 }

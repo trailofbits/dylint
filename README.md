@@ -58,12 +58,12 @@ A Dylint library must satisfy four requirements. **Note:** before trying to sati
     ```
     The following is a concrete example on Linux:
     ```
-    libquestion_mark_in_expression@nightly-2021-03-11-x86_64-unknown-linux-gnu.so
+    libquestion_mark_in_expression@nightly-2021-04-08-x86_64-unknown-linux-gnu.so
     ```
     The filename components are as follows:
     * `DLL_PREFIX` and `DLL_SUFFIX` are OS-specific strings. For example, on Linux, they are `lib` and `.so`, respectively.
     * `LIBARY_NAME` is a name chosen by the library's author.
-    * `TOOLCHAIN` is the Rust toolchain for which the library is compiled, e.g., `nightly-2021-03-11-x86_64-unknown-linux-gnu`.
+    * `TOOLCHAIN` is the Rust toolchain for which the library is compiled, e.g., `nightly-2021-04-08-x86_64-unknown-linux-gnu`.
 
 2. Export a `dylint_version` function:
     ```rust

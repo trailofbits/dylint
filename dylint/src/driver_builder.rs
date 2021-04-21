@@ -1,10 +1,12 @@
 use anyhow::{anyhow, ensure, Result};
-use dylint_internal::env::{self, var};
+use dylint_internal::{
+    env::{self, var},
+    Command,
+};
 use semver::{Version, VersionReq};
 use std::{
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
-    process::Command,
 };
 use tempfile::tempdir;
 

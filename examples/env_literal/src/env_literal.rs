@@ -1,4 +1,4 @@
-use clippy_utils::{diagnostics::span_lint_and_help, match_qpath};
+use clippy_utils::{diagnostics::span_lint_and_help, is_expr_path_def_path};
 use if_chain::if_chain;
 use rustc_ast::LitKind;
 use rustc_hir::{Expr, ExprKind};
@@ -40,8 +40,7 @@ impl<'tcx> LateLintPass<'tcx> for EnvLiteral {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
         if_chain! {
             if let ExprKind::Call(callee, args) = expr.kind;
-            if let ExprKind::Path(path) = &callee.kind;
-            if match_qpath(path, &REMOVE_VAR) || match_qpath(path, &SET_VAR) || match_qpath(path, &VAR);
+            if is_expr_path_def_path(cx, callee, &REMOVE_VAR) || is_expr_path_def_path(cx, callee, &SET_VAR) || is_expr_path_def_path(cx, callee, &VAR);
             if !args.is_empty();
             if let ExprKind::Lit(lit) = &args[0].kind;
             if let LitKind::Str(symbol, _) = lit.node;

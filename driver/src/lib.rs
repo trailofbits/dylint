@@ -212,7 +212,7 @@ pub fn dylint_driver<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
 
 pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     let rustflags = rustflags();
-    let paths = paths()?;
+    let paths = paths();
 
     let mut rustc_args = vec!["rustc".to_owned()];
     if let Ok(sysroot) = sysroot() {
@@ -253,7 +253,10 @@ fn rustflags() -> Vec<String> {
     )
 }
 
-fn paths() -> Result<Vec<PathBuf>> {
-    let dylint_libs = var(env::DYLINT_LIBS)?;
-    serde_json::from_str(&dylint_libs).map_err(Into::into)
+fn paths() -> Vec<PathBuf> {
+    (|| -> Result<_> {
+        let dylint_libs = var(env::DYLINT_LIBS)?;
+        serde_json::from_str(&dylint_libs).map_err(Into::into)
+    })()
+    .unwrap_or_default()
 }
