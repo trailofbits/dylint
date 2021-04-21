@@ -2,6 +2,7 @@ use anyhow::{ensure, Result};
 use std::{
     ffi::{OsStr, OsString},
     path::Path,
+    process::Output,
 };
 
 pub struct Command {
@@ -48,6 +49,13 @@ impl Command {
     pub fn current_dir<P: AsRef<Path>>(&mut self, dir: P) -> &mut Self {
         self.command.current_dir(dir);
         self
+    }
+
+    pub fn output(&mut self) -> Result<Output> {
+        log::debug!("{:?}", self.envs);
+        log::debug!("{:?}", self.command);
+
+        self.command.output().map_err(Into::into)
     }
 
     pub fn success(&mut self) -> Result<()> {

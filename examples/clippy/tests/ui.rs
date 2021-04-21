@@ -115,13 +115,17 @@ fn adjust_macro_use_imports_test(src_base: &Path) -> Result<()> {
 
     let (first_error, rest) = lines.split_at(5);
     let (note, rest) = rest.split_at(2);
-    let (blank_line, rest) = rest.split_at(1);
+    let (_blank_line, rest) = rest.split_at(1);
     let (second_error, rest) = rest.split_at(5);
+    let (blank_line, rest) = rest.split_at(1);
+    let (third_error, rest) = rest.split_at(5);
     let (remaining_errors, summary) = rest.split_at(rest.len() - 2);
 
     let permuted: Vec<String> = std::iter::empty()
-        .chain(second_error.iter().cloned())
+        .chain(third_error.iter().cloned())
         .chain(note.iter().cloned())
+        .chain(blank_line.iter().cloned())
+        .chain(second_error.iter().cloned())
         .chain(remaining_errors.iter().cloned())
         .chain(first_error.iter().cloned())
         .chain(blank_line.iter().cloned())
