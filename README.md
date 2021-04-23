@@ -14,6 +14,7 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
 * [How libraries are found](#how-libraries-are-found)
 * [Library requirements](#library-requirements)
 * [Utilities](#utilities)
+* [Limitations](#limitations)
 * [References](#references)
 
 ## Quick start
@@ -92,6 +93,12 @@ The following utilities can be helpful for writing Dylint libraries:
 * [`dylint_library!`](./utils/linting) is a macro that automatically defines the `dylint_version` function and adds the `extern crate rustc_driver` declaration.
 * [`ui_test`](./utils/testing) is a function that can be used to test Dylint libraries. It provides convenient access to the [`compiletest_rs`](https://github.com/Manishearth/compiletest-rs) package.
 * [`clippy_utils`](https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils) is a collection of utilities to make writing lints easier. It is generously provided by the Rust Clippy Developers.
+
+## Limitations
+
+To run a library's lints on a package, Dylint tries to build the package with the same toolchain used to build the library. So if a package requires a specific toolchain to build, Dylint may not be able to apply certain libraries to that package.
+
+One way this problem can manifest itself is if you try to run one library's lints on the source code of another library. That is, if two libraries use different toolchains, they may not be applicable to each other.
 
 ## References
 
