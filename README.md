@@ -6,7 +6,7 @@ A tool for running Rust lints from dynamic libraries
 cargo install cargo-dylint --version '>=0.1.0-pre'
 ```
 
-Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a predetermined, static set of lints, Dylint runs lints from user-specified, dynamic libraries. Thus, Dylint allows developers to have their own personal lint collections.
+Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a predetermined, static set of lints, Dylint runs lints from user-specified, dynamic libraries. Thus, Dylint allows developers to maintain their own personal lint collections.
 
 **Contents**
 
@@ -15,7 +15,7 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
 * [Library requirements](#library-requirements)
 * [Utilities](#utilities)
 * [Limitations](#limitations)
-* [References](#references)
+* [Resources](#resources)
 
 ## Quick start
 
@@ -92,7 +92,7 @@ The following utilities can be helpful for writing Dylint libraries:
 * [`dylint-link`](./dylint-link) is a wrapper around Rust's default linker (`cc`) that creates a copy of your library with a filename that Dylint recognizes.
 * [`dylint_library!`](./utils/linting) is a macro that automatically defines the `dylint_version` function and adds the `extern crate rustc_driver` declaration.
 * [`ui_test`](./utils/testing) is a function that can be used to test Dylint libraries. It provides convenient access to the [`compiletest_rs`](https://github.com/Manishearth/compiletest-rs) package.
-* [`clippy_utils`](https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils) is a collection of utilities to make writing lints easier. It is generously provided by the Rust Clippy Developers.
+* [`clippy_utils`](https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils) is a collection of utilities to make writing lints easier. It is generously made public by the Rust Clippy Developers. Note that, like `rustc`, `clippy_utils` provides no stability guarantees for its APIs.
 
 ## Limitations
 
@@ -100,10 +100,10 @@ To run a library's lints on a package, Dylint tries to build the package with th
 
 One way this problem can manifest itself is if you try to run one library's lints on the source code of another library. That is, if two libraries use different toolchains, they may not be applicable to each other.
 
-## References
+## Resources
 
-Useful references for writing lints include:
+Helpful resources for writing lints include the following:
 
-* [Adding a new lint](https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md) (targeted at Clippy, but still useful)
+* [Adding a new lint](https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md) (targeted at Clippy but still useful)
 * [Common tools for writing lints](https://github.com/rust-lang/rust-clippy/blob/master/doc/common_tools_writing_lints.md)
 * [`rustc_hir` documentation](https://doc.rust-lang.org/stable/nightly-rustc/rustc_hir/index.html)
