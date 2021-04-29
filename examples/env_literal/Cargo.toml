@@ -1,6 +1,6 @@
 [package]
 name = "env_literal"
-version = "0.1.0-pre.13"
+version = "0.1.0-pre.14"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for environment variables referred to with string literals"
 edition = "2018"
