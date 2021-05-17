@@ -3,26 +3,26 @@
 A tool for running Rust lints from dynamic libraries
 
 ```sh
-cargo install cargo-dylint --version '>=0.1.0-pre'
+cargo install cargo-dylint
 ```
 
 Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a predetermined, static set of lints, Dylint runs lints from user-specified, dynamic libraries. Thus, Dylint allows developers to maintain their own personal lint collections.
 
 **Contents**
 
-* [Quick start](#quick-start)
-* [How libraries are found](#how-libraries-are-found)
-* [Library requirements](#library-requirements)
-* [Utilities](#utilities)
-* [Limitations](#limitations)
-* [Resources](#resources)
+- [Quick start](#quick-start)
+- [How libraries are found](#how-libraries-are-found)
+- [Library requirements](#library-requirements)
+- [Utilities](#utilities)
+- [Limitations](#limitations)
+- [Resources](#resources)
 
 ## Quick start
 
 The next five commands install Dylint, build one of its example libraries, and run the library's lint on the Dylint source code itself:
 
 ```sh
-cargo install cargo-dylint dylint-link --version '>=0.1.0-pre' # Install cargo-dylint and dylint-link
+cargo install cargo-dylint dylint-link                         # Install cargo-dylint and dylint-link
 git clone https://github.com/trailofbits/dylint                # Clone the Dylint repository
 cd dylint/examples/allow_clippy                                # Go to one of the example lint libraries
 cargo build                                                    # Build the library
@@ -35,9 +35,9 @@ You can start writing your own Dylint libraries by forking the [`dylint-template
 
 When Dylint is started, the following locations are searched:
 
-* the colon-separated paths in `DYLINT_LIBRARY_PATH` (if set)
-* the current package's `target/debug` directory (if in a package)
-* the current package's `target/release` directory (if in a package)
+- the colon-separated paths in `DYLINT_LIBRARY_PATH` (if set)
+- the current package's `target/debug` directory (if in a package)
+- the current package's `target/release` directory (if in a package)
 
 Any file found in the above locations with a name of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` (see [Library requirements](#library-requirements) below) is considered a Dylint library.
 
@@ -54,34 +54,43 @@ If `--path name` is used, then `name` is is treated only as a path, and not as a
 A Dylint library must satisfy four requirements. **Note:** before trying to satisfy these explicitly, see [Utilities](#utilities) below.
 
 1. Have a filename of the form:
-    ```
-    DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX
-    ```
-    The following is a concrete example on Linux:
-    ```
-    libquestion_mark_in_expression@nightly-2021-04-08-x86_64-unknown-linux-gnu.so
-    ```
-    The filename components are as follows:
-    * `DLL_PREFIX` and `DLL_SUFFIX` are OS-specific strings. For example, on Linux, they are `lib` and `.so`, respectively.
-    * `LIBARY_NAME` is a name chosen by the library's author.
-    * `TOOLCHAIN` is the Rust toolchain for which the library is compiled, e.g., `nightly-2021-04-08-x86_64-unknown-linux-gnu`.
+
+   ```
+   DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX
+   ```
+
+   The following is a concrete example on Linux:
+
+   ```
+   libquestion_mark_in_expression@nightly-2021-04-08-x86_64-unknown-linux-gnu.so
+   ```
+
+   The filename components are as follows:
+
+   - `DLL_PREFIX` and `DLL_SUFFIX` are OS-specific strings. For example, on Linux, they are `lib` and `.so`, respectively.
+   - `LIBARY_NAME` is a name chosen by the library's author.
+   - `TOOLCHAIN` is the Rust toolchain for which the library is compiled, e.g., `nightly-2021-04-08-x86_64-unknown-linux-gnu`.
 
 2. Export a `dylint_version` function:
-    ```rust
-    extern "C" fn dylint_version() -> *mut std::os::raw::c_char
-    ```
-    This function should return `0.1.0`. This may change in future versions of Dylint.
+
+   ```rust
+   extern "C" fn dylint_version() -> *mut std::os::raw::c_char
+   ```
+
+   This function should return `0.1.0`. This may change in future versions of Dylint.
 
 3. Export a `register_lints` function:
-    ```rust
-    fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore)
-    ```
-    This is a function called by the Rust compiler. It is documented [here](https://doc.rust-lang.org/stable/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints).
+
+   ```rust
+   fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore)
+   ```
+
+   This is a function called by the Rust compiler. It is documented [here](https://doc.rust-lang.org/stable/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints).
 
 4. Link against the `rustc_driver` dynamic library. This ensures the library uses Dylint's copies of the Rust compiler crates. This requirement can be satisfied by including the following declaration in your library's `lib.rs` file:
-    ```rust
-    extern crate rustc_driver;
-    ```
+   ```rust
+   extern crate rustc_driver;
+   ```
 
 Dylint provides [utilities](#utilities) to help meet the above requirements. If your library uses the [`dylint-link`](./dylint-link) tool and the [`dylint_library!`](./utils/linting) macro, then all you should have to do is implement the [`register_lints`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints) function.
 
@@ -89,10 +98,10 @@ Dylint provides [utilities](#utilities) to help meet the above requirements. If 
 
 The following utilities can be helpful for writing Dylint libraries:
 
-* [`dylint-link`](./dylint-link) is a wrapper around Rust's default linker (`cc`) that creates a copy of your library with a filename that Dylint recognizes.
-* [`dylint_library!`](./utils/linting) is a macro that automatically defines the `dylint_version` function and adds the `extern crate rustc_driver` declaration.
-* [`ui_test`](./utils/testing) is a function that can be used to test Dylint libraries. It provides convenient access to the [`compiletest_rs`](https://github.com/Manishearth/compiletest-rs) package.
-* [`clippy_utils`](https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils) is a collection of utilities to make writing lints easier. It is generously made public by the Rust Clippy Developers. Note that, like `rustc`, `clippy_utils` provides no stability guarantees for its APIs.
+- [`dylint-link`](./dylint-link) is a wrapper around Rust's default linker (`cc`) that creates a copy of your library with a filename that Dylint recognizes.
+- [`dylint_library!`](./utils/linting) is a macro that automatically defines the `dylint_version` function and adds the `extern crate rustc_driver` declaration.
+- [`ui_test`](./utils/testing) is a function that can be used to test Dylint libraries. It provides convenient access to the [`compiletest_rs`](https://github.com/Manishearth/compiletest-rs) package.
+- [`clippy_utils`](https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils) is a collection of utilities to make writing lints easier. It is generously made public by the Rust Clippy Developers. Note that, like `rustc`, `clippy_utils` provides no stability guarantees for its APIs.
 
 ## Limitations
 
@@ -104,6 +113,6 @@ One way this problem can manifest itself is if you try to run one library's lint
 
 Helpful resources for writing lints include the following:
 
-* [Adding a new lint](https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md) (targeted at Clippy but still useful)
-* [Common tools for writing lints](https://github.com/rust-lang/rust-clippy/blob/master/doc/common_tools_writing_lints.md)
-* [`rustc_hir` documentation](https://doc.rust-lang.org/stable/nightly-rustc/rustc_hir/index.html)
+- [Adding a new lint](https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md) (targeted at Clippy but still useful)
+- [Common tools for writing lints](https://github.com/rust-lang/rust-clippy/blob/master/doc/common_tools_writing_lints.md)
+- [`rustc_hir` documentation](https://doc.rust-lang.org/stable/nightly-rustc/rustc_hir/index.html)

@@ -1,6 +1,6 @@
 [package]
 name = "clippy"
-version = "0.1.0-pre.14"
+version = "0.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "All of the Clippy lints as a Dylint library"
 edition = "2018"
