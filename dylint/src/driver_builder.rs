@@ -1,5 +1,6 @@
 use anyhow::{anyhow, ensure, Result};
 use dylint_internal::{
+    cargo::SanitizeEnvironment,
     env::{self, var},
     Command,
 };
@@ -32,6 +33,17 @@ env_logger = "0.8.3"
 dylint_driver = {{ {} }}
 "#,
         toolchain, dylint_driver_spec,
+    )
+}
+
+fn rust_toolchain(toolchain: &str) -> String {
+    format!(
+        r#"
+[toolchain]
+channel = "{}"
+components = ["llvm-tools-preview", "rustc-dev"]
+"#,
+        toolchain,
     )
 }
 
@@ -129,15 +141,14 @@ fn build(toolchain: &str, driver: &Path) -> Result<()> {
         package.join("Cargo.toml"),
         cargo_toml(toolchain, &dylint_driver_spec),
     )?;
+    write(package.join("rust-toolchain"), rust_toolchain(toolchain))?;
     let src = package.join("src");
     create_dir_all(&src)?;
     write(&src.join("main.rs"), MAIN_RS)?;
 
     dylint_internal::build()
-        .envs(vec![
-            (env::RUSTFLAGS, "-C rpath=yes"),
-            (env::RUSTUP_TOOLCHAIN, toolchain),
-        ])
+        .sanitize_environment()
+        .envs(vec![(env::RUSTFLAGS, "-C rpath=yes")])
         .current_dir(&package)
         .success()?;
 
