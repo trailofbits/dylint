@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use compiletest_rs::{self as compiletest, common::Mode as TestMode};
-use dylint_internal::env;
+use dylint_internal::env::{self, var};
 use std::{env::set_var, path::Path};
 
 pub fn ui_test(name: &str, src_base: &Path) {
@@ -15,7 +15,7 @@ pub fn ui_test(name: &str, src_base: &Path) {
     set_var(env::DYLINT_LIBS, dylint_libs);
     set_var(
         env::DYLINT_RUSTFLAGS,
-        "--emit=metadata -Dwarnings -Zui-testing",
+        var(env::DYLINT_RUSTFLAGS).unwrap_or_default() + " --emit=metadata -Dwarnings -Zui-testing",
     );
 
     let config = compiletest::Config {
