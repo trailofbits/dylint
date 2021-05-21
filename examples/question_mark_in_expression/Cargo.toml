@@ -16,7 +16,7 @@ if_chain = "1.0.1"
 dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
-dylint_testing = { path = "../../utils/testing", default-features = false }
+dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 
 [workspace]
 members = ["."]

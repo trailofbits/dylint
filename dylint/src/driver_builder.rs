@@ -121,11 +121,11 @@ fn build(toolchain: &str, driver: &Path) -> Result<()> {
 
     let version_spec = format!("version = \"={}\"", env!("CARGO_PKG_VERSION"));
 
-    // smoelius: Fetch the `dylint_driver` package from crates.io if built in release mode or if
-    // `dylint_driver_remote` is enabled.
-    #[cfg(any(not(debug_assertions), feature = "dylint_driver_remote"))]
+    // smoelius: Assume the `dylint_driver` package is local if building in debug mode and if
+    // `dylint_driver_local` is enabled.
+    #[cfg(any(not(debug_assertions), not(feature = "dylint_driver_local")))]
     let path_spec = "";
-    #[cfg(all(debug_assertions, not(feature = "dylint_driver_remote")))]
+    #[cfg(all(debug_assertions, feature = "dylint_driver_local"))]
     let path_spec = format!(
         ", path = \"{}\"",
         Path::new(env!("CARGO_MANIFEST_DIR"))

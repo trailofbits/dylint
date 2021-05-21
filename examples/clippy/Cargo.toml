@@ -26,7 +26,7 @@ tempfile = "3.2.0"
 test-env-log = "0.2.6"
 
 dylint = { path = "../../dylint" }
-dylint_testing = { path = "../../utils/testing", default-features = false }
+dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 
 [workspace]
 members = ["."]

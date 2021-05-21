@@ -28,4 +28,4 @@ dylint_examples = { version = "=0.1.1", path = "../examples" }
 
 [features]
 default = []
-dylint_driver_remote = []
+dylint_driver_local = []
