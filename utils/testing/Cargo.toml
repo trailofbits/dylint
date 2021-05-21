@@ -18,5 +18,5 @@ dylint = { version = "=0.1.1", path = "../../dylint" }
 dylint_internal = { version = "=0.1.1", path = "../../internal" }
 
 [features]
-default = ["dylint_driver_remote"]
-dylint_driver_remote = ["dylint/dylint_driver_remote"]
+default = []
+dylint_driver_local = ["dylint/dylint_driver_local"]
