@@ -1,6 +1,6 @@
 [package]
 name = "dylint-link"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A wrapper around Rust's default linker to help create Dyling libraries"
 edition = "2018"
@@ -11,4 +11,4 @@ repository = "https://github.com/trailofbits/dylint"
 anyhow = "1.0.38"
 env_logger = "0.8.3"
 
-dylint_internal = { version = "=0.1.1", path = "../internal" }
+dylint_internal = { version = "=0.1.2", path = "../internal" }
