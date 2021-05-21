@@ -27,6 +27,6 @@ fn ui() {
 }
 ```
 
-And include one or more `.rs` and `.stderr` files in a `ui` directory alongside your library's `src` directory. See the [examples](../examples) in this repository.
+And include one or more `.rs` and `.stderr` files in a `ui` directory alongside your library's `src` directory. See the [examples](../../examples) in this repository.
 
 Additional documentation on [`compiletest_rs`](https://github.com/Manishearth/compiletest-rs) can be found in its repository.
