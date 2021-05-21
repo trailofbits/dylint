@@ -50,14 +50,16 @@ enum SubCommand {
 #[derive(Clap, Debug, Default)]
 #[clap(
     version = crate_version!(),
-    after_help = "ENVIRONMENT VARIABLES:
+    after_help = r#"ENVIRONMENT VARIABLES:
 
 DYLINT_DRIVER_PATH (default: $HOME/.dylint_drivers) is the directory where Dylint stores rustc
 drivers.
 
 DYLINT_LIBRARY_PATH (default: none) is a colon-separated list of directories where Dylint searches
 for libraries.
-",
+
+DYLINT_RUSTFLAGS (default: none) is a space-separated list of flags that Dylint passes to `rustc`.
+"#,
 )]
 pub struct Dylint {
     #[clap(long = "all", about = "Load all discovered libraries")]
