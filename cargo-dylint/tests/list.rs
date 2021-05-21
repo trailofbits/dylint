@@ -7,7 +7,7 @@ use tempfile::tempdir;
 use test_env_log::test;
 
 const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
-const DYLINT_TEMPLATE_REV: &str = "43fec254e0e3cae1ba3e2e483585e333539ad192";
+const DYLINT_TEMPLATE_REV: &str = "fc9d0e025d2d9d57ea9cc9bb1764047bbc8ae609";
 
 const CHANNEL_A: &str = "nightly-2021-02-11";
 const CHANNEL_B: &str = "nightly-2021-04-08";
