@@ -16,7 +16,7 @@ const CLIPPY_UTILS_REV_A: &str = "454515040a580f72c9b6366ee7d46256cfb4246f";
 const CLIPPY_UTILS_REV_B: &str = "586a99348c6a6f5309e82b340193067b7d76e37c";
 
 #[test]
-fn one_name_mutltiple_toolchains() {
+fn one_name_multiple_toolchains() {
     let tempdir = tempdir().unwrap();
 
     dylint_internal::checkout(DYLINT_TEMPLATE_URL, DYLINT_TEMPLATE_REV, tempdir.path()).unwrap();
@@ -67,7 +67,7 @@ fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> 
 }
 
 #[test]
-fn one_name_mutltiple_paths() {
+fn one_name_multiple_paths() {
     let tempdirs = (tempdir().unwrap(), tempdir().unwrap());
 
     dylint_internal::checkout(DYLINT_TEMPLATE_URL, DYLINT_TEMPLATE_REV, tempdirs.0.path()).unwrap();
