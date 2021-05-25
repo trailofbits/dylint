@@ -1,0 +1,11 @@
+error: using the `?` operator within an expression
+  --> $DIR/clone.rs:19:58
+   |
+LL |     let _ = git2::Repository::clone(DYLINT_TEMPLATE_URL, tempfile::tempdir()?.path())?;
+   |                                                          ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `-D question-mark-in-expression` implied by `-D warnings`
+   = help: consider breaking this up into multiple expressions
+
+error: aborting due to previous error
+
