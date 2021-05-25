@@ -9,10 +9,14 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 anyhow = "1.0.38"
-compiletest_rs = "0.6.0"
+cargo_metadata = "0.13.1"
+compiletest_rs = "0.7.0"
 env_logger = "0.8.3"
+lazy_static = "1.4.0"
 log = "0.4.14"
+regex = "1.5.4"
 serde_json = "1.0.64"
+tempfile = "3.2.0"
 
 dylint = { version = "=0.1.2", path = "../../dylint" }
 dylint_internal = { version = "=0.1.2", path = "../../internal" }

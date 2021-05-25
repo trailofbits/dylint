@@ -1,5 +1,5 @@
 error: using the `?` operator within an expression
-  --> $DIR/main.rs:15:34
+  --> $DIR/ls.rs:15:34
    |
 LL |     Ok(std::path::PathBuf::from(&std::env::var("PWD")?))
    |                                  ^^^^^^^^^^^^^^^^^^^^^

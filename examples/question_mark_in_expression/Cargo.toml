@@ -9,6 +9,14 @@ publish = false
 [lib]
 crate-type = ["cdylib"]
 
+[[example]]
+name = "clone"
+path = "ui/clone.rs"
+
+[[example]]
+name = "ls"
+path = "ui/ls.rs"
+
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "586a99348c6a6f5309e82b340193067b7d76e37c"}
 if_chain = "1.0.1"
@@ -16,6 +24,9 @@ if_chain = "1.0.1"
 dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
+git2 = "0.13.20"
+tempfile = "3.2.0"
+
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 
 [workspace]

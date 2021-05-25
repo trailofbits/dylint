@@ -17,9 +17,11 @@ pub fn register_lints(_sess: &rustc_session::Session, lint_store: &mut rustc_lin
 }
 
 #[test]
-fn ui() {
-    dylint_testing::ui_test(
-        env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-    );
+fn ui_example() {
+    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "clone");
+}
+
+#[test]
+fn ui_examples() {
+    dylint_testing::ui_test_examples(env!("CARGO_PKG_NAME"));
 }
