@@ -37,6 +37,7 @@ type ToolchainMap = BTreeMap<String, BTreeSet<PathBuf>>;
 pub type NameToolchainMap = BTreeMap<String, ToolchainMap>;
 
 #[derive(Clap, Debug)]
+#[clap(bin_name = "cargo")]
 struct Opts {
     #[clap(subcommand)]
     subcmd: SubCommand,
