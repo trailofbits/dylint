@@ -81,13 +81,7 @@ fn isolate(path: &Path) -> Result<()> {
         .append(true)
         .open(path.join("Cargo.toml"))?;
 
-    writeln!(
-        file,
-        r#"
-[workspace]
-members = ["."]
-"#
-    )?;
+    writeln!(file, "[workspace]")?;
 
     Ok(())
 }
