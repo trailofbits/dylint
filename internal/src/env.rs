@@ -11,9 +11,15 @@ pub const DYLINT_LIST: &str = "DYLINT_LIST";
 pub const DYLINT_RUSTFLAGS: &str = "DYLINT_RUSTFLAGS";
 pub const HOME: &str = "HOME";
 pub const RUSTC_WORKSPACE_WRAPPER: &str = "RUSTC_WORKSPACE_WRAPPER";
+pub const RUST_BACKTRACE: &str = "RUST_BACKTRACE";
 pub const RUSTFLAGS: &str = "RUSTFLAGS";
 pub const RUSTUP_HOME: &str = "RUSTUP_HOME";
 pub const RUSTUP_TOOLCHAIN: &str = "RUSTUP_TOOLCHAIN";
+
+#[must_use]
+pub fn enabled(key: &str) -> bool {
+    std::env::var(key).map_or(false, |value| value != "0")
+}
 
 pub fn var(key: &str) -> Result<String> {
     std::env::var(key).map_err(|err| anyhow!(format!("{}: {}", err, key)))
