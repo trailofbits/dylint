@@ -29,4 +29,3 @@ dylint = { path = "../../dylint" }
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 
 [workspace]
-members = ["."]
