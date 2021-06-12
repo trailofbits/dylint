@@ -2,7 +2,7 @@
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
 
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
 use clap::{crate_version, lazy_static::lazy_static, Clap};
 use dylint_internal::{
@@ -187,7 +187,8 @@ fn profile_paths() -> Vec<PathBuf> {
 fn dylint_libraries_in(
     path: &Path,
 ) -> Result<impl Iterator<Item = Result<(String, String, PathBuf)>>> {
-    let iter = read_dir(path)?;
+    let iter = read_dir(path)
+        .with_context(|| format!("`read_dir` failed for `{}`", path.to_string_lossy()))?;
     Ok(iter
         .map(|entry| -> Result<Option<(String, String, PathBuf)>> {
             let entry = entry?;
