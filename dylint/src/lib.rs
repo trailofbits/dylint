@@ -572,19 +572,19 @@ mod test {
         run_with_name_toolchain_map(&opts, &NAME_TOOLCHAIN_MAP).unwrap();
     }
 
-    // smoelius: Check that loading multiple libraries with the same Rust toolchain works. At one point,
-    // I was getting this error from `libloading`:
+    // smoelius: Check that loading multiple libraries with the same Rust toolchain works. At one
+    // point, I was getting this error from `libloading`:
     //
     //   cannot allocate memory in static TLS block
     //
-    // The culprit turned out to be the `rand` crate, which uses a lot of thread local storage. `rand`
-    // is used by `tempfile`, which is used by various Rust compiler crates. Essentially, each library
-    // had its own copy of the Rust compiler, and therefore its own copy of the `rand` crate, and this
-    // was eating up all the thread local storage.
+    // The culprit turned out to be the `rand` crate, which uses a lot of thread local storage.
+    // `rand` is used by `tempfile`, which is used by various Rust compiler crates. Essentially,
+    // each library had its own copy of the Rust compiler, and therefore its own copy of the `rand`
+    // crate, and this was eating up all the thread local storage.
     //
-    // The solution was to add `extern crate rustc_driver` to each library. This causes the library to
-    // link against `librust_driver.so`, which dylint-driver also links against. So, essentially, each
-    // library now uses dylint-driver's copy of the `rand` crate.
+    // The solution was to add `extern crate rustc_driver` to each library. This causes the library
+    // to link against `librust_driver.so`, which dylint-driver also links against. So, essentially,
+    // each library now uses dylint-driver's copy of the `rand` crate.
     //
     // This thread was very helpful in diagnosing the problem:
     //
