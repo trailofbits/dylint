@@ -63,7 +63,7 @@ DYLINT_RUSTFLAGS (default: none) is a space-separated list of flags that Dylint 
 "#,
 )]
 pub struct Dylint {
-    #[clap(long = "all", about = "Load all discovered libraries")]
+    #[clap(long, about = "Load all discovered libraries")]
     pub all: bool,
 
     #[clap(
@@ -78,7 +78,7 @@ pub struct Dylint {
     pub libs: Vec<String>,
 
     #[clap(
-        long = "list",
+        long,
         about = "If no libaries are named, list the name, toolchain, and location of all \
         discovered libraries. If at least one library is named, list the name, level, and \
         description of all lints in all named libraries. Combine with `--all` to list all \
@@ -95,7 +95,7 @@ pub struct Dylint {
     )]
     pub paths: Vec<String>,
 
-    #[clap(short = 'q', long = "quiet", about = "Suppress warnings")]
+    #[clap(short, long, about = "Suppress warnings")]
     pub quiet: bool,
 
     #[clap(
