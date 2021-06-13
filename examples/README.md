@@ -1,6 +1,6 @@
 # Example Dylint libraries
 
-Each subdirectory besides `src` contains an example [Dylint](https://github.com/trailofbits/dylint) library.
+Each subdirectory contains an example [Dylint](https://github.com/trailofbits/dylint) library.
 
 The current examples are:
 

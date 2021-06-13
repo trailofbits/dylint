@@ -14,7 +14,7 @@ EXAMPLES=
 DYLINT_LIBRARY_PATH=
 
 for EXAMPLE in *; do
-    if [[ ! -d "$EXAMPLE" || "$EXAMPLE" = src ]]; then
+    if [[ ! -d "$EXAMPLE" ]]; then
         continue
     fi
 

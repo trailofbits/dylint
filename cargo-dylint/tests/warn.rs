@@ -17,7 +17,7 @@ fn no_libraries_were_found() {
 
 #[test]
 fn nothing_to_do() {
-    dylint_examples::build().unwrap();
+    dylint_internal::examples::build().unwrap();
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()

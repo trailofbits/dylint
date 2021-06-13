@@ -6,7 +6,6 @@ members = [
     # "driver",
     "dylint",
     "dylint-link",
-    "examples",
     "internal",
     "utils/linting",
     "utils/testing",
