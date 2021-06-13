@@ -79,7 +79,7 @@ pub struct Dylint {
 
     #[clap(
         long,
-        about = "If no libaries are named, list the name, toolchain, and location of all \
+        about = "If no libraries are named, list the name, toolchain, and location of all \
         discovered libraries. If at least one library is named, list the name, level, and \
         description of all lints in all named libraries. Combine with `--all` to list all \
         lints in all discovered libraries."
