@@ -55,7 +55,7 @@ EOF
 }
 
 # smoelius: Publishing in this order ensures that all dependencies are met.
-DIRS="internal driver dylint-link examples dylint cargo-dylint utils/linting utils/testing"
+DIRS="internal driver dylint-link dylint cargo-dylint utils/linting utils/testing"
 
 for DIR in $DIRS; do
     pushd "$DIR"

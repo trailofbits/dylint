@@ -525,7 +525,7 @@ mod test {
     #![allow(clippy::unwrap_used)]
 
     use super::*;
-    use dylint_examples as examples;
+    use dylint_internal::examples;
     use lazy_static::lazy_static;
     use std::env::set_var;
     use test_env_log::test;
