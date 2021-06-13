@@ -1,5 +1,4 @@
 use assert_cmd::prelude::*;
-use dylint_internal::env;
 use predicates::prelude::*;
 use std::path::Path;
 use test_env_log::test;
@@ -8,7 +7,7 @@ use test_env_log::test;
 fn no_libraries_were_found() {
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .env_remove(env::DYLINT_LIBRARY_PATH)
+        .current_dir(Path::new("..").join("driver"))
         .args(&["dylint", "--all"])
         .assert()
         .success()
@@ -21,18 +20,6 @@ fn nothing_to_do() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .envs(vec![(
-            env::DYLINT_LIBRARY_PATH,
-            Path::new("..")
-                .join("examples")
-                .join("allow_clippy")
-                .join("target")
-                .join("debug")
-                .canonicalize()
-                .unwrap()
-                .to_string_lossy()
-                .to_string(),
-        )])
         .args(&["dylint"])
         .assert()
         .success()

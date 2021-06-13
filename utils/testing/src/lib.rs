@@ -47,7 +47,17 @@ pub fn ui_test_examples(name: &str) {
 fn initialize(name: &str) -> Result<PathBuf> {
     let _ = env_logger::builder().try_init();
 
+    // smoelius: Try to order failures by how informative they are: failure to build the library,
+    // failure to find the library, failure to build/find the driver.
+
     dylint_internal::build().success()?;
+
+    // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
+    let manifest_dir = var(env::CARGO_MANIFEST_DIR)?;
+    set_var(
+        env::DYLINT_LIBRARY_PATH,
+        Path::new(&manifest_dir).join("target").join("debug"),
+    );
 
     let dylint_libs = dylint_libs(name)?;
     let driver = dylint::driver_builder::get(env!("RUSTUP_TOOLCHAIN"))?;
@@ -59,7 +69,7 @@ fn initialize(name: &str) -> Result<PathBuf> {
 }
 
 pub fn dylint_libs(name: &str) -> Result<String> {
-    let name_toolchain_map = dylint::name_toolchain_map()?;
+    let name_toolchain_map = dylint::name_toolchain_map(&dylint::Dylint::default())?;
     let entry = dylint::name_as_lib(&name_toolchain_map, name, false)?;
     let (_, path) = entry.ok_or_else(|| anyhow!("Could not find library `{}`", name))?;
     let paths = vec![path];

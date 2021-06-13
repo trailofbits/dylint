@@ -2,7 +2,10 @@ use anyhow::Result;
 use assert_cmd::prelude::*;
 use dylint_internal::{cargo::SanitizeEnvironment, env, Command};
 use predicates::prelude::*;
-use std::path::{Path, PathBuf};
+use std::{
+    ffi::OsString,
+    path::{Path, PathBuf},
+};
 use tempfile::tempdir;
 use test_env_log::test;
 
@@ -37,9 +40,11 @@ fn one_name_multiple_toolchains() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir(tempdir.path())
-        .env_remove(env::DYLINT_LIBRARY_PATH)
-        .args(&["dylint", "--list", "--all"])
+        .envs(vec![(
+            env::DYLINT_LIBRARY_PATH,
+            target_debug(tempdir.path()),
+        )])
+        .args(&["dylint", "--list", "--all", "--no-metadata"])
         .assert()
         .success()
         .stdout(
@@ -85,14 +90,16 @@ fn one_name_multiple_paths() {
         .success()
         .unwrap();
 
+    // smoelius: https://users.rust-lang.org/t/osstring-osstr-error/35249
+    let mut paths = OsString::new();
+    paths.push(&target_debug(tempdirs.0.path()));
+    paths.push(":");
+    paths.push(&target_debug(tempdirs.1.path()));
+
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir(tempdirs.0.path())
-        .envs(vec![(
-            env::DYLINT_LIBRARY_PATH,
-            target_debug(tempdirs.1.path()),
-        )])
-        .args(&["dylint", "--list", "--all"])
+        .envs(vec![(env::DYLINT_LIBRARY_PATH, paths)])
+        .args(&["dylint", "--list", "--all", "--no-metadata"])
         .assert()
         .success()
         .stdout(

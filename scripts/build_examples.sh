@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# smoelius: This script is currently unused.
+
 # set -x
 set -euo pipefail
 

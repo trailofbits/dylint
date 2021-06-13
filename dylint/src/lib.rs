@@ -4,11 +4,13 @@
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
-use clap::{crate_version, lazy_static::lazy_static, Clap};
+use clap::{crate_version, Clap};
 use dylint_internal::{
     env::{self, var},
     Command,
 };
+use lazy_static::lazy_static;
+use serde_json::Value;
 use std::{
     collections::{BTreeMap, BTreeSet},
     env::consts,
@@ -19,6 +21,8 @@ use std::{
 };
 
 pub mod driver_builder;
+pub mod library_builder;
+mod toml;
 
 mod error;
 use error::warn;
@@ -48,6 +52,7 @@ enum SubCommand {
     Dylint(Dylint),
 }
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Clap, Debug, Default)]
 #[clap(
     version = crate_version!(),
@@ -60,6 +65,14 @@ DYLINT_LIBRARY_PATH (default: none) is a colon-separated list of directories whe
 for libraries.
 
 DYLINT_RUSTFLAGS (default: none) is a space-separated list of flags that Dylint passes to `rustc`.
+
+METADATA EXAMPLE:
+
+    [workspace.metadata.dylint]
+    libraries = [
+        { git = "https://github.com/trailofbits/dylint", pattern = "examples/*" },
+        { path = "libs/*" },
+    ]
 "#,
 )]
 pub struct Dylint {
@@ -73,7 +86,8 @@ pub struct Dylint {
         value_name = "name",
         about = "Library name to load lints from. A file with a name of the form \"DLL_PREFIX \
         <name> '@' TOOLCHAIN DLL_SUFFIX\" is searched for in the directories listed in \
-        DYLINT_LIBRARY_PATH and in the current package's `debug` and `release` directories."
+        DYLINT_LIBRARY_PATH, and in the `target/release` directories produced by building the \
+        current workspace's metadata entries (see example below)."
     )]
     pub libs: Vec<String>,
 
@@ -85,6 +99,20 @@ pub struct Dylint {
         lints in all discovered libraries."
     )]
     pub list: bool,
+
+    #[clap(
+        long,
+        value_name = "path",
+        about = "Path to Cargo.toml. Note: if the manifest uses metadata, then \
+        `--manifest-path <path>` must appear before `--`, not after."
+    )]
+    pub manifest_path: Option<String>,
+
+    #[clap(long, about = "Do not build metadata entries")]
+    pub no_build: bool,
+
+    #[clap(long, about = "Ignore metadata entirely")]
+    pub no_metadata: bool,
 
     #[clap(
         multiple = true,
@@ -117,18 +145,21 @@ pub fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> ColorizedResult<()> {
 }
 
 pub fn run(opts: &Dylint) -> Result<()> {
-    let name_toolchain_map = name_toolchain_map()?;
+    let name_toolchain_map = name_toolchain_map(opts)?;
 
     run_with_name_toolchain_map(opts, &name_toolchain_map)
 }
 
-pub fn name_toolchain_map() -> Result<NameToolchainMap> {
+pub fn name_toolchain_map(opts: &Dylint) -> Result<NameToolchainMap> {
     let mut name_toolchain_map = NameToolchainMap::new();
 
     let dylint_library_paths = dylint_library_paths()?;
-    let profile_paths = profile_paths();
+    let cargo_metadata_paths = cargo_metadata_paths(opts)?;
 
-    for path in dylint_library_paths.iter().chain(&profile_paths) {
+    for (path, require_existence) in dylint_library_paths.iter().chain(&cargo_metadata_paths) {
+        if !require_existence && !path.exists() {
+            continue;
+        }
         for entry in dylint_libraries_in(path)? {
             let (name, toolchain, path) = entry?;
             name_toolchain_map
@@ -143,7 +174,7 @@ pub fn name_toolchain_map() -> Result<NameToolchainMap> {
     Ok(name_toolchain_map)
 }
 
-fn dylint_library_paths() -> Result<Vec<PathBuf>> {
+fn dylint_library_paths() -> Result<Vec<(PathBuf, bool)>> {
     let mut paths = Vec::new();
 
     if let Ok(val) = var(env::DYLINT_LIBRARY_PATH) {
@@ -159,28 +190,44 @@ fn dylint_library_paths() -> Result<Vec<PathBuf>> {
                 "DYLINT_LIBRARY_PATH contains `{}`, which is not a directory",
                 path.to_string_lossy()
             );
-            paths.push(path);
+            paths.push((path, true));
         }
     }
 
     Ok(paths)
 }
 
-fn profile_paths() -> Vec<PathBuf> {
-    let mut paths = Vec::new();
-
-    if let Ok(metadata) = MetadataCommand::new().no_deps().exec() {
-        let debug = metadata.target_directory.join_os("debug");
-        let release = metadata.target_directory.join_os("release");
-        if debug.is_dir() {
-            paths.push(debug);
-        }
-        if release.is_dir() {
-            paths.push(release);
-        }
+fn cargo_metadata_paths(opts: &Dylint) -> Result<Vec<(PathBuf, bool)>> {
+    if opts.no_metadata {
+        return Ok(vec![]);
     }
 
-    paths
+    let mut command = MetadataCommand::new();
+
+    if let Some(path) = &opts.manifest_path {
+        command.manifest_path(path);
+    }
+
+    match command.exec() {
+        Ok(metadata) => {
+            if let Value::Object(object) = &metadata.workspace_metadata {
+                let paths = library_builder::dylint_metadata_paths(opts, &metadata, object)?;
+                Ok(paths
+                    .into_iter()
+                    .map(|path| (path, !opts.no_build))
+                    .collect())
+            } else {
+                Ok(vec![])
+            }
+        }
+        Err(err) => {
+            if opts.manifest_path.is_none() {
+                Ok(vec![])
+            } else {
+                Err(err.into())
+            }
+        }
+    }
 }
 
 #[allow(clippy::option_if_let_else)]
@@ -474,6 +521,11 @@ fn check(
     for (toolchain, paths) in resolved {
         let driver = driver_builder::get(toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
+        let mut args = vec![];
+        if let Some(path) = &opts.manifest_path {
+            args.extend(&["--manifest-path", path]);
+        }
+        args.extend(opts.args.iter().map(String::as_str));
 
         // smoelius: Set CLIPPY_DISABLE_DOCS_LINKS to prevent lints from accidentally linking to the
         // Clippy repository. But set it to the JSON-encoded original value so that the Clippy
@@ -496,7 +548,7 @@ fn check(
                 ),
                 (env::RUSTUP_TOOLCHAIN.to_owned(), toolchain.clone()),
             ])
-            .args(opts.args.clone())
+            .args(args)
             .success()?;
     }
 
@@ -546,7 +598,11 @@ mod test {
                 .collect::<Vec<_>>()
                 .join(":");
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-            name_toolchain_map().unwrap()
+            name_toolchain_map(&Dylint {
+                no_metadata: true,
+                ..Dylint::default()
+            })
+            .unwrap()
         };
     }
 
