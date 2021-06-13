@@ -10,5 +10,9 @@ fi
 
 cargo license |
 while read X; do
+    # smoelius: Exception for Cargo dependencies.
+    if [[ "$X" = 'MPL-2.0+ (3): bitmaps, im-rc, sized-chunks' ]]; then
+        continue
+    fi
     echo "$X" | grep -w 'Apache\|MIT'
 done
