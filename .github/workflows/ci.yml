@@ -13,7 +13,7 @@ jobs:
       run: cargo install --path ./dylint-link
 
     - name: Format
-      run: cargo fmt && git diff --exit-code
+      run: find . -name '*.rs' -exec rustfmt {} \; && git diff --exit-code
 
     - name: Format example READMEs
       run: ./scripts/update_example_READMEs.sh && git diff --exit-code
