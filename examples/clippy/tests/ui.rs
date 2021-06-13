@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use cargo_metadata::{Dependency, MetadataCommand};
 use dylint_internal::{env, Command};
 use std::{
+    env::set_var,
     fs::{read_to_string, write, OpenOptions},
     io::Write,
     path::Path,
@@ -11,6 +12,9 @@ use test_env_log::test;
 
 #[test]
 fn ui() {
+    // smoelius: Try to order failures by how informative they are: failure to build the library,
+    // failure to find the library, failure to build/find the driver.
+
     dylint_internal::build().success().unwrap();
 
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
@@ -23,6 +27,14 @@ fn ui() {
 
     disable_rustfix(&src_base).unwrap();
     adjust_macro_use_imports_test(&src_base).unwrap();
+
+    // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
+    set_var(
+        env::DYLINT_LIBRARY_PATH,
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("target")
+            .join("debug"),
+    );
 
     let dylint_libs = dylint_testing::dylint_libs("clippy").unwrap();
     let driver = dylint::driver_builder::get(env!("RUSTUP_TOOLCHAIN")).unwrap();

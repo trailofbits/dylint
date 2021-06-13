@@ -12,6 +12,7 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
 
 - [Quick start](#quick-start)
 - [How libraries are found](#how-libraries-are-found)
+- [Cargo metadata](#cargo-metadata)
 - [Library requirements](#library-requirements)
 - [Utilities](#utilities)
 - [Limitations](#limitations)
@@ -19,39 +20,60 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
 
 ## Quick start
 
-The next five commands install Dylint, build one of its example libraries, and run the library's lint on the Dylint source code itself:
+The next four commands install Dylint and run one of the example libraries' lints on the Dylint source code:
 
 ```sh
-cargo install cargo-dylint dylint-link                         # Install cargo-dylint and dylint-link
-git clone https://github.com/trailofbits/dylint                # Clone the Dylint repository
-cd dylint/examples/allow_clippy                                # Go to one of the example lint libraries
-cargo build                                                    # Build the library
-cargo dylint allow_clippy -- --manifest-path ../../Cargo.toml  # Run the library's lint on the Dylint source code
+cargo install cargo-dylint dylint-link          # Install cargo-dylint and dylint-link
+git clone https://github.com/trailofbits/dylint # Clone the Dylint repository
+cd dylint                                       # Change directory
+cargo dylint allow_clippy                       # Run an example libraries' lint on the Dylint source code
 ```
+
+In the above example, the library is found via [Cargo metadata](#cargo-metadata) (see below).
 
 You can start writing your own Dylint libraries by forking the [`dylint-template`](https://github.com/trailofbits/dylint-template) repository.
 
 ## How libraries are found
 
-When Dylint is started, the following locations are searched:
+Dylint tries to run all lints in all libraries named on the command line. Dylint resolves names to libraries in the following three ways:
 
-- the colon-separated paths in `DYLINT_LIBRARY_PATH` (if set)
-- the current package's `target/debug` directory (if in a package)
-- the current package's `target/release` directory (if in a package)
+1. Via the `DYLINT_LIBRARY_PATH` environment variable. If `DYLINT_LIBRARY_PATH` is set when Dylint is started, Dylint treats it as a colon-separated list of paths, and searches each path for files with names of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` (see [Library requirements](#library-requirements) below). For each such file found, `LIBRARY_NAME` resolves to that file.
 
-Any file found in the above locations with a name of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` (see [Library requirements](#library-requirements) below) is considered a Dylint library.
+2. Via Cargo metadata. If Dylint is started in a workspace, Dylint checks the workspace's `Cargo.toml` file for `workspace.metadata.dylint.libraries` (see [Cargo metadata](#cargo-metadata) below). Dylint downloads and builds each listed entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched and names are resolved in the manner described in 1 above.
 
-In an invocation of the form `cargo dylint <names>`, each `name` in `names` is compared to the libraries found in the above manner. If `name` matches a discovered library's `LIBRARY_NAME`, then `name` resolves to that library. It is considered an error if a `name` resolves to multiple libraries.
+3. By path. If a name does not resolve to a library via 1 or 2, it is treated as a path.
 
-If the above process does not resolve `name` to a library, then `name` is treated as a path.
+It is considered an error if a name used on the command line resolves to multiple libraries.
 
 If `--lib name` is used, then `name` is is treated only as a library name, and not as a path.
 
 If `--path name` is used, then `name` is is treated only as a path, and not as a library name.
 
+If `--all` is used, Dylint runs all lints in all libraries discovered via 1 and 2 above.
+
+Note: Earlier versions of Dylint searched the current package's `target/debug` and `target/release` directories for libraries. This feature has been removed.
+
+## Cargo metadata
+
+A workspace can name the libraries it should be linted with in its `Cargo.toml` file. Specifically, a workspace's manifest can contain a TOML list under `workspace.metadata.dylint.libraries`. Each list entry must have the form of a Cargo `git` or `path` dependency, with the following differences:
+
+* There is no leading package name, i.e., no `package =`.
+* `path` entries can contain [glob](https://docs.rs/glob/0.3.0/glob/struct.Pattern.html) patterns, e.g., `*`.
+* Any entry can contain a `pattern` field whose value is a [glob](https://docs.rs/glob/0.3.0/glob/struct.Pattern.html) pattern. The `pattern` field indicates the subdirectories that contain Dylint libraries.
+
+Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements](#library-requirements) below).
+
+As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all -- --workspace`, Dylint will run all of the example lints in this repository on your workspace:
+```toml
+[workspace.metadata.dylint]
+libraries = [
+    { git = "https://github.com/trailofbits/dylint", pattern = "examples/*" },
+]
+```
+
 ## Library requirements
 
-A Dylint library must satisfy four requirements. **Note:** before trying to satisfy these explicitly, see [Utilities](#utilities) below.
+A Dylint library must satisfy four requirements. **Note:** Before trying to satisfy these explicitly, see [Utilities](#utilities) below.
 
 1. Have a filename of the form:
 

@@ -1,0 +1,321 @@
+// smoelius: This file is essentially the dependency specific portions of
+// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs with adjustments to
+// make some things public.
+
+#![allow(unused_imports)]
+#![allow(clippy::default_trait_access)]
+#![allow(clippy::too_many_lines)]
+
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::fmt;
+use std::marker::PhantomData;
+use std::path::{Path, PathBuf};
+use std::rc::Rc;
+use std::str;
+
+use anyhow::{anyhow, bail};
+use cargo_platform::Platform;
+use log::{debug, trace};
+use semver::{self, VersionReq};
+use serde::de;
+use serde::ser;
+use serde::{Deserialize, Serialize};
+
+use cargo::core::dependency::DepKind;
+use cargo::core::manifest::{ManifestMetadata, TargetSourcePath, Warnings};
+use cargo::core::resolver::ResolveBehavior;
+use cargo::core::{Dependency, Manifest, PackageId, Summary, Target};
+use cargo::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
+use cargo::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
+use cargo::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
+use cargo::util::errors::{CargoResult, CargoResultExt, ManifestError};
+use cargo::util::interning::InternedString;
+use cargo::util::{
+    self, config::ConfigRelativePath, paths, validate_package_name, Config, IntoUrl,
+};
+
+pub trait ResolveToPath {
+    fn resolve(&self, config: &Config) -> PathBuf;
+}
+
+impl ResolveToPath for String {
+    fn resolve(&self, _: &Config) -> PathBuf {
+        self.into()
+    }
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct DetailedTomlDependency<P = String> {
+    version: Option<String>,
+    registry: Option<String>,
+    /// The URL of the `registry` field.
+    /// This is an internal implementation detail. When Cargo creates a
+    /// package, it replaces `registry` with `registry-index` so that the
+    /// manifest contains the correct URL. All users won't have the same
+    /// registry names configured, so Cargo can't rely on just the name for
+    /// crates published by other users.
+    registry_index: Option<String>,
+    // `path` is relative to the file it appears in. If that's a `Cargo.toml`, it'll be relative to
+    // that TOML file, and if it's a `.cargo/config` file, it'll be relative to that file.
+    path: Option<P>,
+    git: Option<String>,
+    branch: Option<String>,
+    tag: Option<String>,
+    rev: Option<String>,
+    features: Option<Vec<String>>,
+    optional: Option<bool>,
+    default_features: Option<bool>,
+    #[serde(rename = "default_features")]
+    default_features2: Option<bool>,
+    package: Option<String>,
+    public: Option<bool>,
+}
+
+// Explicit implementation so we avoid pulling in P: Default
+impl<P> Default for DetailedTomlDependency<P> {
+    fn default() -> Self {
+        Self {
+            version: Default::default(),
+            registry: Default::default(),
+            registry_index: Default::default(),
+            path: Default::default(),
+            git: Default::default(),
+            branch: Default::default(),
+            tag: Default::default(),
+            rev: Default::default(),
+            features: Default::default(),
+            optional: Default::default(),
+            default_features: Default::default(),
+            default_features2: Default::default(),
+            package: Default::default(),
+            public: Default::default(),
+        }
+    }
+}
+
+#[allow(dead_code)]
+pub struct Context<'a, 'b> {
+    pkgid: Option<PackageId>,
+    deps: &'a mut Vec<Dependency>,
+    source_id: SourceId,
+    nested_paths: &'a mut Vec<PathBuf>,
+    config: &'b Config,
+    warnings: &'a mut Vec<String>,
+    platform: Option<Platform>,
+    root: &'a Path,
+    features: &'a Features,
+}
+
+// smoelius: `Context::new` does not appear in the original.
+#[allow(clippy::too_many_arguments)]
+impl<'a, 'b> Context<'a, 'b> {
+    pub fn new(
+        pkgid: Option<PackageId>,
+        deps: &'a mut Vec<Dependency>,
+        source_id: SourceId,
+        nested_paths: &'a mut Vec<PathBuf>,
+        config: &'b Config,
+        warnings: &'a mut Vec<String>,
+        platform: Option<Platform>,
+        root: &'a Path,
+        features: &'a Features,
+    ) -> Self {
+        Self {
+            pkgid,
+            deps,
+            source_id,
+            nested_paths,
+            config,
+            warnings,
+            platform,
+            root,
+            features,
+        }
+    }
+}
+
+impl<P: ResolveToPath> DetailedTomlDependency<P> {
+    pub fn to_dependency(
+        &self,
+        name_in_toml: &str,
+        cx: &mut Context<'_, '_>,
+        kind: Option<DepKind>,
+    ) -> CargoResult<Dependency> {
+        if self.version.is_none() && self.path.is_none() && self.git.is_none() {
+            let msg = format!(
+                "dependency ({}) specified without \
+                 providing a local path, Git repository, or \
+                 version to use. This will be considered an \
+                 error in future versions",
+                name_in_toml
+            );
+            cx.warnings.push(msg);
+        }
+
+        if let Some(version) = &self.version {
+            if version.contains('+') {
+                cx.warnings.push(format!(
+                    "version requirement `{}` for dependency `{}` \
+                     includes semver metadata which will be ignored, removing the \
+                     metadata is recommended to avoid confusion",
+                    version, name_in_toml
+                ));
+            }
+        }
+
+        if self.git.is_none() {
+            let git_only_keys = [
+                (&self.branch, "branch"),
+                (&self.tag, "tag"),
+                (&self.rev, "rev"),
+            ];
+
+            for &(key, key_name) in &git_only_keys {
+                if key.is_some() {
+                    let msg = format!(
+                        "key `{}` is ignored for dependency ({}). \
+                         This will be considered an error in future versions",
+                        key_name, name_in_toml
+                    );
+                    cx.warnings.push(msg)
+                }
+            }
+        }
+
+        let new_source_id = match (
+            self.git.as_ref(),
+            self.path.as_ref(),
+            self.registry.as_ref(),
+            self.registry_index.as_ref(),
+        ) {
+            (Some(_), _, Some(_), _) | (Some(_), _, _, Some(_)) => bail!(
+                "dependency ({}) specification is ambiguous. \
+                 Only one of `git` or `registry` is allowed.",
+                name_in_toml
+            ),
+            (_, _, Some(_), Some(_)) => bail!(
+                "dependency ({}) specification is ambiguous. \
+                 Only one of `registry` or `registry-index` is allowed.",
+                name_in_toml
+            ),
+            (Some(git), maybe_path, _, _) => {
+                if maybe_path.is_some() {
+                    let msg = format!(
+                        "dependency ({}) specification is ambiguous. \
+                         Only one of `git` or `path` is allowed. \
+                         This will be considered an error in future versions",
+                        name_in_toml
+                    );
+                    cx.warnings.push(msg)
+                }
+
+                let n_details = [&self.branch, &self.tag, &self.rev]
+                    .iter()
+                    .filter(|d| d.is_some())
+                    .count();
+
+                if n_details > 1 {
+                    bail!(
+                        "dependency ({}) specification is ambiguous. \
+                         Only one of `branch`, `tag` or `rev` is allowed.",
+                        name_in_toml
+                    );
+                }
+
+                let reference = self
+                    .branch
+                    .clone()
+                    .map(GitReference::Branch)
+                    .or_else(|| self.tag.clone().map(GitReference::Tag))
+                    .or_else(|| self.rev.clone().map(GitReference::Rev))
+                    .unwrap_or(GitReference::DefaultBranch);
+                let loc = git.into_url()?;
+
+                if let Some(fragment) = loc.fragment() {
+                    let msg = format!(
+                        "URL fragment `#{}` in git URL is ignored for dependency ({}). \
+                        If you were trying to specify a specific git revision, \
+                        use `rev = \"{}\"` in the dependency declaration.",
+                        fragment, name_in_toml, fragment
+                    );
+                    cx.warnings.push(msg)
+                }
+
+                SourceId::for_git(&loc, reference)?
+            }
+            (None, Some(path), _, _) => {
+                let path = path.resolve(cx.config);
+                cx.nested_paths.push(path.clone());
+                // If the source ID for the package we're parsing is a path
+                // source, then we normalize the path here to get rid of
+                // components like `..`.
+                //
+                // The purpose of this is to get a canonical ID for the package
+                // that we're depending on to ensure that builds of this package
+                // always end up hashing to the same value no matter where it's
+                // built from.
+                if cx.source_id.is_path() {
+                    let path = cx.root.join(path);
+                    let path = util::normalize_path(&path);
+                    SourceId::for_path(&path)?
+                } else {
+                    cx.source_id
+                }
+            }
+            (None, None, Some(registry), None) => SourceId::alt_registry(cx.config, registry)?,
+            (None, None, None, Some(registry_index)) => {
+                let url = registry_index.into_url()?;
+                SourceId::for_registry(&url)?
+            }
+            (None, None, None, None) => SourceId::crates_io(cx.config)?,
+        };
+
+        let (pkg_name, explicit_name_in_toml) = match self.package {
+            Some(ref s) => (&s[..], Some(name_in_toml)),
+            None => (name_in_toml, None),
+        };
+
+        let version = self.version.as_deref();
+        let mut dep = match cx.pkgid {
+            Some(id) => Dependency::parse(pkg_name, version, new_source_id, id, cx.config)?,
+            None => Dependency::parse_no_deprecated(pkg_name, version, new_source_id)?,
+        };
+        dep.set_features(self.features.iter().flatten())
+            .set_default_features(
+                self.default_features
+                    .or(self.default_features2)
+                    .unwrap_or(true),
+            )
+            .set_optional(self.optional.unwrap_or(false))
+            .set_platform(cx.platform.clone());
+        if let Some(registry) = &self.registry {
+            let registry_id = SourceId::alt_registry(cx.config, registry)?;
+            dep.set_registry_id(registry_id);
+        }
+        if let Some(registry_index) = &self.registry_index {
+            let url = registry_index.into_url()?;
+            let registry_id = SourceId::for_registry(&url)?;
+            dep.set_registry_id(registry_id);
+        }
+
+        if let Some(kind) = kind {
+            dep.set_kind(kind);
+        }
+        if let Some(name_in_toml) = explicit_name_in_toml {
+            cx.features.require(Feature::rename_dependency())?;
+            dep.set_explicit_name_in_toml(name_in_toml);
+        }
+
+        if let Some(p) = self.public {
+            cx.features.require(Feature::public_dependency())?;
+
+            if dep.kind() != DepKind::Normal {
+                bail!("'public' specifier can only be used on regular dependencies, not {:?} dependencies", dep.kind());
+            }
+
+            dep.set_public(p);
+        }
+        Ok(dep)
+    }
+}

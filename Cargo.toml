@@ -10,3 +10,8 @@ members = [
     "utils/linting",
     "utils/testing",
 ]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "examples/*" },
+]

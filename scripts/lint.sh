@@ -13,12 +13,14 @@ SCRIPTS="$(dirname "$(realpath "$0")")"
 cargo build -p cargo-dylint
 CARGO_DYLINT="$PWD/target/debug/cargo-dylint"
 
-eval "$("$SCRIPTS"/build_examples.sh)"
+EXAMPLES="$(find examples -mindepth 1 -maxdepth 1 -type d | xargs -n 1 basename)"
 
 # smoelius: Remove `allow_clippy` because it is just a joke. Also, for testing purposes, it uses a
 # different toolchain than the other examples.
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<allow_clippy\>[[:space:]]*//')"
 
+# smoelius: Put '.' first to ensure all libraries are built. (See the hack regarding
+# `DYLINT_LIBRARY_PATH` below.)
 DIRS=". driver"
 for EXAMPLE in $EXAMPLES; do
     DIRS="$DIRS examples/$EXAMPLE"
@@ -29,6 +31,11 @@ done
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<clippy\>[[:space:]]*//')"
 
 for DIR in $DIRS; do
+    unset DYLINT_LIBRARY_PATH
+    if [[ "$DIR" != '.' ]]; then
+        export DYLINT_LIBRARY_PATH="$(echo target/dylint/*/release | xargs readlink -f | tr '\n' ':' | head -c -1)"
+    fi
+
     pushd "$DIR"
     for LINTS in "$EXAMPLES" clippy; do
         # smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
