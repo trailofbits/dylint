@@ -1,5 +1,5 @@
 #![feature(rustc_private)]
-#![recursion_limit = "1000"]
+#![recursion_limit = "256"]
 #![warn(unused_extern_crates)]
 
 dylint_linting::dylint_library!();
