@@ -1,5 +1,5 @@
 error: using the `?` operator within an expression
-  --> $DIR/clone.rs:19:58
+  --> $DIR/clone.rs:23:58
    |
 LL |     let _ = git2::Repository::clone(DYLINT_TEMPLATE_URL, tempfile::tempdir()?.path())?;
    |                                                          ^^^^^^^^^^^^^^^^^^^^
