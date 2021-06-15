@@ -9,6 +9,7 @@ The current examples are:
 * [`env_literal`](./env_literal): A lint to check for environment variables referred to with string literals
 * [`path_separator_in_string_literal`](./path_separator_in_string_literal): A lint to check for path separators in string literals
 * [`question_mark_in_expression`](./question_mark_in_expression): A lint to check for the `?` operator in expressions
+* [`try_io_result`](./try_io_result): A lint to check for the `?` operator applied to `std::io::Result`
 
 **Notes**
 

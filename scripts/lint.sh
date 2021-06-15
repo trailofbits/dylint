@@ -19,6 +19,10 @@ EXAMPLES="$(find examples -mindepth 1 -maxdepth 1 -type d | xargs -n 1 basename)
 # different toolchain than the other examples.
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<allow_clippy\>[[:space:]]*//')"
 
+# smoelius: Also remove `try_io_result`. It will need to be integrated eventually. But right now, it
+# wreaks havoc.
+EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<try_io_result\>[[:space:]]*//')"
+
 # smoelius: Put '.' first to ensure all libraries are built. (See the hack regarding
 # `DYLINT_LIBRARY_PATH` below.)
 DIRS=". driver"
