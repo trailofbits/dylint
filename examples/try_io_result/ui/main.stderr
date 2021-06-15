@@ -1,0 +1,19 @@
+error: returning a `std::io::Result` could mean relevant context (e.g., files or paths involved) is lost
+  --> $DIR/main.rs:11:13
+   |
+LL |     let _ = File::open("/dev/null")?;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `-D try-io-result` implied by `-D warnings`
+   = help: return a type that includes relevant context
+
+error: returning a `std::io::Result` could mean relevant context (e.g., files or paths involved) is lost
+  --> $DIR/main.rs:16:13
+   |
+LL |     let _ = File::open("/dev/null")?;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: return a type that includes relevant context
+
+error: aborting due to 2 previous errors
+
