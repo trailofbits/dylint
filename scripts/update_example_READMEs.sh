@@ -42,7 +42,7 @@ for EXAMPLE in *; do
         echo "# $EXAMPLE"
         echo
         cat src/*.rs |
-        sed -n 's,^[[:space:]]*///[[:space:]]*\(.*\)$,\1,;T;p'
+        sed -n 's,^[[:space:]]*///[[:space:]]\?\(.*\)$,\1,;T;p'
     ) > README.md
 
     popd >/dev/null
