@@ -3,12 +3,13 @@
 #![deny(clippy::panic)]
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use cargo_metadata::MetadataCommand;
+use cargo_metadata::{Error, MetadataCommand};
 use clap::{crate_version, Clap};
 use dylint_internal::{
     env::{self, var},
     Command,
 };
+use if_chain::if_chain;
 use lazy_static::lazy_static;
 use serde_json::Value;
 use std::{
@@ -222,6 +223,14 @@ fn cargo_metadata_paths(opts: &Dylint) -> Result<Vec<(PathBuf, bool)>> {
         }
         Err(err) => {
             if opts.manifest_path.is_none() {
+                if_chain! {
+                    if let Error::CargoMetadata { stderr } = err;
+                    if let Some(line) = stderr.lines().next();
+                    if !line.starts_with("error: could not find `Cargo.toml`");
+                    then {
+                        warn(opts, line.strip_prefix("error: ").unwrap_or(line));
+                    }
+                }
                 Ok(vec![])
             } else {
                 Err(err.into())
