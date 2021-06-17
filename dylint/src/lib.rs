@@ -118,6 +118,16 @@ pub struct Dylint {
     #[clap(
         multiple = true,
         number_of_values = 1,
+        short,
+        long = "package",
+        value_name = "spec",
+        about = "Package to check"
+    )]
+    pub packages: Vec<String>,
+
+    #[clap(
+        multiple = true,
+        number_of_values = 1,
         long = "path",
         value_name = "path",
         about = "Library path to load lints from"
@@ -130,6 +140,9 @@ pub struct Dylint {
         about = "Do not show warnings or progress running commands besides `cargo check`"
     )]
     pub quiet: bool,
+
+    #[clap(long, about = "Check all packages in the workspace")]
+    pub workspace: bool,
 
     #[clap(
         about = "Libraries to load lints from. Each <name> is searched for as described under \
@@ -537,6 +550,12 @@ fn check(
         let mut args = vec![];
         if let Some(path) = &opts.manifest_path {
             args.extend(&["--manifest-path", path]);
+        }
+        for spec in &opts.packages {
+            args.extend(&["-p", spec]);
+        }
+        if opts.workspace {
+            args.extend(&["--workspace"]);
         }
         args.extend(opts.args.iter().map(String::as_str));
 

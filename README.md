@@ -63,7 +63,7 @@ A workspace can name the libraries it should be linted with in its `Cargo.toml` 
 
 Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements](#library-requirements) below).
 
-As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all -- --workspace`, Dylint will run all of the example lints in this repository on your workspace:
+As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run all of the example lints in this repository on your workspace:
 ```toml
 [workspace.metadata.dylint]
 libraries = [
