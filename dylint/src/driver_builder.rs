@@ -8,6 +8,7 @@ use semver::{Version, VersionReq};
 use std::{
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
+    process::Stdio,
 };
 use tempfile::tempdir;
 
@@ -63,7 +64,7 @@ pub fn main() -> Result<()> {
 
 #[allow(unknown_lints)]
 #[allow(question_mark_in_expression)]
-pub fn get(toolchain: &str) -> Result<PathBuf> {
+pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
     let dylint_drivers = dylint_drivers()?;
 
     let driver_dir = dylint_drivers.join(&toolchain);
@@ -73,7 +74,7 @@ pub fn get(toolchain: &str) -> Result<PathBuf> {
 
     let driver = driver_dir.join("dylint-driver");
     if !driver.exists() || is_outdated(&driver)? {
-        build(toolchain, &driver)?;
+        build(opts, toolchain, &driver)?;
     }
 
     Ok(driver)
@@ -115,7 +116,7 @@ fn is_outdated(driver: &Path) -> Result<bool> {
 
 #[allow(clippy::assertions_on_constants)]
 #[allow(clippy::expect_used)]
-fn build(toolchain: &str, driver: &Path) -> Result<()> {
+fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     let tempdir = tempdir()?;
     let package = tempdir.path();
 
@@ -146,11 +147,15 @@ fn build(toolchain: &str, driver: &Path) -> Result<()> {
     create_dir_all(&src)?;
     write(&src.join("main.rs"), MAIN_RS)?;
 
-    dylint_internal::build()
+    let mut command = dylint_internal::build();
+    command
         .sanitize_environment()
         .envs(vec![(env::RUSTFLAGS, "-C rpath=yes")])
-        .current_dir(&package)
-        .success()?;
+        .current_dir(&package);
+    if opts.quiet {
+        command.stderr(Stdio::null());
+    }
+    command.success()?;
 
     copy(
         package

@@ -124,7 +124,11 @@ pub struct Dylint {
     )]
     pub paths: Vec<String>,
 
-    #[clap(short, long, about = "Suppress warnings")]
+    #[clap(
+        short,
+        long,
+        about = "Do not show warnings or progress running commands besides `cargo check`"
+    )]
     pub quiet: bool,
 
     #[clap(
@@ -475,7 +479,7 @@ fn parse_target_name(target_name: &str) -> Option<(String, String)> {
 }
 
 fn list_lints(
-    _opts: &Dylint,
+    opts: &Dylint,
     name_toolchain_map: &NameToolchainMap,
     resolved: &ToolchainMap,
 ) -> Result<()> {
@@ -486,7 +490,7 @@ fn list_lints(
                     .get(toolchain)
                     .map_or(false, |paths| paths.contains(path))
                 {
-                    let driver = driver_builder::get(toolchain)?;
+                    let driver = driver_builder::get(opts, toolchain)?;
                     let dylint_libs = serde_json::to_string(&[path])?;
 
                     print!("{}", name);
@@ -528,7 +532,7 @@ fn check(
     let clippy_disable_docs_links = clippy_disable_docs_links()?;
 
     for (toolchain, paths) in resolved {
-        let driver = driver_builder::get(toolchain)?;
+        let driver = driver_builder::get(opts, toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
         let mut args = vec![];
         if let Some(path) = &opts.manifest_path {

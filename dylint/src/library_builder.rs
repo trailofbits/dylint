@@ -12,7 +12,10 @@ use dylint_internal::cargo::SanitizeEnvironment;
 use glob::glob;
 use serde::Deserialize;
 use serde_json::{Map, Value};
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    process::Stdio,
+};
 
 #[derive(Debug, Deserialize)]
 struct Library {
@@ -250,11 +253,15 @@ fn package_library_path(
     let target_dir = target_dir(metadata, package_root, package_id);
 
     if !opts.no_build {
-        dylint_internal::build()
+        let mut command = dylint_internal::build();
+        command
             .sanitize_environment()
             .current_dir(package_root)
-            .args(&["--release", "--target-dir", &target_dir.to_string_lossy()])
-            .success()?;
+            .args(&["--release", "--target-dir", &target_dir.to_string_lossy()]);
+        if opts.quiet {
+            command.stderr(Stdio::null());
+        }
+        command.success()?;
     }
 
     Ok(target_dir.join("release"))

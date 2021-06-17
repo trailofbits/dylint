@@ -35,7 +35,7 @@ IFS='' command eval "$(
                         if [[ "$prev" != --lib ]]; then\
                             opt__dylint="--all --lib --list --path"\
                         fi\
-                        opt__dylint="$opt__dylint $(cargo dylint --list --no-build | while read X Y; do echo "$X"; done)"\
+                        opt__dylint="$opt__dylint $(cargo dylint --list --no-build --quiet | while read X Y; do echo "$X"; done)"\
                     fi\
                 fi'
 )"
