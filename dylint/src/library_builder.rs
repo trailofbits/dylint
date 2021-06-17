@@ -1,4 +1,7 @@
-use crate::toml::{Context, DetailedTomlDependency};
+use crate::{
+    error::warn,
+    toml::{Context, DetailedTomlDependency},
+};
 use anyhow::{anyhow, bail, ensure, Result};
 use cargo::{
     core::{source::MaybePackage, Dependency, Features, Package, PackageId, Source, SourceId},
@@ -67,7 +70,7 @@ fn maybe_build_packages(
     config: &Config,
     library: &Library,
 ) -> Result<Vec<PathBuf>> {
-    let dep = dependency(metadata, config, library)?;
+    let dep = dependency(opts, metadata, config, library)?;
 
     let dependency_root = dependency_root(config, &dep)?;
 
@@ -109,7 +112,12 @@ fn maybe_build_packages(
         .collect()
 }
 
-fn dependency(metadata: &Metadata, config: &Config, library: &Library) -> Result<Dependency> {
+fn dependency(
+    opts: &crate::Dylint,
+    metadata: &Metadata,
+    config: &Config,
+    library: &Library,
+) -> Result<Dependency> {
     let name_in_toml = "library";
 
     let mut deps = vec![];
@@ -132,7 +140,13 @@ fn dependency(metadata: &Metadata, config: &Config, library: &Library) -> Result
 
     let kind = None;
 
-    library.details.to_dependency(name_in_toml, &mut cx, kind)
+    let dependency = library.details.to_dependency(name_in_toml, &mut cx, kind)?;
+
+    if !warnings.is_empty() {
+        warn(opts, &warnings.join("\n"));
+    }
+
+    Ok(dependency)
 }
 
 fn dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
