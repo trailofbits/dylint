@@ -7,6 +7,7 @@ use dylint_internal::{
     env::{self, var},
     Command,
 };
+use if_chain::if_chain;
 use std::{
     env::consts,
     ffi::OsStr,
@@ -27,23 +28,24 @@ fn main() -> Result<()> {
     let mut args = std::env::args();
     while let Some(arg) = args.next() {
         if arg == "-o" {
-            if let Some(path) = args.next() {
+            if_chain! {
+                if let Some(path) = args.next();
                 let path = Path::new(&path);
-                if let Some(lib_name) = parse_path(path) {
-                    if lib_name == cargo_pkg_name.replace("-", "_") {
-                        let filename_with_toolchain = format!(
-                            "{}{}@{}{}",
-                            consts::DLL_PREFIX,
-                            lib_name,
-                            rustup_toolchain,
-                            consts::DLL_SUFFIX
-                        );
-                        let parent = path
-                            .parent()
-                            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-                        let path_with_toolchain = strip_deps(parent).join(filename_with_toolchain);
-                        copy(path, path_with_toolchain)?;
-                    }
+                if let Some(lib_name) = parse_path(path);
+                if lib_name == cargo_pkg_name.replace("-", "_");
+                then {
+                    let filename_with_toolchain = format!(
+                        "{}{}@{}{}",
+                        consts::DLL_PREFIX,
+                        lib_name,
+                        rustup_toolchain,
+                        consts::DLL_SUFFIX
+                    );
+                    let parent = path
+                        .parent()
+                        .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+                    let path_with_toolchain = strip_deps(parent).join(filename_with_toolchain);
+                    copy(path, path_with_toolchain)?;
                 }
             }
             break;
