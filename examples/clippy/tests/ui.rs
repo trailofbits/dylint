@@ -37,7 +37,8 @@ fn ui() {
     );
 
     let dylint_libs = dylint_testing::dylint_libs("clippy").unwrap();
-    let driver = dylint::driver_builder::get(env!("RUSTUP_TOOLCHAIN")).unwrap();
+    let driver =
+        dylint::driver_builder::get(&dylint::Dylint::default(), env!("RUSTUP_TOOLCHAIN")).unwrap();
 
     dylint_internal::test()
         .current_dir(tempdir.path())
