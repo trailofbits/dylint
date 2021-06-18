@@ -10,12 +10,12 @@ repository = "https://github.com/trailofbits/dylint"
 [dependencies]
 ansi_term = "0.12.1"
 anyhow = "1.0.38"
-cargo = "0.53.0"
-cargo-platform = "0.1.1"
-cargo_metadata = "0.13.1"
+cargo = { version = "0.53.0", optional = true }
+cargo-platform = { version = "0.1.1", optional = true }
+cargo_metadata = { version = "0.13.1", optional = true }
 clap = "3.0.0-beta.2"
-glob = "0.3.0"
-if_chain = "1.0.1"
+glob = { version = "0.3.0", optional = true }
+if_chain = { version = "1.0.1", optional = true }
 lazy_static = "1.4.0"
 log = "0.4.14"
 serde = "1.0"
@@ -31,5 +31,6 @@ lazy_static = "1.4.0"
 test-env-log = "0.2.6"
 
 [features]
-default = []
+default = ["metadata"]
 dylint_driver_local = []
+metadata = ["cargo", "cargo-platform", "cargo_metadata", "glob", "if_chain"]

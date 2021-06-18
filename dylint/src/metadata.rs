@@ -7,9 +7,10 @@ use cargo::{
     core::{source::MaybePackage, Dependency, Features, Package, PackageId, Source, SourceId},
     util::{self, Config},
 };
-use cargo_metadata::{Metadata, MetadataCommand};
+use cargo_metadata::{Error, Metadata, MetadataCommand};
 use dylint_internal::cargo::SanitizeEnvironment;
 use glob::glob;
+use if_chain::if_chain;
 use serde::Deserialize;
 use serde_json::{Map, Value};
 use std::{
@@ -24,7 +25,48 @@ struct Library {
     details: DetailedTomlDependency,
 }
 
-pub fn dylint_metadata_paths(
+pub fn workspace_metadata_paths(opts: &crate::Dylint) -> Result<Vec<(PathBuf, bool)>> {
+    if opts.no_metadata {
+        return Ok(vec![]);
+    }
+
+    let mut command = MetadataCommand::new();
+
+    if let Some(path) = &opts.manifest_path {
+        command.manifest_path(path);
+    }
+
+    match command.exec() {
+        Ok(metadata) => {
+            if let Value::Object(object) = &metadata.workspace_metadata {
+                let paths = dylint_metadata_paths(opts, &metadata, object)?;
+                Ok(paths
+                    .into_iter()
+                    .map(|path| (path, !opts.no_build))
+                    .collect())
+            } else {
+                Ok(vec![])
+            }
+        }
+        Err(err) => {
+            if opts.manifest_path.is_none() {
+                if_chain! {
+                    if let Error::CargoMetadata { stderr } = err;
+                    if let Some(line) = stderr.lines().next();
+                    if !line.starts_with("error: could not find `Cargo.toml`");
+                    then {
+                        warn(opts, line.strip_prefix("error: ").unwrap_or(line));
+                    }
+                }
+                Ok(vec![])
+            } else {
+                Err(err.into())
+            }
+        }
+    }
+}
+
+fn dylint_metadata_paths(
     opts: &crate::Dylint,
     metadata: &Metadata,
     object: &Map<String, Value>,

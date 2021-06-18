@@ -31,6 +31,7 @@ jobs:
         rustup toolchain install nightly
         cargo install cargo-udeps
         cargo +nightly udeps --workspace --tests
+        cargo +nightly udeps --workspace --tests --no-default-features
 
   test:
     runs-on: ubuntu-latest

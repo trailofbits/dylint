@@ -12,7 +12,7 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
 
 - [Quick start](#quick-start)
 - [How libraries are found](#how-libraries-are-found)
-- [Cargo metadata](#cargo-metadata)
+- [Workspace metadata](#workspace-metadata)
 - [Library requirements](#library-requirements)
 - [Utilities](#utilities)
 - [Limitations](#limitations)
@@ -29,7 +29,7 @@ cd dylint                                       # Change directory
 cargo dylint allow_clippy                       # Run an example libraries' lint on the Dylint source code
 ```
 
-In the above example, the library is found via [Cargo metadata](#cargo-metadata) (see below).
+In the above example, the library is found via [workspace metadata](#workspace-metadata) (see below).
 
 You can start writing your own Dylint libraries by forking the [`dylint-template`](https://github.com/trailofbits/dylint-template) repository.
 
@@ -39,7 +39,7 @@ Dylint tries to run all lints in all libraries named on the command line. Dylint
 
 1. Via the `DYLINT_LIBRARY_PATH` environment variable. If `DYLINT_LIBRARY_PATH` is set when Dylint is started, Dylint treats it as a colon-separated list of paths, and searches each path for files with names of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` (see [Library requirements](#library-requirements) below). For each such file found, `LIBRARY_NAME` resolves to that file.
 
-2. Via Cargo metadata. If Dylint is started in a workspace, Dylint checks the workspace's `Cargo.toml` file for `workspace.metadata.dylint.libraries` (see [Cargo metadata](#cargo-metadata) below). Dylint downloads and builds each listed entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched and names are resolved in the manner described in 1 above.
+2. Via workspace metadata. If Dylint is started in a workspace, Dylint checks the workspace's `Cargo.toml` file for `workspace.metadata.dylint.libraries` (see [Workspace metadata](#workspace-metadata) below). Dylint downloads and builds each listed entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched and names are resolved in the manner described in 1 above.
 
 3. By path. If a name does not resolve to a library via 1 or 2, it is treated as a path.
 
@@ -53,7 +53,7 @@ If `--all` is used, Dylint runs all lints in all libraries discovered via 1 and 
 
 Note: Earlier versions of Dylint searched the current package's `target/debug` and `target/release` directories for libraries. This feature has been removed.
 
-## Cargo metadata
+## Workspace metadata
 
 A workspace can name the libraries it should be linted with in its `Cargo.toml` file. Specifically, a workspace's manifest can contain a TOML list under `workspace.metadata.dylint.libraries`. Each list entry must have the form of a Cargo `git` or `path` dependency, with the following differences:
 

@@ -3,15 +3,12 @@
 #![deny(clippy::panic)]
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use cargo_metadata::{Error, MetadataCommand};
 use clap::{crate_version, Clap};
 use dylint_internal::{
     env::{self, var},
     Command,
 };
-use if_chain::if_chain;
 use lazy_static::lazy_static;
-use serde_json::Value;
 use std::{
     collections::{BTreeMap, BTreeSet},
     env::consts,
@@ -22,7 +19,11 @@ use std::{
 };
 
 pub mod driver_builder;
-pub mod library_builder;
+
+#[cfg(feature = "metadata")]
+mod metadata;
+
+#[cfg(feature = "metadata")]
 mod toml;
 
 mod error;
@@ -168,13 +169,17 @@ pub fn run(opts: &Dylint) -> Result<()> {
     run_with_name_toolchain_map(opts, &name_toolchain_map)
 }
 
+#[allow(unused_variables)]
 pub fn name_toolchain_map(opts: &Dylint) -> Result<NameToolchainMap> {
     let mut name_toolchain_map = NameToolchainMap::new();
 
     let dylint_library_paths = dylint_library_paths()?;
-    let cargo_metadata_paths = cargo_metadata_paths(opts)?;
+    #[cfg(feature = "metadata")]
+    let workspace_metadata_paths = metadata::workspace_metadata_paths(opts)?;
+    #[cfg(not(feature = "metadata"))]
+    let workspace_metadata_paths = vec![];
 
-    for (path, require_existence) in dylint_library_paths.iter().chain(&cargo_metadata_paths) {
+    for (path, require_existence) in dylint_library_paths.iter().chain(&workspace_metadata_paths) {
         if !require_existence && !path.exists() {
             continue;
         }
@@ -213,47 +218,6 @@ fn dylint_library_paths() -> Result<Vec<(PathBuf, bool)>> {
     }
 
     Ok(paths)
-}
-
-fn cargo_metadata_paths(opts: &Dylint) -> Result<Vec<(PathBuf, bool)>> {
-    if opts.no_metadata {
-        return Ok(vec![]);
-    }
-
-    let mut command = MetadataCommand::new();
-
-    if let Some(path) = &opts.manifest_path {
-        command.manifest_path(path);
-    }
-
-    match command.exec() {
-        Ok(metadata) => {
-            if let Value::Object(object) = &metadata.workspace_metadata {
-                let paths = library_builder::dylint_metadata_paths(opts, &metadata, object)?;
-                Ok(paths
-                    .into_iter()
-                    .map(|path| (path, !opts.no_build))
-                    .collect())
-            } else {
-                Ok(vec![])
-            }
-        }
-        Err(err) => {
-            if opts.manifest_path.is_none() {
-                if_chain! {
-                    if let Error::CargoMetadata { stderr } = err;
-                    if let Some(line) = stderr.lines().next();
-                    if !line.starts_with("error: could not find `Cargo.toml`");
-                    then {
-                        warn(opts, line.strip_prefix("error: ").unwrap_or(line));
-                    }
-                }
-                Ok(vec![])
-            } else {
-                Err(err.into())
-            }
-        }
-    }
 }
 
 #[allow(clippy::option_if_let_else)]
