@@ -1,5 +1,9 @@
 use ansi_term::Color::{Red, Yellow};
 
+// smoelius: `ColorizedError` is currently used only by `cargo-dylint`. But given the similarity of
+// its implementation to `warn`, I  prefer to keep it here for now. Also, FWIW, this limits the
+// packages that directly depend on `ansi_term`.
+
 #[allow(clippy::module_name_repetitions)]
 pub struct ColorizedError<E>(E)
 where
