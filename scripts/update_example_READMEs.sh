@@ -17,10 +17,12 @@ LISTED=
 IFS=
 cat README.md |
 while read X; do
-    if [[ "$X" =~ ^\*[[:space:]] ]]; then
+    if [[ "$X" =~ ^\| ]]; then
         if [[ -z "$LISTED" ]]; then
+            echo '| Example | Description |'
+            echo '| - | - |'
             grep '^description = "[^"]*"$' */Cargo.toml |
-            sed 's,^\([^/]*\)/Cargo.toml:description = "\([^"]*\)"$,* [`\1`](./\1): \2,'
+            sed 's,^\([^/]*\)/Cargo.toml:description = "\([^"]*\)"$,| [`\1`](./\1) | \2 |,'
             LISTED=1
         fi
         continue
