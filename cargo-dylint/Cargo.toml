@@ -9,6 +9,7 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 anyhow = "1.0.38"
+clap = "3.0.0-beta.2"
 env_logger = "0.8.3"
 
 dylint = { version = "=0.1.3", path = "../dylint", features = ["dylint_driver_local"] }
