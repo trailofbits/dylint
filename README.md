@@ -136,5 +136,6 @@ One way this problem can manifest itself is if you try to run one library's lint
 Helpful resources for writing lints include the following:
 
 - [Adding a new lint](https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md) (targeted at Clippy but still useful)
+- [Author lint](https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md#author-lint)
 - [Common tools for writing lints](https://github.com/rust-lang/rust-clippy/blob/master/doc/common_tools_writing_lints.md)
 - [`rustc_hir` documentation](https://doc.rust-lang.org/stable/nightly-rustc/rustc_hir/index.html)
