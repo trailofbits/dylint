@@ -13,14 +13,16 @@ use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::str;
 
-use anyhow::{anyhow, bail};
+use anyhow::{anyhow, bail, Context as _};
 use cargo_platform::Platform;
+use cargo_util::paths;
 use log::{debug, trace};
 use semver::{self, VersionReq};
 use serde::de;
 use serde::ser;
 use serde::{Deserialize, Serialize};
 
+use cargo::core::compiler::{CompileKind, CompileTarget};
 use cargo::core::dependency::DepKind;
 use cargo::core::manifest::{ManifestMetadata, TargetSourcePath, Warnings};
 use cargo::core::resolver::ResolveBehavior;
@@ -28,11 +30,9 @@ use cargo::core::{Dependency, Manifest, PackageId, Summary, Target};
 use cargo::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
 use cargo::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
 use cargo::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
-use cargo::util::errors::{CargoResult, CargoResultExt, ManifestError};
+use cargo::util::errors::{CargoResult, ManifestError};
 use cargo::util::interning::InternedString;
-use cargo::util::{
-    self, config::ConfigRelativePath, paths, validate_package_name, Config, IntoUrl,
-};
+use cargo::util::{self, config::ConfigRelativePath, validate_package_name, Config, IntoUrl};
 
 pub trait ResolveToPath {
     fn resolve(&self, config: &Config) -> PathBuf;
@@ -183,6 +183,35 @@ impl<P: ResolveToPath> DetailedTomlDependency<P> {
             }
         }
 
+        // Early detection of potentially misused feature syntax
+        // instead of generating a "feature not found" error.
+        if let Some(features) = &self.features {
+            for feature in features {
+                if feature.contains('/') {
+                    bail!(
+                        "feature `{}` in dependency `{}` is not allowed to contain slashes\n\
+                         If you want to enable features of a transitive dependency, \
+                         the direct dependency needs to re-export those features from \
+                         the `[features]` table.",
+                        feature,
+                        name_in_toml
+                    );
+                }
+                if feature.starts_with("dep:") {
+                    bail!(
+                        "feature `{}` in dependency `{}` is not allowed to use explicit \
+                        `dep:` syntax\n\
+                         If you want to enable an optional dependency, specify the name \
+                         of the optional dependency without the `dep:` prefix, or specify \
+                         a feature from the dependency's `[features]` table that enables \
+                         the optional dependency.",
+                        feature,
+                        name_in_toml
+                    );
+                }
+            }
+        }
+
         let new_source_id = match (
             self.git.as_ref(),
             self.path.as_ref(),
@@ -257,7 +286,7 @@ impl<P: ResolveToPath> DetailedTomlDependency<P> {
                 // built from.
                 if cx.source_id.is_path() {
                     let path = cx.root.join(path);
-                    let path = util::normalize_path(&path);
+                    let path = paths::normalize_path(&path);
                     SourceId::for_path(&path)?
                 } else {
                     cx.source_id
