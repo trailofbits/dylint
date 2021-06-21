@@ -1,6 +1,5 @@
-use cargo_metadata::{Dependency, Metadata, MetadataCommand};
+use cargo_metadata::{Dependency, Metadata, MetadataCommand, Version};
 use lazy_static::lazy_static;
-use semver::Version;
 
 lazy_static! {
     static ref METADATA: Metadata = MetadataCommand::new().no_deps().exec().unwrap();

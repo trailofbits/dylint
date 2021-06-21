@@ -8,6 +8,6 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
-anyhow = "1.0.38"
+anyhow = "1.0.41"
 git2 = "0.13.20"
 log = "0.4.14"
