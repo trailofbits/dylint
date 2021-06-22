@@ -42,15 +42,13 @@ published() {
     trap popd RETURN
     cargo init
     sed -i "/^\[dependencies\]$/a $1 = \"$2\"" Cargo.toml
-    cat >> Cargo.toml << EOF
-[workspace]
-members = []
-EOF
+    echo '[workspace]' >> Cargo.toml
     cat > rust-toolchain << EOF
 [toolchain]
 channel = "nightly"
 components = ["llvm-tools-preview", "rustc-dev"]
 EOF
+    echo "Checking whether \`$1:$2\` is published ..." >&2
     RUSTFLAGS='-A non_snake_case' cargo check
 }
 
