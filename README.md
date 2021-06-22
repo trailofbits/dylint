@@ -90,7 +90,7 @@ A Dylint library must satisfy four requirements. **Note:** Before trying to sati
    The filename components are as follows:
 
    - `DLL_PREFIX` and `DLL_SUFFIX` are OS-specific strings. For example, on Linux, they are `lib` and `.so`, respectively.
-   - `LIBARY_NAME` is a name chosen by the library's author.
+   - `LIBRARY_NAME` is a name chosen by the library's author.
    - `TOOLCHAIN` is the Rust toolchain for which the library is compiled, e.g., `nightly-2021-04-08-x86_64-unknown-linux-gnu`.
 
 2. Export a `dylint_version` function:
