@@ -18,7 +18,10 @@ jobs:
     - name: Format example READMEs
       run: ./scripts/update_example_READMEs.sh && git diff --exit-code
 
-    - name: License
+    - name: Check lockfiles
+      run: ./scripts/update_lockfiles.sh && git diff --exit-code
+
+    - name: Check licenses
       run: |
         cargo install cargo-license
         ./scripts/check_licenses.sh
@@ -30,8 +33,8 @@ jobs:
       run: |
         rustup toolchain install nightly
         cargo install cargo-udeps
-        cargo +nightly udeps --workspace --tests
         cargo +nightly udeps --workspace --tests --no-default-features
+        cargo +nightly udeps --workspace --tests
 
   test:
     runs-on: ubuntu-latest
