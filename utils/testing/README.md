@@ -22,7 +22,7 @@ Specifically, this crate provides the following three functions. Note: If your t
 
 * `ui_test_examples` - test a library on all example targets
     ```rust
-    pub fn ui_test_example(name: &str)
+    pub fn ui_test_examples(name: &str)
     ```
     * `name` is the name of a Dylint library to be tested.
 
