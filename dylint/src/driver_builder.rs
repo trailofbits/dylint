@@ -4,7 +4,7 @@ use dylint_internal::{
     env::{self, var},
     Command,
 };
-use semver::{Version, VersionReq};
+use semver::Version;
 use std::{
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
@@ -106,12 +106,10 @@ fn is_outdated(driver: &Path) -> Result<bool> {
         .ok_or_else(|| anyhow!("Could not parse driver version"))?;
 
     let their_version = Version::parse(theirs)?;
-    let their_req = VersionReq::parse(theirs)?;
 
     let our_version = Version::parse(env!("CARGO_PKG_VERSION"))?;
-    let our_req = VersionReq::parse(env!("CARGO_PKG_VERSION"))?;
 
-    Ok(their_req.matches(&our_version) && !our_req.matches(&their_version))
+    Ok(their_version < our_version)
 }
 
 #[allow(clippy::assertions_on_constants)]
