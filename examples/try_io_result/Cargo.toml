@@ -20,7 +20,7 @@ if_chain = "1.0.1"
 dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
-anyhow = "1.0.40"
+anyhow = "1.0.42"
 
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 

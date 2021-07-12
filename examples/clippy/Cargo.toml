@@ -18,9 +18,9 @@ dylint_internal = { path = "../../internal" }
 dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
-anyhow = "1.0.38"
+anyhow = "1.0.42"
 cargo_metadata = "0.13.1"
-env_logger = "0.8.3"
+env_logger = "0.8.4"
 log = "0.4.14"
 tempfile = "3.2.0"
 test-env-log = "0.2.6"
