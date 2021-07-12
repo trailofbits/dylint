@@ -1,3 +1,4 @@
+use crate::error::warn;
 use anyhow::{anyhow, ensure, Result};
 use dylint_internal::{
     cargo::SanitizeEnvironment,
@@ -73,7 +74,7 @@ pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
     }
 
     let driver = driver_dir.join("dylint-driver");
-    if !driver.exists() || is_outdated(&driver)? {
+    if !driver.exists() || is_outdated(opts, &driver)? {
         build(opts, toolchain, &driver)?;
     }
 
@@ -96,7 +97,7 @@ fn dylint_drivers() -> Result<PathBuf> {
     }
 }
 
-fn is_outdated(driver: &Path) -> Result<bool> {
+fn is_outdated(opts: &crate::Dylint, driver: &Path) -> Result<bool> {
     let output = Command::new(driver).args(&["-V"]).output()?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     let theirs = stdout
@@ -105,7 +106,18 @@ fn is_outdated(driver: &Path) -> Result<bool> {
         .next()
         .ok_or_else(|| anyhow!("Could not parse driver version"))?;
 
-    let their_version = Version::parse(theirs)?;
+    let result = Version::parse(theirs);
+
+    let their_version = match result {
+        Ok(version) => version,
+        Err(err) => {
+            warn(
+                opts,
+                &format!("Could not determine driver version: {}", err),
+            );
+            return Ok(true);
+        }
+    };
 
     let our_version = Version::parse(env!("CARGO_PKG_VERSION"))?;
 
