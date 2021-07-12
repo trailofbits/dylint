@@ -8,6 +8,8 @@ cargo install cargo-dylint
 
 Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a predetermined, static set of lints, Dylint runs lints from user-specified, dynamic libraries. Thus, Dylint allows developers to maintain their own personal lint collections.
 
+Note: `cargo-dylint` will not work correctly if installed with the `--debug` flag. If a debug build of `cargo-dylint` is needed, please build it from the `cargo-dylint` package within this repository.
+
 **Contents**
 
 - [Quick start](#quick-start)
