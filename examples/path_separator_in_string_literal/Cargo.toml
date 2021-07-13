@@ -1,6 +1,6 @@
 [package]
 name = "path_separator_in_string_literal"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for path separators in string literals"
 edition = "2018"
