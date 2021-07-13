@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Bug fixes ([#38](https://github.com/trailofbits/dylint/issues/38), [#39](https://github.com/trailofbits/dylint/issues/39))
+
 ## 1.0.0
 
 - Add support for [workspace metadata](./README.md#workspace-metadata)
