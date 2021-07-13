@@ -60,7 +60,17 @@ impl Command {
         log::debug!("{:?}", self.envs);
         log::debug!("{:?}", self.command);
 
-        self.command.output().map_err(Into::into)
+        let output = self.command.output()?;
+
+        ensure!(
+            output.status.success(),
+            "command failed: {:?}\nstdout: {:?}\nstderr: {:?}",
+            self.command,
+            std::str::from_utf8(&output.stdout).unwrap_or_default(),
+            std::str::from_utf8(&output.stderr).unwrap_or_default()
+        );
+
+        Ok(output)
     }
 
     pub fn success(&mut self) -> Result<()> {
