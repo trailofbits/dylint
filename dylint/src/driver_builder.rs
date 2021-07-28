@@ -7,6 +7,7 @@ use dylint_internal::{
 };
 use semver::Version;
 use std::{
+    env::consts,
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
     process::Stdio,
@@ -168,10 +169,11 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     command.success()?;
 
     copy(
-        package
-            .join("target")
-            .join("debug")
-            .join(format!("dylint_driver-{}", toolchain)),
+        package.join("target").join("debug").join(format!(
+            "dylint_driver-{}{}",
+            toolchain,
+            consts::EXE_SUFFIX
+        )),
         driver,
     )?;
 
