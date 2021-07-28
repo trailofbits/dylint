@@ -87,7 +87,7 @@ fn dylint_drivers() -> Result<PathBuf> {
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())
     } else {
-        let home = var(env::HOME)?;
+        let home = dirs::home_dir().ok_or_else(|| anyhow!("Could not find the HOME Directory."))?;
         let dylint_drivers = Path::new(&home).join(".dylint_drivers");
         if !dylint_drivers.is_dir() {
             create_dir_all(&dylint_drivers)?;
