@@ -12,15 +12,17 @@ Note: `cargo-dylint` will not work correctly if installed with the `--debug` fla
 
 **Contents**
 
-- [Quick start](#quick-start)
+- [Quick start: running Dylint](#quick-start-running-dylint)
+- [Quick start: writing lints](#quick-start-writing-lints)
 - [How libraries are found](#how-libraries-are-found)
 - [Workspace metadata](#workspace-metadata)
 - [Library requirements](#library-requirements)
 - [Utilities](#utilities)
+- [VS Code integration](#vs-code-integration)
 - [Limitations](#limitations)
 - [Resources](#resources)
 
-## Quick start
+## Quick start: running Dylint
 
 The next four commands install Dylint and run one of the example libraries' lints on the Dylint source code:
 
@@ -33,7 +35,20 @@ cargo dylint allow_clippy                       # Run an example libraries' lint
 
 In the above example, the library is found via [workspace metadata](#workspace-metadata) (see below).
 
-You can start writing your own Dylint libraries by forking the [`dylint-template`](https://github.com/trailofbits/dylint-template) repository.
+## Quick start: writing lints
+
+You can start writing your own Dylint libraries by forking the [`dylint-template`](https://github.com/trailofbits/dylint-template) repository. The repository produces a loadable library right out of the box. You can verify this as follows:
+
+```sh
+git clone https://github.com/trailofbits/dylint-template
+cd dylint-template
+cargo build
+cargo dylint fill_me_in --list
+```
+
+All you have to do is implement the [`LateLintPass`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/trait.LateLintPass.html) trait and accommodate the symbols asking to be filled in.
+
+Helpful [resources](#resources) for writing lints appear below.
 
 ## How libraries are found
 
@@ -126,6 +141,21 @@ The following utilities can be helpful for writing Dylint libraries:
 - [`dylint_library!`](./utils/linting) is a macro that automatically defines the `dylint_version` function and adds the `extern crate rustc_driver` declaration.
 - [`ui_test`](./utils/testing) is a function that can be used to test Dylint libraries. It provides convenient access to the [`compiletest_rs`](https://github.com/Manishearth/compiletest-rs) package.
 - [`clippy_utils`](https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils) is a collection of utilities to make writing lints easier. It is generously made public by the Rust Clippy Developers. Note that, like `rustc`, `clippy_utils` provides no stability guarantees for its APIs.
+
+## VS Code integration
+
+Dylint results can be viewed in VS Code using [rust-analyzer](https://github.com/rust-analyzer/rust-analyzer). To do so, add the following to your VS Code `settings.json` file:
+
+```json
+    "rust-analyzer.checkOnSave.overrideCommand": [
+        "cargo",
+        "dylint",
+        "--all",
+        "--workspace",
+        "--",
+        "--message-format=json"
+    ]
+```
 
 ## Limitations
 
