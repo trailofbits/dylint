@@ -6,6 +6,8 @@ use dylint_internal::{
     Command,
 };
 use semver::Version;
+#[cfg(target_os = "windows")]
+use std::fs::read_dir;
 use std::{
     env::consts,
     fs::{copy, create_dir_all, write},
@@ -176,6 +178,30 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         )),
         driver,
     )?;
+
+    // To succesfully determine the dylint driver Version on Windows,
+    // it is neccesary to place copies of the toolchain dll's next to the driver.
+    #[cfg(target_os = "windows")]
+    {
+        let path = PathBuf::new()
+            .join(env::var(env::RUSTUP_HOME)?)
+            .join("toolchains")
+            .join(toolchain)
+            .join("bin");
+
+        for file in read_dir(path)?.flatten() {
+            let file_name = file.file_name();
+
+            if let Some(file_name) = file_name.to_str() {
+                if file_name.ends_with(".dll") {
+                    copy(
+                        file.path(),
+                        dylint_drivers()?.join(toolchain).join(file_name),
+                    )?;
+                }
+            }
+        }
+    }
 
     Ok(())
 }
