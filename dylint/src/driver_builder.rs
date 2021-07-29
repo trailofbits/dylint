@@ -90,7 +90,7 @@ fn dylint_drivers() -> Result<PathBuf> {
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())
     } else {
-        let home = dirs::home_dir().ok_or_else(|| anyhow!("Could not find the HOME Directory."))?;
+        let home = dirs::home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
         let dylint_drivers = Path::new(&home).join(".dylint_drivers");
         if !dylint_drivers.is_dir() {
             create_dir_all(&dylint_drivers)?;
@@ -179,12 +179,12 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         driver,
     )?;
 
-    // To succesfully determine the dylint driver Version on Windows,
+    // MinerSebas: To succesfully determine the dylint driver Version on Windows,
     // it is neccesary to place copies of the toolchain dll's next to the driver.
     #[cfg(target_os = "windows")]
     {
-        let path = PathBuf::new()
-            .join(env::var(env::RUSTUP_HOME)?)
+        let rustup_home = var(env::RUSTUP_HOME)?;
+        let path = PathBuf::from(rustup_home)
             .join("toolchains")
             .join(toolchain)
             .join("bin");
@@ -193,7 +193,7 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
             let file_name = file.file_name();
 
             if let Some(file_name) = file_name.to_str() {
-                if file_name.ends_with(".dll") {
+                if file_name.ends_with(consts::DLL_SUFFIX) {
                     copy(
                         file.path(),
                         dylint_drivers()?.join(toolchain).join(file_name),
