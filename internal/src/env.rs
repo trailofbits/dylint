@@ -9,7 +9,6 @@ pub const DYLINT_LIBRARY_PATH: &str = "DYLINT_LIBRARY_PATH";
 pub const DYLINT_LIBS: &str = "DYLINT_LIBS";
 pub const DYLINT_LIST: &str = "DYLINT_LIST";
 pub const DYLINT_RUSTFLAGS: &str = "DYLINT_RUSTFLAGS";
-pub const HOME: &str = "HOME"; // Todo: Remove this on the next major semver change.
 pub const RUSTC_WORKSPACE_WRAPPER: &str = "RUSTC_WORKSPACE_WRAPPER";
 pub const RUST_BACKTRACE: &str = "RUST_BACKTRACE";
 pub const RUSTFLAGS: &str = "RUSTFLAGS";
