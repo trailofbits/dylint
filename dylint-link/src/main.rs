@@ -69,6 +69,7 @@ fn main() -> Result<()> {
 
     let mut args = std::env::args();
 
+    #[allow(clippy::redundant_else)]
     if rustup_toolchain.ends_with("msvc") {
         #[cfg(target_os = "windows")]
         {
