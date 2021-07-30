@@ -23,7 +23,7 @@ fn versions_are_exact_and_match() {
         for Dependency { name: dep, req, .. } in &package.dependencies {
             if dep.starts_with("dylint") {
                 assert!(
-                    req.is_exact(),
+                    req.to_string().starts_with('='),
                     "`{}` dependency on `{}` is not exact",
                     package.name,
                     dep

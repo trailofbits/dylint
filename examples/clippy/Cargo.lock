@@ -74,7 +74,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7714a157da7991e23d90686b9524b9e12e0407a108647f52e9328f4b3d51ac7f"
 dependencies = [
  "cargo-platform",
- "semver",
+ "semver 0.11.0",
  "semver-parser",
  "serde",
  "serde_json",
@@ -82,14 +82,13 @@ dependencies = [
 
 [[package]]
 name = "cargo_metadata"
-version = "0.13.1"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "081e3f0755c1f380c2d010481b6fa2e02973586d5f2b24eebb7a2a1d98b143d8"
+checksum = "c297bd3135f558552f99a0daa180876984ea2c4ffa7470314540dff8c654109a"
 dependencies = [
  "camino",
  "cargo-platform",
- "semver",
- "semver-parser",
+ "semver 1.0.3",
  "serde",
  "serde_json",
 ]
@@ -114,7 +113,7 @@ name = "clippy"
 version = "1.0.1"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.13.1",
+ "cargo_metadata 0.14.0",
  "clippy_lints",
  "clippy_utils",
  "dylint",
@@ -141,7 +140,7 @@ dependencies = [
  "quine-mc_cluskey",
  "regex-syntax",
  "rustc-semver",
- "semver",
+ "semver 0.11.0",
  "serde",
  "toml",
  "unicode-normalization",
@@ -240,7 +239,7 @@ dependencies = [
  "dylint_internal",
  "lazy_static",
  "log",
- "semver",
+ "semver 1.0.3",
  "serde",
  "serde_json",
  "tempfile",
@@ -265,7 +264,7 @@ name = "dylint_testing"
 version = "1.0.1"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.13.1",
+ "cargo_metadata 0.14.0",
  "compiletest_rs",
  "dylint",
  "dylint_internal",
@@ -285,9 +284,9 @@ checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
 
 [[package]]
 name = "env_logger"
-version = "0.8.4"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3"
+checksum = "0b2cf0344971ee6c64c31be0d530793fba457d322dfec2810c453d0ef228f9c3"
 dependencies = [
  "atty",
  "humantime",
@@ -708,6 +707,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "semver"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f3aac57ee7f3272d8395c6e4f502f434f0e289fcd62876f70daa008c20dcabe"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "semver-parser"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -738,9 +746,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.64"
+version = "1.0.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "799e97dc9fdae36a5c8b8f2cae9ce2ee9fdce2058c57a93e6099d919fd982f79"
+checksum = "336b10da19a12ad094b59d870ebde26a45402e5b470add4b5fd03c5048a32127"
 dependencies = [
  "itoa",
  "ryu",
