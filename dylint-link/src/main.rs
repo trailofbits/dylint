@@ -58,12 +58,14 @@ fn main() -> Result<()> {
     if rustup_toolchain.ends_with("msvc") {
         #[cfg(target_os = "windows")]
         {
-            while let Some(arg) = args.next() {
+            for arg in args {
                 if arg.starts_with("/OUT:") || arg.starts_with('@') {
                     let path: PathBuf = if arg.starts_with("/OUT:") {
                         arg.trim_start_matches("/OUT:").into()
                     } else {
-                        extract_out_path_from_linker_response_file(arg.trim_start_matches('@'))?
+                        extract_out_path_from_linker_response_file_msvc(
+                            arg.trim_start_matches('@'),
+                        )?
                     };
 
                     copy_library(
@@ -83,6 +85,21 @@ fn main() -> Result<()> {
         }
     } else {
         while let Some(arg) = args.next() {
+            #[cfg(target_os = "windows")]
+            {
+                if arg.starts_with('@') {
+                    let path: PathBuf = extract_out_path_from_linker_response_file_gnu(
+                        arg.trim_start_matches('@'),
+                    )?;
+
+                    copy_library(
+                        path.as_path(),
+                        cargo_pkg_name.as_str(),
+                        rustup_toolchain.as_str(),
+                    )?;
+                    break;
+                }
+            }
             if arg == "-o" {
                 if let Some(path) = args.next() {
                     let path: OsString = path.into();
@@ -101,8 +118,9 @@ fn main() -> Result<()> {
 }
 
 #[cfg(target_os = "windows")]
-fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<PathBuf> {
-    // The MSVC Linker can also accept Arguments through a Linker Response File
+fn extract_out_path_from_linker_response_file_msvc(path: impl AsRef<Path>) -> Result<PathBuf> {
+    // On Windows the cmd line has a Limit of 8191 Characters.
+    // If your command would exceed this you can instead use a Linker Response File to set arguments.
     // (https://docs.microsoft.com/en-us/cpp/build/reference/at-specify-a-linker-response-file?view=msvc-160)
 
     // Read the Linker Response File
@@ -128,6 +146,34 @@ fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<
         .next()
         .map(|path| path.into())
         .ok_or_else(|| anyhow!("Malformed out path flag"))
+}
+
+#[cfg(target_os = "windows")]
+fn extract_out_path_from_linker_response_file_gnu(path: impl AsRef<Path>) -> Result<PathBuf> {
+    // On Windows the cmd line has a Limit of 8191 Characters.
+    // If your command would exceed this you can instead use a Linker Response File to set arguments.
+    // (https://docs.microsoft.com/en-us/cpp/build/reference/at-specify-a-linker-response-file?view=msvc-160)
+    use std::io::BufRead;
+
+    let file = std::fs::File::open(path)?;
+    let mut lines = std::io::BufReader::new(file).lines().flatten().map(|line| {
+        line.trim_start_matches('\"')
+            .trim_end_matches('\"')
+            .to_owned()
+    });
+
+    println!("Test gnu out path");
+    while let Some(line) = lines.next() {
+        println!("{:?}", line);
+        if line == "-o" {
+            return lines
+                .next()
+                .map(|path| path.into())
+                .ok_or_else(|| anyhow!("Malformed out path flag"));
+        }
+    }
+
+    Err(anyhow!("Malformed out path flag"))
 }
 
 fn copy_library(path: &Path, cargo_pkg_name: &str, rustup_toolchain: &str) -> Result<()> {
