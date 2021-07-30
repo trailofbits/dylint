@@ -16,3 +16,4 @@ dylint_internal = { version = "=1.0.1", path = "../internal" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 cc = "1.0.69"
+itertools = "0.10.1"

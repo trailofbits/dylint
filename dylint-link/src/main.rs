@@ -29,26 +29,11 @@ fn main() -> Result<()> {
     {
         if rustup_toolchain.ends_with("msvc") {
             // Removes the Release Information: "nightly-2021-04-08-x86_64-pc-windows-msvc" -> "x86_64-pc-windows-msvc"
-            let trimed_toolchain = {
-                let split_toolchain = rustup_toolchain.split('-');
-
-                let count = split_toolchain.clone().count();
-
-                if count == 4 {
-                    rustup_toolchain.to_owned()
-                } else {
-                    let mut temp = String::new();
-                    for part in split_toolchain.skip(count - 4) {
-                        if !temp.is_empty() {
-                            temp.push('-')
-                        }
-
-                        temp.push_str(part);
-                    }
-
-                    temp
-                }
-            };
+            let split_toolchain = rustup_toolchain.split('-');
+            let count = split_toolchain.clone().count();
+            // MinerSebas: Replace with std version of intersperse, once it is stabilized: https://github.com/rust-lang/rust/issues/79524
+            let trimed_toolchain: String =
+                itertools::Itertools::intersperse(split_toolchain.skip(count - 4), "-").collect();
 
             path = cc::windows_registry::find_tool(trimed_toolchain.as_str(), "link.exe")
                 .ok_or_else(|| anyhow!("Could not find the MSVC Linker"))?
