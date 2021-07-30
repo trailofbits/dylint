@@ -4,6 +4,7 @@
 
 #![allow(unused_imports)]
 #![allow(clippy::default_trait_access)]
+#![allow(clippy::semicolon_if_nothing_returned)]
 #![allow(clippy::too_many_lines)]
 
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};

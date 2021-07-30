@@ -10,4 +10,5 @@ repository = "https://github.com/trailofbits/dylint"
 [dependencies]
 anyhow = "1.0.42"
 git2 = "0.13.20"
+if_chain = "1.0.1"
 log = "0.4.14"

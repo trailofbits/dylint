@@ -10,6 +10,8 @@ use std::{
 use tempfile::tempdir_in;
 use test_env_log::test;
 
+const ERROR_LINES: usize = 5;
+
 #[test]
 fn ui() {
     // smoelius: Try to order failures by how informative they are: failure to build the library,
@@ -64,11 +66,11 @@ fn checkout_rust_clippy(path: &Path) -> Result<()> {
     let url = source
         .strip_prefix("git+")
         .ok_or_else(|| anyhow!("Wrong prefix"))?;
-    let rev = url
+    let refname = url
         .rsplit('=')
         .next()
         .ok_or_else(|| anyhow!("Wrong suffix"))?;
-    dylint_internal::checkout(url, rev, path)
+    dylint_internal::checkout(url, refname, path)
 }
 
 fn clippy_lints_dependency() -> Result<Dependency> {
@@ -113,28 +115,33 @@ fn disable_rustfix(src_base: &Path) -> Result<()> {
         .success()
 }
 
-// smoelius: The `macro_use_imports` test produces the right errors, but not in the right order.
-// I haven't yet figured out why. Hence, this hack.
+// smoelius: The `macro_use_imports` test produces the right four errors, but not in the right
+// order. I haven't yet figured out why. Hence, this hack.
+#[allow(clippy::shadow_unrelated)]
 fn adjust_macro_use_imports_test(src_base: &Path) -> Result<()> {
     let stderr_file = src_base.join("macro_use_imports.stderr");
     let contents = read_to_string(&stderr_file)?;
     let lines: Vec<String> = contents.lines().map(ToString::to_string).collect();
 
-    let (first_error, rest) = lines.split_at(5);
+    let (first_error, rest) = lines.split_at(ERROR_LINES);
     let (note, rest) = rest.split_at(2);
     let (_blank_line, rest) = rest.split_at(1);
-    let (second_error, rest) = rest.split_at(5);
-    let (blank_line, rest) = rest.split_at(1);
-    let (third_error, rest) = rest.split_at(5);
-    let (remaining_errors, summary) = rest.split_at(rest.len() - 2);
+    let (second_error, rest) = rest.split_at(ERROR_LINES);
+    let (_blank_line, rest) = rest.split_at(1);
+    let (third_error, rest) = rest.split_at(ERROR_LINES);
+    let (_blank_line, rest) = rest.split_at(1);
+    let (fourth_error, rest) = rest.split_at(ERROR_LINES);
+    let (blank_line, summary) = rest.split_at(rest.len() - 2);
 
     let permuted: Vec<String> = std::iter::empty()
-        .chain(third_error.iter().cloned())
+        .chain(first_error.iter().cloned())
         .chain(note.iter().cloned())
         .chain(blank_line.iter().cloned())
+        .chain(third_error.iter().cloned())
+        .chain(blank_line.iter().cloned())
+        .chain(fourth_error.iter().cloned())
+        .chain(blank_line.iter().cloned())
         .chain(second_error.iter().cloned())
-        .chain(remaining_errors.iter().cloned())
-        .chain(first_error.iter().cloned())
         .chain(blank_line.iter().cloned())
         .chain(summary.iter().cloned())
         .collect();

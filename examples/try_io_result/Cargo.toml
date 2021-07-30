@@ -14,7 +14,7 @@ name = "ui"
 path = "ui/main.rs"
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "ae72f1adb9cbf16141f880e9e955723a5fdabf00"}
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", tag = "rust-1.54.0"}
 if_chain = "1.0.1"
 
 dylint_linting = { path = "../../utils/linting" }
