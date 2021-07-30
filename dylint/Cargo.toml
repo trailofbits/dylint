@@ -10,24 +10,24 @@ repository = "https://github.com/trailofbits/dylint"
 [dependencies]
 ansi_term = "0.12.1"
 anyhow = "1.0.42"
-cargo = { version = "0.54.0", optional = true }
+cargo = { version = "0.55.0", optional = true }
 cargo-platform = { version = "0.1.1", optional = true }
-cargo-util = { version  = "0.1.0", optional = true }
-cargo_metadata = { version = "0.13.1", optional = true }
+cargo-util = { version  = "0.1.1", optional = true }
+cargo_metadata = { version = "0.14.0", optional = true }
 dirs = "3.0.2"
 glob = { version = "0.3.0", optional = true }
 if_chain = { version = "1.0.1", optional = true }
 lazy_static = "1.4.0"
 log = "0.4.14"
 serde = "1.0.126"
-serde_json = "1.0.64"
-semver = "0.11.0"
+serde_json = "1.0.66"
+semver = "1.0.3"
 tempfile = "3.2.0"
 
 dylint_internal = { version = "=1.0.1", path = "../internal" }
 
 [dev-dependencies]
-env_logger = "0.8.4"
+env_logger = "0.9.0"
 lazy_static = "1.4.0"
 test-env-log = "0.2.7"
 

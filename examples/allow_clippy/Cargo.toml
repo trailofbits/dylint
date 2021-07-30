@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # smoelius: `allow_clippy` is intentionally held back.
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "454515040a580f72c9b6366ee7d46256cfb4246f"}
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "rust-1.52.0"}
 if_chain = "1.0.1"
 
 dylint_linting = { path = "../../utils/linting" }

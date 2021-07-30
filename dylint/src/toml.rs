@@ -97,7 +97,6 @@ impl<P> Default for DetailedTomlDependency<P> {
 
 #[allow(dead_code)]
 pub struct Context<'a, 'b> {
-    pkgid: Option<PackageId>,
     deps: &'a mut Vec<Dependency>,
     source_id: SourceId,
     nested_paths: &'a mut Vec<PathBuf>,
@@ -112,7 +111,6 @@ pub struct Context<'a, 'b> {
 #[allow(clippy::too_many_arguments)]
 impl<'a, 'b> Context<'a, 'b> {
     pub fn new(
-        pkgid: Option<PackageId>,
         deps: &'a mut Vec<Dependency>,
         source_id: SourceId,
         nested_paths: &'a mut Vec<PathBuf>,
@@ -123,7 +121,6 @@ impl<'a, 'b> Context<'a, 'b> {
         features: &'a Features,
     ) -> Self {
         Self {
-            pkgid,
             deps,
             source_id,
             nested_paths,
@@ -307,10 +304,7 @@ impl<P: ResolveToPath> DetailedTomlDependency<P> {
         };
 
         let version = self.version.as_deref();
-        let mut dep = match cx.pkgid {
-            Some(id) => Dependency::parse(pkg_name, version, new_source_id, id, cx.config)?,
-            None => Dependency::parse_no_deprecated(pkg_name, version, new_source_id)?,
-        };
+        let mut dep = Dependency::parse(pkg_name, version, new_source_id)?;
         dep.set_features(self.features.iter().flatten())
             .set_default_features(
                 self.default_features

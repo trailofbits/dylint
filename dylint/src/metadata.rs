@@ -172,7 +172,6 @@ fn dependency(
     let mut warnings = vec![];
     let features = Features::new(&[], config, &mut warnings)?;
     let mut cx = Context::new(
-        None,
         &mut deps,
         source_id,
         &mut nested_paths,
