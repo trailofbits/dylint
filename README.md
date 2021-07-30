@@ -43,7 +43,7 @@ You can start writing your own Dylint libraries by forking the [`dylint-template
 git clone https://github.com/trailofbits/dylint-template
 cd dylint-template
 cargo build
-cargo dylint fill_me_in --list
+DYLINT_LIBRARY_PATH=$PWD/target/debug cargo dylint fill_me_in --list
 ```
 
 All you have to do is implement the [`LateLintPass`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/trait.LateLintPass.html) trait and accommodate the symbols asking to be filled in.
