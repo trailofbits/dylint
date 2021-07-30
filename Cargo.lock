@@ -527,6 +527,7 @@ version = "1.0.1"
 dependencies = [
  "anyhow",
  "git2",
+ "if_chain",
  "log",
 ]
 

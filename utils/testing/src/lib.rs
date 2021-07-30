@@ -150,7 +150,7 @@ fn linking_flags(metadata: &Metadata, package: &Package, target: &Target) -> Res
             linking_flags.push(flag);
         } else if flag == "--extern" || flag == "-L" {
             let arg = next(flag, &mut iter)?;
-            linking_flags.extend_from_slice(&[flag, arg])
+            linking_flags.extend_from_slice(&[flag, arg]);
         }
     }
 
