@@ -33,7 +33,7 @@ for EXAMPLE in *; do
     if [[ -z "$DYLINT_LIBRARY_PATH" ]]; then
         DYLINT_LIBRARY_PATH="$DEBUG"
     else
-        DYLINT_LIBRARY_PATH="$DYLINT_LIBRARY_PATH:$DEBUG"
+        DYLINT_LIBRARY_PATH="$DYLINT_LIBRARY_PATH;$DEBUG"
     fi
 
     popd >/dev/null
