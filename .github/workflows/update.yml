@@ -1,0 +1,37 @@
+name: Update dependencies
+
+# Every Sunday at 3:00 UTC (Saturday at 20:00 EST), create a PR to update dependencies.
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install cargo-edit
+        run: cargo install cargo-edit
+
+      - name: Install dylint-link
+        run: cargo install --path ./dylint-link
+
+      - name: Update dependencies
+        run: |
+          for X in $(find . -name Cargo.lock); do
+            pushd "$(dirname "$X")"
+            rm -f Cargo.lock
+            cargo build --workspace --tests
+            cargo upgrade --workspace --to-lockfile --offline
+            popd
+          done
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: "Update dependencies"
+          # https://github.com/peter-evans/create-pull-request/blob/master/docs/concepts-guidelines.md#triggering-further-workflow-runs
+          token: ${{ secrets.PR_TOKEN }}
