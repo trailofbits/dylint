@@ -96,7 +96,7 @@ fn dylint_library_paths() -> Result<Vec<(PathBuf, bool)>> {
     let mut paths = Vec::new();
 
     if let Ok(val) = var(env::DYLINT_LIBRARY_PATH) {
-        for path in val.split(':') {
+        for path in val.split(';') {
             let path = PathBuf::from(path);
             ensure!(
                 path.is_absolute(),
@@ -487,7 +487,7 @@ mod test {
                         .to_string()
                 })
                 .collect::<Vec<_>>()
-                .join(":");
+                .join(";");
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
             name_toolchain_map(&Dylint {
                 no_metadata: true,
