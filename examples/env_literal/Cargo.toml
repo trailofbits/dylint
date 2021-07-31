@@ -6,6 +6,9 @@ description = "A lint to check for environment variables referred to with string
 edition = "2018"
 publish = false
 
+[package.metadata.rust-analyzer]
+rustc_private=true
+
 [lib]
 crate-type = ["cdylib"]
 

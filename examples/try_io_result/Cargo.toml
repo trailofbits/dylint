@@ -6,6 +6,9 @@ description = "A lint to check for the `?` operator applied to `std::io::Result`
 edition = "2018"
 publish = false
 
+[package.metadata.rust-analyzer]
+rustc_private=true
+
 [lib]
 crate-type = ["cdylib"]
 

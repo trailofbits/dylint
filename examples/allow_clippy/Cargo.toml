@@ -6,6 +6,9 @@ description = "A tongue-in-cheek example of a Dylint library"
 edition = "2018"
 publish = false
 
+[package.metadata.rust-analyzer]
+rustc_private=true
+
 [lib]
 crate-type = ["cdylib"]
 
