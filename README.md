@@ -157,6 +157,19 @@ Dylint results can be viewed in VS Code using [rust-analyzer](https://github.com
     ]
 ```
 
+If you want to use rust-analyzer inside a lint library, you need add the following to your VS Code `settings.json` file:
+
+```json
+    "rust-analyzer.rustcSource": "discover",
+```
+
+And add this to your `Cargo.toml`:
+
+```toml
+[package.metadata.rust-analyzer]
+rustc_private=true
+```
+
 ## Limitations
 
 To run a library's lints on a package, Dylint tries to build the package with the same toolchain used to build the library. So if a package requires a specific toolchain to build, Dylint may not be able to apply certain libraries to that package.
