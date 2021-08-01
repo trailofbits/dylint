@@ -6,9 +6,6 @@ description = "A lint to check for the `?` operator applied to `std::io::Result`
 edition = "2018"
 publish = false
 
-[package.metadata.rust-analyzer]
-rustc_private=true
-
 [lib]
 crate-type = ["cdylib"]
 
@@ -26,5 +23,8 @@ dylint_linting = { path = "../../utils/linting" }
 anyhow = "1.0.42"
 
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
 
 [workspace]

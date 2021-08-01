@@ -6,9 +6,6 @@ description = "A lint to check for environment variables referred to with string
 edition = "2018"
 publish = false
 
-[package.metadata.rust-analyzer]
-rustc_private=true
-
 [lib]
 crate-type = ["cdylib"]
 
@@ -20,5 +17,8 @@ dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
 
 [workspace]

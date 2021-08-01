@@ -6,9 +6,6 @@ description = "All of the Clippy lints as a Dylint library"
 edition = "2018"
 publish = false
 
-[package.metadata.rust-analyzer]
-rustc_private=true
-
 [lib]
 crate-type = ["cdylib"]
 
@@ -30,5 +27,8 @@ test-env-log = "0.2.7"
 
 dylint = { path = "../../dylint", default-features = false }
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
 
 [workspace]
