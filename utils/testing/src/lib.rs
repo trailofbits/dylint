@@ -188,7 +188,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
 
         remove_example(metadata, package, target)?;
 
-        std::env::set_var("CARGO_TERM_COLOR", "never");
+        std::env::set_var(env::CARGO_TERM_COLOR, "never");
 
         Command::new("cargo")
             .args(&[
