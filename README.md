@@ -167,7 +167,7 @@ And add this to your `Cargo.toml`:
 
 ```toml
 [package.metadata.rust-analyzer]
-rustc_private=true
+rustc_private = true
 ```
 
 ## Limitations
