@@ -6,9 +6,6 @@ description = "A lint to check for the `?` operator in expressions"
 edition = "2018"
 publish = false
 
-[package.metadata.rust-analyzer]
-rustc_private=true
-
 [lib]
 crate-type = ["cdylib"]
 
@@ -31,5 +28,8 @@ git2 = "0.13.20"
 tempfile = "3.2.0"
 
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
 
 [workspace]
