@@ -1,10 +1,10 @@
 name: Update dependencies
 
-# Every Sunday at 3:00 UTC (Saturday at 20:00 EST), create a PR to update dependencies.
+# Every Monday at 3:00 UTC (Sunday at 20:00 EST), create a PR to update dependencies.
 
 on:
   schedule:
-    - cron: "0 3 * * 0"
+    - cron: "0 3 * * 1"
 
 jobs:
   update:
@@ -12,6 +12,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+          # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
+          ssh-key: ${{ secrets.PR_SSH_PRIVATE_KEY }}
 
       - name: Install cargo-edit
         run: cargo install cargo-edit
@@ -33,5 +37,3 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           title: "Update dependencies"
-          # https://github.com/peter-evans/create-pull-request/blob/master/docs/concepts-guidelines.md#triggering-further-workflow-runs
-          token: ${{ secrets.PR_TOKEN }}
