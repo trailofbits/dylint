@@ -2,7 +2,7 @@
 name = "dylint_testing"
 version = "1.0.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "Utiltities for testing Dylint libraries"
+description = "Utilities for testing Dylint libraries"
 edition = "2018"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
