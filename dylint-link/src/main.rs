@@ -53,53 +53,50 @@ fn main() -> Result<()> {
     Command::new(path).args(&args[1..]).success()?;
 
     let mut args = std::env::args();
+    let path = output_path(&mut args)?;
 
-    #[allow(clippy::redundant_else)]
-    if rustup_toolchain.ends_with("msvc") {
-        #[cfg(target_os = "windows")]
-        {
-            for arg in args {
-                if arg.starts_with("/OUT:") || arg.starts_with('@') {
-                    let path: PathBuf = if arg.starts_with("/OUT:") {
-                        arg.trim_start_matches("/OUT:").into()
-                    } else {
-                        extract_out_path_from_linker_response_file_msvc(
-                            arg.trim_start_matches('@'),
-                        )?
-                    };
-
-                    copy_library(
-                        path.as_path(),
-                        cargo_pkg_name.as_str(),
-                        rustup_toolchain.as_str(),
-                    )?;
-                    break;
-                }
-            }
-        }
-        #[cfg(not(target_os = "windows"))]
-        {
-            return Err(anyhow!(
-                "dylint-link can only link with the MSVC toolchain on Windows"
-            ));
-        }
-    } else {
-        while let Some(arg) = args.next() {
-            if arg == "-o" {
-                if let Some(path) = args.next() {
-                    let path: OsString = path.into();
-                    copy_library(
-                        Path::new(&path),
-                        cargo_pkg_name.as_str(),
-                        rustup_toolchain.as_str(),
-                    )?;
-                }
-                break;
-            }
-        }
-    };
+    copy_library(
+        path.as_path(),
+        cargo_pkg_name.as_str(),
+        rustup_toolchain.as_str(),
+    )?;
 
     Ok(())
+}
+
+#[cfg(target_os = "windows")]
+fn output_path<I: ?Sized>(iter: &mut I) -> Result<PathBuf>
+where
+    I: Iterator<Item = String>,
+{
+    for arg in iter {
+        if arg.starts_with("/OUT:") {
+            return Ok(arg.trim_start_matches("/OUT:").into());
+        }
+        if arg.starts_with('@') {
+            return extract_out_path_from_linker_response_file(
+                arg.trim_start_matches('@'),
+            );
+        }
+    }
+
+    Err(anyhow!("No output path was provided"))
+}
+
+#[cfg(not(target_os = "windows"))]
+fn output_path<I: ?Sized>(iter: &mut I) -> Result<PathBuf>
+where
+    I: Iterator<Item = String>,
+{
+    while let Some(arg) = iter.next() {
+        if arg == "-o" {
+            if let Some(path) = iter.next() {
+                return Ok(path.into());
+            }
+        }
+    }
+
+    Err(anyhow!("No output path was provided"))
 }
 
 #[cfg(target_os = "windows")]
