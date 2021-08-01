@@ -242,7 +242,9 @@ fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> R
 
         if let Some(file_name) = path.file_name() {
             let s = file_name.to_string_lossy();
-            if s == target.name || s.starts_with(&(target.name.clone() + "-")) {
+            if s == target.name.clone() + std::env::consts::EXE_SUFFIX
+                || s.starts_with(&(target.name.clone() + "-"))
+            {
                 remove_file(path)?;
             }
         }
