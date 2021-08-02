@@ -10,7 +10,7 @@ use dylint_internal::{
 use if_chain::if_chain;
 use std::{
     env::consts,
-    ffi::{OsStr, OsString},
+    ffi::OsStr,
     fs::copy,
     path::{Path, PathBuf},
 };
@@ -23,33 +23,9 @@ fn main() -> Result<()> {
     let cargo_pkg_name = var(env::CARGO_PKG_NAME)?;
     let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
 
-    let path: OsString;
-
-    #[cfg(target_os = "windows")]
-    {
-        if rustup_toolchain.ends_with("msvc") {
-            // Removes the Release Information: "nightly-2021-04-08-x86_64-pc-windows-msvc" -> "x86_64-pc-windows-msvc"
-            let split_toolchain = rustup_toolchain.split('-');
-            let count = split_toolchain.clone().count();
-            // MinerSebas: Replace with std version of intersperse, once it is stabilized: https://github.com/rust-lang/rust/issues/79524
-            let trimed_toolchain: String =
-                itertools::Itertools::intersperse(split_toolchain.skip(count - 4), "-").collect();
-
-            path = cc::windows_registry::find_tool(trimed_toolchain.as_str(), "link.exe")
-                .ok_or_else(|| anyhow!("Could not find the MSVC Linker"))?
-                .path()
-                .into();
-        } else {
-            return Err(anyhow!("Only the MSVC toolchain is supported on Windows."));
-        }
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        path = "cc".into();
-    };
+    let path = get_linker(rustup_toolchain.as_str())?;
 
     let args: Vec<String> = std::env::args().collect();
-
     Command::new(path).args(&args[1..]).success()?;
 
     let mut args = std::env::args();
@@ -65,6 +41,33 @@ fn main() -> Result<()> {
 }
 
 #[cfg(target_os = "windows")]
+fn get_linker(rustup_toolchain: &str) -> Result<PathBuf> {
+    if rustup_toolchain.ends_with("msvc") {
+        // Removes the Release Information: "nightly-2021-04-08-x86_64-pc-windows-msvc" -> "x86_64-pc-windows-msvc"
+        let split_toolchain = rustup_toolchain.split('-');
+        let count = split_toolchain.clone().count();
+        // MinerSebas: Replace with std version of intersperse, once it is stabilized: https://github.com/rust-lang/rust/issues/79524
+        let trimed_toolchain: String =
+            itertools::Itertools::intersperse(split_toolchain.skip(count - 4), "-").collect();
+
+        let path = cc::windows_registry::find_tool(trimed_toolchain.as_str(), "link.exe")
+            .ok_or_else(|| anyhow!("Could not find the MSVC Linker"))?
+            .path()
+            .to_owned();
+
+        Ok(path)
+    } else {
+        Err(anyhow!("Only the MSVC toolchain is supported on Windows."))
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+#[allow(clippy::unnecessary_wraps)]
+fn get_linker(_rustup_toolchain: &str) -> Result<PathBuf> {
+    Ok(PathBuf::from("cc"))
+}
+
+#[cfg(target_os = "windows")]
 fn output_path<I: ?Sized>(iter: &mut I) -> Result<PathBuf>
 where
     I: Iterator<Item = String>,
@@ -74,9 +77,7 @@ where
             return Ok(arg.trim_start_matches("/OUT:").into());
         }
         if arg.starts_with('@') {
-            return extract_out_path_from_linker_response_file(
-                arg.trim_start_matches('@'),
-            );
+            return extract_out_path_from_linker_response_file(arg.trim_start_matches('@'));
         }
     }
 
@@ -100,7 +101,7 @@ where
 }
 
 #[cfg(target_os = "windows")]
-fn extract_out_path_from_linker_response_file_msvc(path: impl AsRef<Path>) -> Result<PathBuf> {
+fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<PathBuf> {
     // On Windows the cmd line has a Limit of 8191 Characters.
     // If your command would exceed this you can instead use a Linker Response File to set arguments.
     // (https://docs.microsoft.com/en-us/cpp/build/reference/at-specify-a-linker-response-file?view=msvc-160)
