@@ -1,6 +1,12 @@
 name: Update dependencies
 
-# smoelius: Every Monday at 3:00 UTC (Sunday at 20:00 EST), create a PR to update dependencies.
+# smoelius: Every Monday at 3:00 UTC (Sunday at 20:00 EST), create a PR to update dependencies to
+# their latest patch versions.
+#
+# The main purpose of this action is verify that the project's lockfiles aren't needed to build it
+# (hence, the `rm -f Cargo.lock` below). However, doing so produces up-to-date lockfiles as a
+# by-product. From there, `cargo upgrade` can be used to make the `Cargo.toml` files match. So,
+# given that we have these up-to-date `Cargo.lock` and `Cargo.toml` files, why not create a PR?
 
 on:
   schedule:
