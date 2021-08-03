@@ -3,7 +3,7 @@ use assert_cmd::prelude::*;
 use dylint_internal::{cargo::SanitizeEnvironment, env, Command};
 use predicates::prelude::*;
 use std::{
-    ffi::OsString,
+    env::join_paths,
     path::{Path, PathBuf},
 };
 use tempfile::tempdir;
@@ -90,11 +90,11 @@ fn one_name_multiple_paths() {
         .success()
         .unwrap();
 
-    // smoelius: https://users.rust-lang.org/t/osstring-osstr-error/35249
-    let mut paths = OsString::new();
-    paths.push(&target_debug(tempdirs.0.path()));
-    paths.push(";");
-    paths.push(&target_debug(tempdirs.1.path()));
+    let paths = join_paths(&[
+        &target_debug(tempdirs.0.path()),
+        &target_debug(tempdirs.1.path()),
+    ])
+    .unwrap();
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()

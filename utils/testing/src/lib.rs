@@ -2,13 +2,13 @@ use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{Metadata, MetadataCommand, Package, Target};
 use compiletest_rs::{self as compiletest, common::Mode as TestMode};
 use dylint_internal::{
+    cargo,
     env::{self, var},
-    Command,
 };
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
-    env::set_var,
+    env::{consts, set_var},
     fs::{copy, read_dir, remove_file},
     io::BufRead,
     path::Path,
@@ -188,11 +188,9 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
 
         remove_example(metadata, package, target)?;
 
-        std::env::set_var(env::CARGO_TERM_COLOR, "never");
-
-        Command::new("cargo")
+        cargo::build()
+            .envs(vec![(env::CARGO_TERM_COLOR, "never")])
             .args(&[
-                "build",
                 "--manifest-path",
                 &package.manifest_path.to_string(),
                 "--example",
@@ -244,7 +242,7 @@ fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> R
 
         if let Some(file_name) = path.file_name() {
             let s = file_name.to_string_lossy();
-            if s == target.name.clone() + std::env::consts::EXE_SUFFIX
+            if s == target.name.clone() + consts::EXE_SUFFIX
                 || s.starts_with(&(target.name.clone() + "-"))
             {
                 remove_file(path)?;
