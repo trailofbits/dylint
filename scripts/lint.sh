@@ -37,7 +37,7 @@ EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<clippy\>[[:space:]]*//')"
 for DIR in $DIRS; do
     unset DYLINT_LIBRARY_PATH
     if [[ "$DIR" != '.' ]]; then
-        export DYLINT_LIBRARY_PATH="$(echo target/dylint/*/release | xargs readlink -f | tr '\n' ';' | head -c -1)"
+        export DYLINT_LIBRARY_PATH="$(echo target/dylint/*/release | xargs readlink -f | tr '\n' ':' | head -c -1)"
     fi
 
     pushd "$DIR"
