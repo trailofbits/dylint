@@ -12,3 +12,6 @@ mod git;
 pub use git::*;
 
 pub mod rustup;
+
+pub mod testing;
+pub use testing::checkout_dylint_template;
