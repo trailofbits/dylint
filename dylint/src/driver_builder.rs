@@ -2,7 +2,7 @@ use crate::error::warn;
 use anyhow::{anyhow, ensure, Result};
 use dylint_internal::{
     env::{self, var},
-    rustup::SanitizeEnvironment,
+    rustup::{toolchain_path, SanitizeEnvironment},
     Command,
 };
 use semver::Version;
@@ -160,10 +160,21 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     create_dir_all(&src)?;
     write(&src.join("main.rs"), MAIN_RS)?;
 
+    let toolchain_path = toolchain_path(package)?;
+
+    // smoelius: The commented code was the old behavior. It would cause the driver to have rpaths
+    // like `$ORIGIN/../../`... (see https://github.com/trailofbits/dylint/issues/54). The new
+    // behavior causes the driver to have absolute rpaths.
+    // let rustflags = "-C rpath=yes";
+    let rustflags = format!(
+        "-C link-args=-Wl,-rpath,{}/lib",
+        toolchain_path.to_string_lossy()
+    );
+
     let mut command = dylint_internal::build();
     command
         .sanitize_environment()
-        .envs(vec![(env::RUSTFLAGS, "-C rpath=yes")])
+        .envs(vec![(env::RUSTFLAGS, rustflags)])
         .current_dir(&package);
     if opts.quiet {
         command.stderr(Stdio::null());
