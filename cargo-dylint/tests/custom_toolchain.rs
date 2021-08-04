@@ -1,6 +1,9 @@
 use anyhow::{anyhow, Result};
-use dylint_internal::{cargo::SanitizeEnvironment, Command};
-use std::path::{Path, PathBuf};
+use dylint_internal::{
+    rustup::{toolchain_path, SanitizeEnvironment},
+    Command,
+};
+use std::path::Path;
 use tempfile::{tempdir, NamedTempFile};
 use test_env_log::test;
 
@@ -27,21 +30,6 @@ fn custom_toolchain() {
         .unwrap();
 
     uninstall_toolchain(&custom_toolchain).unwrap();
-}
-
-fn toolchain_path(path: &Path) -> Result<PathBuf> {
-    let output = Command::new("rustup")
-        .sanitize_environment()
-        .current_dir(path)
-        .args(&["which", "rustc"])
-        .output()?;
-    let stdout = std::str::from_utf8(&output.stdout)?;
-    let path = PathBuf::from(stdout);
-    // smoelius: `path` should end with `/bin/rustc`.
-    path.ancestors()
-        .nth(2)
-        .map(Into::into)
-        .ok_or_else(|| anyhow!("Could not get ancestor"))
 }
 
 fn random_string() -> Result<String> {

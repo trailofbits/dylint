@@ -1,16 +1,3 @@
-use crate::env;
-
-pub trait SanitizeEnvironment {
-    fn sanitize_environment(&mut self) -> &mut Self;
-}
-
-impl SanitizeEnvironment for crate::Command {
-    fn sanitize_environment(&mut self) -> &mut Self {
-        self.env_remove(env::RUSTUP_TOOLCHAIN);
-        self
-    }
-}
-
 #[must_use]
 pub fn build() -> crate::Command {
     cargo("build")

@@ -8,7 +8,7 @@ use cargo::{
     util::{self, Config},
 };
 use cargo_metadata::{Error, Metadata, MetadataCommand};
-use dylint_internal::cargo::SanitizeEnvironment;
+use dylint_internal::rustup::SanitizeEnvironment;
 use glob::glob;
 use if_chain::if_chain;
 use serde::Deserialize;

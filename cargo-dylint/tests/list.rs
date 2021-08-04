@@ -1,6 +1,6 @@
 use anyhow::Result;
 use assert_cmd::prelude::*;
-use dylint_internal::{cargo::SanitizeEnvironment, env, Command};
+use dylint_internal::{env, rustup::SanitizeEnvironment, Command};
 use predicates::prelude::*;
 use std::{
     env::join_paths,
