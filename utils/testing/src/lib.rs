@@ -1,8 +1,8 @@
 use anyhow::{anyhow, ensure, Result};
-use cargo_metadata::{Metadata, MetadataCommand, Package, Target};
+use cargo_metadata::{Metadata, Package, Target};
 use compiletest_rs::{self as compiletest, common::Mode as TestMode};
 use dylint_internal::{
-    cargo,
+    cargo::{self, metadata, root_package},
     env::{self, var},
 };
 use lazy_static::lazy_static;
@@ -26,7 +26,7 @@ pub fn ui_test_example(name: &str, example: &str) {
     let driver = initialize(name).unwrap();
 
     let metadata = metadata().unwrap();
-    let package = package(&metadata).unwrap();
+    let package = root_package(&metadata).unwrap();
     let target = example_target(&package, example).unwrap();
 
     run_example_test(&driver, &metadata, &package, &target).unwrap();
@@ -36,7 +36,7 @@ pub fn ui_test_examples(name: &str) {
     let driver = initialize(name).unwrap();
 
     let metadata = metadata().unwrap();
-    let package = package(&metadata).unwrap();
+    let package = root_package(&metadata).unwrap();
     let targets = example_targets(&package).unwrap();
 
     for target in targets {
@@ -74,25 +74,6 @@ pub fn dylint_libs(name: &str) -> Result<String> {
     let (_, path) = entry.ok_or_else(|| anyhow!("Could not find library `{}`", name))?;
     let paths = vec![path];
     serde_json::to_string(&paths).map_err(Into::into)
-}
-
-fn metadata() -> Result<Metadata> {
-    let manifest_dir = var(env::CARGO_MANIFEST_DIR)?;
-    let manifest_path = Path::new(&manifest_dir).join("Cargo.toml");
-    MetadataCommand::new()
-        .manifest_path(manifest_path)
-        .no_deps()
-        .exec()
-        .map_err(Into::into)
-}
-
-fn package(metadata: &Metadata) -> Result<Package> {
-    ensure!(metadata.packages.len() <= 1, "Found multiple packages");
-    metadata
-        .packages
-        .first()
-        .cloned()
-        .ok_or_else(|| anyhow!("Found no packages"))
 }
 
 fn example_target(package: &Package, example: &str) -> Result<Target> {
