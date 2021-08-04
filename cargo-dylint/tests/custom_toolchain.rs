@@ -7,13 +7,11 @@ use std::path::Path;
 use tempfile::{tempdir, NamedTempFile};
 use test_env_log::test;
 
-const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
-
 #[test]
 fn custom_toolchain() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::checkout(DYLINT_TEMPLATE_URL, "master", tempdir.path()).unwrap();
+    dylint_internal::checkout_dylint_template(tempdir.path()).unwrap();
 
     let toolchain_path = toolchain_path(tempdir.path()).unwrap();
 

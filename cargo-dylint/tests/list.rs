@@ -9,29 +9,26 @@ use std::{
 use tempfile::tempdir;
 use test_env_log::test;
 
-const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
-const DYLINT_TEMPLATE_REV: &str = "fc9d0e025d2d9d57ea9cc9bb1764047bbc8ae609";
+const CHANNEL_A: &str = "nightly-2021-03-11";
+const CHANNEL_B: &str = "nightly-2021-04-22";
 
-const CHANNEL_A: &str = "nightly-2021-02-11";
-const CHANNEL_B: &str = "nightly-2021-04-08";
-
-const CLIPPY_UTILS_REV_A: &str = "454515040a580f72c9b6366ee7d46256cfb4246f";
-const CLIPPY_UTILS_REV_B: &str = "586a99348c6a6f5309e82b340193067b7d76e37c";
+const CLIPPY_UTILS_TAG_A: &str = "rust-1.52.1";
+const CLIPPY_UTILS_TAG_B: &str = "rust-1.53.0";
 
 #[test]
 fn one_name_multiple_toolchains() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::checkout(DYLINT_TEMPLATE_URL, DYLINT_TEMPLATE_REV, tempdir.path()).unwrap();
+    dylint_internal::checkout_dylint_template(tempdir.path()).unwrap();
 
-    patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_REV_A).unwrap();
+    patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_TAG_A).unwrap();
     dylint_internal::build()
         .sanitize_environment()
         .current_dir(tempdir.path())
         .success()
         .unwrap();
 
-    patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_REV_B).unwrap();
+    patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_TAG_B).unwrap();
     dylint_internal::build()
         .sanitize_environment()
         .current_dir(tempdir.path())
@@ -55,7 +52,7 @@ fn one_name_multiple_toolchains() {
 }
 
 // smoelius: FIXME: Shell (Is it really a FIXME if I keep doing it?)
-fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> Result<()> {
+fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_tag: &str) -> Result<()> {
     Command::new("sh")
         .current_dir(&path)
         .args(&[
@@ -63,9 +60,9 @@ fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> 
             &format!(
                 r#"
                     sed -i -e 's/^channel = "[^"]*"$/channel = "{}"/' rust-toolchain &&
-                    sed -i -e 's/rev = "[^"]*"/rev = "{}"/' Cargo.toml
+                    sed -i -e 's/^\(clippy_utils\>.*\)\<tag = "[^"]*"/\1tag = "{}"/' Cargo.toml
                 "#,
-                channel, clippy_utils_rev,
+                channel, clippy_utils_tag,
             ),
         ])
         .success()
@@ -75,8 +72,8 @@ fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> 
 fn one_name_multiple_paths() {
     let tempdirs = (tempdir().unwrap(), tempdir().unwrap());
 
-    dylint_internal::checkout(DYLINT_TEMPLATE_URL, DYLINT_TEMPLATE_REV, tempdirs.0.path()).unwrap();
-    dylint_internal::checkout(DYLINT_TEMPLATE_URL, DYLINT_TEMPLATE_REV, tempdirs.1.path()).unwrap();
+    dylint_internal::checkout_dylint_template(tempdirs.0.path()).unwrap();
+    dylint_internal::checkout_dylint_template(tempdirs.1.path()).unwrap();
 
     dylint_internal::build()
         .sanitize_environment()

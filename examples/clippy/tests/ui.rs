@@ -1,10 +1,9 @@
 use anyhow::{anyhow, Result};
 use cargo_metadata::{Dependency, MetadataCommand};
-use dylint_internal::{env, Command};
+use dylint_internal::{env, testing::isolate, Command};
 use std::{
     env::set_var,
-    fs::{read_to_string, write, OpenOptions},
-    io::Write,
+    fs::{read_to_string, write},
     path::Path,
 };
 use tempfile::tempdir_in;
@@ -86,19 +85,6 @@ fn clippy_lints_dependency() -> Result<Dependency> {
         .find(|dependency| dependency.name == "clippy_lints")
         .ok_or_else(|| anyhow!("Could not find dependency"))?;
     Ok(dependency.clone())
-}
-
-// smoelius: So long as Clippy is checked out in the current directory, this must be dealt with:
-// error: current package believes it's in a workspace when it's not
-fn isolate(path: &Path) -> Result<()> {
-    let mut file = OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open(path.join("Cargo.toml"))?;
-
-    writeln!(file, "[workspace]")?;
-
-    Ok(())
 }
 
 // smoelius: FIXME: Shell
