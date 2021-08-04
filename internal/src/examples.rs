@@ -1,5 +1,4 @@
-#[allow(clippy::wildcard_imports)]
-use crate::cargo::*;
+use crate::rustup::SanitizeEnvironment;
 use anyhow::Result;
 use std::{
     fs::read_dir,

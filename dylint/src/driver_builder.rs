@@ -1,8 +1,8 @@
 use crate::error::warn;
 use anyhow::{anyhow, ensure, Result};
 use dylint_internal::{
-    cargo::SanitizeEnvironment,
     env::{self, var},
+    rustup::SanitizeEnvironment,
     Command,
 };
 use semver::Version;

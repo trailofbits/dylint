@@ -10,3 +10,5 @@ pub mod examples;
 
 mod git;
 pub use git::*;
+
+pub mod rustup;
