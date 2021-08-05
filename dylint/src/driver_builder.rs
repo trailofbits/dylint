@@ -6,10 +6,8 @@ use dylint_internal::{
     Command,
 };
 use semver::Version;
-#[cfg(target_os = "windows")]
-use std::env::{join_paths, split_paths};
 use std::{
-    env::consts,
+    env::{consts, join_paths, split_paths},
     ffi::OsString,
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
@@ -101,26 +99,28 @@ fn dylint_drivers() -> Result<PathBuf> {
     }
 }
 
-#[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
 fn is_outdated(opts: &crate::Dylint, driver: &Path, toolchain: &str) -> Result<bool> {
     let path = env::var(env::PATH)?;
-    #[cfg_attr(not(target_os = "windows"), allow(unused_mut))]
-    let mut path = OsString::from(path);
 
-    #[cfg(target_os = "windows")]
-    {
-        // MinerSebas: To succesfully determine the dylint driver Version on Windows,
-        // it is neccesary to add some Libraries to the Path.
-        path = join_paths(
-            std::iter::once(
-                Path::new(&env::var(env::RUSTUP_HOME)?)
-                    .join("toolchains")
-                    .join(toolchain)
-                    .join("bin"),
-            )
-            .chain(split_paths(&path)),
-        )?;
-    }
+    let path = {
+        if cfg!(target_os = "windows") {
+            // MinerSebas: To succesfully determine the dylint driver Version on Windows,
+            // it is neccesary to add some Libraries to the Path.
+            let rustup_home = env::var(env::RUSTUP_HOME)?;
+
+            join_paths(
+                std::iter::once(
+                    Path::new(&rustup_home)
+                        .join("toolchains")
+                        .join(toolchain)
+                        .join("bin"),
+                )
+                .chain(split_paths(&path)),
+            )?
+        } else {
+            OsString::from(path)
+        }
+    };
 
     let output = Command::new(driver)
         .envs(vec![(env::PATH, path)])
