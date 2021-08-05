@@ -1,6 +1,6 @@
 use crate::{
     cargo::{metadata, package},
-    Command,
+    sed::find_and_replace,
 };
 use anyhow::{anyhow, Result};
 use std::{fs::OpenOptions, io::Write, path::Path};
@@ -57,14 +57,8 @@ fn use_local_packages(path: &Path) -> Result<()> {
 }
 
 fn allow_unused_extern_crates(path: &Path) -> Result<()> {
-    Command::new("sh")
-        .current_dir(&path)
-        .args(&[
-            "-c",
-            r#"
-                find . -name '*.rs' -print0 |
-                xargs -0 -n 1 sed -i -e '/^#!\[warn(unused_extern_crates)\]$/d'
-            "#,
-        ])
-        .success()
+    find_and_replace(
+        &path.join("src").join("lib.rs"),
+        &[r#"s/(?m)^#!\[warn\(unused_extern_crates\)\]\n//"#],
+    )
 }
