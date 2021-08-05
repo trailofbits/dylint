@@ -7,9 +7,10 @@ use dylint_internal::{
 };
 use semver::Version;
 #[cfg(target_os = "windows")]
-use std::fs::read_dir;
+use std::env::{join_paths, split_paths};
 use std::{
     env::consts,
+    ffi::OsString,
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
     process::Stdio,
@@ -77,7 +78,7 @@ pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
     }
 
     let driver = driver_dir.join("dylint-driver");
-    if !driver.exists() || is_outdated(opts, &driver)? {
+    if !driver.exists() || is_outdated(opts, &driver, toolchain)? {
         build(opts, toolchain, &driver)?;
     }
 
@@ -100,8 +101,31 @@ fn dylint_drivers() -> Result<PathBuf> {
     }
 }
 
-fn is_outdated(opts: &crate::Dylint, driver: &Path) -> Result<bool> {
-    let output = Command::new(driver).args(&["-V"]).output()?;
+#[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
+fn is_outdated(opts: &crate::Dylint, driver: &Path, toolchain: &str) -> Result<bool> {
+    let path = env::var(env::PATH)?;
+    #[cfg_attr(not(target_os = "windows"), allow(unused_mut))]
+    let mut path = OsString::from(path);
+
+    #[cfg(target_os = "windows")]
+    {
+        // MinerSebas: To succesfully determine the dylint driver Version on Windows,
+        // it is neccesary to add some Libraries to the Path.
+        path = join_paths(
+            std::iter::once(
+                Path::new(&env::var(env::RUSTUP_HOME)?)
+                    .join("toolchains")
+                    .join(toolchain)
+                    .join("bin"),
+            )
+            .chain(split_paths(&path)),
+        )?;
+    }
+
+    let output = Command::new(driver)
+        .envs(vec![(env::PATH, path)])
+        .args(&["-V"])
+        .output()?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     let theirs = stdout
         .trim_end()
@@ -189,30 +213,6 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         )),
         driver,
     )?;
-
-    // MinerSebas: To succesfully determine the dylint driver Version on Windows,
-    // it is neccesary to place copies of the toolchain dll's next to the driver.
-    #[cfg(target_os = "windows")]
-    {
-        let rustup_home = var(env::RUSTUP_HOME)?;
-        let path = PathBuf::from(rustup_home)
-            .join("toolchains")
-            .join(toolchain)
-            .join("bin");
-
-        for file in read_dir(path)?.flatten() {
-            let file_name = file.file_name();
-
-            if let Some(file_name) = file_name.to_str() {
-                if file_name.ends_with(consts::DLL_SUFFIX) {
-                    copy(
-                        file.path(),
-                        dylint_drivers()?.join(toolchain).join(file_name),
-                    )?;
-                }
-            }
-        }
-    }
 
     Ok(())
 }
