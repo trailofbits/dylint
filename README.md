@@ -153,7 +153,7 @@ Dylint results can be viewed in VS Code using [rust-analyzer](https://github.com
         "--all",
         "--workspace",
         "--",
-        "--all-targets"
+        "--all-targets",
         "--message-format=json"
     ]
 ```
