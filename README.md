@@ -163,7 +163,7 @@ If you want to use rust-analyzer inside a lint library, you need to add the foll
     "rust-analyzer.rustcSource": "discover",
 ```
 
-And add this to your `Cargo.toml`:
+And add the following to the library's `Cargo.toml` file:
 
 ```toml
 [package.metadata.rust-analyzer]
