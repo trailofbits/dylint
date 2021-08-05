@@ -7,43 +7,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install dylint-link
-      run: cargo install --path ./dylint-link
+      - name: Install dylint-link
+        run: cargo install --path ./dylint-link
 
-    - name: Format
-      run: find . -name '*.rs' -exec rustfmt {} \; && git diff --exit-code
+      - name: Format
+        run: find . -name '*.rs' -exec rustfmt {} \; && git diff --exit-code
 
-    - name: Format example READMEs
-      run: ./scripts/update_example_READMEs.sh && git diff --exit-code
+      - name: Format example READMEs
+        run: ./scripts/update_example_READMEs.sh && git diff --exit-code
 
-    - name: Check lockfiles
-      run: ./scripts/update_lockfiles.sh && git diff --exit-code
+      - name: Check lockfiles
+        run: ./scripts/update_lockfiles.sh && git diff --exit-code
 
-    - name: Check licenses
-      run: |
-        cargo install cargo-license
-        ./scripts/check_licenses.sh
+      - name: Check licenses
+        run: |
+          cargo install cargo-license
+          ./scripts/check_licenses.sh
 
-    - name: Lint
-      run: ./scripts/lint.sh
+      - name: Lint
+        run: ./scripts/lint.sh
 
-    - name: Udeps
-      run: |
-        rustup toolchain install nightly
-        cargo install cargo-udeps
-        cargo +nightly udeps --workspace --tests --no-default-features
-        cargo +nightly udeps --workspace --tests
+      - name: Udeps
+        run: |
+          rustup toolchain install nightly
+          cargo install cargo-udeps
+          cargo +nightly udeps --workspace --tests --no-default-features
+          cargo +nightly udeps --workspace --tests
 
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.environment }}
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install dylint-link
-      run: cargo install --path ./dylint-link
+      - name: Install dylint-link
+        run: cargo install --path ./dylint-link
 
-    - name: Test
-      run: cargo test --workspace
+      - name: Test
+        run: cargo test --workspace
