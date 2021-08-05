@@ -1,6 +1,6 @@
 use anyhow::Result;
 use assert_cmd::prelude::*;
-use dylint_internal::{env, rustup::SanitizeEnvironment, Command};
+use dylint_internal::{env, find_and_replace, rustup::SanitizeEnvironment};
 use predicates::prelude::*;
 use std::{
     env::join_paths,
@@ -51,21 +51,21 @@ fn one_name_multiple_toolchains() {
         );
 }
 
-// smoelius: FIXME: Shell (Is it really a FIXME if I keep doing it?)
 fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_tag: &str) -> Result<()> {
-    Command::new("sh")
-        .current_dir(&path)
-        .args(&[
-            "-c",
-            &format!(
-                r#"
-                    sed -i -e 's/^channel = "[^"]*"$/channel = "{}"/' rust-toolchain &&
-                    sed -i -e 's/^\(clippy_utils\>.*\)\<tag = "[^"]*"/\1tag = "{}"/' Cargo.toml
-                "#,
-                channel, clippy_utils_tag,
-            ),
-        ])
-        .success()
+    find_and_replace(
+        &path.join("rust-toolchain"),
+        &[&format!(
+            r#"s/(?m)^channel = "[^"]*"$/channel = "{}"/"#,
+            channel,
+        )],
+    )?;
+    find_and_replace(
+        &path.join("Cargo.toml"),
+        &[&format!(
+            r#"s/(?m)^(clippy_utils\b.*)\btag = "[^"]*"/${{1}}tag = "{}"/"#,
+            clippy_utils_tag,
+        )],
+    )
 }
 
 #[test]

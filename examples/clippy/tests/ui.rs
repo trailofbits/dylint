@@ -1,9 +1,10 @@
 use anyhow::{anyhow, Result};
 use cargo_metadata::{Dependency, MetadataCommand};
-use dylint_internal::{env, testing::isolate, Command};
+use dylint_internal::{env, find_and_replace, testing::isolate};
 use std::{
     env::set_var,
-    fs::{read_to_string, write},
+    ffi::OsStr,
+    fs::{read_dir, read_to_string, remove_file, write},
     path::Path,
 };
 use tempfile::tempdir_in;
@@ -87,18 +88,18 @@ fn clippy_lints_dependency() -> Result<Dependency> {
     Ok(dependency.clone())
 }
 
-// smoelius: FIXME: Shell
 fn disable_rustfix(src_base: &Path) -> Result<()> {
-    Command::new("sh")
-        .current_dir(&src_base)
-        .args(&[
-            "-c",
-            r#"
-                sed -i -e 's,\<run-rustfix\>,,' *.rs &&
-                rm -f *.fixed
-            "#,
-        ])
-        .success()
+    for entry in read_dir(src_base)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.extension() != Some(OsStr::new("rs")) {
+            continue;
+        }
+        find_and_replace(&path, &[r#"s/\brun-rustfix\b//"#])?;
+        remove_file(path.with_extension("fixed")).unwrap_or_default();
+    }
+
+    Ok(())
 }
 
 // smoelius: The `macro_use_imports` test produces the right four errors, but not in the right

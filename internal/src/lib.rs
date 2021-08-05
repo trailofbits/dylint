@@ -13,5 +13,8 @@ pub use git::*;
 
 pub mod rustup;
 
+mod sed;
+pub use sed::find_and_replace;
+
 pub mod testing;
 pub use testing::checkout_dylint_template;

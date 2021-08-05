@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use dylint_internal::{
+    find_and_replace,
     rustup::{toolchain_path, SanitizeEnvironment},
     Command,
 };
@@ -46,18 +47,13 @@ fn link_toolchain(toolchain: &str, path: &Path) -> Result<()> {
 }
 
 fn patch_dylint_template(path: &Path, channel: &str) -> Result<()> {
-    Command::new("sh")
-        .current_dir(&path)
-        .args(&[
-            "-c",
-            &format!(
-                r#"
-                    sed -i -e 's/^channel = "[^"]*"$/channel = "{}"/' rust-toolchain
-                "#,
-                channel,
-            ),
-        ])
-        .success()
+    find_and_replace(
+        &path.join("rust-toolchain"),
+        &[&format!(
+            r#"s/(?m)^channel = "[^"]*"$/channel = "{}"/"#,
+            channel,
+        )],
+    )
 }
 
 fn uninstall_toolchain(toolchain: &str) -> Result<()> {
