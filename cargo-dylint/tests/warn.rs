@@ -1,13 +1,30 @@
 use assert_cmd::prelude::*;
 use predicates::prelude::*;
-use std::path::Path;
+use tempfile::tempdir;
 use test_env_log::test;
 
 #[test]
 fn no_libraries_were_found() {
+    let tempdir = tempdir().unwrap();
+
+    std::process::Command::new("cargo")
+        .current_dir(tempdir.path())
+        .args(&[
+            "init",
+            "--name",
+            tempdir
+                .path()
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .trim_start_matches('.'),
+        ])
+        .assert()
+        .success();
+
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir(Path::new("..").join("driver"))
+        .current_dir(tempdir.path())
         .args(&["dylint", "--all"])
         .assert()
         .success()
