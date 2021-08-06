@@ -22,3 +22,8 @@ dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_loca
 rustc_private = true
 
 [workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../*" },
+]
