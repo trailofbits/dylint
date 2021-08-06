@@ -1,5 +1,5 @@
 use crate::{
-    cargo::{metadata, package},
+    cargo::{current_metadata, package},
     sed::find_and_replace,
 };
 use anyhow::{anyhow, Result};
@@ -35,7 +35,7 @@ pub fn isolate(path: &Path) -> Result<()> {
 // packages in this repository. The function `use_local_packages` patches a workspace's `Cargo.toml`
 // file to do so.
 fn use_local_packages(path: &Path) -> Result<()> {
-    let metadata = metadata()?;
+    let metadata = current_metadata()?;
 
     let mut file = OpenOptions::new()
         .write(true)

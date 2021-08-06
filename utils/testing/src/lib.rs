@@ -2,8 +2,8 @@ use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{Metadata, Package, Target};
 use compiletest_rs::{self as compiletest, common::Mode as TestMode};
 use dylint_internal::{
-    cargo::{self, metadata, root_package},
-    env::{self, var},
+    cargo::{self, current_metadata, root_package},
+    env,
 };
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -25,7 +25,7 @@ pub fn ui_test(name: &str, src_base: &Path) {
 pub fn ui_test_example(name: &str, example: &str) {
     let driver = initialize(name).unwrap();
 
-    let metadata = metadata().unwrap();
+    let metadata = current_metadata().unwrap();
     let package = root_package(&metadata).unwrap();
     let target = example_target(&package, example).unwrap();
 
@@ -35,7 +35,7 @@ pub fn ui_test_example(name: &str, example: &str) {
 pub fn ui_test_examples(name: &str) {
     let driver = initialize(name).unwrap();
 
-    let metadata = metadata().unwrap();
+    let metadata = current_metadata().unwrap();
     let package = root_package(&metadata).unwrap();
     let targets = example_targets(&package).unwrap();
 
@@ -53,11 +53,9 @@ fn initialize(name: &str) -> Result<PathBuf> {
     dylint_internal::build().success()?;
 
     // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-    let manifest_dir = var(env::CARGO_MANIFEST_DIR)?;
-    set_var(
-        env::DYLINT_LIBRARY_PATH,
-        Path::new(&manifest_dir).join("target").join("debug"),
-    );
+    let metadata = current_metadata().unwrap();
+    let dylint_library_path = metadata.target_directory.join("debug");
+    set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
 
     let dylint_libs = dylint_libs(name)?;
     let driver = dylint::driver_builder::get(&dylint::Dylint::default(), env!("RUSTUP_TOOLCHAIN"))?;
@@ -162,6 +160,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
     // smoelius: Force rebuilding of the example by removing it. This is kind of messy. The example
     // is a shared resource that may be needed by multiple tests. For now, I lock a mutex while the
     // example is removed and put back.
+    // smoelius: Should we use a temporary target directory here?
     let output = {
         let _guard = LOCK
             .lock()

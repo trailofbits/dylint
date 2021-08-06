@@ -467,23 +467,16 @@ mod test {
     #![allow(clippy::unwrap_used)]
 
     use super::*;
-    use dylint_internal::examples;
+    use dylint_internal::{cargo::current_metadata, examples};
     use lazy_static::lazy_static;
-    use std::env::{join_paths, set_var};
+    use std::env::set_var;
     use test_env_log::test;
 
     lazy_static! {
         static ref NAME_TOOLCHAIN_MAP: NameToolchainMap = {
             examples::build().unwrap();
-            let dylint_library_path = join_paths(examples::iter().unwrap().map(|example| {
-                example
-                    .unwrap()
-                    .join("target")
-                    .join("debug")
-                    .to_string_lossy()
-                    .to_string()
-            }))
-            .unwrap();
+            let metadata = current_metadata().unwrap();
+            let dylint_library_path = metadata.target_directory.join("debug");
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
             name_toolchain_map(&Dylint {
                 no_metadata: true,

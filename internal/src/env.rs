@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 
 pub const CARGO_MANIFEST_DIR: &str = "CARGO_MANIFEST_DIR";
 pub const CARGO_PKG_NAME: &str = "CARGO_PKG_NAME";
+pub const CARGO_TARGET_DIR: &str = "CARGO_TARGET_DIR";
 pub const CARGO_TERM_COLOR: &str = "CARGO_TERM_COLOR";
 pub const CLIPPY_DISABLE_DOCS_LINKS: &str = "CLIPPY_DISABLE_DOCS_LINKS";
 pub const CLIPPY_DRIVER_PATH: &str = "CLIPPY_DRIVER_PATH";

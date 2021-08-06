@@ -1,8 +1,9 @@
-use cargo_metadata::{Dependency, Metadata, MetadataCommand, Version};
+use cargo_metadata::{Dependency, Metadata, Version};
+use dylint_internal::cargo::current_metadata;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref METADATA: Metadata = MetadataCommand::new().no_deps().exec().unwrap();
+    static ref METADATA: Metadata = current_metadata().unwrap();
 }
 
 #[test]

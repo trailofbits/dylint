@@ -1,7 +1,5 @@
-use crate::env::{self, var};
 use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
-use std::path::Path;
 
 #[must_use]
 pub fn build() -> crate::Command {
@@ -24,14 +22,9 @@ fn cargo(subcommand: &str) -> crate::Command {
     command
 }
 
-pub fn metadata() -> Result<Metadata> {
-    let manifest_dir = var(env::CARGO_MANIFEST_DIR)?;
-    let manifest_path = Path::new(&manifest_dir).join("Cargo.toml");
-    MetadataCommand::new()
-        .manifest_path(manifest_path)
-        .no_deps()
-        .exec()
-        .map_err(Into::into)
+/// Get metadata based on the current directory.
+pub fn current_metadata() -> Result<Metadata> {
+    MetadataCommand::new().no_deps().exec().map_err(Into::into)
 }
 
 pub fn root_package(metadata: &Metadata) -> Result<Package> {

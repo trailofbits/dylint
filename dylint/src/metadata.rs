@@ -133,9 +133,9 @@ fn maybe_build_packages(
     // files sooner.
 
     // smoelius: Why are we doing this complicated dance at all? Because we want to leverage Cargo's
-    // package cache. But we also want to support git repositories with libraries that use different
-    // compiler versions. And we have to work around the fact that "all projects within a workspace
-    // are intended to be built with the same version of the compiler"
+    // download cache. But we also want to support git repositories with libraries that use
+    // different compiler versions. And we have to work around the fact that "all projects within a
+    // workspace are intended to be built with the same version of the compiler"
     // (https://github.com/rust-lang/rustup/issues/1399#issuecomment-383376082).
 
     let package_root_ids = paths

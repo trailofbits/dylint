@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
-use cargo_metadata::{Dependency, MetadataCommand};
-use dylint_internal::{env, find_and_replace, testing::isolate};
+use cargo_metadata::Dependency;
+use dylint_internal::{cargo::current_metadata, env, find_and_replace, testing::isolate};
 use std::{
     env::set_var,
     ffi::OsStr,
@@ -26,25 +26,32 @@ fn ui() {
     isolate(tempdir.path()).unwrap();
 
     let src_base = tempdir.path().join("tests").join("ui");
-
     disable_rustfix(&src_base).unwrap();
     adjust_macro_use_imports_test(&src_base).unwrap();
 
     // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-    set_var(
-        env::DYLINT_LIBRARY_PATH,
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("target")
-            .join("debug"),
-    );
+    let metadata = current_metadata().unwrap();
+    let dylint_library_path = metadata.target_directory.join("debug");
+    set_var(env::DYLINT_LIBRARY_PATH, &dylint_library_path);
 
     let dylint_libs = dylint_testing::dylint_libs("clippy").unwrap();
     let driver =
         dylint::driver_builder::get(&dylint::Dylint::default(), env!("RUSTUP_TOOLCHAIN")).unwrap();
 
+    // smoelius: Clippy's `compile-test` panics if multiple rlibs exist for certain crates (see
+    // `third_party_crates` in
+    // https://github.com/rust-lang/rust-clippy/blob/master/tests/compile-test.rs). This can happen
+    // as a result of using a shared target directory. The workaround I have adopted is to use a
+    // temporary target directory.
+    let target_dir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+
     dylint_internal::test()
         .current_dir(tempdir.path())
         .envs(vec![
+            (
+                env::CARGO_TARGET_DIR,
+                target_dir.path().to_string_lossy().to_string(),
+            ),
             (env::DYLINT_LIBS, dylint_libs),
             (
                 env::CLIPPY_DRIVER_PATH,
@@ -74,7 +81,7 @@ fn checkout_rust_clippy(path: &Path) -> Result<()> {
 }
 
 fn clippy_lints_dependency() -> Result<Dependency> {
-    let metadata = MetadataCommand::new().no_deps().exec()?;
+    let metadata = current_metadata()?;
     let package = metadata
         .packages
         .iter()
