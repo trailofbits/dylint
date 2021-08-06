@@ -23,8 +23,6 @@ EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<allow_clippy\>[[:space:]]*//')"
 # wreaks havoc.
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<try_io_result\>[[:space:]]*//')"
 
-# smoelius: Put '.' first to ensure all libraries are built. (See the hack regarding
-# `DYLINT_LIBRARY_PATH` below.)
 DIRS=". driver"
 for EXAMPLE in $EXAMPLES; do
     DIRS="$DIRS examples/$EXAMPLE"
@@ -35,15 +33,12 @@ done
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<clippy\>[[:space:]]*//')"
 
 for DIR in $DIRS; do
-    unset DYLINT_LIBRARY_PATH
-    if [[ "$DIR" != '.' ]]; then
-        export DYLINT_LIBRARY_PATH="$(echo target/dylint/*/release | xargs readlink -f | tr '\n' ':' | head -c -1)"
-    fi
-
     pushd "$DIR"
     for LINTS in "$EXAMPLES" clippy; do
         # smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
-        rm -rf target/debug/deps
+        # smoelius: The commented command doesn't do anything now that all workspaes in the
+        # repository share a top-level target directory. Is the command still necesary?
+        # rm -rf target/debug/deps
 
         unset DYLINT_RUSTFLAGS
         if [[ "$LINTS" = clippy ]]; then

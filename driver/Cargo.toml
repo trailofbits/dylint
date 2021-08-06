@@ -16,3 +16,8 @@ serde_json = "1.0.66"
 dylint_internal = { version = "=1.0.1", path = "../internal" }
 
 [workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../examples/*" },
+]
