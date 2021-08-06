@@ -100,13 +100,13 @@ fn dylint_drivers() -> Result<PathBuf> {
 }
 
 fn is_outdated(opts: &crate::Dylint, driver: &Path, toolchain: &str) -> Result<bool> {
-    let path = env::var(env::PATH)?;
+    let path = var(env::PATH)?;
 
     let path = {
         if cfg!(target_os = "windows") {
             // MinerSebas: To succesfully determine the dylint driver Version on Windows,
             // it is neccesary to add some Libraries to the Path.
-            let rustup_home = env::var(env::RUSTUP_HOME)?;
+            let rustup_home = var(env::RUSTUP_HOME)?;
 
             join_paths(
                 std::iter::once(
