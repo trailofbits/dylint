@@ -117,7 +117,7 @@ fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<
         .into_iter()
         .map(|a| u16::from_ne_bytes([a[0], a[1]]))
         .collect();
-    let file = String::from_utf16_lossy(file.as_slice()).replace("\\\"", "\"");
+    let file = String::from_utf16_lossy(file.as_slice());
 
     let lines = file
         .trim_start_matches('\"')
