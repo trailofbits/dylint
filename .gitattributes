@@ -1,3 +1,3 @@
 # smoelius: Force `LF` line endings in `.stderr` files.
-# See https://github.com/Manishearth/compiletest-rs/issues/154.
+# See https://github.com/Manishearth/compiletest-rs/issues/154
 *.stderr eol=lf
