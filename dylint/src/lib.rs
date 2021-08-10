@@ -3,10 +3,7 @@
 #![deny(clippy::panic)]
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use dylint_internal::{
-    env::{self, var},
-    Command,
-};
+use dylint_internal::env::{self, var};
 use lazy_static::lazy_static;
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -378,7 +375,8 @@ fn list_lints(
 
                     // smoelius: `-W help` is the normal way to list lints, so we can be sure it
                     // gets the lints loaded. However, we don't actually use it to list the lints.
-                    Command::new(driver)
+                    let mut command = dylint_internal::driver(toolchain, &driver)?;
+                    command
                         .envs(vec![
                             (env::DYLINT_LIBS.to_owned(), dylint_libs),
                             (env::DYLINT_LIST.to_owned(), "1".to_owned()),

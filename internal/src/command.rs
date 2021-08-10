@@ -1,5 +1,7 @@
+use crate::env::{self, var};
 use anyhow::{ensure, Result};
 use std::{
+    env::{join_paths, split_paths},
     ffi::{OsStr, OsString},
     path::Path,
     process::{Output, Stdio},
@@ -83,4 +85,32 @@ impl Command {
 
         Ok(())
     }
+}
+
+pub fn driver(toolchain: &str, driver: &Path) -> Result<Command> {
+    let path = var(env::PATH)?;
+
+    let path = {
+        if cfg!(target_os = "windows") {
+            // MinerSebas: To succesfully determine the dylint driver Version on Windows,
+            // it is neccesary to add some Libraries to the Path.
+            let rustup_home = var(env::RUSTUP_HOME)?;
+
+            join_paths(
+                std::iter::once(
+                    Path::new(&rustup_home)
+                        .join("toolchains")
+                        .join(toolchain)
+                        .join("bin"),
+                )
+                .chain(split_paths(&path)),
+            )?
+        } else {
+            OsString::from(path)
+        }
+    };
+
+    let mut command = Command::new(driver);
+    command.envs(vec![(env::PATH, path)]);
+    Ok(command)
 }
