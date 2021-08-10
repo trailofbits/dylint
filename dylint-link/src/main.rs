@@ -2,6 +2,8 @@
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
 
+#[cfg(target_os = "windows")]
+use anyhow::ensure;
 use anyhow::{anyhow, Result};
 use dylint_internal::{
     env::{self, var},
@@ -20,98 +22,91 @@ use std::{fs::File, io::Read};
 fn main() -> Result<()> {
     env_logger::init();
 
-    let cargo_pkg_name = var(env::CARGO_PKG_NAME)?;
-    let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
-
-    let path = get_linker(rustup_toolchain.as_str())?;
-
+    let linker = linker()?;
     let args: Vec<String> = std::env::args().collect();
-    Command::new(path).args(&args[1..]).success()?;
+    Command::new(linker).args(&args[1..]).success()?;
 
-    let mut args = std::env::args();
-    let path = output_path(&mut args)?;
-
-    copy_library(
-        path.as_path(),
-        cargo_pkg_name.as_str(),
-        rustup_toolchain.as_str(),
-    )?;
+    if let Some(path) = output_path(args.iter())? {
+        copy_library(&path)?;
+    }
 
     Ok(())
 }
 
 #[cfg(target_os = "windows")]
-fn get_linker(rustup_toolchain: &str) -> Result<PathBuf> {
-    if rustup_toolchain.ends_with("msvc") {
-        // Removes the Release Information: "nightly-2021-04-08-x86_64-pc-windows-msvc" -> "x86_64-pc-windows-msvc"
-        let split_toolchain = rustup_toolchain.split('-');
-        let count = split_toolchain.clone().count();
-        // MinerSebas: Replace with std version of intersperse, once it is stabilized: https://github.com/rust-lang/rust/issues/79524
-        let trimed_toolchain: String =
-            itertools::Itertools::intersperse(split_toolchain.skip(count - 4), "-").collect();
-
-        let path = cc::windows_registry::find_tool(trimed_toolchain.as_str(), "link.exe")
-            .ok_or_else(|| anyhow!("Could not find the MSVC Linker"))?
-            .path()
-            .to_owned();
-
-        Ok(path)
-    } else {
-        Err(anyhow!("Only the MSVC toolchain is supported on Windows."))
+fn linker() -> Result<PathBuf> {
+    let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
+    let split_toolchain: Vec<_> = rustup_toolchain.split('-').collect();
+    if_chain! {
+        if split_toolchain.last() == Some(&"msvc");
+        let len = split_toolchain.len();
+        if len >= 4;
+        then {
+            // MinerSebas: Removes the Release Information: "nightly-2021-04-08-x86_64-pc-windows-msvc" -> "x86_64-pc-windows-msvc"
+            let trimmed_toolchain: String = split_toolchain[len - 4..].join("-");
+            if let Some(tool) = cc::windows_registry::find_tool(&trimmed_toolchain, "link.exe") {
+                Ok(tool.path().into())
+            } else {
+                Err(anyhow!("Could not find the MSVC Linker"))
+            }
+        } else {
+            Err(anyhow!("Only the MSVC toolchain is supported on Windows"))
+        }
     }
 }
 
 #[cfg(not(target_os = "windows"))]
 #[allow(clippy::unnecessary_wraps)]
-fn get_linker(_rustup_toolchain: &str) -> Result<PathBuf> {
+fn linker() -> Result<PathBuf> {
     Ok(PathBuf::from("cc"))
 }
 
 #[cfg(target_os = "windows")]
-fn output_path<I: ?Sized>(iter: &mut I) -> Result<PathBuf>
+fn output_path<'a, I>(iter: I) -> Result<Option<PathBuf>>
 where
-    I: Iterator<Item = String>,
+    I: Iterator<Item = &'a String>,
 {
     for arg in iter {
-        if arg.starts_with("/OUT:") {
-            return Ok(arg.trim_start_matches("/OUT:").into());
+        if let Some(path) = arg.strip_prefix("/OUT:") {
+            return Ok(Some(path.into()));
         }
-        if arg.starts_with('@') {
-            return extract_out_path_from_linker_response_file(arg.trim_start_matches('@'));
+        if let Some(path) = arg.strip_prefix('@') {
+            return extract_out_path_from_linker_response_file(path);
         }
     }
 
-    Err(anyhow!("No output path was provided"))
+    Ok(None)
 }
 
 #[cfg(not(target_os = "windows"))]
-fn output_path<I: ?Sized>(iter: &mut I) -> Result<PathBuf>
+fn output_path<'a, I>(mut iter: I) -> Result<Option<PathBuf>>
 where
-    I: Iterator<Item = String>,
+    I: Iterator<Item = &'a String>,
 {
     while let Some(arg) = iter.next() {
         if arg == "-o" {
             if let Some(path) = iter.next() {
-                return Ok(path.into());
+                return Ok(Some(path.into()));
             }
         }
     }
 
-    Err(anyhow!("No output path was provided"))
+    Ok(None)
 }
 
 #[cfg(target_os = "windows")]
-fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<PathBuf> {
-    // On Windows the cmd line has a Limit of 8191 Characters.
+fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<Option<PathBuf>> {
+    // MinerSebas: On Windows the cmd line has a Limit of 8191 Characters.
     // If your command would exceed this you can instead use a Linker Response File to set arguments.
     // (https://docs.microsoft.com/en-us/cpp/build/reference/at-specify-a-linker-response-file?view=msvc-160)
 
-    // Read the Linker Response File
+    // MinerSebas: Read the Linker Response File
     let mut buf: Vec<u8> = Vec::new();
     File::open(path)?.read_to_end(&mut buf)?;
 
-    // Convert the File from UTF-16 to a Rust UTF-8 String
+    // MinerSebas: Convert the File from UTF-16 to a Rust UTF-8 String
     // (Only necessary for MSVC, the GNU Linker uses UTF-8 isntead.)
+    // Based on: https://stackoverflow.com/a/57172592
     let file: Vec<u16> = buf
         .chunks_exact(2)
         .into_iter()
@@ -119,24 +114,24 @@ fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<
         .collect();
     let file = String::from_utf16_lossy(file.as_slice());
 
-    let lines = file
-        .trim_start_matches('\"')
-        .trim_end_matches('\"')
-        .split("\"\n\"");
+    let paths: Vec<_> = file
+        .lines()
+        .flat_map(|line| line.trim().trim_matches('"').strip_prefix("/OUT:"))
+        .collect();
 
-    lines
-        .filter(|line| line.starts_with("/OUT:"))
-        .map(|line| line.trim_start_matches("/OUT:"))
-        .next()
-        .map(|path| path.into())
-        .ok_or_else(|| anyhow!("Malformed out path flag"))
+    ensure!(paths.len() <= 1, "Found multiple output paths");
+
+    // smoelius: Do not raise an error if no output path is found.
+    Ok(paths.last().map(Into::into))
 }
 
-fn copy_library(path: &Path, cargo_pkg_name: &str, rustup_toolchain: &str) -> Result<()> {
+fn copy_library(path: &Path) -> Result<()> {
     if_chain! {
         if let Some(lib_name) = parse_path(path);
+        let cargo_pkg_name = var(env::CARGO_PKG_NAME)?;
         if lib_name == cargo_pkg_name.replace("-", "_");
         then {
+            let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
             let filename_with_toolchain = format!(
                 "{}{}@{}{}",
                 consts::DLL_PREFIX,
