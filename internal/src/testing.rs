@@ -7,7 +7,7 @@ use std::{fs::OpenOptions, io::Write, path::Path};
 
 const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
 
-const DYLINT_TEMPLATE_REV: &str = "6d6f2858874b254e41a26bab388eab0406a7e5e7";
+const DYLINT_TEMPLATE_REV: &str = "b4955a9ccb5193050e604e7a1670321a4dc0e26e";
 
 pub fn checkout_dylint_template(path: &Path) -> Result<()> {
     crate::checkout(DYLINT_TEMPLATE_URL, DYLINT_TEMPLATE_REV, path)?;
@@ -50,7 +50,12 @@ fn use_local_packages(path: &Path) -> Result<()> {
             .manifest_path
             .parent()
             .ok_or_else(|| anyhow!("Could not get parent"))?;
-        writeln!(file, r#"{} = {{ path = "{}" }}"#, package.name, path)?;
+        writeln!(
+            file,
+            r#"{} = {{ path = "{}" }}"#,
+            package.name,
+            path.to_string().replace('\\', "\\\\")
+        )?;
     }
 
     Ok(())

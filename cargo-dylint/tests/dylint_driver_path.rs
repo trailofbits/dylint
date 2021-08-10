@@ -1,7 +1,6 @@
 use dylint_internal::{
     env,
     rustup::{toolchain_path, SanitizeEnvironment},
-    Command,
 };
 use std::fs::create_dir_all;
 use tempfile::tempdir_in;
@@ -31,7 +30,10 @@ fn dylint_driver_path() {
     // https://github.com/trailofbits/dylint/issues/54
     let toolchain_path = toolchain_path(tempdir.path()).unwrap();
     let toolchain = toolchain_path.iter().last().unwrap();
-    Command::new(dylint_driver_path.join(toolchain).join("dylint-driver"))
-        .success()
-        .unwrap();
+    let mut command = dylint_internal::driver(
+        &toolchain.to_string_lossy().to_string(),
+        &dylint_driver_path.join(toolchain).join("dylint-driver"),
+    )
+    .unwrap();
+    command.success().unwrap();
 }

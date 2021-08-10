@@ -3,12 +3,10 @@ use anyhow::{anyhow, ensure, Result};
 use dylint_internal::{
     env::{self, var},
     rustup::{toolchain_path, SanitizeEnvironment},
-    Command,
 };
 use semver::Version;
 use std::{
-    env::{consts, join_paths, split_paths},
-    ffi::OsString,
+    env::consts,
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
     process::Stdio,
@@ -76,7 +74,7 @@ pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
     }
 
     let driver = driver_dir.join("dylint-driver");
-    if !driver.exists() || is_outdated(opts, &driver, toolchain)? {
+    if !driver.exists() || is_outdated(opts, toolchain, &driver)? {
         build(opts, toolchain, &driver)?;
     }
 
@@ -99,33 +97,9 @@ fn dylint_drivers() -> Result<PathBuf> {
     }
 }
 
-fn is_outdated(opts: &crate::Dylint, driver: &Path, toolchain: &str) -> Result<bool> {
-    let path = var(env::PATH)?;
-
-    let path = {
-        if cfg!(target_os = "windows") {
-            // MinerSebas: To succesfully determine the dylint driver Version on Windows,
-            // it is neccesary to add some Libraries to the Path.
-            let rustup_home = var(env::RUSTUP_HOME)?;
-
-            join_paths(
-                std::iter::once(
-                    Path::new(&rustup_home)
-                        .join("toolchains")
-                        .join(toolchain)
-                        .join("bin"),
-                )
-                .chain(split_paths(&path)),
-            )?
-        } else {
-            OsString::from(path)
-        }
-    };
-
-    let output = Command::new(driver)
-        .envs(vec![(env::PATH, path)])
-        .args(&["-V"])
-        .output()?;
+fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<bool> {
+    let mut command = dylint_internal::driver(toolchain, driver)?;
+    let output = command.args(&["-V"]).output()?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     let theirs = stdout
         .trim_end()
@@ -171,6 +145,7 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
             .expect("Could not get parent directory")
             .join("driver")
             .to_string_lossy()
+            .replace('\\', "\\\\")
     );
 
     let dylint_driver_spec = format!("{}{}", version_spec, path_spec);

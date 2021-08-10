@@ -123,17 +123,17 @@ fn linking_flags(metadata: &Metadata, package: &Package, target: &Target) -> Res
 
     let mut linking_flags = Vec::new();
 
-    let mut iter = rustc_flags.iter();
+    let mut iter = rustc_flags.into_iter();
     while let Some(flag) = iter.next() {
         if flag.starts_with("--edition=") {
             linking_flags.push(flag);
         } else if flag == "--extern" || flag == "-L" {
-            let arg = next(flag, &mut iter)?;
-            linking_flags.extend_from_slice(&[flag, arg]);
+            let arg = next(&flag, &mut iter)?;
+            linking_flags.extend(vec![flag, arg.trim_matches('\'').to_owned()]);
         }
     }
 
-    Ok(linking_flags.into_iter().cloned().collect())
+    Ok(linking_flags)
 }
 
 // smoelius: We need to recover the `rustc` flags used to build a target. I can see three options:
