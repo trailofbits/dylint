@@ -317,7 +317,7 @@ fn target_dir(metadata: &Metadata, package_root: &Path, package_id: PackageId) -
 }
 
 // smoelius: `pkg_dir` and `target_short_hash` are based on functions with the same names in
-// https://github.com/rust-lang/cargo/blob/master/src/cargo/core/compiler/context/compilation_files.rs.
+// https://github.com/rust-lang/cargo/blob/master/src/cargo/core/compiler/context/compilation_files.rs
 
 fn pkg_dir(package_root: &Path, pkg_id: PackageId) -> String {
     let name = pkg_id.name();
