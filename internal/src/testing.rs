@@ -64,6 +64,6 @@ fn use_local_packages(path: &Path) -> Result<()> {
 fn allow_unused_extern_crates(path: &Path) -> Result<()> {
     find_and_replace(
         &path.join("src").join("lib.rs"),
-        &[r#"s/(?m)^#!\[warn\(unused_extern_crates\)\]\n//"#],
+        &[r#"s/(?m)^#!\[warn\(unused_extern_crates\)\]\r?\n//"#],
     )
 }

@@ -52,10 +52,11 @@ fn one_name_multiple_toolchains() {
 }
 
 fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_tag: &str) -> Result<()> {
+    // smoelius: See https://github.com/rust-lang/regex/issues/244.
     find_and_replace(
         &path.join("rust-toolchain"),
         &[&format!(
-            r#"s/(?m)^channel = "[^"]*"$/channel = "{}"/"#,
+            r#"s/(?m)^channel = "[^"]*"/channel = "{}"/"#,
             channel,
         )],
     )?;
