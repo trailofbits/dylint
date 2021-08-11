@@ -174,7 +174,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-dylint"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -489,7 +489,7 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
 name = "dylint"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "ansi_term 0.12.1",
  "anyhow",
@@ -513,7 +513,7 @@ dependencies = [
 
 [[package]]
 name = "dylint-link"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "anyhow",
  "cc",
@@ -524,7 +524,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -536,11 +536,11 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "1.0.1"
+version = "1.0.2"
 
 [[package]]
 name = "dylint_testing"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "anyhow",
  "cargo_metadata",
