@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- Link Dylint drivers using absolute paths (fixes [#54](https://github.com/trailofbits/dylint/issues/54))
+- Windows support (thanks to [@MinerSebas](https://github.com/MinerSebas))
+
 ## 1.0.1
 
 - Bug fixes ([#38](https://github.com/trailofbits/dylint/issues/38), [#39](https://github.com/trailofbits/dylint/issues/39))
