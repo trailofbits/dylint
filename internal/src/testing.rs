@@ -7,7 +7,7 @@ use std::{fs::OpenOptions, io::Write, path::Path};
 
 const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
 
-const DYLINT_TEMPLATE_REV: &str = "b4955a9ccb5193050e604e7a1670321a4dc0e26e";
+const DYLINT_TEMPLATE_REV: &str = "84703d471eb492792b5bb6f845bc343244211401";
 
 pub fn checkout_dylint_template(path: &Path) -> Result<()> {
     crate::checkout(DYLINT_TEMPLATE_URL, DYLINT_TEMPLATE_REV, path)?;
@@ -37,10 +37,16 @@ pub fn isolate(path: &Path) -> Result<()> {
 fn use_local_packages(path: &Path) -> Result<()> {
     let metadata = current_metadata()?;
 
-    let mut file = OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open(path.join("Cargo.toml"))?;
+    let manifest = path.join("Cargo.toml");
+
+    find_and_replace(
+        &manifest,
+        &[
+            r#"s/(?m)^dylint_testing = "([^"]*)"/dylint_testing = { version = "${1}", features = ["dylint_driver_local"] }/"#,
+        ],
+    )?;
+
+    let mut file = OpenOptions::new().write(true).append(true).open(manifest)?;
 
     writeln!(file, "[patch.crates-io]")?;
 
