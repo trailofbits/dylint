@@ -13,7 +13,9 @@ compile time error.
 let _ = std::env::var("RUSTFLAGS");
 std::env::remove_var("RUSTFALGS"); // Oops
 ```
+
 Use instead:
+
 ```rust
 const RUSTFLAGS: &str = "RUSTFLAGS";
 let _ = std::env::var(RUSTFLAGS);

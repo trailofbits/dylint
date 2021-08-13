@@ -33,6 +33,8 @@ cat > "$TMP"
 
 mv "$TMP" README.md
 
+prettier --write README.md
+
 for EXAMPLE in *; do
     if [[ ! -d "$EXAMPLE" || "$EXAMPLE" = src ]]; then
         continue
@@ -46,6 +48,8 @@ for EXAMPLE in *; do
         cat src/*.rs |
         sed -n 's,^[[:space:]]*///[[:space:]]\?\(.*\)$,\1,;T;p'
     ) > README.md
+
+    prettier --write README.md
 
     popd >/dev/null
 done

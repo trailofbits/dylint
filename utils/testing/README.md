@@ -4,27 +4,31 @@ This crate provides convenient access to the [`compiletest_rs`](https://github.c
 
 Specifically, this crate provides the following three functions. Note: If your test has dependencies, you must use `ui_test_example` or `ui_test_examples`. See the [question_mark_in_expression](../../examples/question_mark_in_expression/Cargo.toml) example in this repository.
 
-* `ui_test` - test a library on all source files in a directory
-    ```rust
-    pub fn ui_test(name: &str, src_base: &Path)
-    ```
-    * `name` is the name of a Dylint library to be tested. (Often, this is the same as the package name.)
-    * `src_base` is a directory containing:
-        * source files on which to test the library (`.rs` files), and
-        * the output those files should produce (`.stderr` files).
+- `ui_test` - test a library on all source files in a directory
 
-* `ui_test_example` - test a library on one example target
-    ```rust
-    pub fn ui_test_example(name: &str, example: &str)
-    ```
-    * `name` is the name of a Dylint library to be tested.
-    * `example` is an example target on which to test the library.
+  ```rust
+  pub fn ui_test(name: &str, src_base: &Path)
+  ```
 
-* `ui_test_examples` - test a library on all example targets
-    ```rust
-    pub fn ui_test_examples(name: &str)
-    ```
-    * `name` is the name of a Dylint library to be tested.
+  - `name` is the name of a Dylint library to be tested. (Often, this is the same as the package name.)
+  - `src_base` is a directory containing:
+    - source files on which to test the library (`.rs` files), and
+    - the output those files should produce (`.stderr` files).
+
+- `ui_test_example` - test a library on one example target
+
+  ```rust
+  pub fn ui_test_example(name: &str, example: &str)
+  ```
+
+  - `name` is the name of a Dylint library to be tested.
+  - `example` is an example target on which to test the library.
+
+- `ui_test_examples` - test a library on all example targets
+  ```rust
+  pub fn ui_test_examples(name: &str)
+  ```
+  - `name` is the name of a Dylint library to be tested.
 
 For most situations, you can add the following to your library's `lib.rs` file:
 

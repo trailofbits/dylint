@@ -17,7 +17,9 @@ fn foo() -> std::io::Result<()> {
     Ok(())
 }
 ```
+
 Use instead:
+
 ```rust
 use anyhow::Context;
 fn foo() -> anyhow::Result<()> {

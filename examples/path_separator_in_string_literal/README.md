@@ -12,7 +12,9 @@ a string literal is not portable.
 ```rust
 PathBuf::from("../target")
 ```
+
 Use instead:
+
 ```rust
 PathBuf::from("..").join("target")
 ```
