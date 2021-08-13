@@ -12,6 +12,9 @@ jobs:
       - name: Install dylint-link
         run: cargo install --path ./dylint-link
 
+      - name: Prettier
+        run: npm install -g prettier && prettier --check '**/*.md' '**/*.yml'
+
       - name: Format
         run: find . -name '*.rs' -exec rustfmt {} \; && git diff --exit-code
 

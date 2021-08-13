@@ -74,13 +74,14 @@ Note: Earlier versions of Dylint searched the current package's `target/debug` a
 
 A workspace can name the libraries it should be linted with in its `Cargo.toml` file. Specifically, a workspace's manifest can contain a TOML list under `workspace.metadata.dylint.libraries`. Each list entry must have the form of a Cargo `git` or `path` dependency, with the following differences:
 
-* There is no leading package name, i.e., no `package =`.
-* `path` entries can contain [glob](https://docs.rs/glob/0.3.0/glob/struct.Pattern.html) patterns, e.g., `*`.
-* Any entry can contain a `pattern` field whose value is a [glob](https://docs.rs/glob/0.3.0/glob/struct.Pattern.html) pattern. The `pattern` field indicates the subdirectories that contain Dylint libraries.
+- There is no leading package name, i.e., no `package =`.
+- `path` entries can contain [glob](https://docs.rs/glob/0.3.0/glob/struct.Pattern.html) patterns, e.g., `*`.
+- Any entry can contain a `pattern` field whose value is a [glob](https://docs.rs/glob/0.3.0/glob/struct.Pattern.html) pattern. The `pattern` field indicates the subdirectories that contain Dylint libraries.
 
 Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements](#library-requirements) below).
 
 As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run all of the example lints in this repository on your workspace:
+
 ```toml
 [workspace.metadata.dylint]
 libraries = [

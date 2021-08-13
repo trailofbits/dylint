@@ -12,7 +12,9 @@ the outermost operator in an expression.
 ```rust
 Ok(std::path::PathBuf::from(&std::env::var("PWD")?))
 ```
+
 Use instead:
+
 ```rust
 let val = std::env::var("PWD")?;
 Ok(std::path::PathBuf::from(&val))
