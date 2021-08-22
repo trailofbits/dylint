@@ -45,6 +45,7 @@ pub struct Dylint {
     pub all: bool,
 
     #[clap(
+        multiple_occurrences = true,
         number_of_values = 1,
         long = "lib",
         value_name = "name",
@@ -79,6 +80,7 @@ pub struct Dylint {
     pub no_metadata: bool,
 
     #[clap(
+        multiple_occurrences = true,
         number_of_values = 1,
         short,
         long = "package",
@@ -88,6 +90,7 @@ pub struct Dylint {
     pub packages: Vec<String>,
 
     #[clap(
+        multiple_occurrences = true,
         number_of_values = 1,
         long = "path",
         value_name = "path",
