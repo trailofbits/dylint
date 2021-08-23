@@ -15,12 +15,12 @@ path = "ui/main.rs"
 
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", tag = "rust-1.54.0"}
-if_chain = "1.0.1"
+if_chain = "1.0.2"
 
 dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
-anyhow = "1.0.42"
+anyhow = "1.0.43"
 
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 
