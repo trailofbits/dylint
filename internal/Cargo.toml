@@ -8,9 +8,9 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
-anyhow = "1.0.42"
+anyhow = "1.0.43"
 cargo_metadata = "0.14.0"
-git2 = "0.13.20"
-if_chain = "1.0.1"
+git2 = "0.13.21"
+if_chain = "1.0.2"
 log = "0.4.14"
 sedregex = "0.2.4"
