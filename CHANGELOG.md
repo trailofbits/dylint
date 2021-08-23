@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3
+
+- Update clap dependency ([#65](https://github.com/trailofbits/dylint/pull/65))
+
 ## 1.0.2
 
 - Link Dylint drivers using absolute paths (fixes [#54](https://github.com/trailofbits/dylint/issues/54))
