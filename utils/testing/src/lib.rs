@@ -136,7 +136,7 @@ fn linking_flags(metadata: &Metadata, package: &Package, target: &Target) -> Res
     Ok(linking_flags)
 }
 
-// smoelius: We need to recover the `rustc` flags used to build a target. I can see three options:
+// smoelius: We need to recover the `rustc` flags used to build a target. I can see four options:
 //
 // * Use `cargo build --build-plan`
 //   - Pros: Easily parsable JSON output
@@ -144,6 +144,10 @@ fn linking_flags(metadata: &Metadata, package: &Package, target: &Target) -> Res
 // * Parse the output of `cargo build --verbose`
 //   - Pros: ?
 //   - Cons: Not as easily parsable, requires synchronization (see below)
+// * Use a custom executor like Siderophile does: https://github.com/trailofbits/siderophile/blob/26c067306f6c2f66d9530dacef6b17dbf59cdf8c/src/trawl_source/mod.rs#L399
+//   - Pros: Ground truth
+//   - Cons: Seems a bit of a heavy lift
+//     Note: I think Siderophile's approach was inspired by `cargo-geiger`.
 // * Set `RUSTC_WORKSPACE_WRAPPER` to something that logs `rustc` invocations
 //   - Pros: Ground truth
 //   - Cons: Requires a separate executable/script, portability could be an issue
