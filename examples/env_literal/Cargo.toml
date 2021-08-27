@@ -13,6 +13,7 @@ crate-type = ["cdylib"]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", tag = "rust-1.54.0"}
 if_chain = "1.0.2"
 
+dylint_internal = { path = "../../internal" }
 dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]

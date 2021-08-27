@@ -237,6 +237,7 @@ name = "env_literal"
 version = "1.0.3"
 dependencies = [
  "clippy_utils",
+ "dylint_internal",
  "dylint_linting",
  "dylint_testing",
  "if_chain",

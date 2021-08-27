@@ -748,6 +748,7 @@ version = "1.0.3"
 dependencies = [
  "anyhow",
  "clippy_utils",
+ "dylint_internal",
  "dylint_linting",
  "dylint_testing",
  "if_chain",

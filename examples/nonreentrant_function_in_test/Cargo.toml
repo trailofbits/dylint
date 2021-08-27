@@ -1,8 +1,8 @@
 [package]
-name = "path_separator_in_string_literal"
+name = "nonreentrant_function_in_test"
 version = "1.0.3"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "A lint to check for path separators in string literals"
+description = "A lint to check for nonreentrant functions in tests"
 edition = "2018"
 publish = false
 
@@ -11,7 +11,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", tag = "rust-1.54.0"}
-if_chain = "1.0.2"
+if_chain = "1.0.1"
+lazy_static = "1.4.0"
 
 dylint_internal = { path = "../../internal" }
 dylint_linting = { path = "../../utils/linting" }

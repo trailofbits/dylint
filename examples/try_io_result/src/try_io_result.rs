@@ -1,4 +1,5 @@
 use clippy_utils::{diagnostics::span_lint_and_help, match_def_path, paths};
+use dylint_internal::path;
 use if_chain::if_chain;
 use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
 use rustc_lint::{LateContext, LateLintPass};
@@ -38,8 +39,6 @@ declare_lint! {
 
 declare_lint_pass!(TryIoResult => [TRY_IO_RESULT]);
 
-const IO_ERROR: [&str; 4] = ["std", "io", "error", "Error"];
-
 impl<'tcx> LateLintPass<'tcx> for TryIoResult {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'_>) {
         if_chain! {
@@ -54,7 +53,7 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
             if let [_, generic_arg] = substs.iter().collect::<Vec<_>>().as_slice();
             if let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack();
             if let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind();
-            if match_def_path(cx, generic_arg_def.did, &IO_ERROR);
+            if match_def_path(cx, generic_arg_def.did, &path::IO_ERROR);
             then {
                 span_lint_and_help(
                     cx,

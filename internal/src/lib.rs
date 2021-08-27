@@ -11,6 +11,8 @@ pub mod examples;
 mod git;
 pub use git::*;
 
+pub mod path;
+
 pub mod rustup;
 
 mod sed;
