@@ -1,4 +1,5 @@
 use clippy_utils::{diagnostics::span_lint_and_sugg, match_qpath, source::snippet};
+use dylint_internal::path;
 use if_chain::if_chain;
 use rustc_ast::LitKind;
 use rustc_errors::Applicability;
@@ -30,9 +31,6 @@ declare_lint! {
 
 declare_lint_pass!(PathSeparatorInStringLiteral => [PATH_SEPARATOR_IN_STRING_LITERAL]);
 
-const PATH_NEW: [&str; 4] = ["std", "path", "Path", "new"];
-const PATH_BUF_FROM: [&str; 4] = ["std", "path", "PathBuf", "from"];
-
 impl<'tcx> LateLintPass<'tcx> for PathSeparatorInStringLiteral {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
         if_chain! {
@@ -47,9 +45,9 @@ impl<'tcx> LateLintPass<'tcx> for PathSeparatorInStringLiteral {
             if components.iter().all(|s| !s.is_empty());
             then {
                 let mut sugg = String::new();
-                if match_qpath(path, &PATH_NEW) {
+                if match_qpath(path, &path::PATH_NEW) {
                     sugg = format!(r#"&{}("{}")"#, snippet(cx, callee.span, "Path::new"), components[0]);
-                } else if match_qpath(path, &PATH_BUF_FROM) {
+                } else if match_qpath(path, &path::PATH_BUF_FROM) {
                     sugg = format!(r#"{}("{}")"#, snippet(cx, callee.span, "PathBuf::from"), components[0]);
                 }
                 if !sugg.is_empty() {
