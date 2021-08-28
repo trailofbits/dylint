@@ -16,7 +16,7 @@ dylint = { version = "=1.0.3", path = "../dylint", features = ["dylint_driver_lo
 dylint_internal = { version = "=1.0.3", path = "../internal" }
 
 [dev-dependencies]
-assert_cmd = "1.0.8"
+assert_cmd = "2.0.0"
 cargo_metadata = "0.14.0"
 lazy_static = "1.4.0"
 log = "0.4.14"
