@@ -19,7 +19,7 @@ glob = { version = "0.3.0", optional = true }
 if_chain = { version = "1.0.2", optional = true }
 lazy_static = "1.4.0"
 log = "0.4.14"
-serde = "1.0.128"
+serde = "1.0.129"
 serde_json = "1.0.66"
 semver = "1.0.4"
 tempfile = "3.2.0"
