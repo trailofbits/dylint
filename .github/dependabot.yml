@@ -1,5 +1,6 @@
 version: 2
 updates:
+  # https://github.com/dependabot/dependabot-core/issues/2178
   - package-ecosystem: cargo
     directory: "/"
     schedule:
