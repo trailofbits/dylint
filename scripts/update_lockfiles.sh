@@ -10,4 +10,4 @@ fi
 
 cd "$(dirname "$0")"/..
 
-find . -name Cargo.toml -exec cargo update -w --manifest-path {} \;
+find . -name Cargo.toml -exec cargo update --workspace --manifest-path {} \;
