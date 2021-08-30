@@ -15,6 +15,11 @@ jobs:
       - name: Prettier
         run: npm install -g prettier && prettier --check '**/*.md' '**/*.yml'
 
+      - name: Cargo sort
+        run: |
+          cargo install cargo-sort
+          find . -name Cargo.toml | xargs -n 1 dirname | xargs -n 1 cargo sort --check --grouped
+
       - name: Format
         run: find . -name '*.rs' -exec rustfmt {} \; && git diff --exit-code
 
