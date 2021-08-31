@@ -1,3 +1,5 @@
 [toolchain]
-channel = "nightly-2021-05-20"
+# smoelius: nightly-2021-05-21 is needed to compile proc-macro2 1.0.29. Specifically, this commit is
+# needed: https://github.com/rust-lang/rust/commit/34585cb678bc492be7e48ff48a2633f4ce1dc5ae
+channel = "nightly-2021-05-21"
 components = ["llvm-tools-preview", "rustc-dev"]
