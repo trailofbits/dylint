@@ -75,6 +75,8 @@ impl Command {
         Ok(output)
     }
 
+    // smoelius: Why not get the status by calling `self.output()`? Because we don't want stdout and
+    // stderr to be captured.
     pub fn success(&mut self) -> Result<()> {
         log::debug!("{:?}", self.envs);
         log::debug!("{:?}", self.command);
