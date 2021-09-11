@@ -193,6 +193,7 @@ version = "1.0.3"
 dependencies = [
  "ansi_term",
  "anyhow",
+ "cargo_metadata",
  "dirs",
  "dylint_internal",
  "lazy_static",
