@@ -3,7 +3,8 @@ use cargo_metadata::{Metadata, Package, Target};
 use compiletest_rs::{self as compiletest, common::Mode as TestMode};
 use dylint_internal::{
     cargo::{self, current_metadata, root_package},
-    env,
+    env::{self, var},
+    library_filename,
 };
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -53,6 +54,9 @@ fn initialize(name: &str) -> Result<PathBuf> {
     dylint_internal::build().success()?;
 
     // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
+    // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is no longer
+    // the case. I am leaving the comment here for now in case removal of the `name_toolchain_map`
+    // call causes a regression.
     let metadata = current_metadata().unwrap();
     let dylint_library_path = metadata.target_directory.join("debug");
     set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
@@ -67,9 +71,10 @@ fn initialize(name: &str) -> Result<PathBuf> {
 }
 
 pub fn dylint_libs(name: &str) -> Result<String> {
-    let name_toolchain_map = dylint::name_toolchain_map(&dylint::Dylint::default())?;
-    let entry = dylint::name_as_lib(&name_toolchain_map, name, false)?;
-    let (_, path) = entry.ok_or_else(|| anyhow!("Could not find library `{}`", name))?;
+    let metadata = current_metadata().unwrap();
+    let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
+    let filename = library_filename(name, &rustup_toolchain);
+    let path = metadata.target_directory.join("debug").join(filename);
     let paths = vec![path];
     serde_json::to_string(&paths).map_err(Into::into)
 }

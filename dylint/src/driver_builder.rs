@@ -1,5 +1,6 @@
 use crate::error::warn;
 use anyhow::{anyhow, ensure, Result};
+use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     env::{self, var},
     rustup::{toolchain_path, SanitizeEnvironment},
@@ -131,6 +132,47 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     let tempdir = tempdir()?;
     let package = tempdir.path();
 
+    initialize(toolchain, package)?;
+
+    let metadata = MetadataCommand::new()
+        .current_dir(package)
+        .no_deps()
+        .exec()?;
+
+    let toolchain_path = toolchain_path(package)?;
+
+    // smoelius: The commented code was the old behavior. It would cause the driver to have rpaths
+    // like `$ORIGIN/../../`... (see https://github.com/trailofbits/dylint/issues/54). The new
+    // behavior causes the driver to have absolute rpaths.
+    // let rustflags = "-C rpath=yes";
+    let rustflags = format!(
+        "-C link-args=-Wl,-rpath,{}/lib",
+        toolchain_path.to_string_lossy()
+    );
+
+    let mut command = dylint_internal::build();
+    command
+        .sanitize_environment()
+        .envs(vec![(env::RUSTFLAGS, rustflags)])
+        .current_dir(&package);
+    if opts.quiet {
+        command.stderr(Stdio::null());
+    }
+    command.success()?;
+
+    copy(
+        metadata.target_directory.join("debug").join(format!(
+            "dylint_driver-{}{}",
+            toolchain,
+            consts::EXE_SUFFIX
+        )),
+        driver,
+    )?;
+
+    Ok(())
+}
+
+fn initialize(toolchain: &str, package: &Path) -> Result<()> {
     let version_spec = format!("version = \"={}\"", env!("CARGO_PKG_VERSION"));
 
     // smoelius: Assume the `dylint_driver` package is local if building in debug mode and if
@@ -158,36 +200,6 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     let src = package.join("src");
     create_dir_all(&src)?;
     write(&src.join("main.rs"), MAIN_RS)?;
-
-    let toolchain_path = toolchain_path(package)?;
-
-    // smoelius: The commented code was the old behavior. It would cause the driver to have rpaths
-    // like `$ORIGIN/../../`... (see https://github.com/trailofbits/dylint/issues/54). The new
-    // behavior causes the driver to have absolute rpaths.
-    // let rustflags = "-C rpath=yes";
-    let rustflags = format!(
-        "-C link-args=-Wl,-rpath,{}/lib",
-        toolchain_path.to_string_lossy()
-    );
-
-    let mut command = dylint_internal::build();
-    command
-        .sanitize_environment()
-        .envs(vec![(env::RUSTFLAGS, rustflags)])
-        .current_dir(&package);
-    if opts.quiet {
-        command.stderr(Stdio::null());
-    }
-    command.success()?;
-
-    copy(
-        package.join("target").join("debug").join(format!(
-            "dylint_driver-{}{}",
-            toolchain,
-            consts::EXE_SUFFIX
-        )),
-        driver,
-    )?;
 
     Ok(())
 }
