@@ -8,6 +8,7 @@ pub trait SanitizeEnvironment {
 
 impl SanitizeEnvironment for crate::Command {
     fn sanitize_environment(&mut self) -> &mut Self {
+        self.env_remove(env::RUSTFLAGS);
         self.env_remove(env::RUSTUP_TOOLCHAIN);
         self
     }

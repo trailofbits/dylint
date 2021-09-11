@@ -8,6 +8,9 @@ pub mod env;
 
 pub mod examples;
 
+mod filename;
+pub use filename::library_filename;
+
 mod git;
 pub use git::*;
 

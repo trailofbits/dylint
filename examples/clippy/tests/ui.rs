@@ -32,6 +32,7 @@ fn ui() {
     adjust_macro_use_imports_test(&src_base).unwrap();
 
     // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
+    // smoelius: This is no longer true. See comment in `dylint_testing::initialize`.
     let metadata = current_metadata().unwrap();
     let dylint_library_path = metadata.target_directory.join("debug");
     set_var(env::DYLINT_LIBRARY_PATH, &dylint_library_path);
