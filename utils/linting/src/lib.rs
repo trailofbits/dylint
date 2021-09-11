@@ -10,6 +10,7 @@ macro_rules! dylint_library {
         extern crate rustc_driver;
 
         #[no_mangle]
+        #[doc(hidden)]
         pub extern "C" fn dylint_version() -> *mut std::os::raw::c_char {
             std::ffi::CString::new($crate::DYLINT_VERSION)
                 .unwrap()
