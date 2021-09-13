@@ -121,9 +121,9 @@ dependencies = [
 
 [[package]]
 name = "cargo"
-version = "0.55.0"
+version = "0.56.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64675d9fe22972517547e58c297e1c5c9519f228ec7041a1ead90be00bbe3575"
+checksum = "023d8b4380ec80ec4423a1d8a3f79a13dfba1897cf4c76ca26e906259cdac2be"
 dependencies = [
  "anyhow",
  "atty",
@@ -135,7 +135,7 @@ dependencies = [
  "crossbeam-utils",
  "curl",
  "curl-sys",
- "env_logger 0.8.4",
+ "env_logger",
  "filetime",
  "flate2",
  "fwdansi",
@@ -158,9 +158,8 @@ dependencies = [
  "num_cpus",
  "opener",
  "percent-encoding",
- "rand",
  "rustc-workspace-hack",
- "rustfix",
+ "rustfix 0.6.0",
  "semver",
  "serde",
  "serde_ignored",
@@ -188,7 +187,7 @@ dependencies = [
  "clap 3.0.0-beta.4",
  "dylint",
  "dylint_internal",
- "env_logger 0.9.0",
+ "env_logger",
  "lazy_static",
  "log",
  "predicates",
@@ -333,7 +332,7 @@ dependencies = [
  "log",
  "miow",
  "regex",
- "rustfix",
+ "rustfix 0.5.1",
  "serde",
  "serde_derive",
  "serde_json",
@@ -504,7 +503,7 @@ dependencies = [
  "cargo_metadata",
  "dirs",
  "dylint_internal",
- "env_logger 0.9.0",
+ "env_logger",
  "glob",
  "if_chain",
  "lazy_static",
@@ -523,7 +522,7 @@ dependencies = [
  "anyhow",
  "cc",
  "dylint_internal",
- "env_logger 0.9.0",
+ "env_logger",
  "if_chain",
 ]
 
@@ -552,7 +551,7 @@ dependencies = [
  "compiletest_rs",
  "dylint",
  "dylint_internal",
- "env_logger 0.9.0",
+ "env_logger",
  "lazy_static",
  "log",
  "regex",
@@ -565,19 +564,6 @@ name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
-
-[[package]]
-name = "env_logger"
-version = "0.8.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3"
-dependencies = [
- "atty",
- "humantime",
- "log",
- "regex",
- "termcolor",
-]
 
 [[package]]
 name = "env_logger"
@@ -1008,10 +994,11 @@ checksum = "692fcb63b64b1758029e0a96ee63e049ce8c5948587f2f7208df04625e5f6b56"
 
 [[package]]
 name = "opener"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13117407ca9d0caf3a0e74f97b490a7e64c0ae3aa90a8b7085544d0c37b6f3ae"
+checksum = "4ea3ebcd72a54701f56345f16785a6d3ac2df7e986d273eb4395c0b01db17952"
 dependencies = [
+ "bstr",
  "winapi",
 ]
 
@@ -1261,6 +1248,18 @@ name = "rustfix"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2c50b74badcddeb8f7652fa8323ce440b95286f8e4b64ebfd871c609672704e"
+dependencies = [
+ "anyhow",
+ "log",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "rustfix"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f0be05fc0675ef4f47119dc39cfc46636bb77d4fc4ef1bd851b9c3f7697f32a"
 dependencies = [
  "anyhow",
  "log",
