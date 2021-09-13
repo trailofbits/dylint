@@ -170,7 +170,7 @@ fn dependency(
     let source_id = SourceId::for_path(&root)?;
     let mut nested_paths = vec![];
     let mut warnings = vec![];
-    let features = Features::new(&[], config, &mut warnings)?;
+    let features = Features::new(&[], config, &mut warnings, source_id.is_path())?;
     let mut cx = Context::new(
         &mut deps,
         source_id,
