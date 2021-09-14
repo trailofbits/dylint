@@ -1,6 +1,6 @@
 [package]
 name = "allow_clippy"
-version = "1.0.3"
+version = "1.0.4"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tongue-in-cheek example of a Dylint library"
 edition = "2018"
