@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.4
+
+- Better handling of target directories ([#77](https://github.com/trailofbits/dylint/pull/77))
+- Hide `dylint_version()` in docs ([#78](https://github.com/trailofbits/dylint/pull/78))&mdash;thanks [@MinerSebas](https://github.com/MinerSebas)
+
 ## 1.0.3
 
 - Update clap dependency ([#65](https://github.com/trailofbits/dylint/pull/65))
