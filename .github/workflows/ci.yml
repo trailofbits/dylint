@@ -59,3 +59,26 @@ jobs:
 
       - name: Test
         run: cargo test --workspace
+
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dylint-link
+        run: cargo install --path ./dylint-link
+
+      - name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov
+
+      - name: Install llvm-tools-preview
+        run: rustup +nightly component add llvm-tools-preview
+
+      - name: Coverage
+        run: CARGO_LLVM_PROFDATA_FLAGS='-failure-mode all' RUSTUP_TOOLCHAIN=nightly cargo llvm-cov --html --workspace
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Coverage
+          path: target/llvm-cov/html
