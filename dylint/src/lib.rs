@@ -467,14 +467,22 @@ mod test {
     use super::*;
     use dylint_internal::{cargo::current_metadata, examples};
     use lazy_static::lazy_static;
-    use std::env::set_var;
+    use std::env::{join_paths, set_var};
     use test_env_log::test;
 
     lazy_static! {
         static ref NAME_TOOLCHAIN_MAP: NameToolchainMap = {
             examples::build().unwrap();
             let metadata = current_metadata().unwrap();
-            let dylint_library_path = metadata.target_directory.join("debug");
+            let dylint_library_path = if cfg!(coverage) {
+                metadata.target_directory.join("debug").into_os_string()
+            } else {
+                join_paths(&[
+                    metadata.target_directory.join("allow_clippy").join("debug"),
+                    metadata.target_directory.join("examples").join("debug"),
+                ])
+                .unwrap()
+            };
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
             name_toolchain_map(&Dylint {
                 no_metadata: true,

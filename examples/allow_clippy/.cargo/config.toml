@@ -1,5 +1,6 @@
 [build]
-target-dir = "../../target"
+# smoelius: `allow_clippy` uses a different compiler version than the other example libraries.
+target-dir = "../../target/allow_clippy"
 
 [target.x86_64-apple-darwin]
 linker = "dylint-link"
