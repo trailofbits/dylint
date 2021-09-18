@@ -33,7 +33,9 @@ fn no_libraries_were_found() {
 
 #[test]
 fn nothing_to_do() {
-    dylint_internal::examples::build().unwrap();
+    // smoelius: The code that handles workspace metadata builds the example libraries, so
+    // `examples::build()` is no longer needed here.
+    // dylint_internal::examples::build().unwrap();
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
