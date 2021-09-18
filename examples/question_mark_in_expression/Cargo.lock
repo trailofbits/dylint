@@ -200,7 +200,6 @@ version = "1.0.4"
 dependencies = [
  "anyhow",
  "cargo_metadata",
- "git2",
  "if_chain",
  "log",
  "sedregex",
