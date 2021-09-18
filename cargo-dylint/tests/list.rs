@@ -1,11 +1,18 @@
+// smoelius: `cargo-llvm-cov` sets `CARGO_TARGET_DIR`, which breaks these tests. For now, just
+// skip the tests when run under `cargo-llvm-cov`.
+//   One could use `MetadataCommand::cargo_command` to recover the
+// `std::process:Command` and remove its copy of `CARGO_TARGET_DIR`. But then one would have to
+// duplicate the work of `MetadataCommand::parse`, and that seems like more trouble than it is
+// worth.
+//   Also, one cannot remove `CARGO_TARGET_DIR` from the current process because it causes
+// `cargo-llvm-cov` to error out. Presumably, the current process writes coverage data to that
+// directory when it exits.
+#![cfg(not(coverage))]
+
 use anyhow::{Context, Result};
 use assert_cmd::prelude::*;
 use cargo_metadata::MetadataCommand;
-use dylint_internal::{
-    env::{self, var},
-    find_and_replace,
-    rustup::SanitizeEnvironment,
-};
+use dylint_internal::{env, find_and_replace, rustup::SanitizeEnvironment};
 use predicates::prelude::*;
 use std::{
     env::join_paths,
@@ -22,19 +29,6 @@ const CLIPPY_UTILS_TAG_B: &str = "rust-1.53.0";
 
 #[test]
 fn one_name_multiple_toolchains() {
-    // smoelius: `cargo-llvm-cov` sets `CARGO_TARGET_DIR`, which breaks these tests. For now, just
-    // skip the tests if `CARGO_TARGET_DIR` is set.
-    //   One could use `MetadataCommand::cargo_command` to recover the
-    // `std::process:Command` and remove its copy of `CARGO_TARGET_DIR`. But then one would have to
-    // duplicate the work of `MetadataCommand::parse`, and that seems like more trouble than it is
-    // worth.
-    //   Also, one cannot remove `CARGO_TARGET_DIR` from the current process because it causes
-    // `cargo-llvm-cov` to error out. Presumably, the current process writes coverage data to that
-    // directory when it exits.
-    if var(env::CARGO_TARGET_DIR).is_ok() {
-        return;
-    }
-
     let tempdir = tempdir().unwrap();
 
     dylint_internal::checkout_dylint_template(tempdir.path()).unwrap();
@@ -89,11 +83,6 @@ fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_tag: &str) -> 
 
 #[test]
 fn one_name_multiple_paths() {
-    // smoelius: See comment above under `one_name_multiple_toolchains`.
-    if var(env::CARGO_TARGET_DIR).is_ok() {
-        return;
-    }
-
     let tempdirs = (tempdir().unwrap(), tempdir().unwrap());
 
     dylint_internal::checkout_dylint_template(tempdirs.0.path()).unwrap();

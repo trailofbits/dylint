@@ -1,5 +1,5 @@
 [build]
-target-dir = "../../target"
+target-dir = "../../target/examples"
 
 [target.x86_64-apple-darwin]
 linker = "dylint-link"
