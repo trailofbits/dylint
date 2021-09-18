@@ -76,9 +76,18 @@ jobs:
         run: rustup +nightly component add llvm-tools-preview
 
       - name: Coverage
-        run: CARGO_LLVM_PROFDATA_FLAGS='-failure-mode all' RUSTUP_TOOLCHAIN=nightly cargo llvm-cov --html --workspace
+        run: cargo llvm-cov --workspace --lcov --output-path workspace.lcov
+        env:
+          CARGO_LLVM_PROFDATA_FLAGS: "-failure-mode all"
+          RUSTUP_TOOLCHAIN: "nightly"
+
+      - name: Install lcov
+        run: sudo apt install lcov
+
+      - name: Generate html
+        run: genhtml --output-directory artifacts/html workspace.lcov
 
       - uses: actions/upload-artifact@v2
         with:
           name: Coverage
-          path: target/llvm-cov/html
+          path: artifacts
