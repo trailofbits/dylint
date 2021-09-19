@@ -14,7 +14,7 @@ cargo = { version = "0.56.0", optional = true }
 cargo-platform = { version = "0.1.2", optional = true }
 cargo-util = { version = "0.1.1", optional = true }
 cargo_metadata = "0.14.0"
-dirs = "3.0.2"
+dirs = "4.0.0"
 glob = { version = "0.3.0", optional = true }
 if_chain = { version = "1.0.2", optional = true }
 lazy_static = "1.4.0"
