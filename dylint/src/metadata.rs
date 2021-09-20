@@ -5,7 +5,7 @@ use crate::{
 use anyhow::{anyhow, bail, ensure, Result};
 use cargo::{
     core::{source::MaybePackage, Dependency, Features, Package, PackageId, Source, SourceId},
-    util::{self, Config},
+    util::Config,
 };
 use cargo_metadata::{Error, Metadata, MetadataCommand};
 use dylint_internal::rustup::SanitizeEnvironment;
@@ -291,7 +291,7 @@ fn package_library_path(
     package_root: &Path,
     package_id: PackageId,
 ) -> Result<PathBuf> {
-    let target_dir = target_dir(metadata, package_root, package_id);
+    let target_dir = target_dir(metadata, package_root, package_id)?;
 
     if !opts.no_build {
         let mut command = dylint_internal::build();
@@ -308,26 +308,31 @@ fn package_library_path(
     Ok(target_dir.join("release"))
 }
 
-fn target_dir(metadata: &Metadata, package_root: &Path, package_id: PackageId) -> PathBuf {
-    metadata
+fn target_dir(metadata: &Metadata, package_root: &Path, _package_id: PackageId) -> Result<PathBuf> {
+    let toolchain = dylint_internal::rustup::active_toolchain(package_root)?;
+    Ok(metadata
         .target_directory
         .join("dylint")
-        .join(pkg_dir(package_root, package_id))
-        .into()
+        .join(toolchain)
+        // .join(pkg_dir(package_root, package_id))
+        .into())
 }
 
 // smoelius: `pkg_dir` and `target_short_hash` are based on functions with the same names in
 // https://github.com/rust-lang/cargo/blob/master/src/cargo/core/compiler/context/compilation_files.rs
 
-fn pkg_dir(package_root: &Path, pkg_id: PackageId) -> String {
-    let name = pkg_id.name();
-    format!("{}-{}", name, target_short_hash(package_root, pkg_id))
-}
+#[cfg(any())]
+mod disabled {
+    fn pkg_dir(package_root: &Path, pkg_id: PackageId) -> String {
+        let name = pkg_id.name();
+        format!("{}-{}", name, target_short_hash(package_root, pkg_id))
+    }
 
-const METADATA_VERSION: u8 = 2;
+    const METADATA_VERSION: u8 = 2;
 
-fn target_short_hash(package_root: &Path, pkg_id: PackageId) -> String {
-    // smoelius: For now, the package root is the workspace root.
-    let hashable = pkg_id.stable_hash(package_root);
-    util::short_hash(&(METADATA_VERSION, hashable))
+    fn target_short_hash(package_root: &Path, pkg_id: PackageId) -> String {
+        // smoelius: For now, the package root is the workspace root.
+        let hashable = pkg_id.stable_hash(package_root);
+        cargo::util::short_hash(&(METADATA_VERSION, hashable))
+    }
 }
