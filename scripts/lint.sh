@@ -36,7 +36,7 @@ for DIR in $DIRS; do
     pushd "$DIR"
     for LINTS in "$EXAMPLES" clippy; do
         # smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
-        # smoelius: The commented command doesn't do anything now that all workspaes in the
+        # smoelius: The commented command doesn't do anything now that all workspaces in the
         # repository share a top-level target directory. Is the command still necesary?
         # rm -rf target/debug/deps
 
