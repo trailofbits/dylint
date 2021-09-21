@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5
+
+- Improve build times when testing libraries ([e5ce5b9](https://github.com/trailofbits/dylint/commit/e5ce5b9583d09c57ac177bdf9f05ffe06c6550c6)) and when linting using workspace metadata ([7204bce](https://github.com/trailofbits/dylint/commit/7204bce39dc4540601e4548e695d9176e3527ed1))
+
 ## 1.0.4
 
 - Better handling of target directories ([#77](https://github.com/trailofbits/dylint/pull/77))

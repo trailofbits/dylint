@@ -164,7 +164,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "1.0.4"
+version = "1.0.5"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -181,7 +181,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "1.0.4"
+version = "1.0.5"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -192,11 +192,11 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "1.0.4"
+version = "1.0.5"
 
 [[package]]
 name = "dylint_testing"
-version = "1.0.4"
+version = "1.0.5"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -346,7 +346,7 @@ dependencies = [
 
 [[package]]
 name = "path_separator_in_string_literal"
-version = "1.0.4"
+version = "1.0.5"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
