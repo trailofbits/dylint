@@ -1,3 +1,6 @@
+#![feature(register_tool)]
+#![register_tool(dylint)]
+
 use anyhow::{anyhow, Context, Result};
 use cargo_metadata::Dependency;
 use dylint_internal::{cargo::current_metadata, env, find_and_replace, packaging::isolate};
@@ -12,8 +15,7 @@ use test_log::test;
 
 const ERROR_LINES: usize = 5;
 
-#[allow(unknown_lints)]
-#[allow(nonreentrant_function_in_test)]
+#[allow(dylint::nonreentrant_function_in_test)]
 #[test]
 fn ui() {
     // smoelius: Try to order failures by how informative they are: failure to build the library,

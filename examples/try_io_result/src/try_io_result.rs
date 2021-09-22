@@ -3,9 +3,9 @@ use if_chain::if_chain;
 use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{subst::GenericArgKind, TyKind};
-use rustc_session::{declare_lint, declare_lint_pass};
+use rustc_session::{declare_lint_pass, declare_tool_lint};
 
-declare_lint! {
+declare_tool_lint! {
     /// **What it does:** Checks for `?` operators applied to values of type `std::io::Result`.
     ///
     /// **Why is this bad?** Returning a `std::io::Result` could mean relevant context (e.g., files
@@ -33,7 +33,7 @@ declare_lint! {
     ///     Ok(())
     /// }
     /// ```
-    pub TRY_IO_RESULT,
+    pub dylint::TRY_IO_RESULT,
     Warn,
     "`?` operators applied to `std::io::Result`"
 }

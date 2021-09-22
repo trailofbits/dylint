@@ -5,9 +5,9 @@ use rustc_ast::LitKind;
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_session::{declare_lint, declare_lint_pass};
+use rustc_session::{declare_lint_pass, declare_tool_lint};
 
-declare_lint! {
+declare_tool_lint! {
     /// **What it does:** Checks for path separators (e.g., `/`) in string literals.
     ///
     /// **Why is this bad?** Path separators can vary from one OS to another. Including them in
@@ -30,7 +30,7 @@ declare_lint! {
     /// PathBuf::from("..").join("target")
     /// # ;
     /// ```
-    pub PATH_SEPARATOR_IN_STRING_LITERAL,
+    pub dylint::PATH_SEPARATOR_IN_STRING_LITERAL,
     Warn,
     "path separators in string literals"
 }

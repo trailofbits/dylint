@@ -3,10 +3,10 @@ use dylint_internal::paths;
 use if_chain::if_chain;
 use rustc_ast::{Expr, ExprKind, Item, NodeId};
 use rustc_lint::{EarlyContext, EarlyLintPass};
-use rustc_session::{declare_lint, impl_lint_pass};
+use rustc_session::{declare_tool_lint, impl_lint_pass};
 use rustc_span::{sym, symbol::SymbolStr};
 
-declare_lint! {
+declare_tool_lint! {
     /// **What it does:** Checks for use of nonreentrant functions in code attributed with `#[test]`
     /// or `#[cfg(test)]`.
     ///
@@ -41,7 +41,7 @@ declare_lint! {
     ///        .unwrap();
     /// }
     /// ```
-    pub NONREENTRANT_FUNCTION_IN_TEST,
+    pub dylint::NONREENTRANT_FUNCTION_IN_TEST,
     Warn,
     "nonreentrant functions in tests"
 }

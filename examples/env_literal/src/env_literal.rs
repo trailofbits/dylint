@@ -4,9 +4,9 @@ use if_chain::if_chain;
 use rustc_ast::LitKind;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_session::{declare_lint, declare_lint_pass};
+use rustc_session::{declare_lint_pass, declare_tool_lint};
 
-declare_lint! {
+declare_tool_lint! {
     /// **What it does:** Checks for environment variables referred to with string literals.
     ///
     /// **Why is this bad?** A typo in the string literal will result in a runtime error, not a
@@ -26,7 +26,7 @@ declare_lint! {
     /// let _ = std::env::var(RUSTFLAGS);
     /// std::env::remove_var(RUSTFLAGS);
     /// ```
-    pub ENV_LITERAL,
+    pub dylint::ENV_LITERAL,
     Warn,
     "environment variables referred to with string literals"
 }

@@ -3,11 +3,11 @@ use if_chain::if_chain;
 use rustc_ast::{Attribute, NestedMetaItem};
 use rustc_errors::Applicability;
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_session::{declare_lint, declare_lint_pass};
+use rustc_session::{declare_lint_pass, declare_tool_lint};
 use rustc_span::sym;
 use rustc_span::symbol::SymbolStr;
 
-declare_lint! {
+declare_tool_lint! {
     /// **What it does:** This tongue-in-cheek lint checks for `#[allow(clippy::...)]`. It is
     /// based on Clippy's `blanket_clippy_restriction_lints`:
     /// https://rust-lang.github.io/rust-clippy/master/#blanket_clippy_restriction_lints
@@ -26,7 +26,7 @@ declare_lint! {
     /// ```rust
     /// #![deny(clippy::restriction, clippy::style, clippy::pedantic, clippy::complexity, clippy::perf, clippy::cargo, clippy::nursery)]
     /// ```
-    pub ALLOW_CLIPPY,
+    pub dylint::ALLOW_CLIPPY,
     Allow,
     "use of `#[allow(clippy::...)]`"
 }

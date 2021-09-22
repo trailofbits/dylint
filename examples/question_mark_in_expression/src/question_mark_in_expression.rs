@@ -2,9 +2,9 @@ use clippy_utils::diagnostics::span_lint_and_help;
 use if_chain::if_chain;
 use rustc_hir::{Expr, ExprKind, HirId, LangItem, MatchSource, Node, QPath};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_session::{declare_lint, declare_lint_pass};
+use rustc_session::{declare_lint_pass, declare_tool_lint};
 
-declare_lint! {
+declare_tool_lint! {
     /// **What it does:** Checks for `?` operators embedded within a larger expression.
     ///
     /// **Why is this bad?** It can be easy to overlook the `?`. Code is more readable when a `?` is
@@ -28,7 +28,7 @@ declare_lint! {
     /// Ok(PathBuf::from(&val))
     /// # })();
     /// ```
-    pub QUESTION_MARK_IN_EXPRESSION,
+    pub dylint::QUESTION_MARK_IN_EXPRESSION,
     Warn,
     "`?` operators embedded within an expression"
 }
