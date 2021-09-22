@@ -64,8 +64,7 @@ pub fn main() -> Result<()> {
 }
 "#;
 
-#[allow(unknown_lints)]
-#[allow(question_mark_in_expression)]
+#[allow(dylint::question_mark_in_expression)]
 pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
     let dylint_drivers = dylint_drivers()?;
 

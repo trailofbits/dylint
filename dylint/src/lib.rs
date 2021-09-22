@@ -1,6 +1,8 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
+#![feature(register_tool)]
+#![register_tool(dylint)]
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use dylint_internal::env::{self, var};
@@ -202,8 +204,7 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
     Ok(())
 }
 
-#[allow(unknown_lints)]
-#[allow(question_mark_in_expression)]
+#[allow(dylint::question_mark_in_expression)]
 fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<ToolchainMap> {
     let mut toolchain_map = ToolchainMap::new();
 
