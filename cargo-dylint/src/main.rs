@@ -44,6 +44,9 @@ pub struct Dylint {
     #[clap(long, about = "Load all discovered libraries")]
     pub all: bool,
 
+    #[clap(long, hidden = true)]
+    pub isolate: bool,
+
     #[clap(
         multiple_occurrences = true,
         number_of_values = 1,
@@ -72,6 +75,14 @@ pub struct Dylint {
         `--manifest-path <path>` must appear before `--`, not after."
     )]
     pub manifest_path: Option<String>,
+
+    #[clap(
+        long = "new",
+        value_name = "path",
+        about = "Create a new library package at <path>. Add `--isolate` to put the package in its \
+        own workspace."
+    )]
+    pub new_path: Option<String>,
 
     #[clap(long, about = "Do not build metadata entries")]
     pub no_build: bool,
@@ -105,6 +116,17 @@ pub struct Dylint {
     )]
     pub quiet: bool,
 
+    #[clap(long, hidden = true)]
+    pub rust_version: Option<String>,
+
+    #[clap(
+        long = "upgrade",
+        value_name = "path",
+        about = "Upgrade the library package at <path> to the latest version of `clippy_utils`. \
+        Add `--rust-version <version>` to upgrade to the version with tag `rust-<version>`."
+    )]
+    pub upgrade_path: Option<String>,
+
     #[clap(long, about = "Check all packages in the workspace")]
     pub workspace: bool,
 
@@ -123,28 +145,36 @@ impl From<Dylint> for dylint::Dylint {
     fn from(opts: Dylint) -> Self {
         let Dylint {
             all,
+            isolate,
             libs,
             list,
             manifest_path,
+            new_path,
             no_build,
             no_metadata,
             packages,
             paths,
             quiet,
+            rust_version,
+            upgrade_path,
             workspace,
             names,
             args,
         } = opts;
         Self {
             all,
+            isolate,
             libs,
             list,
             manifest_path,
+            new_path,
             no_build,
             no_metadata,
             packages,
             paths,
             quiet,
+            rust_version,
+            upgrade_path,
             workspace,
             names,
             args,

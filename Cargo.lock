@@ -191,6 +191,8 @@ dependencies = [
  "lazy_static",
  "log",
  "predicates",
+ "regex",
+ "semver",
  "tempfile",
  "test-env-log",
 ]
@@ -504,7 +506,9 @@ dependencies = [
  "dirs",
  "dylint_internal",
  "env_logger",
+ "git2",
  "glob",
+ "heck",
  "if_chain",
  "lazy_static",
  "log",
@@ -513,6 +517,7 @@ dependencies = [
  "serde_json",
  "tempfile",
  "test-env-log",
+ "walkdir",
 ]
 
 [[package]]

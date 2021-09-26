@@ -3,10 +3,16 @@ use git2::Repository;
 use if_chain::if_chain;
 use std::path::Path;
 
-// smoelius: `checkout` is based on: https://stackoverflow.com/a/67240436
-pub fn checkout(url: &str, refname: &str, path: &Path) -> Result<()> {
+pub fn clone(url: &str, refname: &str, path: &Path) -> Result<Repository> {
     let repository = Repository::clone(url, path)?;
 
+    checkout(&repository, refname)?;
+
+    Ok(repository)
+}
+
+// smoelius: `checkout` is based on: https://stackoverflow.com/a/67240436
+pub fn checkout(repository: &Repository, refname: &str) -> Result<()> {
     let (object, reference) = repository.revparse_ext(refname)?;
 
     repository.checkout_tree(&object, None)?;

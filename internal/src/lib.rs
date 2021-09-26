@@ -16,6 +16,9 @@ mod git;
 #[cfg(feature = "git2")]
 pub use git::*;
 
+#[cfg(feature = "git2")]
+pub mod packaging;
+
 pub mod path;
 
 pub mod rustup;
@@ -24,6 +27,6 @@ mod sed;
 pub use sed::find_and_replace;
 
 #[cfg(feature = "git2")]
-pub mod testing;
+mod testing;
 #[cfg(feature = "git2")]
 pub use testing::clone_dylint_template;
