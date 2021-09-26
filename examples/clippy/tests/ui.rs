@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use cargo_metadata::Dependency;
-use dylint_internal::{cargo::current_metadata, env, find_and_replace, testing::isolate};
+use dylint_internal::{cargo::current_metadata, env, find_and_replace, packaging::isolate};
 use std::{
     env::set_var,
     ffi::OsStr,
@@ -23,7 +23,7 @@ fn ui() {
 
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 
-    checkout_rust_clippy(tempdir.path()).unwrap();
+    clone_rust_clippy(tempdir.path()).unwrap();
 
     isolate(tempdir.path()).unwrap();
 
@@ -70,7 +70,7 @@ fn ui() {
         .unwrap();
 }
 
-fn checkout_rust_clippy(path: &Path) -> Result<()> {
+fn clone_rust_clippy(path: &Path) -> Result<()> {
     let clippy_lints = clippy_lints_dependency()?;
     let source = clippy_lints.source.ok_or_else(|| anyhow!("No source"))?;
     let url = source
@@ -80,7 +80,8 @@ fn checkout_rust_clippy(path: &Path) -> Result<()> {
         .rsplit('=')
         .next()
         .ok_or_else(|| anyhow!("Wrong suffix"))?;
-    dylint_internal::checkout(url, refname, path)
+    dylint_internal::clone(url, refname, path)?;
+    Ok(())
 }
 
 fn clippy_lints_dependency() -> Result<Dependency> {

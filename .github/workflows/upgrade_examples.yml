@@ -1,0 +1,27 @@
+name: Upgrade examples
+
+# smoelius: Every Saturday at 3:00 UTC (Friday at 20:00 EST), create a PR to update the example
+# libraries to the latest version of `clippy_utils`.
+
+on:
+  schedule:
+    - cron: "0 3 * * 6"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+          # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
+          ssh-key: ${{ secrets.PR_SSH_PRIVATE_KEY }}
+
+      - name: Update dependencies
+        run: scripts/upgrade_examples.sh
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: "Upgrade examples"

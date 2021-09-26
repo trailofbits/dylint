@@ -16,15 +16,18 @@ use std::{
 
 pub mod driver_builder;
 
+mod error;
+use error::warn;
+pub use error::{ColorizedError, ColorizedResult};
+
 #[cfg(feature = "metadata")]
 mod metadata;
 
 #[cfg(feature = "metadata")]
 mod toml;
 
-mod error;
-use error::warn;
-pub use error::{ColorizedError, ColorizedResult};
+#[cfg(feature = "package_options")]
+mod package_options;
 
 lazy_static! {
     static ref REQUIRED_FORM: String = format!(
@@ -42,20 +45,42 @@ pub type NameToolchainMap = BTreeMap<String, ToolchainMap>;
 #[derive(Debug, Default)]
 pub struct Dylint {
     pub all: bool,
+    pub isolate: bool,
     pub libs: Vec<String>,
     pub list: bool,
     pub manifest_path: Option<String>,
+    pub new_path: Option<String>,
     pub no_build: bool,
     pub no_metadata: bool,
     pub packages: Vec<String>,
     pub paths: Vec<String>,
     pub quiet: bool,
+    pub rust_version: Option<String>,
+    pub upgrade_path: Option<String>,
     pub workspace: bool,
     pub names: Vec<String>,
     pub args: Vec<String>,
 }
 
 pub fn run(opts: &Dylint) -> Result<()> {
+    if opts.isolate && opts.new_path.is_none() {
+        bail!("`--isolate` can be used only with `--new`");
+    }
+
+    if opts.rust_version.is_some() && opts.upgrade_path.is_none() {
+        bail!("`--rust-version` can be used only with `--upgrade`");
+    }
+
+    #[cfg(feature = "package_options")]
+    if let Some(path) = &opts.new_path {
+        return package_options::new_package(opts, Path::new(path));
+    }
+
+    #[cfg(feature = "package_options")]
+    if let Some(path) = &opts.upgrade_path {
+        return package_options::upgrade_package(opts, Path::new(path));
+    }
+
     let name_toolchain_map = name_toolchain_map(opts)?;
 
     run_with_name_toolchain_map(opts, &name_toolchain_map)
