@@ -31,7 +31,7 @@ const CLIPPY_UTILS_TAG_B: &str = "rust-1.53.0";
 fn one_name_multiple_toolchains() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::checkout_dylint_template(tempdir.path()).unwrap();
+    dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
 
     patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_TAG_A).unwrap();
     dylint_internal::build()
@@ -85,8 +85,8 @@ fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_tag: &str) -> 
 fn one_name_multiple_paths() {
     let tempdirs = (tempdir().unwrap(), tempdir().unwrap());
 
-    dylint_internal::checkout_dylint_template(tempdirs.0.path()).unwrap();
-    dylint_internal::checkout_dylint_template(tempdirs.1.path()).unwrap();
+    dylint_internal::clone_dylint_template(tempdirs.0.path()).unwrap();
+    dylint_internal::clone_dylint_template(tempdirs.1.path()).unwrap();
 
     dylint_internal::build()
         .sanitize_environment()

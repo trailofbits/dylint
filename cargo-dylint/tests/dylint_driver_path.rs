@@ -10,7 +10,7 @@ use test_env_log::test;
 fn dylint_driver_path() {
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 
-    dylint_internal::checkout_dylint_template(tempdir.path()).unwrap();
+    dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
 
     let dylint_driver_path = tempdir.path().join("target").join("dylint_drivers");
 
