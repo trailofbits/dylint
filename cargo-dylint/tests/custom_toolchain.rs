@@ -16,7 +16,7 @@ mod custom_toolchain {
     fn custom_toolchain() {
         let tempdir = tempdir().unwrap();
 
-        dylint_internal::checkout_dylint_template(tempdir.path()).unwrap();
+        dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
 
         let toolchain_path = toolchain_path(tempdir.path()).unwrap();
 

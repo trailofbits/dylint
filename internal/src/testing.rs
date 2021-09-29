@@ -9,7 +9,7 @@ const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-templat
 
 const DYLINT_TEMPLATE_REV: &str = "84703d471eb492792b5bb6f845bc343244211401";
 
-pub fn checkout_dylint_template(path: &Path) -> Result<()> {
+pub fn clone_dylint_template(path: &Path) -> Result<()> {
     crate::checkout(DYLINT_TEMPLATE_URL, DYLINT_TEMPLATE_REV, path)?;
     isolate(path)?;
     use_local_packages(path)?;

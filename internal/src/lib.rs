@@ -26,4 +26,4 @@ pub use sed::find_and_replace;
 #[cfg(feature = "git2")]
 pub mod testing;
 #[cfg(feature = "git2")]
-pub use testing::checkout_dylint_template;
+pub use testing::clone_dylint_template;
