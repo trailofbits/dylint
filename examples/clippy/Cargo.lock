@@ -129,8 +129,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_lints"
-version = "0.1.54"
-source = "git+https://github.com/rust-lang/rust-clippy?tag=rust-1.54.0#3ae8faff4d46ad92f194c2a4b941c3152a701b31"
+version = "0.1.55"
+source = "git+https://github.com/rust-lang/rust-clippy?tag=rust-1.55.0#74d1561353660104d5b1d245f9a61c11c2df0f89"
 dependencies = [
  "cargo_metadata 0.12.3",
  "clippy_utils",
@@ -144,13 +144,14 @@ dependencies = [
  "serde",
  "toml",
  "unicode-normalization",
+ "unicode-script",
  "url",
 ]
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.54"
-source = "git+https://github.com/rust-lang/rust-clippy?tag=rust-1.54.0#3ae8faff4d46ad92f194c2a4b941c3152a701b31"
+version = "0.1.55"
+source = "git+https://github.com/rust-lang/rust-clippy?tag=rust-1.55.0#74d1561353660104d5b1d245f9a61c11c2df0f89"
 dependencies = [
  "if_chain",
  "itertools",
@@ -909,6 +910,12 @@ checksum = "d54590932941a9e9266f0832deed84ebe1bf2e4c9e4a3554d393d18f5e854bf9"
 dependencies = [
  "tinyvec",
 ]
+
+[[package]]
+name = "unicode-script"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "098ec66172ce21cd55f8bcc786ee209dd20e04eff70acfca30cb79924d173ae9"
 
 [[package]]
 name = "unicode-segmentation"
