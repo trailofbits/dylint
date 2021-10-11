@@ -24,9 +24,8 @@ pub fn active_toolchain(path: &Path) -> Result<String> {
         .output()?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     stdout
-        .splitn(2, ' ')
-        .next()
-        .map(ToOwned::to_owned)
+        .split_once(' ')
+        .map(|pair| pair.0.to_owned())
         .ok_or_else(|| anyhow!("Could not determine active toolchain"))
 }
 

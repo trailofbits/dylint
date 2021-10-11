@@ -1,5 +1,5 @@
 use crate::error::warn;
-use anyhow::{anyhow, ensure, Result};
+use anyhow::{anyhow, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     env::{self, var},
@@ -71,7 +71,12 @@ pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
 
     let driver_dir = dylint_drivers.join(&toolchain);
     if !driver_dir.is_dir() {
-        create_dir_all(&driver_dir)?;
+        create_dir_all(&driver_dir).with_context(|| {
+            format!(
+                "`create_dir_all` failed for `{}`",
+                driver_dir.to_string_lossy()
+            )
+        })?;
     }
 
     let driver = driver_dir.join("dylint-driver");
@@ -91,8 +96,16 @@ fn dylint_drivers() -> Result<PathBuf> {
         let home = dirs::home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
         let dylint_drivers = Path::new(&home).join(".dylint_drivers");
         if !dylint_drivers.is_dir() {
-            create_dir_all(&dylint_drivers)?;
-            write(dylint_drivers.join("README.txt"), README_TXT)?;
+            create_dir_all(&dylint_drivers).with_context(|| {
+                format!(
+                    "`create_dir_all` failed for `{}`",
+                    dylint_drivers.to_string_lossy()
+                )
+            })?;
+            let readme_txt = dylint_drivers.join("README.txt");
+            write(&readme_txt, README_TXT).with_context(|| {
+                format!("`write` failed for `{}`", readme_txt.to_string_lossy())
+            })?;
         }
         Ok(dylint_drivers)
     }
@@ -104,9 +117,9 @@ fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<b
     let stdout = std::str::from_utf8(&output.stdout)?;
     let theirs = stdout
         .trim_end()
-        .rsplitn(2, ' ')
-        .next()
-        .ok_or_else(|| anyhow!("Could not parse driver version"))?;
+        .rsplit_once(' ')
+        .map(|pair| pair.1)
+        .ok_or_else(|| anyhow!("Could not determine driver version"))?;
 
     let result = Version::parse(theirs);
 
@@ -115,7 +128,7 @@ fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<b
         Err(err) => {
             warn(
                 opts,
-                &format!("Could not determine driver version: {}", err),
+                &format!("Could not parse driver version `{}`: {}", theirs, err),
             );
             return Ok(true);
         }
@@ -129,7 +142,7 @@ fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<b
 #[allow(clippy::assertions_on_constants)]
 #[allow(clippy::expect_used)]
 fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
-    let tempdir = tempdir()?;
+    let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
     let package = tempdir.path();
 
     initialize(toolchain, package)?;
@@ -160,14 +173,18 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     }
     command.success()?;
 
-    copy(
-        metadata.target_directory.join("debug").join(format!(
-            "dylint_driver-{}{}",
-            toolchain,
-            consts::EXE_SUFFIX
-        )),
-        driver,
-    )?;
+    let binary = metadata.target_directory.join("debug").join(format!(
+        "dylint_driver-{}{}",
+        toolchain,
+        consts::EXE_SUFFIX
+    ));
+    copy(&binary, driver).with_context(|| {
+        format!(
+            "Could not copy `{}` to `{}`",
+            binary,
+            driver.to_string_lossy()
+        )
+    })?;
 
     Ok(())
 }
@@ -180,6 +197,7 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
     #[cfg(any(not(debug_assertions), not(feature = "dylint_driver_local")))]
     let path_spec = "";
     #[cfg(all(debug_assertions, feature = "dylint_driver_local"))]
+    #[allow(clippy::expect_used)]
     let path_spec = format!(
         ", path = \"{}\"",
         Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -192,14 +210,22 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
 
     let dylint_driver_spec = format!("{}{}", version_spec, path_spec);
 
-    write(
-        package.join("Cargo.toml"),
-        cargo_toml(toolchain, &dylint_driver_spec),
-    )?;
-    write(package.join("rust-toolchain"), rust_toolchain(toolchain))?;
+    let cargo_toml_path = package.join("Cargo.toml");
+    write(&cargo_toml_path, cargo_toml(toolchain, &dylint_driver_spec))
+        .with_context(|| format!("`write` failed for `{}`", cargo_toml_path.to_string_lossy()))?;
+    let rust_toolchain_path = package.join("rust-toolchain");
+    write(&rust_toolchain_path, rust_toolchain(toolchain)).with_context(|| {
+        format!(
+            "`write` failed for `{}`",
+            rust_toolchain_path.to_string_lossy()
+        )
+    })?;
     let src = package.join("src");
-    create_dir_all(&src)?;
-    write(&src.join("main.rs"), MAIN_RS)?;
+    create_dir_all(&src)
+        .with_context(|| format!("`create_dir_all` failed for `{}`", src.to_string_lossy()))?;
+    let main_rs = src.join("main.rs");
+    write(&main_rs, MAIN_RS)
+        .with_context(|| format!("`write` failed for `{}`", main_rs.to_string_lossy()))?;
 
     Ok(())
 }

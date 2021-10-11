@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use assert_cmd::prelude::*;
 use dylint_internal::rustup::SanitizeEnvironment;
 use regex::Regex;
@@ -95,7 +95,13 @@ fn upgrade_package() {
 
 fn rust_version(path: &Path) -> Result<Version> {
     let re = Regex::new(r#"^clippy_utils = .*\btag = "rust-([^"]*)""#).unwrap();
-    let file = read_to_string(path.join("Cargo.toml"))?;
+    let manifest = path.join("Cargo.toml");
+    let file = read_to_string(&manifest).with_context(|| {
+        format!(
+            "`read_to_string` failed for `{}`",
+            manifest.to_string_lossy()
+        )
+    })?;
     let rust_version = file
         .lines()
         .find_map(|line| re.captures(line).map(|captures| captures[1].to_owned()))

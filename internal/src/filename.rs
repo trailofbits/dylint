@@ -1,5 +1,6 @@
 use std::env::consts;
 
+#[must_use]
 pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
     format!(
         "{}{}@{}{}",

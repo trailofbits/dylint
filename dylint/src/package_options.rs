@@ -1,8 +1,8 @@
 use crate::Dylint;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use dylint_internal::find_and_replace;
 use git2::Repository;
-use heck::*;
+use heck::{CamelCase, KebabCase, ShoutySnakeCase, SnakeCase};
 use lazy_static::lazy_static;
 use semver::Version;
 use std::{
@@ -35,8 +35,8 @@ pub fn new_package(opts: &Dylint, path: &Path) -> Result<()> {
         .map(|s| s.to_string_lossy().to_string())
         .ok_or_else(|| anyhow!("Could not determine library name from {:?}", path))?;
 
-    let checked_out = tempdir()?;
-    let filtered = tempdir()?;
+    let checked_out = tempdir().with_context(|| "`tempdir` failed")?;
+    let filtered = tempdir().with_context(|| "`tempdir` failed")?;
 
     dylint_internal::clone(DYLINT_TEMPLATE_URL, "master", checked_out.path())?;
 
@@ -55,13 +55,25 @@ fn filter(name: &str, from: &Path, to: &Path) -> Result<()> {
     let lower_snake_case = name.to_snake_case();
 
     for path in &*PATHS {
+        let from_path = from.join(path);
         let to_path = if path == &Path::new("src").join("fill_me_in.rs") {
             to.join("src").join(&lower_snake_case).with_extension("rs")
         } else {
             to.join(path)
         };
-        to_path.parent().map(create_dir_all).transpose()?;
-        copy(from.join(path), to_path)?;
+        let parent = to_path
+            .parent()
+            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+        create_dir_all(parent).with_context(|| {
+            format!("`create_dir_all` failed for `{}`", parent.to_string_lossy())
+        })?;
+        copy(&from_path, &to_path).with_context(|| {
+            format!(
+                "Could not copy `{}` to `{}`",
+                from_path.to_string_lossy(),
+                to_path.to_string_lossy()
+            )
+        })?;
     }
 
     Ok(())
@@ -99,15 +111,28 @@ fn rename(name: &str, from: &Path, to: &Path) -> Result<()> {
             &[&format!(r#"s/\bFillMeIn\b/{}/g"#, camel_case)],
         )?;
 
-        to.join(rel_path).parent().map(create_dir_all).transpose()?;
-        copy(from.join(rel_path), to.join(rel_path))?;
+        let from_path = from.join(rel_path);
+        let to_path = to.join(rel_path);
+        let parent = to_path
+            .parent()
+            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+        create_dir_all(parent).with_context(|| {
+            format!("`create_dir_all` failed for `{}`", parent.to_string_lossy())
+        })?;
+        copy(&from_path, &to_path).with_context(|| {
+            format!(
+                "Could not copy `{}` to `{}`",
+                from_path.to_string_lossy(),
+                to_path.to_string_lossy()
+            )
+        })?;
     }
 
     Ok(())
 }
 
 pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
-    let tempdir = tempdir()?;
+    let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
 
     let refname = match &opts.rust_version {
         Some(rust_version) => format!("rust-{}", rust_version),
@@ -120,7 +145,7 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
         Some(rust_version) => format!("rust-{}", rust_version),
         None => {
             let version = latest_rust_version(&repository)?;
-            format!("rust-{}", version.to_string())
+            format!("rust-{}", version)
         }
     };
 
@@ -148,8 +173,7 @@ fn latest_rust_version(repository: &Repository) -> Result<Version> {
     let tags = repository.tag_names(Some("rust-*"))?;
     let mut rust_versions = tags
         .iter()
-        .map(|s| s.map(|s| s.strip_prefix("rust-")).flatten())
-        .flatten()
+        .filter_map(|s| s.and_then(|s| s.strip_prefix("rust-")))
         .map(Version::parse)
         .collect::<std::result::Result<Vec<_>, _>>()?;
     rust_versions.sort();
@@ -159,7 +183,13 @@ fn latest_rust_version(repository: &Repository) -> Result<Version> {
 }
 
 fn channel_line(path: &Path) -> Result<String> {
-    let file = read_to_string(path.join("rust-toolchain"))?;
+    let rust_toolchain = path.join("rust-toolchain");
+    let file = read_to_string(&rust_toolchain).with_context(|| {
+        format!(
+            "`read_to_string` failed for `{}`",
+            rust_toolchain.to_string_lossy(),
+        )
+    })?;
     file.lines()
         .find(|line| line.starts_with("channel = "))
         .map(ToOwned::to_owned)

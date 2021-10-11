@@ -1,5 +1,5 @@
 use crate::env::{self, var};
-use anyhow::{ensure, Result};
+use anyhow::{ensure, Context, Result};
 use std::{
     env::{join_paths, split_paths},
     ffi::{OsStr, OsString},
@@ -62,7 +62,10 @@ impl Command {
         log::debug!("{:?}", self.envs);
         log::debug!("{:?}", self.command);
 
-        let output = self.command.output()?;
+        let output = self
+            .command
+            .output()
+            .with_context(|| format!("Could not get output of `{:?}`", self.command))?;
 
         ensure!(
             output.status.success(),
@@ -81,7 +84,10 @@ impl Command {
         log::debug!("{:?}", self.envs);
         log::debug!("{:?}", self.command);
 
-        let status = self.command.status()?;
+        let status = self
+            .command
+            .status()
+            .with_context(|| format!("Could not get status of `{:?}`", self.command))?;
 
         ensure!(status.success(), "command failed: {:?}", self.command);
 

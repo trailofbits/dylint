@@ -142,9 +142,11 @@ fn dylint_libraries_in(
 ) -> Result<impl Iterator<Item = Result<(String, String, PathBuf)>>> {
     let iter = read_dir(path)
         .with_context(|| format!("`read_dir` failed for `{}`", path.to_string_lossy()))?;
+    let path = path.to_path_buf();
     Ok(iter
-        .map(|entry| -> Result<Option<(String, String, PathBuf)>> {
-            let entry = entry?;
+        .map(move |entry| -> Result<Option<(String, String, PathBuf)>> {
+            let entry = entry
+                .with_context(|| format!("`read_dir` failed for `{}`", path.to_string_lossy()))?;
             let path = entry.path();
 
             Ok(if let Some(filename) = path.file_name() {

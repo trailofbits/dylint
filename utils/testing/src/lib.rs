@@ -1,4 +1,4 @@
-use anyhow::{anyhow, ensure, Result};
+use anyhow::{anyhow, ensure, Context, Result};
 use cargo_metadata::{Metadata, Package, Target};
 use compiletest_rs::{self as compiletest, common::Mode as TestMode};
 use dylint_internal::{
@@ -110,11 +110,17 @@ fn run_example_test(
         .file_name()
         .ok_or_else(|| anyhow!("Could not get file name"))?;
 
-    let tempdir = tempfile::tempdir()?;
+    let tempdir = tempfile::tempdir().with_context(|| "`tempdir` failed")?;
     let src_base = tempdir.path();
     let to = src_base.join(file_name);
 
-    copy(&target.src_path, &to)?;
+    copy(&target.src_path, &to).with_context(|| {
+        format!(
+            "Could not copy `{}` to `{}`",
+            target.src_path,
+            to.to_string_lossy()
+        )
+    })?;
     copy_with_extension(&target.src_path, &to, "stderr").unwrap_or_default();
     copy_with_extension(&target.src_path, &to, "stdout").unwrap_or_default();
 
@@ -193,7 +199,8 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
         .stderr
         .lines()
         .map(|line| {
-            let line = line?;
+            let line =
+                line.with_context(|| format!("Could not read from `{}`", package.manifest_path))?;
             Ok((*RE).captures(&line).and_then(|captures| {
                 let args = captures[1]
                     .split(' ')
@@ -225,8 +232,11 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
 }
 
 fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> Result<()> {
-    for entry in read_dir(metadata.target_directory.join("debug").join("examples"))? {
-        let entry = entry?;
+    let examples = metadata.target_directory.join("debug").join("examples");
+    for entry in
+        read_dir(&examples).with_context(|| format!("`read_dir` failed for `{}`", examples))?
+    {
+        let entry = entry.with_context(|| format!("`read_dir` failed for `{}`", examples))?;
         let path = entry.path();
 
         if let Some(file_name) = path.file_name() {
@@ -234,7 +244,9 @@ fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> R
             if s == target.name.clone() + consts::EXE_SUFFIX
                 || s.starts_with(&(target.name.clone() + "-"))
             {
-                remove_file(path)?;
+                remove_file(&path).with_context(|| {
+                    format!("`remove_file` failed for `{}`", path.to_string_lossy())
+                })?;
             }
         }
     }
