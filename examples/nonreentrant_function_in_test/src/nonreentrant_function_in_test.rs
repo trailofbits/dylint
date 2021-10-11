@@ -53,13 +53,11 @@ pub struct NonreentrantFunctionInTest {
 
 impl_lint_pass!(NonreentrantFunctionInTest => [NONREENTRANT_FUNCTION_IN_TEST]);
 
-const BLACKLIST: &[&[&str]] = {
-    &[
-        &path::ENV_REMOVE_VAR,
-        &path::ENV_SET_CURRENT_DIR,
-        &path::ENV_SET_VAR,
-    ]
-};
+const BLACKLIST: &[&[&str]] = &[
+    &path::ENV_REMOVE_VAR,
+    &path::ENV_SET_CURRENT_DIR,
+    &path::ENV_SET_VAR,
+];
 
 impl EarlyLintPass for NonreentrantFunctionInTest {
     fn check_item(&mut self, _cx: &EarlyContext, item: &Item) {
