@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use cargo_metadata::Dependency;
 use dylint_internal::{cargo::current_metadata, env, find_and_replace, packaging::isolate};
 use std::{
@@ -100,8 +100,11 @@ fn clippy_lints_dependency() -> Result<Dependency> {
 }
 
 fn disable_rustfix(src_base: &Path) -> Result<()> {
-    for entry in read_dir(src_base)? {
-        let entry = entry?;
+    for entry in read_dir(src_base)
+        .with_context(|| format!("`read_dir` failed for `{}`", src_base.to_string_lossy()))?
+    {
+        let entry = entry
+            .with_context(|| format!("`read_dir` failed for `{}`", src_base.to_string_lossy()))?;
         let path = entry.path();
         if path.extension() != Some(OsStr::new("rs")) {
             continue;
@@ -118,7 +121,12 @@ fn disable_rustfix(src_base: &Path) -> Result<()> {
 #[allow(clippy::shadow_unrelated)]
 fn adjust_macro_use_imports_test(src_base: &Path) -> Result<()> {
     let stderr_file = src_base.join("macro_use_imports.stderr");
-    let contents = read_to_string(&stderr_file)?;
+    let contents = read_to_string(&stderr_file).with_context(|| {
+        format!(
+            "`read_to_string` failed for `{}`",
+            stderr_file.to_string_lossy()
+        )
+    })?;
     let lines: Vec<String> = contents.lines().map(ToString::to_string).collect();
 
     let (first_error, rest) = lines.split_at(ERROR_LINES);
@@ -151,12 +159,13 @@ fn adjust_macro_use_imports_test(src_base: &Path) -> Result<()> {
     assert_eq!(lines_sorted, permuted_sorted);
 
     write(
-        stderr_file,
+        &stderr_file,
         permuted
             .iter()
             .map(|line| format!("{}\n", line))
             .collect::<String>(),
-    )?;
+    )
+    .with_context(|| format!("Could not write to `{}`", stderr_file.to_string_lossy()))?;
 
     Ok(())
 }

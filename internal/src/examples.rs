@@ -1,5 +1,5 @@
 use crate::rustup::SanitizeEnvironment;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::{
     fs::read_dir,
     path::{Path, PathBuf},
@@ -28,14 +28,16 @@ pub fn build() -> Result<()> {
 }
 
 pub fn iter() -> Result<impl Iterator<Item = Result<PathBuf>>> {
-    let iter = read_dir(
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("examples"),
-    )?;
+    let examples = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("examples");
+    let iter = read_dir(&examples)
+        .with_context(|| format!("`read_dir` failed for `{}`", examples.to_string_lossy()))?;
     Ok(iter
-        .map(|entry| -> Result<Option<PathBuf>> {
-            let entry = entry?;
+        .map(move |entry| -> Result<Option<PathBuf>> {
+            let entry = entry.with_context(|| {
+                format!("`read_dir` failed for `{}`", examples.to_string_lossy())
+            })?;
             let path = entry.path();
             Ok(if path.is_dir() { Some(path) } else { None })
         })

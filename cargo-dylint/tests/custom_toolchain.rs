@@ -2,7 +2,7 @@
 // "Only the MSVC toolchain is supported on Windows"
 #[cfg(not(target_os = "windows"))]
 mod custom_toolchain {
-    use anyhow::{anyhow, Result};
+    use anyhow::{anyhow, Context, Result};
     use dylint_internal::{
         find_and_replace,
         rustup::{toolchain_path, SanitizeEnvironment},
@@ -36,7 +36,7 @@ mod custom_toolchain {
     }
 
     fn random_string() -> Result<String> {
-        let tempfile = NamedTempFile::new()?;
+        let tempfile = NamedTempFile::new().with_context(|| "Could not create named temp file")?;
         tempfile
             .path()
             .file_name()

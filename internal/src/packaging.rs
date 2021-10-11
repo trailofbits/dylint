@@ -2,19 +2,22 @@ use crate::{
     cargo::{current_metadata, package},
     sed::find_and_replace,
 };
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use std::{fs::OpenOptions, io::Write, path::Path};
 
 // smoelius: If a package is checked out in the current directory, this must be dealt with:
 // error: current package believes it's in a workspace when it's not
 pub fn isolate(path: &Path) -> Result<()> {
+    let manifest = path.join("Cargo.toml");
     let mut file = OpenOptions::new()
         .write(true)
         .append(true)
-        .open(path.join("Cargo.toml"))?;
+        .open(&manifest)
+        .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
 
-    writeln!(file)?;
-    writeln!(file, "[workspace]")?;
+    writeln!(file)
+        .and_then(|_| writeln!(file, "[workspace]"))
+        .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
 
     Ok(())
 }
@@ -35,23 +38,29 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
         ],
     )?;
 
-    let mut file = OpenOptions::new().write(true).append(true).open(manifest)?;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(&manifest)
+        .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
 
-    writeln!(file)?;
-    writeln!(file, "[patch.crates-io]")?;
+    writeln!(file)
+        .and_then(|_| writeln!(file, "[patch.crates-io]"))
+        .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
 
     for package_id in &metadata.workspace_members {
         let package = package(&metadata, package_id)?;
         let path = package
             .manifest_path
             .parent()
-            .ok_or_else(|| anyhow!("Could not get parent"))?;
+            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
         writeln!(
             file,
             r#"{} = {{ path = "{}" }}"#,
             package.name,
             path.to_string().replace('\\', "\\\\")
-        )?;
+        )
+        .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
     }
 
     Ok(())

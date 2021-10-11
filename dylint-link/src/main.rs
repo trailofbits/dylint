@@ -4,7 +4,7 @@
 
 #[cfg(target_os = "windows")]
 use anyhow::ensure;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use dylint_internal::{
     env::{self, var},
     library_filename, Command,
@@ -137,7 +137,13 @@ fn copy_library(path: &Path) -> Result<()> {
                 .parent()
                 .ok_or_else(|| anyhow!("Could not get parent directory"))?;
             let path_with_toolchain = strip_deps(parent).join(filename_with_toolchain);
-            copy(path, path_with_toolchain)?;
+            copy(&path, &path_with_toolchain).with_context(|| {
+                format!(
+                    "Could not copy `{}` to `{}`",
+                    path.to_string_lossy(),
+                    path_with_toolchain.to_string_lossy()
+                )
+            })?;
         }
     }
 
