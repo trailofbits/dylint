@@ -15,4 +15,4 @@ if_chain = "1.0.2"
 dylint_internal = { version = "=1.0.5", path = "../internal" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-cc = "1.0.70"
+cc = "1.0.71"

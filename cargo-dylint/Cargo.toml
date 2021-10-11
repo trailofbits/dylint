@@ -16,11 +16,11 @@ dylint = { version = "=1.0.5", path = "../dylint", features = ["dylint_driver_lo
 dylint_internal = { version = "=1.0.5", path = "../internal", features = ["git2"] }
 
 [dev-dependencies]
-assert_cmd = "2.0.1"
+assert_cmd = "2.0.2"
 cargo_metadata = "0.14.0"
 lazy_static = "1.4.0"
 log = "0.4.14"
-predicates = "2.0.2"
+predicates = "2.0.3"
 regex = "1.5.4"
 semver = "1.0.4"
 tempfile = "3.2.0"
