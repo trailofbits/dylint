@@ -1,7 +1,6 @@
 use clippy_utils::diagnostics::span_lint;
 use dylint_internal::path;
 use if_chain::if_chain;
-use lazy_static::lazy_static;
 use rustc_ast::{Expr, ExprKind, Item, NodeId};
 use rustc_lint::{EarlyContext, EarlyLintPass};
 use rustc_session::{declare_lint, impl_lint_pass};
@@ -54,15 +53,13 @@ pub struct NonreentrantFunctionInTest {
 
 impl_lint_pass!(NonreentrantFunctionInTest => [NONREENTRANT_FUNCTION_IN_TEST]);
 
-lazy_static! {
-    static ref BLACKLIST: [&'static [&'static str]; 3] = {
-        [
-            &path::ENV_REMOVE_VAR[..],
-            &path::ENV_SET_CURRENT_DIR[..],
-            &path::ENV_SET_VAR[..],
-        ]
-    };
-}
+const BLACKLIST: &[&[&str]] = {
+    &[
+        &path::ENV_REMOVE_VAR,
+        &path::ENV_SET_CURRENT_DIR,
+        &path::ENV_SET_VAR,
+    ]
+};
 
 impl EarlyLintPass for NonreentrantFunctionInTest {
     fn check_item(&mut self, _cx: &EarlyContext, item: &Item) {
