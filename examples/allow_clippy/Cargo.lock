@@ -13,7 +13,7 @@ dependencies = [
 
 [[package]]
 name = "allow_clippy"
-version = "1.0.5"
+version = "1.0.6"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -174,7 +174,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "1.0.5"
+version = "1.0.6"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -193,7 +193,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "1.0.5"
+version = "1.0.6"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -204,11 +204,11 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "1.0.5"
+version = "1.0.6"
 
 [[package]]
 name = "dylint_testing"
-version = "1.0.5"
+version = "1.0.6"
 dependencies = [
  "anyhow",
  "cargo_metadata",
