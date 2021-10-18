@@ -1,24 +1,24 @@
-use clap::{crate_version, Clap};
+use clap::{crate_version, Parser};
 use dylint_internal::env::{self, enabled};
 use std::{
     ffi::{OsStr, OsString},
     fmt::Debug,
 };
 
-#[derive(Clap, Debug)]
+#[derive(Debug, Parser)]
 #[clap(bin_name = "cargo")]
 struct Opts {
     #[clap(subcommand)]
     subcmd: SubCommand,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Debug, Parser)]
 enum SubCommand {
     Dylint(Dylint),
 }
 
 #[allow(clippy::struct_excessive_bools)]
-#[derive(Clap, Debug)]
+#[derive(Debug, Parser)]
 #[clap(
     version = crate_version!(),
     after_help = r#"ENVIRONMENT VARIABLES:
