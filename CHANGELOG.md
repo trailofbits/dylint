@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.7
+
+- Update clap dependency ([#104](https://github.com/trailofbits/dylint/pull/104))
+
 ## 1.0.6
 
 - Add `--new` and `--upgrade` options ([#92](https://github.com/trailofbits/dylint/pull/92))

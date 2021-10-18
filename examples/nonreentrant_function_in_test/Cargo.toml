@@ -1,6 +1,6 @@
 [package]
 name = "nonreentrant_function_in_test"
-version = "1.0.6"
+version = "1.0.7"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for nonreentrant functions in tests"
 edition = "2018"
