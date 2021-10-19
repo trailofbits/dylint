@@ -34,10 +34,9 @@ declare_lint_pass!(PathSeparatorInStringLiteral => [PATH_SEPARATOR_IN_STRING_LIT
 impl<'tcx> LateLintPass<'tcx> for PathSeparatorInStringLiteral {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
         if_chain! {
-            if let ExprKind::Call(callee, args) = expr.kind;
+            if let ExprKind::Call(callee, [arg]) = expr.kind;
             if let ExprKind::Path(path) = &callee.kind;
-            if args.len() == 1;
-            if let ExprKind::Lit(lit) = &args[0].kind;
+            if let ExprKind::Lit(lit) = &arg.kind;
             if let LitKind::Str(symbol, _) = lit.node;
             let ident = symbol.to_ident_string();
             let components = ident.split(std::path::MAIN_SEPARATOR).collect::<Vec<_>>();
