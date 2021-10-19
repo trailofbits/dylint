@@ -97,8 +97,8 @@ fn is_test_item(item: &Item) -> bool {
             if_chain! {
                 if attr.has_name(sym::cfg);
                 if let Some(items) = attr.meta_item_list();
-                if items.len() == 1;
-                if let Some(feature_item) = items[0].meta_item();
+                if let [item] = items.as_slice();
+                if let Some(feature_item) = item.meta_item();
                 if feature_item.has_name(sym::test);
                 then {
                     true
