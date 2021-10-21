@@ -1,5 +1,5 @@
 use clippy_utils::diagnostics::span_lint;
-use dylint_internal::path;
+use dylint_internal::paths;
 use if_chain::if_chain;
 use rustc_ast::{Expr, ExprKind, Item, NodeId};
 use rustc_lint::{EarlyContext, EarlyLintPass};
@@ -54,9 +54,9 @@ pub struct NonreentrantFunctionInTest {
 impl_lint_pass!(NonreentrantFunctionInTest => [NONREENTRANT_FUNCTION_IN_TEST]);
 
 const BLACKLIST: &[&[&str]] = &[
-    &path::ENV_REMOVE_VAR,
-    &path::ENV_SET_CURRENT_DIR,
-    &path::ENV_SET_VAR,
+    &paths::ENV_REMOVE_VAR,
+    &paths::ENV_SET_CURRENT_DIR,
+    &paths::ENV_SET_VAR,
 ];
 
 impl EarlyLintPass for NonreentrantFunctionInTest {
