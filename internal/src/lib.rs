@@ -19,7 +19,7 @@ pub use git::*;
 #[cfg(feature = "git2")]
 pub mod packaging;
 
-pub mod path;
+pub mod paths;
 
 pub mod rustup;
 

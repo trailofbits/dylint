@@ -1,5 +1,5 @@
 use clippy_utils::{diagnostics::span_lint_and_sugg, match_qpath, source::snippet};
-use dylint_internal::path;
+use dylint_internal::paths;
 use if_chain::if_chain;
 use rustc_ast::LitKind;
 use rustc_errors::Applicability;
@@ -44,9 +44,9 @@ impl<'tcx> LateLintPass<'tcx> for PathSeparatorInStringLiteral {
             if components.iter().all(|s| !s.is_empty());
             then {
                 let mut sugg = String::new();
-                if match_qpath(path, &path::PATH_NEW) {
+                if match_qpath(path, &paths::PATH_NEW) {
                     sugg = format!(r#"&{}("{}")"#, snippet(cx, callee.span, "Path::new"), components[0]);
-                } else if match_qpath(path, &path::PATH_BUF_FROM) {
+                } else if match_qpath(path, &paths::PATH_BUF_FROM) {
                     sugg = format!(r#"{}("{}")"#, snippet(cx, callee.span, "PathBuf::from"), components[0]);
                 }
                 if !sugg.is_empty() {
