@@ -17,7 +17,7 @@ dylint_internal = { version = "=1.0.7", path = "../internal", features = ["git2"
 
 [dev-dependencies]
 assert_cmd = "2.0.2"
-cargo_metadata = "0.14.0"
+cargo_metadata = "0.14.1"
 lazy_static = "1.4.0"
 log = "0.4.14"
 predicates = "2.0.3"
