@@ -47,6 +47,9 @@ pub struct Dylint {
     #[clap(long, hidden = true)]
     pub isolate: bool,
 
+    #[clap(long, about = "Continue if `cargo check` fails")]
+    pub keep_going: bool,
+
     #[clap(
         multiple_occurrences = true,
         number_of_values = 1,
@@ -146,6 +149,7 @@ impl From<Dylint> for dylint::Dylint {
         let Dylint {
             all,
             isolate,
+            keep_going,
             libs,
             list,
             manifest_path,
@@ -164,6 +168,7 @@ impl From<Dylint> for dylint::Dylint {
         Self {
             all,
             isolate,
+            keep_going,
             libs,
             list,
             manifest_path,
