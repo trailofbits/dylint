@@ -47,6 +47,7 @@ pub type NameToolchainMap = BTreeMap<String, ToolchainMap>;
 pub struct Dylint {
     pub all: bool,
     pub isolate: bool,
+    pub keep_going: bool,
     pub libs: Vec<String>,
     pub list: bool,
     pub manifest_path: Option<String>,
@@ -428,6 +429,8 @@ fn check(
 ) -> Result<()> {
     let clippy_disable_docs_links = clippy_disable_docs_links()?;
 
+    let mut failures = Vec::new();
+
     for (toolchain, paths) in resolved {
         let target_dir = target_dir(opts, toolchain)?;
         let target_dir_str = target_dir.to_string_lossy();
@@ -453,7 +456,7 @@ fn check(
         // https://github.com/rust-lang/rust-clippy/commit/1a206fc4abae0b57a3f393481367cf3efca23586
         // But I am going to continue to set CLIPPY_DISABLE_DOCS_LINKS because it doesn't seem to
         // hurt and it provides a small amount of backward compatibility.
-        dylint_internal::check()
+        let result = dylint_internal::check()
             .envs(vec![
                 (
                     env::CLIPPY_DISABLE_DOCS_LINKS.to_owned(),
@@ -467,10 +470,24 @@ fn check(
                 (env::RUSTUP_TOOLCHAIN.to_owned(), toolchain.clone()),
             ])
             .args(args)
-            .success()?;
+            .success();
+        if result.is_err() {
+            if !opts.keep_going {
+                return result
+                    .with_context(|| format!("Compilation failed with toolchain `{}`", toolchain));
+            };
+            failures.push(toolchain);
+        }
     }
 
-    Ok(())
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "Compilation failed with the following toolchains: {:?}",
+            failures
+        ))
+    }
 }
 
 fn target_dir(opts: &Dylint, toolchain: &str) -> Result<PathBuf> {
