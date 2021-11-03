@@ -18,6 +18,7 @@ declare_lint! {
     /// **Example:**
     ///
     /// ```rust
+    /// # use std::fs::File;
     /// fn foo() -> std::io::Result<()> {
     ///     let _ = File::open("/dev/null")?;
     ///     Ok(())
@@ -25,6 +26,7 @@ declare_lint! {
     /// ```
     /// Use instead:
     /// ```rust
+    /// # use std::fs::File;
     /// use anyhow::Context;
     /// fn foo() -> anyhow::Result<()> {
     ///         let _ = File::open("/dev/null").with_context(|| "could not open `/dev/null`")?;

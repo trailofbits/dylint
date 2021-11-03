@@ -36,7 +36,7 @@ mv "$TMP" README.md
 prettier --write README.md
 
 for EXAMPLE in *; do
-    if [[ ! -d "$EXAMPLE" || "$EXAMPLE" = src ]]; then
+    if [[ ! -d "$EXAMPLE" ]]; then
         continue
     fi
 
@@ -46,6 +46,7 @@ for EXAMPLE in *; do
         echo "# $EXAMPLE"
         echo
         cat src/*.rs |
+        sed '\,^[[:space:]]*///[[:space:]]\?#[^![],d' |
         sed -n 's,^[[:space:]]*///[[:space:]]\?\(.*\)$,\1,;T;p'
     ) > README.md
 

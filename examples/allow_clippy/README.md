@@ -18,7 +18,7 @@ Bad:
 Good:
 
 ```rust
-#[deny(clippy::restriction, clippy::style, clippy::pedantic, clippy::complexity, clippy::perf, clippy::cargo, clippy::nursery)]
+#![deny(clippy::restriction, clippy::style, clippy::pedantic, clippy::complexity, clippy::perf, clippy::cargo, clippy::nursery)]
 ```
 
 Returns the lint name if it is clippy lint.

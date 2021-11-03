@@ -24,7 +24,7 @@ declare_lint! {
     ///
     /// Good:
     /// ```rust
-    /// #[deny(clippy::restriction, clippy::style, clippy::pedantic, clippy::complexity, clippy::perf, clippy::cargo, clippy::nursery)]
+    /// #![deny(clippy::restriction, clippy::style, clippy::pedantic, clippy::complexity, clippy::perf, clippy::cargo, clippy::nursery)]
     /// ```
     pub ALLOW_CLIPPY,
     Warn,
