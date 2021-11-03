@@ -3,6 +3,7 @@
 #![deny(clippy::panic)]
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
+use cargo_metadata::MetadataCommand;
 use dylint_internal::env::{self, var};
 use lazy_static::lazy_static;
 use std::{
@@ -428,9 +429,11 @@ fn check(
     let clippy_disable_docs_links = clippy_disable_docs_links()?;
 
     for (toolchain, paths) in resolved {
+        let target_dir = target_dir(opts, toolchain)?;
+        let target_dir_str = target_dir.to_string_lossy();
         let driver = driver_builder::get(opts, toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
-        let mut args = vec![];
+        let mut args = vec!["--target-dir", &target_dir_str];
         if let Some(path) = &opts.manifest_path {
             args.extend(&["--manifest-path", path]);
         }
@@ -468,6 +471,20 @@ fn check(
     }
 
     Ok(())
+}
+
+fn target_dir(opts: &Dylint, toolchain: &str) -> Result<PathBuf> {
+    let mut command = MetadataCommand::new();
+    if let Some(path) = &opts.manifest_path {
+        command.manifest_path(path);
+    }
+    let metadata = command.no_deps().exec()?;
+    Ok(metadata
+        .target_directory
+        .join("dylint")
+        .join("target")
+        .join(toolchain)
+        .into())
 }
 
 fn flatten_toolchain_map(toolchain_map: &ToolchainMap) -> Vec<(String, PathBuf)> {
