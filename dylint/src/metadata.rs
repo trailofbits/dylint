@@ -313,6 +313,7 @@ fn target_dir(metadata: &Metadata, package_root: &Path, _package_id: PackageId) 
     Ok(metadata
         .target_directory
         .join("dylint")
+        .join("libraries")
         .join(toolchain)
         // .join(pkg_dir(package_root, package_id))
         .into())
