@@ -51,6 +51,10 @@ jobs:
 
     runs-on: ${{ matrix.environment }}
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - uses: actions/checkout@v2
 
@@ -59,6 +63,19 @@ jobs:
 
       - name: Test
         run: cargo test --workspace
+
+      - name: Test example documentation
+        # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
+        run: |
+          for X in examples/*; do
+            if [[ ! -d "$X" ]]; then
+              continue
+            fi
+            pushd "$X"
+            sed -i.bak 's/"cdylib"/"lib"/g' Cargo.toml
+            cargo test --doc
+            popd
+          done
 
   coverage:
     runs-on: ubuntu-latest

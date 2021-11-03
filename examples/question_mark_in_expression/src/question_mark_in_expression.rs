@@ -15,12 +15,18 @@ declare_lint! {
     /// **Example:**
     ///
     /// ```rust
-    /// Ok(std::path::PathBuf::from(&std::env::var("PWD")?))
+    /// # use std::{env::{var, VarError}, path::PathBuf};
+    /// # let _: Result<PathBuf, VarError> = (|| {
+    /// Ok(PathBuf::from(&var("PWD")?))
+    /// # })();
     /// ```
     /// Use instead:
     /// ```rust
-    /// let val = std::env::var("PWD")?;
-    /// Ok(std::path::PathBuf::from(&val))
+    /// # use std::{env::{var, VarError}, path::PathBuf};
+    /// # let _: Result<PathBuf, VarError> = (|| {
+    /// let val = var("PWD")?;
+    /// Ok(PathBuf::from(&val))
+    /// # })();
     /// ```
     pub QUESTION_MARK_IN_EXPRESSION,
     Warn,

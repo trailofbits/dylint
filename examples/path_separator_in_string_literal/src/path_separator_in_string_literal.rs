@@ -18,11 +18,17 @@ declare_lint! {
     /// **Example:**
     ///
     /// ```rust
+    /// # use std::path::PathBuf;
+    /// # let _ =
     /// PathBuf::from("../target")
+    /// # ;
     /// ```
     /// Use instead:
     /// ```rust
+    /// # use std::path::PathBuf;
+    /// # let _ =
     /// PathBuf::from("..").join("target")
+    /// # ;
     /// ```
     pub PATH_SEPARATOR_IN_STRING_LITERAL,
     Warn,
