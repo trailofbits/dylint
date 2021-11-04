@@ -14,12 +14,7 @@ fn new_package() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .args(&[
-            "dylint",
-            "--new",
-            &path.to_string_lossy().to_string(),
-            "--isolate",
-        ])
+        .args(&["dylint", "--new", &path.to_string_lossy(), "--isolate"])
         .assert()
         .success();
 
@@ -51,7 +46,7 @@ fn upgrade_package() {
         .args(&[
             "dylint",
             "--upgrade",
-            &tempdir.path().to_string_lossy().to_string(),
+            &tempdir.path().to_string_lossy(),
             "--rust-version",
             &rust_version.to_string(),
         ])
@@ -72,11 +67,7 @@ fn upgrade_package() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .args(&[
-            "dylint",
-            "--upgrade",
-            &tempdir.path().to_string_lossy().to_string(),
-        ])
+        .args(&["dylint", "--upgrade", &tempdir.path().to_string_lossy()])
         .assert()
         .success();
 

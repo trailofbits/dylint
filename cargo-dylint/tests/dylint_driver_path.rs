@@ -31,7 +31,7 @@ fn dylint_driver_path() {
     let toolchain_path = toolchain_path(tempdir.path()).unwrap();
     let toolchain = toolchain_path.iter().last().unwrap();
     let mut command = dylint_internal::driver(
-        &toolchain.to_string_lossy().to_string(),
+        &toolchain.to_string_lossy(),
         &dylint_driver_path.join(toolchain).join("dylint-driver"),
     )
     .unwrap();
