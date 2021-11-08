@@ -1,5 +1,5 @@
 error: allowing Clippy lints denies your project of its true potential
-  --> $DIR/main.rs:1:1
+  --> $DIR/main.rs:4:1
    |
 LL | #[allow(clippy::assertions_on_constants)]
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `#[deny(clippy::restriction, clippy::style, clippy::pedantic, clippy::complexity, clippy::perf, clippy::cargo, clippy::nursery)]`
