@@ -27,7 +27,7 @@ declare_lint! {
     /// #![deny(clippy::restriction, clippy::style, clippy::pedantic, clippy::complexity, clippy::perf, clippy::cargo, clippy::nursery)]
     /// ```
     pub ALLOW_CLIPPY,
-    Warn,
+    Allow,
     "use of `#[allow(clippy::...)]`"
 }
 
