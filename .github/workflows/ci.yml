@@ -4,7 +4,10 @@ on: [push, pull_request]
 
 jobs:
   lint:
-    # smoelius: `github.event.pull_request.user.login` is the user that opened the pull request,
+    # smoelius: Don't trigger on events related to pull requests opened by Dependabot. Those events
+    # should trigger an action in dependabot.yml to update the lockfiles, and this action should
+    # trigger on the corresponding push event.
+    #   Note that `github.event.pull_request.user.login` is the user that opened the pull request,
     # which may be different from the user that triggered the action.
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]' }}
 
