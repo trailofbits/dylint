@@ -1,4 +1,4 @@
-name: Update dependencies
+name: Update Dependencies
 
 # smoelius: Every Monday at 3:00 UTC (Sunday at 20:00 EST), create a PR to update dependencies to
 # their latest patch versions.
