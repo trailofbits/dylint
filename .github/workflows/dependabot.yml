@@ -1,0 +1,29 @@
+# https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/automating-dependabot-with-github-actions
+
+name: Dependabot Workflow
+
+on: [pull_request_target]
+
+jobs:
+  dependabot:
+    if: ${{ github.actor == 'dependabot[bot]' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+          # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
+          ssh-key: ${{ secrets.PR_SSH_PRIVATE_KEY }}
+
+      - name: Update lockfiles
+        run: find . -name Cargo.toml -exec cargo update --workspace --manifest-path {} \;
+
+      - name: Push
+        run: |
+          git config user.email 'dependabot[bot]@users.noreply.github.com'
+          git config user.name 'dependabot[bot]'
+          git commit . -m 'Update lockfiles'
+          git push
