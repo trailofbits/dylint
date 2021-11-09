@@ -19,6 +19,8 @@ jobs:
           ssh-key: ${{ secrets.PR_SSH_PRIVATE_KEY }}
 
       - name: Update lockfiles
+        # smoelius: Inline `scripts/update_lockfiles.sh` rather than run it from the PR. Dependabot
+        # shouldn't change that script, but just in case.
         run: find . -name Cargo.toml -exec cargo update --workspace --manifest-path {} \;
 
       - name: Push
