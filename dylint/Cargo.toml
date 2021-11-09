@@ -9,7 +9,7 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 ansi_term = "0.12.1"
-anyhow = "1.0.44"
+anyhow = "1.0.45"
 cargo = { version = "0.57.0", optional = true }
 cargo-platform = { version = "0.1.2", optional = true }
 cargo-util = { version = "0.1.1", optional = true }
