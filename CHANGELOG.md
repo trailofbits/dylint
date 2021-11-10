@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.8
+
+- Separate compilation artifacts by toolchain ([28f3691](https://github.com/trailofbits/dylint/commit/28f3691221bc22047b9bc6d7fcefa72b038adc10))
+- Add `--keep-going` option ([bbf0a3c](https://github.com/trailofbits/dylint/commit/bbf0a3c964788e86a287b49c8a9b1d5315c315e3))
+
 ## 1.0.7
 
 - Update clap dependency ([#104](https://github.com/trailofbits/dylint/pull/104))
