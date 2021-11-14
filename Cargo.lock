@@ -1308,9 +1308,9 @@ dependencies = [
 
 [[package]]
 name = "sedregex"
-version = "0.2.4"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e938a8943651a6f1ab7606996b758cdc4628cb7a8c27fb1e9923e5871716972f"
+checksum = "19411e23596093f03bbd11dc45603b6329bb4bfec77b9fd13e2b9fc9b02efe3e"
 dependencies = [
  "regex",
 ]
