@@ -13,4 +13,4 @@ cargo_metadata = "0.14.1"
 git2 = { version = "0.13.23", optional = true }
 if_chain = "1.0.2"
 log = "0.4.14"
-sedregex = "0.2.4"
+sedregex = "0.2.5"
