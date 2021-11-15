@@ -187,7 +187,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
             .envs(vec![(env::CARGO_TERM_COLOR, "never")])
             .args(&[
                 "--manifest-path",
-                &package.manifest_path.to_string(),
+                package.manifest_path.as_ref(),
                 "--example",
                 &target.name,
                 "--verbose",
