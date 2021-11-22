@@ -529,7 +529,7 @@ mod test {
     use dylint_internal::{cargo::current_metadata, examples};
     use lazy_static::lazy_static;
     use std::env::{join_paths, set_var};
-    use test_env_log::test;
+    use test_log::test;
 
     lazy_static! {
         static ref NAME_TOOLCHAIN_MAP: NameToolchainMap = {

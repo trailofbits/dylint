@@ -194,7 +194,7 @@ dependencies = [
  "regex",
  "semver",
  "tempfile",
- "test-env-log",
+ "test-log",
 ]
 
 [[package]]
@@ -516,7 +516,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
- "test-env-log",
+ "test-log",
  "walkdir",
 ]
 
@@ -1473,10 +1473,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13a4ec180a2de59b57434704ccfad967f789b12737738798fa08798cd5824c16"
 
 [[package]]
-name = "test-env-log"
-version = "0.2.7"
+name = "test-log"
+version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3e4b132a630cc8a0d06cfcb400da67adef3d0087a94b3332d4692908f0c2544"
+checksum = "eb78caec569a40f42c078c798c0e35b922d9054ec28e166f0d6ac447563d91a4"
 dependencies = [
  "proc-macro2",
  "quote",

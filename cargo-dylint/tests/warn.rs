@@ -1,7 +1,7 @@
 use assert_cmd::prelude::*;
 use predicates::prelude::*;
 use tempfile::tempdir;
-use test_env_log::test;
+use test_log::test;
 
 #[test]
 fn no_libraries_were_found() {

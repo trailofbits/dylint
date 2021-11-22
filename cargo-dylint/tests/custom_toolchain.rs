@@ -10,7 +10,7 @@ mod custom_toolchain {
     };
     use std::path::Path;
     use tempfile::{tempdir, NamedTempFile};
-    use test_env_log::test;
+    use test_log::test;
 
     #[test]
     fn custom_toolchain() {
