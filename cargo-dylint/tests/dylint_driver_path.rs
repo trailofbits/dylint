@@ -4,7 +4,7 @@ use dylint_internal::{
 };
 use std::fs::create_dir_all;
 use tempfile::tempdir_in;
-use test_env_log::test;
+use test_log::test;
 
 #[test]
 fn dylint_driver_path() {

@@ -23,7 +23,7 @@ cargo_metadata = "0.14.1"
 env_logger = "0.9.0"
 log = "0.4.14"
 tempfile = "3.2.0"
-test-env-log = "0.2.7"
+test-log = "0.2.7"
 
 dylint = { path = "../../dylint", default-features = false }
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }

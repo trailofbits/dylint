@@ -8,7 +8,7 @@ use std::{
     path::Path,
 };
 use tempfile::tempdir_in;
-use test_env_log::test;
+use test_log::test;
 
 const ERROR_LINES: usize = 5;
 

@@ -19,7 +19,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use tempfile::tempdir;
-use test_env_log::test;
+use test_log::test;
 
 const CHANNEL_A: &str = "nightly-2021-03-11";
 const CHANNEL_B: &str = "nightly-2021-04-22";
