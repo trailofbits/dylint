@@ -12,8 +12,9 @@ Note: `cargo-dylint` will not work correctly if installed with the `--debug` fla
 
 **Contents**
 
-- [Quick start: running Dylint](#quick-start-running-dylint)
-- [Quick start: writing lints](#quick-start-writing-lints)
+- [Quick start](#quick-start)
+  - [Running Dylint](#running-dylint)
+  - [Writing lints](#writing-lints)
 - [How libraries are found](#how-libraries-are-found)
 - [Workspace metadata](#workspace-metadata)
 - [Library requirements](#library-requirements)
@@ -22,7 +23,9 @@ Note: `cargo-dylint` will not work correctly if installed with the `--debug` fla
 - [Limitations](#limitations)
 - [Resources](#resources)
 
-## Quick start: running Dylint
+## Quick start
+
+### Running Dylint
 
 The next four commands install Dylint and run one of the example libraries' lints on the Dylint source code:
 
@@ -35,7 +38,7 @@ cargo dylint allow_clippy                       # Run an example libraries' lint
 
 In the above example, the library is found via [workspace metadata](#workspace-metadata) (see below).
 
-## Quick start: writing lints
+### Writing lints
 
 You can start writing your own Dylint libraries by forking the [`dylint-template`](https://github.com/trailofbits/dylint-template) repository. The repository produces a loadable library right out of the box. You can verify this as follows:
 
