@@ -1,6 +1,6 @@
 name: Update Dependencies
 
-# smoelius: Every Monday at 3:00 UTC (Sunday at 20:00 EST), create a PR to update dependencies to
+# smoelius: Every Monday at 3:00 UTC (Sunday at 22:00 EST), create a PR to update dependencies to
 # their latest patch versions.
 #
 # The main purpose of this action is verify that the project's lockfiles aren't needed to build it
