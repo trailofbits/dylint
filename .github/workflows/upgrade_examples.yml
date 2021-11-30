@@ -1,6 +1,6 @@
 name: Upgrade Examples
 
-# smoelius: Every Saturday at 3:00 UTC (Friday at 20:00 EST), create a PR to update the example
+# smoelius: Every Saturday at 3:00 UTC (Friday at 22:00 EST), create a PR to update the example
 # libraries to the latest version of `clippy_utils`.
 
 on:
