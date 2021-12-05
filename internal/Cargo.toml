@@ -10,7 +10,7 @@ repository = "https://github.com/trailofbits/dylint"
 [dependencies]
 anyhow = "1.0.50"
 cargo_metadata = "0.14.1"
-git2 = { version = "0.13.24", optional = true }
+git2 = { version = "0.13.25", optional = true }
 if_chain = "1.0.2"
 log = "0.4.14"
 sedregex = "0.2.5"
