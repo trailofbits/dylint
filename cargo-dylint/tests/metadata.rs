@@ -1,6 +1,7 @@
 use cargo_metadata::{Dependency, Metadata, Version};
 use dylint_internal::cargo::current_metadata;
 use lazy_static::lazy_static;
+use test_log::test;
 
 lazy_static! {
     static ref METADATA: Metadata = current_metadata().unwrap();
