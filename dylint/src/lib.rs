@@ -46,6 +46,7 @@ pub type NameToolchainMap = BTreeMap<String, ToolchainMap>;
 #[derive(Debug, Default)]
 pub struct Dylint {
     pub all: bool,
+    pub fix: bool,
     pub isolate: bool,
     pub keep_going: bool,
     pub libs: Vec<String>,
@@ -192,7 +193,7 @@ fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchain
     if opts.list {
         list_lints(opts, name_toolchain_map, &resolved)
     } else {
-        check(opts, name_toolchain_map, &resolved)
+        check_or_fix(opts, name_toolchain_map, &resolved)
     }
 }
 
@@ -422,7 +423,7 @@ fn list_lints(
     Ok(())
 }
 
-fn check(
+fn check_or_fix(
     opts: &Dylint,
     _name_toolchain_map: &NameToolchainMap,
     resolved: &ToolchainMap,
@@ -436,6 +437,11 @@ fn check(
         let target_dir_str = target_dir.to_string_lossy();
         let driver = driver_builder::get(opts, toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
+        let mut command = if opts.fix {
+            dylint_internal::fix()
+        } else {
+            dylint_internal::check()
+        };
         let mut args = vec!["--target-dir", &target_dir_str];
         if let Some(path) = &opts.manifest_path {
             args.extend(&["--manifest-path", path]);
@@ -456,7 +462,7 @@ fn check(
         // https://github.com/rust-lang/rust-clippy/commit/1a206fc4abae0b57a3f393481367cf3efca23586
         // But I am going to continue to set CLIPPY_DISABLE_DOCS_LINKS because it doesn't seem to
         // hurt and it provides a small amount of backward compatibility.
-        let result = dylint_internal::check()
+        let result = command
             .envs(vec![
                 (
                     env::CLIPPY_DISABLE_DOCS_LINKS.to_owned(),
