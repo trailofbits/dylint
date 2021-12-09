@@ -50,14 +50,19 @@ impl<'tcx> LateLintPass<'tcx> for PathSeparatorInStringLiteral {
             if components.iter().all(|s| !s.is_empty());
             then {
                 let mut sugg = String::new();
+                let mut is_path_new = false;
                 if match_qpath(path, &paths::PATH_NEW) {
-                    sugg = format!(r#"&{}("{}")"#, snippet(cx, callee.span, "Path::new"), components[0]);
+                    sugg = format!(r#"{}("{}")"#, snippet(cx, callee.span, "Path::new"), components[0]);
+                    is_path_new = true;
                 } else if match_qpath(path, &paths::PATH_BUF_FROM) {
                     sugg = format!(r#"{}("{}")"#, snippet(cx, callee.span, "PathBuf::from"), components[0]);
                 }
                 if !sugg.is_empty() {
                     for component in &components[1..] {
                         sugg.push_str(&format!(r#".join("{}")"#, component));
+                    }
+                    if is_path_new {
+                        sugg.push_str(".as_path()");
                     }
                     span_lint_and_sugg(
                         cx,
