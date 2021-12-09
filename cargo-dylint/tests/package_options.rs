@@ -5,6 +5,7 @@ use regex::Regex;
 use semver::Version;
 use std::{fs::read_to_string, path::Path};
 use tempfile::tempdir;
+use test_log::test;
 
 #[test]
 fn new_package() {
