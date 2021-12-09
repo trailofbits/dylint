@@ -12,6 +12,11 @@ pub fn check() -> crate::Command {
 }
 
 #[must_use]
+pub fn fix() -> crate::Command {
+    cargo("fix")
+}
+
+#[must_use]
 pub fn test() -> crate::Command {
     cargo("test")
 }

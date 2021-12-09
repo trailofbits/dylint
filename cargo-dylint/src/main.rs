@@ -44,6 +44,9 @@ pub struct Dylint {
     #[clap(long, help = "Load all discovered libraries")]
     pub all: bool,
 
+    #[clap(long, help = "Automatically apply lint suggestions")]
+    pub fix: bool,
+
     #[clap(long, hide = true)]
     pub isolate: bool,
 
@@ -148,6 +151,7 @@ impl From<Dylint> for dylint::Dylint {
     fn from(opts: Dylint) -> Self {
         let Dylint {
             all,
+            fix,
             isolate,
             keep_going,
             libs,
@@ -167,6 +171,7 @@ impl From<Dylint> for dylint::Dylint {
         } = opts;
         Self {
             all,
+            fix,
             isolate,
             keep_going,
             libs,
