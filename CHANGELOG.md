@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.9
+
+- Update clap dependency ([#152](https://github.com/trailofbits/dylint/pull/152))
+
 ## 1.0.8
 
 - Separate compilation artifacts by toolchain ([28f3691](https://github.com/trailofbits/dylint/commit/28f3691221bc22047b9bc6d7fcefa72b038adc10))

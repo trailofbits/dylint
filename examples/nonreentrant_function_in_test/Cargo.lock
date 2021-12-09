@@ -164,7 +164,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "1.0.8"
+version = "1.0.9"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -183,7 +183,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "1.0.8"
+version = "1.0.9"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -194,11 +194,11 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "1.0.8"
+version = "1.0.9"
 
 [[package]]
 name = "dylint_testing"
-version = "1.0.8"
+version = "1.0.9"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -347,7 +347,7 @@ dependencies = [
 
 [[package]]
 name = "nonreentrant_function_in_test"
-version = "1.0.8"
+version = "1.0.9"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
