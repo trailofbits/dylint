@@ -48,8 +48,8 @@ jobs:
         run: |
           rustup toolchain install nightly
           cargo install cargo-udeps
-          cargo +nightly udeps --workspace --tests --no-default-features
-          cargo +nightly udeps --workspace --tests
+          cargo clean && cargo +nightly udeps --workspace --tests --no-default-features
+          cargo clean && cargo +nightly udeps --workspace --tests
 
   test:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]' }}
