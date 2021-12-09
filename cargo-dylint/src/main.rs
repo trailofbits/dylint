@@ -41,13 +41,13 @@ METADATA EXAMPLE:
 "#,
 )]
 pub struct Dylint {
-    #[clap(long, about = "Load all discovered libraries")]
+    #[clap(long, help = "Load all discovered libraries")]
     pub all: bool,
 
-    #[clap(long, hidden = true)]
+    #[clap(long, hide = true)]
     pub isolate: bool,
 
-    #[clap(long, about = "Continue if `cargo check` fails")]
+    #[clap(long, help = "Continue if `cargo check` fails")]
     pub keep_going: bool,
 
     #[clap(
@@ -55,7 +55,7 @@ pub struct Dylint {
         number_of_values = 1,
         long = "lib",
         value_name = "name",
-        about = "Library name to load lints from. A file with a name of the form \"DLL_PREFIX \
+        help = "Library name to load lints from. A file with a name of the form \"DLL_PREFIX \
         <name> '@' TOOLCHAIN DLL_SUFFIX\" is searched for in the directories listed in \
         DYLINT_LIBRARY_PATH, and in the `target/release` directories produced by building the \
         current workspace's metadata entries (see example below)."
@@ -64,7 +64,7 @@ pub struct Dylint {
 
     #[clap(
         long,
-        about = "If no libraries are named, list the name, toolchain, and location of all \
+        help = "If no libraries are named, list the name, toolchain, and location of all \
         discovered libraries. If at least one library is named, list the name, level, and \
         description of all lints in all named libraries. Combine with `--all` to list all \
         lints in all discovered libraries."
@@ -74,7 +74,7 @@ pub struct Dylint {
     #[clap(
         long,
         value_name = "path",
-        about = "Path to Cargo.toml. Note: if the manifest uses metadata, then \
+        help = "Path to Cargo.toml. Note: if the manifest uses metadata, then \
         `--manifest-path <path>` must appear before `--`, not after."
     )]
     pub manifest_path: Option<String>,
@@ -82,15 +82,15 @@ pub struct Dylint {
     #[clap(
         long = "new",
         value_name = "path",
-        about = "Create a new library package at <path>. Add `--isolate` to put the package in its \
+        help = "Create a new library package at <path>. Add `--isolate` to put the package in its \
         own workspace."
     )]
     pub new_path: Option<String>,
 
-    #[clap(long, about = "Do not build metadata entries")]
+    #[clap(long, help = "Do not build metadata entries")]
     pub no_build: bool,
 
-    #[clap(long, about = "Ignore metadata entirely")]
+    #[clap(long, help = "Ignore metadata entirely")]
     pub no_metadata: bool,
 
     #[clap(
@@ -99,7 +99,7 @@ pub struct Dylint {
         short,
         long = "package",
         value_name = "spec",
-        about = "Package to check"
+        help = "Package to check"
     )]
     pub packages: Vec<String>,
 
@@ -108,39 +108,39 @@ pub struct Dylint {
         number_of_values = 1,
         long = "path",
         value_name = "path",
-        about = "Library path to load lints from"
+        help = "Library path to load lints from"
     )]
     pub paths: Vec<String>,
 
     #[clap(
         short,
         long,
-        about = "Do not show warnings or progress running commands besides `cargo check`"
+        help = "Do not show warnings or progress running commands besides `cargo check`"
     )]
     pub quiet: bool,
 
-    #[clap(long, hidden = true)]
+    #[clap(long, hide = true)]
     pub rust_version: Option<String>,
 
     #[clap(
         long = "upgrade",
         value_name = "path",
-        about = "Upgrade the library package at <path> to the latest version of `clippy_utils`. \
+        help = "Upgrade the library package at <path> to the latest version of `clippy_utils`. \
         Add `--rust-version <version>` to upgrade to the version with tag `rust-<version>`."
     )]
     pub upgrade_path: Option<String>,
 
-    #[clap(long, about = "Check all packages in the workspace")]
+    #[clap(long, help = "Check all packages in the workspace")]
     pub workspace: bool,
 
     #[clap(
-        about = "Libraries to load lints from. Each <name> is searched for as described under \
+        help = "Libraries to load lints from. Each <name> is searched for as described under \
         `--lib`. If no library is found, <name> is treated as path. To avoid ambiguity, use \
         `--lib` or `--path`."
     )]
     pub names: Vec<String>,
 
-    #[clap(last = true, about = "Arguments for `cargo check`")]
+    #[clap(last = true, help = "Arguments for `cargo check`")]
     pub args: Vec<String>,
 }
 
