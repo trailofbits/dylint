@@ -2,7 +2,7 @@ use crate::Dylint;
 use anyhow::{anyhow, Context, Result};
 use dylint_internal::find_and_replace;
 use git2::Repository;
-use heck::{CamelCase, KebabCase, ShoutySnakeCase, SnakeCase};
+use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use lazy_static::lazy_static;
 use semver::Version;
 use std::{
@@ -83,7 +83,7 @@ fn rename(name: &str, from: &Path, to: &Path) -> Result<()> {
     let lower_snake_case = name.to_snake_case();
     let upper_snake_case = name.to_shouty_snake_case();
     let kebab_case = name.to_kebab_case();
-    let camel_case = name.to_camel_case();
+    let camel_case = name.to_upper_camel_case();
 
     for entry in WalkDir::new(from) {
         let entry = entry?;
