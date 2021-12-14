@@ -2,6 +2,10 @@ name: CI
 
 on: [push, pull_request]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     # smoelius: Don't trigger on events related to pull requests opened by Dependabot. Those events
@@ -67,11 +71,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # smoelius: The `nightly_toolchain` test makes sense only if the nightly driver is cached.
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.dylint_drivers/
+            ~/.rustup/toolchains/
+          key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
+
       - name: Install dylint-link
         run: cargo install --path ./dylint-link
 
       - name: Test
-        run: cargo test --workspace
+        run: cargo test --workspace -- --nocapture
 
       - name: Test example documentation
         # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
