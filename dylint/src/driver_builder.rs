@@ -113,30 +113,27 @@ fn dylint_drivers() -> Result<PathBuf> {
 
 fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<bool> {
     let mut command = dylint_internal::driver(toolchain, driver)?;
-    let output = command.args(&["-V"]).output()?;
-    let stdout = std::str::from_utf8(&output.stdout)?;
-    let theirs = stdout
-        .trim_end()
-        .rsplit_once(' ')
-        .map(|pair| pair.1)
-        .ok_or_else(|| anyhow!("Could not determine driver version"))?;
 
-    let result = Version::parse(theirs);
+    (|| -> Result<bool> {
+        let output = command.args(&["-V"]).output()?;
+        let stdout = std::str::from_utf8(&output.stdout)?;
+        let theirs = stdout
+            .trim_end()
+            .rsplit_once(' ')
+            .map(|pair| pair.1)
+            .ok_or_else(|| anyhow!("Could not determine driver version"))?;
 
-    let their_version = match result {
-        Ok(version) => version,
-        Err(err) => {
-            warn(
-                opts,
-                &format!("Could not parse driver version `{}`: {}", theirs, err),
-            );
-            return Ok(true);
-        }
-    };
+        let their_version = Version::parse(theirs)
+            .with_context(|| format!("Could not parse driver version `{}`", theirs))?;
 
-    let our_version = Version::parse(env!("CARGO_PKG_VERSION"))?;
+        let our_version = Version::parse(env!("CARGO_PKG_VERSION"))?;
 
-    Ok(their_version < our_version)
+        Ok(their_version < our_version)
+    })()
+    .or_else(|error| {
+        warn(opts, &error.to_string());
+        Ok(true)
+    })
 }
 
 #[allow(clippy::assertions_on_constants)]
