@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 clippy_lints = { git = "https://github.com/rust-lang/rust-clippy", tag = "rust-1.56.1"}
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", tag = "rust-1.56.1"}
-serde_json = "1.0.72"
+serde_json = "1.0.73"
 
 dylint_internal = { path = "../../internal", features = ["git2"] }
 dylint_linting = { path = "../../utils/linting" }
