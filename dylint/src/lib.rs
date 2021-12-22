@@ -47,6 +47,7 @@ pub type NameToolchainMap = BTreeMap<String, ToolchainMap>;
 pub struct Dylint {
     pub all: bool,
     pub fix: bool,
+    pub force: bool,
     pub isolate: bool,
     pub keep_going: bool,
     pub libs: Vec<String>,
@@ -66,6 +67,10 @@ pub struct Dylint {
 }
 
 pub fn run(opts: &Dylint) -> Result<()> {
+    if opts.force && opts.upgrade_path.is_none() {
+        bail!("`--force` can be used only with `--upgrade`");
+    }
+
     if opts.isolate && opts.new_path.is_none() {
         bail!("`--isolate` can be used only with `--new`");
     }
