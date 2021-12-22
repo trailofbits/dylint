@@ -50,6 +50,13 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
 
     for package_id in &metadata.workspace_members {
         let package = package(&metadata, package_id)?;
+        if package
+            .targets
+            .iter()
+            .all(|target| target.kind.iter().all(|kind| kind != "lib"))
+        {
+            continue;
+        }
         let path = package
             .manifest_path
             .parent()
