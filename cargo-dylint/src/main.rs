@@ -48,6 +48,9 @@ pub struct Dylint {
     pub fix: bool,
 
     #[clap(long, hide = true)]
+    pub force: bool,
+
+    #[clap(long, hide = true)]
     pub isolate: bool,
 
     #[clap(long, help = "Continue if `cargo check` fails")]
@@ -152,6 +155,7 @@ impl From<Dylint> for dylint::Dylint {
         let Dylint {
             all,
             fix,
+            force,
             isolate,
             keep_going,
             libs,
@@ -172,6 +176,7 @@ impl From<Dylint> for dylint::Dylint {
         Self {
             all,
             fix,
+            force,
             isolate,
             keep_going,
             libs,

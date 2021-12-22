@@ -1,8 +1,10 @@
 use crate::Dylint;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
+use chrono::{Date, NaiveDate, TimeZone, Utc};
 use dylint_internal::find_and_replace;
 use git2::Repository;
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
+use if_chain::if_chain;
 use lazy_static::lazy_static;
 use semver::Version;
 use std::{
@@ -151,7 +153,22 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
 
     dylint_internal::checkout(&repository, &tag)?;
 
-    let channel_line = channel_line(tempdir.path())?;
+    let new_channel = channel(tempdir.path())?;
+
+    let old_channel = channel(path)?;
+
+    if_chain! {
+        if !opts.force;
+        if let Some(new_nightly) = parse_as_nightly(&new_channel);
+        if let Some(old_nightly) = parse_as_nightly(&old_channel);
+        if new_nightly < old_nightly;
+        then {
+            bail!(
+                "Refusing to downgrade toolchain from `{}` to `{}`. Use `--force` to override.",
+                old_channel, new_channel
+            );
+        }
+    }
 
     find_and_replace(
         &path.join("Cargo.toml"),
@@ -163,7 +180,10 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
 
     find_and_replace(
         &path.join("rust-toolchain"),
-        &[&format!(r#"s/(?m)^channel = .*/{}/"#, channel_line,)],
+        &[&format!(
+            r#"s/(?m)^channel = "[^"]*"/channel = "{}"/"#,
+            new_channel,
+        )],
     )?;
 
     Ok(())
@@ -182,7 +202,7 @@ fn latest_rust_version(repository: &Repository) -> Result<Version> {
         .ok_or_else(|| anyhow!("Could not determine latest `clippy_utils` version"))
 }
 
-fn channel_line(path: &Path) -> Result<String> {
+fn channel(path: &Path) -> Result<String> {
     let rust_toolchain = path.join("rust-toolchain");
     let file = read_to_string(&rust_toolchain).with_context(|| {
         format!(
@@ -191,7 +211,22 @@ fn channel_line(path: &Path) -> Result<String> {
         )
     })?;
     file.lines()
-        .find(|line| line.starts_with("channel = "))
+        .find_map(|line| line.strip_prefix(r#"channel = ""#))
+        .and_then(|line| line.strip_suffix('"'))
         .map(ToOwned::to_owned)
         .ok_or_else(|| anyhow!("Could not determine Rust toolchain channel"))
+}
+
+fn parse_as_nightly(channel: &str) -> Option<Date<Utc>> {
+    channel
+        .strip_prefix("nightly-")
+        .and_then(utc_from_manifest_date)
+}
+
+// smoelius: `utc_from_manifest_date` is from
+// https://github.com/rust-lang/rustup/blob/master/src/dist/dist.rs
+fn utc_from_manifest_date(date_str: &str) -> Option<Date<Utc>> {
+    NaiveDate::parse_from_str(date_str, "%Y-%m-%d")
+        .ok()
+        .map(|date| Utc.from_utc_date(&date))
 }
