@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.10
+
+- Add `--fix` option ([#153](https://github.com/trailofbits/dylint/pull/153))
+- Prevent `--upgrade` from downgrading toolchain ([#164](https://github.com/trailofbits/dylint/pull/164))
+- Expand circumstances under which drivers are rebuilt ([#165](https://github.com/trailofbits/dylint/pull/165))
+
 ## 1.0.9
 
 - Update clap dependency ([#152](https://github.com/trailofbits/dylint/pull/152))
