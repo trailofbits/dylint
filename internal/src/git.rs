@@ -3,6 +3,9 @@ use git2::Repository;
 use if_chain::if_chain;
 use std::path::Path;
 
+// smoelius: I think I may have run into https://github.com/libgit2/libgit2/issues/5294 a few times,
+// but I don't know of a good general-purpose solution. TODO: Investigate whether/how Cargo's
+// wrappers handle this.
 pub fn clone(url: &str, refname: &str, path: &Path) -> Result<Repository> {
     let repository = Repository::clone(url, path)?;
 

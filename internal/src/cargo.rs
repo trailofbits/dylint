@@ -21,6 +21,11 @@ pub fn test() -> crate::Command {
     cargo("test")
 }
 
+#[must_use]
+pub fn update() -> crate::Command {
+    cargo("update")
+}
+
 fn cargo(subcommand: &str) -> crate::Command {
     let mut command = crate::Command::new("cargo");
     command.args(&[subcommand]);

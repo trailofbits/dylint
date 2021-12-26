@@ -18,6 +18,9 @@ jobs:
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
           ssh-key: ${{ secrets.PR_SSH_PRIVATE_KEY }}
 
+      - name: Install cargo-bisect-rustc
+        run: cargo install cargo-bisect-rustc
+
       - name: Update dependencies
         run: scripts/upgrade_examples.sh
 
