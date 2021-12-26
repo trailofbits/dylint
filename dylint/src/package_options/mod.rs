@@ -1,18 +1,41 @@
 use crate::Dylint;
 use anyhow::{anyhow, bail, Context, Result};
 use chrono::{Date, NaiveDate, TimeZone, Utc};
-use dylint_internal::find_and_replace;
+use dylint_internal::{find_and_replace, rustup::SanitizeEnvironment};
 use git2::Repository;
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
 use lazy_static::lazy_static;
 use semver::Version;
 use std::{
-    fs::{copy, create_dir_all, read_to_string},
+    fs::{copy, create_dir_all, read_to_string, rename},
     path::{Path, PathBuf},
 };
-use tempfile::tempdir;
+use tempfile::{tempdir, NamedTempFile};
 use walkdir::WalkDir;
+
+#[cfg(unix)]
+mod bisect;
+
+struct Backup {
+    path: PathBuf,
+    tempfile: NamedTempFile,
+}
+
+impl Backup {
+    pub fn new(dir: &Path, entry: &str) -> Result<Self> {
+        let path = dir.join(entry);
+        let tempfile =
+            NamedTempFile::new_in(dir).with_context(|| "Could not create named temp file")?;
+        copy(&path, tempfile.path())
+            .with_context(|| format!("Could not copy {:?} to {:?}", path, tempfile.path()))?;
+        Ok(Self { path, tempfile })
+    }
+
+    pub fn restore(self) -> Result<()> {
+        rename(self.tempfile.path(), self.path).map_err(Into::into)
+    }
+}
 
 const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
 
@@ -48,7 +71,7 @@ pub fn new_package(opts: &Dylint, path: &Path) -> Result<()> {
 
     filter(&name, checked_out.path(), filtered.path())?;
 
-    rename(&name, filtered.path(), path)?;
+    fill_in(&name, filtered.path(), path)?;
 
     Ok(())
 }
@@ -81,7 +104,7 @@ fn filter(name: &str, from: &Path, to: &Path) -> Result<()> {
     Ok(())
 }
 
-fn rename(name: &str, from: &Path, to: &Path) -> Result<()> {
+fn fill_in(name: &str, from: &Path, to: &Path) -> Result<()> {
     let lower_snake_case = name.to_snake_case();
     let upper_snake_case = name.to_shouty_snake_case();
     let kebab_case = name.to_kebab_case();
@@ -171,23 +194,59 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
         }
     }
 
-    find_and_replace(
-        &path.join("Cargo.toml"),
-        &[&format!(
-            r#"s/(?m)^(clippy_utils\b.*)\btag = "[^"]*"/${{1}}tag = "{}"/"#,
-            tag,
-        )],
-    )?;
+    let cargo_toml = Backup::new(path, "Cargo.toml")?;
+    let rust_toolchain = Backup::new(path, "rust-toolchain")?;
 
-    find_and_replace(
-        &path.join("rust-toolchain"),
-        &[&format!(
-            r#"s/(?m)^channel = "[^"]*"/channel = "{}"/"#,
-            new_channel,
-        )],
-    )?;
+    let result = (|| -> Result<()> {
+        find_and_replace(
+            &path.join("Cargo.toml"),
+            &[&format!(
+                r#"s/(?m)^(clippy_utils\b.*)\btag = "[^"]*"/${{1}}tag = "{}"/"#,
+                tag,
+            )],
+        )?;
 
-    Ok(())
+        find_and_replace(
+            &path.join("rust-toolchain"),
+            &[&format!(
+                r#"s/(?m)^channel = "[^"]*"/channel = "{}"/"#,
+                new_channel,
+            )],
+        )?;
+
+        #[cfg(unix)]
+        if opts.bisect {
+            dylint_internal::update()
+                .sanitize_environment()
+                .current_dir(path)
+                .success()?;
+
+            if dylint_internal::build()
+                .sanitize_environment()
+                .current_dir(path)
+                .args(&["--tests"])
+                .success()
+                .is_err()
+            {
+                let new_nightly = parse_as_nightly(&new_channel).ok_or_else(|| {
+                    anyhow!("Could not not parse channel `{}` as nightly", new_channel)
+                })?;
+
+                let start = new_nightly.format("%Y-%m-%d").to_string();
+
+                bisect::bisect(path, &start)?;
+            }
+        }
+
+        Ok(())
+    })();
+
+    if result.is_err() {
+        rust_toolchain.restore().unwrap_or_default();
+        cargo_toml.restore().unwrap_or_default();
+    }
+
+    result
 }
 
 fn latest_rust_version(repository: &Repository) -> Result<Version> {

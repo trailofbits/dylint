@@ -11,6 +11,8 @@ SCRIPTS="$(dirname "$(realpath "$0")")"
 
 cd "$(dirname "$0")"/..
 
+CARGO_DYLINT='timeout 10m cargo run -p cargo-dylint -- dylint'
+
 for EXAMPLE in examples/*; do
     if [[ ! -d "$EXAMPLE" ]]; then
         continue
@@ -21,9 +23,15 @@ for EXAMPLE in examples/*; do
         continue
     fi
 
+    # smoelius: If the example's directory has changes, assume the example was already upgraded and
+    # the script had to be restarted.
+    if ! git diff --exit-code "$EXAMPLE"; then
+        continue
+    fi
+
     PREV_TAG="$(sed -n 's/^clippy_utils\>.*\(\<tag = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
 
-    cargo run -p cargo-dylint -- dylint --upgrade "$EXAMPLE"
+    $CARGO_DYLINT --upgrade "$EXAMPLE"
 
     # smoelius: `clippy` requires special care.
     if [[ "$EXAMPLE" = 'examples/clippy' ]]; then
@@ -39,9 +47,9 @@ for EXAMPLE in examples/*; do
         # `rust-toolchain` file changing.
         if ! git diff --exit-code "$EXAMPLE"/rust-toolchain; then
             PREV_VERSION="$(echo "$PREV_TAG" | sed 's/^\<tag = "rust-\([^"]*\)"$/\1/')"
-            cargo run -p cargo-dylint -- dylint --upgrade examples/allow_clippy --rust-version "$PREV_VERSION"
+            $CARGO_DYLINT --upgrade examples/allow_clippy --bisect --rust-version "$PREV_VERSION"
         fi
     fi
-done
 
-"$SCRIPTS"/update_lockfiles.sh
+    $CARGO_DYLINT --upgrade "$EXAMPLE" --bisect
+done

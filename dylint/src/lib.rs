@@ -46,6 +46,7 @@ pub type NameToolchainMap = BTreeMap<String, ToolchainMap>;
 #[derive(Debug, Default)]
 pub struct Dylint {
     pub all: bool,
+    pub bisect: bool,
     pub fix: bool,
     pub force: bool,
     pub isolate: bool,
@@ -67,6 +68,17 @@ pub struct Dylint {
 }
 
 pub fn run(opts: &Dylint) -> Result<()> {
+    if opts.bisect {
+        #[cfg(not(unix))]
+        bail!("`--bisect` is supported only on Unix platforms");
+
+        warn(opts, "`--bisect` is experimental");
+    }
+
+    if opts.bisect && opts.upgrade_path.is_none() {
+        bail!("`--bisect` can be used only with `--upgrade`");
+    }
+
     if opts.force && opts.upgrade_path.is_none() {
         bail!("`--force` can be used only with `--upgrade`");
     }

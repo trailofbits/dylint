@@ -44,6 +44,9 @@ pub struct Dylint {
     #[clap(long, help = "Load all discovered libraries")]
     pub all: bool,
 
+    #[clap(long, hide = true)]
+    pub bisect: bool,
+
     #[clap(long, help = "Automatically apply lint suggestions")]
     pub fix: bool,
 
@@ -132,7 +135,9 @@ pub struct Dylint {
         long = "upgrade",
         value_name = "path",
         help = "Upgrade the library package at <path> to the latest version of `clippy_utils`. \
-        Add `--rust-version <version>` to upgrade to the version with tag `rust-<version>`."
+        Add `--rust-version <version>` to upgrade to the version with tag `rust-<version>`. Unix \
+        only: Add experimental option `--bisect` to update dependencies and search for the \
+        earliest applicable toolchain."
     )]
     pub upgrade_path: Option<String>,
 
@@ -154,6 +159,7 @@ impl From<Dylint> for dylint::Dylint {
     fn from(opts: Dylint) -> Self {
         let Dylint {
             all,
+            bisect,
             fix,
             force,
             isolate,
@@ -175,6 +181,7 @@ impl From<Dylint> for dylint::Dylint {
         } = opts;
         Self {
             all,
+            bisect,
             fix,
             force,
             isolate,
