@@ -43,9 +43,9 @@ impl<'tcx> LateLintPass<'tcx> for QuestionMarkInExpression {
             if let Some(node_id) = get_non_into_iter_ancestor(cx, expr.hir_id);
             if let Node::Expr(ancestor) = cx.tcx.hir().get(node_id);
             then {
-                // smoelius: Matches get a pass.
+                // smoelius: `Let` and `Match` expressions get a pass.
                 match ancestor.kind {
-                    ExprKind::Match(..) => {}
+                    ExprKind::Let(..) | ExprKind::Match(..) => {}
                     _ => {
                         span_lint_and_help(
                             cx,
