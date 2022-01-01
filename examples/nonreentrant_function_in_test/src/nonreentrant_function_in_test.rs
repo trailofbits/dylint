@@ -82,7 +82,10 @@ impl EarlyLintPass for NonreentrantFunctionInTest {
                     cx,
                     NONREENTRANT_FUNCTION_IN_TEST,
                     expr.span,
-                    &(format!("calling `{}` in a test could affect the outcome of other tests", path.join("::"))),
+                    &(format!(
+                        "calling `{}` in a test could affect the outcome of other tests",
+                        path.join("::")
+                    )),
                 );
             }
         }

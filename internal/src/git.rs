@@ -26,12 +26,12 @@ pub fn checkout(repository: &Repository, refname: &str) -> Result<()> {
         if let Some(refname) = reference.name();
         then {
             repository
-            .set_head(refname)
-            .with_context(|| format!("`set_head` failed for `{}`", refname))?;
+                .set_head(refname)
+                .with_context(|| format!("`set_head` failed for `{}`", refname))?;
         } else {
             repository
-            .set_head_detached(object.id())
-            .with_context(|| format!("`set_head_detached` failed for `{}`", object.id()))?;
+                .set_head_detached(object.id())
+                .with_context(|| format!("`set_head_detached` failed for `{}`", object.id()))?;
         }
     }
 
