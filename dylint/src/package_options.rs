@@ -165,7 +165,8 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
         then {
             bail!(
                 "Refusing to downgrade toolchain from `{}` to `{}`. Use `--force` to override.",
-                old_channel, new_channel
+                old_channel,
+                new_channel
             );
         }
     }

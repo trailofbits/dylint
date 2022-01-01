@@ -63,7 +63,7 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
                     "returning a `std::io::Result` could mean relevant context (e.g., files or \
                     paths involved) is lost",
                     None,
-                    "return a type that includes relevant context"
+                    "return a type that includes relevant context",
                 );
             }
         }

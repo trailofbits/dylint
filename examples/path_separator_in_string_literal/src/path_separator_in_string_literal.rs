@@ -52,10 +52,18 @@ impl<'tcx> LateLintPass<'tcx> for PathSeparatorInStringLiteral {
                 let mut sugg = String::new();
                 let mut is_path_new = false;
                 if match_qpath(path, &paths::PATH_NEW) {
-                    sugg = format!(r#"{}("{}")"#, snippet(cx, callee.span, "Path::new"), components[0]);
+                    sugg = format!(
+                        r#"{}("{}")"#,
+                        snippet(cx, callee.span, "Path::new"),
+                        components[0]
+                    );
                     is_path_new = true;
                 } else if match_qpath(path, &paths::PATH_BUF_FROM) {
-                    sugg = format!(r#"{}("{}")"#, snippet(cx, callee.span, "PathBuf::from"), components[0]);
+                    sugg = format!(
+                        r#"{}("{}")"#,
+                        snippet(cx, callee.span, "PathBuf::from"),
+                        components[0]
+                    );
                 }
                 if !sugg.is_empty() {
                     for component in &components[1..] {
