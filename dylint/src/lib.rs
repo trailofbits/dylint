@@ -558,15 +558,13 @@ mod test {
         static ref NAME_TOOLCHAIN_MAP: NameToolchainMap = {
             examples::build().unwrap();
             let metadata = current_metadata().unwrap();
-            let dylint_library_path = if cfg!(coverage) {
-                metadata.target_directory.join("debug").into_os_string()
-            } else {
-                join_paths(&[
+            // smoelius: As of version 0.1.14, `cargo-llvm-cov` no longer sets `CARGO_TARGET_DIR`.
+            // So `dylint_library_path` no longer requires a `cfg!(coverage)` special case.
+            let dylint_library_path = join_paths(&[
                     metadata.target_directory.join("allow_clippy").join("debug"),
                     metadata.target_directory.join("examples").join("debug"),
                 ])
-                .unwrap()
-            };
+                .unwrap();
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
             name_toolchain_map(&Dylint {
                 no_metadata: true,
