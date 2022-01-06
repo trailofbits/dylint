@@ -1,13 +1,6 @@
-// smoelius: `cargo-llvm-cov` sets `CARGO_TARGET_DIR`, which breaks these tests. For now, just
-// skip the tests when run under `cargo-llvm-cov`.
-//   One could use `MetadataCommand::cargo_command` to recover the
-// `std::process:Command` and remove its copy of `CARGO_TARGET_DIR`. But then one would have to
-// duplicate the work of `MetadataCommand::parse`, and that seems like more trouble than it is
-// worth.
-//   Also, one cannot remove `CARGO_TARGET_DIR` from the current process because it causes
-// `cargo-llvm-cov` to error out. Presumably, the current process writes coverage data to that
-// directory when it exits.
-#![cfg(not(coverage))]
+// smoelius: As of version 0.1.14, `cargo-llvm-cov` no longer sets `CARGO_TARGET_DIR`. So it is now
+// safe to run these tests under `cargo-llvm-cov`.
+// #![cfg(not(coverage))]
 
 use anyhow::{Context, Result};
 use assert_cmd::prelude::*;
