@@ -72,6 +72,7 @@ pub fn run(opts: &Dylint) -> Result<()> {
         #[cfg(not(unix))]
         bail!("`--bisect` is supported only on Unix platforms");
 
+        #[cfg(unix)]
         warn(opts, "`--bisect` is experimental");
     }
 
