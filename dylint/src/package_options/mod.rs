@@ -20,6 +20,7 @@ mod bisect;
 struct Backup {
     path: PathBuf,
     tempfile: NamedTempFile,
+    disabled: bool,
 }
 
 impl Backup {
@@ -29,11 +30,23 @@ impl Backup {
             NamedTempFile::new_in(dir).with_context(|| "Could not create named temp file")?;
         copy(&path, tempfile.path())
             .with_context(|| format!("Could not copy {:?} to {:?}", path, tempfile.path()))?;
-        Ok(Self { path, tempfile })
+        Ok(Self {
+            path,
+            tempfile,
+            disabled: false,
+        })
     }
 
-    pub fn restore(self) -> Result<()> {
-        rename(self.tempfile.path(), self.path).map_err(Into::into)
+    pub fn disable(&mut self) {
+        self.disabled = true;
+    }
+}
+
+impl Drop for Backup {
+    fn drop(&mut self) {
+        if !self.disabled {
+            rename(self.tempfile.path(), &self.path).unwrap_or_default();
+        }
     }
 }
 
@@ -180,24 +193,29 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
 
     let old_channel = channel(path)?;
 
-    if_chain! {
+    let should_find_and_replace = if_chain! {
         if !opts.force;
         if let Some(new_nightly) = parse_as_nightly(&new_channel);
         if let Some(old_nightly) = parse_as_nightly(&old_channel);
         if new_nightly < old_nightly;
         then {
-            bail!(
-                "Refusing to downgrade toolchain from `{}` to `{}`. Use `--force` to override.",
-                old_channel,
-                new_channel
-            );
+            if !opts.bisect {
+                bail!(
+                    "Refusing to downgrade toolchain from `{}` to `{}`. Use `--force` to override.",
+                    old_channel,
+                    new_channel
+                );
+            }
+            false
+        } else {
+            true
         }
-    }
+    };
 
-    let cargo_toml = Backup::new(path, "Cargo.toml")?;
-    let rust_toolchain = Backup::new(path, "rust-toolchain")?;
+    let mut cargo_toml_backup = Backup::new(path, "Cargo.toml")?;
+    let mut rust_toolchain_backup = Backup::new(path, "rust-toolchain")?;
 
-    let result = (|| -> Result<()> {
+    if should_find_and_replace {
         find_and_replace(
             &path.join("Cargo.toml"),
             &[&format!(
@@ -213,40 +231,36 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
                 new_channel,
             )],
         )?;
-
-        #[cfg(unix)]
-        if opts.bisect {
-            dylint_internal::update()
-                .sanitize_environment()
-                .current_dir(path)
-                .success()?;
-
-            if dylint_internal::build()
-                .sanitize_environment()
-                .current_dir(path)
-                .args(&["--tests"])
-                .success()
-                .is_err()
-            {
-                let new_nightly = parse_as_nightly(&new_channel).ok_or_else(|| {
-                    anyhow!("Could not not parse channel `{}` as nightly", new_channel)
-                })?;
-
-                let start = new_nightly.format("%Y-%m-%d").to_string();
-
-                bisect::bisect(path, &start)?;
-            }
-        }
-
-        Ok(())
-    })();
-
-    if result.is_err() {
-        rust_toolchain.restore().unwrap_or_default();
-        cargo_toml.restore().unwrap_or_default();
     }
 
-    result
+    #[cfg(unix)]
+    if opts.bisect {
+        dylint_internal::update()
+            .sanitize_environment()
+            .current_dir(path)
+            .success()?;
+
+        if dylint_internal::build()
+            .sanitize_environment()
+            .current_dir(path)
+            .args(&["--tests"])
+            .success()
+            .is_err()
+        {
+            let new_nightly = parse_as_nightly(&new_channel).ok_or_else(|| {
+                anyhow!("Could not not parse channel `{}` as nightly", new_channel)
+            })?;
+
+            let start = new_nightly.format("%Y-%m-%d").to_string();
+
+            bisect::bisect(path, &start)?;
+        }
+    }
+
+    rust_toolchain_backup.disable();
+    cargo_toml_backup.disable();
+
+    Ok(())
 }
 
 fn latest_rust_version(repository: &Repository) -> Result<Version> {
