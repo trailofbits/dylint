@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.11
+
+- Add experimental `--bisect` option ([#170](https://github.com/trailofbits/dylint/pull/170))
+
 ## 1.0.10
 
 - Add `--fix` option ([#153](https://github.com/trailofbits/dylint/pull/153))
