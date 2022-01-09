@@ -124,7 +124,8 @@ pub struct Dylint {
     #[clap(
         short,
         long,
-        help = "Do not show warnings or progress running commands besides `cargo check`"
+        help = "Do not show warnings or progress running commands besides `cargo check` and \
+        `cargo fix`"
     )]
     pub quiet: bool,
 

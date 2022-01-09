@@ -191,6 +191,7 @@ dependencies = [
 name = "dylint_internal"
 version = "1.0.11"
 dependencies = [
+ "ansi_term",
  "anyhow",
  "cargo_metadata",
  "if_chain",

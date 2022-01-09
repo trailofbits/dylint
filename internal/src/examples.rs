@@ -1,5 +1,5 @@
 use crate::rustup::SanitizeEnvironment;
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use std::{
     fs::read_dir,
     path::{Path, PathBuf},
@@ -7,7 +7,7 @@ use std::{
 
 pub fn build() -> Result<()> {
     // smoelius: The examples use `dylint-link` as the linker, so it must be built first.
-    crate::build()
+    crate::build("dylint-link", false)
         .sanitize_environment()
         .current_dir(
             Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -18,7 +18,10 @@ pub fn build() -> Result<()> {
 
     for example in iter()? {
         let example = example?;
-        crate::build()
+        let file_name = example
+            .file_name()
+            .ok_or_else(|| anyhow!("Could not get file name"))?;
+        crate::build(&format!("example `{}`", file_name.to_string_lossy()), false)
             .sanitize_environment()
             .current_dir(&example)
             .success()?;
@@ -52,7 +55,8 @@ mod test {
     fn examples() {
         for path in iter().unwrap() {
             let path = path.unwrap();
-            crate::test()
+            let file_name = path.file_name().unwrap();
+            crate::test(&format!("example `{}`", file_name.to_string_lossy()), false)
                 .sanitize_environment()
                 .current_dir(path)
                 .success()

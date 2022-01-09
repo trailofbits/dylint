@@ -27,18 +27,24 @@ fn one_name_multiple_toolchains() {
     dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
 
     patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_TAG_A).unwrap();
-    dylint_internal::build()
-        .sanitize_environment()
-        .current_dir(tempdir.path())
-        .success()
-        .unwrap();
+    dylint_internal::build(
+        &format!("dylint-template with channel `{}`", CHANNEL_A),
+        false,
+    )
+    .sanitize_environment()
+    .current_dir(tempdir.path())
+    .success()
+    .unwrap();
 
     patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_TAG_B).unwrap();
-    dylint_internal::build()
-        .sanitize_environment()
-        .current_dir(tempdir.path())
-        .success()
-        .unwrap();
+    dylint_internal::build(
+        &format!("dylint-template with channel `{}`", CHANNEL_B),
+        false,
+    )
+    .sanitize_environment()
+    .current_dir(tempdir.path())
+    .success()
+    .unwrap();
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
@@ -81,17 +87,23 @@ fn one_name_multiple_paths() {
     dylint_internal::clone_dylint_template(tempdirs.0.path()).unwrap();
     dylint_internal::clone_dylint_template(tempdirs.1.path()).unwrap();
 
-    dylint_internal::build()
-        .sanitize_environment()
-        .current_dir(tempdirs.0.path())
-        .success()
-        .unwrap();
+    dylint_internal::build(
+        &format!("dylint-template in {:?}", tempdirs.0.path()),
+        false,
+    )
+    .sanitize_environment()
+    .current_dir(tempdirs.0.path())
+    .success()
+    .unwrap();
 
-    dylint_internal::build()
-        .sanitize_environment()
-        .current_dir(tempdirs.1.path())
-        .success()
-        .unwrap();
+    dylint_internal::build(
+        &format!("dylint-template in {:?}", tempdirs.1.path()),
+        false,
+    )
+    .sanitize_environment()
+    .current_dir(tempdirs.1.path())
+    .success()
+    .unwrap();
 
     let paths = join_paths(&[
         &target_debug(tempdirs.0.path()).unwrap(),
