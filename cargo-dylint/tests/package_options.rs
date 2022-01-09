@@ -20,13 +20,13 @@ fn new_package() {
         .assert()
         .success();
 
-    dylint_internal::build()
+    dylint_internal::build("filled-in dylint-template", false)
         .sanitize_environment()
         .current_dir(&path)
         .success()
         .unwrap();
 
-    dylint_internal::test()
+    dylint_internal::test("filled-in dylint-template", false)
         .sanitize_environment()
         .current_dir(&path)
         .success()
@@ -62,37 +62,48 @@ fn downgrade_upgrade_package() {
 
     upgrade().args(&["--force"]).assert().success();
 
-    dylint_internal::build()
+    dylint_internal::build("downgraded dylint-template", false)
         .sanitize_environment()
         .current_dir(tempdir.path())
         .success()
         .unwrap();
 
-    dylint_internal::test()
+    dylint_internal::test("downgraded dylint-template", false)
         .sanitize_environment()
         .current_dir(tempdir.path())
         .success()
         .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
-        .args(&["dylint", "--upgrade", &tempdir.path().to_string_lossy()])
-        .assert()
-        .success();
+    if cfg!(not(unix)) {
+        std::process::Command::cargo_bin("cargo-dylint")
+            .unwrap()
+            .args(&["dylint", "--upgrade", &tempdir.path().to_string_lossy()])
+            .assert()
+            .success();
+    } else {
+        std::process::Command::cargo_bin("cargo-dylint")
+            .unwrap()
+            .args(&[
+                "dylint",
+                "--upgrade",
+                &tempdir.path().to_string_lossy(),
+                "--bisect",
+            ])
+            .assert()
+            .success();
 
-    // smoelius: Right now, dylint-template does not build with nightly-2021-10-07. So
-    // dylint-template's rust-toolchain file is ahead of Clippy 1.57.0's by a few days.
-    /* dylint_internal::build()
-        .sanitize_environment()
-        .current_dir(tempdir.path())
-        .success()
-        .unwrap();
+        dylint_internal::build("upgraded dylint-template", false)
+            .sanitize_environment()
+            .current_dir(tempdir.path())
+            .success()
+            .unwrap();
 
-    dylint_internal::test()
-        .sanitize_environment()
-        .current_dir(tempdir.path())
-        .success()
-        .unwrap(); */
+        dylint_internal::test("upgraded dylint-template", false)
+            .sanitize_environment()
+            .current_dir(tempdir.path())
+            .success()
+            .unwrap();
+    }
 }
 
 fn rust_version(path: &Path) -> Result<Version> {

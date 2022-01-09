@@ -18,7 +18,7 @@ fn ui() {
     // smoelius: Try to order failures by how informative they are: failure to build the library,
     // failure to find the library, failure to build/find the driver.
 
-    dylint_internal::build().success().unwrap();
+    dylint_internal::build("clippy", false).success().unwrap();
 
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 
@@ -47,7 +47,7 @@ fn ui() {
     // temporary target directory.
     let target_dir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 
-    dylint_internal::test()
+    dylint_internal::test("clippy", false)
         .current_dir(tempdir.path())
         .envs(vec![
             (env::CARGO_TARGET_DIR, &*target_dir.path().to_string_lossy()),

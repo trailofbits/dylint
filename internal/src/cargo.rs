@@ -1,34 +1,48 @@
+use ansi_term::Style;
 use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
+use std::{io::Write, process::Stdio};
 
 #[must_use]
-pub fn build() -> crate::Command {
-    cargo("build")
+pub fn build(description: &str, quiet: bool) -> crate::Command {
+    cargo("build", "Building", description, quiet)
+}
+
+// smoelius: `cargo check` and `cargo fix` are never silenced.
+#[must_use]
+pub fn check(description: &str) -> crate::Command {
+    cargo("check", "Checking", description, false)
+}
+
+// smoelius: `cargo check` and `cargo fix` are never silenced.
+#[must_use]
+pub fn fix(description: &str) -> crate::Command {
+    cargo("fix", "Fixing", description, false)
 }
 
 #[must_use]
-pub fn check() -> crate::Command {
-    cargo("check")
+pub fn test(description: &str, quiet: bool) -> crate::Command {
+    cargo("test", "Testing", description, quiet)
 }
 
 #[must_use]
-pub fn fix() -> crate::Command {
-    cargo("fix")
+pub fn update(description: &str, quiet: bool) -> crate::Command {
+    cargo("update", "Updating", description, quiet)
 }
 
-#[must_use]
-pub fn test() -> crate::Command {
-    cargo("test")
-}
-
-#[must_use]
-pub fn update() -> crate::Command {
-    cargo("update")
-}
-
-fn cargo(subcommand: &str) -> crate::Command {
+fn cargo(subcommand: &str, verb: &str, description: &str, quiet: bool) -> crate::Command {
+    if !quiet {
+        // smoelius: Writing directly to `stderr` avoids capture by `libtest`.
+        let message = format!("{} {}", verb, description);
+        std::io::stderr()
+            .write_fmt(format_args!("{}\n", Style::new().bold().paint(message)))
+            .expect("Could not write to stderr");
+    }
     let mut command = crate::Command::new("cargo");
     command.args(&[subcommand]);
+    if quiet {
+        command.stderr(Stdio::null());
+    }
     command
 }
 

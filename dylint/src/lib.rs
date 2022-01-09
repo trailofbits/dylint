@@ -455,10 +455,11 @@ fn check_or_fix(
         let target_dir_str = target_dir.to_string_lossy();
         let driver = driver_builder::get(opts, toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
+        let description = format!("with toolchain `{}`", toolchain);
         let mut command = if opts.fix {
-            dylint_internal::fix()
+            dylint_internal::fix(&description)
         } else {
-            dylint_internal::check()
+            dylint_internal::check(&description)
         };
         let mut args = vec!["--target-dir", &target_dir_str];
         if let Some(path) = &opts.manifest_path {

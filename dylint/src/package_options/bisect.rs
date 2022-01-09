@@ -1,3 +1,4 @@
+use crate::Dylint;
 use anyhow::{Context, Result};
 use dylint_internal::Command;
 use std::os::unix::fs::PermissionsExt;
@@ -5,6 +6,7 @@ use std::{
     fs::{remove_file, rename},
     io::Write,
     path::Path,
+    process::Stdio,
 };
 use tempfile::NamedTempFile;
 
@@ -58,7 +60,7 @@ const TEMPORARY_FILES: &[&str] = &[
     "successful_build_seen",
 ];
 
-pub fn bisect(path: &Path, start: &str) -> Result<()> {
+pub fn bisect(opts: &Dylint, path: &Path, start: &str) -> Result<()> {
     Command::new("cargo")
         .args(&["bisect-rustc", "-V"])
         .success()
@@ -72,19 +74,22 @@ pub fn bisect(path: &Path, start: &str) -> Result<()> {
 
     remove_temporary_files(path);
 
-    let result = Command::new("cargo")
-        .args(&[
-            "bisect-rustc",
-            "--start",
-            start,
-            "--preserve",
-            "--regress=success",
-            "--script",
-            &*script.path().to_string_lossy(),
-            "--test-dir",
-            &*test_dir.to_string_lossy(),
-        ])
-        .success();
+    let mut command = Command::new("cargo");
+    command.args(&[
+        "bisect-rustc",
+        "--start",
+        start,
+        "--preserve",
+        "--regress=success",
+        "--script",
+        &*script.path().to_string_lossy(),
+        "--test-dir",
+        &*test_dir.to_string_lossy(),
+    ]);
+    if opts.quiet {
+        command.stderr(Stdio::null());
+    }
+    let result = command.success();
 
     remove_temporary_files(path);
 

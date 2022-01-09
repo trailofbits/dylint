@@ -13,10 +13,7 @@ use glob::glob;
 use if_chain::if_chain;
 use serde::Deserialize;
 use serde_json::{Map, Value};
-use std::{
-    path::{Path, PathBuf},
-    process::Stdio,
-};
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Deserialize)]
 struct Library {
@@ -294,15 +291,14 @@ fn package_library_path(
     let target_dir = target_dir(metadata, package_root, package_id)?;
 
     if !opts.no_build {
-        let mut command = dylint_internal::build();
-        command
-            .sanitize_environment()
-            .current_dir(package_root)
-            .args(&["--release", "--target-dir", &target_dir.to_string_lossy()]);
-        if opts.quiet {
-            command.stderr(Stdio::null());
-        }
-        command.success()?;
+        dylint_internal::build(
+            &format!("workspace metadata entry `{}`", package_id.name()),
+            opts.quiet,
+        )
+        .sanitize_environment()
+        .current_dir(package_root)
+        .args(&["--release", "--target-dir", &target_dir.to_string_lossy()])
+        .success()?;
     }
 
     Ok(target_dir.join("release"))

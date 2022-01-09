@@ -235,12 +235,17 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
 
     #[cfg(unix)]
     if opts.bisect {
-        dylint_internal::update()
+        let file_name = path
+            .file_name()
+            .ok_or_else(|| anyhow!("Could not get file name"))?;
+        let description = format!("`{}`", file_name.to_string_lossy());
+
+        dylint_internal::update(&description, opts.quiet)
             .sanitize_environment()
             .current_dir(path)
             .success()?;
 
-        if dylint_internal::build()
+        if dylint_internal::build(&description, opts.quiet)
             .sanitize_environment()
             .current_dir(path)
             .args(&["--tests"])
@@ -253,7 +258,7 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
 
             let start = new_nightly.format("%Y-%m-%d").to_string();
 
-            bisect::bisect(path, &start)?;
+            bisect::bisect(opts, path, &start)?;
         }
     }
 

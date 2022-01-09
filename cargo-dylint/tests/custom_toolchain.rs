@@ -26,11 +26,14 @@ mod custom_toolchain {
 
         patch_dylint_template(tempdir.path(), &custom_toolchain).unwrap();
 
-        dylint_internal::test()
-            .sanitize_environment()
-            .current_dir(tempdir.path())
-            .success()
-            .unwrap();
+        dylint_internal::test(
+            &format!("with custom toolchain `{}`", custom_toolchain),
+            false,
+        )
+        .sanitize_environment()
+        .current_dir(tempdir.path())
+        .success()
+        .unwrap();
 
         uninstall_toolchain(&custom_toolchain).unwrap();
     }

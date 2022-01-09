@@ -10,7 +10,6 @@ use std::{
     env::consts,
     fs::{copy, create_dir_all, write},
     path::{Path, PathBuf},
-    process::Stdio,
 };
 use tempfile::tempdir;
 
@@ -160,15 +159,11 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         toolchain_path.to_string_lossy()
     );
 
-    let mut command = dylint_internal::build();
-    command
+    dylint_internal::build(&format!("driver for toolchain `{}`", toolchain), opts.quiet)
         .sanitize_environment()
         .envs(vec![(env::RUSTFLAGS, rustflags)])
-        .current_dir(&package);
-    if opts.quiet {
-        command.stderr(Stdio::null());
-    }
-    command.success()?;
+        .current_dir(&package)
+        .success()?;
 
     let binary = metadata.target_directory.join("debug").join(format!(
         "dylint_driver-{}{}",
