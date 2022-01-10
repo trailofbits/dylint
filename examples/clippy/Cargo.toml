@@ -22,7 +22,7 @@ anyhow = "1.0.52"
 cargo_metadata = "0.14.1"
 env_logger = "0.9.0"
 log = "0.4.14"
-tempfile = "3.2.0"
+tempfile = "3.3.0"
 test-log = "0.2.8"
 
 dylint = { path = "../../dylint", default-features = false }

@@ -25,7 +25,7 @@ dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
 git2 = "0.13.25"
-tempfile = "3.2.0"
+tempfile = "3.3.0"
 
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 
