@@ -188,6 +188,7 @@ Helpful resources for writing lints include the following:
 - [Adding a new lint](https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md) (targeted at Clippy but still useful)
 - [Author lint](https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md#author-lint)
 - [Common tools for writing lints](https://github.com/rust-lang/rust-clippy/blob/master/doc/common_tools_writing_lints.md)
+- [Guide to Rustc Development](https://rustc-dev-guide.rust-lang.org/)
 - [Crate `rustc_hir`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_hir/index.html)
 - [Crate `rustc_middle`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_middle/index.html)
 - [Struct `rustc_lint::LateContext`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/struct.LateContext.html)
