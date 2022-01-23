@@ -99,7 +99,11 @@ jobs:
           done
 
   coverage:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]' }}
+    # smoelius: Disable coverage until the following issue is resolved:
+    # https://github.com/taiki-e/cargo-llvm-cov/issues/128
+    if: ${{ false && (
+      github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]'
+      ) }}
 
     runs-on: ubuntu-latest
 
