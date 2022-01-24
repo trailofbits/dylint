@@ -31,16 +31,12 @@ for EXAMPLE in examples/*; do
 
     # smoelius: `clippy` requires special care.
     if [[ "$EXAMPLE" = 'examples/clippy' ]]; then
-        pushd "$EXAMPLE"
+        PREV_TAG="$(sed -n 's/^clippy_utils\>.*\(\<tag = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
 
-        PREV_TAG="$(sed -n 's/^clippy_utils\>.*\(\<tag = "[^"]*"\).*$/\1/;T;p' Cargo.toml)"
+        $CARGO_DYLINT --upgrade "$EXAMPLE" 2>/dev/null || true
 
-        $CARGO_DYLINT --upgrade . 2>/dev/null || true
-
-        TAG="$(sed -n 's/^clippy_utils\>.*\(\<tag = "[^"]*"\).*$/\1/;T;p' Cargo.toml)"
-        sed -i "s/^\\(clippy_lints\>.*\\)\<tag = \"[^\"]*\"\\(.*\\)$/\1$TAG\2/" Cargo.toml
-
-        popd
+        TAG="$(sed -n 's/^clippy_utils\>.*\(\<tag = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
+        sed -i "s/^\\(clippy_lints\>.*\\)\<tag = \"[^\"]*\"\\(.*\\)$/\1$TAG\2/" "$EXAMPLE"/Cargo.toml
 
         # smoelius: If `clippy`'s `rust-toolchain` file changed, upgrade `allow_clippy` to the Rust
         # version that `clippy` used previously. Note that `clippy` can be upgraded without its
