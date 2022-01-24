@@ -82,8 +82,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.57"
-source = "git+https://github.com/rust-lang/rust-clippy?tag=rust-1.57.0#00e31fa5af1895bf8ff1e2b1e25b041362cdc33e"
+version = "0.1.58"
+source = "git+https://github.com/rust-lang/rust-clippy?tag=rust-1.58.0#e18101137866b79045fee0ef996e696e68c920b4"
 dependencies = [
  "if_chain",
  "rustc-semver",
