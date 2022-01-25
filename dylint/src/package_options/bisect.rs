@@ -80,9 +80,9 @@ pub fn bisect(path: &Path, start: &str) -> Result<()> {
             "--preserve",
             "--regress=success",
             "--script",
-            &script.path().to_string_lossy().to_string(),
+            &*script.path().to_string_lossy(),
             "--test-dir",
-            &test_dir.to_string_lossy().to_string(),
+            &*test_dir.to_string_lossy(),
         ])
         .success();
 
