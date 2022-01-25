@@ -426,8 +426,8 @@ fn list_lints(
                     let mut command = dylint_internal::driver(toolchain, &driver)?;
                     command
                         .envs(vec![
-                            (env::DYLINT_LIBS.to_owned(), dylint_libs),
-                            (env::DYLINT_LIST.to_owned(), "1".to_owned()),
+                            (env::DYLINT_LIBS, dylint_libs.as_str()),
+                            (env::DYLINT_LIST, "1"),
                         ])
                         .args(vec!["rustc", "-W", "help"])
                         .success()?;
@@ -483,15 +483,12 @@ fn check_or_fix(
         let result = command
             .envs(vec![
                 (
-                    env::CLIPPY_DISABLE_DOCS_LINKS.to_owned(),
-                    clippy_disable_docs_links.clone(),
+                    env::CLIPPY_DISABLE_DOCS_LINKS,
+                    clippy_disable_docs_links.as_str(),
                 ),
-                (env::DYLINT_LIBS.to_owned(), dylint_libs),
-                (
-                    env::RUSTC_WORKSPACE_WRAPPER.to_owned(),
-                    driver.to_string_lossy().to_string(),
-                ),
-                (env::RUSTUP_TOOLCHAIN.to_owned(), toolchain.clone()),
+                (env::DYLINT_LIBS, &dylint_libs),
+                (env::RUSTC_WORKSPACE_WRAPPER, &*driver.to_string_lossy()),
+                (env::RUSTUP_TOOLCHAIN, toolchain),
             ])
             .args(args)
             .success();

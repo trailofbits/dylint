@@ -21,7 +21,7 @@ fn dylint_driver_path() {
         .current_dir(tempdir.path())
         .envs(vec![(
             env::DYLINT_DRIVER_PATH,
-            dylint_driver_path.to_string_lossy().to_string().as_str(),
+            &*dylint_driver_path.to_string_lossy(),
         )])
         .success()
         .unwrap();
