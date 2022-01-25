@@ -3,7 +3,6 @@ use cargo_metadata::Dependency;
 use dylint_internal::{cargo::current_metadata, env, find_and_replace, packaging::isolate};
 use std::{
     env::set_var,
-    ffi::OsStr,
     fs::{read_dir, read_to_string, remove_file, write},
     path::Path,
 };
@@ -51,19 +50,10 @@ fn ui() {
     dylint_internal::test()
         .current_dir(tempdir.path())
         .envs(vec![
-            (
-                env::CARGO_TARGET_DIR,
-                target_dir.path().to_string_lossy().to_string(),
-            ),
-            (env::DYLINT_LIBS, dylint_libs),
-            (
-                env::CLIPPY_DRIVER_PATH,
-                driver.to_string_lossy().to_string(),
-            ),
-            (
-                env::DYLINT_RUSTFLAGS,
-                r#"--cfg feature="cargo-clippy""#.to_owned(),
-            ),
+            (env::CARGO_TARGET_DIR, &*target_dir.path().to_string_lossy()),
+            (env::DYLINT_LIBS, &dylint_libs),
+            (env::CLIPPY_DRIVER_PATH, &*driver.to_string_lossy()),
+            (env::DYLINT_RUSTFLAGS, r#"--cfg feature="cargo-clippy""#),
         ])
         .args(&["--test", "compile-test"])
         .success()
@@ -106,11 +96,19 @@ fn disable_rustfix(src_base: &Path) -> Result<()> {
         let entry = entry
             .with_context(|| format!("`read_dir` failed for `{}`", src_base.to_string_lossy()))?;
         let path = entry.path();
-        if path.extension() != Some(OsStr::new("rs")) {
-            continue;
+        if let Some(extension) = path.extension() {
+            match &*extension.to_string_lossy() {
+                "rs" => {
+                    find_and_replace(&path, &[r#"s/\brun-rustfix\b//"#])?;
+                }
+                "fixed" => {
+                    remove_file(&path).with_context(|| {
+                        format!("Could not remove `{}`", path.to_string_lossy())
+                    })?;
+                }
+                _ => {}
+            }
         }
-        find_and_replace(&path, &[r#"s/\brun-rustfix\b//"#])?;
-        remove_file(path.with_extension("fixed")).unwrap_or_default();
     }
 
     Ok(())
