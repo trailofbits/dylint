@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.12
+
+- If an `--upgrade` would result in a downgrade, and `--bisect` is passed, the downgrade is skipped and the bisect proceeds instead of producing an error. ([#183](https://github.com/trailofbits/dylint/pull/183))
+- Be more explicit about what cargo is doing ([#185](https://github.com/trailofbits/dylint/pull/185))
+
 ## 1.0.11
 
 - Add experimental `--bisect` option ([#170](https://github.com/trailofbits/dylint/pull/170))
