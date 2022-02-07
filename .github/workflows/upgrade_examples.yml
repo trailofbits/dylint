@@ -22,7 +22,7 @@ jobs:
       - name: Install cargo-bisect-rustc
         run: cargo install cargo-bisect-rustc
 
-      - name: Update dependencies
+      - name: Upgrade examples
         run: scripts/upgrade_examples.sh
 
       - name: Create pull request
