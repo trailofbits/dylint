@@ -219,6 +219,7 @@ version = "1.0.12"
 dependencies = [
  "ansi_term",
  "anyhow",
+ "atty",
  "cargo_metadata",
  "dirs",
  "dylint_internal",

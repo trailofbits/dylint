@@ -503,6 +503,7 @@ version = "1.0.12"
 dependencies = [
  "ansi_term",
  "anyhow",
+ "atty",
  "cargo",
  "cargo-platform",
  "cargo-util",
