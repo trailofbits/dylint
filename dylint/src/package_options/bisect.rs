@@ -1,5 +1,6 @@
 use crate::Dylint;
 use anyhow::{Context, Result};
+use atty::Stream;
 use dylint_internal::Command;
 use std::os::unix::fs::PermissionsExt;
 use std::{
@@ -88,6 +89,10 @@ pub fn bisect(opts: &Dylint, path: &Path, start: &str) -> Result<()> {
     ]);
     if opts.quiet {
         command.stderr(Stdio::null());
+    }
+    // smoelius: `cargo-bisect-rustc`'s progress bars are displayed on `stdout`.
+    if opts.quiet || !atty::is(Stream::Stdout) {
+        command.stdout(Stdio::null());
     }
     let result = command.success();
 

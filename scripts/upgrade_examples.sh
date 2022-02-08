@@ -43,9 +43,9 @@ for EXAMPLE in examples/*; do
         # `rust-toolchain` file changing.
         if ! git diff --exit-code "$EXAMPLE"/rust-toolchain; then
             PREV_VERSION="$(echo "$PREV_TAG" | sed 's/^\<tag = "rust-\([^"]*\)"$/\1/')"
-            $CARGO_DYLINT --upgrade examples/allow_clippy --bisect --rust-version "$PREV_VERSION" --quiet
+            $CARGO_DYLINT --upgrade examples/allow_clippy --bisect --rust-version "$PREV_VERSION"
         fi
     fi
 
-    $CARGO_DYLINT --upgrade "$EXAMPLE" --bisect --quiet
+    $CARGO_DYLINT --upgrade "$EXAMPLE" --bisect
 done
