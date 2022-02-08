@@ -1,6 +1,6 @@
 [package]
 name = "try_io_result"
-version = "1.0.12"
+version = "1.0.13"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for the `?` operator applied to `std::io::Result`"
 edition = "2018"
