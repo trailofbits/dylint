@@ -45,6 +45,8 @@ fn main() {
 }
 "#;
 
+#[allow(unknown_lints)]
+#[allow(nonreentrant_function_in_test)]
 #[test]
 fn fix() {
     let tempdir = tempdir().unwrap();
