@@ -7,6 +7,7 @@ use dylint_internal::{
     library_filename,
 };
 use lazy_static::lazy_static;
+use once_cell::sync::OnceCell;
 use regex::Regex;
 use std::{
     env::{consts, set_var},
@@ -14,8 +15,10 @@ use std::{
     io::BufRead,
     path::Path,
     path::PathBuf,
-    sync::Mutex,
 };
+
+static DRIVER: OnceCell<PathBuf> = OnceCell::new();
+static LINKING_FLAGS: OnceCell<Vec<String>> = OnceCell::new();
 
 pub fn ui_test(name: &str, src_base: &Path) {
     let driver = initialize(name).unwrap();
@@ -45,29 +48,34 @@ pub fn ui_test_examples(name: &str) {
     }
 }
 
-fn initialize(name: &str) -> Result<PathBuf> {
-    let _ = env_logger::builder().try_init();
+fn initialize(name: &str) -> Result<&Path> {
+    DRIVER
+        .get_or_try_init(|| {
+            let _ = env_logger::builder().try_init();
 
-    // smoelius: Try to order failures by how informative they are: failure to build the library,
-    // failure to find the library, failure to build/find the driver.
+            // smoelius: Try to order failures by how informative they are: failure to build the library,
+            // failure to find the library, failure to build/find the driver.
 
-    dylint_internal::build(&format!("library `{}`", name), false).success()?;
+            dylint_internal::build(&format!("library `{}`", name), false).success()?;
 
-    // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-    // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is no longer
-    // the case. I am leaving the comment here for now in case removal of the `name_toolchain_map`
-    // call causes a regression.
-    let metadata = current_metadata().unwrap();
-    let dylint_library_path = metadata.target_directory.join("debug");
-    set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
+            // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
+            // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is no longer
+            // the case. I am leaving the comment here for now in case removal of the `name_toolchain_map`
+            // call causes a regression.
+            let metadata = current_metadata().unwrap();
+            let dylint_library_path = metadata.target_directory.join("debug");
+            set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
 
-    let dylint_libs = dylint_libs(name)?;
-    let driver = dylint::driver_builder::get(&dylint::Dylint::default(), env!("RUSTUP_TOOLCHAIN"))?;
+            let dylint_libs = dylint_libs(name)?;
+            let driver =
+                dylint::driver_builder::get(&dylint::Dylint::default(), env!("RUSTUP_TOOLCHAIN"))?;
 
-    set_var(env::CLIPPY_DISABLE_DOCS_LINKS, "true");
-    set_var(env::DYLINT_LIBS, dylint_libs);
+            set_var(env::CLIPPY_DISABLE_DOCS_LINKS, "true");
+            set_var(env::DYLINT_LIBS, dylint_libs);
 
-    Ok(driver)
+            Ok(driver)
+        })
+        .map(PathBuf::as_path)
 }
 
 pub fn dylint_libs(name: &str) -> Result<String> {
@@ -129,22 +137,30 @@ fn run_example_test(
     Ok(())
 }
 
-fn linking_flags(metadata: &Metadata, package: &Package, target: &Target) -> Result<Vec<String>> {
-    let rustc_flags = rustc_flags(metadata, package, target)?;
+fn linking_flags(
+    metadata: &Metadata,
+    package: &Package,
+    target: &Target,
+) -> Result<&'static [String]> {
+    LINKING_FLAGS
+        .get_or_try_init(|| {
+            let rustc_flags = rustc_flags(metadata, package, target)?;
 
-    let mut linking_flags = Vec::new();
+            let mut linking_flags = Vec::new();
 
-    let mut iter = rustc_flags.into_iter();
-    while let Some(flag) = iter.next() {
-        if flag.starts_with("--edition=") {
-            linking_flags.push(flag);
-        } else if flag == "--extern" || flag == "-L" {
-            let arg = next(&flag, &mut iter)?;
-            linking_flags.extend(vec![flag, arg.trim_matches('\'').to_owned()]);
-        }
-    }
+            let mut iter = rustc_flags.into_iter();
+            while let Some(flag) = iter.next() {
+                if flag.starts_with("--edition=") {
+                    linking_flags.push(flag);
+                } else if flag == "--extern" || flag == "-L" {
+                    let arg = next(&flag, &mut iter)?;
+                    linking_flags.extend(vec![flag, arg.trim_matches('\'').to_owned()]);
+                }
+            }
 
-    Ok(linking_flags)
+            Ok(linking_flags)
+        })
+        .map(Vec::as_slice)
 }
 
 // smoelius: We need to recover the `rustc` flags used to build a target. I can see four options:
@@ -167,20 +183,17 @@ fn linking_flags(metadata: &Metadata, package: &Package, target: &Target) -> Res
 // decision may need to be revisited.
 
 lazy_static! {
-    static ref LOCK: Mutex<()> = Mutex::new(());
     static ref RE: Regex = Regex::new(r"^\s*Running\s*`(.*)`$").unwrap();
 }
 
 fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Result<Vec<String>> {
-    // smoelius: Force rebuilding of the example by removing it. This is kind of messy. The example
-    // is a shared resource that may be needed by multiple tests. For now, I lock a mutex while the
-    // example is removed and put back.
-    // smoelius: Should we use a temporary target directory here?
+    // smoelius: The following comments are old and retained for posterity. The linking flags are
+    // now initialized using a `OnceCell`, which makes the mutex unnecessary.
+    //   smoelius: Force rebuilding of the example by removing it. This is kind of messy. The
+    //   example is a shared resource that may be needed by multiple tests. For now, I lock a mutex
+    //   while the example is removed and put back.
+    //   smoelius: Should we use a temporary target directory here?
     let output = {
-        let _guard = LOCK
-            .lock()
-            .map_err(|err| anyhow!("Could not take lock: {}", err));
-
         remove_example(metadata, package, target)?;
 
         cargo::build(&format!("example `{}`", target.name), false)
