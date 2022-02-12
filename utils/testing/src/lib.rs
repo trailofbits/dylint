@@ -17,35 +17,21 @@ use std::{
     path::PathBuf,
 };
 
+pub mod ui;
+
 static DRIVER: OnceCell<PathBuf> = OnceCell::new();
 static LINKING_FLAGS: OnceCell<Vec<String>> = OnceCell::new();
 
 pub fn ui_test(name: &str, src_base: &Path) {
-    let driver = initialize(name).unwrap();
-
-    run_tests(&driver, None, src_base);
+    ui::Test::src_base(name, src_base).run();
 }
 
 pub fn ui_test_example(name: &str, example: &str) {
-    let driver = initialize(name).unwrap();
-
-    let metadata = current_metadata().unwrap();
-    let package = root_package(&metadata).unwrap();
-    let target = example_target(&package, example).unwrap();
-
-    run_example_test(&driver, &metadata, &package, &target).unwrap();
+    ui::Test::example(name, example).run();
 }
 
 pub fn ui_test_examples(name: &str) {
-    let driver = initialize(name).unwrap();
-
-    let metadata = current_metadata().unwrap();
-    let package = root_package(&metadata).unwrap();
-    let targets = example_targets(&package).unwrap();
-
-    for target in targets {
-        run_example_test(&driver, &metadata, &package, &target).unwrap();
-    }
+    ui::Test::examples(name).run();
 }
 
 fn initialize(name: &str) -> Result<&Path> {
@@ -106,11 +92,12 @@ fn example_targets(package: &Package) -> Result<Vec<Target>> {
         .collect())
 }
 
-fn run_example_test(
+fn run_example_test<'test>(
     driver: &Path,
     metadata: &Metadata,
     package: &Package,
     target: &Target,
+    rustc_flags: impl Iterator<Item = &'test String>,
 ) -> Result<()> {
     let linking_flags = linking_flags(metadata, package, target)?;
     let file_name = target
@@ -132,7 +119,7 @@ fn run_example_test(
     copy_with_extension(&target.src_path, &to, "stderr").unwrap_or_default();
     copy_with_extension(&target.src_path, &to, "stdout").unwrap_or_default();
 
-    run_tests(driver, Some(&linking_flags.join(" ")), src_base);
+    run_tests(driver, src_base, rustc_flags.chain(linking_flags.iter()));
 
     Ok(())
 }
@@ -285,13 +272,18 @@ fn copy_with_extension<P: AsRef<Path>, Q: AsRef<Path>>(
     copy(from, to).map_err(Into::into)
 }
 
-fn run_tests(driver: &Path, rustc_flags: Option<&str>, src_base: &Path) {
+fn run_tests<'test>(
+    driver: &Path,
+    src_base: &Path,
+    rustc_flags: impl Iterator<Item = &'test String>,
+) {
     let config = compiletest::Config {
         mode: TestMode::Ui,
         rustc_path: driver.to_path_buf(),
         src_base: src_base.to_path_buf(),
         target_rustcflags: Some(
-            rustc_flags.unwrap_or_default().to_owned() + " --emit=metadata -Dwarnings -Zui-testing",
+            rustc_flags.cloned().collect::<Vec<_>>().join(" ")
+                + " --emit=metadata -Dwarnings -Zui-testing",
         ),
         ..compiletest::Config::default()
     };
