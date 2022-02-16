@@ -11,8 +11,6 @@ use test_log::test;
 
 const ERROR_LINES: usize = 5;
 
-#[allow(unknown_lints)]
-#[allow(nonreentrant_function_in_test)]
 #[test]
 fn ui() {
     // smoelius: Try to order failures by how informative they are: failure to build the library,
