@@ -573,6 +573,8 @@ mod test {
         };
     }
 
+    #[allow(unknown_lints)]
+    #[allow(nonreentrant_function_in_test)]
     #[test]
     fn multiple_libraries_multiple_toolchains() {
         let allow_clippy = NAME_TOOLCHAIN_MAP.get("allow_clippy").unwrap();
@@ -614,6 +616,8 @@ mod test {
     //
     //   https://bugzilla.redhat.com/show_bug.cgi?id=1722181
     //
+    #[allow(unknown_lints)]
+    #[allow(nonreentrant_function_in_test)]
     #[test]
     fn multiple_libraries_one_toolchain() {
         let clippy = NAME_TOOLCHAIN_MAP.get("clippy").unwrap();

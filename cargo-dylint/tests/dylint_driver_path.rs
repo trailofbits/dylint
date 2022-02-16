@@ -6,8 +6,6 @@ use std::fs::create_dir_all;
 use tempfile::tempdir_in;
 use test_log::test;
 
-#[allow(unknown_lints)]
-#[allow(nonreentrant_function_in_test)]
 #[test]
 fn dylint_driver_path() {
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
