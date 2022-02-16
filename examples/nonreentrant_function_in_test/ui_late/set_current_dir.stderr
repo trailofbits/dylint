@@ -1,0 +1,15 @@
+error: calling `std::env::set_current_dir` in a test could affect the outcome of other tests
+  --> $DIR/set_current_dir.rs:28:9
+   |
+LL |         std::env::set_current_dir("/").unwrap();
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `-D nonreentrant-function-in-test` implied by `-D warnings`
+note: the call is reachable from at least this test
+  --> $DIR/set_current_dir.rs:27:8
+   |
+LL |     fn env_set_current_dir() {
+   |        ^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to previous error
+

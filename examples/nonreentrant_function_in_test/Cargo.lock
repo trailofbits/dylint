@@ -353,6 +353,7 @@ dependencies = [
  "dylint_linting",
  "dylint_testing",
  "if_chain",
+ "lazy_static",
 ]
 
 [[package]]

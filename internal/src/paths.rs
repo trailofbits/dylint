@@ -19,3 +19,5 @@ pub const IO_ERROR: [&str; 4] = ["std", "io", "error", "Error"];
 
 pub const PATH_NEW: [&str; 4] = ["std", "path", "Path", "new"];
 pub const PATH_BUF_FROM: [&str; 4] = ["std", "path", "PathBuf", "from"];
+
+pub const TEST_DESC_AND_FN: [&str; 3] = ["test", "types", "TestDescAndFn"];

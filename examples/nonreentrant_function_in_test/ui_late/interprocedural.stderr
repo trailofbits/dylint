@@ -1,0 +1,15 @@
+error: calling `std::env::set_var` in a test could affect the outcome of other tests
+  --> $DIR/interprocedural.rs:16:9
+   |
+LL |         std::env::set_var("KEY", "VALUE");
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `-D nonreentrant-function-in-test` implied by `-D warnings`
+note: the call is reachable from at least this test
+  --> $DIR/interprocedural.rs:6:8
+   |
+LL |     fn foo() {
+   |        ^^^
+
+error: aborting due to previous error
+

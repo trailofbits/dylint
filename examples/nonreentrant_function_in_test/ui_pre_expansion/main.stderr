@@ -1,13 +1,13 @@
 error: calling `std::env::set_var` in a test could affect the outcome of other tests
-  --> $DIR/main.rs:8:5
+  --> $DIR/main.rs:11:5
    |
 LL |     std::env::set_var("KEY", "VALUE");
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D nonreentrant-function-in-test` implied by `-D warnings`
+   = note: `-D nonreentrant-function-in-test-pre-expansion` implied by `-D warnings`
 
 error: calling `std::env::set_var` in a test could affect the outcome of other tests
-  --> $DIR/main.rs:23:9
+  --> $DIR/main.rs:26:9
    |
 LL |         std::env::set_var("KEY", "VALUE");
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,5 +1,4 @@
 use clippy_utils::diagnostics::span_lint;
-use dylint_internal::paths;
 use if_chain::if_chain;
 use rustc_ast::{Expr, ExprKind, Item, NodeId};
 use rustc_lint::{EarlyContext, EarlyLintPass};
@@ -7,6 +6,8 @@ use rustc_session::{declare_lint, impl_lint_pass};
 use rustc_span::{sym, symbol::SymbolStr};
 
 declare_lint! {
+    /// **Pre-expansion implementation**
+    ///
     /// **What it does:** Checks for use of nonreentrant functions in code attributed with `#[test]`
     /// or `#[cfg(test)]`.
     ///
@@ -19,6 +20,7 @@ declare_lint! {
     /// * Synchronization is not considered, so false positives could result.
     /// * Because this is an early lint pass (in fact, a pre-expansion pass), it could flag calls to
     ///   functions that happen to have the same name as known nonreentrant functions.
+    /// * No interprocedural analysis is done, so false negatives could result.
     /// * Things like `#[cfg(any(test, ...))]` and `#[cfg(all(test, ...))]` are not considered. This
     ///   could produce both false positives and false negatives.
     ///
@@ -41,8 +43,8 @@ declare_lint! {
     ///        .unwrap();
     /// }
     /// ```
-    pub NONREENTRANT_FUNCTION_IN_TEST,
-    Warn,
+    pub NONREENTRANT_FUNCTION_IN_TEST_PRE_EXPANSION,
+    Allow,
     "nonreentrant functions in tests"
 }
 
@@ -51,24 +53,7 @@ pub struct NonreentrantFunctionInTest {
     stack: Vec<NodeId>,
 }
 
-impl_lint_pass!(NonreentrantFunctionInTest => [NONREENTRANT_FUNCTION_IN_TEST]);
-
-const BLACKLIST: &[&[&str]] = &[
-    &paths::ENV_REMOVE_VAR,
-    &paths::ENV_SET_CURRENT_DIR,
-    &paths::ENV_SET_VAR,
-    &paths::FS_COPY,
-    &paths::FS_CREATE_DIR,
-    &paths::FS_CREATE_DIR_ALL,
-    &paths::FS_HARD_LINK,
-    &paths::FS_REMOVE_DIR,
-    &paths::FS_REMOVE_DIR_ALL,
-    &paths::FS_REMOVE_FILE,
-    &paths::FS_RENAME,
-    &paths::FS_SET_PERMISSIONS,
-    &paths::FS_SOFT_LINK,
-    &paths::FS_WRITE,
-];
+impl_lint_pass!(NonreentrantFunctionInTest => [NONREENTRANT_FUNCTION_IN_TEST_PRE_EXPANSION]);
 
 impl EarlyLintPass for NonreentrantFunctionInTest {
     fn check_item(&mut self, _cx: &EarlyContext, item: &Item) {
@@ -91,7 +76,7 @@ impl EarlyLintPass for NonreentrantFunctionInTest {
             then {
                 span_lint(
                     cx,
-                    NONREENTRANT_FUNCTION_IN_TEST,
+                    NONREENTRANT_FUNCTION_IN_TEST_PRE_EXPANSION,
                     expr.span,
                     &(format!(
                         "calling `{}` in a test could affect the outcome of other tests",
@@ -132,7 +117,7 @@ fn is_blacklisted_function(callee: &Expr) -> Option<&'static [&'static str]> {
             .map(|segment| segment.ident.as_str())
             .collect();
         let strs: Vec<&str> = symbols.iter().map(|symbol| &**symbol).collect();
-        BLACKLIST
+        crate::blacklist::BLACKLIST
             .iter()
             .copied()
             .find(|path| path.ends_with(strs.as_slice()))
