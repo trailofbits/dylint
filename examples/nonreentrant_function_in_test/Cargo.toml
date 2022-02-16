@@ -9,6 +9,18 @@ publish = false
 [lib]
 crate-type = ["cdylib"]
 
+[[example]]
+name = "interprocedural"
+path = "ui_late/interprocedural.rs"
+
+[[example]]
+name = "one_test"
+path = "ui_late/one_test.rs"
+
+[[example]]
+name = "set_current_dir"
+path = "ui_late/set_current_dir.rs"
+
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", tag = "rust-1.58.0"}
 if_chain = "1.0.2"
@@ -17,6 +29,8 @@ dylint_internal = { path = "../../internal" }
 dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
+lazy_static = "1.4.0"
+
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 
 [package.metadata.rust-analyzer]

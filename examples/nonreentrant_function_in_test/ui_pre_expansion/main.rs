@@ -1,3 +1,6 @@
+#![allow(unknown_lints)]
+#![warn(nonreentrant_function_in_test_pre_expansion)]
+
 fn main() {
     std::env::set_var("KEY", "VALUE");
     std::process::Command::new("env").status().unwrap();

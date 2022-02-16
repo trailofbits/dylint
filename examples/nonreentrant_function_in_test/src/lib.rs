@@ -1,27 +1,42 @@
 #![feature(rustc_private)]
+#![recursion_limit = "256"]
 #![warn(unused_extern_crates)]
 
 dylint_linting::dylint_library!();
 
 extern crate rustc_ast;
+extern crate rustc_hir;
 extern crate rustc_lint;
+extern crate rustc_middle;
 extern crate rustc_session;
 extern crate rustc_span;
 
-mod nonreentrant_function_in_test;
+mod blacklist;
+mod late;
+mod pre_expansion;
 
 #[no_mangle]
 pub fn register_lints(_sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
-    lint_store.register_lints(&[nonreentrant_function_in_test::NONREENTRANT_FUNCTION_IN_TEST]);
+    lint_store.register_lints(&[pre_expansion::NONREENTRANT_FUNCTION_IN_TEST_PRE_EXPANSION]);
     lint_store.register_pre_expansion_pass(|| {
-        Box::new(nonreentrant_function_in_test::NonreentrantFunctionInTest::default())
+        Box::new(pre_expansion::NonreentrantFunctionInTest::default())
     });
+
+    lint_store.register_lints(&[late::NONREENTRANT_FUNCTION_IN_TEST]);
+    lint_store.register_late_pass(|| Box::new(late::NonreentrantFunctionInTest::default()));
 }
 
 #[test]
-fn ui() {
+fn ui_pre_expansion() {
     dylint_testing::ui_test(
         env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
+        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_pre_expansion"),
     );
+}
+
+#[test]
+fn ui_late() {
+    dylint_testing::ui::Test::examples(env!("CARGO_PKG_NAME"))
+        .rustc_flags(&["--test"])
+        .run();
 }
