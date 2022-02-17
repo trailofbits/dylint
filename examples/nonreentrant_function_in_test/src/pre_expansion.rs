@@ -57,7 +57,7 @@ impl_lint_pass!(NonreentrantFunctionInTest => [NONREENTRANT_FUNCTION_IN_TEST_PRE
 
 impl EarlyLintPass for NonreentrantFunctionInTest {
     fn check_item(&mut self, _cx: &EarlyContext, item: &Item) {
-        if !self.stack.is_empty() || is_test_item(item) {
+        if self.in_test_item() || is_test_item(item) {
             self.stack.push(item.id);
         }
     }
@@ -70,7 +70,7 @@ impl EarlyLintPass for NonreentrantFunctionInTest {
 
     fn check_expr(&mut self, cx: &EarlyContext, expr: &Expr) {
         if_chain! {
-            if !self.stack.is_empty();
+            if self.in_test_item();
             if let ExprKind::Call(callee, _) = &expr.kind;
             if let Some(path) = is_blacklisted_function(&*callee);
             then {
@@ -85,6 +85,12 @@ impl EarlyLintPass for NonreentrantFunctionInTest {
                 );
             }
         }
+    }
+}
+
+impl NonreentrantFunctionInTest {
+    fn in_test_item(&self) -> bool {
+        !self.stack.is_empty()
     }
 }
 
