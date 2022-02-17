@@ -1,0 +1,28 @@
+error: this path might not exist in production
+  --> $DIR/main.rs:2:13
+   |
+LL |     let _ = env!("CARGO");
+   |             ^^^^^^^^^^^^^
+   |
+   = note: `-D env-cargo-path` implied by `-D warnings`
+
+error: this path might not exist in production
+  --> $DIR/main.rs:3:13
+   |
+LL |     let _ = env!("CARGO_MANIFEST_DIR");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: this path might not exist in production
+  --> $DIR/main.rs:4:13
+   |
+LL |     let _ = option_env!("CARGO");
+   |             ^^^^^^^^^^^^^^^^^^^^
+
+error: this path might not exist in production
+  --> $DIR/main.rs:5:13
+   |
+LL |     let _ = option_env!("CARGO_MANIFEST_DIR");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 4 previous errors
+

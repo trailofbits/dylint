@@ -81,6 +81,8 @@ fn fix() {
     assert_eq!(main_actual, MAIN_FIXED);
 }
 
+#[allow(unknown_lints)]
+#[allow(env_cargo_path)]
 fn append_workspace_metadata(path: &Path) -> Result<()> {
     let manifest = path.join("Cargo.toml");
     let mut file = OpenOptions::new()

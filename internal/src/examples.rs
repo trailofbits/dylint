@@ -5,6 +5,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+#[allow(unknown_lints)]
+#[allow(env_cargo_path)]
 pub fn build() -> Result<()> {
     // smoelius: The examples use `dylint-link` as the linker, so it must be built first.
     crate::build("dylint-link", false)
@@ -30,6 +32,8 @@ pub fn build() -> Result<()> {
     Ok(())
 }
 
+#[allow(unknown_lints)]
+#[allow(env_cargo_path)]
 pub fn iter() -> Result<impl Iterator<Item = Result<PathBuf>>> {
     let examples = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("..")
