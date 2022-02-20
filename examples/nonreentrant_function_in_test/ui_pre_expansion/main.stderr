@@ -1,3 +1,5 @@
+warning: `nonreentrant_function_in_test` is unlikely to be effective as `--test` was not passed to rustc
+
 error: calling `std::env::set_var` in a test could affect the outcome of other tests
   --> $DIR/main.rs:11:5
    |
@@ -12,5 +14,5 @@ error: calling `std::env::set_var` in a test could affect the outcome of other t
 LL |         std::env::set_var("KEY", "VALUE");
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 2 previous errors
+error: aborting due to 2 previous errors; 1 warning emitted
 
