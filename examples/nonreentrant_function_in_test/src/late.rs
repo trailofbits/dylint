@@ -3,7 +3,7 @@ use dylint_internal::paths;
 use if_chain::if_chain;
 use rustc_hir::{
     def::Res,
-    def_id::{DefId, LocalDefId, LOCAL_CRATE},
+    def_id::{DefId, LocalDefId},
     intravisit::{walk_body, walk_expr, NestedVisitorMap, Visitor},
     Expr, ExprKind, Item, ItemKind, QPath, TyKind,
 };
@@ -141,10 +141,7 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
                 if_chain! {
                     if let ExprKind::Path(QPath::Resolved(_, path)) = &callee.kind;
                     if let Res::Def(_, def_id) = path.res;
-                    if def_id.krate == LOCAL_CRATE;
-                    let local_def_id = LocalDefId {
-                        local_def_index: def_id.index,
-                    };
+                    if let Some(local_def_id) = def_id.as_local();
                     if !self.visited.contains(&local_def_id);
                     let _ = self.visited.insert(local_def_id);
                     let hir_id = self.cx.tcx.hir().local_def_id_to_hir_id(local_def_id);
