@@ -16,7 +16,7 @@ mod late;
 mod pre_expansion;
 
 #[no_mangle]
-pub fn register_lints(_sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
+pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
     lint_store.register_lints(&[pre_expansion::NONREENTRANT_FUNCTION_IN_TEST_PRE_EXPANSION]);
     lint_store.register_pre_expansion_pass(|| {
         Box::new(pre_expansion::NonreentrantFunctionInTest::default())
@@ -24,6 +24,10 @@ pub fn register_lints(_sess: &rustc_session::Session, lint_store: &mut rustc_lin
 
     lint_store.register_lints(&[late::NONREENTRANT_FUNCTION_IN_TEST]);
     lint_store.register_late_pass(|| Box::new(late::NonreentrantFunctionInTest::default()));
+
+    if !sess.opts.test {
+        sess.warn("`nonreentrant_function_in_test` is unlikely to be effective as `--test` was not passed to rustc");
+    }
 }
 
 #[test]
