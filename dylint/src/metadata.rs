@@ -277,7 +277,10 @@ fn package_id(source_id: SourceId, package_root: &Path) -> Result<PackageId> {
         .first()
         .ok_or_else(|| anyhow!("Found no packages in `{}`", package_root.to_string_lossy()))?;
 
-    assert!(metadata.workspace_root == package.manifest_path.parent().unwrap());
+    assert_eq!(
+        metadata.workspace_root,
+        package.manifest_path.parent().unwrap()
+    );
 
     PackageId::new(&package.name, &package.version.to_string(), source_id)
 }
