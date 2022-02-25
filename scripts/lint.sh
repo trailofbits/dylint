@@ -50,8 +50,8 @@ for DIR in $DIRS; do
 
         TMP="$(mktemp)"
 
-        # "$CARGO_DYLINT" dylint $LINTS --workspace -- --tests --verbose
-        "$CARGO_DYLINT" dylint $LINTS --workspace -- --tests --message-format=json |
+        # "$CARGO_DYLINT" dylint $LINTS --workspace -- --all-features --tests --verbose
+        "$CARGO_DYLINT" dylint $LINTS --workspace -- --all-features --tests --message-format=json |
         jq -r 'select(.reason == "compiler-message") | .message | select(.code != null) | .code | .code' |
         sort -u |
         while read X; do
@@ -74,7 +74,7 @@ for DIR in $DIRS; do
             done
         )"
 
-        "$CARGO_DYLINT" dylint $LINTS --workspace -- --tests
+        "$CARGO_DYLINT" dylint $LINTS --workspace -- --all-features --tests
         exit 1
     done
     popd

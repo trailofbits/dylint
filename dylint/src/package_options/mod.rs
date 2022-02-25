@@ -2,13 +2,11 @@ use crate::Dylint;
 use anyhow::{anyhow, bail, Context, Result};
 use chrono::{Date, NaiveDate, TimeZone, Utc};
 use dylint_internal::{find_and_replace, rustup::SanitizeEnvironment};
-use git2::Repository;
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
 use lazy_static::lazy_static;
-use semver::Version;
 use std::{
-    fs::{copy, create_dir_all, read_to_string, rename},
+    fs::{copy, create_dir_all, rename},
     path::{Path, PathBuf},
 };
 use tempfile::{tempdir, NamedTempFile};
@@ -16,6 +14,12 @@ use walkdir::WalkDir;
 
 #[cfg(unix)]
 mod bisect;
+
+mod clippy_utils;
+use clippy_utils::{channel, clippy_utils_version_from_rust_version};
+
+mod revs;
+use revs::Revs;
 
 struct Backup {
     path: PathBuf,
@@ -51,8 +55,6 @@ impl Drop for Backup {
 }
 
 const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
-
-const RUST_CLIPPY_URL: &str = "https://github.com/rust-lang/rust-clippy";
 
 lazy_static! {
     static ref PATHS: [PathBuf; 8] = [
@@ -170,32 +172,35 @@ fn fill_in(name: &str, from: &Path, to: &Path) -> Result<()> {
 }
 
 pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
-    let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
-
-    let refname = match &opts.rust_version {
-        Some(rust_version) => format!("rust-{}", rust_version),
-        None => "master".to_owned(),
-    };
-
-    let repository = dylint_internal::clone(RUST_CLIPPY_URL, &refname, tempdir.path())?;
-
-    let tag = match &opts.rust_version {
-        Some(rust_version) => format!("rust-{}", rust_version),
-        None => {
-            let version = latest_rust_version(&repository)?;
-            format!("rust-{}", version)
+    let rev = {
+        let revs = Revs::new()?;
+        let mut iter = revs.iter()?;
+        match &opts.rust_version {
+            Some(rust_version) => {
+                let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
+                iter.find(|result| {
+                    result
+                        .as_ref()
+                        .map_or(true, |rev| rev.version == clippy_utils_version)
+                })
+                .unwrap_or_else(|| {
+                    Err(anyhow!(
+                        "Could not find `clippy_utils` version `{}`",
+                        clippy_utils_version
+                    ))
+                })?
+            }
+            None => iter.next().unwrap_or_else(|| {
+                Err(anyhow!("Could not determine latest `clippy_utils` version"))
+            })?,
         }
     };
-
-    dylint_internal::checkout(&repository, &tag)?;
-
-    let new_channel = channel(tempdir.path())?;
 
     let old_channel = channel(path)?;
 
     let should_find_and_replace = if_chain! {
         if !opts.force;
-        if let Some(new_nightly) = parse_as_nightly(&new_channel);
+        if let Some(new_nightly) = parse_as_nightly(&rev.channel);
         if let Some(old_nightly) = parse_as_nightly(&old_channel);
         if new_nightly < old_nightly;
         then {
@@ -203,7 +208,7 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
                 bail!(
                     "Refusing to downgrade toolchain from `{}` to `{}`. Use `--force` to override.",
                     old_channel,
-                    new_channel
+                    rev.channel
                 );
             }
             false
@@ -219,8 +224,8 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
         find_and_replace(
             &path.join("Cargo.toml"),
             &[&format!(
-                r#"s/(?m)^(clippy_utils\b.*)\btag = "[^"]*"/${{1}}tag = "{}"/"#,
-                tag,
+                r#"s/(?m)^(clippy_utils\b.*)\b(rev|tag) = "[^"]*"/${{1}}rev = "{}"/"#,
+                rev.rev,
             )],
         )?;
 
@@ -228,7 +233,7 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
             &path.join("rust-toolchain"),
             &[&format!(
                 r#"s/(?m)^channel = "[^"]*"/channel = "{}"/"#,
-                new_channel,
+                rev.channel,
             )],
         )?;
     }
@@ -252,8 +257,8 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
             .success()
             .is_err()
         {
-            let new_nightly = parse_as_nightly(&new_channel).ok_or_else(|| {
-                anyhow!("Could not not parse channel `{}` as nightly", new_channel)
+            let new_nightly = parse_as_nightly(&rev.channel).ok_or_else(|| {
+                anyhow!("Could not not parse channel `{}` as nightly", rev.channel)
             })?;
 
             let start = new_nightly.format("%Y-%m-%d").to_string();
@@ -266,34 +271,6 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
     cargo_toml_backup.disable();
 
     Ok(())
-}
-
-fn latest_rust_version(repository: &Repository) -> Result<Version> {
-    let tags = repository.tag_names(Some("rust-*"))?;
-    let mut rust_versions = tags
-        .iter()
-        .filter_map(|s| s.and_then(|s| s.strip_prefix("rust-")))
-        .map(Version::parse)
-        .collect::<std::result::Result<Vec<_>, _>>()?;
-    rust_versions.sort();
-    rust_versions
-        .pop()
-        .ok_or_else(|| anyhow!("Could not determine latest `clippy_utils` version"))
-}
-
-fn channel(path: &Path) -> Result<String> {
-    let rust_toolchain = path.join("rust-toolchain");
-    let file = read_to_string(&rust_toolchain).with_context(|| {
-        format!(
-            "`read_to_string` failed for `{}`",
-            rust_toolchain.to_string_lossy(),
-        )
-    })?;
-    file.lines()
-        .find_map(|line| line.strip_prefix(r#"channel = ""#))
-        .and_then(|line| line.strip_suffix('"'))
-        .map(ToOwned::to_owned)
-        .ok_or_else(|| anyhow!("Could not determine Rust toolchain channel"))
 }
 
 fn parse_as_nightly(channel: &str) -> Option<Date<Utc>> {

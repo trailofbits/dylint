@@ -83,7 +83,7 @@ jobs:
         run: cargo install --path ./dylint-link
 
       - name: Test
-        run: cargo test --workspace -- --nocapture
+        run: cargo test --workspace --all-features -- --nocapture
 
       - name: Test example documentation
         # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
