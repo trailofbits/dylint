@@ -44,6 +44,35 @@ fn ui() {
 
 And include one or more `.rs` and `.stderr` files in a `ui` directory alongside your library's `src` directory. See the [examples](../../examples) in this repository.
 
+## Test builder
+
+In addition to the above three functions, `dylint_testing::ui:Test` is a test "builder." Currently, the main advantage of using `Test` over the above functions is that `Test` allows flags to be passed to `rustc`. For an example of its use, see [nonreentrant_function_in_test](../../examples/nonreentrant_function_in_test/src/lib.rs) in this repository.
+
+`Test` has three constructors, which correspond to the above three functions as follows:
+
+- `Test::src_base` <-> `ui_test`
+- `Test::example` <-> `ui_test_example`
+- `Test::examples` <-> `ui_test_examples`
+
+In each case, the constructor's arguments are exactly those of the corresponding function.
+
+A `Test` instance has the following methods:
+
+- `rustc_flags` - pass flags to the compiler when running the test
+
+  ```rust
+  pub fn rustc_flags(
+      &mut self,
+      rustc_flags: impl IntoIterator<Item = impl AsRef<str>>,
+  ) -> &mut Self
+  ```
+
+- `run` - run the test
+
+  ```rust
+  pub fn run(&mut self)
+  ```
+
 ## Updating `.stderr` files
 
 If the standard error that results from running your `.rs` file differs from the contents of your `.stderr` file, `compiletest_rs` will produce a report like the following:
