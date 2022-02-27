@@ -1,6 +1,6 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs with adjustments to
-// make some things public.
+// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.60.0) with
+// adjustments to make some things public.
 
 #![allow(unused_imports)]
 #![allow(clippy::default_trait_access)]
@@ -23,17 +23,19 @@ use serde::de;
 use serde::ser;
 use serde::{Deserialize, Serialize};
 
-use cargo::core::compiler::{CompileKind, CompileTarget};
-use cargo::core::dependency::DepKind;
-use cargo::core::manifest::{ManifestMetadata, TargetSourcePath, Warnings};
-use cargo::core::resolver::ResolveBehavior;
-use cargo::core::{Dependency, Manifest, PackageId, Summary, Target};
-use cargo::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
-use cargo::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
-use cargo::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
-use cargo::util::errors::{CargoResult, ManifestError};
-use cargo::util::interning::InternedString;
-use cargo::util::{self, config::ConfigRelativePath, validate_package_name, Config, IntoUrl};
+use crate::core::compiler::{CompileKind, CompileTarget};
+use crate::core::dependency::DepKind;
+use crate::core::manifest::{ManifestMetadata, TargetSourcePath, Warnings};
+use crate::core::resolver::ResolveBehavior;
+use crate::core::{Dependency, Manifest, PackageId, Summary, Target};
+use crate::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
+use crate::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
+use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
+use crate::util::errors::{CargoResult, ManifestError};
+use crate::util::interning::InternedString;
+use crate::util::{
+    self, config::ConfigRelativePath, validate_package_name, Config, IntoUrl, VersionReqExt,
+};
 
 pub trait ResolveToPath {
     fn resolve(&self, config: &Config) -> PathBuf;
@@ -171,12 +173,11 @@ impl<P: ResolveToPath> DetailedTomlDependency<P> {
 
             for &(key, key_name) in &git_only_keys {
                 if key.is_some() {
-                    let msg = format!(
-                        "key `{}` is ignored for dependency ({}). \
-                         This will be considered an error in future versions",
-                        key_name, name_in_toml
+                    bail!(
+                        "key `{}` is ignored for dependency ({}).",
+                        key_name,
+                        name_in_toml
                     );
-                    cx.warnings.push(msg)
                 }
             }
         }
@@ -228,13 +229,11 @@ impl<P: ResolveToPath> DetailedTomlDependency<P> {
             ),
             (Some(git), maybe_path, _, _) => {
                 if maybe_path.is_some() {
-                    let msg = format!(
+                    bail!(
                         "dependency ({}) specification is ambiguous. \
-                         Only one of `git` or `path` is allowed. \
-                         This will be considered an error in future versions",
+                         Only one of `git` or `path` is allowed.",
                         name_in_toml
                     );
-                    cx.warnings.push(msg)
                 }
 
                 let n_details = [&self.branch, &self.tag, &self.rev]
