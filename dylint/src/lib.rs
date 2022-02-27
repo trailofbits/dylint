@@ -15,6 +15,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
+#[cfg(feature = "metadata")]
+pub(crate) use cargo::{core, sources, util};
+
 pub mod driver_builder;
 
 mod error;
