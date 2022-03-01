@@ -1,5 +1,6 @@
 #! /bin/bash
 
+# set -x
 set -euo pipefail
 
 if [[ $# -ne 0 ]]; then
@@ -31,19 +32,23 @@ for EXAMPLE in examples/*; do
 
     # smoelius: `clippy` requires special care.
     if [[ "$EXAMPLE" = 'examples/clippy' ]]; then
-        PREV_TAG="$(sed -n 's/^clippy_utils\>.*\(\<tag = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
+        PREV_REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
+        PREV_CHANNEL="$(sed -n 's/^channel = "[^"]*"$/&/;T;p' "$EXAMPLE"/rust-toolchain)"
 
         $CARGO_DYLINT --upgrade "$EXAMPLE" 2>/dev/null || true
 
-        TAG="$(sed -n 's/^clippy_utils\>.*\(\<tag = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
-        sed -i "s/^\\(clippy_lints\>.*\\)\<tag = \"[^\"]*\"\\(.*\\)$/\1$TAG\2/" "$EXAMPLE"/Cargo.toml
+        REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
+        sed -i "s/^\(clippy_lints\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
 
         # smoelius: If `clippy`'s `rust-toolchain` file changed, upgrade `allow_clippy` to the Rust
         # version that `clippy` used previously. Note that `clippy` can be upgraded without its
         # `rust-toolchain` file changing.
         if ! git diff --exit-code "$EXAMPLE"/rust-toolchain; then
-            PREV_VERSION="$(echo "$PREV_TAG" | sed 's/^\<tag = "rust-\([^"]*\)"$/\1/')"
-            $CARGO_DYLINT --upgrade examples/allow_clippy --bisect --rust-version "$PREV_VERSION"
+            pushd examples/allow_clippy
+            sed -i "s/^\(clippy_utils\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$PREV_REV\3/" Cargo.toml
+            sed -i "s/^channel = \"[^\"]*\"$/$PREV_CHANNEL/" rust-toolchain
+            cargo build --tests
+            popd
         fi
     fi
 
