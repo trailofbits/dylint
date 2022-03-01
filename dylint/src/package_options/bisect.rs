@@ -1,7 +1,7 @@
 use crate::Dylint;
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use atty::Stream;
-use dylint_internal::Command;
+use dylint_internal::{rustup::SanitizeEnvironment, Command};
 use std::os::unix::fs::PermissionsExt;
 use std::{
     fs::{remove_file, rename},
@@ -98,7 +98,19 @@ pub fn bisect(opts: &Dylint, path: &Path, start: &str) -> Result<()> {
 
     remove_temporary_files(path);
 
-    result
+    result?;
+
+    // smoelius: The build might not actually have succeeded. (See the note above about proceeding
+    // backwards.) So verify that the build succeeded before returning `Ok(())`.
+    let file_name = path
+        .file_name()
+        .ok_or_else(|| anyhow!("Could not get file name"))?;
+    let description = format!("`{}`", file_name.to_string_lossy());
+    dylint_internal::build(&description, opts.quiet)
+        .sanitize_environment()
+        .current_dir(path)
+        .args(&["--tests"])
+        .success()
 }
 
 fn script() -> Result<NamedTempFile> {
