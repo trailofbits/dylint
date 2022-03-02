@@ -208,7 +208,7 @@ fn dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
 
 #[allow(clippy::default_trait_access)]
 fn git_dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
-    let _lock = config.acquire_package_cache_lock();
+    let _lock = config.acquire_package_cache_lock()?;
 
     let mut source = dep.source_id().load(config, &Default::default())?;
 
