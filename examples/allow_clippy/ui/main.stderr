@@ -6,5 +6,11 @@ LL | #[allow(clippy::assertions_on_constants)]
    |
    = note: `-D allow-clippy` implied by `-D warnings`
 
-error: aborting due to previous error
+error: allowing Clippy lints denies your project of its true potential
+  --> $DIR/main.rs:10:5
+   |
+LL |     #![allow(clippy::assertions_on_constants)]
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `#[deny(clippy::restriction, clippy::style, clippy::pedantic, clippy::complexity, clippy::perf, clippy::cargo, clippy::nursery)]`
+
+error: aborting due to 2 previous errors
 
