@@ -178,6 +178,7 @@ dependencies = [
  "heck",
  "lazy_static",
  "log",
+ "once_cell",
  "semver",
  "serde",
  "serde_json",

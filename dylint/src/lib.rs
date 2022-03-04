@@ -4,14 +4,15 @@
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
-use dylint_internal::env::{self, var};
+use dylint_internal::{
+    env::{self, var},
+    parse_filename,
+};
 use lazy_static::lazy_static;
 use std::{
-    collections::{BTreeMap, BTreeSet},
-    env::{consts, split_paths},
+    env::consts,
     ffi::OsStr,
     fmt::Debug,
-    fs::read_dir,
     path::{Path, PathBuf},
 };
 
@@ -24,8 +25,11 @@ mod error;
 use error::warn;
 pub use error::{ColorizedError, ColorizedResult};
 
+mod name_toolchain_map;
+pub use name_toolchain_map::{Lazy as NameToolchainMap, ToolchainMap};
+
 #[cfg(feature = "metadata")]
-mod metadata;
+pub(crate) mod metadata;
 
 #[cfg(feature = "metadata")]
 mod toml;
@@ -40,10 +44,6 @@ lazy_static! {
         consts::DLL_SUFFIX
     );
 }
-
-type ToolchainMap = BTreeMap<String, BTreeSet<PathBuf>>;
-
-pub type NameToolchainMap = BTreeMap<String, ToolchainMap>;
 
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Default)]
@@ -105,92 +105,20 @@ pub fn run(opts: &Dylint) -> Result<()> {
         return package_options::upgrade_package(opts, Path::new(path));
     }
 
-    let name_toolchain_map = name_toolchain_map(opts)?;
+    let name_toolchain_map = NameToolchainMap::new(opts);
 
     run_with_name_toolchain_map(opts, &name_toolchain_map)
 }
 
-#[allow(unused_variables)]
-pub fn name_toolchain_map(opts: &Dylint) -> Result<NameToolchainMap> {
-    let mut name_toolchain_map = NameToolchainMap::new();
-
-    let dylint_library_paths = dylint_library_paths()?;
-    #[cfg(feature = "metadata")]
-    let workspace_metadata_paths = metadata::workspace_metadata_paths(opts)?;
-    #[cfg(not(feature = "metadata"))]
-    let workspace_metadata_paths = vec![];
-
-    for (path, require_existence) in dylint_library_paths.iter().chain(&workspace_metadata_paths) {
-        if !require_existence && !path.exists() {
-            continue;
-        }
-        for entry in dylint_libraries_in(path)? {
-            let (name, toolchain, path) = entry?;
-            name_toolchain_map
-                .entry(name)
-                .or_insert_with(Default::default)
-                .entry(toolchain)
-                .or_insert_with(Default::default)
-                .insert(path);
-        }
-    }
-
-    Ok(name_toolchain_map)
-}
-
-fn dylint_library_paths() -> Result<Vec<(PathBuf, bool)>> {
-    let mut paths = Vec::new();
-
-    if let Ok(val) = var(env::DYLINT_LIBRARY_PATH) {
-        for path in split_paths(&val) {
-            ensure!(
-                path.is_absolute(),
-                "DYLINT_LIBRARY_PATH contains `{}`, which is not absolute",
-                path.to_string_lossy()
-            );
-            ensure!(
-                path.is_dir(),
-                "DYLINT_LIBRARY_PATH contains `{}`, which is not a directory",
-                path.to_string_lossy()
-            );
-            paths.push((path, true));
-        }
-    }
-
-    Ok(paths)
-}
-
-#[allow(clippy::option_if_let_else)]
-fn dylint_libraries_in(
-    path: &Path,
-) -> Result<impl Iterator<Item = Result<(String, String, PathBuf)>>> {
-    let iter = read_dir(path)
-        .with_context(|| format!("`read_dir` failed for `{}`", path.to_string_lossy()))?;
-    let path = path.to_path_buf();
-    Ok(iter
-        .map(move |entry| -> Result<Option<(String, String, PathBuf)>> {
-            let entry = entry
-                .with_context(|| format!("`read_dir` failed for `{}`", path.to_string_lossy()))?;
-            let path = entry.path();
-
-            Ok(if let Some(filename) = path.file_name() {
-                parse_filename(&filename.to_string_lossy())
-                    .map(|(lib_name, toolchain)| (lib_name, toolchain, path))
-            } else {
-                None
-            })
-        })
-        .filter_map(Result::transpose))
-}
-
 fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<()> {
-    if opts.list
-        && opts.libs.is_empty()
-        && opts.paths.is_empty()
-        && opts.names.is_empty()
-        && !opts.all
-    {
-        return list_libs(name_toolchain_map);
+    if opts.libs.is_empty() && opts.paths.is_empty() && opts.names.is_empty() && !opts.all {
+        if opts.list {
+            warn_if_empty(opts, name_toolchain_map)?;
+            return list_libs(name_toolchain_map);
+        }
+
+        warn(opts, "Nothing to do. Did you forget `--all`?");
+        return Ok(());
     }
 
     let resolved = resolve(opts, name_toolchain_map)?;
@@ -200,15 +128,11 @@ fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchain
         assert!(opts.paths.is_empty());
         assert!(opts.names.is_empty());
 
-        if name_toolchain_map.is_empty() {
-            warn(opts, "No libraries were found.");
-            return Ok(());
-        }
+        let name_toolchain_map_is_empty = warn_if_empty(opts, name_toolchain_map)?;
 
-        assert!(!opts.all);
-
-        warn(opts, "Nothing to do. Did you forget `--all`?");
-        return Ok(());
+        // smoelius: If `name_toolchain_map` is NOT empty, then it had better be the case that
+        // `--all` was not passed.
+        assert!(name_toolchain_map_is_empty || !opts.all);
     }
 
     if opts.list {
@@ -218,7 +142,20 @@ fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchain
     }
 }
 
+fn warn_if_empty(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<bool> {
+    let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
+
+    Ok(if name_toolchain_map.is_empty() {
+        warn(opts, "No libraries were found.");
+        true
+    } else {
+        false
+    })
+}
+
 fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
+    let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
+
     let name_width = name_toolchain_map
         .keys()
         .map(String::len)
@@ -259,6 +196,8 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
     let mut toolchain_map = ToolchainMap::new();
 
     if opts.all {
+        let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
+
         name_toolchain_map.values().cloned().for_each(|other| {
             for (toolchain, mut paths) in other {
                 toolchain_map
@@ -322,6 +261,8 @@ pub fn name_as_lib(
         return Ok(None);
     }
 
+    let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
+
     if let Some(toolchain_map) = name_toolchain_map.get(name) {
         let mut toolchain_paths = flatten_toolchain_map(toolchain_map);
 
@@ -384,24 +325,13 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
     Ok(None)
 }
 
-fn parse_filename(filename: &str) -> Option<(String, String)> {
-    let file_stem = filename.strip_suffix(consts::DLL_SUFFIX)?;
-    let target_name = file_stem.strip_prefix(consts::DLL_PREFIX)?;
-    parse_target_name(target_name)
-}
-
-fn parse_target_name(target_name: &str) -> Option<(String, String)> {
-    let mut iter = target_name.splitn(2, '@');
-    let lib_name = iter.next()?;
-    let toolchain = iter.next()?;
-    Some((lib_name.to_owned(), toolchain.to_owned()))
-}
-
 fn list_lints(
     opts: &Dylint,
     name_toolchain_map: &NameToolchainMap,
     resolved: &ToolchainMap,
 ) -> Result<()> {
+    let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
+
     for (name, toolchain_map) in name_toolchain_map {
         for (toolchain, paths) in toolchain_map {
             for path in paths {
@@ -557,7 +487,11 @@ mod test {
     use test_log::test;
 
     lazy_static! {
-        static ref NAME_TOOLCHAIN_MAP: NameToolchainMap = {
+        static ref OPTS: Dylint = Dylint {
+                no_metadata: true,
+                ..Dylint::default()
+            };
+        static ref NAME_TOOLCHAIN_MAP: NameToolchainMap<'static> = {
             examples::build().unwrap();
             let metadata = current_metadata().unwrap();
             // smoelius: As of version 0.1.14, `cargo-llvm-cov` no longer sets `CARGO_TARGET_DIR`.
@@ -568,11 +502,7 @@ mod test {
                 ])
                 .unwrap();
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-            name_toolchain_map(&Dylint {
-                no_metadata: true,
-                ..Dylint::default()
-            })
-            .unwrap()
+            NameToolchainMap::new(&OPTS)
         };
     }
 
@@ -580,8 +510,10 @@ mod test {
     #[allow(nonreentrant_function_in_test)]
     #[test]
     fn multiple_libraries_multiple_toolchains() {
-        let allow_clippy = NAME_TOOLCHAIN_MAP.get("allow_clippy").unwrap();
-        let question_mark_in_expression = NAME_TOOLCHAIN_MAP
+        let name_toolchain_map = NAME_TOOLCHAIN_MAP.get_or_try_init().unwrap();
+
+        let allow_clippy = name_toolchain_map.get("allow_clippy").unwrap();
+        let question_mark_in_expression = name_toolchain_map
             .get("question_mark_in_expression")
             .unwrap();
 
@@ -623,8 +555,10 @@ mod test {
     #[allow(nonreentrant_function_in_test)]
     #[test]
     fn multiple_libraries_one_toolchain() {
-        let clippy = NAME_TOOLCHAIN_MAP.get("clippy").unwrap();
-        let question_mark_in_expression = NAME_TOOLCHAIN_MAP
+        let name_toolchain_map = NAME_TOOLCHAIN_MAP.get_or_try_init().unwrap();
+
+        let clippy = name_toolchain_map.get("clippy").unwrap();
+        let question_mark_in_expression = name_toolchain_map
             .get("question_mark_in_expression")
             .unwrap();
 

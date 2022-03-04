@@ -9,7 +9,7 @@ pub mod env;
 pub mod examples;
 
 mod filename;
-pub use filename::library_filename;
+pub use filename::{library_filename, parse_filename};
 
 #[cfg(feature = "git2")]
 mod git;
