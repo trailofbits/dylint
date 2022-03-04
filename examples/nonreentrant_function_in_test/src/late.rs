@@ -1,14 +1,15 @@
-use clippy_utils::{diagnostics::span_lint_and_note, is_expr_path_def_path, is_qpath_def_path};
+use clippy_utils::{
+    diagnostics::span_lint_and_note, is_expr_path_def_path, match_def_path, path_def_id,
+};
 use dylint_internal::paths;
 use if_chain::if_chain;
 use rustc_hir::{
-    def::Res,
     def_id::{DefId, LocalDefId},
-    intravisit::{walk_body, walk_expr, NestedVisitorMap, Visitor},
-    Expr, ExprKind, Item, ItemKind, QPath, TyKind,
+    intravisit::{walk_body, walk_expr, Visitor},
+    Expr, ExprKind, Item, ItemKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::hir::map::Map;
+use rustc_middle::hir::nested_filter;
 use rustc_session::{declare_lint, impl_lint_pass};
 use std::collections::HashSet;
 
@@ -80,8 +81,8 @@ impl NonreentrantFunctionInTest {
             // https://rustc-dev-guide.rust-lang.org/test-implementation.html?highlight=testdesc#step-3-test-object-generation
             if_chain! {
                 if let ItemKind::Const(ty, const_body_id) = item.kind;
-                if let TyKind::Path(path) = &ty.kind;
-                if is_qpath_def_path(cx, path, item.hir_id(), &paths::TEST_DESC_AND_FN);
+                if let Some(ty_def_id) = path_def_id(cx, ty);
+                if match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN);
                 let const_body = cx.tcx.hir().body(const_body_id);
                 if let ExprKind::Struct(_, fields, _) = const_body.value.kind;
                 if let Some(testfn) = fields.iter().find(|field| field.ident.as_str() == "testfn");
@@ -93,10 +94,9 @@ impl NonreentrantFunctionInTest {
                 if let ExprKind::Call(_, [arg]) = closure_body.value.kind;
                 // smoelius: Callee is test function.
                 if let ExprKind::Call(callee, _) = arg.kind;
-                if let ExprKind::Path(QPath::Resolved(_, path)) = &callee.kind;
-                if let Res::Def(_, def_id) = path.res;
+                if let Some(callee_def_id) = path_def_id(cx, callee);
                 then {
-                    self.test_fns.push(def_id);
+                    self.test_fns.push(callee_def_id);
                 }
             }
         }
@@ -116,10 +116,10 @@ pub struct Checker<'cx, 'tcx> {
 }
 
 impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
-    type Map = Map<'tcx>;
+    type NestedFilter = nested_filter::OnlyBodies;
 
-    fn nested_visit_map(&mut self) -> NestedVisitorMap<Self::Map> {
-        NestedVisitorMap::OnlyBodies(self.cx.tcx.hir())
+    fn nested_visit_map(&mut self) -> Self::Map {
+        self.cx.tcx.hir()
     }
 
     fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
@@ -139,9 +139,8 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
                 return;
             } else {
                 if_chain! {
-                    if let ExprKind::Path(QPath::Resolved(_, path)) = &callee.kind;
-                    if let Res::Def(_, def_id) = path.res;
-                    if let Some(local_def_id) = def_id.as_local();
+                    if let Some(callee_def_id) = path_def_id(self.cx, *callee);
+                    if let Some(local_def_id) = callee_def_id.as_local();
                     if !self.visited.contains(&local_def_id);
                     let _ = self.visited.insert(local_def_id);
                     let hir_id = self.cx.tcx.hir().local_def_id_to_hir_id(local_def_id);

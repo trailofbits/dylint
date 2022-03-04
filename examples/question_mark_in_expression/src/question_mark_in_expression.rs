@@ -69,7 +69,7 @@ fn get_non_into_iter_ancestor(cx: &LateContext, hir_id: HirId) -> Option<HirId> 
             if let Node::Expr(expr) = cx.tcx.hir().get(hir_id);
             if let ExprKind::Call(callee, _) = expr.kind;
             if let ExprKind::Path(path) = &callee.kind;
-            if let QPath::LangItem(LangItem::IntoIterIntoIter, _) = path;
+            if let QPath::LangItem(LangItem::IntoIterIntoIter, _, _) = path;
             then {
                 None
             } else {

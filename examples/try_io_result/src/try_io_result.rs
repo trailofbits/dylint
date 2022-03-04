@@ -46,7 +46,7 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
             if let ExprKind::Match(scrutinee, _, MatchSource::TryDesugar) = expr.kind;
             if let ExprKind::Call(callee, args) = scrutinee.kind;
             if let ExprKind::Path(path) = &callee.kind;
-            if matches!(path, QPath::LangItem(LangItem::TryTraitBranch, _));
+            if matches!(path, QPath::LangItem(LangItem::TryTraitBranch, _, _));
             if let Some(arg) = args.get(0);
             if let arg_ty = cx.typeck_results().node_type(arg.hir_id);
             if let TyKind::Adt(arg_def, substs) = arg_ty.kind();

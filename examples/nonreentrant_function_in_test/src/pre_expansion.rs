@@ -3,7 +3,7 @@ use if_chain::if_chain;
 use rustc_ast::{Expr, ExprKind, Item, NodeId};
 use rustc_lint::{EarlyContext, EarlyLintPass};
 use rustc_session::{declare_lint, impl_lint_pass};
-use rustc_span::{sym, symbol::SymbolStr};
+use rustc_span::sym;
 
 declare_lint! {
     /// **Pre-expansion implementation**
@@ -117,7 +117,7 @@ fn is_test_item(item: &Item) -> bool {
 
 fn is_blacklisted_function(callee: &Expr) -> Option<&'static [&'static str]> {
     if let ExprKind::Path(None, path) = &callee.kind {
-        let symbols: Vec<SymbolStr> = path
+        let symbols: Vec<&str> = path
             .segments
             .iter()
             .map(|segment| segment.ident.as_str())

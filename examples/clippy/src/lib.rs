@@ -24,6 +24,6 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint
 
     let conf = clippy_lints::read_conf(sess);
     clippy_lints::register_plugins(lint_store, sess, &conf);
-    clippy_lints::register_pre_expansion_lints(lint_store);
+    clippy_lints::register_pre_expansion_lints(lint_store, sess, &conf);
     clippy_lints::register_renamed(lint_store);
 }
