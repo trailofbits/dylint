@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Check CHANGELOG.md
         run: ./scripts/check_CHANGELOG.sh "${{ github.ref }}"
@@ -20,6 +22,9 @@ jobs:
       - name: Publish
         run: ./scripts/publish.sh
 
+      - name: Create release notes
+        run: git log -p -1 CHANGELOG.md | grep '^+\($\|[^+]\)' | cut -c 2- | tee body.md
+
       - name: Create release
         uses: actions/create-release@v1
         env:
@@ -27,5 +32,6 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
+          body_path: body.md
           draft: false
           prerelease: ${{ contains(github.ref, 'pre') || contains(github.ref, 'rc') }}
