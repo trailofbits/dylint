@@ -2,7 +2,7 @@
 
 ## 1.0.14
 
-- Add test "builder" to `dylint_testing`([#222](https://github.com/trailofbits/dylint/pull/222) and [#237](https://github.com/trailofbits/dylint/pull/237))
+- Add test "builder" to `dylint_testing` ([#222](https://github.com/trailofbits/dylint/pull/222) and [#237](https://github.com/trailofbits/dylint/pull/237))
 - Determine `clippy_utils` versions using commit history rather than git tags ([#236](https://github.com/trailofbits/dylint/pull/236))
 - Ensure package cache is locked ([#247](https://github.com/trailofbits/dylint/pull/247))
 - Verify build succeeded before considering bisect successful ([#246](https://github.com/trailofbits/dylint/pull/246))
