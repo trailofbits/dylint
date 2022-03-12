@@ -7,17 +7,17 @@ fn main() {
     baz().unwrap();
 }
 
-fn foo() -> std::io::Result<()> {
+fn foo() -> anyhow::Result<()> {
     let _ = File::open("/dev/null")?;
     Ok(())
 }
 
 fn bar() -> anyhow::Result<()> {
-    let _ = File::open("/dev/null")?;
+    let _ = File::open("/dev/null").with_context(|| "could not open `/dev/null`")?;
     Ok(())
 }
 
-fn baz() -> anyhow::Result<()> {
-    let _ = File::open("/dev/null").with_context(|| "could not open `/dev/null`")?;
+fn baz() -> std::io::Result<()> {
+    let _ = File::open("/dev/null")?;
     Ok(())
 }

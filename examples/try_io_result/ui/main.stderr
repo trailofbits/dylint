@@ -7,13 +7,5 @@ LL |     let _ = File::open("/dev/null")?;
    = note: `-D try-io-result` implied by `-D warnings`
    = help: return a type that includes relevant context
 
-error: returning a `std::io::Result` could discard relevant context (e.g., files or paths involved)
-  --> $DIR/main.rs:16:13
-   |
-LL |     let _ = File::open("/dev/null")?;
-   |             ^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = help: return a type that includes relevant context
-
-error: aborting due to 2 previous errors
+error: aborting due to previous error
 

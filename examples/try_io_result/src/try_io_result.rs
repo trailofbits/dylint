@@ -2,7 +2,7 @@ use clippy_utils::{diagnostics::span_lint_and_help, match_def_path, paths};
 use if_chain::if_chain;
 use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{subst::GenericArgKind, TyKind};
+use rustc_middle::ty::{self, subst::GenericArgKind, TyKind};
 use rustc_session::{declare_lint, declare_lint_pass};
 
 declare_lint! {
@@ -49,12 +49,12 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
             if matches!(path, QPath::LangItem(LangItem::TryTraitBranch, _, _));
             if let Some(arg) = args.get(0);
             if let arg_ty = cx.typeck_results().node_type(arg.hir_id);
-            if let TyKind::Adt(arg_def, substs) = arg_ty.kind();
-            if match_def_path(cx, arg_def.did, &paths::RESULT);
-            if let [_, generic_arg] = substs.iter().collect::<Vec<_>>().as_slice();
-            if let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack();
-            if let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind();
-            if match_def_path(cx, generic_arg_def.did, &dylint_internal::paths::IO_ERROR);
+            if is_io_result(cx, arg_ty);
+            let body_owner_hir_id = cx.tcx.hir().enclosing_body_owner(expr.hir_id);
+            let body_id = cx.tcx.hir().body_owned_by(body_owner_hir_id);
+            let body = cx.tcx.hir().body(body_id);
+            let body_ty = cx.typeck_results().expr_ty(&body.value);
+            if !is_io_result(cx, body_ty);
             then {
                 span_lint_and_help(
                     cx,
@@ -66,6 +66,22 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
                     "return a type that includes relevant context",
                 );
             }
+        }
+    }
+}
+
+fn is_io_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
+    if_chain! {
+        if let TyKind::Adt(def, substs) = ty.kind();
+        if match_def_path(cx, def.did, &paths::RESULT);
+        if let [_, generic_arg] = substs.iter().collect::<Vec<_>>().as_slice();
+        if let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack();
+        if let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind();
+        if match_def_path(cx, generic_arg_def.did, &dylint_internal::paths::IO_ERROR);
+        then {
+            true
+        } else {
+            false
         }
     }
 }
