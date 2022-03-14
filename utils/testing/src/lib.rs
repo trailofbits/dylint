@@ -183,7 +183,10 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
     let output = {
         remove_example(metadata, package, target)?;
 
-        cargo::build(&format!("example `{}`", target.name), false)
+        // smoelius: Because of lazy initialization, `cargo build` is run only once. Seeing
+        // "Building example `target`" for one example but not for others is confusing. So instead
+        // say "Building `package` examples".
+        cargo::build(&format!("`{}` examples", package.name), false)
             .envs(vec![(env::CARGO_TERM_COLOR, "never")])
             .args(&[
                 "--manifest-path",
