@@ -129,7 +129,7 @@ fn copy_library(path: &Path) -> Result<()> {
     if_chain! {
         if let Some(lib_name) = parse_path(path);
         let cargo_pkg_name = var(env::CARGO_PKG_NAME)?;
-        if lib_name == cargo_pkg_name.replace("-", "_");
+        if lib_name == cargo_pkg_name.replace('-', "_");
         then {
             let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
             let filename_with_toolchain = library_filename(&lib_name, &rustup_toolchain);
