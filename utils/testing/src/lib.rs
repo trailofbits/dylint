@@ -213,7 +213,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
                     && args
                         .as_slice()
                         .windows(2)
-                        .any(|window| window == ["--crate-name", &target.name])
+                        .any(|window| window == ["--crate-name", &snake_case(&target.name)])
                 {
                     Some(args)
                 } else {
@@ -244,8 +244,9 @@ fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> R
 
         if let Some(file_name) = path.file_name() {
             let s = file_name.to_string_lossy();
-            if s == target.name.clone() + consts::EXE_SUFFIX
-                || s.starts_with(&(target.name.clone() + "-"))
+            let target_name = snake_case(&target.name);
+            if s == target_name.clone() + consts::EXE_SUFFIX
+                || s.starts_with(&(target_name.clone() + "-"))
             {
                 remove_file(&path).with_context(|| {
                     format!("`remove_file` failed for `{}`", path.to_string_lossy())
@@ -291,4 +292,8 @@ fn run_tests<'test>(
         ..compiletest::Config::default()
     };
     compiletest::run_tests(&config);
+}
+
+fn snake_case(name: &str) -> String {
+    name.replace('-', "_")
 }
