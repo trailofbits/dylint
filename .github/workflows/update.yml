@@ -10,7 +10,7 @@ name: Update Dependencies
 
 on:
   schedule:
-    - cron: "0 3 * * 1"
+    - cron: 0 3 * * 1
 
 jobs:
   update:
@@ -42,4 +42,4 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v3
         with:
-          title: "Update dependencies"
+          title: Update dependencies

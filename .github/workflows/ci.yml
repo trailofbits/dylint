@@ -24,7 +24,9 @@ jobs:
         run: cargo install --path ./dylint-link
 
       - name: Prettier
-        run: npm install -g prettier && prettier --check '**/*.md' '**/*.yml'
+        run: |
+          npm install -g prettier && prettier --check '**/*.md' '**/*.yml'
+          ./scripts/unquote_yaml_strings.sh && git diff --exit-code
 
       - name: Cargo sort
         run: |
@@ -122,7 +124,7 @@ jobs:
       - name: Coverage
         run: cargo llvm-cov --workspace --failure-mode all --lcov --output-path workspace.lcov
         env:
-          RUSTUP_TOOLCHAIN: "nightly"
+          RUSTUP_TOOLCHAIN: nightly
 
       - name: Install lcov
         run: sudo apt install lcov
