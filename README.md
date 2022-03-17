@@ -3,7 +3,7 @@
 A tool for running Rust lints from dynamic libraries
 
 ```sh
-cargo install cargo-dylint
+cargo install cargo-dylint dylint-link
 ```
 
 Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a predetermined, static set of lints, Dylint runs lints from user-specified, dynamic libraries. Thus, Dylint allows developers to maintain their own personal lint collections.
@@ -27,16 +27,29 @@ Note: `cargo-dylint` will not work correctly if installed with the `--debug` fla
 
 ### Running Dylint
 
-The next four commands install Dylint and run one of the example libraries' lints on the Dylint source code:
+The next three steps install Dylint and run all of this repository's [example lints](./examples) on a workspace:
 
-```sh
-cargo install cargo-dylint dylint-link          # Install cargo-dylint and dylint-link
-git clone https://github.com/trailofbits/dylint # Clone the Dylint repository
-cd dylint                                       # Change directory
-cargo dylint allow_clippy                       # Run an example libraries' lint on the Dylint source code
-```
+1. Install `cargo-dylint` and `dylint-link`:
 
-In the above example, the library is found via [workspace metadata](#workspace-metadata) (see below).
+   ```sh
+   cargo install cargo-dylint dylint-link
+   ```
+
+2. Add the following to the workspace's `Cargo.toml` file:
+
+   ```toml
+   [workspace.metadata.dylint]
+   libraries = [
+       { git = "https://github.com/trailofbits/dylint", pattern = "examples/*" },
+   ]
+   ```
+
+3. Run `cargo-dylint`:
+   ```sh
+   cargo dylint --all --workspace
+   ```
+
+In the above example, the libraries are found via [workspace metadata](#workspace-metadata) (see below).
 
 ### Writing lints
 
@@ -83,7 +96,7 @@ A workspace can name the libraries it should be linted with in its `Cargo.toml` 
 
 Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements](#library-requirements) below).
 
-As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run all of the example lints in this repository on your workspace:
+As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run all of this repository's [example lints](./examples) on your workspace:
 
 ```toml
 [workspace.metadata.dylint]
