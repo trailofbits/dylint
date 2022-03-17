@@ -14,11 +14,11 @@ use std::{
 use tempfile::tempdir;
 use test_log::test;
 
-const CHANNEL_A: &str = "nightly-2021-03-11";
-const CHANNEL_B: &str = "nightly-2021-04-22";
+const CHANNEL_A: &str = "nightly-2021-10-21";
+const CHANNEL_B: &str = "nightly-2021-12-02";
 
-const CLIPPY_UTILS_TAG_A: &str = "rust-1.52.1";
-const CLIPPY_UTILS_TAG_B: &str = "rust-1.53.0";
+const CLIPPY_UTILS_REV_A: &str = "91496c2ac6abf6454c413bb23e8becf6b6dc20ea";
+const CLIPPY_UTILS_REV_B: &str = "392b0c5c25ddbd36e4dc480afcf70ed01dce352d";
 
 #[test]
 fn one_name_multiple_toolchains() {
@@ -26,7 +26,7 @@ fn one_name_multiple_toolchains() {
 
     dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
 
-    patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_TAG_A).unwrap();
+    patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_REV_A).unwrap();
     dylint_internal::build(
         &format!("dylint-template with channel `{}`", CHANNEL_A),
         false,
@@ -36,7 +36,7 @@ fn one_name_multiple_toolchains() {
     .success()
     .unwrap();
 
-    patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_TAG_B).unwrap();
+    patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_REV_B).unwrap();
     dylint_internal::build(
         &format!("dylint-template with channel `{}`", CHANNEL_B),
         false,
@@ -62,7 +62,7 @@ fn one_name_multiple_toolchains() {
         );
 }
 
-fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_tag: &str) -> Result<()> {
+fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> Result<()> {
     // smoelius: See https://github.com/rust-lang/regex/issues/244
     find_and_replace(
         &path.join("rust-toolchain"),
@@ -74,8 +74,8 @@ fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_tag: &str) -> 
     find_and_replace(
         &path.join("Cargo.toml"),
         &[&format!(
-            r#"s/(?m)^(clippy_utils\b.*)\btag = "[^"]*"/${{1}}tag = "{}"/"#,
-            clippy_utils_tag,
+            r#"s/(?m)^(clippy_utils\b.*)\b(rev|tag) = "[^"]*"/${{1}}rev = "{}"/"#,
+            clippy_utils_rev,
         )],
     )
 }

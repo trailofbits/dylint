@@ -39,9 +39,12 @@ fn downgrade_upgrade_package() {
 
     dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
 
-    let mut rust_version = rust_version(tempdir.path()).unwrap();
+    // smoelius: I broke this downgrading code when I switched dylint-template from using a git tag
+    // to a git revision to refer to `clippy_utils`. For now, just hardcode the downgrade version.
+    /* let mut rust_version = rust_version(tempdir.path()).unwrap();
     assert!(rust_version.minor != 0);
-    rust_version.minor -= 1;
+    rust_version.minor -= 1; */
+    let rust_version = Version::parse("1.60.0").unwrap();
 
     let upgrade = || {
         let mut command = std::process::Command::cargo_bin("cargo-dylint").unwrap();
@@ -106,6 +109,7 @@ fn downgrade_upgrade_package() {
     }
 }
 
+#[allow(dead_code)]
 fn rust_version(path: &Path) -> Result<Version> {
     let re = Regex::new(r#"^clippy_utils = .*\btag = "rust-([^"]*)""#).unwrap();
     let manifest = path.join("Cargo.toml");
