@@ -5,7 +5,7 @@ name: Upgrade Examples
 
 on:
   schedule:
-    - cron: "0 3 * * 6"
+    - cron: 0 3 * * 6
   workflow_dispatch:
 
 jobs:
@@ -31,4 +31,4 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v3
         with:
-          title: "Upgrade examples"
+          title: Upgrade examples
