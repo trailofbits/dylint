@@ -10,4 +10,4 @@ fi
 
 cd "$(dirname "$0")"/..
 
-find . -name '*.yml' -exec sed -i 's/^\([^#]*:[[:space:]]*\)"\(.*\)"\([[:space:]]*\)$/\1\2\3/' {} \;
+find . -name '*.yml' -exec sed -i 's/^\([^#]*:[[:space:]]*\)"\(.*[^0-9:].*\)"\([[:space:]]*\)$/\1\2\3/' {} \;
