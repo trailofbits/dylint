@@ -20,6 +20,8 @@ fn new_package() {
         .assert()
         .success();
 
+    dylint_internal::packaging::use_local_packages(&path).unwrap();
+
     dylint_internal::build("filled-in dylint-template", false)
         .sanitize_environment()
         .current_dir(&path)
