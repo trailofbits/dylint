@@ -167,7 +167,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "1.0.14"
+version = "2.0.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -188,7 +188,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "1.0.14"
+version = "2.0.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -200,11 +200,11 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "1.0.14"
+version = "2.0.0"
 
 [[package]]
 name = "dylint_testing"
-version = "1.0.14"
+version = "2.0.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -600,7 +600,7 @@ dependencies = [
 
 [[package]]
 name = "try_io_result"
-version = "1.0.14"
+version = "2.0.0"
 dependencies = [
  "anyhow",
  "clippy_utils",
