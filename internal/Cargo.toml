@@ -13,5 +13,5 @@ anyhow = "1.0.56"
 cargo_metadata = "0.14.2"
 git2 = { version = "0.13.25", optional = true }
 if_chain = "1.0.2"
-log = "0.4.14"
+log = "0.4.16"
 sedregex = "0.2.5"
