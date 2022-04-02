@@ -1,4 +1,4 @@
-use tracing::{span, Instrument, Level, Span};
+use tracing::{span, Instrument, Level};
 
 async fn good_in_scope() {
     let span = span!(Level::INFO, "good");
@@ -43,6 +43,7 @@ async fn baz(value: usize) {
     let _ = value;
 }
 
+#[allow(unused_must_use)]
 fn main() {
     good_in_scope();
     good_instrument();
