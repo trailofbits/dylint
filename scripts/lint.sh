@@ -39,43 +39,18 @@ for DIR in $DIRS; do
         unset DYLINT_RUSTFLAGS
         if [[ "$LINTS" = clippy ]]; then
             export DYLINT_RUSTFLAGS='
-                -W clippy::style
-                -W clippy::complexity
-                -W clippy::perf
+                -D warnings
                 -W clippy::pedantic
                 -W clippy::nursery
+                -A clippy::cargo-common-metadata
+                -A clippy::empty-line-after-outer-attr
+                -A clippy::missing-errors-doc
+                -A clippy::missing-panics-doc
             '
             #     -W clippy::cargo
         fi
 
-        TMP="$(mktemp)"
-
-        # "$CARGO_DYLINT" dylint $LINTS --workspace -- --all-features --tests --verbose
-        "$CARGO_DYLINT" dylint $LINTS --workspace -- --all-features --tests --message-format=json |
-        jq -r 'select(.reason == "compiler-message") | .message | select(.code != null) | .code | .code' |
-        sort -u |
-        while read X; do
-            if ! grep "^$X$" "$SCRIPTS"/allow.txt >/dev/null; then
-                echo "$X"
-            fi
-        done |
-        cat > "$TMP"
-
-        if [[ ! -s "$TMP" ]]; then
-            continue
-        fi
-
-        rm -rf target/debug/deps
-
-        export DYLINT_RUSTFLAGS="$(
-            cat "$TMP" |
-            while read X; do
-                echo -D "$X"
-            done
-        )"
-
         "$CARGO_DYLINT" dylint $LINTS --workspace -- --all-features --tests
-        exit 1
     done
     popd
 done
