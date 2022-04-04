@@ -5,7 +5,7 @@ use rustc_errors::Applicability;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{declare_lint, declare_lint_pass};
 use rustc_span::sym;
-use rustc_span::symbol::SymbolStr;
+use rustc_span::symbol::Symbol;
 
 declare_lint! {
     /// **What it does:** This tongue-in-cheek lint checks for `#[allow(clippy::...)]`. It is
@@ -47,15 +47,15 @@ impl<'tcx> LateLintPass<'tcx> for AllowClippy {
 }
 
 /// Returns the lint name if it is clippy lint.
-fn extract_clippy_lint(lint: &NestedMetaItem) -> Option<SymbolStr> {
+fn extract_clippy_lint(lint: &NestedMetaItem) -> Option<Symbol> {
     if_chain! {
         if let Some(meta_item) = lint.meta_item();
         if meta_item.path.segments.len() > 1;
         if let tool_name = meta_item.path.segments[0].ident;
         if tool_name.name == sym::clippy;
-        let lint_name = meta_item.path.segments.last().unwrap().ident.name;
         then {
-            return Some(lint_name.as_str());
+            let lint_name = meta_item.path.segments.last().unwrap().ident.name;
+            return Some(lint_name);
         }
     }
     None
