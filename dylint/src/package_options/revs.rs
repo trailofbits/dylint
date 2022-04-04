@@ -36,6 +36,7 @@ impl Revs {
         })
     }
 
+    #[allow(clippy::iter_not_returning_iterator)]
     pub fn iter(&self) -> Result<RevIter> {
         let object = {
             let head = self.repository.head()?;

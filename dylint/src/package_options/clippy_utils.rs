@@ -11,6 +11,7 @@ lazy_static! {
     pub static ref CLIPPY_UTILS_CARGO_TOML: PathBuf = Path::new("clippy_utils").join("Cargo.toml");
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub fn clippy_utils_version_from_rust_version(rust_version: &str) -> Result<String> {
     Version::parse(rust_version.strip_prefix("rust-").unwrap_or(rust_version))
         .map(|version| Version::new(0, version.major, version.minor).to_string())

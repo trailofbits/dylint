@@ -1,5 +1,6 @@
 use std::env::consts;
 
+#[allow(clippy::module_name_repetitions)]
 #[must_use]
 pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
     format!(
@@ -11,6 +12,8 @@ pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
     )
 }
 
+#[allow(clippy::module_name_repetitions)]
+#[must_use]
 pub fn parse_filename(filename: &str) -> Option<(String, String)> {
     let file_stem = filename.strip_suffix(consts::DLL_SUFFIX)?;
     let target_name = file_stem.strip_prefix(consts::DLL_PREFIX)?;
