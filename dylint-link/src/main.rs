@@ -79,6 +79,7 @@ where
 }
 
 #[cfg(not(target_os = "windows"))]
+#[allow(clippy::unnecessary_wraps)]
 fn output_path<'a, I>(mut iter: I) -> Result<Option<PathBuf>>
 where
     I: Iterator<Item = &'a String>,

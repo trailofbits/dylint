@@ -132,7 +132,7 @@ impl rustc_driver::Callbacks for Callbacks {
     fn config(&mut self, config: &mut rustc_interface::Config) {
         let previous = config.register_lints.take();
         let loaded_libs = self.loaded_libs.split_off(0);
-        config.register_lints = Some(Box::new(move |sess, mut lint_store| {
+        config.register_lints = Some(Box::new(move |sess, lint_store| {
             if let Some(previous) = &previous {
                 previous(sess, lint_store);
             }
@@ -143,7 +143,7 @@ impl rustc_driver::Callbacks for Callbacks {
                 });
             }
             for loaded_lib in &loaded_libs {
-                loaded_lib.register_lints(sess, &mut lint_store);
+                loaded_lib.register_lints(sess, lint_store);
             }
             if list_enabled() {
                 let mut after = BTreeSet::<Lint>::new();

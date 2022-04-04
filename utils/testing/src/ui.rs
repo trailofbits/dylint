@@ -17,14 +17,17 @@ pub struct Test {
 }
 
 impl Test {
+    #[must_use]
     pub fn src_base(name: &str, src_base: &Path) -> Self {
         Self::new(name, Target::SrcBase(src_base.to_owned()))
     }
 
+    #[must_use]
     pub fn example(name: &str, example: &str) -> Self {
         Self::new(name, Target::Example(example.to_owned()))
     }
 
+    #[must_use]
     pub fn examples(name: &str) -> Self {
         Self::new(name, Target::Examples)
     }

@@ -13,6 +13,7 @@ use std::{
 
 pub type ToolchainMap = BTreeMap<String, BTreeSet<PathBuf>>;
 
+#[allow(clippy::redundant_pub_crate)]
 pub(crate) type NameToolchainMap = BTreeMap<String, ToolchainMap>;
 
 #[cfg_attr(not(feature = "metadata"), allow(dead_code))]
@@ -26,7 +27,8 @@ pub struct Lazy<'opts> {
 }
 
 impl<'opts> Lazy<'opts> {
-    pub fn new(opts: &'opts crate::Dylint) -> Self {
+    #[must_use]
+    pub const fn new(opts: &'opts crate::Dylint) -> Self {
         Self {
             inner: Inner {
                 opts,
