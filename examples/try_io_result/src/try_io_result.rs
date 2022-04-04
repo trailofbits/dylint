@@ -73,11 +73,11 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
 fn is_io_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
     if_chain! {
         if let TyKind::Adt(def, substs) = ty.kind();
-        if match_def_path(cx, def.did, &paths::RESULT);
+        if match_def_path(cx, def.did(), &paths::RESULT);
         if let [_, generic_arg] = substs.iter().collect::<Vec<_>>().as_slice();
         if let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack();
         if let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind();
-        if match_def_path(cx, generic_arg_def.did, &dylint_internal::paths::IO_ERROR);
+        if match_def_path(cx, generic_arg_def.did(), &dylint_internal::paths::IO_ERROR);
         then {
             true
         } else {

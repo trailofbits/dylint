@@ -107,7 +107,7 @@ fn check_interior_types(
 ) {
     for ty_cause in ty_causes {
         if let rustc_middle::ty::Adt(adt, _) = ty_cause.ty.kind() {
-            if is_tracing_span_guard(cx, adt.did) {
+            if is_tracing_span_guard(cx, adt.did()) {
                 span_lint_and_note(
                     cx,
                     AWAIT_HOLDING_SPAN_GUARD,
