@@ -105,7 +105,10 @@ fn dylint_libraries_in(
         .map(move |entry| -> Result<Option<(String, String, PathBuf)>> {
             let entry = entry
                 .with_context(|| format!("`read_dir` failed for `{}`", path.to_string_lossy()))?;
-            let path = entry.path();
+            let path = entry
+                .path()
+                .canonicalize()
+                .with_context(|| format!("Could not canonicalize {:?}", path))?;
 
             Ok(if let Some(filename) = path.file_name() {
                 parse_filename(&filename.to_string_lossy())
