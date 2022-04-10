@@ -136,9 +136,9 @@ fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchain
     }
 
     if opts.list {
-        list_lints(opts, name_toolchain_map, &resolved)
+        list_lints(opts, &resolved)
     } else {
-        check_or_fix(opts, name_toolchain_map, &resolved)
+        check_or_fix(opts, &resolved)
     }
 }
 
@@ -325,48 +325,45 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
     Ok(None)
 }
 
-fn list_lints(
-    opts: &Dylint,
-    name_toolchain_map: &NameToolchainMap,
-    resolved: &ToolchainMap,
-) -> Result<()> {
-    let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
+fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
+    for (toolchain, paths) in resolved {
+        for path in paths {
+            if resolved
+                .get(toolchain)
+                .map_or(false, |paths| paths.contains(path))
+            {
+                let driver = driver_builder::get(opts, toolchain)?;
+                let dylint_libs = serde_json::to_string(&[path])?;
+                let filename = path
+                    .file_name()
+                    .ok_or_else(|| anyhow!("Could not get file name"))?;
+                let (name, _) = parse_filename(&filename.to_string_lossy())
+                    .ok_or_else(|| anyhow!("Could not parse file name"))?;
 
-    for (name, toolchain_map) in name_toolchain_map {
-        for (toolchain, paths) in toolchain_map {
-            for path in paths {
-                if resolved
-                    .get(toolchain)
-                    .map_or(false, |paths| paths.contains(path))
-                {
-                    let driver = driver_builder::get(opts, toolchain)?;
-                    let dylint_libs = serde_json::to_string(&[path])?;
-
-                    print!("{}", name);
-                    if toolchain_map.keys().len() >= 2 {
-                        print!("@{}", toolchain);
-                    }
-                    if paths.len() >= 2 {
-                        let parent = path
-                            .parent()
-                            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-                        print!(" ({})", parent.to_string_lossy());
-                    }
-                    println!();
-
-                    // smoelius: `-W help` is the normal way to list lints, so we can be sure it
-                    // gets the lints loaded. However, we don't actually use it to list the lints.
-                    let mut command = dylint_internal::driver(toolchain, &driver)?;
-                    command
-                        .envs(vec![
-                            (env::DYLINT_LIBS, dylint_libs.as_str()),
-                            (env::DYLINT_LIST, "1"),
-                        ])
-                        .args(vec!["rustc", "-W", "help"])
-                        .success()?;
-
-                    println!();
+                print!("{}", name);
+                if resolved.keys().len() >= 2 {
+                    print!("@{}", toolchain);
                 }
+                if paths.len() >= 2 {
+                    let parent = path
+                        .parent()
+                        .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+                    print!(" ({})", parent.to_string_lossy());
+                }
+                println!();
+
+                // smoelius: `-W help` is the normal way to list lints, so we can be sure it
+                // gets the lints loaded. However, we don't actually use it to list the lints.
+                let mut command = dylint_internal::driver(toolchain, &driver)?;
+                command
+                    .envs(vec![
+                        (env::DYLINT_LIBS, dylint_libs.as_str()),
+                        (env::DYLINT_LIST, "1"),
+                    ])
+                    .args(vec!["rustc", "-W", "help"])
+                    .success()?;
+
+                println!();
             }
         }
     }
@@ -374,11 +371,7 @@ fn list_lints(
     Ok(())
 }
 
-fn check_or_fix(
-    opts: &Dylint,
-    _name_toolchain_map: &NameToolchainMap,
-    resolved: &ToolchainMap,
-) -> Result<()> {
+fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
     let clippy_disable_docs_links = clippy_disable_docs_links()?;
 
     let mut failures = Vec::new();
