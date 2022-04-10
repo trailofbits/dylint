@@ -186,6 +186,7 @@ dependencies = [
  "dylint",
  "dylint_internal",
  "env_logger",
+ "glob",
  "lazy_static",
  "log",
  "predicates",

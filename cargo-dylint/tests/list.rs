@@ -5,7 +5,8 @@
 use anyhow::{Context, Result};
 use assert_cmd::prelude::*;
 use cargo_metadata::MetadataCommand;
-use dylint_internal::{env, find_and_replace, rustup::SanitizeEnvironment};
+use dylint_internal::{env, find_and_replace, library_filename, rustup::SanitizeEnvironment};
+use glob::glob;
 use predicates::prelude::*;
 use std::{
     env::join_paths,
@@ -129,8 +130,84 @@ fn one_name_multiple_paths() {
         );
 }
 
+#[test]
+fn canonical_path() {
+    let tempdir = tempdir().unwrap();
+
+    dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
+
+    dylint_internal::build(&format!("dylint-template in {:?}", tempdir.path()), false)
+        .sanitize_environment()
+        .current_dir(tempdir.path())
+        .success()
+        .unwrap();
+
+    for path in [
+        tempdir
+            .path()
+            .join("target")
+            .join("..")
+            .join("target")
+            .join("debug"),
+        tempdir
+            .path()
+            .join("target")
+            .join("debug")
+            .join("..")
+            .join("debug"),
+    ] {
+        let canonical_path = path.canonicalize().unwrap();
+
+        assert_ne!(path, canonical_path);
+
+        std::process::Command::cargo_bin("cargo-dylint")
+            .unwrap()
+            .envs(vec![(env::DYLINT_LIBRARY_PATH, &path)])
+            .args(&["dylint", "--list"])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains(canonical_path.to_string_lossy()));
+    }
+}
+
+#[test]
+fn list_by_path() {
+    let tempdir = tempdir().unwrap();
+
+    dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
+
+    dylint_internal::build(&format!("dylint-template in {:?}", tempdir.path()), false)
+        .sanitize_environment()
+        .current_dir(tempdir.path())
+        .success()
+        .unwrap();
+
+    let path = glob(
+        &tempdir
+            .path()
+            .join("target")
+            .join("debug")
+            .join(library_filename("fill_me_in", "*"))
+            .to_string_lossy(),
+    )
+    .unwrap()
+    .next()
+    .unwrap()
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .args(&["dylint", "--list", "--path", &path.to_string_lossy()])
+        .assert()
+        .success()
+        .stdout(
+            predicate::str::contains("fill_me_in").and(predicate::str::contains("Building").not()),
+        );
+}
+
 // smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is
 // symlinked to `/private/var`.
+// smoelius: Now that `name_toolchain_map` stores canonical paths, is this still necessary?
 fn target_debug(path: &Path) -> Result<PathBuf> {
     let metadata = MetadataCommand::new().current_dir(path).no_deps().exec()?;
     let debug_dir = metadata.target_directory.join("debug");
