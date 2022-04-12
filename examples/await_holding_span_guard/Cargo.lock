@@ -213,6 +213,9 @@ dependencies = [
 [[package]]
 name = "dylint_linting"
 version = "2.0.0"
+dependencies = [
+ "paste",
+]
 
 [[package]]
 name = "dylint_testing"
@@ -379,6 +382,12 @@ name = "once_cell"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "87f3e037eac156d1775da914196f0f37741a274155e34a0b7e427c35d2a2ecb9"
+
+[[package]]
+name = "paste"
+version = "1.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0c520e05135d6e763148b6426a837e239041653ba7becd2e538c076c738025fc"
 
 [[package]]
 name = "pin-project-lite"

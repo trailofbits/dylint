@@ -1,8 +1,14 @@
 # dylint_linting
 
-This crate provides a `dylint_library!` macro to help in creating [Dylint](https://github.com/trailofbits/dylint) libraries.
+This crate provides the following macros to help in creating [Dylint](https://github.com/trailofbits/dylint) libraries:
 
-The macro expands to the following:
+- [`dylint_library!`](#dylint_library)
+- [`declare_late_lint!`, `declare_early_lint!`, `declare_pre_expansion_lint!`](#declare_late_lint-etc)
+- [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`](#impl_late_lint-etc)
+
+## `dylint_library!`
+
+The `dylint_library!` macro expands to the following:
 
 ```rust
 #[allow(unused_extern_crates)]
@@ -17,3 +23,49 @@ pub extern "C" fn dylint_version() -> *mut std::os::raw::c_char {
 ```
 
 If your library uses the `dylint_library!` macro and the [`dylint-link`](../../dylint-link) tool, then all you should have to do is implement the [`register_lints`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints) function. See the [examples](../../examples) in this repository.
+
+## `declare_late_lint!`, etc.
+
+If your library contains just one lint, using `declare_late_lint!`, etc. can make your code more concise. Each of these macros requires the same arguments as [`declare_lint!`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_session/macro.declare_lint.html), and wraps the following:
+
+- a call to `dylint_library!`
+- an implementation of the `register_lints` function
+- a call to `declare_lint!`
+- a call to [`declare_lint_pass!`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_session/macro.declare_lint_pass.html)
+
+For example, `declare_late_lint!(vis NAME, Level, "description")` expands to the following:
+
+```rust
+dylint_linting::dylint_library!();
+
+extern crate rustc_lint;
+extern crate rustc_session;
+
+#[no_mangle]
+pub fn register_lints(_sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
+    lint_store.register_lints(&[NAME]);
+    lint_store.register_late_pass(|| Box::new(Name));
+}
+
+rustc_session::declare_lint!(vis NAME, Level, "description");
+
+rustc_session::declare_lint_pass!(Name => [NAME]);
+```
+
+`declare_early_lint!` and `declare_pre_expansion_lint!` are defined similarly.
+
+## `impl_late_lint!`, etc.
+
+`impl_late_lint!`, etc. are like `declare_late_lint!`, etc. except:
+
+- each calls [`impl_lint_pass!`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_session/macro.impl_lint_pass.html) instead of `declare_lint_pass!`;
+- each requires an additional argument to specify the default value of the lint's [`LintPass`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/trait.LintPass.html) structure.
+
+That is, `impl_late_lint!`'s additional argument is what goes here:
+
+```rust
+    lint_store.register_late_pass(|| Box::new(...));
+                                              ^^^
+```
+
+An example use of `impl_pre_expansion_lint!` can be found in [env_cargo_path](../../examples/env_cargo_path/src/lib.rs) in this repository.
