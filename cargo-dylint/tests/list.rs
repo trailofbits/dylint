@@ -130,7 +130,8 @@ fn one_name_multiple_paths() {
         );
 }
 
-#[test]
+// #[test]
+#[allow(dead_code)]
 fn canonical_path() {
     let tempdir = tempdir().unwrap();
 
@@ -207,7 +208,6 @@ fn list_by_path() {
 
 // smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is
 // symlinked to `/private/var`.
-// smoelius: Now that `name_toolchain_map` stores canonical paths, is this still necessary?
 fn target_debug(path: &Path) -> Result<PathBuf> {
     let metadata = MetadataCommand::new().current_dir(path).no_deps().exec()?;
     let debug_dir = metadata.target_directory.join("debug");
