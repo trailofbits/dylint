@@ -21,7 +21,7 @@ jobs:
         with:
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
-          ssh-key: ${{ secrets.PR_SSH_PRIVATE_KEY }}
+          ssh-key: ${{ secrets.PR_SSH_KEY }}
 
       - name: Install cargo-edit
         run: cargo install cargo-edit

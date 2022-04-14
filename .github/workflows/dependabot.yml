@@ -14,9 +14,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
-          ssh-key: ${{ secrets.PR_SSH_PRIVATE_KEY }}
+          ssh-key: ${{ secrets.PR_SSH_KEY }}
+
+      - name: Check updated files
+        # smoelius: Dependabot should update only manifest and/or lockfiles. Hard error otherwise.
+        run: |
+          git diff --name-only ${{ github.event.pull_request.base.sha }} | grep .
+          ! git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -v '\(^\|/\)Cargo\.\(lock\|toml\)$'
 
       - name: Update lockfiles
         # smoelius: Inline `scripts/update_lockfiles.sh` rather than run it from the PR. Dependabot
@@ -31,3 +38,14 @@ jobs:
             git commit . -m 'Update lockfiles'
             git push
           fi
+
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PR_GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '@dependabot merge'
+            })
