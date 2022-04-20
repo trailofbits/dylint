@@ -1,22 +1,29 @@
 [package]
-name = "allow_clippy"
+name = "crate_wide_allow"
 version = "2.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "A tongue-in-cheek example of a Dylint library"
+description = "A lint to check for `#![allow(...)]` used at the crate level"
 edition = "2018"
 publish = false
 
 [lib]
 crate-type = ["cdylib"]
 
+[[example]]
+name = "main"
+path = "ui/main.rs"
+
 [dependencies]
-# smoelius: `allow_clippy` is intentionally held back.
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "c995a8b5017766246ac5cfe66baa074eeee3a5a3" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "abc59bb9144a97ec23d187dcb2cb28dd88271297" }
 if_chain = "1.0.2"
 
 dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
+assert_cmd = "2.0.4"
+lazy_static = "1.4.0"
+
+dylint_internal = { path = "../../internal" }
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 
 [package.metadata.rust-analyzer]

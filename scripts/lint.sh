@@ -15,9 +15,9 @@ CARGO_DYLINT="$PWD/target/debug/cargo-dylint"
 
 EXAMPLES="$(find examples -mindepth 1 -maxdepth 1 -type d | xargs -n 1 basename)"
 
-# smoelius: Remove `allow_clippy` because it is just a joke. Also, for testing purposes, it uses a
-# different toolchain than the other examples.
-EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<allow_clippy\>[[:space:]]*//')"
+# smoelius: Remove `straggler`, as it is used only for testing purposes. Also, it uses a different
+# toolchain than the other examples.
+EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<straggler\>[[:space:]]*//')"
 
 DIRS=". driver"
 for EXAMPLE in $EXAMPLES; do

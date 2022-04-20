@@ -6,9 +6,9 @@ The current examples are:
 
 | Example                                                                  | Description                                                                        |
 | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| [`allow_clippy`](./allow_clippy)                                         | A tongue-in-cheek example of a Dylint library                                      |
 | [`await_holding_span_guard`](./await_holding_span_guard)                 | A lint to check for Span guards held while calling await inside an async function  |
 | [`clippy`](./clippy)                                                     | All of the Clippy lints as a Dylint library                                        |
+| [`crate_wide_allow`](./crate_wide_allow)                                 | A lint to check for `#![allow(...)]` used at the crate level                       |
 | [`env_cargo_path`](./env_cargo_path)                                     | A lint to check for `env!` applied to Cargo environment variables containing paths |
 | [`env_literal`](./env_literal)                                           | A lint to check for environment variables referred to with string literals         |
 | [`nonreentrant_function_in_test`](./nonreentrant_function_in_test)       | A lint to check for nonreentrant functions in tests                                |
