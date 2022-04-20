@@ -22,6 +22,7 @@ while read X; do
             echo '| Example | Description |'
             echo '| - | - |'
             grep '^description = "[^"]*"$' */Cargo.toml |
+            grep -vw 'straggler' |
             sed 's,^\([^/]*\)/Cargo.toml:description = "\([^"]*\)"$,| [`\1`](./\1) | \2 |,'
             LISTED=1
         fi

@@ -19,8 +19,8 @@ for EXAMPLE in examples/*; do
         continue
     fi
 
-    # smoelius: `allow_clippy` is handled with `clippy` below.
-    if [[ "$EXAMPLE" = 'examples/allow_clippy' ]]; then
+    # smoelius: `straggler` is handled with `clippy` below.
+    if [[ "$EXAMPLE" = 'examples/straggler' ]]; then
         continue
     fi
 
@@ -40,11 +40,11 @@ for EXAMPLE in examples/*; do
         REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
         sed -i "s/^\(clippy_lints\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
 
-        # smoelius: If `clippy`'s `rust-toolchain` file changed, upgrade `allow_clippy` to the Rust
+        # smoelius: If `clippy`'s `rust-toolchain` file changed, upgrade `straggler` to the Rust
         # version that `clippy` used previously. Note that `clippy` can be upgraded without its
         # `rust-toolchain` file changing.
         if ! git diff --exit-code "$EXAMPLE"/rust-toolchain; then
-            pushd examples/allow_clippy
+            pushd examples/straggler
             sed -i "s/^\(clippy_utils\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$PREV_REV\3/" Cargo.toml
             sed -i "s/^channel = \"[^\"]*\"$/$PREV_CHANNEL/" rust-toolchain
             cargo build --tests

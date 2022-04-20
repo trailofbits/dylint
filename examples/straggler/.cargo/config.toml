@@ -1,6 +1,6 @@
 [build]
-# smoelius: `allow_clippy` uses a different compiler version than the other example libraries.
-target-dir = "../../target/allow_clippy"
+# smoelius: `straggler` uses a different compiler version than the other example libraries.
+target-dir = "../../target/straggler"
 
 [target.x86_64-apple-darwin]
 linker = "dylint-link"

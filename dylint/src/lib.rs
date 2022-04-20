@@ -490,8 +490,8 @@ mod test {
             // smoelius: As of version 0.1.14, `cargo-llvm-cov` no longer sets `CARGO_TARGET_DIR`.
             // So `dylint_library_path` no longer requires a `cfg!(coverage)` special case.
             let dylint_library_path = join_paths(&[
-                    metadata.target_directory.join("allow_clippy").join("debug"),
                     metadata.target_directory.join("examples").join("debug"),
+                    metadata.target_directory.join("straggler").join("debug"),
                 ])
                 .unwrap();
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
@@ -505,20 +505,20 @@ mod test {
     fn multiple_libraries_multiple_toolchains() {
         let name_toolchain_map = NAME_TOOLCHAIN_MAP.get_or_try_init().unwrap();
 
-        let allow_clippy = name_toolchain_map.get("allow_clippy").unwrap();
         let question_mark_in_expression = name_toolchain_map
             .get("question_mark_in_expression")
             .unwrap();
+        let straggler = name_toolchain_map.get("straggler").unwrap();
 
         assert_ne!(
-            allow_clippy.keys().collect::<Vec<_>>(),
-            question_mark_in_expression.keys().collect::<Vec<_>>()
+            question_mark_in_expression.keys().collect::<Vec<_>>(),
+            straggler.keys().collect::<Vec<_>>()
         );
 
         let opts = Dylint {
             libs: vec![
-                "allow_clippy".to_owned(),
                 "question_mark_in_expression".to_owned(),
+                "straggler".to_owned(),
             ],
             ..Dylint::default()
         };
