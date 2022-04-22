@@ -37,16 +37,16 @@ for DIR in $DIRS; do
         # rm -rf target/debug/deps
 
         unset DYLINT_RUSTFLAGS
+        export DYLINT_RUSTFLAGS='-D warnings'
         if [[ "$LINTS" = clippy ]]; then
-            export DYLINT_RUSTFLAGS='
-                -D warnings
+            DYLINT_RUSTFLAGS="$DYLINT_RUSTFLAGS
                 -W clippy::pedantic
                 -W clippy::nursery
                 -A clippy::cargo-common-metadata
                 -A clippy::empty-line-after-outer-attr
                 -A clippy::missing-errors-doc
                 -A clippy::missing-panics-doc
-            '
+            "
             #     -W clippy::cargo
         fi
 
