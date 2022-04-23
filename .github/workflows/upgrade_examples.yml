@@ -32,3 +32,4 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           title: Upgrade examples
+          token: ${{ secrets.PR_GITHUB_TOKEN }}
