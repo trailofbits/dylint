@@ -43,7 +43,6 @@ for DIR in $DIRS; do
                 -W clippy::pedantic
                 -W clippy::nursery
                 -A clippy::cargo-common-metadata
-                -A clippy::empty-line-after-outer-attr
                 -A clippy::missing-errors-doc
                 -A clippy::missing-panics-doc
             "
