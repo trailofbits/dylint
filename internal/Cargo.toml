@@ -9,7 +9,7 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 ansi_term = "0.12.1"
-anyhow = "1.0.56"
+anyhow = "1.0.57"
 cargo_metadata = "0.14.2"
 git2 = { version = "0.13.25", optional = true }
 if_chain = "1.0.2"
