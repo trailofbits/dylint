@@ -1,6 +1,6 @@
 [package]
 name = "dylint_linting"
-version = "2.0.0"
+version = "2.0.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Utilities for writing Dylint libraries"
 edition = "2018"
