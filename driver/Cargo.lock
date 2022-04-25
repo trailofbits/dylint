@@ -65,7 +65,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "dylint_driver"
-version = "2.0.0"
+version = "2.0.1"
 dependencies = [
  "anyhow",
  "dylint_internal",
@@ -76,7 +76,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.0.0"
+version = "2.0.1"
 dependencies = [
  "ansi_term",
  "anyhow",
