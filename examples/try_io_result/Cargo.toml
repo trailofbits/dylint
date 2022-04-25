@@ -21,7 +21,7 @@ dylint_internal = { path = "../../internal" }
 dylint_linting = { path = "../../utils/linting" }
 
 [dev-dependencies]
-anyhow = "1.0.56"
+anyhow = "1.0.57"
 
 dylint_testing = { path = "../../utils/testing", features = ["dylint_driver_local"] }
 
