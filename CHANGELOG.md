@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2
+
+- Make `--new` work with new macros ([#298](https://github.com/trailofbits/dylint/pull/298))
+
 ## 2.0.1
 
 - Add macros [`declare_late_lint!`, etc.](https://github.com/trailofbits/dylint/tree/master/utils/linting#declare_late_lint-etc) to `dylint_linting`. The new macros make it easier to write libraries containing just one lint (the current common case). ([#284](https://github.com/trailofbits/dylint/pull/284))

@@ -1,6 +1,6 @@
 [package]
 name = "dylint-link"
-version = "2.0.1"
+version = "2.0.2"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A wrapper around Rust's default linker to help create Dyling libraries"
 edition = "2018"
@@ -12,7 +12,7 @@ anyhow = "1.0.57"
 env_logger = "0.9.0"
 if_chain = "1.0.2"
 
-dylint_internal = { version = "=2.0.1", path = "../internal" }
+dylint_internal = { version = "=2.0.2", path = "../internal" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 cc = "1.0.73"
