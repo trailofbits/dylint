@@ -57,12 +57,11 @@ impl Drop for Backup {
 const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
 
 lazy_static! {
-    static ref PATHS: [PathBuf; 8] = [
+    static ref PATHS: [PathBuf; 7] = [
         PathBuf::from(".cargo").join("config.toml"),
         PathBuf::from(".gitignore"),
         PathBuf::from("Cargo.toml"),
         PathBuf::from("rust-toolchain"),
-        PathBuf::from("src").join("fill_me_in.rs"),
         PathBuf::from("src").join("lib.rs"),
         PathBuf::from("ui").join("main.rs"),
         PathBuf::from("ui").join("main.stderr"),
@@ -91,16 +90,10 @@ pub fn new_package(opts: &Dylint, path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn filter(name: &str, from: &Path, to: &Path) -> Result<()> {
-    let lower_snake_case = name.to_snake_case();
-
+fn filter(_name: &str, from: &Path, to: &Path) -> Result<()> {
     for path in &*PATHS {
         let from_path = from.join(path);
-        let to_path = if path == &Path::new("src").join("fill_me_in.rs") {
-            to.join("src").join(&lower_snake_case).with_extension("rs")
-        } else {
-            to.join(path)
-        };
+        let to_path = to.join(path);
         let parent = to_path
             .parent()
             .ok_or_else(|| anyhow!("Could not get parent directory"))?;
