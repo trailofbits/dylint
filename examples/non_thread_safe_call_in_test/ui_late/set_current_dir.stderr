@@ -4,7 +4,7 @@ error: calling `std::env::set_current_dir` in a test could affect the outcome of
 LL |         std::env::set_current_dir("/").unwrap();
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D nonreentrant-function-in-test` implied by `-D warnings`
+   = note: `-D non-thread-safe-call-in-test` implied by `-D warnings`
 note: the call is reachable from at least this test
   --> $DIR/set_current_dir.rs:27:8
    |
