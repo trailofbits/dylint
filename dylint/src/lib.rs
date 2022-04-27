@@ -500,7 +500,7 @@ mod test {
     }
 
     #[allow(unknown_lints)]
-    #[allow(nonreentrant_function_in_test)]
+    #[allow(non_thread_safe_call_in_test)]
     #[test]
     fn multiple_libraries_multiple_toolchains() {
         let name_toolchain_map = NAME_TOOLCHAIN_MAP.get_or_try_init().unwrap();
@@ -545,7 +545,7 @@ mod test {
     //   https://bugzilla.redhat.com/show_bug.cgi?id=1722181
     //
     #[allow(unknown_lints)]
-    #[allow(nonreentrant_function_in_test)]
+    #[allow(non_thread_safe_call_in_test)]
     #[test]
     fn multiple_libraries_one_toolchain() {
         let name_toolchain_map = NAME_TOOLCHAIN_MAP.get_or_try_init().unwrap();

@@ -46,7 +46,7 @@ And include one or more `.rs` and `.stderr` files in a `ui` directory alongside 
 
 ## Test builder
 
-In addition to the above three functions, `dylint_testing::ui:Test` is a test "builder." Currently, the main advantage of using `Test` over the above functions is that `Test` allows flags to be passed to `rustc`. For an example of its use, see [nonreentrant_function_in_test](../../examples/nonreentrant_function_in_test/src/lib.rs) in this repository.
+In addition to the above three functions, `dylint_testing::ui:Test` is a test "builder." Currently, the main advantage of using `Test` over the above functions is that `Test` allows flags to be passed to `rustc`. For an example of its use, see [non_thread_safe_call_in_test](../../examples/non_thread_safe_call_in_test/src/lib.rs) in this repository.
 
 `Test` has three constructors, which correspond to the above three functions as follows:
 
@@ -86,7 +86,7 @@ diff of stderr:
  LL |     std::env::set_var("KEY", "VALUE");
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     |
-    = note: `-D nonreentrant-function-in-test` implied by `-D warnings`
+    = note: `-D non-thread-safe-call-in-test` implied by `-D warnings`
 
 -error: aborting due to previous error
 +error: calling `std::env::set_var` in a test could affect the outcome of other tests

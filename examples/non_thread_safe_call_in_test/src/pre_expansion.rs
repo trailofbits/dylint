@@ -8,18 +8,18 @@ use rustc_span::sym;
 declare_lint! {
     /// **Pre-expansion implementation**
     ///
-    /// **What it does:** Checks for use of nonreentrant functions in code attributed with `#[test]`
-    /// or `#[cfg(test)]`.
+    /// **What it does:** Checks for calls to non-thread-safe functions in code attributed with
+    /// `#[test]` or `#[cfg(test)]`.
     ///
     /// **Why is this bad?** "When you run multiple tests, by default they run in parallel using
     /// threads"
     /// (https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively).
-    /// Calling a nonreentrant function in one test could affect the outcome of another.
+    /// Calling a non-thread-safe function in one test could affect the outcome of another.
     ///
     /// **Known problems:**
     /// * Synchronization is not considered, so false positives could result.
     /// * Because this is an early lint pass (in fact, a pre-expansion pass), it could flag calls to
-    ///   functions that happen to have the same name as known nonreentrant functions.
+    ///   functions that happen to have the same name as known non-thread-safe functions.
     /// * No interprocedural analysis is done, so false negatives could result.
     /// * Things like `#[cfg(any(test, ...))]` and `#[cfg(all(test, ...))]` are not considered. This
     ///   could produce both false positives and false negatives.
@@ -43,19 +43,19 @@ declare_lint! {
     ///        .unwrap();
     /// }
     /// ```
-    pub NONREENTRANT_FUNCTION_IN_TEST_PRE_EXPANSION,
+    pub NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXPANSION,
     Allow,
-    "nonreentrant functions in tests"
+    "non-thread-safe function calls in tests"
 }
 
 #[derive(Default)]
-pub struct NonreentrantFunctionInTest {
+pub struct NonThreadSafeCallInTest {
     stack: Vec<NodeId>,
 }
 
-impl_lint_pass!(NonreentrantFunctionInTest => [NONREENTRANT_FUNCTION_IN_TEST_PRE_EXPANSION]);
+impl_lint_pass!(NonThreadSafeCallInTest => [NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXPANSION]);
 
-impl EarlyLintPass for NonreentrantFunctionInTest {
+impl EarlyLintPass for NonThreadSafeCallInTest {
     fn check_item(&mut self, _cx: &EarlyContext, item: &Item) {
         if self.in_test_item() || is_test_item(item) {
             self.stack.push(item.id);
@@ -76,7 +76,7 @@ impl EarlyLintPass for NonreentrantFunctionInTest {
             then {
                 span_lint(
                     cx,
-                    NONREENTRANT_FUNCTION_IN_TEST_PRE_EXPANSION,
+                    NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXPANSION,
                     expr.span,
                     &(format!(
                         "calling `{}` in a test could affect the outcome of other tests",
@@ -88,7 +88,7 @@ impl EarlyLintPass for NonreentrantFunctionInTest {
     }
 }
 
-impl NonreentrantFunctionInTest {
+impl NonThreadSafeCallInTest {
     fn in_test_item(&self) -> bool {
         !self.stack.is_empty()
     }

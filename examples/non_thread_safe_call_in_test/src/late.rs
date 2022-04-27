@@ -14,13 +14,13 @@ use rustc_session::{declare_lint, impl_lint_pass};
 use std::collections::HashSet;
 
 declare_lint! {
-    /// **What it does:** Checks for use of nonreentrant functions in code attributed with
+    /// **What it does:** Checks for calls to non-thread-safe functions in code attributed with
     /// `#[test]`. For this lint to be effective, `--tests` must be passed to `cargo check`.
     ///
     /// **Why is this bad?** "When you run multiple tests, by default they run in parallel using
     /// threads"
     /// (https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively).
-    /// Calling a nonreentrant function in one test could affect the outcome of another.
+    /// Calling a non-thread-safe function in one test could affect the outcome of another.
     ///
     /// **Known problems:** Synchronization is not considered, so false positives could result.
     ///
@@ -43,19 +43,19 @@ declare_lint! {
     ///        .unwrap();
     /// }
     /// ```
-    pub NONREENTRANT_FUNCTION_IN_TEST,
+    pub NON_THREAD_SAFE_CALL_IN_TEST,
     Warn,
-    "nonreentrant functions in tests"
+    "non-thread-safe function calls in tests"
 }
 
 #[derive(Default)]
-pub struct NonreentrantFunctionInTest {
+pub struct NonThreadSafeCallInTest {
     test_fns: Vec<DefId>,
 }
 
-impl_lint_pass!(NonreentrantFunctionInTest => [NONREENTRANT_FUNCTION_IN_TEST]);
+impl_lint_pass!(NonThreadSafeCallInTest => [NON_THREAD_SAFE_CALL_IN_TEST]);
 
-impl<'tcx> LateLintPass<'tcx> for NonreentrantFunctionInTest {
+impl<'tcx> LateLintPass<'tcx> for NonThreadSafeCallInTest {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         self.find_test_fns(cx);
     }
@@ -74,7 +74,7 @@ impl<'tcx> LateLintPass<'tcx> for NonreentrantFunctionInTest {
     }
 }
 
-impl NonreentrantFunctionInTest {
+impl NonThreadSafeCallInTest {
     fn find_test_fns<'tcx>(&mut self, cx: &LateContext<'tcx>) {
         for item in cx.tcx.hir().items() {
             // smoelius:
@@ -127,7 +127,7 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
             if let Some(path) = is_blacklisted_function(self.cx, callee) {
                 span_lint_and_note(
                     self.cx,
-                    NONREENTRANT_FUNCTION_IN_TEST,
+                    NON_THREAD_SAFE_CALL_IN_TEST,
                     expr.span,
                     &format!(
                         "calling `{}` in a test could affect the outcome of other tests",

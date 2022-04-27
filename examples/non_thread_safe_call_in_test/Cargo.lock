@@ -356,7 +356,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "nonreentrant_function_in_test"
+name = "non_thread_safe_call_in_test"
 version = "2.0.2"
 dependencies = [
  "clippy_utils",
