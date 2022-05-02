@@ -83,7 +83,7 @@ mod test {
     fn ui() {
         let _lock = MUTEX.lock().unwrap();
 
-        dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "main");
+        dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "ui");
     }
 
     #[test]

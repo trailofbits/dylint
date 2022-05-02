@@ -268,7 +268,7 @@ fn package_id(source_id: SourceId, package_root: &Path) -> Result<PackageId> {
 
     ensure!(
         metadata.packages.len() <= 1,
-        "Library is not its own workspace: {}",
+        "Library is not in its own workspace: {}",
         package_root.to_string_lossy()
     );
 
