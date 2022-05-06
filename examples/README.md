@@ -14,7 +14,7 @@ The current examples are:
 | [`non_thread_safe_call_in_test`](./non_thread_safe_call_in_test)         | A lint to check for non-thread-safe function calls in tests                        |
 | [`path_separator_in_string_literal`](./path_separator_in_string_literal) | A lint to check for path separators in string literals                             |
 | [`question_mark_in_expression`](./question_mark_in_expression)           | A lint to check for the `?` operator in expressions                                |
-| [`redundant_reference`](./redundant_reference)                           | A lint to check for reference fields used to read just one copyable subfield       |
+| [`redundant_reference`](./redundant_reference)                           | A lint to check for reference fields used only to read one copyable subfield       |
 | [`try_io_result`](./try_io_result)                                       | A lint to check for the `?` operator applied to `std::io::Result`                  |
 
 **Notes**
