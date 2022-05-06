@@ -2,7 +2,7 @@
 name = "redundant_reference"
 version = "2.0.2"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "A lint to check for reference fields used to read just one copyable subfield"
+description = "A lint to check for reference fields used only to read one copyable subfield"
 edition = "2018"
 publish = false
 
