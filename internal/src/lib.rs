@@ -1,5 +1,5 @@
 pub mod cargo;
-pub use cargo::{build, check, fix, test, update};
+pub use cargo::{build, check, fix, init, test, update};
 
 mod command;
 pub use command::*;

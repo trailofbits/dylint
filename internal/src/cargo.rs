@@ -21,6 +21,11 @@ pub fn fix(description: &str) -> crate::Command {
 }
 
 #[must_use]
+pub fn init(description: &str, quiet: bool) -> crate::Command {
+    cargo("init", "Initializing", description, quiet)
+}
+
+#[must_use]
 pub fn test(description: &str, quiet: bool) -> crate::Command {
     cargo("test", "Testing", description, quiet)
 }
