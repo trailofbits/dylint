@@ -1,8 +1,8 @@
 use crate::{
     error::warn,
-    toml::{Context, DetailedTomlDependency},
+    toml::{self, DetailedTomlDependency},
 };
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo::{
     core::{source::MaybePackage, Dependency, Features, Package, PackageId, Source, SourceId},
     util::Config,
@@ -100,7 +100,8 @@ fn maybe_build_libraries(
     let paths = libraries
         .iter()
         .map(|library| maybe_build_packages(opts, metadata, &config, library))
-        .collect::<Result<Vec<_>>>()?;
+        .collect::<Result<Vec<_>>>()
+        .with_context(|| "Could not build metadata entries")?;
 
     Ok(paths.into_iter().flatten().collect())
 }
@@ -125,6 +126,12 @@ fn maybe_build_packages(
     let entries = glob(&pattern.to_string_lossy())?;
 
     let paths = entries.collect::<std::result::Result<Vec<_>, _>>()?;
+
+    ensure!(
+        !paths.is_empty(),
+        "No paths matched `{}`",
+        pattern.to_string_lossy()
+    );
 
     // smoelius: Collecting the package ids before building reveals missing/unparsable `Cargo.toml`
     // files sooner.
@@ -168,7 +175,7 @@ fn dependency(
     let mut nested_paths = vec![];
     let mut warnings = vec![];
     let features = Features::new(&[], config, &mut warnings, source_id.is_path())?;
-    let mut cx = Context::new(
+    let mut cx = toml::Context::new(
         &mut deps,
         source_id,
         &mut nested_paths,

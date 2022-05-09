@@ -1,43 +1,59 @@
-use cargo_metadata::{Dependency, Metadata, Version};
-use dylint_internal::cargo::current_metadata;
-use lazy_static::lazy_static;
+use assert_cmd::prelude::*;
+use dylint_internal::packaging::{isolate, use_local_packages};
+use predicates::prelude::*;
+use std::{fs::OpenOptions, io::Write};
+use tempfile::tempdir_in;
 use test_log::test;
 
-lazy_static! {
-    static ref METADATA: Metadata = current_metadata().unwrap();
-}
-
 #[test]
-fn versions_are_equal() {
-    for package in &METADATA.packages {
-        assert_eq!(
-            package.version.to_string(),
-            env!("CARGO_PKG_VERSION"),
-            "{}",
-            package.name
-        );
-    }
-}
+fn nonexistent_library() {
+    let tempdir = tempdir_in(".").unwrap();
 
-#[test]
-fn versions_are_exact_and_match() {
-    for package in &METADATA.packages {
-        for Dependency { name: dep, req, .. } in &package.dependencies {
-            if dep.starts_with("dylint") {
-                assert!(
-                    req.to_string().starts_with('='),
-                    "`{}` dependency on `{}` is not exact",
-                    package.name,
-                    dep
-                );
-                assert!(
-                    req.matches(&Version::parse(env!("CARGO_PKG_VERSION")).unwrap()),
-                    "`{}` dependency on `{}` does not match `{}`",
-                    package.name,
-                    dep,
-                    env!("CARGO_PKG_VERSION"),
-                );
-            }
-        }
-    }
+    dylint_internal::init(&format!("package `nonexistent_library_test`"), false)
+        .current_dir(tempdir.path())
+        .args(&["--name", "nonexistent_library_test"])
+        .success()
+        .unwrap();
+
+    isolate(tempdir.path()).unwrap();
+    use_local_packages(tempdir.path()).unwrap();
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(tempdir.path().join("Cargo.toml"))
+        .unwrap();
+
+    write!(
+        file,
+        r#"
+[[workspace.metadata.dylint.libraries]]
+path = "../../examples/crate_wide_allow"
+"#
+    )
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(tempdir.path())
+        .args(&["dylint", "--all"])
+        .assert()
+        .success();
+
+    write!(
+        file,
+        r#"
+[[workspace.metadata.dylint.libraries]]
+path = "../../examples/nonexistent_library"
+"#
+    )
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(tempdir.path())
+        .args(&["dylint", "--all"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("No paths matched"));
 }
