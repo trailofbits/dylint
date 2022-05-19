@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use cargo_metadata::Dependency;
-use dylint_internal::{cargo::current_metadata, env, find_and_replace, packaging::isolate};
+use dylint_internal::{clone, env, find_and_replace, packaging::isolate};
 use std::{
     env::set_var,
     fs::{read_dir, read_to_string, remove_file, write},
@@ -32,7 +32,7 @@ fn ui() {
 
     // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
     // smoelius: This is no longer true. See comment in `dylint_testing::initialize`.
-    let metadata = current_metadata().unwrap();
+    let metadata = dylint_internal::cargo::current_metadata().unwrap();
     let dylint_library_path = metadata.target_directory.join("debug");
     set_var(env::DYLINT_LIBRARY_PATH, &dylint_library_path);
 
@@ -70,12 +70,12 @@ fn clone_rust_clippy(path: &Path) -> Result<()> {
         .rsplit('=')
         .next()
         .ok_or_else(|| anyhow!("Wrong suffix"))?;
-    dylint_internal::clone(url, refname, path)?;
+    clone(url, refname, path)?;
     Ok(())
 }
 
 fn clippy_lints_dependency() -> Result<Dependency> {
-    let metadata = current_metadata()?;
+    let metadata = dylint_internal::cargo::current_metadata()?;
     let package = metadata
         .packages
         .iter()

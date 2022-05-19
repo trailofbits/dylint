@@ -4,16 +4,13 @@
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
-use dylint_internal::{
-    env::{self, var},
-    parse_path_filename,
-};
+use dylint_internal::{driver as dylint_driver, env, parse_path_filename};
 use lazy_static::lazy_static;
 use std::{
     env::consts,
     ffi::OsStr,
     fmt::Debug,
-    path::{Path, PathBuf},
+    path::{Path, PathBuf, MAIN_SEPARATOR},
 };
 
 #[cfg(feature = "metadata")]
@@ -307,7 +304,7 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
         // smoelius: If `name` contains a path separator, then it was clearly meant to be a
         // path.
         ensure!(
-            !name.contains(std::path::MAIN_SEPARATOR),
+            !name.contains(MAIN_SEPARATOR),
             "`{}` is a valid path, but the filename does not have the required form: {}",
             name,
             *REQUIRED_FORM
@@ -347,7 +344,7 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
 
             // smoelius: `-W help` is the normal way to list lints, so we can be sure it
             // gets the lints loaded. However, we don't actually use it to list the lints.
-            let mut command = dylint_internal::driver(toolchain, &driver)?;
+            let mut command = dylint_driver(toolchain, &driver)?;
             command
                 .envs(vec![
                     (env::DYLINT_LIBS, dylint_libs.as_str()),
@@ -457,7 +454,7 @@ fn flatten_toolchain_map(toolchain_map: &ToolchainMap) -> Vec<(String, PathBuf)>
 }
 
 fn clippy_disable_docs_links() -> Result<String> {
-    let val = var(env::CLIPPY_DISABLE_DOCS_LINKS).ok();
+    let val = env::var(env::CLIPPY_DISABLE_DOCS_LINKS).ok();
     serde_json::to_string(&val).map_err(Into::into)
 }
 
@@ -466,7 +463,7 @@ mod test {
     #![allow(clippy::unwrap_used)]
 
     use super::*;
-    use dylint_internal::{cargo::current_metadata, examples};
+    use dylint_internal::examples;
     use lazy_static::lazy_static;
     use std::env::{join_paths, set_var};
     use test_log::test;
@@ -478,7 +475,7 @@ mod test {
             };
         static ref NAME_TOOLCHAIN_MAP: NameToolchainMap<'static> = {
             examples::build().unwrap();
-            let metadata = current_metadata().unwrap();
+            let metadata = dylint_internal::cargo::current_metadata().unwrap();
             // smoelius: As of version 0.1.14, `cargo-llvm-cov` no longer sets `CARGO_TARGET_DIR`.
             // So `dylint_library_path` no longer requires a `cfg!(coverage)` special case.
             let dylint_library_path = join_paths(&[

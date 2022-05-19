@@ -2,7 +2,7 @@ use crate::error::warn;
 use anyhow::{anyhow, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    env::{self, var},
+    driver as dylint_driver, env,
     rustup::{toolchain_path, SanitizeEnvironment},
 };
 use semver::Version;
@@ -89,7 +89,7 @@ pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
 }
 
 fn dylint_drivers() -> Result<PathBuf> {
-    if let Ok(dylint_driver_path) = var(env::DYLINT_DRIVER_PATH) {
+    if let Ok(dylint_driver_path) = env::var(env::DYLINT_DRIVER_PATH) {
         let dylint_drivers = Path::new(&dylint_driver_path);
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())
@@ -113,7 +113,7 @@ fn dylint_drivers() -> Result<PathBuf> {
 }
 
 fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<bool> {
-    let mut command = dylint_internal::driver(toolchain, driver)?;
+    let mut command = dylint_driver(toolchain, driver)?;
 
     (|| -> Result<bool> {
         let output = command.args(&["-V"]).output()?;

@@ -1,5 +1,5 @@
 use dylint_internal::{
-    env,
+    clone_dylint_template, driver as dylint_driver, env,
     rustup::{toolchain_path, SanitizeEnvironment},
 };
 use std::fs::create_dir_all;
@@ -10,7 +10,7 @@ use test_log::test;
 fn dylint_driver_path() {
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 
-    dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
+    clone_dylint_template(tempdir.path()).unwrap();
 
     let dylint_driver_path = tempdir.path().join("target").join("dylint_drivers");
 
@@ -30,7 +30,7 @@ fn dylint_driver_path() {
     // https://github.com/trailofbits/dylint/issues/54
     let toolchain_path = toolchain_path(tempdir.path()).unwrap();
     let toolchain = toolchain_path.iter().last().unwrap();
-    let mut command = dylint_internal::driver(
+    let mut command = dylint_driver(
         &toolchain.to_string_lossy(),
         &dylint_driver_path.join(toolchain).join("dylint-driver"),
     )

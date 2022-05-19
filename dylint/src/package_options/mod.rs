@@ -1,7 +1,7 @@
 use crate::Dylint;
 use anyhow::{anyhow, bail, Context, Result};
 use chrono::{Date, NaiveDate, TimeZone, Utc};
-use dylint_internal::{find_and_replace, rustup::SanitizeEnvironment};
+use dylint_internal::{clone, find_and_replace, rustup::SanitizeEnvironment};
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
 use lazy_static::lazy_static;
@@ -77,7 +77,7 @@ pub fn new_package(opts: &Dylint, path: &Path) -> Result<()> {
     let checked_out = tempdir().with_context(|| "`tempdir` failed")?;
     let filtered = tempdir().with_context(|| "`tempdir` failed")?;
 
-    dylint_internal::clone(DYLINT_TEMPLATE_URL, "master", checked_out.path())?;
+    clone(DYLINT_TEMPLATE_URL, "master", checked_out.path())?;
 
     if opts.isolate {
         dylint_internal::packaging::isolate(checked_out.path())?;

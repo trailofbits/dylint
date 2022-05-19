@@ -4,7 +4,7 @@
 mod custom_toolchain {
     use anyhow::{anyhow, Context, Result};
     use dylint_internal::{
-        find_and_replace,
+        clone_dylint_template, find_and_replace,
         rustup::{toolchain_path, SanitizeEnvironment},
         Command,
     };
@@ -16,7 +16,7 @@ mod custom_toolchain {
     fn custom_toolchain() {
         let tempdir = tempdir().unwrap();
 
-        dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
+        clone_dylint_template(tempdir.path()).unwrap();
 
         let toolchain_path = toolchain_path(tempdir.path()).unwrap();
 

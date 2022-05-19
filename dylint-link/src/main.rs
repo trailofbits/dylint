@@ -5,13 +5,10 @@
 #[cfg(target_os = "windows")]
 use anyhow::ensure;
 use anyhow::{anyhow, Context, Result};
-use dylint_internal::{
-    env::{self, var},
-    library_filename, Command,
-};
+use dylint_internal::{env, library_filename, Command};
 use if_chain::if_chain;
 use std::{
-    env::consts,
+    env::{args, consts},
     ffi::OsStr,
     fs::copy,
     path::{Path, PathBuf},
@@ -23,7 +20,7 @@ fn main() -> Result<()> {
     env_logger::init();
 
     let linker = linker()?;
-    let args: Vec<String> = std::env::args().collect();
+    let args: Vec<String> = args().collect();
     Command::new(linker).args(&args[1..]).success()?;
 
     if let Some(path) = output_path(args.iter())? {
@@ -35,7 +32,7 @@ fn main() -> Result<()> {
 
 #[cfg(target_os = "windows")]
 fn linker() -> Result<PathBuf> {
-    let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
+    let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
     let split_toolchain: Vec<_> = rustup_toolchain.split('-').collect();
     if_chain! {
         if split_toolchain.last() == Some(&"msvc");
@@ -129,10 +126,10 @@ fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<
 fn copy_library(path: &Path) -> Result<()> {
     if_chain! {
         if let Some(lib_name) = parse_path_plain_filename(path);
-        let cargo_pkg_name = var(env::CARGO_PKG_NAME)?;
+        let cargo_pkg_name = env::var(env::CARGO_PKG_NAME)?;
         if lib_name == cargo_pkg_name.replace('-', "_");
         then {
-            let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
+            let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
             let filename_with_toolchain = library_filename(&lib_name, &rustup_toolchain);
             let parent = path
                 .parent()

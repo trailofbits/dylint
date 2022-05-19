@@ -1,8 +1,5 @@
 use anyhow::{ensure, Context, Result};
-use dylint_internal::{
-    env::{self, var},
-    parse_path_filename,
-};
+use dylint_internal::{env, parse_path_filename};
 use once_cell::sync::OnceCell;
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -75,7 +72,7 @@ impl<'opts> Lazy<'opts> {
 fn dylint_library_paths() -> Result<Vec<(PathBuf, bool)>> {
     let mut paths = Vec::new();
 
-    if let Ok(val) = var(env::DYLINT_LIBRARY_PATH) {
+    if let Ok(val) = env::var(env::DYLINT_LIBRARY_PATH) {
         for path in split_paths(&val) {
             ensure!(
                 path.is_absolute(),

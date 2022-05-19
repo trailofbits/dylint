@@ -28,7 +28,7 @@ impl Revs {
     pub fn new() -> Result<Self> {
         let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
 
-        let repository = dylint_internal::clone(RUST_CLIPPY_URL, "master", tempdir.path())?;
+        let repository = super::clone(RUST_CLIPPY_URL, "master", tempdir.path())?;
 
         Ok(Self {
             tempdir,
