@@ -1,6 +1,5 @@
 use crate::Dylint;
 use anyhow::{anyhow, Context, Result};
-use atty::Stream;
 use dylint_internal::{rustup::SanitizeEnvironment, Command};
 use std::os::unix::fs::PermissionsExt;
 use std::{
@@ -91,7 +90,7 @@ pub fn bisect(opts: &Dylint, path: &Path, start: &str) -> Result<()> {
         command.stderr(Stdio::null());
     }
     // smoelius: `cargo-bisect-rustc`'s progress bars are displayed on `stdout`.
-    if opts.quiet || !atty::is(Stream::Stdout) {
+    if opts.quiet || !atty::is(atty::Stream::Stdout) {
         command.stdout(Stdio::null());
     }
     let result = command.success();

@@ -1,7 +1,4 @@
-use crate::{
-    current_metadata, example_target, example_targets, initialize, root_package, run_example_test,
-    run_tests,
-};
+use crate::{example_target, example_targets, initialize, run_example_test, run_tests};
 use std::path::{Path, PathBuf};
 
 enum Target {
@@ -61,8 +58,8 @@ impl Test {
                 run_tests(driver, src_base, self.rustc_flags.iter());
             }
             Target::Example(example) => {
-                let metadata = current_metadata().unwrap();
-                let package = root_package(&metadata).unwrap();
+                let metadata = dylint_internal::cargo::current_metadata().unwrap();
+                let package = dylint_internal::cargo::root_package(&metadata).unwrap();
                 let target = example_target(&package, example).unwrap();
 
                 run_example_test(
@@ -75,8 +72,8 @@ impl Test {
                 .unwrap();
             }
             Target::Examples => {
-                let metadata = current_metadata().unwrap();
-                let package = root_package(&metadata).unwrap();
+                let metadata = dylint_internal::cargo::current_metadata().unwrap();
+                let package = dylint_internal::cargo::root_package(&metadata).unwrap();
                 let targets = example_targets(&package).unwrap();
 
                 for target in targets {

@@ -10,7 +10,7 @@ use clippy_utils::match_def_path;
 use rustc_hir::def_id::DefId;
 use rustc_hir::{AsyncGeneratorKind, Body, BodyId, GeneratorKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::GeneratorInteriorTypeCause;
+use rustc_middle::ty::{Adt, GeneratorInteriorTypeCause};
 use rustc_span::Span;
 
 dylint_linting::declare_late_lint! {
@@ -110,7 +110,7 @@ fn check_interior_types(
     span: Span,
 ) {
     for ty_cause in ty_causes {
-        if let rustc_middle::ty::Adt(adt, _) = ty_cause.ty.kind() {
+        if let Adt(adt, _) = ty_cause.ty.kind() {
             if is_tracing_span_guard(cx, adt.did()) {
                 span_lint_and_note(
                     cx,

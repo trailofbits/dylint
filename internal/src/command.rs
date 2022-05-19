@@ -4,19 +4,19 @@ use std::{
     env::{join_paths, split_paths},
     ffi::{OsStr, OsString},
     path::Path,
-    process::{Output, Stdio},
+    process::{Command as StdCommand, Output, Stdio},
 };
 
 pub struct Command {
     envs: Vec<(OsString, OsString)>,
-    command: std::process::Command,
+    command: StdCommand,
 }
 
 impl Command {
     pub fn new<S: AsRef<OsStr>>(program: S) -> Self {
         Self {
             envs: vec![],
-            command: std::process::Command::new(program),
+            command: StdCommand::new(program),
         }
     }
 

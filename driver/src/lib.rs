@@ -9,15 +9,13 @@ extern crate rustc_interface;
 extern crate rustc_lint;
 extern crate rustc_session;
 
-use rustc_lint::Level;
-use rustc_session::{config::ErrorOutputType, early_error};
-
 use anyhow::{bail, ensure, Result};
-use dylint_internal::{
-    env::{self, var},
-    parse_path_filename,
+use dylint_internal::{env, parse_path_filename};
+use std::{
+    collections::BTreeSet,
+    ffi::{CString, OsStr},
+    path::PathBuf,
 };
-use std::{collections::BTreeSet, ffi::OsStr, path::PathBuf};
 
 pub const DYLINT_VERSION: &str = "0.1.0";
 
@@ -35,7 +33,7 @@ struct LoadedLibrary {
 #[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
 struct Lint {
     name: &'static str,
-    level: Level,
+    level: rustc_lint::Level,
     desc: &'static str,
 }
 
@@ -57,7 +55,7 @@ impl LoadedLibrary {
     ) {
         (|| unsafe {
             if let Ok(func) = self.lib.get::<DylintVersionFunc>(b"dylint_version") {
-                let dylint_version = std::ffi::CString::from_raw(func()).into_string()?;
+                let dylint_version = CString::from_raw(func()).into_string()?;
                 ensure!(
                     dylint_version == DYLINT_VERSION,
                     "`{}` has dylint version `{}`, but `{}` was expected",
@@ -99,8 +97,8 @@ impl Callbacks {
         for path in paths {
             unsafe {
                 let lib = libloading::Library::new(&path).unwrap_or_else(|err| {
-                    early_error(
-                        ErrorOutputType::default(),
+                    rustc_session::early_error(
+                        rustc_session::config::ErrorOutputType::default(),
                         &format!(
                             "could not load library `{}`: {}",
                             path.to_string_lossy(),
@@ -168,7 +166,7 @@ impl rustc_driver::Callbacks for Callbacks {
 
 #[must_use]
 fn list_enabled() -> bool {
-    var(env::DYLINT_LIST).map_or(false, |value| value != "0")
+    env::var(env::DYLINT_LIST).map_or(false, |value| value != "0")
 }
 
 fn list_lints(before: &BTreeSet<Lint>, after: &BTreeSet<Lint>) {
@@ -249,15 +247,15 @@ pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
 }
 
 fn sysroot() -> Result<PathBuf> {
-    let rustup_home = var(env::RUSTUP_HOME)?;
-    let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
+    let rustup_home = env::var(env::RUSTUP_HOME)?;
+    let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
     Ok(PathBuf::from(rustup_home)
         .join("toolchains")
         .join(rustup_toolchain))
 }
 
 fn rustflags() -> Vec<String> {
-    var(env::DYLINT_RUSTFLAGS).map_or_else(
+    env::var(env::DYLINT_RUSTFLAGS).map_or_else(
         |_| Vec::new(),
         |rustflags| rustflags.split_whitespace().map(String::from).collect(),
     )
@@ -265,7 +263,7 @@ fn rustflags() -> Vec<String> {
 
 fn paths() -> Vec<PathBuf> {
     (|| -> Result<_> {
-        let dylint_libs = var(env::DYLINT_LIBS)?;
+        let dylint_libs = env::var(env::DYLINT_LIBS)?;
         serde_json::from_str(&dylint_libs).map_err(Into::into)
     })()
     .unwrap_or_default()

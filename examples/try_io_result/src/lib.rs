@@ -9,7 +9,7 @@ use clippy_utils::{diagnostics::span_lint_and_help, match_def_path, paths};
 use if_chain::if_chain;
 use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{self, subst::GenericArgKind, TyKind};
+use rustc_middle::ty::{subst::GenericArgKind, Ty, TyKind};
 
 dylint_linting::declare_late_lint! {
     /// **What it does:** Checks for `?` operators applied to values of type `std::io::Result`.
@@ -74,7 +74,7 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
     }
 }
 
-fn is_io_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
+fn is_io_result(cx: &LateContext<'_>, ty: Ty) -> bool {
     if_chain! {
         if let TyKind::Adt(def, substs) = ty.kind();
         if match_def_path(cx, def.did(), &paths::RESULT);

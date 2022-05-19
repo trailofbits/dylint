@@ -12,7 +12,6 @@ use dylint_internal::rustup::SanitizeEnvironment;
 use glob::glob;
 use if_chain::if_chain;
 use serde::Deserialize;
-use serde_json::{Map, Value};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Deserialize)]
@@ -35,7 +34,7 @@ pub fn workspace_metadata_paths(opts: &crate::Dylint) -> Result<Vec<(PathBuf, bo
 
     match command.exec() {
         Ok(metadata) => {
-            if let Value::Object(object) = &metadata.workspace_metadata {
+            if let serde_json::Value::Object(object) = &metadata.workspace_metadata {
                 let paths = dylint_metadata_paths(opts, &metadata, object)?;
                 Ok(paths
                     .into_iter()
@@ -66,10 +65,10 @@ pub fn workspace_metadata_paths(opts: &crate::Dylint) -> Result<Vec<(PathBuf, bo
 fn dylint_metadata_paths(
     opts: &crate::Dylint,
     metadata: &Metadata,
-    object: &Map<String, Value>,
+    object: &serde_json::Map<String, serde_json::Value>,
 ) -> Result<Vec<PathBuf>> {
     if let Some(value) = object.get("dylint") {
-        if let Value::Object(object) = value {
+        if let serde_json::Value::Object(object) = value {
             let libraries = object
                 .iter()
                 .map(|entry| {

@@ -1,11 +1,7 @@
 use anyhow::{anyhow, ensure, Context, Result};
 use cargo_metadata::{Metadata, Package, Target};
-use compiletest_rs::{self as compiletest, common::Mode as TestMode};
-use dylint_internal::{
-    cargo::{self, current_metadata, root_package},
-    env::{self, var},
-    library_filename,
-};
+use compiletest_rs as compiletest;
+use dylint_internal::{env, library_filename};
 use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
 use regex::Regex;
@@ -48,7 +44,7 @@ fn initialize(name: &str) -> Result<&Path> {
             // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is no longer
             // the case. I am leaving the comment here for now in case removal of the `name_toolchain_map`
             // call causes a regression.
-            let metadata = current_metadata().unwrap();
+            let metadata = dylint_internal::cargo::current_metadata().unwrap();
             let dylint_library_path = metadata.target_directory.join("debug");
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
 
@@ -65,8 +61,8 @@ fn initialize(name: &str) -> Result<&Path> {
 }
 
 pub fn dylint_libs(name: &str) -> Result<String> {
-    let metadata = current_metadata().unwrap();
-    let rustup_toolchain = var(env::RUSTUP_TOOLCHAIN)?;
+    let metadata = dylint_internal::cargo::current_metadata().unwrap();
+    let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
     let filename = library_filename(name, &rustup_toolchain);
     let path = metadata.target_directory.join("debug").join(filename);
     let paths = vec![path];
@@ -186,7 +182,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
         // smoelius: Because of lazy initialization, `cargo build` is run only once. Seeing
         // "Building example `target`" for one example but not for others is confusing. So instead
         // say "Building `package` examples".
-        cargo::build(&format!("`{}` examples", package.name), false)
+        dylint_internal::cargo::build(&format!("`{}` examples", package.name), false)
             .envs(vec![(env::CARGO_TERM_COLOR, "never")])
             .args(&[
                 "--manifest-path",
@@ -282,7 +278,7 @@ fn run_tests<'test>(
     rustc_flags: impl Iterator<Item = &'test String>,
 ) {
     let config = compiletest::Config {
-        mode: TestMode::Ui,
+        mode: compiletest::common::Mode::Ui,
         rustc_path: driver.to_path_buf(),
         src_base: src_base.to_path_buf(),
         target_rustcflags: Some(

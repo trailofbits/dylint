@@ -1,5 +1,5 @@
 use clap::{crate_version, Parser};
-use dylint_internal::env::{self, enabled};
+use dylint_internal::env;
 use std::{
     ffi::{OsStr, OsString},
     fmt::Debug,
@@ -212,7 +212,7 @@ pub fn main() -> dylint::ColorizedResult<()> {
 
     let result = cargo_dylint(&args);
 
-    if result.is_err() && enabled(env::RUST_BACKTRACE) {
+    if result.is_err() && env::enabled(env::RUST_BACKTRACE) {
         eprintln!(
             "If you don't see a backtrace below, it could be because `cargo-dylint` wasn't built \
             with a nightly compiler."
