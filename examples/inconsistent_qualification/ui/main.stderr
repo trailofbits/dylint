@@ -1,0 +1,63 @@
+error: inconsistent qualification
+  --> $DIR/main.rs:6:39
+   |
+LL |     assert_eq!(var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
+   |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `-D inconsistent-qualification` implied by `-D warnings`
+note: items from `std::env` were imported here
+  --> $DIR/main.rs:3:1
+   |
+LL | use std::env::var;
+   | ^^^^^^^^^^^^^^^^^^
+
+error: inconsistent qualification
+  --> $DIR/main.rs:13:43
+   |
+LL |         assert_eq!(var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: items from `std::env` were imported here
+  --> $DIR/main.rs:10:5
+   |
+LL |     use std::env::var;
+   |     ^^^^^^^^^^^^^^^^^^
+
+error: inconsistent qualification
+  --> $DIR/main.rs:21:43
+   |
+LL |         assert_eq!(var("LD_PRELOAD"), Err(env::VarError::NotPresent));
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: items from `std::env` were imported here
+  --> $DIR/main.rs:18:26
+   |
+LL |     use std::env::{self, var};
+   |                          ^^^
+
+error: inconsistent qualification
+  --> $DIR/main.rs:29:43
+   |
+LL |         assert_eq!(var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: items from `std::env` were imported here
+  --> $DIR/main.rs:26:5
+   |
+LL |     use std::env::*;
+   |     ^^^^^^^^^^^^^^^^
+
+error: inconsistent qualification
+  --> $DIR/main.rs:39:43
+   |
+LL |         assert_eq!(var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: items from `std::env` were imported here
+  --> $DIR/main.rs:37:9
+   |
+LL |         use std::env::var_os;
+   |         ^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 5 previous errors
+
