@@ -13,7 +13,10 @@ use rustc_lint::Level;
 use rustc_session::{config::ErrorOutputType, early_error};
 
 use anyhow::{bail, ensure, Result};
-use dylint_internal::env::{self, var};
+use dylint_internal::{
+    env::{self, var},
+    parse_path_filename,
+};
 use std::{collections::BTreeSet, ffi::OsStr, path::PathBuf};
 
 pub const DYLINT_VERSION: &str = "0.1.0";
@@ -220,6 +223,13 @@ pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
             "--sysroot".to_owned(),
             sysroot.to_string_lossy().to_string(),
         ]);
+    }
+    for path in &paths {
+        if let Some((name, _)) = parse_path_filename(&path) {
+            rustc_args.push(format!(r#"--cfg=dylint_lib="{}""#, name));
+        } else {
+            bail!("could not parse `{}`", path.to_string_lossy());
+        }
     }
     rustc_args.extend(
         args.iter()

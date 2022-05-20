@@ -128,7 +128,7 @@ fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<
 
 fn copy_library(path: &Path) -> Result<()> {
     if_chain! {
-        if let Some(lib_name) = parse_path(path);
+        if let Some(lib_name) = parse_path_plain_filename(path);
         let cargo_pkg_name = var(env::CARGO_PKG_NAME)?;
         if lib_name == cargo_pkg_name.replace('-', "_");
         then {
@@ -151,7 +151,7 @@ fn copy_library(path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn parse_path(path: &Path) -> Option<String> {
+fn parse_path_plain_filename(path: &Path) -> Option<String> {
     let filename = path.file_name()?;
     let s = filename.to_string_lossy();
     let file_stem = s.strip_suffix(consts::DLL_SUFFIX)?;

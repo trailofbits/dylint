@@ -243,8 +243,10 @@ impl<'tcx> Visitor<'tcx> for LifetimeUses {
     }
 }
 
-#[allow(unknown_lints)]
-#[allow(non_thread_safe_call_in_test)]
+#[cfg_attr(
+    dylint_lib = "non_thread_safe_call_in_test",
+    allow(non_thread_safe_call_in_test)
+)]
 #[test]
 fn ui() {
     dylint_testing::ui_test(

@@ -1,7 +1,7 @@
 use anyhow::{ensure, Context, Result};
 use dylint_internal::{
     env::{self, var},
-    parse_filename,
+    parse_path_filename,
 };
 use once_cell::sync::OnceCell;
 use std::{
@@ -107,12 +107,7 @@ fn dylint_libraries_in(
                 .with_context(|| format!("`read_dir` failed for `{}`", path.to_string_lossy()))?;
             let path = entry.path();
 
-            Ok(if let Some(filename) = path.file_name() {
-                parse_filename(&filename.to_string_lossy())
-                    .map(|(lib_name, toolchain)| (lib_name, toolchain, path))
-            } else {
-                None
-            })
+            Ok(parse_path_filename(&path).map(|(lib_name, toolchain)| (lib_name, toolchain, path)))
         })
         .filter_map(Result::transpose))
 }

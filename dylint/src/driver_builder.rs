@@ -63,8 +63,10 @@ pub fn main() -> Result<()> {
 }
 "#;
 
-#[allow(unknown_lints)]
-#[allow(question_mark_in_expression)]
+#[cfg_attr(
+    dylint_lib = "question_mark_in_expression",
+    allow(question_mark_in_expression)
+)]
 pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
     let dylint_drivers = dylint_drivers()?;
 
@@ -170,8 +172,10 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         toolchain,
         consts::EXE_SUFFIX
     ));
-    #[allow(unknown_lints)]
-    #[allow(non_thread_safe_call_in_test)]
+    #[cfg_attr(
+        dylint_lib = "non_thread_safe_call_in_test",
+        allow(non_thread_safe_call_in_test)
+    )]
     copy(&binary, driver).with_context(|| {
         format!(
             "Could not copy `{}` to `{}`",
@@ -184,8 +188,10 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
 }
 
 // smoelius: `package` is a temporary directory. So there should be no race here.
-#[allow(unknown_lints)]
-#[allow(non_thread_safe_call_in_test)]
+#[cfg_attr(
+    dylint_lib = "non_thread_safe_call_in_test",
+    allow(non_thread_safe_call_in_test)
+)]
 fn initialize(toolchain: &str, package: &Path) -> Result<()> {
     let version_spec = format!("version = \"={}\"", env!("CARGO_PKG_VERSION"));
 
