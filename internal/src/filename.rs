@@ -1,4 +1,4 @@
-use std::env::consts;
+use std::{env::consts, path::Path};
 
 #[allow(clippy::module_name_repetitions)]
 #[must_use]
@@ -10,6 +10,12 @@ pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
         toolchain,
         consts::DLL_SUFFIX
     )
+}
+
+#[must_use]
+pub fn parse_path_filename(path: &Path) -> Option<(String, String)> {
+    let filename = path.file_name()?;
+    parse_filename(&*filename.to_string_lossy())
 }
 
 #[allow(clippy::module_name_repetitions)]

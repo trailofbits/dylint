@@ -6,7 +6,7 @@ use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     env::{self, var},
-    parse_filename,
+    parse_path_filename,
 };
 use lazy_static::lazy_static;
 use std::{
@@ -190,8 +190,10 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
     Ok(())
 }
 
-#[allow(unknown_lints)]
-#[allow(question_mark_in_expression)]
+#[cfg_attr(
+    dylint_lib = "question_mark_in_expression",
+    allow(question_mark_in_expression)
+)]
 fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<ToolchainMap> {
     let mut toolchain_map = ToolchainMap::new();
 
@@ -291,27 +293,25 @@ fn is_valid_lib_name(name: &str) -> bool {
 
 fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBuf)>> {
     if let Ok(path) = PathBuf::from(name).canonicalize() {
-        if let Some(filename) = path.file_name() {
-            if let Some((_, toolchain)) = parse_filename(&filename.to_string_lossy()) {
-                return Ok(Some((toolchain, path)));
-            }
-
-            ensure!(
-                !as_path_only,
-                "`--path {}` was used, but the filename does not have the required form: {}",
-                name,
-                *REQUIRED_FORM
-            );
-
-            // smoelius: If `name` contains a path separator, then it was clearly meant to be a
-            // path.
-            ensure!(
-                !name.contains(std::path::MAIN_SEPARATOR),
-                "`{}` is a valid path, but the filename does not have the required form: {}",
-                name,
-                *REQUIRED_FORM
-            );
+        if let Some((_, toolchain)) = parse_path_filename(&path) {
+            return Ok(Some((toolchain, path)));
         }
+
+        ensure!(
+            !as_path_only,
+            "`--path {}` was used, but the filename does not have the required form: {}",
+            name,
+            *REQUIRED_FORM
+        );
+
+        // smoelius: If `name` contains a path separator, then it was clearly meant to be a
+        // path.
+        ensure!(
+            !name.contains(std::path::MAIN_SEPARATOR),
+            "`{}` is a valid path, but the filename does not have the required form: {}",
+            name,
+            *REQUIRED_FORM
+        );
 
         ensure!(
             !as_path_only,
@@ -328,43 +328,35 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
 fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
     for (toolchain, paths) in resolved {
         for path in paths {
-            if resolved
-                .get(toolchain)
-                .map_or(false, |paths| paths.contains(path))
-            {
-                let driver = driver_builder::get(opts, toolchain)?;
-                let dylint_libs = serde_json::to_string(&[path])?;
-                let filename = path
-                    .file_name()
-                    .ok_or_else(|| anyhow!("Could not get file name"))?;
-                let (name, _) = parse_filename(&filename.to_string_lossy())
-                    .ok_or_else(|| anyhow!("Could not parse file name"))?;
+            let driver = driver_builder::get(opts, toolchain)?;
+            let dylint_libs = serde_json::to_string(&[path])?;
+            let (name, _) =
+                parse_path_filename(path).ok_or_else(|| anyhow!("Could not parse path"))?;
 
-                print!("{}", name);
-                if resolved.keys().len() >= 2 {
-                    print!("@{}", toolchain);
-                }
-                if paths.len() >= 2 {
-                    let parent = path
-                        .parent()
-                        .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-                    print!(" ({})", parent.to_string_lossy());
-                }
-                println!();
-
-                // smoelius: `-W help` is the normal way to list lints, so we can be sure it
-                // gets the lints loaded. However, we don't actually use it to list the lints.
-                let mut command = dylint_internal::driver(toolchain, &driver)?;
-                command
-                    .envs(vec![
-                        (env::DYLINT_LIBS, dylint_libs.as_str()),
-                        (env::DYLINT_LIST, "1"),
-                    ])
-                    .args(vec!["rustc", "-W", "help"])
-                    .success()?;
-
-                println!();
+            print!("{}", name);
+            if resolved.keys().len() >= 2 {
+                print!("@{}", toolchain);
             }
+            if paths.len() >= 2 {
+                let parent = path
+                    .parent()
+                    .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+                print!(" ({})", parent.to_string_lossy());
+            }
+            println!();
+
+            // smoelius: `-W help` is the normal way to list lints, so we can be sure it
+            // gets the lints loaded. However, we don't actually use it to list the lints.
+            let mut command = dylint_internal::driver(toolchain, &driver)?;
+            command
+                .envs(vec![
+                    (env::DYLINT_LIBS, dylint_libs.as_str()),
+                    (env::DYLINT_LIST, "1"),
+                ])
+                .args(vec!["rustc", "-W", "help"])
+                .success()?;
+
+            println!();
         }
     }
 
@@ -499,8 +491,10 @@ mod test {
         };
     }
 
-    #[allow(unknown_lints)]
-    #[allow(non_thread_safe_call_in_test)]
+    #[cfg_attr(
+        dylint_lib = "non_thread_safe_call_in_test",
+        allow(non_thread_safe_call_in_test)
+    )]
     #[test]
     fn multiple_libraries_multiple_toolchains() {
         let name_toolchain_map = NAME_TOOLCHAIN_MAP.get_or_try_init().unwrap();
@@ -544,8 +538,10 @@ mod test {
     //
     //   https://bugzilla.redhat.com/show_bug.cgi?id=1722181
     //
-    #[allow(unknown_lints)]
-    #[allow(non_thread_safe_call_in_test)]
+    #[cfg_attr(
+        dylint_lib = "non_thread_safe_call_in_test",
+        allow(non_thread_safe_call_in_test)
+    )]
     #[test]
     fn multiple_libraries_one_toolchain() {
         let name_toolchain_map = NAME_TOOLCHAIN_MAP.get_or_try_init().unwrap();
