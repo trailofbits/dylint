@@ -122,8 +122,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_lints"
-version = "0.1.62"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=abc59bb9144a97ec23d187dcb2cb28dd88271297#abc59bb9144a97ec23d187dcb2cb28dd88271297"
+version = "0.1.63"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=b312ad7d0cf0f30be2bd4658b71a3520a2e76709#b312ad7d0cf0f30be2bd4658b71a3520a2e76709"
 dependencies = [
  "cargo_metadata",
  "clippy_utils",
@@ -143,8 +143,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.62"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=abc59bb9144a97ec23d187dcb2cb28dd88271297#abc59bb9144a97ec23d187dcb2cb28dd88271297"
+version = "0.1.63"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=b312ad7d0cf0f30be2bd4658b71a3520a2e76709#b312ad7d0cf0f30be2bd4658b71a3520a2e76709"
 dependencies = [
  "arrayvec",
  "if_chain",
