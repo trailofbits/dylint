@@ -62,7 +62,7 @@ cargo build
 DYLINT_LIBRARY_PATH=$PWD/target/debug cargo dylint new_lint_name --list
 ```
 
-All you have to do is implement the [`LateLintPass`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/trait.LateLintPass.html) trait and accommodate the symbols asking to be filled in.
+All you have to do is implement the [`LateLintPass`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html) trait and accommodate the symbols asking to be filled in.
 
 Helpful [resources](#resources) for writing lints appear below.
 
@@ -141,14 +141,14 @@ A Dylint library must satisfy four requirements. **Note:** Before trying to sati
    fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore)
    ```
 
-   This is a function called by the Rust compiler. It is documented [here](https://doc.rust-lang.org/stable/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints).
+   This is a function called by the Rust compiler. It is documented [here](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints).
 
 4. Link against the `rustc_driver` dynamic library. This ensures the library uses Dylint's copies of the Rust compiler crates. This requirement can be satisfied by including the following declaration in your library's `lib.rs` file:
    ```rust
    extern crate rustc_driver;
    ```
 
-Dylint provides [utilities](#utilities) to help meet the above requirements. If your library uses the [`dylint-link`](./dylint-link) tool and the [`dylint_library!`](./utils/linting) macro, then all you should have to do is implement the [`register_lints`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints) function.
+Dylint provides [utilities](#utilities) to help meet the above requirements. If your library uses the [`dylint-link`](./dylint-link) tool and the [`dylint_library!`](./utils/linting) macro, then all you should have to do is implement the [`register_lints`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints) function.
 
 ## Utilities
 
@@ -202,9 +202,9 @@ Helpful resources for writing lints include the following:
 - [Author lint](https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md#author-lint)
 - [Common tools for writing lints](https://github.com/rust-lang/rust-clippy/blob/master/doc/common_tools_writing_lints.md)
 - [Guide to Rustc Development](https://rustc-dev-guide.rust-lang.org/)
-- [Crate `rustc_hir`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_hir/index.html)
-- [Crate `rustc_middle`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_middle/index.html)
-- [Struct `rustc_lint::LateContext`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/struct.LateContext.html)
-  - [Method `typeck_results`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/struct.LateContext.html#method.typeck_results)
-  - [Field `tcx`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx)
-    - [Method `hir`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.hir)
+- [Crate `rustc_hir`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html)
+- [Crate `rustc_middle`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html)
+- [Struct `rustc_lint::LateContext`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html)
+  - [Method `typeck_results`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#method.typeck_results)
+  - [Field `tcx`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx)
+    - [Method `hir`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.hir)
