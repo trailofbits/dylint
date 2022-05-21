@@ -254,6 +254,7 @@ fn ui() {
 
     // smoelius: For some reason, the diagnostic messages are printed in a different order on Linux
     // than on Mac and Windows.
+    // smoelius: Interestingly, the upgrade to 1.63 caused the two cases to flip-flop.
     if cfg!(not(target_os = "linux")) {
         return;
     }
