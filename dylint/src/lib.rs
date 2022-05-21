@@ -383,9 +383,9 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         let dylint_libs = serde_json::to_string(&paths)?;
         let description = format!("with toolchain `{}`", toolchain);
         let mut command = if opts.fix {
-            dylint_internal::fix(&description)
+            dylint_internal::cargo::fix(&description)
         } else {
-            dylint_internal::check(&description)
+            dylint_internal::cargo::check(&description)
         };
         let mut args = vec!["--target-dir", &target_dir_str];
         if let Some(path) = &opts.manifest_path {

@@ -42,7 +42,7 @@ fn initialize(name: &str) -> Result<&Path> {
             // smoelius: Try to order failures by how informative they are: failure to build the library,
             // failure to find the library, failure to build/find the driver.
 
-            dylint_internal::build(&format!("library `{}`", name), false).success()?;
+            dylint_internal::cargo::build(&format!("library `{}`", name), false).success()?;
 
             // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
             // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is no longer

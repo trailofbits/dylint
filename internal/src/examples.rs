@@ -9,7 +9,7 @@ use std::{
 #[allow(env_cargo_path)]
 pub fn build() -> Result<()> {
     // smoelius: The examples use `dylint-link` as the linker, so it must be built first.
-    crate::build("dylint-link", false)
+    crate::cargo::build("dylint-link", false)
         .sanitize_environment()
         .current_dir(
             Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -23,7 +23,7 @@ pub fn build() -> Result<()> {
         let file_name = example
             .file_name()
             .ok_or_else(|| anyhow!("Could not get file name"))?;
-        crate::build(&format!("example `{}`", file_name.to_string_lossy()), false)
+        crate::cargo::build(&format!("example `{}`", file_name.to_string_lossy()), false)
             .sanitize_environment()
             .current_dir(&example)
             .success()?;
@@ -60,7 +60,7 @@ mod test {
         for path in iter().unwrap() {
             let path = path.unwrap();
             let file_name = path.file_name().unwrap();
-            crate::test(&format!("example `{}`", file_name.to_string_lossy()), false)
+            crate::cargo::test(&format!("example `{}`", file_name.to_string_lossy()), false)
                 .sanitize_environment()
                 .current_dir(path)
                 .success()

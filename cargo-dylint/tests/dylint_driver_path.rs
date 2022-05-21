@@ -16,7 +16,7 @@ fn dylint_driver_path() {
 
     create_dir_all(&dylint_driver_path).unwrap();
 
-    dylint_internal::test("dylint-template", false)
+    dylint_internal::cargo::test("dylint-template", false)
         .sanitize_environment()
         .current_dir(tempdir.path())
         .envs(vec![(

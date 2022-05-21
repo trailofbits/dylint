@@ -301,7 +301,7 @@ fn package_library_path(
     let target_dir = target_dir(metadata, package_root, package_id)?;
 
     if !opts.no_build {
-        dylint_internal::build(
+        dylint_internal::cargo::build(
             &format!("workspace metadata entry `{}`", package_id.name()),
             opts.quiet,
         )
