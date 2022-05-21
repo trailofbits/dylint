@@ -22,16 +22,16 @@ pub extern "C" fn dylint_version() -> *mut std::os::raw::c_char {
 }
 ```
 
-If your library uses the `dylint_library!` macro and the [`dylint-link`](../../dylint-link) tool, then all you should have to do is implement the [`register_lints`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints) function. See the [examples](../../examples) in this repository.
+If your library uses the `dylint_library!` macro and the [`dylint-link`](../../dylint-link) tool, then all you should have to do is implement the [`register_lints`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints) function. See the [examples](../../examples) in this repository.
 
 ## `declare_late_lint!`, etc.
 
-If your library contains just one lint, using `declare_late_lint!`, etc. can make your code more concise. Each of these macros requires the same arguments as [`declare_lint!`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_session/macro.declare_lint.html), and wraps the following:
+If your library contains just one lint, using `declare_late_lint!`, etc. can make your code more concise. Each of these macros requires the same arguments as [`declare_lint!`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint.html), and wraps the following:
 
 - a call to `dylint_library!`
 - an implementation of the `register_lints` function
 - a call to `declare_lint!`
-- a call to [`declare_lint_pass!`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_session/macro.declare_lint_pass.html)
+- a call to [`declare_lint_pass!`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint_pass.html)
 
 For example, `declare_late_lint!(vis NAME, Level, "description")` expands to the following:
 
@@ -58,8 +58,8 @@ rustc_session::declare_lint_pass!(Name => [NAME]);
 
 `impl_late_lint!`, etc. are like `declare_late_lint!`, etc. except:
 
-- each calls [`impl_lint_pass!`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_session/macro.impl_lint_pass.html) instead of `declare_lint_pass!`;
-- each requires an additional argument to specify the default value of the lint's [`LintPass`](https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/trait.LintPass.html) structure.
+- each calls [`impl_lint_pass!`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html) instead of `declare_lint_pass!`;
+- each requires an additional argument to specify the default value of the lint's [`LintPass`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html) structure.
 
 That is, `impl_late_lint!`'s additional argument is what goes here:
 
