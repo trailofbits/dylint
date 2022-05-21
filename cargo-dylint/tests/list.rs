@@ -28,7 +28,7 @@ fn one_name_multiple_toolchains() {
     dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
 
     patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_REV_A).unwrap();
-    dylint_internal::build(
+    dylint_internal::cargo::build(
         &format!("dylint-template with channel `{}`", CHANNEL_A),
         false,
     )
@@ -38,7 +38,7 @@ fn one_name_multiple_toolchains() {
     .unwrap();
 
     patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_REV_B).unwrap();
-    dylint_internal::build(
+    dylint_internal::cargo::build(
         &format!("dylint-template with channel `{}`", CHANNEL_B),
         false,
     )
@@ -88,7 +88,7 @@ fn one_name_multiple_paths() {
     dylint_internal::clone_dylint_template(tempdirs.0.path()).unwrap();
     dylint_internal::clone_dylint_template(tempdirs.1.path()).unwrap();
 
-    dylint_internal::build(
+    dylint_internal::cargo::build(
         &format!("dylint-template in {:?}", tempdirs.0.path()),
         false,
     )
@@ -97,7 +97,7 @@ fn one_name_multiple_paths() {
     .success()
     .unwrap();
 
-    dylint_internal::build(
+    dylint_internal::cargo::build(
         &format!("dylint-template in {:?}", tempdirs.1.path()),
         false,
     )
@@ -137,7 +137,7 @@ fn canonical_path() {
 
     dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
 
-    dylint_internal::build(&format!("dylint-template in {:?}", tempdir.path()), false)
+    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()), false)
         .sanitize_environment()
         .current_dir(tempdir.path())
         .success()
@@ -177,7 +177,7 @@ fn list_by_path() {
 
     dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
 
-    dylint_internal::build(&format!("dylint-template in {:?}", tempdir.path()), false)
+    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()), false)
         .sanitize_environment()
         .current_dir(tempdir.path())
         .success()

@@ -159,7 +159,7 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         toolchain_path.to_string_lossy()
     );
 
-    dylint_internal::build(&format!("driver for toolchain `{}`", toolchain), opts.quiet)
+    dylint_internal::cargo::build(&format!("driver for toolchain `{}`", toolchain), opts.quiet)
         .sanitize_environment()
         .envs(vec![(env::RUSTFLAGS, rustflags)])
         .current_dir(&package)

@@ -22,13 +22,13 @@ fn new_package() {
 
     dylint_internal::packaging::use_local_packages(&path).unwrap();
 
-    dylint_internal::build("filled-in dylint-template", false)
+    dylint_internal::cargo::build("filled-in dylint-template", false)
         .sanitize_environment()
         .current_dir(&path)
         .success()
         .unwrap();
 
-    dylint_internal::test("filled-in dylint-template", false)
+    dylint_internal::cargo::test("filled-in dylint-template", false)
         .sanitize_environment()
         .current_dir(&path)
         .success()
@@ -67,13 +67,13 @@ fn downgrade_upgrade_package() {
 
     upgrade().args(&["--force"]).assert().success();
 
-    dylint_internal::build("downgraded dylint-template", false)
+    dylint_internal::cargo::build("downgraded dylint-template", false)
         .sanitize_environment()
         .current_dir(tempdir.path())
         .success()
         .unwrap();
 
-    dylint_internal::test("downgraded dylint-template", false)
+    dylint_internal::cargo::test("downgraded dylint-template", false)
         .sanitize_environment()
         .current_dir(tempdir.path())
         .success()
@@ -97,13 +97,13 @@ fn downgrade_upgrade_package() {
             .assert()
             .success();
 
-        dylint_internal::build("upgraded dylint-template", false)
+        dylint_internal::cargo::build("upgraded dylint-template", false)
             .sanitize_environment()
             .current_dir(tempdir.path())
             .success()
             .unwrap();
 
-        dylint_internal::test("upgraded dylint-template", false)
+        dylint_internal::cargo::test("upgraded dylint-template", false)
             .sanitize_environment()
             .current_dir(tempdir.path())
             .success()

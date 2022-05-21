@@ -26,7 +26,7 @@ mod custom_toolchain {
 
         patch_dylint_template(tempdir.path(), &custom_toolchain).unwrap();
 
-        dylint_internal::test(
+        dylint_internal::cargo::test(
             &format!("with custom toolchain `{}`", custom_toolchain),
             false,
         )

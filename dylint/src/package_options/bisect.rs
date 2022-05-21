@@ -106,7 +106,7 @@ pub fn bisect(opts: &Dylint, path: &Path, start: &str) -> Result<()> {
         .file_name()
         .ok_or_else(|| anyhow!("Could not get file name"))?;
     let description = format!("`{}`", file_name.to_string_lossy());
-    dylint_internal::build(&description, opts.quiet)
+    dylint_internal::cargo::build(&description, opts.quiet)
         .sanitize_environment()
         .current_dir(path)
         .args(&["--tests"])
