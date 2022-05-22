@@ -17,6 +17,7 @@ Note: `cargo-dylint` will not work correctly if installed with the `--debug` fla
   - [Writing lints]
 - [How libraries are found]
 - [Workspace metadata]
+- [Conditional compilation]
 - [Library requirements]
 - [Utilities]
 - [VS Code integration]
@@ -104,6 +105,31 @@ libraries = [
     { git = "https://github.com/trailofbits/dylint", pattern = "examples/*" },
 ]
 ```
+
+## Conditional compilation
+
+For each library that Dylint uses to check a crate, Dylint passes the following to the Rust compiler:
+
+```sh
+--cfg=dylint_lib="LIBRARY_NAME"
+```
+
+You can use this feature to allow a lint when Dylint is used, but also avoid an "unknown lint" warning when Dylint is not used. Specifically, you can do the following:
+
+```rust
+#[cfg_attr(dylint_lib = "LIBRARY_NAME", allow(LINT_NAME))]
+```
+
+Note that `LIBRARY_NAME` and `LINT_NAME` may be the same. For an example involving [`non_thread_safe_call_in_test`], see [dylint/src/lib.rs] in this repository.
+
+Also note that the just described approach does not work for pre-expansion lints. The only known workaround for pre-expansion lints is allow the compiler's built-in [`unknown_lints`] lint. Specifically, you can do the following:
+
+```rust
+#[allow(unknown_lints)]
+#[allow(PRE_EXPANSION_LINT_NAME)]
+```
+
+For an example involving [`env_cargo_path`], see [internal/src/examples.rs] in this repository.
 
 ## Library requirements
 
@@ -213,20 +239,26 @@ Helpful resources for writing lints include the following:
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ../dylint-link
 [`dylint_library!`]: ../utils/linting
+[`env_cargo_path`]: ../examples/env_cargo_path
 [`latelintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
+[`non_thread_safe_call_in_test`]: ../examples/non_thread_safe_call_in_test
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 [`ui_test`]: ../utils/testing
+[`unknown_lints`]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#unknown-lints
 [adding a new lint]: https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md
 [author lint]: https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md#author-lint
 [common tools for writing lints]: https://github.com/rust-lang/rust-clippy/blob/master/doc/common_tools_writing_lints.md
+[conditional compilation]: #conditional-compilation
 [crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 [crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
+[dylint/src/lib.rs]: ./dylint/src/lib.rs
 [example lints]: ../examples
 [field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
 [glob]: https://docs.rs/glob/0.3.0/glob/struct.Pattern.html
 [guide to rustc development]: https://rustc-dev-guide.rust-lang.org/
 [here]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 [how libraries are found]: #how-libraries-are-found
+[internal/src/examples.rs]: ../internal/src/examples.rs
 [library requirements]: #library-requirements
 [limitations]: #limitations
 [method `hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.hir
