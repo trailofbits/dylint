@@ -13,6 +13,7 @@ impl<E> ColorizedError<E>
 where
     E: std::fmt::Debug,
 {
+    #[allow(clippy::missing_const_for_fn)]
     pub fn new(error: E) -> Self {
         Self(error)
     }

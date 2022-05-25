@@ -17,7 +17,7 @@ enum SubCommand {
     Dylint(Dylint),
 }
 
-#[allow(clippy::struct_excessive_bools)]
+#[allow(clippy::empty_line_after_outer_attr, clippy::struct_excessive_bools)]
 #[derive(Debug, Parser)]
 #[clap(
     version = crate_version!(),

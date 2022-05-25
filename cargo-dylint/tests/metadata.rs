@@ -9,7 +9,7 @@ use test_log::test;
 fn nonexistent_library() {
     let tempdir = tempdir_in(".").unwrap();
 
-    dylint_internal::cargo::init(&format!("package `nonexistent_library_test`"), false)
+    dylint_internal::cargo::init("package `nonexistent_library_test`", false)
         .current_dir(tempdir.path())
         .args(&["--name", "nonexistent_library_test"])
         .success()

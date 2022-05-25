@@ -99,10 +99,10 @@ fn readme_reference_links_are_sorted() {
         let readme = read_to_string(path).unwrap();
         let links = readme
             .lines()
-            .filter(|line| re.is_match(&line))
+            .filter(|line| re.is_match(line))
             .collect::<Vec<_>>();
         let mut links_sorted_deduped = links.clone();
-        links_sorted_deduped.sort();
+        links_sorted_deduped.sort_unstable();
         links_sorted_deduped.dedup();
         assert!(
             links_sorted_deduped == links,
