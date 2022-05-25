@@ -251,7 +251,7 @@ Helpful resources for writing lints include the following:
 [conditional compilation]: #conditional-compilation
 [crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 [crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
-[dylint/src/lib.rs]: ./dylint/src/lib.rs
+[dylint/src/lib.rs]: ../dylint/src/lib.rs
 [example lints]: ../examples
 [field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
 [glob]: https://docs.rs/glob/0.3.0/glob/struct.Pattern.html
