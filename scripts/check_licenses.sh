@@ -14,7 +14,7 @@ while read X; do
     if [[ "$X" = 'MPL-2.0+ (3): bitmaps, im-rc, sized-chunks' ]]; then
         continue
     fi
-    # smoelius: Good explanation of the differences between the BSD-3-Clause and MIT licences:
+    # smoelius: Good explanation of the differences between the BSD-3-Clause and MIT licenses:
     # https://opensource.stackexchange.com/a/582
     echo "$X" | grep -w 'Apache\|BSD-3-Clause\|MIT'
 done
