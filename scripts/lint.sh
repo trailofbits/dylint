@@ -33,8 +33,9 @@ for DIR in $DIRS; do
     for LINTS in "$EXAMPLES" clippy; do
         # smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
         # smoelius: The commented command doesn't do anything now that all workspaces in the
-        # repository share a top-level target directory. Is the command still necesary?
-        # rm -rf target/debug/deps
+        # repository share a top-level target directory. Is the command still necessary?
+        # smoelius: Yes, the next command is necessary to force `cargo check` to run.
+        find target/dylint/target/nightly-* -name .fingerprint -exec rm -r {} \; || true
 
         unset DYLINT_RUSTFLAGS
         export DYLINT_RUSTFLAGS='-D warnings'
