@@ -254,10 +254,10 @@ fn ui() {
 
     // smoelius: For some reason, the diagnostic messages are printed in a different order on Linux
     // than on Mac and Windows.
-    // smoelius: Interestingly, the upgrade to 1.63 caused the two cases to flip-flop.
-    if cfg!(not(target_os = "linux")) {
-        return;
-    }
+    // smoelius: However, the current workaround should allow the tests to succeed on all platforms.
+    // if cfg!(not(target_os = "linux")) {
+    //     return;
+    // }
 
     // smoelius: There doesn't seem to be a way to set environment variables using `compiletest`'s
     // [`Config`](https://docs.rs/compiletest_rs/0.7.1/compiletest_rs/common/struct.Config.html)
@@ -274,7 +274,7 @@ fn ui() {
 }
 
 #[test]
-fn ui_main_rs_are_equal() {
+fn ui_main_rs_starts_with() {
     let ui_main_rs = std::fs::read_to_string(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("ui")
@@ -287,5 +287,5 @@ fn ui_main_rs_are_equal() {
             .join("main.rs"),
     )
     .unwrap();
-    assert_eq!(ui_main_rs, ui_no_lifetime_check_main_rs);
+    assert!(ui_main_rs.starts_with(&ui_no_lifetime_check_main_rs));
 }

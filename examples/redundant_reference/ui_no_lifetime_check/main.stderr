@@ -1,29 +1,16 @@
-error: `.cx` is used only to read `.cx.tcx`, whose type `rustc_middle::ty::TyCtxt` implements `Copy`
-  --> $DIR/main.rs:18:9
-   |
-LL |         cx: &'cx LateContext<'tcx>,
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: `-D redundant-reference` implied by `-D warnings`
-note: read here
-  --> $DIR/main.rs:26:17
-   |
-LL |             self.cx.tcx.hir()
-   |                 ^^^^^^^
-   = help: consider storing a copy of `.cx.tcx` instead
-
 error: `.bar` is used only to read `.bar.qux`, whose type `bool` implements `Copy`
-  --> $DIR/main.rs:69:9
+  --> $DIR/main.rs:22:9
    |
 LL |         bar: &'a super::Bar,
    |         ^^^^^^^^^^^^^^^^^^^
    |
+   = note: `-D redundant-reference` implied by `-D warnings`
 note: read here
-  --> $DIR/main.rs:75:17
+  --> $DIR/main.rs:28:17
    |
 LL |             self.bar.qux
    |                 ^^^^^^^^
    = help: consider storing a copy of `.bar.qux` instead
 
-error: aborting due to 2 previous errors
+error: aborting due to previous error
 
