@@ -28,6 +28,10 @@ jobs:
           npm install -g prettier && prettier --check '**/*.md' '**/*.yml'
           ./scripts/unquote_yaml_strings.sh && git diff --exit-code
 
+      - name: Markdown link check
+        run: |
+          npm install -g markdown-link-check && markdown-link-check **/*.md
+
       - name: Cargo sort
         run: |
           cargo install cargo-sort
