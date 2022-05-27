@@ -49,9 +49,9 @@ lazy_static! {
 #[derive(Debug, Default)]
 pub struct Dylint {
     pub all: bool,
+    pub allow_downgrade: bool,
     pub bisect: bool,
     pub fix: bool,
-    pub force: bool,
     pub isolate: bool,
     pub keep_going: bool,
     pub libs: Vec<String>,
@@ -83,8 +83,8 @@ pub fn run(opts: &Dylint) -> Result<()> {
         bail!("`--bisect` can be used only with `--upgrade`");
     }
 
-    if opts.force && opts.upgrade_path.is_none() {
-        bail!("`--force` can be used only with `--upgrade`");
+    if opts.allow_downgrade && opts.upgrade_path.is_none() {
+        bail!("`--allow-downgrade` can be used only with `--upgrade`");
     }
 
     if opts.isolate && opts.new_path.is_none() {
