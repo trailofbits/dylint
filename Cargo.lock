@@ -191,9 +191,11 @@ dependencies = [
  "log",
  "predicates",
  "regex",
+ "sedregex",
  "semver",
  "tempfile",
  "test-log",
+ "walkdir",
 ]
 
 [[package]]

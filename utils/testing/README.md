@@ -1,8 +1,8 @@
 # dylint_testing
 
-This crate provides convenient access to the [`compiletest_rs`](https://github.com/Manishearth/compiletest-rs) package for testing [Dylint](https://github.com/trailofbits/dylint) libraries.
+This crate provides convenient access to the [`compiletest_rs`] package for testing [Dylint] libraries.
 
-Specifically, this crate provides the following three functions. Note: If your test has dependencies, you must use `ui_test_example` or `ui_test_examples`. See the [question_mark_in_expression](../../examples/question_mark_in_expression/Cargo.toml) example in this repository.
+Specifically, this crate provides the following three functions. Note: If your test has dependencies, you must use `ui_test_example` or `ui_test_examples`. See the [question_mark_in_expression] example in this repository.
 
 - `ui_test` - test a library on all source files in a directory
 
@@ -42,11 +42,11 @@ fn ui() {
 }
 ```
 
-And include one or more `.rs` and `.stderr` files in a `ui` directory alongside your library's `src` directory. See the [examples](../../examples) in this repository.
+And include one or more `.rs` and `.stderr` files in a `ui` directory alongside your library's `src` directory. See the [examples] in this repository.
 
 ## Test builder
 
-In addition to the above three functions, `dylint_testing::ui:Test` is a test "builder." Currently, the main advantage of using `Test` over the above functions is that `Test` allows flags to be passed to `rustc`. For an example of its use, see [non_thread_safe_call_in_test](../../examples/non_thread_safe_call_in_test/src/lib.rs) in this repository.
+In addition to the above three functions, `dylint_testing::ui:Test` is a test "builder." Currently, the main advantage of using `Test` over the above functions is that `Test` allows flags to be passed to `rustc`. For an example of its use, see [non_thread_safe_call_in_test] in this repository.
 
 `Test` has three constructors, which correspond to the above three functions as follows:
 
@@ -114,4 +114,11 @@ The meaning of each line is as follows:
 
 In general, it is not too hard to update a `.stderr` file by hand. However, the `compiletest_rs` report should contain a line of the form `Actual stderr saved to PATH`. Copying `PATH` to your `.stderr` file should update it completely.
 
-Additional documentation on `compiletest_rs` can be found in [its repository](https://github.com/Manishearth/compiletest-rs).
+Additional documentation on `compiletest_rs` can be found in [its repository].
+
+[`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
+[dylint]: https://github.com/trailofbits/dylint
+[examples]: ../../examples
+[its repository]: https://github.com/Manishearth/compiletest-rs
+[non_thread_safe_call_in_test]: ../../examples/non_thread_safe_call_in_test/src/lib.rs
+[question_mark_in_expression]: ../../examples/question_mark_in_expression/Cargo.toml
