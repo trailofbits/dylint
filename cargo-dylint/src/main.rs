@@ -45,13 +45,13 @@ pub struct Dylint {
     pub all: bool,
 
     #[clap(long, hide = true)]
+    pub allow_downgrade: bool,
+
+    #[clap(long, hide = true)]
     pub bisect: bool,
 
     #[clap(long, help = "Automatically apply lint suggestions")]
     pub fix: bool,
-
-    #[clap(long, hide = true)]
-    pub force: bool,
 
     #[clap(long, hide = true)]
     pub isolate: bool,
@@ -160,9 +160,9 @@ impl From<Dylint> for dylint::Dylint {
     fn from(opts: Dylint) -> Self {
         let Dylint {
             all,
+            allow_downgrade,
             bisect,
             fix,
-            force,
             isolate,
             keep_going,
             libs,
@@ -182,9 +182,9 @@ impl From<Dylint> for dylint::Dylint {
         } = opts;
         Self {
             all,
+            allow_downgrade,
             bisect,
             fix,
-            force,
             isolate,
             keep_going,
             libs,

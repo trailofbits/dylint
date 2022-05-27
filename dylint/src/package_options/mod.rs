@@ -192,14 +192,15 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
     let old_channel = channel(path)?;
 
     let should_find_and_replace = if_chain! {
-        if !opts.force;
+        if !opts.allow_downgrade;
         if let Some(new_nightly) = parse_as_nightly(&rev.channel);
         if let Some(old_nightly) = parse_as_nightly(&old_channel);
         if new_nightly < old_nightly;
         then {
             if !opts.bisect {
                 bail!(
-                    "Refusing to downgrade toolchain from `{}` to `{}`. Use `--force` to override.",
+                    "Refusing to downgrade toolchain from `{}` to `{}`. \
+                    Use `--allow-downgrade` to override.",
                     old_channel,
                     rev.channel
                 );

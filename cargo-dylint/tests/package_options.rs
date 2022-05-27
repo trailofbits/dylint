@@ -65,7 +65,7 @@ fn downgrade_upgrade_package() {
         .failure()
         .stderr(predicate::str::contains("Refusing to downgrade toolchain"));
 
-    upgrade().args(&["--force"]).assert().success();
+    upgrade().args(&["--allow-downgrade"]).assert().success();
 
     dylint_internal::cargo::build("downgraded dylint-template", false)
         .sanitize_environment()
