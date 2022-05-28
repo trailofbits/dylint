@@ -8,6 +8,11 @@ if [[ $# -ne 0 ]]; then
     exit 1
 fi
 
+SCRIPTS="$(dirname "$(realpath "$0")")"
+WORKSPACE="$(realpath "$SCRIPTS"/..)"
+
+cd "$WORKSPACE"
+
 package_name() {
     grep -o '^name = "[^"]*"$' Cargo.toml |
     sed 's/^name = "\([^"]*\)"$/\1/'

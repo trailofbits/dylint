@@ -9,8 +9,9 @@ if [[ $# -ne 0 ]]; then
 fi
 
 SCRIPTS="$(dirname "$(realpath "$0")")"
+WORKSPACE="$(realpath "$SCRIPTS"/..)"
 
-cd "$(dirname "$0")"/..
+cd "$WORKSPACE"
 
 CARGO_DYLINT='timeout 10m cargo run -p cargo-dylint -- dylint'
 
