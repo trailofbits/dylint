@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3
+
+- Error when metadata entry names a nonexistent library ([#317](https://github.com/trailofbits/dylint/pull/317))
+- Enable cross compilation ([#322](https://github.com/trailofbits/dylint/pull/322))&mdash;idea due to [@danielhenrymantilla](https://github.com/danielhenrymantilla) ([#28](https://github.com/trailofbits/dylint/issues/28))
+- Rename `--force` to `--allow-downgrade` ([#331](https://github.com/trailofbits/dylint/pull/331) and [#333](https://github.com/trailofbits/dylint/pull/333))
+
 ## 2.0.2
 
 - Make `--new` work with new macros ([#298](https://github.com/trailofbits/dylint/pull/298))
