@@ -8,6 +8,9 @@ if [[ $# -ne 0 ]]; then
     exit 1
 fi
 
-cd "$(dirname "$0")"/..
+SCRIPTS="$(dirname "$(realpath "$0")")"
+WORKSPACE="$(realpath "$SCRIPTS"/..)"
+
+cd "$WORKSPACE"
 
 find . -name '*.yml' -exec sed -i 's/^\([^#]*:[[:space:]]*\)"\(.*[^0-9:].*\)"\([[:space:]]*\)$/\1\2\3/' {} \;

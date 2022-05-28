@@ -11,6 +11,11 @@ set -x
 
 VERSION="version = \"$1\""
 
+SCRIPTS="$(dirname "$(realpath "$0")")"
+WORKSPACE="$(realpath "$SCRIPTS"/..)"
+
+cd "$WORKSPACE"
+
 find . -name Cargo.toml -exec sed -i "{
 s/^version = \"[^\"]*\"$/$VERSION/
 }" {} \;

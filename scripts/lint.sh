@@ -9,6 +9,9 @@ if [[ $# -ne 0 ]]; then
 fi
 
 SCRIPTS="$(dirname "$(realpath "$0")")"
+WORKSPACE="$(realpath "$SCRIPTS"/..)"
+
+cd "$WORKSPACE"
 
 cargo build -p cargo-dylint
 CARGO_DYLINT="$PWD/target/debug/cargo-dylint"
@@ -35,7 +38,7 @@ for DIR in $DIRS; do
         # smoelius: The commented command doesn't do anything now that all workspaces in the
         # repository share a top-level target directory. Is the command still necessary?
         # smoelius: Yes, the next command is necessary to force `cargo check` to run.
-        find target/dylint/target/nightly-* -name .fingerprint -exec rm -r {} \; || true
+        find "$WORKSPACE"/target/dylint/target/nightly-* -name .fingerprint -exec rm -r {} \; || true
 
         unset DYLINT_RUSTFLAGS
         export DYLINT_RUSTFLAGS='-D warnings'

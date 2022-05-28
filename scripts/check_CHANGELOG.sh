@@ -17,6 +17,9 @@ fi
 
 VERSION="${REF:11}"
 
-cd "$(dirname "$0")"/..
+SCRIPTS="$(dirname "$(realpath "$0")")"
+WORKSPACE="$(realpath "$SCRIPTS"/..)"
+
+cd "$WORKSPACE"
 
 grep "^## $VERSION$" CHANGELOG.md

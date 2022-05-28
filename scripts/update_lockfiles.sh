@@ -8,6 +8,9 @@ if [[ $# -ne 0 ]]; then
     exit 1
 fi
 
-cd "$(dirname "$0")"/..
+SCRIPTS="$(dirname "$(realpath "$0")")"
+WORKSPACE="$(realpath "$SCRIPTS"/..)"
+
+cd "$WORKSPACE"
 
 find . -name Cargo.toml -exec cargo update --workspace --manifest-path {} \;
