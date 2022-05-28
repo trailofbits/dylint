@@ -46,12 +46,13 @@ lazy_static! {
 }
 
 #[allow(clippy::struct_excessive_bools)]
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct Dylint {
     pub all: bool,
     pub allow_downgrade: bool,
     pub bisect: bool,
     pub fix: bool,
+    pub force: bool,
     pub isolate: bool,
     pub keep_going: bool,
     pub libs: Vec<String>,
@@ -71,20 +72,34 @@ pub struct Dylint {
 }
 
 pub fn run(opts: &Dylint) -> Result<()> {
+    let opts = {
+        if opts.force {
+            warn(
+                opts,
+                "`--force` is deprecated and its meaning may change in the future. Use \
+                `--allow-downgrade`.",
+            );
+        }
+        Dylint {
+            allow_downgrade: opts.allow_downgrade || opts.force,
+            ..opts.clone()
+        }
+    };
+
+    if opts.allow_downgrade && opts.upgrade_path.is_none() {
+        bail!("`--allow-downgrade` can be used only with `--upgrade`");
+    }
+
     if opts.bisect {
         #[cfg(not(unix))]
         bail!("`--bisect` is supported only on Unix platforms");
 
         #[cfg(unix)]
-        warn(opts, "`--bisect` is experimental");
+        warn(&opts, "`--bisect` is experimental");
     }
 
     if opts.bisect && opts.upgrade_path.is_none() {
         bail!("`--bisect` can be used only with `--upgrade`");
-    }
-
-    if opts.allow_downgrade && opts.upgrade_path.is_none() {
-        bail!("`--allow-downgrade` can be used only with `--upgrade`");
     }
 
     if opts.isolate && opts.new_path.is_none() {
@@ -97,17 +112,17 @@ pub fn run(opts: &Dylint) -> Result<()> {
 
     #[cfg(feature = "package_options")]
     if let Some(path) = &opts.new_path {
-        return package_options::new_package(opts, Path::new(path));
+        return package_options::new_package(&opts, Path::new(path));
     }
 
     #[cfg(feature = "package_options")]
     if let Some(path) = &opts.upgrade_path {
-        return package_options::upgrade_package(opts, Path::new(path));
+        return package_options::upgrade_package(&opts, Path::new(path));
     }
 
-    let name_toolchain_map = NameToolchainMap::new(opts);
+    let name_toolchain_map = NameToolchainMap::new(&opts);
 
-    run_with_name_toolchain_map(opts, &name_toolchain_map)
+    run_with_name_toolchain_map(&opts, &name_toolchain_map)
 }
 
 fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<()> {
