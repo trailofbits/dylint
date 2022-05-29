@@ -157,7 +157,7 @@ dependencies = [
  "os_info",
  "percent-encoding",
  "rustc-workspace-hack",
- "rustfix 0.6.0",
+ "rustfix",
  "semver",
  "serde",
  "serde_ignored",
@@ -339,9 +339,9 @@ dependencies = [
 
 [[package]]
 name = "compiletest_rs"
-version = "0.7.1"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29843cb8d351febf86557681d049d1e1652b81a086a190fa1173c07fd17fbf83"
+checksum = "262134ef87408da1ddfe45e33daa0ca43b75286d6b1076446e602d264cf9847e"
 dependencies = [
  "diff",
  "filetime",
@@ -351,7 +351,7 @@ dependencies = [
  "log",
  "miow",
  "regex",
- "rustfix 0.5.1",
+ "rustfix",
  "serde",
  "serde_derive",
  "serde_json",
@@ -1290,18 +1290,6 @@ name = "rustc-workspace-hack"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc71d2faa173b74b232dedc235e3ee1696581bb132fc116fa3626d6151a1a8fb"
-
-[[package]]
-name = "rustfix"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2c50b74badcddeb8f7652fa8323ce440b95286f8e4b64ebfd871c609672704e"
-dependencies = [
- "anyhow",
- "log",
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "rustfix"
