@@ -15,32 +15,12 @@ WORKSPACE="$(realpath "$SCRIPTS"/..)"
 
 cd "$WORKSPACE"/examples
 
-EXAMPLES=
-DYLINT_LIBRARY_PATH=
-
-for EXAMPLE in *; do
+for EXAMPLE in */*; do
     if [[ ! -d "$EXAMPLE" ]]; then
         continue
     fi
 
     pushd "$EXAMPLE" >/dev/null
     cargo build
-
-    if [[ -z "$EXAMPLES" ]]; then
-        EXAMPLES="$EXAMPLE"
-    else
-        EXAMPLES="$EXAMPLES $EXAMPLE"
-    fi
-
-    DEBUG="$PWD/target/debug"
-    if [[ -z "$DYLINT_LIBRARY_PATH" ]]; then
-        DYLINT_LIBRARY_PATH="$DEBUG"
-    else
-        DYLINT_LIBRARY_PATH="$DYLINT_LIBRARY_PATH:$DEBUG"
-    fi
-
     popd >/dev/null
 done
-
-echo export EXAMPLES=\'"$EXAMPLES"\'
-echo export DYLINT_LIBRARY_PATH=\'"$DYLINT_LIBRARY_PATH"\'

@@ -35,7 +35,7 @@ METADATA EXAMPLE:
 
     [workspace.metadata.dylint]
     libraries = [
-        { git = "https://github.com/trailofbits/dylint", pattern = "examples/*" },
+        { git = "https://github.com/trailofbits/dylint", pattern = "examples/*/*" },
         { path = "libs/*" },
     ]
 "#,

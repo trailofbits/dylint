@@ -1,9 +1,7 @@
 use crate::rustup::SanitizeEnvironment;
-use anyhow::{anyhow, Context, Result};
-use std::{
-    fs::read_dir,
-    path::{Path, PathBuf},
-};
+use anyhow::{anyhow, Result};
+use std::path::{Path, PathBuf};
+use walkdir::WalkDir;
 
 #[allow(unknown_lints)]
 #[allow(env_cargo_path)]
@@ -38,15 +36,18 @@ pub fn iter() -> Result<impl Iterator<Item = Result<PathBuf>>> {
     let examples = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("..")
         .join("examples");
-    let iter = read_dir(&examples)
-        .with_context(|| format!("`read_dir` failed for `{}`", examples.to_string_lossy()))?;
+    let iter = WalkDir::new(examples)
+        .into_iter()
+        .filter_entry(|entry| entry.depth() <= 2);
     Ok(iter
         .map(move |entry| -> Result<Option<PathBuf>> {
-            let entry = entry.with_context(|| {
-                format!("`read_dir` failed for `{}`", examples.to_string_lossy())
-            })?;
+            let entry = entry?;
             let path = entry.path();
-            Ok(if path.is_dir() { Some(path) } else { None })
+            Ok(if entry.depth() >= 2 && path.is_dir() {
+                Some(path.to_path_buf())
+            } else {
+                None
+            })
         })
         .filter_map(Result::transpose))
 }

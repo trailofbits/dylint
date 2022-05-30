@@ -1,0 +1,36 @@
+[package]
+name = "try_io_result"
+version = "2.0.3"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for the `?` operator applied to `std::io::Result`"
+edition = "2018"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[[example]]
+name = "ui"
+path = "ui/main.rs"
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "b312ad7d0cf0f30be2bd4658b71a3520a2e76709" }
+if_chain = "1.0.2"
+
+dylint_internal = { path = "../../../internal" }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+anyhow = "1.0.57"
+
+dylint_testing = { path = "../../../utils/testing", features = ["dylint_driver_local"] }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../*/*" },
+]

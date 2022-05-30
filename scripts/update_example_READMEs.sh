@@ -15,6 +15,7 @@ cd "$WORKSPACE"/examples
 
 TMP="$(mktemp)"
 
+CATEGORIES=(general restriction testing)
 LISTED=
 
 IFS=
@@ -22,14 +23,17 @@ cat README.md |
 while read X; do
     if [[ "$X" =~ ^\| ]]; then
         if [[ -z "$LISTED" ]]; then
-            echo '| Example | Description |'
+            CATEGORY="${CATEGORIES[0]}"
+            CATEGORIES=(${CATEGORIES[@]:1})
+            echo "| ${CATEGORY^} | Description |"
             echo '| - | - |'
-            grep '^description = "[^"]*"$' */Cargo.toml |
-            grep -vw 'straggler' |
-            sed 's,^\([^/]*\)/Cargo.toml:description = "\([^"]*\)"$,| [`\1`](./\1) | \2 |,'
+            grep '^description = "[^"]*"$' "$CATEGORY"/*/Cargo.toml |
+            sed 's,^\([^/]*/\([^/]*\)\)/Cargo.toml:description = "\([^"]*\)"$,| [`\2`](./\1) | \3 |,'
             LISTED=1
         fi
         continue
+    else
+        LISTED=
     fi
     echo "$X"
 done |
@@ -39,7 +43,7 @@ mv "$TMP" README.md
 
 prettier --write README.md
 
-for EXAMPLE in *; do
+for EXAMPLE in */*; do
     if [[ ! -d "$EXAMPLE" ]]; then
         continue
     fi
@@ -47,7 +51,7 @@ for EXAMPLE in *; do
     pushd "$EXAMPLE" >/dev/null
 
     (
-        echo "# $EXAMPLE"
+        echo "# $(basename "$EXAMPLE")"
         echo
         cat src/*.rs |
         sed '\,^[[:space:]]*///[[:space:]]\?#[^![],d' |

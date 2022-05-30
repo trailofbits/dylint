@@ -41,7 +41,7 @@ The next three steps install Dylint and run all of this repository's [example li
    ```toml
    [workspace.metadata.dylint]
    libraries = [
-       { git = "https://github.com/trailofbits/dylint", pattern = "examples/*" },
+       { git = "https://github.com/trailofbits/dylint", pattern = "examples/*/*" },
    ]
    ```
 
@@ -97,12 +97,13 @@ A workspace can name the libraries it should be linted with in its `Cargo.toml` 
 
 Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements] below).
 
-As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run all of this repository's [example lints] on your workspace:
+As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run on your workspace all of this repository's [example general lints], as well as the example restriction lint [`try_io_result`].
 
 ```toml
 [workspace.metadata.dylint]
 libraries = [
-    { git = "https://github.com/trailofbits/dylint", pattern = "examples/*" },
+    { git = "https://github.com/trailofbits/dylint", pattern = "examples/general/*" },
+    { git = "https://github.com/trailofbits/dylint", pattern = "examples/restriction/try_io_result" },
 ]
 ```
 
@@ -239,10 +240,11 @@ Helpful resources for writing lints include the following:
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ./dylint-link
 [`dylint_library!`]: ./utils/linting
-[`env_cargo_path`]: ./examples/env_cargo_path
+[`env_cargo_path`]: ./examples/general/env_cargo_path
 [`latelintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
-[`non_thread_safe_call_in_test`]: ./examples/non_thread_safe_call_in_test
+[`non_thread_safe_call_in_test`]: ./examples/general/non_thread_safe_call_in_test
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
+[`try_io_result`]: ./examples/restriction/try_io_result
 [`ui_test`]: ./utils/testing
 [`unknown_lints`]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#unknown-lints
 [adding a new lint]: https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md
@@ -252,6 +254,7 @@ Helpful resources for writing lints include the following:
 [crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 [crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
 [dylint/src/lib.rs]: ./dylint/src/lib.rs
+[example general lints]: ./examples/general
 [example lints]: ./examples
 [field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
 [glob]: https://docs.rs/glob/0.3.0/glob/struct.Pattern.html

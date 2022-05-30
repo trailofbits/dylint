@@ -28,7 +28,7 @@ fn nonexistent_library() {
         file,
         r#"
 [[workspace.metadata.dylint.libraries]]
-path = "../../examples/crate_wide_allow"
+path = "../../examples/general/crate_wide_allow"
 "#
     )
     .unwrap();
@@ -44,7 +44,7 @@ path = "../../examples/crate_wide_allow"
         file,
         r#"
 [[workspace.metadata.dylint.libraries]]
-path = "../../examples/nonexistent_library"
+path = "../../examples/general/nonexistent_library"
 "#
     )
     .unwrap();

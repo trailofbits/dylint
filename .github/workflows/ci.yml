@@ -94,7 +94,7 @@ jobs:
       - name: Test example documentation
         # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
         run: |
-          for X in examples/*; do
+          for X in examples/*/*; do
             if [[ ! -d "$X" ]]; then
               continue
             fi

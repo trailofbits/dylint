@@ -8,6 +8,7 @@ use std::{
 use tempfile::tempdir;
 use test_log::test;
 
+const CATEGORY: &str = "restriction";
 const LIB_NAME: &str = "path_separator_in_string_literal";
 
 fn workspace_metadata(path_spec: &str) -> String {
@@ -97,6 +98,7 @@ fn append_workspace_metadata(path: &Path) -> Result<()> {
 
     let path_spec = parent
         .join("examples")
+        .join(CATEGORY)
         .join(LIB_NAME)
         .to_string_lossy()
         .replace('\\', "\\\\");

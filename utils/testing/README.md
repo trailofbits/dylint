@@ -120,5 +120,5 @@ Additional documentation on `compiletest_rs` can be found in [its repository].
 [dylint]: https://github.com/trailofbits/dylint
 [examples]: ../../examples
 [its repository]: https://github.com/Manishearth/compiletest-rs
-[non_thread_safe_call_in_test]: ../../examples/non_thread_safe_call_in_test/src/lib.rs
-[question_mark_in_expression]: ../../examples/question_mark_in_expression/Cargo.toml
+[non_thread_safe_call_in_test]: ../../examples/general/non_thread_safe_call_in_test/src/lib.rs
+[question_mark_in_expression]: ../../examples/restriction/question_mark_in_expression/Cargo.toml
