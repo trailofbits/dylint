@@ -13,5 +13,5 @@ members = [
 
 [workspace.metadata.dylint]
 libraries = [
-    { path = "examples/*" },
+    { path = "examples/*/*" },
 ]

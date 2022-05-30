@@ -19,5 +19,5 @@ dylint_internal = { version = "=2.0.3", path = "../internal" }
 
 [workspace.metadata.dylint]
 libraries = [
-    { path = "../examples/*" },
+    { path = "../examples/*/*" },
 ]

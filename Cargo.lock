@@ -563,6 +563,7 @@ dependencies = [
  "if_chain",
  "log",
  "sedregex",
+ "walkdir",
 ]
 
 [[package]]

@@ -80,5 +80,5 @@ An example use of `impl_pre_expansion_lint!` can be found in [env_cargo_path] in
 [`lintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 [dylint]: https://github.com/trailofbits/dylint
-[env_cargo_path]: ../../examples/env_cargo_path/src/lib.rs
+[env_cargo_path]: ../../examples/general/env_cargo_path/src/lib.rs
 [examples]: ../../examples

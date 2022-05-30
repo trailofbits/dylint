@@ -16,20 +16,17 @@ cd "$WORKSPACE"
 cargo build -p cargo-dylint
 CARGO_DYLINT="$PWD/target/debug/cargo-dylint"
 
-EXAMPLES="$(find examples -mindepth 1 -maxdepth 1 -type d | xargs -n 1 basename)"
+EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d)"
 
 # smoelius: Remove `straggler`, as it is used only for testing purposes. Also, it uses a different
 # toolchain than the other examples.
-EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<straggler\>[[:space:]]*//')"
+EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:space:]]*,,')"
 
-DIRS=". driver"
-for EXAMPLE in $EXAMPLES; do
-    DIRS="$DIRS examples/$EXAMPLE"
-done
+DIRS=". driver $EXAMPLE_DIRS"
 
 # smoelius: `clippy` must be run separately because, for any lint not loaded alongside of it, rustc
 # complains about the clippy-specific flags.
-EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<clippy\>[[:space:]]*//')"
+EXAMPLES="$(echo "$EXAMPLE_DIRS" | xargs -n 1 basename | sed 's/\<clippy\>[[:space:]]*//')"
 
 for DIR in $DIRS; do
     pushd "$DIR"
