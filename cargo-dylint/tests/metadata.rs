@@ -1,5 +1,5 @@
 use assert_cmd::prelude::*;
-use dylint_internal::packaging::{isolate, use_local_packages};
+use dylint_internal::packaging::isolate;
 use predicates::prelude::*;
 use std::{fs::OpenOptions, io::Write};
 use tempfile::tempdir_in;
@@ -16,7 +16,6 @@ fn nonexistent_library() {
         .unwrap();
 
     isolate(tempdir.path()).unwrap();
-    use_local_packages(tempdir.path()).unwrap();
 
     let mut file = OpenOptions::new()
         .write(true)
