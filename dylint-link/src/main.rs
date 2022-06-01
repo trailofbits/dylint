@@ -10,11 +10,12 @@ use if_chain::if_chain;
 use std::{
     env::{args, consts},
     ffi::OsStr,
-    fs::copy,
+    fs::{copy, read_to_string},
     path::{Path, PathBuf},
 };
 #[cfg(target_os = "windows")]
 use std::{fs::File, io::Read};
+use toml_edit::{Document, Item};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -30,31 +31,66 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-#[cfg(target_os = "windows")]
 fn linker() -> Result<PathBuf> {
     let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
-    let split_toolchain: Vec<_> = rustup_toolchain.split('-').collect();
+    let cargo_home = cargo_home()?;
+    let config_toml = cargo_home.join("config.toml");
     if_chain! {
-        if split_toolchain.last() == Some(&"msvc");
-        let len = split_toolchain.len();
-        if len >= 4;
+        if let Some((_, target)) = parse_toolchain(&rustup_toolchain);
+        if config_toml.is_file();
         then {
-            // MinerSebas: Removes the Release Information: "nightly-2021-04-08-x86_64-pc-windows-msvc" -> "x86_64-pc-windows-msvc"
-            let trimmed_toolchain: String = split_toolchain[len - 4..].join("-");
-            if let Some(tool) = cc::windows_registry::find_tool(&trimmed_toolchain, "link.exe") {
-                Ok(tool.path().into())
-            } else {
-                Err(anyhow!("Could not find the MSVC Linker"))
-            }
+            let file = read_to_string(&config_toml).with_context(|| {
+                format!(
+                    "`read_to_string` failed for `{}`",
+                    config_toml.to_string_lossy()
+                )
+            })?;
+            let document = file.parse::<Document>()?;
+            document
+                .as_table()
+                .get("target")
+                .and_then(Item::as_table)
+                .and_then(|table| table.get(&target))
+                .and_then(Item::as_table)
+                .and_then(|table| table.get("linker"))
+                .and_then(Item::as_str)
+                .map_or_else(default_linker, |s| Ok(PathBuf::from(s)))
         } else {
-            Err(anyhow!("Only the MSVC toolchain is supported on Windows"))
+            default_linker()
         }
+    }
+}
+
+fn cargo_home() -> Result<PathBuf> {
+    match env::var(env::CARGO_HOME) {
+        Ok(value) => Ok(PathBuf::from(value)),
+        Err(error) => dirs::home_dir()
+            .map(|path| path.join(".cargo"))
+            .ok_or(error),
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn default_linker() -> Result<PathBuf> {
+    let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
+    if rustup_toolchain.split('-').last() == Some("msvc") {
+        // MinerSebas: Removes the Release Information: "nightly-2021-04-08-x86_64-pc-windows-msvc" -> "x86_64-pc-windows-msvc"
+        // smoelius: The approach has changed slightly.
+        if let Some(tool) = parse_toolchain(&rustup_toolchain)
+            .and_then(|(_, target)| cc::windows_registry::find_tool(&target, "link.exe"))
+        {
+            Ok(tool.path().into())
+        } else {
+            Err(anyhow!("Could not find the MSVC Linker"))
+        }
+    } else {
+        Err(anyhow!("Only the MSVC toolchain is supported on Windows"))
     }
 }
 
 #[cfg(not(target_os = "windows"))]
 #[allow(clippy::unnecessary_wraps)]
-fn linker() -> Result<PathBuf> {
+fn default_linker() -> Result<PathBuf> {
     Ok(PathBuf::from("cc"))
 }
 
@@ -148,6 +184,21 @@ fn copy_library(path: &Path) -> Result<()> {
     Ok(())
 }
 
+// smoelius: I do not know what the right/best way to parse a toolchain is. `parse_toolchain` does
+// so by looking for the architecture.
+fn parse_toolchain(toolchain: &str) -> Option<(String, String)> {
+    let split_toolchain: Vec<_> = toolchain.split('-').collect();
+    split_toolchain
+        .iter()
+        .rposition(|s| ARCHITECTURES.binary_search(s).is_ok())
+        .map(|i| {
+            (
+                split_toolchain[..i].join("-"),
+                split_toolchain[i..].join("-"),
+            )
+        })
+}
+
 fn parse_path_plain_filename(path: &Path) -> Option<String> {
     let filename = path.file_name()?;
     let s = filename.to_string_lossy();
@@ -164,4 +215,178 @@ fn strip_deps(path: &Path) -> PathBuf {
     }
     .unwrap_or(path)
     .to_path_buf()
+}
+
+// smoelius: `ARCHITECTURES` is based on: https://doc.rust-lang.org/rustc/platform-support.html
+const ARCHITECTURES: &[&str] = &[
+    "aarch64",
+    "aarch64_be",
+    "arm",
+    "armebv7r",
+    "armv4t",
+    "armv5te",
+    "armv6",
+    "armv6k",
+    "armv7",
+    "armv7a",
+    "armv7r",
+    "armv7s",
+    "asmjs",
+    "avr",
+    "bpfeb",
+    "bpfel",
+    "hexagon",
+    "i386",
+    "i586",
+    "i686",
+    "m68k",
+    "mips",
+    "mips64",
+    "mips64el",
+    "mipsel",
+    "mipsisa32r6",
+    "mipsisa32r6el",
+    "mipsisa64r6",
+    "mipsisa64r6el",
+    "msp430",
+    "nvptx64",
+    "powerpc",
+    "powerpc64",
+    "powerpc64le",
+    "riscv32gc",
+    "riscv32i",
+    "riscv32im",
+    "riscv32imac",
+    "riscv32imc",
+    "riscv64gc",
+    "riscv64imac",
+    "s390x",
+    "sparc",
+    "sparc64",
+    "sparcv9",
+    "thumbv4t",
+    "thumbv6m",
+    "thumbv7a",
+    "thumbv7em",
+    "thumbv7m",
+    "thumbv7neon",
+    "thumbv8m.base",
+    "thumbv8m.main",
+    "wasm32",
+    "x86_64",
+];
+
+#[cfg(test)]
+mod test {
+    #![allow(clippy::unwrap_used)]
+
+    use super::{env, ARCHITECTURES};
+    use assert_cmd::prelude::*;
+    use curl::easy::Easy;
+    use dylint_internal::packaging::isolate;
+    use predicates::prelude::*;
+    use std::fs::{create_dir, write};
+    use tempfile::{tempdir, tempdir_in};
+    use test_log::test;
+
+    #[test]
+    fn architectures_are_current() {
+        let mut dst = Vec::new();
+        let mut easy = Easy::new();
+        easy.url("https://doc.rust-lang.org/rustc/platform-support.html")
+            .unwrap();
+        {
+            let mut transfer = easy.transfer();
+            transfer
+                .write_function(|data| {
+                    dst.extend_from_slice(data);
+                    Ok(data.len())
+                })
+                .unwrap();
+            transfer.perform().unwrap();
+        }
+        let mut architectures = std::str::from_utf8(&dst)
+            .unwrap()
+            .lines()
+            .filter_map(|line| {
+                line.strip_prefix("<tr><td><code>")
+                    .and_then(|line| line.split_once('-').map(|(architecture, _)| architecture))
+            })
+            .collect::<Vec<_>>();
+        architectures.sort_unstable();
+        architectures.dedup();
+        assert_eq!(ARCHITECTURES, architectures);
+    }
+
+    #[test]
+    fn architectures_are_sorted() {
+        let mut architectures = ARCHITECTURES.to_vec();
+        architectures.sort_unstable();
+        architectures.dedup();
+        assert_eq!(ARCHITECTURES, architectures);
+    }
+
+    #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+    #[cfg_attr(
+        dylint_lib = "non_thread_safe_call_in_test",
+        allow(non_thread_safe_call_in_test)
+    )]
+    #[test]
+    fn global_config() {
+        let cargo_home = tempdir().unwrap();
+        let package = tempdir_in(".").unwrap();
+
+        dylint_internal::cargo::init("package `global_config_test`", false)
+            .current_dir(package.path())
+            .args(&["--name", "global_config_test"])
+            .success()
+            .unwrap();
+
+        isolate(package.path()).unwrap();
+
+        let package_cargo = package.path().join(".cargo");
+        create_dir(&package_cargo).unwrap();
+        write(
+            package_cargo.join("config.toml"),
+            r#"
+[target.x86_64-unknown-linux-gnu]
+linker = "../../target/debug/dylint-link"
+"#,
+        )
+        .unwrap();
+
+        std::process::Command::new("cargo")
+            .current_dir(package.path())
+            .arg("build")
+            .assert()
+            .success();
+
+        write(
+            cargo_home.path().join("config.toml"),
+            r#"
+[target.x86_64-unknown-linux-gnu]
+linker = "false"
+"#,
+        )
+        .unwrap();
+
+        std::process::Command::new("cargo")
+            .current_dir(package.path())
+            .arg("clean")
+            .assert()
+            .success();
+
+        std::process::Command::new("cargo")
+            .env(env::CARGO_HOME, cargo_home.path())
+            .current_dir(package.path())
+            .arg("build")
+            .assert()
+            .failure()
+            .stderr(
+                predicate::str::is_match(
+                    "error: linking with `[^`]*/target/debug/dylint-link` failed",
+                )
+                .unwrap(),
+            );
+    }
 }

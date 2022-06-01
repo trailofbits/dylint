@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 
+pub const CARGO_HOME: &str = "CARGO_HOME";
 pub const CARGO_MANIFEST_DIR: &str = "CARGO_MANIFEST_DIR";
 pub const CARGO_PKG_NAME: &str = "CARGO_PKG_NAME";
 pub const CARGO_TARGET_DIR: &str = "CARGO_TARGET_DIR";
