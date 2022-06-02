@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.4
+
+- Respect `linker` setting in `$CARGO_HOME/config.toml` ([#339](https://github.com/trailofbits/dylint/pull/339))
+
 ## 2.0.3
 
 - Error when metadata entry names a nonexistent library ([#317](https://github.com/trailofbits/dylint/pull/317))

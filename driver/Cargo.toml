@@ -1,6 +1,6 @@
 [package]
 name = "dylint_driver"
-version = "2.0.3"
+version = "2.0.4"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Dylint driver library"
 edition = "2018"
@@ -13,7 +13,7 @@ libloading = "0.7.3"
 log = "0.4.17"
 serde_json = "1.0.81"
 
-dylint_internal = { version = "=2.0.3", path = "../internal" }
+dylint_internal = { version = "=2.0.4", path = "../internal" }
 
 [workspace]
 
