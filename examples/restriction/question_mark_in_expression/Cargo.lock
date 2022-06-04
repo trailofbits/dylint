@@ -182,7 +182,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.0.4"
+version = "2.0.5"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -203,7 +203,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.0.4"
+version = "2.0.5"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -216,14 +216,14 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.0.4"
+version = "2.0.5"
 dependencies = [
  "paste",
 ]
 
 [[package]]
 name = "dylint_testing"
-version = "2.0.4"
+version = "2.0.5"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -526,7 +526,7 @@ dependencies = [
 
 [[package]]
 name = "question_mark_in_expression"
-version = "2.0.4"
+version = "2.0.5"
 dependencies = [
  "clippy_utils",
  "dylint_linting",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.5
+
+- Fix a bug that was causing `rustfix` to not work with example tests ([#341](https://github.com/trailofbits/dylint/pull/341))
+
 ## 2.0.4
 
 - Respect `linker` setting in `$CARGO_HOME/config.toml` ([#339](https://github.com/trailofbits/dylint/pull/339))
