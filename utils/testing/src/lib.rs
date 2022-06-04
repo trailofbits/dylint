@@ -112,8 +112,8 @@ fn run_example_test<'test>(
             to.to_string_lossy()
         )
     })?;
-    copy_with_extension(&target.src_path, &to, "stderr").unwrap_or_default();
-    copy_with_extension(&target.src_path, &to, "stdout").unwrap_or_default();
+    ["fixed", "stderr", "stdout"]
+        .map(|extension| copy_with_extension(&target.src_path, &to, extension).unwrap_or_default());
 
     run_tests(driver, src_base, rustc_flags.chain(linking_flags.iter()));
 
