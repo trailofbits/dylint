@@ -6,9 +6,9 @@ The example libraries are separated into the following three categories:
 - [restriction] - would likely be considered "restriction lints" by [Clippy], e.g., reflect concerns not necessarily held by all authors
 - [testing] - used only for testing purposes
 
-The current examples are:
+## General
 
-| General                                                                  | Description                                                                        |
+| Example                                                                  | Description                                                                        |
 | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
 | [`await_holding_span_guard`](./general/await_holding_span_guard)         | A lint to check for Span guards held while calling await inside an async function  |
 | [`crate_wide_allow`](./general/crate_wide_allow)                         | A lint to check for `#![allow(...)]` used at the crate level                       |
@@ -16,7 +16,9 @@ The current examples are:
 | [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test) | A lint to check for non-thread-safe function calls in tests                        |
 | [`redundant_reference`](./general/redundant_reference)                   | A lint to check for reference fields used only to read one copyable subfield       |
 
-| Restriction                                                                          | Description                                                                |
+## Restriction
+
+| Example                                                                              | Description                                                                |
 | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
 | [`env_literal`](./restriction/env_literal)                                           | A lint to check for environment variables referred to with string literals |
 | [`inconsistent_qualification`](./restriction/inconsistent_qualification)             | A lint to check for inconsistent qualification of module items             |
@@ -24,7 +26,9 @@ The current examples are:
 | [`question_mark_in_expression`](./restriction/question_mark_in_expression)           | A lint to check for the `?` operator in expressions                        |
 | [`try_io_result`](./restriction/try_io_result)                                       | A lint to check for the `?` operator applied to `std::io::Result`          |
 
-| Testing                            | Description                                            |
+## Testing
+
+| Example                            | Description                                            |
 | ---------------------------------- | ------------------------------------------------------ |
 | [`clippy`](./testing/clippy)       | All of the Clippy lints as a Dylint library            |
 | [`straggler`](./testing/straggler) | A lint that uses an old toolchain for testing purposes |
@@ -39,6 +43,6 @@ The current examples are:
    ```
 
 [clippy]: https://github.com/rust-lang/rust-clippy#clippy
-[general]: ./general
-[restriction]: ./restriction
-[testing]: ./testing
+[general]: #general
+[restriction]: #restriction
+[testing]: #testing
