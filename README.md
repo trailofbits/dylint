@@ -247,9 +247,9 @@ Helpful resources for writing lints include the following:
 [`try_io_result`]: ./examples/restriction/try_io_result
 [`ui_test`]: ./utils/testing
 [`unknown_lints`]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#unknown-lints
-[adding a new lint]: https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md
-[author lint]: https://github.com/rust-lang/rust-clippy/blob/master/doc/adding_lints.md#author-lint
-[common tools for writing lints]: https://github.com/rust-lang/rust-clippy/blob/master/doc/common_tools_writing_lints.md
+[adding a new lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md
+[author lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md#author-lint
+[common tools for writing lints]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/common_tools_writing_lints.md
 [conditional compilation]: #conditional-compilation
 [crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 [crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
