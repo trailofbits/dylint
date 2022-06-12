@@ -272,21 +272,7 @@ fn package_id(source_id: SourceId, package_root: &Path) -> Result<PackageId> {
         .no_deps()
         .exec()?;
 
-    ensure!(
-        metadata.packages.len() <= 1,
-        "Library is not in its own workspace: {}",
-        package_root.to_string_lossy()
-    );
-
-    let package = metadata
-        .packages
-        .first()
-        .ok_or_else(|| anyhow!("Found no packages in `{}`", package_root.to_string_lossy()))?;
-
-    assert_eq!(
-        metadata.workspace_root,
-        package.manifest_path.parent().unwrap()
-    );
+    let package = dylint_internal::cargo::package_with_root(&metadata, package_root)?;
 
     PackageId::new(&package.name, &package.version.to_string(), source_id)
 }
