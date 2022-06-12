@@ -1,7 +1,7 @@
 use ansi_term::Style;
 use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
-use std::{io::Write, process::Stdio};
+use std::{io::Write, path::Path, process::Stdio};
 
 #[must_use]
 pub fn build(description: &str, quiet: bool) -> crate::Command {
@@ -56,13 +56,35 @@ pub fn current_metadata() -> Result<Metadata> {
     MetadataCommand::new().no_deps().exec().map_err(Into::into)
 }
 
-pub fn root_package(metadata: &Metadata) -> Result<Package> {
-    ensure!(metadata.packages.len() <= 1, "Found multiple packages");
-    metadata
+pub fn package_with_root(metadata: &Metadata, package_root: &Path) -> Result<Package> {
+    let packages = metadata
         .packages
-        .first()
+        .iter()
+        .map(|package| {
+            let path = package
+                .manifest_path
+                .parent()
+                .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+            Ok(if path == package_root {
+                Some(package)
+            } else {
+                None
+            })
+        })
+        .filter_map(Result::transpose)
+        .collect::<Result<Vec<_>>>()?;
+
+    ensure!(
+        packages.len() <= 1,
+        "Found multiple packages in `{}`",
+        package_root.to_string_lossy()
+    );
+
+    packages
+        .into_iter()
+        .next()
         .cloned()
-        .ok_or_else(|| anyhow!("Found no packages"))
+        .ok_or_else(|| anyhow!("Found no packages in `{}`", package_root.to_string_lossy()))
 }
 
 pub fn package(metadata: &Metadata, package_id: &PackageId) -> Result<Package> {

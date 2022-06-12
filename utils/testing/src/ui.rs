@@ -1,5 +1,8 @@
 use crate::{example_target, example_targets, initialize, run_example_test, run_tests};
-use std::path::{Path, PathBuf};
+use std::{
+    env::current_dir,
+    path::{Path, PathBuf},
+};
 
 enum Target {
     SrcBase(PathBuf),
@@ -59,7 +62,9 @@ impl Test {
             }
             Target::Example(example) => {
                 let metadata = dylint_internal::cargo::current_metadata().unwrap();
-                let package = dylint_internal::cargo::root_package(&metadata).unwrap();
+                let current_dir = current_dir().unwrap();
+                let package =
+                    dylint_internal::cargo::package_with_root(&metadata, &current_dir).unwrap();
                 let target = example_target(&package, example).unwrap();
 
                 run_example_test(
@@ -73,7 +78,9 @@ impl Test {
             }
             Target::Examples => {
                 let metadata = dylint_internal::cargo::current_metadata().unwrap();
-                let package = dylint_internal::cargo::root_package(&metadata).unwrap();
+                let current_dir = current_dir().unwrap();
+                let package =
+                    dylint_internal::cargo::package_with_root(&metadata, &current_dir).unwrap();
                 let targets = example_targets(&package).unwrap();
 
                 for target in targets {
