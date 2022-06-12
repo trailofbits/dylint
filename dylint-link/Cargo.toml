@@ -16,6 +16,9 @@ toml_edit = "0.14.4"
 
 dylint_internal = { version = "=2.0.5", path = "../internal" }
 
+[build-dependencies]
+dylint_internal = { version = "=2.0.5", path = "../internal" }
+
 [dev-dependencies]
 assert_cmd = "2.0.4"
 curl = "0.4.43"

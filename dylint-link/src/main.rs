@@ -33,31 +33,29 @@ fn main() -> Result<()> {
 
 fn linker() -> Result<PathBuf> {
     let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
+    let target = parse_toolchain(&rustup_toolchain)
+        .map_or_else(|| env!("TARGET").to_owned(), |(_, target)| target);
     let cargo_home = cargo_home()?;
     let config_toml = cargo_home.join("config.toml");
-    if_chain! {
-        if let Some((_, target)) = parse_toolchain(&rustup_toolchain);
-        if config_toml.is_file();
-        then {
-            let file = read_to_string(&config_toml).with_context(|| {
-                format!(
-                    "`read_to_string` failed for `{}`",
-                    config_toml.to_string_lossy()
-                )
-            })?;
-            let document = file.parse::<Document>()?;
-            document
-                .as_table()
-                .get("target")
-                .and_then(Item::as_table)
-                .and_then(|table| table.get(&target))
-                .and_then(Item::as_table)
-                .and_then(|table| table.get("linker"))
-                .and_then(Item::as_str)
-                .map_or_else(default_linker, |s| Ok(PathBuf::from(s)))
-        } else {
-            default_linker()
-        }
+    if config_toml.is_file() {
+        let file = read_to_string(&config_toml).with_context(|| {
+            format!(
+                "`read_to_string` failed for `{}`",
+                config_toml.to_string_lossy()
+            )
+        })?;
+        let document = file.parse::<Document>()?;
+        document
+            .as_table()
+            .get("target")
+            .and_then(Item::as_table)
+            .and_then(|table| table.get(&target))
+            .and_then(Item::as_table)
+            .and_then(|table| table.get("linker"))
+            .and_then(Item::as_str)
+            .map_or_else(default_linker, |s| Ok(PathBuf::from(s)))
+    } else {
+        default_linker()
     }
 }
 

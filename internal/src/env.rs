@@ -18,6 +18,7 @@ pub const RUST_BACKTRACE: &str = "RUST_BACKTRACE";
 pub const RUSTFLAGS: &str = "RUSTFLAGS";
 pub const RUSTUP_HOME: &str = "RUSTUP_HOME";
 pub const RUSTUP_TOOLCHAIN: &str = "RUSTUP_TOOLCHAIN";
+pub const TARGET: &str = "TARGET";
 
 #[must_use]
 pub fn enabled(key: &str) -> bool {
