@@ -1,6 +1,6 @@
 [package]
 name = "dylint"
-version = "2.0.5"
+version = "2.0.6"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
 edition = "2018"
@@ -31,7 +31,7 @@ tempfile = "3.3.0"
 toml_edit = { version = "0.14.4", optional = true }
 walkdir = "2.3.2"
 
-dylint_internal = { version = "=2.0.5", path = "../internal" }
+dylint_internal = { version = "=2.0.6", path = "../internal" }
 
 [dev-dependencies]
 env_logger = "0.9.0"

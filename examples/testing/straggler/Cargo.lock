@@ -167,7 +167,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.0.5"
+version = "2.0.6"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -188,7 +188,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.0.5"
+version = "2.0.6"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -201,14 +201,14 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.0.5"
+version = "2.0.6"
 dependencies = [
  "paste",
 ]
 
 [[package]]
 name = "dylint_testing"
-version = "2.0.5"
+version = "2.0.6"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -532,7 +532,7 @@ dependencies = [
 
 [[package]]
 name = "straggler"
-version = "2.0.5"
+version = "2.0.6"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
