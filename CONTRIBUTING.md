@@ -1,15 +1,18 @@
 WIP
 
-- Please prefix all comments with your GitHub username.
+- Please prefix all non-rustdoc comments with your GitHub username.
 
   Examples:
 
   ```rust
-  // smoelius: This is a Rust comment.
-  fn main() {}
+  /// This is a rustdoc comment, so no username is required.
+  fn foo() {}
+
+  // smoelius: This is a non-rustdoc comment.
+  fn bar() {}
   ```
 
   ```sh
   #! /bin/bash
-  # smoelius: This is a Bash comment.
+  # smoelius: This is a Bash comment, and therefore non-rustdoc.
   ```
