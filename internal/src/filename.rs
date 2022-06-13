@@ -1,12 +1,14 @@
 use std::{env::consts, path::Path};
 
+// smoelius: Build a standard rlib, and the filename will use snake case. `library_filename`'s
+// behavior is consistent with that.
 #[allow(clippy::module_name_repetitions)]
 #[must_use]
 pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
     format!(
         "{}{}@{}{}",
         consts::DLL_PREFIX,
-        lib_name,
+        lib_name.replace('-', "_"),
         toolchain,
         consts::DLL_SUFFIX
     )
