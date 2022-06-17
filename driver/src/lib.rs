@@ -139,8 +139,8 @@ impl rustc_driver::Callbacks for Callbacks {
             }
             let mut before = BTreeSet::<Lint>::new();
             if list_enabled() {
-                lint_store.get_lints().iter().for_each(|lint| {
-                    before.insert((*lint).into());
+                lint_store.get_lints().iter().for_each(|&lint| {
+                    before.insert(lint.into());
                 });
             }
             for loaded_lib in &loaded_libs {
@@ -148,8 +148,8 @@ impl rustc_driver::Callbacks for Callbacks {
             }
             if list_enabled() {
                 let mut after = BTreeSet::<Lint>::new();
-                lint_store.get_lints().iter().for_each(|lint| {
-                    after.insert((*lint).into());
+                lint_store.get_lints().iter().for_each(|&lint| {
+                    after.insert(lint.into());
                 });
                 list_lints(&before, &after);
                 std::process::exit(0);

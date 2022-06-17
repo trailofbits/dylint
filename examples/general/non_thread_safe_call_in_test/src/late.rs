@@ -106,7 +106,7 @@ impl NonThreadSafeCallInTest {
     fn is_test_item(&self, item: &Item) -> bool {
         self.test_fns
             .iter()
-            .any(|def_id| item.def_id.to_def_id() == *def_id)
+            .any(|&def_id| item.def_id.to_def_id() == def_id)
     }
 }
 

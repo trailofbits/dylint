@@ -122,7 +122,7 @@ fn is_blacklisted_function(callee: &Expr) -> Option<&'static [&'static str]> {
             .iter()
             .map(|segment| segment.ident.as_str())
             .collect();
-        let strs: Vec<&str> = symbols.iter().map(|symbol| &**symbol).collect();
+        let strs: Vec<&str> = symbols.iter().map(|&symbol| &*symbol).collect();
         crate::blacklist::BLACKLIST
             .iter()
             .copied()

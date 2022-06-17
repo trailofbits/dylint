@@ -121,7 +121,7 @@ fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<b
         let theirs = stdout
             .trim_end()
             .rsplit_once(' ')
-            .map(|pair| pair.1)
+            .map(|(_, s)| s)
             .ok_or_else(|| anyhow!("Could not determine driver version"))?;
 
         let their_version = Version::parse(theirs)

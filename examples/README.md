@@ -24,6 +24,7 @@ The example libraries are separated into the following three categories:
 | [`inconsistent_qualification`](./restriction/inconsistent_qualification)             | A lint to check for inconsistent qualification of module items             |
 | [`path_separator_in_string_literal`](./restriction/path_separator_in_string_literal) | A lint to check for path separators in string literals                     |
 | [`question_mark_in_expression`](./restriction/question_mark_in_expression)           | A lint to check for the `?` operator in expressions                        |
+| [`suboptimal_pattern`](./restriction/suboptimal_pattern)                             | A lint to check for patterns that could perform additional destructuring   |
 | [`try_io_result`](./restriction/try_io_result)                                       | A lint to check for the `?` operator applied to `std::io::Result`          |
 
 ## Testing
