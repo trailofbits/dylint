@@ -71,12 +71,12 @@ fn dylint_metadata_paths(
         if let serde_json::Value::Object(object) = value {
             let libraries = object
                 .iter()
-                .map(|entry| {
-                    if entry.0 == "libraries" {
-                        let libraries = serde_json::from_value::<Vec<Library>>(entry.1.clone())?;
+                .map(|(key, value)| {
+                    if key == "libraries" {
+                        let libraries = serde_json::from_value::<Vec<Library>>(value.clone())?;
                         maybe_build_libraries(opts, metadata, &libraries)
                     } else {
-                        bail!("Unknown key `{}`", entry.0)
+                        bail!("Unknown key `{}`", key)
                     }
                 })
                 .collect::<Result<Vec<_>>>()?;
