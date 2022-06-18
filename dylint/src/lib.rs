@@ -240,6 +240,8 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
             .insert(path);
     }
 
+    let mut not_found = Vec::new();
+
     for name in &opts.names {
         if let Some((toolchain, path)) = name_as_lib(name_toolchain_map, name, false)? {
             ensure!(
@@ -258,8 +260,18 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
                 .or_insert_with(Default::default)
                 .insert(path);
         } else {
-            bail!("Could not find `{}`", name);
+            not_found.push(name);
         }
+    }
+
+    if !not_found.is_empty() {
+        bail!(
+            "Could not find the following libraries:{}",
+            not_found
+                .iter()
+                .map(|name| format!("\n    {}", name))
+                .collect::<String>()
+        );
     }
 
     Ok(toolchain_map)
