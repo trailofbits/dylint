@@ -39,7 +39,7 @@ fn new_package() {
 fn downgrade_upgrade_package() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::clone_dylint_template(tempdir.path()).unwrap();
+    dylint_internal::testing::new_template(tempdir.path()).unwrap();
 
     // smoelius: I broke this downgrading code when I switched dylint-template from using a git tag
     // to a git revision to refer to `clippy_utils`. For now, just hardcode the downgrade version.

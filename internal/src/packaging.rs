@@ -3,7 +3,41 @@ use crate::{
     sed::find_and_replace,
 };
 use anyhow::{anyhow, Context, Result};
-use std::{fs::OpenOptions, io::Write, path::Path};
+use rust_embed::RustEmbed;
+use std::{
+    fs::{create_dir_all, OpenOptions},
+    io::Write,
+    path::Path,
+};
+
+#[derive(RustEmbed)]
+#[folder = "../examples/other/template"]
+#[exclude = "Cargo.lock"]
+#[exclude = "target/*"]
+struct Template;
+
+pub fn new_template(to: &Path) -> Result<()> {
+    for path in Template::iter() {
+        let to_path = to.join(&*path);
+        let parent = to_path
+            .parent()
+            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+        create_dir_all(parent).with_context(|| {
+            format!("`create_dir_all` failed for `{}`", parent.to_string_lossy())
+        })?;
+        let embedded_file = Template::get(&path)
+            .ok_or_else(|| anyhow!("Could not get embedded file `{}`", path))?;
+        let mut file = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(&to_path)
+            .with_context(|| format!("Could not open `{}`", to_path.to_string_lossy()))?;
+        file.write_all(&embedded_file.data)
+            .with_context(|| format!("Could not write to {:?}", to_path))?;
+    }
+
+    Ok(())
+}
 
 // smoelius: If a package is checked out in the current directory, this must be dealt with:
 // error: current package believes it's in a workspace when it's not
@@ -73,9 +107,26 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn allow_unused_extern_crates(path: &Path) -> Result<()> {
-    find_and_replace(
-        &path.join("src").join("lib.rs"),
-        &[r#"s/(?m)^#!\[warn\(unused_extern_crates\)\]\r?\n//"#],
-    )
+#[test]
+fn template_includes_only_whitelisted_paths() {
+    const PATHS: [&str; 8] = [
+        ".cargo/config.toml",
+        ".gitignore",
+        "Cargo.toml",
+        "README.md",
+        "rust-toolchain",
+        "src/lib.rs",
+        "ui/main.rs",
+        "ui/main.stderr",
+    ];
+
+    let mut paths_sorted = PATHS.to_vec();
+    paths_sorted.sort_unstable();
+    assert_eq!(paths_sorted, PATHS);
+
+    let paths = Template::iter()
+        .filter(|path| PATHS.binary_search(&&**path).is_err())
+        .collect::<Vec<_>>();
+
+    assert!(paths.is_empty(), "found {:#?}", paths);
 }

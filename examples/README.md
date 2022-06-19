@@ -4,7 +4,7 @@ The example libraries are separated into the following three categories:
 
 - [general] - applicable to most projects
 - [restriction] - would likely be considered "restriction lints" by [Clippy], e.g., reflect concerns not necessarily held by all authors
-- [testing] - used only for testing purposes
+- [other] - used, e.g., for testing purposes
 
 ## General
 
@@ -27,12 +27,13 @@ The example libraries are separated into the following three categories:
 | [`suboptimal_pattern`](./restriction/suboptimal_pattern)                             | A lint to check for patterns that could perform additional destructuring   |
 | [`try_io_result`](./restriction/try_io_result)                                       | A lint to check for the `?` operator applied to `std::io::Result`          |
 
-## Testing
+## Other
 
-| Example                            | Description                                            |
-| ---------------------------------- | ------------------------------------------------------ |
-| [`clippy`](./testing/clippy)       | All of the Clippy lints as a Dylint library            |
-| [`straggler`](./testing/straggler) | A lint that uses an old toolchain for testing purposes |
+| Example                          | Description                                            |
+| -------------------------------- | ------------------------------------------------------ |
+| [`clippy`](./other/clippy)       | All of the Clippy lints as a Dylint library            |
+| [`straggler`](./other/straggler) | A lint that uses an old toolchain for testing purposes |
+| [`template`](./other/template)   | decription goes here                                   |
 
 **Notes**
 
@@ -45,5 +46,5 @@ The example libraries are separated into the following three categories:
 
 [clippy]: https://github.com/rust-lang/rust-clippy#clippy
 [general]: #general
+[other]: #other
 [restriction]: #restriction
-[testing]: #testing

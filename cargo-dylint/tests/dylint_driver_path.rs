@@ -1,6 +1,7 @@
 use dylint_internal::{
-    clone_dylint_template, driver as dylint_driver, env,
+    driver as dylint_driver, env,
     rustup::{toolchain_path, SanitizeEnvironment},
+    testing::new_template,
 };
 use std::fs::create_dir_all;
 use tempfile::tempdir_in;
@@ -10,7 +11,7 @@ use test_log::test;
 fn dylint_driver_path() {
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 
-    clone_dylint_template(tempdir.path()).unwrap();
+    new_template(tempdir.path()).unwrap();
 
     let dylint_driver_path = tempdir.path().join("target").join("dylint_drivers");
 

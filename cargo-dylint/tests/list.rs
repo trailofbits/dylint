@@ -6,7 +6,7 @@ use anyhow::{Context, Result};
 use assert_cmd::prelude::*;
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    clone_dylint_template, env, find_and_replace, library_filename, rustup::SanitizeEnvironment,
+    env, find_and_replace, library_filename, rustup::SanitizeEnvironment, testing::new_template,
 };
 use glob::glob;
 use predicates::prelude::*;
@@ -27,7 +27,7 @@ const CLIPPY_UTILS_REV_B: &str = "392b0c5c25ddbd36e4dc480afcf70ed01dce352d";
 fn one_name_multiple_toolchains() {
     let tempdir = tempdir().unwrap();
 
-    clone_dylint_template(tempdir.path()).unwrap();
+    new_template(tempdir.path()).unwrap();
 
     patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_REV_A).unwrap();
     dylint_internal::cargo::build(
@@ -87,8 +87,8 @@ fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> 
 fn one_name_multiple_paths() {
     let tempdirs = (tempdir().unwrap(), tempdir().unwrap());
 
-    clone_dylint_template(tempdirs.0.path()).unwrap();
-    clone_dylint_template(tempdirs.1.path()).unwrap();
+    new_template(tempdirs.0.path()).unwrap();
+    new_template(tempdirs.1.path()).unwrap();
 
     dylint_internal::cargo::build(
         &format!("dylint-template in {:?}", tempdirs.0.path()),
@@ -137,7 +137,7 @@ fn one_name_multiple_paths() {
 fn canonical_path() {
     let tempdir = tempdir().unwrap();
 
-    clone_dylint_template(tempdir.path()).unwrap();
+    new_template(tempdir.path()).unwrap();
 
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()), false)
         .sanitize_environment()
@@ -177,7 +177,7 @@ fn canonical_path() {
 fn list_by_path() {
     let tempdir = tempdir().unwrap();
 
-    clone_dylint_template(tempdir.path()).unwrap();
+    new_template(tempdir.path()).unwrap();
 
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()), false)
         .sanitize_environment()
