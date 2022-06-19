@@ -267,7 +267,6 @@ dependencies = [
  "dylint_internal",
  "env_logger",
  "lazy_static",
- "log",
  "once_cell",
  "regex",
  "serde_json",
