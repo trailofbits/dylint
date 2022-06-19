@@ -14,5 +14,6 @@ cargo_metadata = "0.14.2"
 git2 = { version = "0.13.25", optional = true }
 if_chain = "1.0.2"
 log = "0.4.17"
+rust-embed = { version = "6.4.0", features = ["include-exclude"] }
 sedregex = "0.2.5"
 walkdir = "2.3.2"

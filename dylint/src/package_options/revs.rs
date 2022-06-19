@@ -1,5 +1,6 @@
 use super::clippy_utils::{channel, version};
 use anyhow::{anyhow, Context, Result};
+use dylint_internal::clone;
 use git2::{Commit, ObjectType, Repository};
 use if_chain::if_chain;
 use tempfile::{tempdir, TempDir};
@@ -28,7 +29,7 @@ impl Revs {
     pub fn new() -> Result<Self> {
         let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
 
-        let repository = super::clone(RUST_CLIPPY_URL, "master", tempdir.path())?;
+        let repository = clone(RUST_CLIPPY_URL, "master", tempdir.path())?;
 
         Ok(Self {
             tempdir,

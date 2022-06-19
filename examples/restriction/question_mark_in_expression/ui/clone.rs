@@ -1,4 +1,4 @@
-const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
+const DYLINT_URL: &str = "https://github.com/trailofbits/dylint";
 
 fn main() {
     clone().unwrap();
@@ -20,6 +20,6 @@ impl From<std::io::Error> for Error {
 }
 
 fn clone() -> Result<(), Error> {
-    let _ = git2::Repository::clone(DYLINT_TEMPLATE_URL, tempfile::tempdir()?.path())?;
+    let _ = git2::Repository::clone(DYLINT_URL, tempfile::tempdir()?.path())?;
     Ok(())
 }

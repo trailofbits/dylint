@@ -1,10 +1,9 @@
 use crate::Dylint;
 use anyhow::{anyhow, bail, Context, Result};
 use chrono::{Date, NaiveDate, TimeZone, Utc};
-use dylint_internal::{clone, find_and_replace, rustup::SanitizeEnvironment};
+use dylint_internal::{find_and_replace, packaging::new_template, rustup::SanitizeEnvironment};
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
-use lazy_static::lazy_static;
 use std::{
     fs::{copy, create_dir_all, rename},
     path::{Path, PathBuf},
@@ -54,60 +53,31 @@ impl Drop for Backup {
     }
 }
 
-const DYLINT_TEMPLATE_URL: &str = "https://github.com/trailofbits/dylint-template";
-
-lazy_static! {
-    static ref PATHS: [PathBuf; 7] = [
-        PathBuf::from(".cargo").join("config.toml"),
-        PathBuf::from(".gitignore"),
-        PathBuf::from("Cargo.toml"),
-        PathBuf::from("rust-toolchain"),
-        PathBuf::from("src").join("lib.rs"),
-        PathBuf::from("ui").join("main.rs"),
-        PathBuf::from("ui").join("main.stderr"),
-    ];
-}
-
 pub fn new_package(opts: &Dylint, path: &Path) -> Result<()> {
     let name = path
         .file_name()
         .map(|s| s.to_string_lossy().to_string())
         .ok_or_else(|| anyhow!("Could not determine library name from {:?}", path))?;
 
-    let checked_out = tempdir().with_context(|| "`tempdir` failed")?;
-    let filtered = tempdir().with_context(|| "`tempdir` failed")?;
+    let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
 
-    clone(DYLINT_TEMPLATE_URL, "master", checked_out.path())?;
+    new_template(tempdir.path())?;
 
-    if opts.isolate {
-        dylint_internal::packaging::isolate(checked_out.path())?;
+    // smoelius: Isolation is now the default.
+    if !opts.isolate {
+        find_and_replace(
+            &tempdir.path().join("Cargo.toml"),
+            &[r#"s/\r?\n\[workspace\]\r?\n//"#],
+        )?;
     }
 
-    filter(&name, checked_out.path(), filtered.path())?;
+    // smoelius: So is allowing unused extern crates.
+    find_and_replace(
+        &tempdir.path().join("src").join("lib.rs"),
+        &[r#"s/(?m)^.. (#!\[warn\(unused_extern_crates\)\])$/${1}/"#],
+    )?;
 
-    fill_in(&name, filtered.path(), path)?;
-
-    Ok(())
-}
-
-fn filter(_name: &str, from: &Path, to: &Path) -> Result<()> {
-    for path in &*PATHS {
-        let from_path = from.join(path);
-        let to_path = to.join(path);
-        let parent = to_path
-            .parent()
-            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-        create_dir_all(parent).with_context(|| {
-            format!("`create_dir_all` failed for `{}`", parent.to_string_lossy())
-        })?;
-        copy(&from_path, &to_path).with_context(|| {
-            format!(
-                "Could not copy `{}` to `{}`",
-                from_path.to_string_lossy(),
-                to_path.to_string_lossy()
-            )
-        })?;
-    }
+    fill_in(&name, tempdir.path(), path)?;
 
     Ok(())
 }
