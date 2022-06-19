@@ -48,10 +48,8 @@ name = "await_holding_span_guard"
 version = "2.0.6"
 dependencies = [
  "clippy_utils",
- "dylint_internal",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
  "tracing",
 ]
 
@@ -229,7 +227,6 @@ dependencies = [
  "dylint_internal",
  "env_logger",
  "lazy_static",
- "log",
  "once_cell",
  "regex",
  "serde_json",

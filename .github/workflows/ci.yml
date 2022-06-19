@@ -54,12 +54,13 @@ jobs:
       - name: Lint
         run: ./scripts/lint.sh
 
-      - name: Udeps
-        run: |
-          rustup toolchain install nightly
-          cargo install cargo-udeps
-          cargo clean && cargo +nightly udeps --workspace --tests --no-default-features
-          cargo clean && cargo +nightly udeps --workspace --tests
+      # smoelius: Disable udeps. It doesn't appear it was working.
+      # - name: Udeps
+      #   run: |
+      #     rustup toolchain install nightly
+      #     cargo install cargo-udeps
+      #     cargo clean && cargo +nightly udeps --workspace --tests --no-default-features
+      #     cargo clean && cargo +nightly udeps --workspace --tests
 
   test:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]' }}
