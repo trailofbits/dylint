@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
-anyhow = "1.0.57"
+anyhow = "1.0.58"
 clap = { version = "3.1.18", features = ["cargo", "derive"] }
 env_logger = "0.9.0"
 
