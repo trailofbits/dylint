@@ -1,5 +1,5 @@
 use anyhow::Result;
-use cargo_metadata::{Dependency, Metadata, Version};
+use cargo_metadata::{Dependency, Metadata, MetadataCommand, Version};
 use dylint_internal::cargo::current_metadata;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -47,6 +47,26 @@ fn versions_are_exact_and_match() {
 }
 
 #[test]
+fn template_has_initial_version() {
+    let metadata = MetadataCommand::new()
+        .current_dir(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("..")
+                .join("examples")
+                .join("other")
+                .join("template"),
+        )
+        .no_deps()
+        .exec()
+        .unwrap();
+    if let [package] = metadata.packages.as_slice() {
+        assert_eq!(package.version.to_string(), "0.1.0");
+    } else {
+        panic!();
+    }
+}
+
+#[test]
 fn workspace_and_cargo_dylint_readmes_are_equivalent() {
     let workspace_readme = readme_contents(".").unwrap();
 
@@ -72,7 +92,7 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
 
 #[test]
 fn readmes_do_not_use_inline_links() {
-    for entry in walkdir() {
+    for entry in walkdir(false) {
         let entry = entry.unwrap();
         let path = entry.path();
         if path.file_name() != Some(OsStr::new("README.md")) {
@@ -90,7 +110,7 @@ fn readmes_do_not_use_inline_links() {
 #[test]
 fn readme_reference_links_are_sorted() {
     let re = Regex::new(r#"^\[[^\]]*\]:"#).unwrap();
-    for entry in walkdir() {
+    for entry in walkdir(true) {
         let entry = entry.unwrap();
         let path = entry.path();
         if path.file_name() != Some(OsStr::new("README.md")) {
@@ -136,8 +156,10 @@ fn compare_lines(left: &str, right: &str) {
 // smoelius: Skip examples directory for now.
 #[allow(unknown_lints)]
 #[allow(env_cargo_path)]
-fn walkdir() -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
+fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
     walkdir::WalkDir::new(Path::new(env!("CARGO_MANIFEST_DIR")).join(".."))
         .into_iter()
-        .filter_entry(|entry| entry.path().file_name() != Some(OsStr::new("examples")))
+        .filter_entry(move |entry| {
+            include_examples || entry.path().file_name() != Some(OsStr::new("examples"))
+        })
 }
