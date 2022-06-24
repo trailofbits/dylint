@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.7
+
+- Report all not found libraries, not just the first one ([#350](https://github.com/trailofbits/dylint/pull/350))
+- No longer use [`dylint-template`](https://github.com/trailofbits/dylint-template) to create new libraries ([#355](https://github.com/trailofbits/dylint/pull/355))
+
 ## 2.0.6
 
 - If target triple cannot be determined from toolchain, default to host triple ([ff4a069](https://github.com/trailofbits/dylint/commit/ff4a069800c9e6d8d33ff0ed03442343234cbe9f))

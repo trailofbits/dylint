@@ -16,9 +16,11 @@ WORKSPACE="$(realpath "$SCRIPTS"/..)"
 
 cd "$WORKSPACE"
 
-find . -name Cargo.toml -exec sed -i "{
+find . -name Cargo.toml |
+grep -vw template |
+xargs -n 1 sed -i "{
 s/^version = \"[^\"]*\"$/$VERSION/
-}" {} \;
+}"
 
 REQ="$(echo "$VERSION" | sed 's/"/"=/')"
 
