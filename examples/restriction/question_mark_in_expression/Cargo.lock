@@ -105,6 +105,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo_metadata"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3abb7553d5b9b8421c6de7cb02606ff15e0c6eea7d8eadd75ef013fd636bec36"
+dependencies = [
+ "camino",
+ "cargo-platform",
+ "semver",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "cc"
 version = "1.0.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -223,7 +236,7 @@ dependencies = [
  "ansi_term",
  "anyhow",
  "atty",
- "cargo_metadata",
+ "cargo_metadata 0.14.2",
  "dirs",
  "dylint_internal",
  "heck",
@@ -243,7 +256,7 @@ version = "2.0.7"
 dependencies = [
  "ansi_term",
  "anyhow",
- "cargo_metadata",
+ "cargo_metadata 0.15.0",
  "if_chain",
  "log",
  "rust-embed",
@@ -263,7 +276,7 @@ name = "dylint_testing"
 version = "2.0.7"
 dependencies = [
  "anyhow",
- "cargo_metadata",
+ "cargo_metadata 0.14.2",
  "compiletest_rs",
  "dylint",
  "dylint_internal",
