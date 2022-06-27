@@ -20,10 +20,7 @@ EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d)"
 
 # smoelius: Remove `straggler`, as it is used only for testing purposes. Also, it uses a different
 # toolchain than the other examples.
-EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/other/straggler\>[[:space:]]*,,')"
-
-# smoelius: Remove `template`, as it does not use workspace metadata like the other libraries.
-EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/other/template\>[[:space:]]*,,')"
+EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:space:]]*,,')"
 
 DIRS=". driver $EXAMPLE_DIRS"
 

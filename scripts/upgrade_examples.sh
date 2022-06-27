@@ -15,7 +15,7 @@ cd "$WORKSPACE"
 
 CARGO_DYLINT='timeout 10m cargo run -p cargo-dylint -- dylint'
 
-for EXAMPLE in examples/*/*; do
+for EXAMPLE in examples/*/* internal/template; do
     if [[ ! -d "$EXAMPLE" ]]; then
         continue
     fi
@@ -53,5 +53,13 @@ for EXAMPLE in examples/*/*; do
         fi
     fi
 
+    if [[ "$EXAMPLE" = 'internal/template' ]]; then
+        mv "$EXAMPLE"/Cargo.toml~ "$EXAMPLE"/Cargo.toml
+    fi
+
     $CARGO_DYLINT --upgrade "$EXAMPLE" --bisect
+
+    if [[ "$EXAMPLE" = 'internal/template' ]]; then
+        mv "$EXAMPLE"/Cargo.toml "$EXAMPLE"/Cargo.toml~
+    fi
 done

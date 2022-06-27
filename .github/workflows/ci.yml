@@ -90,7 +90,14 @@ jobs:
         run: cargo install --path ./dylint-link
 
       - name: Test
-        run: cargo test --workspace --all-features -- --nocapture
+        run: |
+          if [[ ${{ matrix.environment }} != 'windows-latest' ]]; then
+            cargo test --workspace --all-features -- --nocapture
+          else
+            cargo test --workspace --exclude dylint_internal --all-features -- --nocapture
+            cargo clean
+            cargo test -p dylint_internal --all-features -- --nocapture
+          fi
 
       - name: Test example documentation
         # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.

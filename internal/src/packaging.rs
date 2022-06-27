@@ -11,14 +11,14 @@ use std::{
 };
 
 #[derive(RustEmbed)]
-#[folder = "../examples/other/template"]
+#[folder = "template"]
 #[exclude = "Cargo.lock"]
 #[exclude = "target/*"]
 struct Template;
 
 pub fn new_template(to: &Path) -> Result<()> {
     for path in Template::iter() {
-        let to_path = to.join(&*path);
+        let to_path = to.join(path.trim_end_matches('~'));
         let parent = to_path
             .parent()
             .ok_or_else(|| anyhow!("Could not get parent directory"))?;
@@ -107,26 +107,52 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
     Ok(())
 }
 
-#[test]
-fn template_includes_only_whitelisted_paths() {
-    const PATHS: [&str; 8] = [
-        ".cargo/config.toml",
-        ".gitignore",
-        "Cargo.toml",
-        "README.md",
-        "rust-toolchain",
-        "src/lib.rs",
-        "ui/main.rs",
-        "ui/main.stderr",
-    ];
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::fs::read_to_string;
+    use toml_edit::{Document, Item};
 
-    let mut paths_sorted = PATHS.to_vec();
-    paths_sorted.sort_unstable();
-    assert_eq!(paths_sorted, PATHS);
+    #[test]
+    fn template_includes_only_whitelisted_paths() {
+        const PATHS: [&str; 8] = [
+            ".cargo/config.toml",
+            ".gitignore",
+            "Cargo.toml~",
+            "README.md",
+            "rust-toolchain",
+            "src/lib.rs",
+            "ui/main.rs",
+            "ui/main.stderr",
+        ];
 
-    let paths = Template::iter()
-        .filter(|path| PATHS.binary_search(&&**path).is_err())
-        .collect::<Vec<_>>();
+        let mut paths_sorted = PATHS.to_vec();
+        paths_sorted.sort_unstable();
+        assert_eq!(paths_sorted, PATHS);
 
-    assert!(paths.is_empty(), "found {:#?}", paths);
+        let paths = Template::iter()
+            .filter(|path| PATHS.binary_search(&&**path).is_err())
+            .collect::<Vec<_>>();
+
+        assert!(paths.is_empty(), "found {:#?}", paths);
+    }
+
+    #[test]
+    fn template_has_initial_version() {
+        let file = read_to_string(
+            &Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("template")
+                .join("Cargo.toml~"),
+        )
+        .unwrap();
+        let document = file.parse::<Document>().unwrap();
+        let version = document
+            .as_table()
+            .get("package")
+            .and_then(Item::as_table)
+            .and_then(|table| table.get("version"))
+            .and_then(Item::as_str)
+            .unwrap();
+        assert_eq!(version, "0.1.0");
+    }
 }
