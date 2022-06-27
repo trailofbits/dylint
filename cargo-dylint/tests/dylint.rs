@@ -1,9 +1,10 @@
 use anyhow::Result;
-use cargo_metadata::{Dependency, Metadata, MetadataCommand, Version};
+use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::cargo::current_metadata;
 use lazy_static::lazy_static;
 use regex::Regex;
 use sedregex::find_and_replace;
+use semver::Version;
 use std::{ffi::OsStr, fs::read_to_string, path::Path};
 use test_log::test;
 
