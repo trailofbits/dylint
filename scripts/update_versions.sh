@@ -27,3 +27,7 @@ REQ="$(echo "$VERSION" | sed 's/"/"=/')"
 find . -name Cargo.toml -exec sed -i "/^dylint/{
 s/^\(.*\)\<version = \"[^\"]*\"\(.*\)$/\1$REQ\2/
 }" {} \;
+
+# smoelius: `template` must be handled specially because it does not use the `version = "..."`
+# syntax.
+sed -i "s/^\(dylint_[^ ]*\) = \"[^\"]*\"$/\1 = \"$1\"/" internal/template/Cargo.toml

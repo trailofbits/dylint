@@ -598,6 +598,7 @@ dependencies = [
  "log",
  "rust-embed",
  "sedregex",
+ "toml_edit 0.14.4",
  "walkdir",
 ]
 

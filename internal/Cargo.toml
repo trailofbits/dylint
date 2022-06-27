@@ -17,3 +17,6 @@ log = "0.4.17"
 rust-embed = { version = "6.4.0", features = ["include-exclude"] }
 sedregex = "0.2.5"
 walkdir = "2.3.2"
+
+[dev-dependencies]
+toml_edit = "0.14.4"

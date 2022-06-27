@@ -1,5 +1,5 @@
 use anyhow::Result;
-use cargo_metadata::{Dependency, Metadata, MetadataCommand};
+use cargo_metadata::{Dependency, Metadata};
 use dylint_internal::cargo::current_metadata;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -44,26 +44,6 @@ fn versions_are_exact_and_match() {
                 );
             }
         }
-    }
-}
-
-#[test]
-fn template_has_initial_version() {
-    let metadata = MetadataCommand::new()
-        .current_dir(
-            Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("..")
-                .join("examples")
-                .join("other")
-                .join("template"),
-        )
-        .no_deps()
-        .exec()
-        .unwrap();
-    if let [package] = metadata.packages.as_slice() {
-        assert_eq!(package.version.to_string(), "0.1.0");
-    } else {
-        panic!();
     }
 }
 
