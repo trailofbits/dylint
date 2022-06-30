@@ -89,7 +89,10 @@ impl NonThreadSafeCallInTest {
                 if let Some(testfn) = fields.iter().find(|field| field.ident.as_str() == "testfn");
                 // smoelius: Callee is `self::test::StaticTestFn`.
                 if let ExprKind::Call(_, [arg]) = testfn.expr.kind;
-                if let ExprKind::Closure(_, _, closure_body_id, _, _) = arg.kind;
+                if let ExprKind::Closure {
+                    body: closure_body_id,
+                    ..
+                } = arg.kind;
                 let closure_body = cx.tcx.hir().body(closure_body_id);
                 // smoelius: Callee is `self::test::assert_test_result`.
                 if let ExprKind::Call(_, [arg]) = closure_body.value.kind;
