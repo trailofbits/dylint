@@ -271,6 +271,7 @@ const ARCHITECTURES: &[&str] = &[
     "thumbv8m.base",
     "thumbv8m.main",
     "wasm32",
+    "wasm64",
     "x86_64",
 ];
 
@@ -280,7 +281,6 @@ mod test {
 
     use super::{env, ARCHITECTURES};
     use assert_cmd::prelude::*;
-    use curl::easy::Easy;
     use dylint_internal::packaging::isolate;
     use predicates::prelude::*;
     use std::fs::{create_dir, write};
@@ -289,27 +289,13 @@ mod test {
 
     #[test]
     fn architectures_are_current() {
-        let mut dst = Vec::new();
-        let mut easy = Easy::new();
-        easy.url("https://doc.rust-lang.org/rustc/platform-support.html")
+        let output = std::process::Command::new("rustc")
+            .args(["--print", "target-list"])
             .unwrap();
-        {
-            let mut transfer = easy.transfer();
-            transfer
-                .write_function(|data| {
-                    dst.extend_from_slice(data);
-                    Ok(data.len())
-                })
-                .unwrap();
-            transfer.perform().unwrap();
-        }
-        let mut architectures = std::str::from_utf8(&dst)
+        let mut architectures = std::str::from_utf8(&output.stdout)
             .unwrap()
             .lines()
-            .filter_map(|line| {
-                line.strip_prefix("<tr><td><code>")
-                    .and_then(|line| line.split_once('-').map(|(architecture, _)| architecture))
-            })
+            .filter_map(|line| line.split_once('-').map(|(architecture, _)| architecture))
             .collect::<Vec<_>>();
         architectures.sort_unstable();
         architectures.dedup();

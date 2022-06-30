@@ -18,7 +18,7 @@ pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
 #[must_use]
 pub fn parse_path_filename(path: &Path) -> Option<(String, String)> {
     let filename = path.file_name()?;
-    parse_filename(&*filename.to_string_lossy())
+    parse_filename(&filename.to_string_lossy())
 }
 
 #[allow(clippy::module_name_repetitions)]
