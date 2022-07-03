@@ -135,7 +135,7 @@ dependencies = [
  "atty",
  "bytesize",
  "cargo-platform",
- "cargo-util",
+ "cargo-util 0.1.2",
  "clap",
  "crates-io",
  "crossbeam-utils",
@@ -221,6 +221,28 @@ name = "cargo-util"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a51c783163bdf4549820b80968d386c94ed45ed23819c93f59cca7ebd97fe0eb"
+dependencies = [
+ "anyhow",
+ "core-foundation",
+ "crypto-hash",
+ "filetime",
+ "hex 0.4.3",
+ "jobserver",
+ "libc",
+ "log",
+ "miow",
+ "same-file",
+ "shell-escape",
+ "tempfile",
+ "walkdir",
+ "winapi",
+]
+
+[[package]]
+name = "cargo-util"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f168b1f0481f7d340da591f5b5d0f2eb7c9eae4db5c6830878f26bf2fa80df39"
 dependencies = [
  "anyhow",
  "core-foundation",
@@ -546,7 +568,7 @@ dependencies = [
  "atty",
  "cargo",
  "cargo-platform",
- "cargo-util",
+ "cargo-util 0.2.0",
  "cargo_metadata",
  "chrono",
  "dirs",
