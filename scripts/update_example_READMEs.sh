@@ -25,7 +25,7 @@ while read X; do
         if [[ -z "$LISTED" ]]; then
             CATEGORY="${CATEGORIES[0]}"
             CATEGORIES=(${CATEGORIES[@]:1})
-            echo "| Example | Description |"
+            echo '| Example | Description |'
             echo '| - | - |'
             grep '^description = "[^"]*"$' "$CATEGORY"/*/Cargo.toml |
             sed 's,^\([^/]*/\([^/]*\)\)/Cargo.toml:description = "\([^"]*\)"$,| [`\2`](./\1) | \3 |,'
