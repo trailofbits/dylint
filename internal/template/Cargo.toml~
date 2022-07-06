@@ -2,7 +2,7 @@
 name = "fill_me_in"
 version = "0.1.0"
 authors = ["authors go here"]
-description = "decription goes here"
+description = "description goes here"
 edition = "2018"
 publish = false
 
