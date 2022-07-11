@@ -55,6 +55,10 @@ impl Command {
         self
     }
 
+    #[cfg_attr(
+        dylint_lib = "non_local_effect_before_error_return",
+        allow(non_local_effect_before_error_return)
+    )]
     pub fn output(&mut self) -> Result<Output> {
         log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());
         log::debug!("{:?}", self.command.get_current_dir());
@@ -78,6 +82,10 @@ impl Command {
 
     // smoelius: Why not get the status by calling `self.output()`? Because we don't want stdout and
     // stderr to be captured.
+    #[cfg_attr(
+        dylint_lib = "non_local_effect_before_error_return",
+        allow(non_local_effect_before_error_return)
+    )]
     pub fn success(&mut self) -> Result<()> {
         log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());
         log::debug!("{:?}", self.command.get_current_dir());

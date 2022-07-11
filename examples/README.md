@@ -8,13 +8,14 @@ The example libraries are separated into the following three categories:
 
 ## General
 
-| Example                                                                  | Description                                                                        |
-| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| [`await_holding_span_guard`](./general/await_holding_span_guard)         | A lint to check for Span guards held while calling await inside an async function  |
-| [`crate_wide_allow`](./general/crate_wide_allow)                         | A lint to check for `#![allow(...)]` used at the crate level                       |
-| [`env_cargo_path`](./general/env_cargo_path)                             | A lint to check for `env!` applied to Cargo environment variables containing paths |
-| [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test) | A lint to check for non-thread-safe function calls in tests                        |
-| [`redundant_reference`](./general/redundant_reference)                   | A lint to check for reference fields used only to read one copyable subfield       |
+| Example                                                                                  | Description                                                                        |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [`await_holding_span_guard`](./general/await_holding_span_guard)                         | A lint to check for Span guards held while calling await inside an async function  |
+| [`crate_wide_allow`](./general/crate_wide_allow)                                         | A lint to check for `#![allow(...)]` used at the crate level                       |
+| [`env_cargo_path`](./general/env_cargo_path)                                             | A lint to check for `env!` applied to Cargo environment variables containing paths |
+| [`non_local_effect_before_error_return`](./general/non_local_effect_before_error_return) | A lint to check for non-local effects before return of an error                    |
+| [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test)                 | A lint to check for non-thread-safe function calls in tests                        |
+| [`redundant_reference`](./general/redundant_reference)                                   | A lint to check for reference fields used only to read one copyable subfield       |
 
 ## Restriction
 

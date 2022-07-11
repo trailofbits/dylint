@@ -65,6 +65,13 @@ impl Revs {
 impl<'revs> Iterator for RevIter<'revs> {
     type Item = Result<Rev>;
 
+    // smoelius: I think it is okay to ignore the `non_local_effect_before_error_return` warning
+    // here. If `self.commit` were not updated, the same commits would be traversed the next time
+    // `next` was called.
+    #[cfg_attr(
+        dylint_lib = "non_local_effect_before_error_return",
+        allow(non_local_effect_before_error_return)
+    )]
     fn next(&mut self) -> Option<Self::Item> {
         (|| -> Result<Option<Rev>> {
             let mut prev_rev: Option<Rev> = None;
