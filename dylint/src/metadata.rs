@@ -227,6 +227,10 @@ fn git_dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
     }
 }
 
+#[cfg_attr(
+    dylint_lib = "non_local_effect_before_error_return",
+    allow(non_local_effect_before_error_return)
+)]
 fn sample_package_id(dep: &Dependency, source: &mut dyn Source) -> Result<PackageId> {
     let mut package_id: Option<PackageId> = None;
 
