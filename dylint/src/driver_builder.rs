@@ -161,6 +161,12 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         toolchain_path.to_string_lossy()
     );
 
+    #[cfg(all(debug_assertions, not(feature = "dylint_driver_local")))]
+    warn(
+        opts,
+        "Building debug driver with `dylint_driver_local` disabled",
+    );
+
     dylint_internal::cargo::build(&format!("driver for toolchain `{}`", toolchain), opts.quiet)
         .sanitize_environment()
         .envs(vec![(env::RUSTFLAGS, rustflags)])
