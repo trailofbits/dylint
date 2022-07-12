@@ -1,6 +1,9 @@
 use crate::{env, Command};
 use anyhow::{anyhow, Result};
-use std::path::{Path, PathBuf};
+use std::{
+    ffi::OsStr,
+    path::{Path, PathBuf},
+};
 
 pub trait SanitizeEnvironment {
     fn sanitize_environment(&mut self) -> &mut Self;
@@ -43,4 +46,13 @@ pub fn toolchain_path(path: &Path) -> Result<PathBuf> {
         .nth(2)
         .map(Into::into)
         .ok_or_else(|| anyhow!("Could not get ancestor"))
+}
+
+pub fn is_rustc<T: AsRef<OsStr> + ?Sized>(arg: &T) -> bool {
+    Path::new(arg).file_name() == Some(OsStr::new("rustc"))
+}
+
+#[test]
+fn rustc_is_rustc() {
+    assert!(is_rustc("rustc"));
 }

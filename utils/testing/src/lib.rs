@@ -1,7 +1,7 @@
 use anyhow::{anyhow, ensure, Context, Result};
 use cargo_metadata::{Metadata, Package, Target};
 use compiletest_rs as compiletest;
-use dylint_internal::{env, library_filename};
+use dylint_internal::{env, library_filename, rustup::is_rustc};
 use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
 use regex::Regex;
@@ -205,7 +205,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
                     .split(' ')
                     .map(ToOwned::to_owned)
                     .collect::<Vec<_>>();
-                if args.first().map(AsRef::as_ref) == Some("rustc")
+                if args.first().map_or(false, is_rustc)
                     && args
                         .as_slice()
                         .windows(2)
