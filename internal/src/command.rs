@@ -8,14 +8,12 @@ use std::{
 };
 
 pub struct Command {
-    envs: Vec<(OsString, OsString)>,
     command: StdCommand,
 }
 
 impl Command {
     pub fn new<S: AsRef<OsStr>>(program: S) -> Self {
         Self {
-            envs: vec![],
             command: StdCommand::new(program),
         }
     }
@@ -35,11 +33,7 @@ impl Command {
         K: AsRef<OsStr>,
         V: AsRef<OsStr>,
     {
-        self.envs = vars
-            .into_iter()
-            .map(|(k, v)| (k.as_ref().to_os_string(), v.as_ref().to_os_string()))
-            .collect();
-        self.command.envs(self.envs.clone().into_iter());
+        self.command.envs(vars);
         self
     }
 
@@ -64,7 +58,8 @@ impl Command {
     }
 
     pub fn output(&mut self) -> Result<Output> {
-        log::debug!("{:?}", self.envs);
+        log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());
+        log::debug!("{:?}", self.command.get_current_dir());
         log::debug!("{:?}", self.command);
 
         let output = self
@@ -86,7 +81,8 @@ impl Command {
     // smoelius: Why not get the status by calling `self.output()`? Because we don't want stdout and
     // stderr to be captured.
     pub fn success(&mut self) -> Result<()> {
-        log::debug!("{:?}", self.envs);
+        log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());
+        log::debug!("{:?}", self.command.get_current_dir());
         log::debug!("{:?}", self.command);
 
         let status = self
