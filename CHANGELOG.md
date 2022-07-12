@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.8
+
+- Clear `RUSTC` environment variable when building metadata entries and when running `cargo check`/`fix` ([#379](https://github.com/trailofbits/dylint/pull/379))
+
 ## 2.0.7
 
 - Report all not found libraries, not just the first one ([#350](https://github.com/trailofbits/dylint/pull/350))

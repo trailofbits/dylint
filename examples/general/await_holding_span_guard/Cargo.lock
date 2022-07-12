@@ -45,7 +45,7 @@ dependencies = [
 
 [[package]]
 name = "await_holding_span_guard"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -213,7 +213,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -234,7 +234,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -248,14 +248,14 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "paste",
 ]
 
 [[package]]
 name = "dylint_testing"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "anyhow",
  "cargo_metadata",

@@ -203,7 +203,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -224,7 +224,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -238,14 +238,14 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "paste",
 ]
 
 [[package]]
 name = "dylint_testing"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -372,7 +372,7 @@ checksum = "cb56e1aa765b4b4f3aadfab769793b7087bb03a4ea4920644a6d238e2df5b9ed"
 
 [[package]]
 name = "inconsistent_qualification"
-version = "2.0.7"
+version = "2.0.8"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
