@@ -10,7 +10,7 @@ extern crate rustc_lint;
 extern crate rustc_session;
 
 use anyhow::{bail, ensure, Result};
-use dylint_internal::{env, parse_path_filename};
+use dylint_internal::{env, parse_path_filename, rustup::is_rustc};
 use std::{
     collections::BTreeSet,
     ffi::{CString, OsStr},
@@ -202,20 +202,26 @@ pub fn dylint_driver<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
         return Ok(());
     }
 
-    // smoelius: By the above check, there are at least two arguments.
-
-    if args[1].as_ref() == "rustc" {
-        run(&args[2..])
-    } else {
-        run(&args[1..])
-    }
+    run(&args[1..])
 }
 
 pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     let rustflags = rustflags();
     let paths = paths();
 
-    let mut rustc_args = vec!["rustc".to_owned()];
+    let mut rustc_args = Vec::new();
+
+    let mut args = args.iter();
+
+    if let Some(arg) = args.next() {
+        if !is_rustc(arg) {
+            rustc_args.push("rustc".to_owned());
+        }
+        rustc_args.push(arg.as_ref().to_string_lossy().to_string());
+    } else {
+        rustc_args.push("rustc".to_owned());
+    }
+
     if let Ok(sysroot) = sysroot() {
         rustc_args.extend(vec![
             "--sysroot".to_owned(),
@@ -229,10 +235,7 @@ pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
             bail!("could not parse `{}`", path.to_string_lossy());
         }
     }
-    rustc_args.extend(
-        args.iter()
-            .map(|s| s.as_ref().to_string_lossy().to_string()),
-    );
+    rustc_args.extend(args.map(|s| s.as_ref().to_string_lossy().to_string()));
     rustc_args.extend(rustflags);
 
     let mut callbacks = Callbacks::new(paths);
