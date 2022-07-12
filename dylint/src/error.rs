@@ -1,4 +1,5 @@
 use ansi_term::Color::{Red, Yellow};
+use std::io::Write;
 
 // smoelius: `ColorizedError` is currently used only by `cargo-dylint`. But given the similarity of
 // its implementation to `warn`, I prefer to keep it here for now. Also, FWIW, this limits the
@@ -33,8 +34,16 @@ where
 
 pub type ColorizedResult<T> = Result<T, ColorizedError<anyhow::Error>>;
 
+#[allow(clippy::expect_used)]
 pub fn warn(opts: &crate::Dylint, message: &str) {
     if !opts.quiet {
-        eprintln!("{}: {}", Yellow.bold().paint("Warning"), message);
+        // smoelius: Writing directly to `stderr` avoids capture by `libtest`.
+        std::io::stderr()
+            .write_fmt(format_args!(
+                "{}: {}\n",
+                Yellow.bold().paint("Warning"),
+                message
+            ))
+            .expect("Could not write to stderr");
     }
 }
