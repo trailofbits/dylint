@@ -13,11 +13,12 @@ pub const DYLINT_LIBS: &str = "DYLINT_LIBS";
 pub const DYLINT_LIST: &str = "DYLINT_LIST";
 pub const DYLINT_RUSTFLAGS: &str = "DYLINT_RUSTFLAGS";
 pub const PATH: &str = "PATH";
+pub const RUSTC: &str = "RUSTC";
 pub const RUSTC_WORKSPACE_WRAPPER: &str = "RUSTC_WORKSPACE_WRAPPER";
-pub const RUST_BACKTRACE: &str = "RUST_BACKTRACE";
 pub const RUSTFLAGS: &str = "RUSTFLAGS";
 pub const RUSTUP_HOME: &str = "RUSTUP_HOME";
 pub const RUSTUP_TOOLCHAIN: &str = "RUSTUP_TOOLCHAIN";
+pub const RUST_BACKTRACE: &str = "RUST_BACKTRACE";
 pub const TARGET: &str = "TARGET";
 
 #[must_use]

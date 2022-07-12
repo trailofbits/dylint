@@ -4,7 +4,9 @@
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
-use dylint_internal::{driver as dylint_driver, env, parse_path_filename};
+use dylint_internal::{
+    driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment,
+};
 use lazy_static::lazy_static;
 use std::{
     env::consts,
@@ -424,6 +426,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         // But I am going to continue to set CLIPPY_DISABLE_DOCS_LINKS because it doesn't seem to
         // hurt and it provides a small amount of backward compatibility.
         let result = command
+            .sanitize_environment()
             .envs(vec![
                 (
                     env::CLIPPY_DISABLE_DOCS_LINKS,
