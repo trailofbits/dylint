@@ -107,6 +107,7 @@ dependencies = [
  "dylint_internal",
  "libloading",
  "log",
+ "rustversion",
  "serde_json",
 ]
 
@@ -271,6 +272,12 @@ dependencies = [
  "sha2",
  "walkdir",
 ]
+
+[[package]]
+name = "rustversion"
+version = "1.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24c8ad4f0c00e1eb5bc7614d236a7f1300e3dbd76b68cac8e06fb00b015ad8d8"
 
 [[package]]
 name = "ryu"
