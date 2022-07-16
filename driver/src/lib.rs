@@ -113,20 +113,32 @@ impl Callbacks {
     }
 }
 
-trait Zeroable {
-    fn zero(&mut self);
+#[rustversion::before(2022-07-14)]
+fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
+    trait Zeroable {
+        fn zero(&mut self);
+    }
+
+    impl Zeroable for usize {
+        fn zero(&mut self) {
+            *self = 0;
+        }
+    }
+
+    impl Zeroable for Option<usize> {
+        fn zero(&mut self) {
+            *self = Some(0);
+        }
+    }
+
+    // smoelius: `Zeroable` is a hack to make the next line compile for different Rust versions:
+    // https://github.com/rust-lang/rust-clippy/commit/0941fc0bb5d655cdd0816f862af8cfe70556dad6
+    config.opts.debugging_opts.mir_opt_level.zero();
 }
 
-impl Zeroable for usize {
-    fn zero(&mut self) {
-        *self = 0;
-    }
-}
-
-impl Zeroable for Option<usize> {
-    fn zero(&mut self) {
-        *self = Some(0);
-    }
+#[rustversion::since(2022-07-14)]
+fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
+    config.opts.unstable_opts.mir_opt_level = Some(0);
 }
 
 impl rustc_driver::Callbacks for Callbacks {
@@ -158,9 +170,7 @@ impl rustc_driver::Callbacks for Callbacks {
 
         // smoelius: Choose to be compatible with Clippy:
         // https://github.com/rust-lang/rust-clippy/commit/7bae5bd828e98af9d245b77118c075a7f1a036b9
-        // smoelius: `Zeroable` is a hack to make the next line compile for different Rust versions:
-        // https://github.com/rust-lang/rust-clippy/commit/0941fc0bb5d655cdd0816f862af8cfe70556dad6
-        config.opts.debugging_opts.mir_opt_level.zero();
+        zero_mir_opt_level(config);
     }
 }
 
