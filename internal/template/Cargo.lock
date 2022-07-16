@@ -204,6 +204,8 @@ dependencies = [
 [[package]]
 name = "dylint"
 version = "2.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6efeb05f33ed8c407d9a7aac99fe9420316ea2d0ec00ae9de1f68eb2f86a792"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -225,6 +227,8 @@ dependencies = [
 [[package]]
 name = "dylint_internal"
 version = "2.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a12d1bcddbf1c497f405112c76e053f76e42a0a505487135c6de2bcc1ad886dd"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -239,6 +243,8 @@ dependencies = [
 [[package]]
 name = "dylint_linting"
 version = "2.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "66244dfe20633c437c5dba0835f1b6b67c196cce8b04aa3f1a312efd0faa886c"
 dependencies = [
  "paste",
 ]
@@ -246,6 +252,8 @@ dependencies = [
 [[package]]
 name = "dylint_testing"
 version = "2.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de76a43ff00d96ea108e848538e0d6c47dc2c0b99915f9e6303966c1ff673711"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -292,6 +300,16 @@ dependencies = [
  "libc",
  "redox_syscall",
  "windows-sys",
+]
+
+[[package]]
+name = "fill_me_in"
+version = "0.1.0"
+dependencies = [
+ "clippy_utils",
+ "dylint_linting",
+ "dylint_testing",
+ "if_chain",
 ]
 
 [[package]]
@@ -419,18 +437,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
 dependencies = [
  "winapi",
-]
-
-[[package]]
-name = "non_thread_safe_call_in_test"
-version = "2.0.8"
-dependencies = [
- "clippy_utils",
- "dylint_internal",
- "dylint_linting",
- "dylint_testing",
- "if_chain",
- "lazy_static",
 ]
 
 [[package]]
