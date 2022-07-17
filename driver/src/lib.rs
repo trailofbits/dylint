@@ -14,7 +14,7 @@ use dylint_internal::{env, parse_path_filename, rustup::is_rustc};
 use std::{
     collections::BTreeSet,
     ffi::{CString, OsStr},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 pub const DYLINT_VERSION: &str = "0.1.0";
@@ -216,37 +216,11 @@ pub fn dylint_driver<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
 }
 
 pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
+    let sysroot = sysroot().ok();
     let rustflags = rustflags();
     let paths = paths();
 
-    let mut rustc_args = Vec::new();
-
-    let mut args = args.iter();
-
-    if let Some(arg) = args.next() {
-        if !is_rustc(arg) {
-            rustc_args.push("rustc".to_owned());
-        }
-        rustc_args.push(arg.as_ref().to_string_lossy().to_string());
-    } else {
-        rustc_args.push("rustc".to_owned());
-    }
-
-    if let Ok(sysroot) = sysroot() {
-        rustc_args.extend(vec![
-            "--sysroot".to_owned(),
-            sysroot.to_string_lossy().to_string(),
-        ]);
-    }
-    for path in &paths {
-        if let Some((name, _)) = parse_path_filename(&path) {
-            rustc_args.push(format!(r#"--cfg=dylint_lib="{}""#, name));
-        } else {
-            bail!("could not parse `{}`", path.to_string_lossy());
-        }
-    }
-    rustc_args.extend(args.map(|s| s.as_ref().to_string_lossy().to_string()));
-    rustc_args.extend(rustflags);
+    let rustc_args = rustc_args(args, &sysroot, &rustflags, &paths)?;
 
     let mut callbacks = Callbacks::new(paths);
 
@@ -280,4 +254,95 @@ fn paths() -> Vec<PathBuf> {
         serde_json::from_str(&dylint_libs).map_err(Into::into)
     })()
     .unwrap_or_default()
+}
+
+fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
+    args: &[T],
+    sysroot: &Option<PathBuf>,
+    rustflags: &[U],
+    paths: &[V],
+) -> Result<Vec<String>> {
+    let mut args = args.iter().peekable();
+    let mut rustc_args = Vec::new();
+
+    let first_arg = args.peek();
+    if first_arg.map_or(true, |arg| !is_rustc(arg)) {
+        rustc_args.push("rustc".to_owned());
+    }
+    if let Some(arg) = first_arg {
+        if is_rustc(arg) {
+            rustc_args.push(arg.as_ref().to_string_lossy().to_string());
+            let _ = args.next();
+        }
+    }
+    if let Some(sysroot) = sysroot {
+        rustc_args.extend(vec![
+            "--sysroot".to_owned(),
+            sysroot.to_string_lossy().to_string(),
+        ]);
+    }
+    for path in paths {
+        if let Some((name, _)) = parse_path_filename(path.as_ref()) {
+            rustc_args.push(format!(r#"--cfg=dylint_lib="{}""#, name));
+        } else {
+            bail!("could not parse `{}`", path.as_ref().to_string_lossy());
+        }
+    }
+    rustc_args.extend(args.map(|s| s.as_ref().to_string_lossy().to_string()));
+    rustc_args.extend(
+        rustflags
+            .iter()
+            .map(|rustflag| rustflag.as_ref().to_owned()),
+    );
+
+    Ok(rustc_args)
+}
+
+#[cfg(test)]
+mod test {
+    #![allow(clippy::unwrap_used)]
+
+    use super::*;
+
+    #[test]
+    fn no_rustc() {
+        assert_eq!(
+            rustc_args(
+                &["--crate-name", "name"],
+                &None,
+                &[] as &[&str],
+                &[] as &[&Path]
+            )
+            .unwrap(),
+            vec!["rustc", "--crate-name", "name"]
+        );
+    }
+
+    #[test]
+    fn plain_rustc() {
+        assert_eq!(
+            rustc_args(
+                &["rustc", "--crate-name", "name"],
+                &None,
+                &[] as &[&str],
+                &[] as &[&Path]
+            )
+            .unwrap(),
+            vec!["rustc", "--crate-name", "name"]
+        );
+    }
+
+    #[test]
+    fn qualified_rustc() {
+        assert_eq!(
+            rustc_args(
+                &["/bin/rustc", "--crate-name", "name"],
+                &None,
+                &[] as &[&str],
+                &[] as &[&Path]
+            )
+            .unwrap(),
+            vec!["/bin/rustc", "--crate-name", "name"]
+        );
+    }
 }
