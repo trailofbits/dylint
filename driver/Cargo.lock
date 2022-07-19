@@ -101,7 +101,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_driver"
-version = "2.0.8"
+version = "2.0.9"
 dependencies = [
  "anyhow",
  "dylint_internal",
@@ -113,7 +113,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.0.8"
+version = "2.0.9"
 dependencies = [
  "ansi_term",
  "anyhow",

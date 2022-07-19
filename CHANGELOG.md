@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.9
+
+- Make driver work with latest nightly ([#381](https://github.com/trailofbits/dylint/pull/381))
+- Fix bug in how driver ordered arguments passed to rustc ([#385](https://github.com/trailofbits/dylint/pull/385))
+
 ## 2.0.8
 
 - Clear `RUSTC` environment variable when building metadata entries and when running `cargo check`/`fix` ([#379](https://github.com/trailofbits/dylint/pull/379))
