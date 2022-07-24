@@ -23,7 +23,7 @@ dylint_internal = { version = "=2.0.9", path = "../internal" }
 assert_cmd = "2.0.4"
 predicates = "2.1.1"
 tempfile = "3.3.0"
-test-log = "0.2.10"
+test-log = "0.2.11"
 
 dylint_internal = { version = "=2.0.9", path = "../internal" }
 
