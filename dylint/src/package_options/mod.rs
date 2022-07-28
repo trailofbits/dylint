@@ -5,53 +5,23 @@ use dylint_internal::{find_and_replace, packaging::new_template, rustup::Sanitiz
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
 use std::{
-    fs::{copy, create_dir_all, rename},
-    path::{Path, PathBuf},
+    fs::{copy, create_dir_all},
+    path::Path,
 };
-use tempfile::{tempdir, NamedTempFile};
+use tempfile::tempdir;
 use walkdir::WalkDir;
 
 #[cfg(unix)]
 mod bisect;
+
+mod backup;
+use backup::Backup;
 
 mod clippy_utils;
 use clippy_utils::{channel, clippy_utils_version_from_rust_version};
 
 mod revs;
 use revs::Revs;
-
-struct Backup {
-    path: PathBuf,
-    tempfile: NamedTempFile,
-    disabled: bool,
-}
-
-impl Backup {
-    pub fn new(dir: &Path, entry: &str) -> Result<Self> {
-        let path = dir.join(entry);
-        let tempfile =
-            NamedTempFile::new_in(dir).with_context(|| "Could not create named temp file")?;
-        copy(&path, tempfile.path())
-            .with_context(|| format!("Could not copy {:?} to {:?}", path, tempfile.path()))?;
-        Ok(Self {
-            path,
-            tempfile,
-            disabled: false,
-        })
-    }
-
-    pub fn disable(&mut self) {
-        self.disabled = true;
-    }
-}
-
-impl Drop for Backup {
-    fn drop(&mut self) {
-        if !self.disabled {
-            rename(self.tempfile.path(), &self.path).unwrap_or_default();
-        }
-    }
-}
 
 pub fn new_package(opts: &Dylint, path: &Path) -> Result<()> {
     let name = path
@@ -181,12 +151,17 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
         }
     };
 
-    let mut cargo_toml_backup = Backup::new(path, "Cargo.toml")?;
-    let mut rust_toolchain_backup = Backup::new(path, "rust-toolchain")?;
+    let cargo_toml_path = path.join("Cargo.toml");
+    let rust_toolchain_path = path.join("rust-toolchain");
+
+    let mut cargo_toml_backup =
+        Backup::new(&cargo_toml_path).with_context(|| "Could not backup `Cargo.toml`")?;
+    let mut rust_toolchain_backup =
+        Backup::new(&rust_toolchain_path).with_context(|| "Could not backup `rust-toolchain`")?;
 
     if should_find_and_replace {
         find_and_replace(
-            &path.join("Cargo.toml"),
+            &cargo_toml_path,
             &[&format!(
                 r#"s/(?m)^(clippy_utils\b.*)\b(rev|tag) = "[^"]*"/${{1}}rev = "{}"/"#,
                 rev.rev,
@@ -194,7 +169,7 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
         )?;
 
         find_and_replace(
-            &path.join("rust-toolchain"),
+            &rust_toolchain_path,
             &[&format!(
                 r#"s/(?m)^channel = "[^"]*"/channel = "{}"/"#,
                 rev.channel,
@@ -231,8 +206,12 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
         }
     }
 
-    rust_toolchain_backup.disable();
-    cargo_toml_backup.disable();
+    rust_toolchain_backup
+        .disable()
+        .with_context(|| "Could not disable `Cargo.toml` backup")?;
+    cargo_toml_backup
+        .disable()
+        .with_context(|| "Could not disable `rust-toolchain` backup")?;
 
     Ok(())
 }
