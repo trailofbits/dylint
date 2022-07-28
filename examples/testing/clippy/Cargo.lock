@@ -303,7 +303,6 @@ dependencies = [
  "log",
  "rust-embed",
  "sedregex",
- "walkdir",
 ]
 
 [[package]]

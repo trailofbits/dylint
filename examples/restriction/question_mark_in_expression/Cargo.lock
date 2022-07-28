@@ -245,11 +245,11 @@ dependencies = [
  "anyhow",
  "cargo_metadata",
  "dirs",
+ "git2",
  "if_chain",
  "log",
  "rust-embed",
  "sedregex",
- "walkdir",
 ]
 
 [[package]]

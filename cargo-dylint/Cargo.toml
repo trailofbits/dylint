@@ -28,3 +28,5 @@ semver = "1.0.12"
 tempfile = "3.3.0"
 test-log = "0.2.11"
 walkdir = "2.3.2"
+
+dylint_internal = { version = "=2.0.9", path = "../internal", features = ["testing"] }
