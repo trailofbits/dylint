@@ -1,7 +1,4 @@
-use crate::{
-    cargo::{current_metadata, package},
-    sed::find_and_replace,
-};
+use crate::cargo::{current_metadata, package};
 use anyhow::{anyhow, Context, Result};
 use rust_embed::RustEmbed;
 use std::{
@@ -64,13 +61,6 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
     let metadata = current_metadata()?;
 
     let manifest = path.join("Cargo.toml");
-
-    find_and_replace(
-        &manifest,
-        &[
-            r#"s/(?m)^dylint_testing = "([^"]*)"/dylint_testing = { version = "${1}", features = ["dylint_driver_local"] }/"#,
-        ],
-    )?;
 
     let mut file = OpenOptions::new()
         .write(true)

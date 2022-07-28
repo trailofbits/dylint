@@ -16,7 +16,7 @@ if_chain = "1.0.2"
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-dylint_testing = { path = "../../../utils/testing", features = ["dylint_driver_local"] }
+dylint_testing = { path = "../../../utils/testing" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true
