@@ -12,6 +12,7 @@ pub const DYLINT_LIBRARY_PATH: &str = "DYLINT_LIBRARY_PATH";
 pub const DYLINT_LIBS: &str = "DYLINT_LIBS";
 pub const DYLINT_LIST: &str = "DYLINT_LIST";
 pub const DYLINT_RUSTFLAGS: &str = "DYLINT_RUSTFLAGS";
+pub const OUT_DIR: &str = "OUT_DIR";
 pub const PATH: &str = "PATH";
 pub const RUSTC: &str = "RUSTC";
 pub const RUSTC_WORKSPACE_WRAPPER: &str = "RUSTC_WORKSPACE_WRAPPER";

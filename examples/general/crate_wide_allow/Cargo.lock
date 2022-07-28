@@ -270,6 +270,7 @@ dependencies = [
  "ansi_term",
  "anyhow",
  "cargo_metadata",
+ "dirs",
  "if_chain",
  "log",
  "rust-embed",

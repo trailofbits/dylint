@@ -17,11 +17,11 @@ use std::{
 use tempfile::tempdir;
 use test_log::test;
 
-const CHANNEL_A: &str = "nightly-2021-10-21";
-const CHANNEL_B: &str = "nightly-2021-12-02";
+const CHANNEL_A: &str = "nightly-2022-06-30";
+const CHANNEL_B: &str = "nightly-2022-07-28";
 
-const CLIPPY_UTILS_REV_A: &str = "91496c2ac6abf6454c413bb23e8becf6b6dc20ea";
-const CLIPPY_UTILS_REV_B: &str = "392b0c5c25ddbd36e4dc480afcf70ed01dce352d";
+const CLIPPY_UTILS_REV_A: &str = "0cb0f7636851f9fcc57085cf80197a2ef6db098f";
+const CLIPPY_UTILS_REV_B: &str = "3c7e7dbc1583a0b06df5bd7623dd354a4debd23d";
 
 #[test]
 fn one_name_multiple_toolchains() {

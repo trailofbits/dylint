@@ -13,6 +13,8 @@ use std::{
 };
 use tempfile::tempdir;
 
+include!(concat!(env!("OUT_DIR"), "/dylint_driver_manifest_dir.rs"));
+
 const README_TXT: &str = r#"
 This directory contains Rust compiler drivers used by Dylint
 (https://github.com/trailofbits/dylint).
@@ -161,11 +163,10 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         toolchain_path.to_string_lossy()
     );
 
-    #[cfg(all(debug_assertions, not(feature = "dylint_driver_local")))]
-    warn(
-        opts,
-        "Building debug driver with `dylint_driver_local` disabled",
-    );
+    #[cfg(debug_assertions)]
+    if DYLINT_DRIVER_MANIFEST_DIR.is_none() {
+        warn(opts, "In debug mode building driver from `crates.io`");
+    }
 
     dylint_internal::cargo::build(&format!("driver for toolchain `{}`", toolchain), opts.quiet)
         .sanitize_environment()
@@ -201,21 +202,9 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
 fn initialize(toolchain: &str, package: &Path) -> Result<()> {
     let version_spec = format!("version = \"={}\"", env!("CARGO_PKG_VERSION"));
 
-    // smoelius: Assume the `dylint_driver` package is local if building in debug mode and if
-    // `dylint_driver_local` is enabled.
-    #[cfg(any(not(debug_assertions), not(feature = "dylint_driver_local")))]
-    let path_spec = "";
-    #[cfg(all(debug_assertions, feature = "dylint_driver_local"))]
-    #[allow(clippy::expect_used)]
-    let path_spec = format!(
-        ", path = \"{}\"",
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .expect("Could not get parent directory")
-            .join("driver")
-            .to_string_lossy()
-            .replace('\\', "\\\\")
-    );
+    let path_spec = DYLINT_DRIVER_MANIFEST_DIR.map_or(String::new(), |path| {
+        format!(", path = \"{}\"", path.replace('\\', "\\\\"))
+    });
 
     let dylint_driver_spec = format!("{}{}", version_spec, path_spec);
 
@@ -237,4 +226,27 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
         .with_context(|| format!("`write` failed for `{}`", main_rs.to_string_lossy()))?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    #![allow(clippy::unwrap_used)]
+
+    use super::*;
+
+    // smoelius: `tempdir` is a temporary directory. So there should be no race here.
+    #[cfg_attr(
+        dylint_lib = "non_thread_safe_call_in_test",
+        allow(non_thread_safe_call_in_test)
+    )]
+    #[test]
+    fn nightly() {
+        let tempdir = tempdir().unwrap();
+        build(
+            &crate::Dylint::default(),
+            "nightly",
+            &tempdir.path().join("dylint-driver"),
+        )
+        .unwrap();
+    }
 }

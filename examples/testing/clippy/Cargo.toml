@@ -26,7 +26,7 @@ tempfile = "3.3.0"
 test-log = "0.2.11"
 
 dylint = { path = "../../../dylint", default-features = false }
-dylint_testing = { path = "../../../utils/testing", features = ["dylint_driver_local"] }
+dylint_testing = { path = "../../../utils/testing" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true

@@ -20,7 +20,3 @@ tempfile = "3.3.0"
 
 dylint = { version = "=2.0.9", path = "../../dylint", default-features = false }
 dylint_internal = { version = "=2.0.9", path = "../../internal" }
-
-[features]
-default = []
-dylint_driver_local = ["dylint/dylint_driver_local"]

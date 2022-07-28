@@ -5,7 +5,7 @@
 #[cfg(target_os = "windows")]
 use anyhow::ensure;
 use anyhow::{anyhow, Context, Result};
-use dylint_internal::{env, library_filename, Command};
+use dylint_internal::{cargo::cargo_home, env, library_filename, Command};
 use if_chain::if_chain;
 use std::{
     env::{args, consts},
@@ -56,15 +56,6 @@ fn linker() -> Result<PathBuf> {
             .map_or_else(default_linker, |s| Ok(PathBuf::from(s)))
     } else {
         default_linker()
-    }
-}
-
-fn cargo_home() -> Result<PathBuf> {
-    match env::var(env::CARGO_HOME) {
-        Ok(value) => Ok(PathBuf::from(value)),
-        Err(error) => dirs::home_dir()
-            .map(|path| path.join(".cargo"))
-            .ok_or(error),
     }
 }
 

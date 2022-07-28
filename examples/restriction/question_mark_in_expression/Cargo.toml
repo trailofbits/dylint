@@ -24,10 +24,10 @@ if_chain = "1.0.2"
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-git2 = "0.13.25"
+git2 = "0.14.4"
 tempfile = "3.3.0"
 
-dylint_testing = { path = "../../../utils/testing", features = ["dylint_driver_local"] }
+dylint_testing = { path = "../../../utils/testing" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true
