@@ -218,8 +218,6 @@ fn git_dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
 
     let mut source = dep.source_id().load(config, &Default::default())?;
 
-    source.update()?;
-
     let package_id = sample_package_id(dep, &mut *source)?;
 
     if let MaybePackage::Ready(package) = source.download(package_id)? {
@@ -232,11 +230,14 @@ fn git_dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
 fn sample_package_id(dep: &Dependency, source: &mut dyn Source) -> Result<PackageId> {
     let mut package_id: Option<PackageId> = None;
 
-    source.fuzzy_query(dep, &mut |summary| {
-        if package_id.is_none() {
-            package_id = Some(summary.package_id());
-        }
-    })?;
+    while {
+        let poll = source.fuzzy_query(dep, &mut |summary| {
+            if package_id.is_none() {
+                package_id = Some(summary.package_id());
+            }
+        })?;
+        poll.is_pending() && package_id.is_none()
+    } {}
 
     package_id.ok_or_else(|| anyhow!("Found no packages in `{}`", dep.source_id()))
 }
@@ -306,7 +307,6 @@ fn target_dir(metadata: &Metadata, package_root: &Path, _package_id: PackageId) 
         .join("dylint")
         .join("libraries")
         .join(toolchain)
-        // .join(pkg_dir(package_root, package_id))
         .into())
 }
 

@@ -23,7 +23,7 @@ dylint_linting = { path = "../../../utils/linting" }
 [dev-dependencies]
 anyhow = "1.0.58"
 
-dylint_testing = { path = "../../../utils/testing", features = ["dylint_driver_local"] }
+dylint_testing = { path = "../../../utils/testing" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true

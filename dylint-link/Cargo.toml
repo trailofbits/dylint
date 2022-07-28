@@ -9,7 +9,6 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 anyhow = "1.0.58"
-dirs = "4.0.0"
 env_logger = "0.9.0"
 if_chain = "1.0.2"
 toml_edit = "0.14.4"

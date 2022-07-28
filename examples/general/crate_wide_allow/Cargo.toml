@@ -24,7 +24,7 @@ assert_cmd = "2.0.4"
 lazy_static = "1.4.0"
 
 dylint_internal = { path = "../../../internal" }
-dylint_testing = { path = "../../../utils/testing", features = ["dylint_driver_local"] }
+dylint_testing = { path = "../../../utils/testing" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true
