@@ -1,8 +1,6 @@
-use crate::env::{self, var};
 use anyhow::{ensure, Context, Result};
 use std::{
-    env::{join_paths, split_paths},
-    ffi::{OsStr, OsString},
+    ffi::OsStr,
     path::Path,
     process::{Command as StdCommand, Output, Stdio},
 };
@@ -96,30 +94,26 @@ impl Command {
     }
 }
 
+#[allow(unused_variables)]
 pub fn driver(toolchain: &str, driver: &Path) -> Result<Command> {
-    let path = var(env::PATH)?;
-
-    let path = {
-        if cfg!(target_os = "windows") {
-            // MinerSebas: To succesfully determine the dylint driver Version on Windows,
-            // it is neccesary to add some Libraries to the Path.
-            let rustup_home = var(env::RUSTUP_HOME)?;
-
-            join_paths(
-                std::iter::once(
-                    Path::new(&rustup_home)
-                        .join("toolchains")
-                        .join(toolchain)
-                        .join("bin"),
-                )
-                .chain(split_paths(&path)),
-            )?
-        } else {
-            OsString::from(path)
-        }
-    };
-
+    #[allow(unused_mut)]
     let mut command = Command::new(driver);
-    command.envs(vec![(env::PATH, path)]);
+    #[cfg(windows)]
+    {
+        // MinerSebas: To succesfully determine the dylint driver Version on Windows,
+        // it is neccesary to add some Libraries to the Path.
+        let rustup_home = crate::env::var(crate::env::RUSTUP_HOME)?;
+        let old_path = crate::env::var(crate::env::PATH)?;
+        let new_path = std::env::join_paths(
+            std::iter::once(
+                Path::new(&rustup_home)
+                    .join("toolchains")
+                    .join(toolchain)
+                    .join("bin"),
+            )
+            .chain(std::env::split_paths(&old_path)),
+        )?;
+        command.envs(vec![(crate::env::PATH, new_path)]);
+    }
     Ok(command)
 }
