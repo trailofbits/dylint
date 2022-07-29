@@ -49,6 +49,18 @@ fn cargo(subcommand: &str, verb: &str, description: &str, quiet: bool) -> crate:
             .expect("Could not write to stderr");
     }
     let mut command = crate::Command::new("cargo");
+    #[cfg(windows)]
+    {
+        // smoelius: Work around https://github.com/rust-lang/rustup/pull/2978
+        let cargo_home = cargo_home().unwrap();
+        let old_path = crate::env::var(crate::env::PATH).unwrap();
+        let new_path = std::env::join_paths(
+            std::iter::once(Path::new(&cargo_home).join("bin"))
+                .chain(std::env::split_paths(&old_path)),
+        )
+        .unwrap();
+        command.envs(vec![(env::PATH, new_path)]);
+    }
     command.args(&[subcommand]);
     if quiet {
         command.stderr(Stdio::null());
