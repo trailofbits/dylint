@@ -267,6 +267,7 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
     }
 
     if !not_found.is_empty() {
+        not_found.sort_unstable();
         bail!(
             "Could not find the following libraries:{}",
             not_found
