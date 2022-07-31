@@ -1,6 +1,6 @@
 [package]
 name = "redundant_reference"
-version = "2.0.9"
+version = "2.0.10"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for reference fields used only to read one copyable subfield"
 edition = "2018"

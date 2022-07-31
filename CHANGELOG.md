@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.10
+
+- Allow installation with `--debug` ([6b6e34e](https://github.com/trailofbits/dylint/commit/6b6e34e408f0bb132b6549b062cb71bab63dddfc))
+- Fix missing `RUSTUP_TOOLCHAIN` environment variable bug affecting Windows ([f5cb5b7](https://github.com/trailofbits/dylint/commit/f5cb5b765573526bb08255a6c905c363ce461243))
+- Update library package template ([e59ac2f](https://github.com/trailofbits/dylint/commit/e59ac2fb61f976c7516d3bc8759b85759b111a4d))
+- Sort not found libraries ([79a7171](https://github.com/trailofbits/dylint/commit/79a71715d795d5d17536646f29f4534d161b7e45))
+- Retry failing `git clone`s ([#395](https://github.com/trailofbits/dylint/pull/395))
+- Update template ([#396](https://github.com/trailofbits/dylint/pull/396))
+
 ## 2.0.9
 
 - Make driver work with latest nightly ([#381](https://github.com/trailofbits/dylint/pull/381))
