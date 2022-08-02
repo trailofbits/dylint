@@ -6,7 +6,7 @@ use if_chain::if_chain;
 use rustc_hir::{
     def_id::{DefId, LocalDefId},
     intravisit::{walk_body, walk_expr, Visitor},
-    Expr, ExprKind, Item, ItemKind,
+    Closure, Expr, ExprKind, Item, ItemKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::hir::nested_filter;
@@ -89,11 +89,11 @@ impl NonThreadSafeCallInTest {
                 if let Some(testfn) = fields.iter().find(|field| field.ident.as_str() == "testfn");
                 // smoelius: Callee is `self::test::StaticTestFn`.
                 if let ExprKind::Call(_, [arg]) = testfn.expr.kind;
-                if let ExprKind::Closure {
+                if let ExprKind::Closure(Closure {
                     body: closure_body_id,
                     ..
-                } = arg.kind;
-                let closure_body = cx.tcx.hir().body(closure_body_id);
+                }) = arg.kind;
+                let closure_body = cx.tcx.hir().body(*closure_body_id);
                 // smoelius: Callee is `self::test::assert_test_result`.
                 if let ExprKind::Call(_, [arg]) = closure_body.value.kind;
                 // smoelius: Callee is test function.
