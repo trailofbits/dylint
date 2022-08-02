@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use assert_cmd::prelude::*;
+use cargo_metadata::{Dependency, MetadataCommand};
 use dylint_internal::rustup::SanitizeEnvironment;
 use predicates::prelude::*;
 use regex::Regex;
@@ -20,6 +21,8 @@ fn new_package() {
         .assert()
         .success();
 
+    check_dylint_dependencies(&path).unwrap();
+
     dylint_internal::packaging::use_local_packages(&path).unwrap();
 
     dylint_internal::cargo::build("filled-in dylint-template", false)
@@ -33,6 +36,18 @@ fn new_package() {
         .current_dir(&path)
         .success()
         .unwrap();
+}
+
+fn check_dylint_dependencies(path: &Path) -> Result<()> {
+    let metadata = MetadataCommand::new().current_dir(path).no_deps().exec()?;
+    for package in metadata.packages {
+        for Dependency { name: dep, req, .. } in &package.dependencies {
+            if dep.starts_with("dylint") {
+                assert_eq!("^".to_owned() + env!("CARGO_PKG_VERSION"), req.to_string());
+            }
+        }
+    }
+    Ok(())
 }
 
 #[test]
