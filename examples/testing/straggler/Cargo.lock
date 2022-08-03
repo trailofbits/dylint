@@ -27,12 +27,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb07d2053ccdbe10e2af2995a2f116c1330396493dc1269f6a91d0ae82e19704"
 
 [[package]]
-name = "arrayvec"
-version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8da52d66c7071e2e3fa2a1e5c6d088fec47b593032b254f5e980de8ea54454d6"
-
-[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -118,16 +112,6 @@ name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
-
-[[package]]
-name = "clippy_utils"
-version = "0.1.64"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=0cb0f7636851f9fcc57085cf80197a2ef6db098f#0cb0f7636851f9fcc57085cf80197a2ef6db098f"
-dependencies = [
- "arrayvec",
- "if_chain",
- "rustc-semver",
-]
 
 [[package]]
 name = "compiletest_rs"
@@ -687,12 +671,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rustc-semver"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5be1bdc7edf596692617627bbfeaba522131b18e06ca4df2b6b689e3c5d5ce84"
-
-[[package]]
 name = "rustfix"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -791,7 +769,6 @@ dependencies = [
 name = "straggler"
 version = "2.0.9"
 dependencies = [
- "clippy_utils",
  "dylint_linting",
  "dylint_testing",
 ]

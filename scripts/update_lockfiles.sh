@@ -13,4 +13,5 @@ WORKSPACE="$(realpath "$SCRIPTS"/..)"
 
 cd "$WORKSPACE"
 
+# smoelius: FIXME: Accept manifest path from command line.
 find . -name Cargo.toml -exec cargo update --workspace --manifest-path {} \;

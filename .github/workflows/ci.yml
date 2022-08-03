@@ -7,7 +7,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
+  lint-workspace:
     # smoelius: Don't trigger on events related to pull requests opened by Dependabot. Those events
     # should trigger an action in dependabot.yml to update the lockfiles, and this action should
     # trigger on the corresponding push event.
@@ -20,9 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install dylint-link
-        run: cargo install --path ./dylint-link
-
       - name: Prettier
         run: |
           npm install -g prettier && prettier --check '**/*.md' '**/*.yml'
@@ -31,11 +28,6 @@ jobs:
       - name: Markdown link check
         run: |
           npm install -g markdown-link-check && markdown-link-check **/*.md
-
-      - name: Cargo sort
-        run: |
-          cargo install cargo-sort
-          find . -name Cargo.toml | xargs -n 1 dirname | xargs -n 1 cargo sort --check --grouped
 
       - name: Format
         run: find . -name '*.rs' -exec rustfmt {} \; && git diff --exit-code
@@ -51,8 +43,94 @@ jobs:
           cargo install cargo-license
           ./scripts/check_licenses.sh
 
+  find-manifest-dirs:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]' }}
+    outputs:
+      manifest-dirs: ${{ steps.set-output.outputs.manifest-dirs }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: set-output
+        run: |
+          MANIFEST_DIRS="$(find . -name Cargo.toml | grep -v '^./Cargo.toml$' | xargs -n 1 dirname | jq -Rn '[inputs]')"
+          echo ::set-output name=manifest-dirs::${MANIFEST_DIRS}
+
+  build-artifacts:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]' }}
+
+    needs:
+      - find-manifest-dirs
+
+    strategy:
+      matrix:
+        environment: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.environment }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dylint-link
+        run: cargo install --path ./dylint-link
+
+      - name: Cargo build
+        run: |
+          MANIFEST_DIRS="$(echo '${{ needs.find-manifest-dirs.outputs.manifest-dirs }}' | jq -r .[])"
+          for MANIFEST_DIR in $MANIFEST_DIRS; do
+            # smoelius: Filtering through `echo` seems necessary for Windows. Without it, one gets:
+            #   pushd: $'./dylint-link\r': No such file or directory
+            pushd "$(echo "$MANIFEST_DIR")"
+            cargo build --all-targets
+            popd
+          done
+
+      - name: Compress targets
+        run: |
+          rm -f targets-${{ matrix.environment }}.tgz
+          find . -name target | xargs tar czf targets-${{ matrix.environment }}.tgz
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: targets-${{ matrix.environment }}.tgz
+          path: targets-${{ matrix.environment }}.tgz
+
+  lint-packages:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]' }}
+
+    needs:
+      - find-manifest-dirs
+      - build-artifacts
+
+    strategy:
+      matrix:
+        manifest-dir: ${{ fromJSON(needs.find-manifest-dirs.outputs.manifest-dirs) }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: targets-ubuntu-latest.tgz
+
+      - name: Decompress targets
+        run: tar xf targets-ubuntu-latest.tgz
+
+      - name: Install dylint-link
+        run: cargo install --path ./dylint-link
+
+      - name: Cargo sort
+        run: |
+          cargo install cargo-sort
+          cargo sort --check --grouped '${{ matrix.manifest-dir }}'
+
       - name: Lint
-        run: ./scripts/lint.sh
+        run: ./scripts/lint.sh '${{ matrix.manifest-dir }}'
 
       # smoelius: Disable udeps. It doesn't appear it was working.
       # - name: Udeps
@@ -65,9 +143,14 @@ jobs:
   test:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]' }}
 
+    needs:
+      - find-manifest-dirs
+      - build-artifacts
+
     strategy:
       matrix:
         environment: [ubuntu-latest, macos-latest, windows-latest]
+        manifest-dir: ${{ fromJSON(needs.find-manifest-dirs.outputs.manifest-dirs) }}
 
     runs-on: ${{ matrix.environment }}
 
@@ -86,31 +169,31 @@ jobs:
             ~/.rustup/toolchains/
           key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
 
+      - uses: actions/download-artifact@v3
+        with:
+          name: targets-${{ matrix.environment }}.tgz
+
+      - name: Decompress targets
+        run: tar xf targets-${{ matrix.environment }}.tgz
+
       - name: Install dylint-link
         run: cargo install --path ./dylint-link
 
       - name: Test
         run: |
-          if [[ ${{ matrix.environment }} != 'windows-latest' ]]; then
-            cargo test --workspace --all-features -- --nocapture
-          else
-            cargo test --workspace --exclude dylint_internal --all-features -- --nocapture
-            cargo clean
-            cargo test -p dylint_internal --all-features -- --nocapture
+          if [[ '${{ matrix.manifest-dir }}' != './examples' ]]; then
+            cd '${{ matrix.manifest-dir }}'
+            cargo test --all-features -- --nocapture
           fi
 
       - name: Test example documentation
         # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
         run: |
-          for X in examples/*/*; do
-            if [[ ! -d "$X" ]]; then
-              continue
-            fi
-            pushd "$X"
+          if [[ '${{ matrix.manifest-dir }}' =~ ^./examples/ ]]; then
+            cd '${{ matrix.manifest-dir }}'
             sed -i.bak 's/"cdylib"/"lib"/g' Cargo.toml
             cargo test --doc
-            popd
-          done
+          fi
 
   coverage:
     # smoelius: Disable coverage until the following issue is resolved:
@@ -144,7 +227,7 @@ jobs:
       - name: Generate html
         run: genhtml --output-directory artifacts/html workspace.lcov
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Coverage
           path: artifacts

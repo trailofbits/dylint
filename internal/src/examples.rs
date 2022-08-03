@@ -51,21 +51,3 @@ pub fn iter() -> Result<impl Iterator<Item = Result<PathBuf>>> {
         })
         .filter_map(Result::transpose))
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn examples() {
-        for path in iter().unwrap() {
-            let path = path.unwrap();
-            let file_name = path.file_name().unwrap();
-            crate::cargo::test(&format!("example `{}`", file_name.to_string_lossy()), false)
-                .sanitize_environment()
-                .current_dir(path)
-                .success()
-                .unwrap();
-        }
-    }
-}

@@ -1,0 +1,10 @@
+[package]
+name = "examples"
+version = "2.0.9"
+description = "a dummy package for testing the example Dylint libraries"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[dependencies]
+dylint_internal = { version = "=2.0.9", path = "../internal", features = ["examples"] }

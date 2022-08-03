@@ -3,8 +3,8 @@
 # set -x
 set -euo pipefail
 
-if [[ $# -ne 0 ]]; then
-    echo "$0: expect no arguments" >&2
+if [[ $# > 1 ]]; then
+    echo "$0: expect at most one argument" >&2
     exit 1
 fi
 
@@ -22,11 +22,14 @@ EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d)"
 # toolchain than the other examples.
 EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:space:]]*,,')"
 
-DIRS=". driver $EXAMPLE_DIRS"
-
 # smoelius: `clippy` must be run separately because, for any lint not loaded alongside of it, rustc
 # complains about the clippy-specific flags.
 EXAMPLES="$(echo "$EXAMPLE_DIRS" | xargs -n 1 basename | sed 's/\<clippy\>[[:space:]]*//')"
+
+DIRS=". driver $EXAMPLE_DIRS"
+if [[ -n "$1" ]]; then
+    DIRS="$1"
+fi
 
 for DIR in $DIRS; do
     pushd "$DIR"
