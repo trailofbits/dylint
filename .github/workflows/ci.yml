@@ -68,6 +68,7 @@ jobs:
     strategy:
       matrix:
         environment: [ubuntu-latest, macos-latest, windows-latest]
+        package: [cargo-dylint, examples, other]
 
     runs-on: ${{ matrix.environment }}
 
@@ -94,26 +95,26 @@ jobs:
 
       - name: Test
         run: |
-          if [[ ${{ matrix.environment }} != 'windows-latest' ]]; then
-            cargo test --workspace --all-features -- --nocapture
+          if [[ '${{ matrix.package }}' != 'other' ]]; then
+            cargo test -p '${{ matrix.package }}' --all-features -- --nocapture
           else
-            cargo test --workspace --exclude dylint_internal --all-features -- --nocapture
-            cargo clean
-            cargo test -p dylint_internal --all-features -- --nocapture
-          fi
+            cargo test --workspace --exclude cargo-dylint --exclude examples --all-features -- --nocapture
 
-      - name: Test example documentation
-        # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
-        run: |
-          for X in examples/*/*; do
-            if [[ ! -d "$X" ]]; then
-              continue
-            fi
-            pushd "$X"
-            sed -i.bak 's/"cdylib"/"lib"/g' Cargo.toml
-            cargo test --doc
+            pushd driver
+            cargo test --all-features -- --nocapture
             popd
-          done
+
+            # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
+            for X in examples/*/*; do
+              if [[ ! -d "$X" ]]; then
+                continue
+              fi
+              pushd "$X"
+              sed -i.bak 's/"cdylib"/"lib"/g' Cargo.toml
+              cargo test --doc
+              popd
+            done
+          fi
 
   coverage:
     # smoelius: Disable coverage until the following issue is resolved:

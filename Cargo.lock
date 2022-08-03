@@ -632,6 +632,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "examples"
+version = "2.0.12"
+dependencies = [
+ "dylint_internal",
+]
+
+[[package]]
 name = "fastrand"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
