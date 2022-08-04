@@ -9,6 +9,8 @@ use std::{fs::read_to_string, path::Path};
 use tempfile::tempdir;
 use test_log::test;
 
+const RUST_VERSION: &str = "1.63.0";
+
 #[test]
 fn new_package() {
     let tempdir = tempdir().unwrap();
@@ -61,7 +63,7 @@ fn downgrade_upgrade_package() {
     /* let mut rust_version = rust_version(tempdir.path()).unwrap();
     assert!(rust_version.minor != 0);
     rust_version.minor -= 1; */
-    let rust_version = Version::parse("1.62.0").unwrap();
+    let rust_version = Version::parse(RUST_VERSION).unwrap();
 
     let upgrade = || {
         let mut command = std::process::Command::cargo_bin("cargo-dylint").unwrap();
