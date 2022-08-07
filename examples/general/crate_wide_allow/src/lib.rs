@@ -71,9 +71,10 @@ impl EarlyLintPass for CrateWideAllow {
 #[cfg(test)]
 mod test {
     use assert_cmd::{assert::Assert, Command};
+    use cargo_metadata::MetadataCommand;
     use dylint_internal::env;
     use lazy_static::lazy_static;
-    use std::{path::Path, sync::Mutex};
+    use std::{env::consts, path::Path, sync::Mutex};
 
     lazy_static! {
         static ref MUTEX: Mutex<()> = Mutex::new(());
@@ -108,32 +109,38 @@ mod test {
     // * Setting `RUSTFLAGS` forces `cargo check` to be re-run. Unfortunately, this also forces
     //   `cargo-dylint` to be rebuilt, which causes problems on Windows, hence the need for the
     //   mutex.
+    // smoelius: Invoking `cargo-dylint` directly by path, rather than through `cargo run`, avoids
+    // the rebuilding problem. But oddly enough, the tests are faster with the mutex than without.
 
-    fn test(rustflags: &str, check: impl Fn(Assert) -> Assert) {
+    fn test(rustflags: &str, assert: impl Fn(Assert) -> Assert) {
         let _lock = MUTEX.lock().unwrap();
 
-        let manifest = Path::new(env!("CARGO_MANIFEST_DIR"))
+        let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("..")
-            .join("..")
-            .join("Cargo.toml");
+            .join("..");
 
-        check(
-            Command::new("cargo")
+        Command::new("cargo")
+            .current_dir(&manifest_dir)
+            .args(["build", "--bin", "cargo-dylint"])
+            .assert()
+            .success();
+
+        let metadata = MetadataCommand::new()
+            .current_dir(manifest_dir)
+            .no_deps()
+            .exec()
+            .unwrap();
+        let cargo_dylint = metadata
+            .target_directory
+            .join("debug")
+            .join(format!("cargo-dylint{}", consts::EXE_SUFFIX));
+
+        assert(
+            Command::new(cargo_dylint)
                 .env_remove(env::DYLINT_LIBRARY_PATH)
                 .env(env::RUSTFLAGS, rustflags)
-                .args(&[
-                    "run",
-                    "--manifest-path",
-                    &manifest.to_string_lossy(),
-                    "--bin",
-                    "cargo-dylint",
-                    "--",
-                    "dylint",
-                    "clippy",
-                    "--",
-                    "--examples",
-                ])
+                .args(&["dylint", "clippy", "--", "--examples"])
                 .assert(),
         );
     }
