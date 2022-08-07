@@ -181,6 +181,7 @@ name = "crate_wide_allow"
 version = "2.0.9"
 dependencies = [
  "assert_cmd",
+ "cargo_metadata",
  "clippy_utils",
  "dylint_internal",
  "dylint_linting",
