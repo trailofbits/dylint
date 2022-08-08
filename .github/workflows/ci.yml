@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install dylint-link
         run: cargo install --path ./dylint-link
@@ -76,7 +76,7 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # smoelius: The `nightly_toolchain` test makes sense only if the nightly driver is cached.
       - uses: actions/cache@v2
@@ -122,7 +122,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install dylint-link
         run: cargo install --path ./dylint-link
