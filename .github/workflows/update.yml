@@ -41,7 +41,7 @@ jobs:
           done
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         with:
           title: Update dependencies
           token: ${{ secrets.PR_GITHUB_TOKEN }}
