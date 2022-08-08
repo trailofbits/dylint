@@ -23,7 +23,7 @@ jobs:
         # smoelius: Dependabot should update only manifest and/or lockfiles. Hard error otherwise.
         run: |
           git diff --name-only ${{ github.event.pull_request.base.sha }} | grep .
-          ! git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -v '\(^\|/\)Cargo\.\(lock\|toml\)$'
+          ! git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -v '^\.github/workflows/\|\(^\|/\)Cargo\.\(lock\|toml\)$'
 
       - name: Update lockfiles
         # smoelius: Inline `scripts/update_lockfiles.sh` rather than run it from the PR. Dependabot
