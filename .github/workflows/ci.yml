@@ -79,7 +79,7 @@ jobs:
       - uses: actions/checkout@v3
 
       # smoelius: The `nightly_toolchain` test makes sense only if the nightly driver is cached.
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.dylint_drivers/
