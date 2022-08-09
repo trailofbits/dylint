@@ -144,7 +144,7 @@ jobs:
       - name: Generate html
         run: genhtml --output-directory artifacts/html workspace.lcov
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Coverage
           path: artifacts
