@@ -236,7 +236,12 @@ fn sample_package_id(dep: &Dependency, source: &mut dyn Source) -> Result<Packag
                 package_id = Some(summary.package_id());
             }
         })?;
-        poll.is_pending() && package_id.is_none()
+        if poll.is_pending() {
+            source.block_until_ready()?;
+            package_id.is_none()
+        } else {
+            false
+        }
     } {}
 
     package_id.ok_or_else(|| anyhow!("Found no packages in `{}`", dep.source_id()))
