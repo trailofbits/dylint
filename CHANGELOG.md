@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.11
+
+- Fix bug related to package cache locking ([#421](https://github.com/trailofbits/dylint/pull/421))
+
 ## 2.0.10
 
 - Allow installation with `--debug` ([6b6e34e](https://github.com/trailofbits/dylint/commit/6b6e34e408f0bb132b6549b062cb71bab63dddfc))
