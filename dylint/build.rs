@@ -9,13 +9,16 @@ fn main() {
 
     let dylint_manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
 
-    let dylint_driver_manifest_dir = if dylint_manifest_dir.starts_with(cargo_home) {
+    let dylint_driver_manifest_dir = if dylint_manifest_dir.starts_with(cargo_home)
+        || dylint_manifest_dir.parent().map_or(false, |path| {
+            path.ends_with(Path::new("target").join("package"))
+        }) {
         "None".to_owned()
     } else {
         let path = dylint_manifest_dir.join("..").join("driver");
 
         // smoelius: Ensure the path exists at build time.
-        assert!(path.is_dir());
+        assert!(path.is_dir(), "{:?} is not a directory", path);
 
         format!(
             r#"Some("{}")"#,
