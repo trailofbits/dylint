@@ -9,7 +9,7 @@ use dylint_internal::{
 };
 use lazy_static::lazy_static;
 use std::{
-    env::consts,
+    env::{consts, current_dir},
     ffi::OsStr,
     fmt::Debug,
     path::{Path, PathBuf, MAIN_SEPARATOR},
@@ -186,14 +186,12 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
     for (name, toolchain_map) in name_toolchain_map {
         for (toolchain, paths) in toolchain_map {
             for path in paths {
-                let parent = path
-                    .parent()
-                    .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+                let location = location(path)?;
                 println!(
-                    "{:<name_width$} {:<toolchain_width$} {}",
+                    "{:<name_width$}  {:<toolchain_width$}  {}",
                     name,
                     toolchain,
-                    parent.to_string_lossy(),
+                    location.to_string_lossy(),
                     name_width = name_width,
                     toolchain_width = toolchain_width
                 );
@@ -365,10 +363,8 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
                 print!("@{}", toolchain);
             }
             if paths.len() >= 2 {
-                let parent = path
-                    .parent()
-                    .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-                print!(" ({})", parent.to_string_lossy());
+                let location = location(path)?;
+                print!(" ({})", location.to_string_lossy());
             }
             println!();
 
@@ -388,6 +384,14 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn location(path: &Path) -> Result<&Path> {
+    let current_dir = current_dir().with_context(|| "Could not get current directory")?;
+    let parent = path
+        .parent()
+        .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+    Ok(parent.strip_prefix(&current_dir).unwrap_or(parent))
 }
 
 fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
