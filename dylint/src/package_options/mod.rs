@@ -1,10 +1,10 @@
 use crate::Dylint;
 use anyhow::{anyhow, bail, Context, Result};
-use chrono::{Date, NaiveDate, TimeZone, Utc};
 use dylint_internal::{find_and_replace, packaging::new_template, rustup::SanitizeEnvironment};
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
 use std::{
+    convert::TryFrom,
     fs::{copy, create_dir_all},
     path::Path,
 };
@@ -200,7 +200,10 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
                 anyhow!("Could not not parse channel `{}` as nightly", rev.channel)
             })?;
 
-            let start = new_nightly.format("%Y-%m-%d").to_string();
+            let start = format!(
+                "{:04}-{:02}-{:02}",
+                new_nightly[0], new_nightly[1], new_nightly[2]
+            );
 
             bisect::bisect(opts, path, &start)?;
         }
@@ -216,16 +219,16 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn parse_as_nightly(channel: &str) -> Option<Date<Utc>> {
-    channel
-        .strip_prefix("nightly-")
-        .and_then(utc_from_manifest_date)
+fn parse_as_nightly(channel: &str) -> Option<[u32; 3]> {
+    channel.strip_prefix("nightly-").and_then(parse_date)
 }
 
-// smoelius: `utc_from_manifest_date` is from
-// https://github.com/rust-lang/rustup/blob/master/src/dist/dist.rs
-fn utc_from_manifest_date(date_str: &str) -> Option<Date<Utc>> {
-    NaiveDate::parse_from_str(date_str, "%Y-%m-%d")
-        .ok()
-        .map(|date| Utc.from_utc_date(&date))
+fn parse_date(date_str: &str) -> Option<[u32; 3]> {
+    date_str
+        .split('-')
+        .map(str::parse::<u32>)
+        .map(Result::ok)
+        .collect::<Option<Vec<_>>>()
+        .map(<[u32; 3]>::try_from)
+        .and_then(Result::ok)
 }
