@@ -67,7 +67,7 @@ impl EarlyLintPass for EnvCargoPath {
             if !self.in_test_item();
             if let ExprKind::MacCall(mac) = &expr.kind;
             if mac.path == sym!(env) || mac.path == sym!(option_env);
-            if let [TokenTree::Token(token)] = mac
+            if let [TokenTree::Token(token, _)] = mac
                 .args
                 .inner_tokens()
                 .into_trees()
