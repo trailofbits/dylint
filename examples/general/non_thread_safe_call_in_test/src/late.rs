@@ -147,8 +147,7 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
                     if let Some(local_def_id) = callee_def_id.as_local();
                     if !self.visited.contains(&local_def_id);
                     let _ = self.visited.insert(local_def_id);
-                    let hir_id = self.cx.tcx.hir().local_def_id_to_hir_id(local_def_id);
-                    if let Some(body_id) = self.cx.tcx.hir().maybe_body_owned_by(hir_id);
+                    if let Some(body_id) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id);
                     then {
                         let body = self.cx.tcx.hir().body(body_id);
                         walk_body(self, body);
