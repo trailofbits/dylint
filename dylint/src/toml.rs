@@ -1,113 +1,13 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.60.0) with
+// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.64.0) with
 // adjustments to make some things public.
 
 #![allow(unused_imports)]
 #![allow(clippy::default_trait_access)]
+#![allow(clippy::doc_markdown)]
 #![allow(clippy::semicolon_if_nothing_returned)]
+#![allow(clippy::single_char_pattern)]
 #![allow(clippy::too_many_lines)]
-
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use std::fmt;
-use std::marker::PhantomData;
-use std::path::{Path, PathBuf};
-use std::rc::Rc;
-use std::str;
-
-use anyhow::{anyhow, bail, Context as _};
-use cargo_platform::Platform;
-use cargo_util::paths;
-use log::{debug, trace};
-use semver::{self, VersionReq};
-use serde::de;
-use serde::ser;
-use serde::{Deserialize, Serialize};
-
-use crate::core::compiler::{CompileKind, CompileTarget};
-use crate::core::dependency::DepKind;
-use crate::core::manifest::{ManifestMetadata, TargetSourcePath, Warnings};
-use crate::core::resolver::ResolveBehavior;
-use crate::core::{Dependency, Manifest, PackageId, Summary, Target};
-use crate::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
-use crate::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
-use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
-use crate::util::errors::{CargoResult, ManifestError};
-use crate::util::interning::InternedString;
-use crate::util::{
-    self, config::ConfigRelativePath, validate_package_name, Config, IntoUrl, VersionReqExt,
-};
-
-pub trait ResolveToPath {
-    fn resolve(&self, config: &Config) -> PathBuf;
-}
-
-impl ResolveToPath for String {
-    fn resolve(&self, _: &Config) -> PathBuf {
-        self.into()
-    }
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub struct DetailedTomlDependency<P = String> {
-    version: Option<String>,
-    registry: Option<String>,
-    /// The URL of the `registry` field.
-    /// This is an internal implementation detail. When Cargo creates a
-    /// package, it replaces `registry` with `registry-index` so that the
-    /// manifest contains the correct URL. All users won't have the same
-    /// registry names configured, so Cargo can't rely on just the name for
-    /// crates published by other users.
-    registry_index: Option<String>,
-    // `path` is relative to the file it appears in. If that's a `Cargo.toml`, it'll be relative to
-    // that TOML file, and if it's a `.cargo/config` file, it'll be relative to that file.
-    path: Option<P>,
-    git: Option<String>,
-    branch: Option<String>,
-    tag: Option<String>,
-    rev: Option<String>,
-    features: Option<Vec<String>>,
-    optional: Option<bool>,
-    default_features: Option<bool>,
-    #[serde(rename = "default_features")]
-    default_features2: Option<bool>,
-    package: Option<String>,
-    public: Option<bool>,
-}
-
-// Explicit implementation so we avoid pulling in P: Default
-impl<P> Default for DetailedTomlDependency<P> {
-    fn default() -> Self {
-        Self {
-            version: Default::default(),
-            registry: Default::default(),
-            registry_index: Default::default(),
-            path: Default::default(),
-            git: Default::default(),
-            branch: Default::default(),
-            tag: Default::default(),
-            rev: Default::default(),
-            features: Default::default(),
-            optional: Default::default(),
-            default_features: Default::default(),
-            default_features2: Default::default(),
-            package: Default::default(),
-            public: Default::default(),
-        }
-    }
-}
-
-#[allow(dead_code)]
-pub struct Context<'a, 'b> {
-    deps: &'a mut Vec<Dependency>,
-    source_id: SourceId,
-    nested_paths: &'a mut Vec<PathBuf>,
-    config: &'b Config,
-    warnings: &'a mut Vec<String>,
-    platform: Option<Platform>,
-    root: &'a Path,
-    features: &'a Features,
-}
 
 // smoelius: `Context::new` does not appear in the original.
 #[allow(clippy::too_many_arguments)]
@@ -135,7 +35,172 @@ impl<'a, 'b> Context<'a, 'b> {
     }
 }
 
-impl<P: ResolveToPath> DetailedTomlDependency<P> {
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::fmt;
+use std::marker::PhantomData;
+use std::path::{Path, PathBuf};
+use std::rc::Rc;
+use std::str;
+
+use anyhow::{anyhow, bail, Context as _};
+use cargo_platform::Platform;
+use cargo_util::paths;
+// use lazycell::LazyCell;
+use log::{debug, trace};
+use semver::{self, VersionReq};
+use serde::de;
+use serde::ser;
+use serde::{Deserialize, Serialize};
+use toml_edit::easy as toml;
+// use url::Url;
+
+use crate::core::compiler::{CompileKind, CompileTarget};
+use crate::core::dependency::{Artifact, ArtifactTarget, DepKind};
+use crate::core::manifest::{ManifestMetadata, TargetSourcePath, Warnings};
+use crate::core::resolver::ResolveBehavior;
+use crate::core::{
+    find_workspace_root, resolve_relative_path, Dependency, Manifest, PackageId, Summary, Target,
+};
+use crate::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
+use crate::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
+use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
+use crate::util::errors::{CargoResult, ManifestError};
+use crate::util::interning::InternedString;
+use crate::util::{
+    self, config::ConfigRelativePath, validate_package_name, Config, IntoUrl, VersionReqExt,
+};
+
+/// Warn about paths that have been deprecated and may conflict.
+fn warn_on_deprecated(new_path: &str, name: &str, kind: &str, warnings: &mut Vec<String>) {
+    let old_path = new_path.replace("-", "_");
+    warnings.push(format!(
+        "conflicting between `{new_path}` and `{old_path}` in the `{name}` {kind}.\n
+        `{old_path}` is ignored and not recommended for use in the future"
+    ))
+}
+
+pub trait ResolveToPath {
+    fn resolve(&self, config: &Config) -> PathBuf;
+}
+
+impl ResolveToPath for String {
+    fn resolve(&self, _: &Config) -> PathBuf {
+        self.into()
+    }
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct DetailedTomlDependency<P: Clone = String> {
+    version: Option<String>,
+    registry: Option<String>,
+    /// The URL of the `registry` field.
+    /// This is an internal implementation detail. When Cargo creates a
+    /// package, it replaces `registry` with `registry-index` so that the
+    /// manifest contains the correct URL. All users won't have the same
+    /// registry names configured, so Cargo can't rely on just the name for
+    /// crates published by other users.
+    registry_index: Option<String>,
+    // `path` is relative to the file it appears in. If that's a `Cargo.toml`, it'll be relative to
+    // that TOML file, and if it's a `.cargo/config` file, it'll be relative to that file.
+    path: Option<P>,
+    git: Option<String>,
+    branch: Option<String>,
+    tag: Option<String>,
+    rev: Option<String>,
+    features: Option<Vec<String>>,
+    optional: Option<bool>,
+    default_features: Option<bool>,
+    #[serde(rename = "default_features")]
+    default_features2: Option<bool>,
+    package: Option<String>,
+    public: Option<bool>,
+
+    /// One ore more of 'bin', 'cdylib', 'staticlib', 'bin:<name>'.
+    artifact: Option<StringOrVec>,
+    /// If set, the artifact should also be a dependency
+    lib: Option<bool>,
+    /// A platform name, like `x86_64-apple-darwin`
+    target: Option<String>,
+}
+
+// Explicit implementation so we avoid pulling in P: Default
+impl<P: Clone> Default for DetailedTomlDependency<P> {
+    fn default() -> Self {
+        Self {
+            version: Default::default(),
+            registry: Default::default(),
+            registry_index: Default::default(),
+            path: Default::default(),
+            git: Default::default(),
+            branch: Default::default(),
+            tag: Default::default(),
+            rev: Default::default(),
+            features: Default::default(),
+            optional: Default::default(),
+            default_features: Default::default(),
+            default_features2: Default::default(),
+            package: Default::default(),
+            public: Default::default(),
+            artifact: Default::default(),
+            lib: Default::default(),
+            target: Default::default(),
+        }
+    }
+}
+
+/// A StringOrVec can be parsed from either a TOML string or array,
+/// but is always stored as a vector.
+#[derive(Clone, Debug, Serialize, Eq, PartialEq, PartialOrd, Ord)]
+pub struct StringOrVec(Vec<String>);
+
+impl<'de> de::Deserialize<'de> for StringOrVec {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        struct Visitor;
+
+        impl<'de> de::Visitor<'de> for Visitor {
+            type Value = StringOrVec;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+                formatter.write_str("string or list of strings")
+            }
+
+            fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(StringOrVec(vec![s.to_string()]))
+            }
+
+            fn visit_seq<V>(self, v: V) -> Result<Self::Value, V::Error>
+            where
+                V: de::SeqAccess<'de>,
+            {
+                let seq = de::value::SeqAccessDeserializer::new(v);
+                Vec::deserialize(seq).map(StringOrVec)
+            }
+        }
+
+        deserializer.deserialize_any(Visitor)
+    }
+}
+
+#[allow(dead_code)]
+pub struct Context<'a, 'b> {
+    deps: &'a mut Vec<Dependency>,
+    source_id: SourceId,
+    nested_paths: &'a mut Vec<PathBuf>,
+    config: &'b Config,
+    warnings: &'a mut Vec<String>,
+    platform: Option<Platform>,
+    root: &'a Path,
+    features: &'a Features,
+}
+
+impl<P: ResolveToPath + Clone> DetailedTomlDependency<P> {
     pub fn to_dependency(
         &self,
         name_in_toml: &str,
@@ -304,6 +369,9 @@ impl<P: ResolveToPath> DetailedTomlDependency<P> {
 
         let version = self.version.as_deref();
         let mut dep = Dependency::parse(pkg_name, version, new_source_id)?;
+        if self.default_features.is_some() && self.default_features2.is_some() {
+            warn_on_deprecated("default-features", name_in_toml, "dependency", cx.warnings);
+        }
         dep.set_features(self.features.iter().flatten())
             .set_default_features(
                 self.default_features
@@ -326,7 +394,6 @@ impl<P: ResolveToPath> DetailedTomlDependency<P> {
             dep.set_kind(kind);
         }
         if let Some(name_in_toml) = explicit_name_in_toml {
-            cx.features.require(Feature::rename_dependency())?;
             dep.set_explicit_name_in_toml(name_in_toml);
         }
 
@@ -338,6 +405,42 @@ impl<P: ResolveToPath> DetailedTomlDependency<P> {
             }
 
             dep.set_public(p);
+        }
+
+        #[cfg(any())]
+        if let (Some(artifact), is_lib, target) = (
+            self.artifact.as_ref(),
+            self.lib.unwrap_or(false),
+            self.target.as_deref(),
+        ) {
+            if cx.config.cli_unstable().bindeps {
+                let artifact = Artifact::parse(artifact, is_lib, target)?;
+                if dep.kind() != DepKind::Build
+                    && artifact.target() == Some(ArtifactTarget::BuildDependencyAssumeTarget)
+                {
+                    bail!(
+                        r#"`target = "target"` in normal- or dev-dependencies has no effect ({})"#,
+                        name_in_toml
+                    );
+                }
+                dep.set_artifact(artifact)
+            } else {
+                bail!("`artifact = …` requires `-Z bindeps` ({})", name_in_toml);
+            }
+        } else if self.lib.is_some() || self.target.is_some() {
+            for (is_set, specifier) in [
+                (self.lib.is_some(), "lib"),
+                (self.target.is_some(), "target"),
+            ] {
+                if !is_set {
+                    continue;
+                }
+                bail!(
+                    "'{}' specifier cannot be used without an 'artifact = …' value ({})",
+                    specifier,
+                    name_in_toml
+                )
+            }
         }
         Ok(dep)
     }

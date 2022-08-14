@@ -44,5 +44,5 @@ dylint_internal = { version = "=2.0.11", path = "../internal", features = ["exam
 
 [features]
 default = ["metadata"]
-metadata = ["cargo", "cargo-platform", "cargo-util", "glob", "if_chain"]
+metadata = ["cargo", "cargo-platform", "cargo-util", "glob", "if_chain", "toml_edit"]
 package_options = ["git2", "toml_edit", "dylint_internal/git"]
