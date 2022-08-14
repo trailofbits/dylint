@@ -52,13 +52,13 @@ In the above example, the libraries are found via [workspace metadata] (see belo
 
 ### Writing lints
 
-You can start writing your own Dylint library by running `cargo dylint --new new_lint_name`. Doing so will produce a loadable library right out of the box. You can verify this as follows:
+You can start writing your own Dylint library by running `cargo dylint new new_lint_name`. Doing so will produce a loadable library right out of the box. You can verify this as follows:
 
 ```sh
-cargo dylint --new new_lint_name
+cargo dylint new new_lint_name
 cd new_lint_name
 cargo build
-DYLINT_LIBRARY_PATH=$PWD/target/debug cargo dylint new_lint_name --list
+DYLINT_LIBRARY_PATH=$PWD/target/debug cargo dylint list --lib new_lint_name
 ```
 
 All you have to do is implement the [`LateLintPass`] trait and accommodate the symbols asking to be filled in.

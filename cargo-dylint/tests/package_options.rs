@@ -19,7 +19,7 @@ fn new_package() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .args(&["dylint", "--new", &path.to_string_lossy(), "--isolate"])
+        .args(&["dylint", "new", &path.to_string_lossy(), "--isolate"])
         .assert()
         .success();
 
@@ -69,7 +69,7 @@ fn downgrade_upgrade_package() {
         let mut command = std::process::Command::cargo_bin("cargo-dylint").unwrap();
         command.args(&[
             "dylint",
-            "--upgrade",
+            "upgrade",
             &tempdir.path().to_string_lossy(),
             "--rust-version",
             &rust_version.to_string(),
@@ -99,7 +99,7 @@ fn downgrade_upgrade_package() {
     if cfg!(not(unix)) {
         std::process::Command::cargo_bin("cargo-dylint")
             .unwrap()
-            .args(&["dylint", "--upgrade", &tempdir.path().to_string_lossy()])
+            .args(&["dylint", "upgrade", &tempdir.path().to_string_lossy()])
             .assert()
             .success();
     } else {
@@ -107,7 +107,7 @@ fn downgrade_upgrade_package() {
             .unwrap()
             .args(&[
                 "dylint",
-                "--upgrade",
+                "upgrade",
                 &tempdir.path().to_string_lossy(),
                 "--bisect",
             ])

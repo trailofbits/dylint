@@ -140,7 +140,7 @@ mod test {
             Command::new(cargo_dylint)
                 .env_remove(env::DYLINT_LIBRARY_PATH)
                 .env(env::RUSTFLAGS, rustflags)
-                .args(&["dylint", "clippy", "--", "--examples"])
+                .args(&["dylint", "--lib", "clippy", "--", "--examples"])
                 .assert(),
         );
     }

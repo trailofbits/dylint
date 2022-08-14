@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+#![cfg_attr(dylint_lib = "crate_wide_allow", allow(crate_wide_allow))]
 #![deny(clippy::expect_used)]
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
@@ -22,6 +24,7 @@ pub mod driver_builder;
 
 mod error;
 use error::warn;
+pub use error::warn as __warn;
 pub use error::{ColorizedError, ColorizedResult};
 
 mod name_toolchain_map;
@@ -48,25 +51,54 @@ lazy_static! {
 #[derive(Clone, Debug, Default)]
 pub struct Dylint {
     pub all: bool,
+
+    #[deprecated]
     pub allow_downgrade: bool,
+
+    #[deprecated]
     pub bisect: bool,
+
     pub fix: bool,
+
+    #[deprecated]
     pub force: bool,
+
+    #[deprecated]
     pub isolate: bool,
+
     pub keep_going: bool,
+
     pub libs: Vec<String>,
+
+    #[deprecated]
     pub list: bool,
+
     pub manifest_path: Option<String>,
+
+    #[deprecated]
     pub new_path: Option<String>,
+
     pub no_build: bool,
+
     pub no_metadata: bool,
+
     pub packages: Vec<String>,
+
     pub paths: Vec<String>,
+
     pub quiet: bool,
+
+    #[deprecated]
     pub rust_version: Option<String>,
+
+    #[deprecated]
     pub upgrade_path: Option<String>,
+
     pub workspace: bool,
+
+    #[deprecated]
     pub names: Vec<String>,
+
     pub args: Vec<String>,
 }
 
