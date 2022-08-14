@@ -33,7 +33,7 @@ fn no_libraries_were_found() {
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
         .current_dir(tempdir.path())
-        .args(&["dylint", "--list"])
+        .args(&["dylint", "list"])
         .assert()
         .success()
         .stderr(predicate::str::contains("No libraries were found."));

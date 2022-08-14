@@ -55,7 +55,7 @@ fn one_name_multiple_toolchains() {
             env::DYLINT_LIBRARY_PATH,
             target_debug(tempdir.path()).unwrap(),
         )])
-        .args(&["dylint", "--list", "--all", "--no-metadata"])
+        .args(&["dylint", "list", "--all", "--no-metadata"])
         .assert()
         .success()
         .stdout(
@@ -117,7 +117,7 @@ fn one_name_multiple_paths() {
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
         .envs(vec![(env::DYLINT_LIBRARY_PATH, paths)])
-        .args(&["dylint", "--list", "--all", "--no-metadata"])
+        .args(&["dylint", "list", "--all", "--no-metadata"])
         .assert()
         .success()
         .stdout(
@@ -166,7 +166,7 @@ fn canonical_path() {
         std::process::Command::cargo_bin("cargo-dylint")
             .unwrap()
             .envs(vec![(env::DYLINT_LIBRARY_PATH, &path)])
-            .args(&["dylint", "--list"])
+            .args(&["dylint", "list"])
             .assert()
             .success()
             .stdout(predicate::str::contains(canonical_path.to_string_lossy()));
@@ -200,7 +200,7 @@ fn list_by_path() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .args(&["dylint", "--list", "--path", &path.to_string_lossy()])
+        .args(&["dylint", "list", "--path", &path.to_string_lossy()])
         .assert()
         .success()
         .stdout(
