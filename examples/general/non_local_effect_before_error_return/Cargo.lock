@@ -533,7 +533,6 @@ name = "non_local_effect_before_error_return"
 version = "2.0.11"
 dependencies = [
  "clippy_utils",
- "dylint_internal",
  "dylint_linting",
  "dylint_testing",
  "if_chain",
