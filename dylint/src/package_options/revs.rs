@@ -1,7 +1,9 @@
 use super::clippy_utils::{channel, version};
 use anyhow::{anyhow, Context, Result};
-use dylint_internal::clone;
-use git2::{Commit, ObjectType, Repository};
+use dylint_internal::{
+    clone,
+    git2::{Commit, ObjectType, Repository},
+};
 use if_chain::if_chain;
 use tempfile::{tempdir, TempDir};
 

@@ -540,7 +540,6 @@ dependencies = [
  "dirs",
  "dylint_internal",
  "env_logger",
- "git2",
  "glob",
  "heck",
  "if_chain",

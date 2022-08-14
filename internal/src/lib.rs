@@ -19,6 +19,9 @@ mod git;
 #[cfg(feature = "git")]
 pub use git::*;
 
+#[cfg(feature = "git")]
+pub use git2;
+
 #[cfg(feature = "packaging")]
 pub mod packaging;
 
