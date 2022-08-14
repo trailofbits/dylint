@@ -41,6 +41,11 @@ dylint_linting::declare_late_lint! {
 impl<'tcx> LateLintPass<'tcx> for QuestionMarkInExpression {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
         if_chain! {
+            if !cx
+                .tcx
+                .hir()
+                .parent_iter(expr.hir_id)
+                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion());
             if let ExprKind::Match(_, _, MatchSource::TryDesugar) = expr.kind;
             if let Some(node_id) = get_non_into_iter_ancestor(cx, expr.hir_id);
             if let Node::Expr(ancestor) = cx.tcx.hir().get(node_id);
