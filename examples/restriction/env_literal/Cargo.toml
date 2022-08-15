@@ -3,7 +3,7 @@ name = "env_literal"
 version = "2.0.11"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for environment variables referred to with string literals"
-edition = "2018"
+edition = "2021"
 publish = false
 
 [lib]
