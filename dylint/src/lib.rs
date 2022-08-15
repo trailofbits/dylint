@@ -348,6 +348,18 @@ fn is_valid_lib_name(name: &str) -> bool {
     Path::new(name).file_name() == Some(OsStr::new(name))
 }
 
+fn flatten_toolchain_map(toolchain_map: &ToolchainMap) -> Vec<(String, PathBuf)> {
+    toolchain_map
+        .iter()
+        .flat_map(|(toolchain, paths)| {
+            paths
+                .iter()
+                .map(|path| (toolchain.clone(), path.clone()))
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
 fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBuf)>> {
     if let Ok(path) = PathBuf::from(name).canonicalize() {
         if let Some((_, toolchain)) = parse_path_filename(&path) {
@@ -506,18 +518,6 @@ fn target_dir(opts: &Dylint, toolchain: &str) -> Result<PathBuf> {
         .join("target")
         .join(toolchain)
         .into())
-}
-
-fn flatten_toolchain_map(toolchain_map: &ToolchainMap) -> Vec<(String, PathBuf)> {
-    toolchain_map
-        .iter()
-        .flat_map(|(toolchain, paths)| {
-            paths
-                .iter()
-                .map(|path| (toolchain.clone(), path.clone()))
-                .collect::<Vec<_>>()
-        })
-        .collect()
 }
 
 fn clippy_disable_docs_links() -> Result<String> {
