@@ -3,7 +3,7 @@ name = "dylint"
 version = "2.0.11"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
-edition = "2018"
+edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 

@@ -3,7 +3,7 @@ name = "fill_me_in"
 version = "0.1.0"
 authors = ["authors go here"]
 description = "description goes here"
-edition = "2018"
+edition = "2021"
 publish = false
 
 [lib]
