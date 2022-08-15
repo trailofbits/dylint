@@ -55,7 +55,7 @@ use semver::{self, VersionReq};
 use serde::de;
 use serde::ser;
 use serde::{Deserialize, Serialize};
-use toml_edit::easy as toml;
+// use toml_edit::easy as toml;
 // use url::Url;
 
 use crate::core::compiler::{CompileKind, CompileTarget};

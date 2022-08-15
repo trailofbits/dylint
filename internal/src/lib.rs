@@ -1,6 +1,9 @@
 #[cfg(feature = "cargo")]
 pub mod cargo;
 
+#[cfg(feature = "clippy_utils")]
+pub mod clippy_utils;
+
 #[cfg(feature = "command")]
 mod command;
 #[cfg(feature = "command")]

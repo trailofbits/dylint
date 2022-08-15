@@ -6,7 +6,10 @@ use anyhow::{Context, Result};
 use assert_cmd::prelude::*;
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    env, find_and_replace, library_filename, rustup::SanitizeEnvironment, testing::new_template,
+    clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
+    env, library_filename,
+    rustup::SanitizeEnvironment,
+    testing::new_template,
 };
 use glob::glob;
 use predicates::prelude::*;
@@ -66,21 +69,9 @@ fn one_name_multiple_toolchains() {
 }
 
 fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> Result<()> {
-    // smoelius: See https://github.com/rust-lang/regex/issues/244
-    find_and_replace(
-        &path.join("rust-toolchain"),
-        &[&format!(
-            r#"s/(?m)^channel = "[^"]*"/channel = "{}"/"#,
-            channel,
-        )],
-    )?;
-    find_and_replace(
-        &path.join("Cargo.toml"),
-        &[&format!(
-            r#"s/(?m)^(clippy_utils\b.*)\b(rev|tag) = "[^"]*"/${{1}}rev = "{}"/"#,
-            clippy_utils_rev,
-        )],
-    )
+    set_toolchain_channel(path, channel)?;
+    set_clippy_utils_dependency_revision(path, clippy_utils_rev)?;
+    Ok(())
 }
 
 #[test]
