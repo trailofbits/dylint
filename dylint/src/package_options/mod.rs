@@ -106,7 +106,7 @@ fn fill_in(name: &str, from: &Path, to: &Path) -> Result<()> {
 
 pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
     let rev = {
-        let revs = Revs::new()?;
+        let revs = Revs::new(opts.quiet)?;
         let mut iter = revs.iter()?;
         match &opts.rust_version {
             Some(rust_version) => {

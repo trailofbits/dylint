@@ -28,10 +28,10 @@ pub struct RevIter<'revs> {
 }
 
 impl Revs {
-    pub fn new() -> Result<Self> {
+    pub fn new(quiet: bool) -> Result<Self> {
         let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
 
-        let repository = clone(RUST_CLIPPY_URL, "master", tempdir.path())?;
+        let repository = clone(RUST_CLIPPY_URL, "master", tempdir.path(), quiet)?;
 
         Ok(Self {
             tempdir,
@@ -161,7 +161,7 @@ mod test {
     #[test]
     fn examples() {
         for example in EXAMPLES.iter() {
-            let revs = Revs::new().unwrap();
+            let revs = Revs::new(false).unwrap();
             let mut iter = revs.iter().unwrap();
             let rev = iter
                 .find(|rev| {

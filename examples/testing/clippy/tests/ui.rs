@@ -66,11 +66,11 @@ fn clone_rust_clippy(path: &Path) -> Result<()> {
     let url = source
         .strip_prefix("git+")
         .ok_or_else(|| anyhow!("Wrong prefix"))?;
-    let refname = url
-        .rsplit('=')
-        .next()
+    let (url, refname) = url
+        .rsplit_once('=')
+        .and_then(|(url, refname)| url.rsplit_once('?').map(|(url, _)| (url, refname)))
         .ok_or_else(|| anyhow!("Wrong suffix"))?;
-    clone(url, refname, path)?;
+    clone(url, refname, path, false)?;
     Ok(())
 }
 
