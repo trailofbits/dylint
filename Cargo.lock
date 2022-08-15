@@ -551,7 +551,6 @@ dependencies = [
  "serde_json",
  "tempfile",
  "test-log",
- "toml_edit",
  "walkdir",
 ]
 
@@ -584,6 +583,7 @@ dependencies = [
  "log",
  "rust-embed",
  "sedregex",
+ "semver",
  "toml_edit",
  "walkdir",
 ]

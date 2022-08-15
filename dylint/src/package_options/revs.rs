@@ -1,6 +1,6 @@
-use super::clippy_utils::{channel, version};
 use anyhow::{anyhow, Context, Result};
 use dylint_internal::{
+    clippy_utils::{clippy_utils_package_version, toolchain_channel},
     clone,
     git2::{Commit, ObjectType, Repository},
 };
@@ -49,8 +49,8 @@ impl Revs {
         let commit = object
             .as_commit()
             .ok_or_else(|| anyhow!("Object is not a commit"))?;
-        let version = version(self.tempdir.path())?;
-        let channel = channel(self.tempdir.path())?;
+        let version = clippy_utils_package_version(self.tempdir.path())?;
+        let channel = toolchain_channel(self.tempdir.path())?;
         let rev = commit.id().to_string();
         Ok(RevIter {
             revs: self,
@@ -102,8 +102,8 @@ impl<'revs> Iterator for RevIter<'revs> {
                         .with_context(|| {
                             format!("`set_head_detached` failed for `{}`", commit.id())
                         })?;
-                    let version = version(self.revs.tempdir.path())?;
-                    let channel = channel(self.revs.tempdir.path())?;
+                    let version = clippy_utils_package_version(self.revs.tempdir.path())?;
+                    let channel = toolchain_channel(self.revs.tempdir.path())?;
                     let rev = commit.id().to_string();
                     Rev {
                         version,
