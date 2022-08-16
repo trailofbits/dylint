@@ -4,7 +4,7 @@ use rustc_hir::intravisit::FnKind;
 use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LintContext};
 use rustc_middle::mir::{
-    BasicBlock, Body, Local, Operand, Place, Rvalue, StatementKind, Terminator, TerminatorKind,
+    BasicBlock, Body, Local, Place, Rvalue, StatementKind, Terminator, TerminatorKind,
     RETURN_PLACE, START_BLOCK,
 };
 
@@ -143,9 +143,8 @@ where
                 StatementKind::Assign(box (assign_place, rvalue)) => {
                     if_chain! {
                         if state.remove_local(assign_place.local);
-                        if let Rvalue::Use(
-                            Operand::Copy(rvalue_place) | Operand::Move(rvalue_place),
-                        ) = rvalue;
+                        if let Rvalue::Use(rvalue_operand) = rvalue;
+                        if let Some(rvalue_place) = rvalue_operand.place();
                         then {
                             state.set_local(rvalue_place.local);
                         }
@@ -193,8 +192,9 @@ where
                     if_chain! {
                         if state.remove_local(destination.local);
                         let _ = self.contributing_calls.insert(predecessor);
-                        if let Some(arg_place) =
-                            is_try_implementor_method_call(self.cx, self.mir, terminator);
+                        if let Some(arg_place) = is_from_residual_or_try_implementor_method_call(
+                            self.cx, self.mir, terminator,
+                        );
                         then {
                             state.set_local(arg_place.local);
                         }
@@ -245,7 +245,7 @@ where
     }
 }
 
-fn is_try_implementor_method_call<'tcx>(
+fn is_from_residual_or_try_implementor_method_call<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     terminator: &Terminator<'tcx>,
@@ -253,16 +253,20 @@ fn is_try_implementor_method_call<'tcx>(
     if_chain! {
         if let TerminatorKind::Call { func, args, .. } = &terminator.kind;
         if let Some((def_id, _)) = func.const_fn_def();
+        if let [arg, ..] = args.as_slice();
+        if let Some(arg_place) = arg.place();
+        let _ = if Some(def_id) == cx.tcx.lang_items().from_residual_fn() {
+            return Some(arg_place);
+        };
         if let Some(assoc_item) = cx.tcx.opt_associated_item(def_id);
         if assoc_item.fn_has_self_parameter;
         if let Some(try_trait_def_id) = cx.tcx.lang_items().try_trait();
-        if let [Operand::Copy(arg_place) | Operand::Move(arg_place), ..] = args.as_slice();
         let arg_place_ty = arg_place.ty(&mir.local_decls, cx.tcx);
         // smoelius: It appears that all type parameters must be substituted for, or else
         // `implements_trait` returns false.
         if implements_trait(cx, arg_place_ty.ty, try_trait_def_id, &[]);
         then {
-            Some(*arg_place)
+            Some(arg_place)
         } else {
             None
         }
@@ -281,27 +285,27 @@ fn ends_with_discriminant_switch<'tcx>(
 ) -> Option<Place<'tcx>> {
     let basic_block = &mir[index];
     let terminator = basic_block.terminator();
-    if let TerminatorKind::SwitchInt {
-        discr: Operand::Copy(discr_place) | Operand::Move(discr_place),
-        ..
-    } = &terminator.kind
-    {
-        basic_block.statements.iter().rev().find_map(|statement| {
-            if_chain! {
-                if let StatementKind::Assign(box (
-                    assign_place,
-                    Rvalue::Discriminant(rvalue_place),
-                )) = &statement.kind;
-                if assign_place == discr_place;
-                then {
-                    Some(*rvalue_place)
-                } else {
-                    None
+    if_chain! {
+        if let TerminatorKind::SwitchInt { discr, .. } = &terminator.kind;
+        if let Some(discr_place) = discr.place();
+        then {
+            basic_block.statements.iter().rev().find_map(|statement| {
+                if_chain! {
+                    if let StatementKind::Assign(box (
+                        assign_place,
+                        Rvalue::Discriminant(rvalue_place),
+                    )) = &statement.kind;
+                    if *assign_place == discr_place;
+                    then {
+                        Some(*rvalue_place)
+                    } else {
+                        None
+                    }
                 }
-            }
-        })
-    } else {
-        None
+            })
+        } else {
+            None
+        }
     }
 }
 
