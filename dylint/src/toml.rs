@@ -8,6 +8,10 @@
 #![allow(clippy::semicolon_if_nothing_returned)]
 #![allow(clippy::single_char_pattern)]
 #![allow(clippy::too_many_lines)]
+#![cfg_attr(
+    dylint_lib = "non_local_effect_before_error_return",
+    allow(non_local_effect_before_error_return)
+)]
 
 // smoelius: `Context::new` does not appear in the original.
 #[allow(clippy::too_many_arguments)]

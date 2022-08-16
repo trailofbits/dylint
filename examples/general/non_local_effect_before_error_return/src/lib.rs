@@ -10,11 +10,12 @@ extern crate rustc_span;
 use clippy_utils::diagnostics::span_lint;
 use if_chain::if_chain;
 use rustc_hir::intravisit::FnKind;
+use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
-        pretty::write_mir_fn, BasicBlock, BasicBlockData, Body, Mutability, Operand, Place,
-        ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind,
+        pretty::write_mir_fn, BasicBlock, BasicBlockData, Body, Location, Mutability, Operand,
+        Place, ProjectionElem, Statement, StatementKind, TerminatorKind,
     },
     ty,
 };
@@ -22,6 +23,9 @@ use rustc_span::{sym, Span};
 
 mod visit_error_paths;
 use visit_error_paths::visit_error_paths;
+
+mod rvalue_places;
+use rvalue_places::rvalue_places;
 
 dylint_linting::declare_late_lint! {
     /// **What it does:** Checks for non-local effects (e.g., assignments to mutable references)
@@ -105,12 +109,12 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
 
         visit_error_paths(cx, fn_kind, mir, |path, contributing_calls| {
             // smoelius: The path is from a return to the start block.
-            for &index in path {
+            for (i, &index) in path.iter().enumerate() {
                 let basic_block = &mir.basic_blocks()[index];
 
                 if_chain! {
                     if !contributing_calls.contains(index);
-                    if let Some(call_span) = is_call_with_mut_ref(cx, mir, index);
+                    if let Some(call_span) = is_call_with_mut_ref(cx, mir, &path[i..]);
                     then {
                         span_lint(
                             cx,
@@ -147,23 +151,16 @@ fn is_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
 fn is_call_with_mut_ref<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
-    index: BasicBlock,
+    path: &[BasicBlock],
 ) -> Option<Span> {
+    let index = path[0];
     let basic_block = &mir[index];
     let terminator = basic_block.terminator();
     if_chain! {
-        if let TerminatorKind::Call {
-            func,
-            args,
-            fn_span,
-            ..
-        } = &terminator.kind;
-        if let Some((def_id, _)) = func.const_fn_def();
-        let fn_sig = cx.tcx.fn_sig(def_id).skip_binder();
+        if let TerminatorKind::Call { args, fn_span, .. } = &terminator.kind;
         if args
             .iter()
-            .zip(fn_sig.inputs())
-            .any(|(arg, &input_ty)| is_mut_ref_arg(cx, mir, basic_block, arg, input_ty));
+            .any(|arg| is_mut_ref_arg(cx, mir, path, basic_block, arg));
         then {
             Some(*fn_span)
         } else {
@@ -176,36 +173,87 @@ fn is_call_with_mut_ref<'tcx>(
 // The first local is the return value pointer, followed by `arg_count` locals for the function arguments, ...
 //                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 fn is_mut_ref_arg<'tcx>(
-    _cx: &LateContext<'tcx>,
+    cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
+    path: &[BasicBlock],
     basic_block: &BasicBlockData<'tcx>,
     arg: &Operand<'tcx>,
-    input_ty: ty::Ty,
 ) -> bool {
-    if_chain! {
-        if let Operand::Copy(operand_place) | Operand::Move(operand_place) = arg;
-        let body_args = 1..=mir.arg_count;
-        if body_args.contains(&operand_place.local.as_usize())
-            || basic_block.statements.iter().rev().any(|statement| {
-                if_chain! {
-                    if let StatementKind::Assign(box (assign_place, rvalue)) = &statement.kind;
-                    if assign_place == operand_place;
-                    if let Rvalue::Use(
-                        Operand::Copy(rvalue_place) | Operand::Move(rvalue_place),
-                    ) | Rvalue::Ref(_, _, rvalue_place) = rvalue;
-                    if body_args.contains(&rvalue_place.local.as_usize());
-                    then {
-                        true
-                    } else {
-                        false
+    let body_args = 1..=mir.arg_count;
+
+    let mut locals = BitSet::new_empty(mir.local_decls.len());
+    if let Some(arg_place) = mut_ref_operand_place(cx, mir, arg) {
+        locals.insert(arg_place.local)
+    } else {
+        return false;
+    };
+
+    for (i, &index) in path.iter().enumerate() {
+        if body_args.clone().any(|arg| locals.contains(arg.into())) {
+            return true;
+        }
+
+        if i != 0 {
+            let basic_block = &mir[index];
+            let terminator = basic_block.terminator();
+            // smoelius: If a call assigns to a followed local, then for each argument that is a
+            // mutable reference, assume it refers to the same underlying memory as the local.
+            if_chain! {
+                if let TerminatorKind::Call {
+                    destination, args, ..
+                } = &terminator.kind;
+                if locals.remove(destination.local);
+                then {
+                    for arg in args {
+                        if let Some(arg_place) = mut_ref_operand_place(cx, mir, arg) {
+                            locals.insert(arg_place.local);
+                        }
                     }
                 }
-            });
-        if matches!(input_ty.kind(), ty::Ref(_, _, Mutability::Mut));
+            }
+        }
+
+        for (statement_index, statement) in basic_block.statements.iter().enumerate().rev() {
+            if body_args.clone().any(|arg| locals.contains(arg.into())) {
+                return true;
+            }
+
+            if_chain! {
+                if let StatementKind::Assign(box (assign_place, rvalue)) = &statement.kind;
+                if locals.remove(assign_place.local);
+                if let [rvalue_place, ..] = rvalue_places(
+                    rvalue,
+                    Location {
+                        block: index,
+                        statement_index,
+                    },
+                )
+                .as_slice();
+                then {
+                    locals.insert(rvalue_place.local);
+                }
+            }
+        }
+    }
+
+    body_args.clone().any(|arg| locals.contains(arg.into()))
+}
+
+fn mut_ref_operand_place<'tcx>(
+    cx: &LateContext<'tcx>,
+    mir: &'tcx Body<'tcx>,
+    operand: &Operand<'tcx>,
+) -> Option<Place<'tcx>> {
+    if_chain! {
+        if let Some(operand_place) = operand.place();
+        if matches!(
+            operand_place.ty(&mir.local_decls, cx.tcx).ty.kind(),
+            ty::Ref(_, _, Mutability::Mut)
+        );
         then {
-            true
+            Some(operand_place)
         } else {
-            false
+            None
         }
     }
 }
