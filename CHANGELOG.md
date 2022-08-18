@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.12
+
+- Strip current directory when listing libraries ([7268b0a](https://github.com/trailofbits/dylint/commit/7268b0aaedf6b8d52a3e9bf8c5ba24a8a4cd94c6))
+- Switch to subcommands ([4b240bc](https://github.com/trailofbits/dylint/commit/4b240bc5037a0feb7317f21a20445bd6e9d54f0c))
+- Clone with CLI by default ([#434](https://github.com/trailofbits/dylint/pull/434))
+- Upgrade library packages using [`toml_edit`](https://github.com/ordian/toml_edit) ([#436](https://github.com/trailofbits/dylint/pull/436))
+- Ensure dylint_driver_manifest_dir.rs is truncated in dylint/build.rs ([524850b](https://github.com/trailofbits/dylint/commit/524850baafebfa62d578d498b660bc0011826bc6))
+
 ## 2.0.11
 
 - Fix bug related to package cache locking ([#421](https://github.com/trailofbits/dylint/pull/421))

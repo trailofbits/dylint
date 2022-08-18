@@ -1,5 +1,6 @@
 #! /bin/bash
 
+# set -x
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
@@ -7,14 +8,17 @@ if [[ $# -ne 1 ]]; then
     exit 1
 fi
 
-set -x
-
 VERSION="version = \"$1\""
 
 SCRIPTS="$(dirname "$(realpath "$0")")"
 WORKSPACE="$(realpath "$SCRIPTS"/..)"
 
 cd "$WORKSPACE"
+
+if ! scripts/check_CHANGELOG.sh refs/tags/v"$1"; then
+    echo "$0: Please update CHANGELOG.md." >&2
+    exit 1
+fi
 
 find . -name Cargo.toml |
 grep -vw template |
@@ -31,3 +35,5 @@ s/^\(.*\)\<version = \"[^\"]*\"\(.*\)$/\1$REQ\2/
 # smoelius: `template` must be handled specially because it does not use the `version = "..."`
 # syntax.
 sed -i "s/^\(dylint_[^ ]*\) = \"[^\"]*\"$/\1 = \"$1\"/" internal/template/Cargo.toml~
+
+scripts/update_lockfiles.sh

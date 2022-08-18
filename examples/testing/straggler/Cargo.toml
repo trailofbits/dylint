@@ -1,6 +1,6 @@
 [package]
 name = "straggler"
-version = "2.0.11"
+version = "2.0.12"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint that uses an old toolchain for testing purposes"
 edition = "2021"
