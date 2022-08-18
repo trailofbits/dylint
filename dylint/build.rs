@@ -29,6 +29,7 @@ fn main() {
     let mut file = OpenOptions::new()
         .create(true)
         .write(true)
+        .truncate(true)
         .open(Path::new(&out_dir).join("dylint_driver_manifest_dir.rs"))
         .unwrap();
     writeln!(
