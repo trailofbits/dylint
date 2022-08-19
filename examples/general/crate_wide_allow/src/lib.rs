@@ -111,6 +111,9 @@ mod test {
     //   mutex.
     // smoelius: Invoking `cargo-dylint` directly by path, rather than through `cargo run`, avoids
     // the rebuilding problem. But oddly enough, the tests are faster with the mutex than without.
+    // smoelius: The real reason this test is slow is that setting `RUSTFLAGS` causes the metadata
+    // entries to be rebuilt. Running `clippy` once and passing `--no-build` thereafter avoids this
+    // problem.
 
     fn test(rustflags: &str, assert: impl Fn(Assert) -> Assert) {
         let _lock = MUTEX.lock().unwrap();
@@ -136,12 +139,27 @@ mod test {
             .join("debug")
             .join(format!("cargo-dylint{}", consts::EXE_SUFFIX));
 
-        assert(
-            Command::new(cargo_dylint)
+        let cargo_dylint = |example_rustflags: Option<&str>| {
+            let mut command = Command::new(&cargo_dylint);
+            command
                 .env_remove(env::DYLINT_LIBRARY_PATH)
-                .env(env::RUSTFLAGS, rustflags)
-                .args(&["dylint", "--lib", "clippy", "--", "--examples"])
-                .assert(),
-        );
+                .args(&["dylint", "--lib", "clippy"]);
+            if let Some(rustflags) = example_rustflags {
+                command.env(
+                    env::RUSTFLAGS,
+                    "--cfg no_dev_dependencies ".to_owned() + rustflags,
+                );
+                command.args(["--no-build"]);
+            }
+            command.args(["--", "--examples"]);
+            if example_rustflags.is_some() {
+                command.args(["--no-default-features"]);
+            }
+            command.assert()
+        };
+
+        cargo_dylint(None).success();
+
+        assert(cargo_dylint(Some(rustflags)));
     }
 }
