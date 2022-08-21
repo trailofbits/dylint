@@ -27,6 +27,7 @@ The example libraries are separated into the following three categories:
 | [`question_mark_in_expression`](./restriction/question_mark_in_expression)           | A lint to check for the `?` operator in expressions                        |
 | [`suboptimal_pattern`](./restriction/suboptimal_pattern)                             | A lint to check for patterns that could perform additional destructuring   |
 | [`try_io_result`](./restriction/try_io_result)                                       | A lint to check for the `?` operator applied to `std::io::Result`          |
+| [`unnecessary_conversion_for_trait`](./restriction/unnecessary_conversion_for_trait) | A lint to check for unnecessary calls that preserve trait behavior         |
 
 ## Testing
 

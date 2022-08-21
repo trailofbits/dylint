@@ -1,0 +1,43 @@
+// run-rustfix
+
+#![allow(unused_imports)]
+
+use std::{
+    borrow::{Borrow, BorrowMut},
+    io::Read,
+    ops::{Deref, DerefMut},
+    path::Path,
+    process::Command,
+};
+use tempfile::{NamedTempFile, TempDir};
+
+fn main() {
+    let mut readable = Box::new(&[] as &[u8]);
+    let s = String::new();
+    let tempdir = TempDir::new().unwrap();
+    let tempfile = NamedTempFile::new().unwrap();
+
+    let _ = std::fs::write("x", &s);
+    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", "");
+
+    read(&mut readable);
+    read(&mut readable);
+    read(&mut readable);
+    read(&mut readable);
+
+    let _ = Command::new("ls")
+        .args(["-a", "-l"])
+        .status()
+        .unwrap();
+    let _ = Path::new("/").join(".");
+    let _ = Path::new("/").join(&tempdir);
+    let _ = Path::new("/").join(&tempfile);
+}
+
+fn read(_: impl Read) {}

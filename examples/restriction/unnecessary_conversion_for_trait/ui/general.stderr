@@ -1,0 +1,100 @@
+error: the receiver implements the required traits
+  --> $DIR/general.rs:20:33
+   |
+LL |     let _ = std::fs::write("x", s.as_bytes());
+   |                                 ^^^^^^^^^^^^ help: use: `&s`
+   |
+   = note: `-D unnecessary-conversion-for-trait` implied by `-D warnings`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:21:35
+   |
+LL |     let _ = std::fs::write("x", "".as_bytes());
+   |                                   ^^^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:22:35
+   |
+LL |     let _ = std::fs::write("x", "".to_owned());
+   |                                   ^^^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:23:35
+   |
+LL |     let _ = std::fs::write("x", "".to_string());
+   |                                   ^^^^^^^^^^^^ help: remove this
+
+error: the inner argument implements the required traits
+  --> $DIR/general.rs:24:33
+   |
+LL |     let _ = std::fs::write("x", <_ as AsRef<[u8]>>::as_ref(""));
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `""`
+
+error: the inner argument implements the required traits
+  --> $DIR/general.rs:25:33
+   |
+LL |     let _ = std::fs::write("x", <_ as AsRef<str>>::as_ref(""));
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `""`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:26:35
+   |
+LL |     let _ = std::fs::write("x", "".borrow());
+   |                                   ^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:27:35
+   |
+LL |     let _ = std::fs::write("x", "".deref());
+   |                                   ^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:29:10
+   |
+LL |     read(readable.as_mut());
+   |          ^^^^^^^^^^^^^^^^^ help: use: `&mut readable`
+
+error: the inner argument implements the required traits
+  --> $DIR/general.rs:30:10
+   |
+LL |     read(<_ as BorrowMut<&[u8]>>::borrow_mut(&mut readable));
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `&mut readable`
+
+error: the inner argument implements the required traits
+  --> $DIR/general.rs:31:10
+   |
+LL |     read(<_ as BorrowMut<Box<_>>>::borrow_mut(&mut readable));
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `&mut readable`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:32:10
+   |
+LL |     read(readable.deref_mut());
+   |          ^^^^^^^^^^^^^^^^^^^^ help: use: `&mut readable`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:35:27
+   |
+LL |         .args(["-a", "-l"].iter())
+   |                           ^^^^^^^ help: remove this
+
+error: the inner argument implements the required traits
+  --> $DIR/general.rs:38:33
+   |
+LL |     let _ = Path::new("/").join(Path::new("."));
+   |                                 ^^^^^^^^^^^^^^ help: use: `"."`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:39:33
+   |
+LL |     let _ = Path::new("/").join(tempdir.path());
+   |                                 ^^^^^^^^^^^^^^ help: use: `&tempdir`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:40:33
+   |
+LL |     let _ = Path::new("/").join(tempfile.path());
+   |                                 ^^^^^^^^^^^^^^^ help: use: `&tempfile`
+
+error: aborting due to 16 previous errors
+
