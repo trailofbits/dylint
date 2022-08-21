@@ -2,15 +2,12 @@ fn main() {}
 
 #[cfg(test)]
 mod test {
-    use lazy_static::lazy_static;
     use std::sync::Mutex;
 
     #[rustfmt::skip]
     enum Dir { North, East, South, West }
 
-    lazy_static! {
-        static ref CURRENT_DIR: Mutex<Dir> = Mutex::new(Dir::North);
-    }
+    static CURRENT_DIR: Mutex<Dir> = Mutex::new(Dir::North);
 
     fn set_current_dir(dir: Dir) {
         *CURRENT_DIR.lock().unwrap() = dir;

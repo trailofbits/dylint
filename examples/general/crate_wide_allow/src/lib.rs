@@ -73,12 +73,9 @@ mod test {
     use assert_cmd::{assert::Assert, Command};
     use cargo_metadata::MetadataCommand;
     use dylint_internal::env;
-    use lazy_static::lazy_static;
     use std::{env::consts, path::Path, sync::Mutex};
 
-    lazy_static! {
-        static ref MUTEX: Mutex<()> = Mutex::new(());
-    }
+    static MUTEX: Mutex<()> = Mutex::new(());
 
     #[test]
     fn ui() {
