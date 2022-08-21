@@ -123,6 +123,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    steps:
+      - run: |
+
   coverage:
     # smoelius: Disable coverage until the following issue is resolved:
     # https://github.com/taiki-e/cargo-llvm-cov/issues/128
