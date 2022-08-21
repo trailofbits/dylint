@@ -117,7 +117,7 @@ fn maybe_build_packages(
     let dependency_root = dependency_root(config, &dep)?;
 
     let pattern = if let Some(pattern) = &library.pattern {
-        dependency_root.join(Path::new(pattern))
+        dependency_root.join(pattern)
     } else {
         dependency_root
     };
@@ -284,7 +284,7 @@ fn package_id(source_id: SourceId, package_root: &Path) -> Result<PackageId> {
 
     let package = dylint_internal::cargo::package_with_root(&metadata, package_root)?;
 
-    PackageId::new(&package.name, &package.version.to_string(), source_id)
+    PackageId::new(&package.name, &package.version, source_id)
 }
 
 fn package_library_path(

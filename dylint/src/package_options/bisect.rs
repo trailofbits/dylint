@@ -135,7 +135,7 @@ fn script() -> Result<NamedTempFile> {
                 format!("Could not set permissions of {:?}", tempfile_opened.path())
             })?;
 
-        rename(tempfile_opened.path(), tempfile_unopened.path()).with_context(|| {
+        rename(&tempfile_opened, &tempfile_unopened).with_context(|| {
             format!(
                 "Could not rename {:?} to {:?}",
                 tempfile_opened.path(),

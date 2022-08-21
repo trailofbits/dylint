@@ -38,7 +38,7 @@ fn one_name_multiple_toolchains() {
         false,
     )
     .sanitize_environment()
-    .current_dir(tempdir.path())
+    .current_dir(&tempdir)
     .success()
     .unwrap();
 
@@ -48,7 +48,7 @@ fn one_name_multiple_toolchains() {
         false,
     )
     .sanitize_environment()
-    .current_dir(tempdir.path())
+    .current_dir(&tempdir)
     .success()
     .unwrap();
 
@@ -86,7 +86,7 @@ fn one_name_multiple_paths() {
         false,
     )
     .sanitize_environment()
-    .current_dir(tempdirs.0.path())
+    .current_dir(&tempdirs.0)
     .success()
     .unwrap();
 
@@ -95,7 +95,7 @@ fn one_name_multiple_paths() {
         false,
     )
     .sanitize_environment()
-    .current_dir(tempdirs.1.path())
+    .current_dir(&tempdirs.1)
     .success()
     .unwrap();
 
@@ -132,7 +132,7 @@ fn canonical_path() {
 
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()), false)
         .sanitize_environment()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .success()
         .unwrap();
 
@@ -172,7 +172,7 @@ fn list_by_path() {
 
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()), false)
         .sanitize_environment()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .success()
         .unwrap();
 

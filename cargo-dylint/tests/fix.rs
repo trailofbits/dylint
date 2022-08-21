@@ -51,7 +51,7 @@ fn fix() {
     let tempdir = tempdir().unwrap();
 
     std::process::Command::new("cargo")
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .args(&[
             "init",
             "--edition=2018",
@@ -72,7 +72,7 @@ fn fix() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .args(&["dylint", "--fix", LIB_NAME])
         .assert()
         .success();

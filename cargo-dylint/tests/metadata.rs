@@ -10,7 +10,7 @@ fn nonexistent_library() {
     let tempdir = tempdir_in(".").unwrap();
 
     dylint_internal::cargo::init("package `nonexistent_library_test`", false)
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .args(&["--name", "nonexistent_library_test"])
         .success()
         .unwrap();
@@ -34,7 +34,7 @@ path = "../../examples/general/crate_wide_allow"
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .args(&["dylint", "--all"])
         .assert()
         .success();
@@ -50,7 +50,7 @@ path = "../../examples/general/nonexistent_library"
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .args(&["dylint", "--all"])
         .assert()
         .failure()

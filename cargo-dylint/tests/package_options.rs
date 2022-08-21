@@ -86,13 +86,13 @@ fn downgrade_upgrade_package() {
 
     dylint_internal::cargo::build("downgraded dylint-template", false)
         .sanitize_environment()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .success()
         .unwrap();
 
     dylint_internal::cargo::test("downgraded dylint-template", false)
         .sanitize_environment()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .success()
         .unwrap();
 
@@ -116,13 +116,13 @@ fn downgrade_upgrade_package() {
 
         dylint_internal::cargo::build("upgraded dylint-template", false)
             .sanitize_environment()
-            .current_dir(tempdir.path())
+            .current_dir(&tempdir)
             .success()
             .unwrap();
 
         dylint_internal::cargo::test("upgraded dylint-template", false)
             .sanitize_environment()
-            .current_dir(tempdir.path())
+            .current_dir(&tempdir)
             .success()
             .unwrap();
     }
