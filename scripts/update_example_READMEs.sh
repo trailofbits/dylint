@@ -54,6 +54,7 @@ for EXAMPLE in */*; do
         echo "# $(basename "$EXAMPLE")"
         echo
         cat src/*.rs |
+        sed -n '/^[a-z_:]*_lint! {$/,/^}$/p' |
         sed '\,^[[:space:]]*///[[:space:]]\?#[^![],d' |
         sed -n 's,^[[:space:]]*///[[:space:]]\?\(.*\)$,\1,;T;p'
     ) > README.md
