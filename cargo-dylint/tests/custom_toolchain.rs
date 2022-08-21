@@ -32,7 +32,7 @@ mod custom_toolchain {
             false,
         )
         .sanitize_environment()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .success()
         .unwrap();
 

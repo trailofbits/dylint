@@ -48,7 +48,7 @@ fn ui() {
     let target_dir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 
     dylint_internal::cargo::test("clippy", false)
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .envs(vec![
             (env::CARGO_TARGET_DIR, &*target_dir.path().to_string_lossy()),
             (env::DYLINT_LIBS, &dylint_libs),

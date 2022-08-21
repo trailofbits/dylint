@@ -319,7 +319,7 @@ mod test {
             .unwrap();
 
         dylint_internal::cargo::init("package `global_config_test`", false)
-            .current_dir(package.path())
+            .current_dir(&package)
             .args(&["--name", "global_config_test"])
             .success()
             .unwrap();
@@ -338,7 +338,7 @@ linker = "../../target/debug/dylint-link"
         .unwrap();
 
         std::process::Command::new("cargo")
-            .current_dir(package.path())
+            .current_dir(&package)
             .arg("build")
             .assert()
             .success();
@@ -353,14 +353,14 @@ linker = "false"
         .unwrap();
 
         std::process::Command::new("cargo")
-            .current_dir(package.path())
+            .current_dir(&package)
             .arg("clean")
             .assert()
             .success();
 
         std::process::Command::new("cargo")
             .env(env::CARGO_HOME, cargo_home.path())
-            .current_dir(package.path())
+            .current_dir(&package)
             .arg("build")
             .assert()
             .failure()

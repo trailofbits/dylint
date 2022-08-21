@@ -195,7 +195,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                             field, lifetime_msg, field, subfield, subfield_ty
                         ));
                         for access_span in access_spans {
-                            diag.span_note(*access_span, &"read here".to_owned());
+                            diag.span_note(*access_span, "read here");
                         }
                         diag.help(&format!(
                             "consider storing a copy of `.{}.{}`{}",

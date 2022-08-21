@@ -19,7 +19,7 @@ fn dylint_driver_path() {
 
     dylint_internal::cargo::test("dylint-template", false)
         .sanitize_environment()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .envs(vec![(
             env::DYLINT_DRIVER_PATH,
             &*dylint_driver_path.to_string_lossy(),

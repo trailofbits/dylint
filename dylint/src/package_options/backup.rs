@@ -16,7 +16,7 @@ impl Backup {
         P: AsRef<Path>,
     {
         let tempfile = sibling_tempfile(path.as_ref())?;
-        copy(&path, tempfile.path())?;
+        copy(&path, &tempfile)?;
         Ok(Self {
             path: path.as_ref().to_path_buf(),
             tempfile: Some(tempfile),
@@ -31,7 +31,7 @@ impl Backup {
 impl Drop for Backup {
     fn drop(&mut self) {
         if let Some(tempfile) = self.tempfile.take() {
-            rename(tempfile.path(), &self.path).unwrap_or_default();
+            rename(&tempfile, &self.path).unwrap_or_default();
         }
     }
 }

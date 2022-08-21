@@ -8,7 +8,7 @@ fn no_libraries_were_found() {
     let tempdir = tempdir().unwrap();
 
     std::process::Command::new("cargo")
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .args(&[
             "init",
             "--name",
@@ -24,7 +24,7 @@ fn no_libraries_were_found() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .args(&["dylint", "--all"])
         .assert()
         .success()
@@ -32,7 +32,7 @@ fn no_libraries_were_found() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir(tempdir.path())
+        .current_dir(&tempdir)
         .args(&["dylint", "list"])
         .assert()
         .success()
