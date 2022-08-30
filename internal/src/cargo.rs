@@ -45,7 +45,15 @@ fn cargo(subcommand: &str, verb: &str, description: &str, quiet: bool) -> crate:
         // smoelius: Writing directly to `stderr` avoids capture by `libtest`.
         let message = format!("{} {}", verb, description);
         std::io::stderr()
-            .write_fmt(format_args!("{}\n", Style::new().bold().paint(message)))
+            .write_fmt(format_args!(
+                "{}\n",
+                if atty::is(atty::Stream::Stdout) {
+                    Style::new().bold()
+                } else {
+                    Style::new()
+                }
+                .paint(message)
+            ))
             .expect("Could not write to stderr");
     }
     let mut command = crate::Command::new("cargo");

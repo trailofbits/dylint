@@ -284,6 +284,7 @@ version = "2.0.12"
 dependencies = [
  "ansi_term",
  "anyhow",
+ "atty",
  "cargo_metadata",
  "dirs",
  "git2",
