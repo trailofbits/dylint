@@ -1,4 +1,7 @@
-use ansi_term::Color::{Red, Yellow};
+use ansi_term::{
+    Color::{Red, Yellow},
+    Style,
+};
 use std::io::Write;
 
 // smoelius: `ColorizedError` is currently used only by `cargo-dylint`. But given the similarity of
@@ -28,7 +31,16 @@ where
     E: std::fmt::Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "\r{}: {:?}", Red.bold().paint("Error"), self.0)
+        write!(
+            f,
+            "{}{:?}",
+            if atty::is(atty::Stream::Stdout) {
+                format!("\r{}: ", Red.bold().paint("Error"))
+            } else {
+                String::new()
+            },
+            self.0
+        )
     }
 }
 
@@ -41,7 +53,12 @@ pub fn warn(opts: &crate::Dylint, message: &str) {
         std::io::stderr()
             .write_fmt(format_args!(
                 "{}: {}\n",
-                Yellow.bold().paint("Warning"),
+                if atty::is(atty::Stream::Stdout) {
+                    Yellow.bold()
+                } else {
+                    Style::new()
+                }
+                .paint("Warning"),
                 message
             ))
             .expect("Could not write to stderr");

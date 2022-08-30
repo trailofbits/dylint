@@ -28,7 +28,7 @@ fn no_libraries_were_found() {
         .args(&["dylint", "--all"])
         .assert()
         .success()
-        .stderr(predicate::str::contains("No libraries were found."));
+        .stderr(predicate::eq("Warning: No libraries were found.\n"));
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
@@ -36,7 +36,7 @@ fn no_libraries_were_found() {
         .args(&["dylint", "list"])
         .assert()
         .success()
-        .stderr(predicate::str::contains("No libraries were found."));
+        .stderr(predicate::eq("Warning: No libraries were found.\n"));
 }
 
 #[test]
@@ -50,8 +50,7 @@ fn nothing_to_do() {
         .args(&["dylint"])
         .assert()
         .success()
-        .stderr(
-            predicate::str::contains("Nothing to do. Did you forget `--all`?")
-                .and(predicate::str::contains("Building").not()),
-        );
+        .stderr(predicate::eq(
+            "Warning: Nothing to do. Did you forget `--all`?\n",
+        ));
 }
