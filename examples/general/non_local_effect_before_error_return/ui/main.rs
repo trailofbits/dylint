@@ -144,3 +144,16 @@ mod bank {
         }
     }
 }
+
+mod more_than_two_variants {
+    enum Error {
+        Zero,
+        One,
+        Two,
+    }
+
+    fn deref_assign_before_err_return(flag: &mut bool) -> Result<(), Error> {
+        *flag = true;
+        Err(Error::Two)
+    }
+}

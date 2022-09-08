@@ -91,6 +91,8 @@ impl State {
     }
     fn set_confirmed_variant(&mut self, variant: usize) {
         if self.possible_variants.contains(variant) {
+            // smoelius: Once the variant is confirmed, there is no point in tracking the local.
+            self.local = None;
             self.confirmed_variant = self.confirmed_variant.or(Some(variant));
         }
     }
