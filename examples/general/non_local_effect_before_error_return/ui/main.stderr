@@ -54,5 +54,11 @@ error: assignment to dereference before error return
 LL |             self.balance -= amount;
    |             ^^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 9 previous errors
+error: assignment to dereference before error return
+  --> $DIR/main.rs:156:9
+   |
+LL |         *flag = true;
+   |         ^^^^^^^^^^^^
+
+error: aborting due to 10 previous errors
 
