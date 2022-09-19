@@ -36,7 +36,7 @@ jobs:
             pushd "$(dirname "$X")"
             rm -f Cargo.lock
             cargo build --workspace --tests
-            cargo upgrade --workspace --to-lockfile --offline
+            cargo upgrade --offline
             popd
           done
 
