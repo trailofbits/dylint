@@ -8,9 +8,9 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
-anyhow = "1.0.61"
-clap = { version = "3.2.17", features = ["cargo", "derive"] }
-env_logger = "0.9.0"
+anyhow = "1.0.65"
+clap = { version = "3.2.22", features = ["cargo", "derive"] }
+env_logger = "0.9.1"
 
 dylint = { version = "=2.0.12", path = "../dylint", features = ["package_options"] }
 dylint_internal = { version = "=2.0.12", path = "../internal" }
@@ -24,7 +24,7 @@ log = "0.4.17"
 predicates = "2.1.1"
 regex = "1.6.0"
 sedregex = "0.2.5"
-semver = "1.0.13"
+semver = "1.0.14"
 tempfile = "3.3.0"
 test-log = "0.2.11"
 walkdir = "2.3.2"
