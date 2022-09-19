@@ -19,7 +19,7 @@ clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "2b2190
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-tracing = "0.1.35"
+tracing = "0.1.36"
 
 dylint_testing = { path = "../../../utils/testing" }
 
