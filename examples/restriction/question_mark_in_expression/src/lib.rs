@@ -47,43 +47,58 @@ impl<'tcx> LateLintPass<'tcx> for QuestionMarkInExpression {
                 .parent_iter(expr.hir_id)
                 .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion());
             if let ExprKind::Match(_, _, MatchSource::TryDesugar) = expr.kind;
-            if let Some(node_id) = get_non_into_iter_ancestor(cx, expr.hir_id);
-            if let Node::Expr(ancestor) = cx.tcx.hir().get(node_id);
+            if let Some((Node::Expr(ancestor), child_hir_id)) =
+                get_filtered_ancestor(cx, expr.hir_id);
+            // smoelius: `If`, `Let`, and `Match` expressions get a pass.
+            if !match ancestor.kind {
+                ExprKind::Let(..) => true,
+                ExprKind::If(condition, _, _) => condition.hir_id == child_hir_id,
+                ExprKind::Match(scrutinee, _, _) => scrutinee.hir_id == child_hir_id,
+                _ => false,
+            };
             then {
-                // smoelius: `Let` and `Match` expressions get a pass.
-                match ancestor.kind {
-                    ExprKind::Let(..) | ExprKind::Match(..) => {}
-                    _ => {
-                        span_lint_and_help(
-                            cx,
-                            QUESTION_MARK_IN_EXPRESSION,
-                            expr.span,
-                            "using the `?` operator within an expression",
-                            None,
-                            "consider breaking this up into multiple expressions",
-                        );
-                    }
-                }
+                span_lint_and_help(
+                    cx,
+                    QUESTION_MARK_IN_EXPRESSION,
+                    expr.span,
+                    "using the `?` operator within an expression",
+                    None,
+                    "consider breaking this up into multiple expressions",
+                );
             }
         }
     }
 }
 
-#[allow(clippy::collapsible_match)]
-fn get_non_into_iter_ancestor(cx: &LateContext, hir_id: HirId) -> Option<HirId> {
-    cx.tcx.hir().parent_iter(hir_id).find_map(|(hir_id, _)| {
-        if_chain! {
-            if let Node::Expr(expr) = cx.tcx.hir().get(hir_id);
-            if let ExprKind::Call(callee, _) = expr.kind;
-            if let ExprKind::Path(path) = &callee.kind;
-            if let QPath::LangItem(LangItem::IntoIterIntoIter, _, _) = path;
-            then {
-                None
-            } else {
-                Some(hir_id)
+fn get_filtered_ancestor<'hir>(
+    cx: &LateContext<'hir>,
+    hir_id: HirId,
+) -> Option<(Node<'hir>, HirId)> {
+    let mut child_hir_id = hir_id;
+    for (hir_id, node) in cx.tcx.hir().parent_iter(hir_id) {
+        if let Node::Expr(expr) = node {
+            if matches!(
+                expr.kind,
+                ExprKind::Binary(_, _, _) | ExprKind::Unary(_, _) | ExprKind::DropTemps(_)
+            ) {
+                child_hir_id = hir_id;
+                continue;
+            }
+
+            if_chain! {
+                if let ExprKind::Call(callee, _) = expr.kind;
+                if let ExprKind::Path(path) = &callee.kind;
+                if let QPath::LangItem(LangItem::IntoIterIntoIter, _, _) = path;
+                then {
+                    child_hir_id = hir_id;
+                    continue;
+                }
             }
         }
-    })
+
+        return Some((node, child_hir_id));
+    }
+    None
 }
 
 #[test]
