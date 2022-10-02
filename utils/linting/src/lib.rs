@@ -23,7 +23,7 @@ macro_rules! dylint_library {
 
 #[macro_export]
 macro_rules! __declare_and_register_lint {
-    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $register_pass_method:ident, $default:expr) => {
+    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $register_pass_method:ident, $pass:expr) => {
         $crate::dylint_library!();
 
         extern crate rustc_lint;
@@ -32,17 +32,42 @@ macro_rules! __declare_and_register_lint {
         #[no_mangle]
         pub fn register_lints(_sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
             lint_store.register_lints(&[$NAME]);
-            lint_store.$register_pass_method(|| Box::new($default));
+            lint_store.$register_pass_method($pass);
         }
 
         rustc_session::declare_lint!($(#[$attr])* $vis $NAME, $Level, $desc);
     };
 }
 
+#[rustversion::before(2022-09-08)]
+#[macro_export]
+macro_rules! __make_late_closure {
+    ($pass:expr) => {
+        || Box::new($pass)
+    };
+}
+
+// Relevant PR and merge commit:
+// * https://github.com/rust-lang/rust/pull/101501
+// * https://github.com/rust-lang/rust/commit/87788097b776f8e3662f76627944230684b671bd
+#[rustversion::since(2022-09-08)]
+#[macro_export]
+macro_rules! __make_late_closure {
+    ($pass:expr) => {
+        |_| Box::new($pass)
+    };
+}
+
 #[macro_export]
 macro_rules! impl_pre_expansion_lint {
-    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $default:expr) => {
-        $crate::__declare_and_register_lint!($(#[$attr])* $vis $NAME, $Level, $desc, register_pre_expansion_pass, $default);
+    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $pass:expr) => {
+        $crate::__declare_and_register_lint!(
+            $(#[$attr])* $vis $NAME,
+            $Level,
+            $desc,
+            register_pre_expansion_pass,
+            || Box::new($pass)
+        );
         $crate::paste::paste! {
             rustc_session::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
@@ -51,8 +76,14 @@ macro_rules! impl_pre_expansion_lint {
 
 #[macro_export]
 macro_rules! impl_early_lint {
-    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $default:expr) => {
-        $crate::__declare_and_register_lint!($(#[$attr])* $vis $NAME, $Level, $desc, register_early_pass, $default);
+    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $pass:expr) => {
+        $crate::__declare_and_register_lint!(
+            $(#[$attr])* $vis $NAME,
+            $Level,
+            $desc,
+            register_early_pass,
+            || Box::new($pass)
+        );
         $crate::paste::paste! {
             rustc_session::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
@@ -61,8 +92,14 @@ macro_rules! impl_early_lint {
 
 #[macro_export]
 macro_rules! impl_late_lint {
-    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $default:expr) => {
-        $crate::__declare_and_register_lint!($(#[$attr])* $vis $NAME, $Level, $desc, register_late_pass, $default);
+    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $pass:expr) => {
+        $crate::__declare_and_register_lint!(
+            $(#[$attr])* $vis $NAME,
+            $Level,
+            $desc,
+            register_late_pass,
+            $crate::__make_late_closure!($pass)
+        );
         $crate::paste::paste! {
             rustc_session::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
@@ -73,7 +110,13 @@ macro_rules! impl_late_lint {
 macro_rules! declare_pre_expansion_lint {
     ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr) => {
         $crate::paste::paste! {
-            $crate::__declare_and_register_lint!($(#[$attr])* $vis $NAME, $Level, $desc, register_pre_expansion_pass, [< $NAME:camel >]);
+            $crate::__declare_and_register_lint!(
+                $(#[$attr])* $vis $NAME,
+                $Level,
+                $desc,
+                register_pre_expansion_pass,
+                || Box::new([< $NAME:camel >])
+            );
             rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
@@ -83,7 +126,13 @@ macro_rules! declare_pre_expansion_lint {
 macro_rules! declare_early_lint {
     ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr) => {
         $crate::paste::paste! {
-            $crate::__declare_and_register_lint!($(#[$attr])* $vis $NAME, $Level, $desc, register_early_pass, [< $NAME:camel >]);
+            $crate::__declare_and_register_lint!(
+                $(#[$attr])* $vis $NAME,
+                $Level,
+                $desc,
+                register_early_pass,
+                || Box::new([< $NAME:camel >])
+            );
             rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
@@ -93,7 +142,13 @@ macro_rules! declare_early_lint {
 macro_rules! declare_late_lint {
     ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr) => {
         $crate::paste::paste! {
-            $crate::__declare_and_register_lint!($(#[$attr])* $vis $NAME, $Level, $desc, register_late_pass, [< $NAME:camel >]);
+            $crate::__declare_and_register_lint!(
+                $(#[$attr])* $vis $NAME,
+                $Level,
+                $desc,
+                register_late_pass,
+                $crate::__make_late_closure!([< $NAME:camel >])
+            );
             rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
