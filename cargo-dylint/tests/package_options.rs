@@ -9,7 +9,7 @@ use std::{fs::read_to_string, path::Path};
 use tempfile::tempdir;
 use test_log::test;
 
-const RUST_VERSION: &str = "1.63.0";
+const RUST_VERSION: &str = "1.64.0";
 
 #[test]
 fn new_package() {
