@@ -1,8 +1,10 @@
 #![feature(rustc_private)]
 // #![warn(unused_extern_crates)]
 
+extern crate rustc_arena;
 extern crate rustc_ast;
 extern crate rustc_ast_pretty;
+extern crate rustc_attr;
 extern crate rustc_data_structures;
 extern crate rustc_errors;
 extern crate rustc_hir;
@@ -13,11 +15,9 @@ extern crate rustc_lexer;
 extern crate rustc_middle;
 extern crate rustc_mir_dataflow;
 extern crate rustc_parse;
-extern crate rustc_parse_format;
 extern crate rustc_span;
 extern crate rustc_target;
 extern crate rustc_trait_selection;
-extern crate rustc_typeck;
 
 use rustc_lint::LateLintPass;
 
