@@ -9,3 +9,4 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 paste = "1.0.9"
+rustversion = "1.0.9"

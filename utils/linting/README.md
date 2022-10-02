@@ -59,7 +59,7 @@ rustc_session::declare_lint_pass!(Name => [NAME]);
 `impl_late_lint!`, etc. are like `declare_late_lint!`, etc. except:
 
 - each calls [`impl_lint_pass!`] instead of `declare_lint_pass!`;
-- each requires an additional argument to specify the default value of the lint's [`LintPass`] structure.
+- each requires an additional argument to specify the value of the lint's [`LintPass`] structure.
 
 That is, `impl_late_lint!`'s additional argument is what goes here:
 
