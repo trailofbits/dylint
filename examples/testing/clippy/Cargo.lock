@@ -322,6 +322,7 @@ name = "dylint_linting"
 version = "2.0.12"
 dependencies = [
  "paste",
+ "rustversion",
 ]
 
 [[package]]
