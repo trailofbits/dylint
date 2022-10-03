@@ -52,14 +52,13 @@ pub fn warn(opts: &crate::Dylint, message: &str) {
         // smoelius: Writing directly to `stderr` avoids capture by `libtest`.
         std::io::stderr()
             .write_fmt(format_args!(
-                "{}: {}\n",
+                "{}: {message}\n",
                 if atty::is(atty::Stream::Stdout) {
                     Yellow.bold()
                 } else {
                     Style::new()
                 }
-                .paint("Warning"),
-                message
+                .paint("Warning")
             ))
             .expect("Could not write to stderr");
     }

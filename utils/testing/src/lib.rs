@@ -38,7 +38,7 @@ fn initialize(name: &str) -> Result<&Path> {
             // smoelius: Try to order failures by how informative they are: failure to build the library,
             // failure to find the library, failure to build/find the driver.
 
-            dylint_internal::cargo::build(&format!("library `{}`", name), false).success()?;
+            dylint_internal::cargo::build(&format!("library `{name}`"), false).success()?;
 
             // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
             // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is no longer
@@ -184,7 +184,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
         // say "Building `package` examples".
         dylint_internal::cargo::build(&format!("`{}` examples", package.name), false)
             .envs(vec![(env::CARGO_TERM_COLOR, "never")])
-            .args(&[
+            .args([
                 "--manifest-path",
                 package.manifest_path.as_ref(),
                 "--example",
@@ -233,9 +233,9 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
 fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> Result<()> {
     let examples = metadata.target_directory.join("debug").join("examples");
     for entry in
-        read_dir(&examples).with_context(|| format!("`read_dir` failed for `{}`", examples))?
+        read_dir(&examples).with_context(|| format!("`read_dir` failed for `{examples}`"))?
     {
-        let entry = entry.with_context(|| format!("`read_dir` failed for `{}`", examples))?;
+        let entry = entry.with_context(|| format!("`read_dir` failed for `{examples}`"))?;
         let path = entry.path();
 
         if let Some(file_name) = path.file_name() {

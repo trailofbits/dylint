@@ -34,7 +34,7 @@ fn one_name_multiple_toolchains() {
 
     patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_REV_A).unwrap();
     dylint_internal::cargo::build(
-        &format!("dylint-template with channel `{}`", CHANNEL_A),
+        &format!("dylint-template with channel `{CHANNEL_A}`"),
         false,
     )
     .sanitize_environment()
@@ -44,7 +44,7 @@ fn one_name_multiple_toolchains() {
 
     patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_REV_B).unwrap();
     dylint_internal::cargo::build(
-        &format!("dylint-template with channel `{}`", CHANNEL_B),
+        &format!("dylint-template with channel `{CHANNEL_B}`"),
         false,
     )
     .sanitize_environment()
@@ -58,12 +58,12 @@ fn one_name_multiple_toolchains() {
             env::DYLINT_LIBRARY_PATH,
             target_debug(tempdir.path()).unwrap(),
         )])
-        .args(&["dylint", "list", "--all", "--no-metadata"])
+        .args(["dylint", "list", "--all", "--no-metadata"])
         .assert()
         .success()
         .stdout(
-            predicate::str::contains(&format!("fill_me_in@{}", CHANNEL_A)).and(
-                predicate::str::contains(&format!("fill_me_in@{}", CHANNEL_B)),
+            predicate::str::contains(&format!("fill_me_in@{CHANNEL_A}")).and(
+                predicate::str::contains(&format!("fill_me_in@{CHANNEL_B}")),
             ),
         );
 }
@@ -99,7 +99,7 @@ fn one_name_multiple_paths() {
     .success()
     .unwrap();
 
-    let paths = join_paths(&[
+    let paths = join_paths([
         &target_debug(tempdirs.0.path()).unwrap(),
         &target_debug(tempdirs.1.path()).unwrap(),
     ])
@@ -108,7 +108,7 @@ fn one_name_multiple_paths() {
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
         .envs(vec![(env::DYLINT_LIBRARY_PATH, paths)])
-        .args(&["dylint", "list", "--all", "--no-metadata"])
+        .args(["dylint", "list", "--all", "--no-metadata"])
         .assert()
         .success()
         .stdout(
@@ -157,7 +157,7 @@ fn canonical_path() {
         std::process::Command::cargo_bin("cargo-dylint")
             .unwrap()
             .envs(vec![(env::DYLINT_LIBRARY_PATH, &path)])
-            .args(&["dylint", "list"])
+            .args(["dylint", "list"])
             .assert()
             .success()
             .stdout(predicate::str::contains(canonical_path.to_string_lossy()));
@@ -191,7 +191,7 @@ fn list_by_path() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .args(&["dylint", "list", "--path", &path.to_string_lossy()])
+        .args(["dylint", "list", "--path", &path.to_string_lossy()])
         .assert()
         .success()
         .stdout(
@@ -206,6 +206,6 @@ fn target_debug(path: &Path) -> Result<PathBuf> {
     let debug_dir = metadata.target_directory.join("debug");
     debug_dir
         .canonicalize()
-        .with_context(|| format!("Could not canonicalize {:?}", debug_dir))
+        .with_context(|| format!("Could not canonicalize {debug_dir:?}"))
         .map_err(Into::into)
 }

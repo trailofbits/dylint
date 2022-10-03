@@ -19,7 +19,7 @@ fn new_package() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .args(&["dylint", "new", &path.to_string_lossy(), "--isolate"])
+        .args(["dylint", "new", &path.to_string_lossy(), "--isolate"])
         .assert()
         .success();
 
@@ -67,7 +67,7 @@ fn downgrade_upgrade_package() {
 
     let upgrade = || {
         let mut command = std::process::Command::cargo_bin("cargo-dylint").unwrap();
-        command.args(&[
+        command.args([
             "dylint",
             "upgrade",
             &tempdir.path().to_string_lossy(),
@@ -82,7 +82,7 @@ fn downgrade_upgrade_package() {
         .failure()
         .stderr(predicate::str::contains("Refusing to downgrade toolchain"));
 
-    upgrade().args(&["--allow-downgrade"]).assert().success();
+    upgrade().args(["--allow-downgrade"]).assert().success();
 
     dylint_internal::cargo::build("downgraded dylint-template", false)
         .sanitize_environment()
@@ -99,13 +99,13 @@ fn downgrade_upgrade_package() {
     if cfg!(not(unix)) {
         std::process::Command::cargo_bin("cargo-dylint")
             .unwrap()
-            .args(&["dylint", "upgrade", &tempdir.path().to_string_lossy()])
+            .args(["dylint", "upgrade", &tempdir.path().to_string_lossy()])
             .assert()
             .success();
     } else {
         std::process::Command::cargo_bin("cargo-dylint")
             .unwrap()
-            .args(&[
+            .args([
                 "dylint",
                 "upgrade",
                 &tempdir.path().to_string_lossy(),

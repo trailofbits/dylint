@@ -31,15 +31,13 @@ fn versions_are_exact_and_match() {
             if dep.starts_with("dylint") {
                 assert!(
                     req.to_string().starts_with('='),
-                    "`{}` dependency on `{}` is not exact",
-                    package.name,
-                    dep
+                    "`{}` dependency on `{dep}` is not exact",
+                    package.name
                 );
                 assert!(
                     req.matches(&Version::parse(env!("CARGO_PKG_VERSION")).unwrap()),
-                    "`{}` dependency on `{}` does not match `{}`",
+                    "`{}` dependency on `{dep}` does not match `{}`",
                     package.name,
-                    dep,
                     env!("CARGO_PKG_VERSION"),
                 );
             }

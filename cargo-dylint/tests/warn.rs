@@ -9,7 +9,7 @@ fn no_libraries_were_found() {
 
     std::process::Command::new("cargo")
         .current_dir(&tempdir)
-        .args(&[
+        .args([
             "init",
             "--name",
             tempdir
@@ -25,7 +25,7 @@ fn no_libraries_were_found() {
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
         .current_dir(&tempdir)
-        .args(&["dylint", "--all"])
+        .args(["dylint", "--all"])
         .assert()
         .success()
         .stderr(predicate::eq("Warning: No libraries were found.\n"));
@@ -33,7 +33,7 @@ fn no_libraries_were_found() {
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
         .current_dir(&tempdir)
-        .args(&["dylint", "list"])
+        .args(["dylint", "list"])
         .assert()
         .success()
         .stderr(predicate::eq("Warning: No libraries were found.\n"));
@@ -47,7 +47,7 @@ fn nothing_to_do() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .args(&["dylint"])
+        .args(["dylint"])
         .assert()
         .success()
         .stderr(predicate::eq(

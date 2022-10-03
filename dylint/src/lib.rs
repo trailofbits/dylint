@@ -220,12 +220,8 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
             for path in paths {
                 let location = location(path)?;
                 println!(
-                    "{:<name_width$}  {:<toolchain_width$}  {}",
-                    name,
-                    toolchain,
-                    location.to_string_lossy(),
-                    name_width = name_width,
-                    toolchain_width = toolchain_width
+                    "{name:<name_width$}  {toolchain:<toolchain_width$}  {}",
+                    location.to_string_lossy()
                 );
             }
         }
@@ -302,7 +298,7 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
             "Could not find the following libraries:{}",
             not_found
                 .iter()
-                .map(|name| format!("\n    {}", name))
+                .map(|name| format!("\n    {name}"))
                 .collect::<String>()
         );
     }
@@ -402,9 +398,9 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
             let (name, _) =
                 parse_path_filename(path).ok_or_else(|| anyhow!("Could not parse path"))?;
 
-            print!("{}", name);
+            print!("{name}");
             if resolved.keys().len() >= 2 {
-                print!("@{}", toolchain);
+                print!("@{toolchain}");
             }
             if paths.len() >= 2 {
                 let location = location(path)?;
@@ -448,7 +444,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         let target_dir_str = target_dir.to_string_lossy();
         let driver = driver_builder::get(opts, toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
-        let description = format!("with toolchain `{}`", toolchain);
+        let description = format!("with toolchain `{toolchain}`");
         let mut command = if opts.fix {
             dylint_internal::cargo::fix(&description)
         } else {
@@ -456,13 +452,13 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         };
         let mut args = vec!["--target-dir", &target_dir_str];
         if let Some(path) = &opts.manifest_path {
-            args.extend(&["--manifest-path", path]);
+            args.extend(["--manifest-path", path]);
         }
         for spec in &opts.packages {
-            args.extend(&["-p", spec]);
+            args.extend(["-p", spec]);
         }
         if opts.workspace {
-            args.extend(&["--workspace"]);
+            args.extend(["--workspace"]);
         }
         args.extend(opts.args.iter().map(String::as_str));
 
@@ -490,7 +486,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         if result.is_err() {
             if !opts.keep_going {
                 return result
-                    .with_context(|| format!("Compilation failed with toolchain `{}`", toolchain));
+                    .with_context(|| format!("Compilation failed with toolchain `{toolchain}`"));
             };
             failures.push(toolchain);
         }

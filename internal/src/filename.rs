@@ -2,7 +2,7 @@ use std::{env::consts, path::Path};
 
 // smoelius: Build a standard rlib, and the filename will use snake case. `library_filename`'s
 // behavior is consistent with that.
-#[allow(clippy::module_name_repetitions)]
+#[allow(clippy::module_name_repetitions, clippy::uninlined_format_args)]
 #[must_use]
 pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
     format!(

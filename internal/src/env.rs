@@ -34,5 +34,5 @@ pub fn enabled(key: &str) -> bool {
 }
 
 pub fn var(key: &str) -> Result<String> {
-    std::env::var(key).map_err(|err| anyhow!(format!("{}: {}", err, key)))
+    std::env::var(key).map_err(|err| anyhow!(format!("{err}: {key}")))
 }

@@ -11,7 +11,7 @@ fn nonexistent_library() {
 
     dylint_internal::cargo::init("package `nonexistent_library_test`", false)
         .current_dir(&tempdir)
-        .args(&["--name", "nonexistent_library_test"])
+        .args(["--name", "nonexistent_library_test"])
         .success()
         .unwrap();
 
@@ -35,7 +35,7 @@ path = "../../examples/general/crate_wide_allow"
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
         .current_dir(&tempdir)
-        .args(&["dylint", "--all"])
+        .args(["dylint", "--all"])
         .assert()
         .success();
 
@@ -51,7 +51,7 @@ path = "../../examples/general/nonexistent_library"
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
         .current_dir(&tempdir)
-        .args(&["dylint", "--all"])
+        .args(["dylint", "--all"])
         .assert()
         .failure()
         .stderr(predicate::str::contains("No paths matched"));

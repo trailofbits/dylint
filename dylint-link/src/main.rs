@@ -160,7 +160,7 @@ fn copy_library(path: &Path) -> Result<()> {
                 .parent()
                 .ok_or_else(|| anyhow!("Could not get parent directory"))?;
             let path_with_toolchain = strip_deps(parent).join(filename_with_toolchain);
-            copy(&path, &path_with_toolchain).with_context(|| {
+            copy(path, &path_with_toolchain).with_context(|| {
                 format!(
                     "Could not copy `{}` to `{}`",
                     path.to_string_lossy(),
@@ -320,7 +320,7 @@ mod test {
 
         dylint_internal::cargo::init("package `global_config_test`", false)
             .current_dir(&package)
-            .args(&["--name", "global_config_test"])
+            .args(["--name", "global_config_test"])
             .success()
             .unwrap();
 
