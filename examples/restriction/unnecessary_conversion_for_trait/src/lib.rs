@@ -1,4 +1,5 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 #![recursion_limit = "256"]
 
@@ -14,7 +15,7 @@ use clippy_utils::{
     diagnostics::{span_lint, span_lint_and_sugg},
     get_parent_expr, match_def_path,
     source::snippet_opt,
-    ty::{contains_ty, is_copy},
+    ty::is_copy,
 };
 use dylint_internal::cargo::current_metadata;
 use if_chain::if_chain;
@@ -30,7 +31,7 @@ use rustc_middle::ty::{
     self,
     adjustment::{Adjust, Adjustment, AutoBorrow},
     subst::SubstsRef,
-    EarlyBinder, FnSig, Param, ParamTy, PredicateKind, ProjectionPredicate, Subst, Ty, TypeAndMut,
+    EarlyBinder, FnSig, Param, ParamTy, PredicateKind, ProjectionPredicate, Ty, TypeAndMut,
 };
 use rustc_span::symbol::{sym, Symbol};
 use rustc_trait_selection::traits::{
@@ -104,16 +105,25 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
         if_chain! {
             if let Some((maybe_call, maybe_arg, ancestor_mutabilities)) =
                 ancestor_addr_of_mutabilities(cx, expr);
-            if let Some((outer_callee_def_id, outer_substs, outer_args)) =
+            if let Some((outer_callee_def_id, outer_substs, outer_receiver, outer_args)) =
                 get_callee_substs_and_args(cx, maybe_call);
+            let outer_args = std::iter::once(outer_receiver)
+                .flatten()
+                .chain(outer_args)
+                .collect::<Vec<_>>();
             let outer_fn_sig = cx.tcx.fn_sig(outer_callee_def_id).skip_binder();
             if let Some(i) = outer_args
                 .iter()
                 .position(|arg| arg.hir_id == maybe_arg.hir_id);
             if let Some(input) = outer_fn_sig.inputs().get(i);
             if let Param(param_ty) = input.kind();
-            if let Some((inner_callee_def_id, _, inner_args)) = get_callee_substs_and_args(cx, expr);
-            if let [inner_arg] = inner_args;
+            if let Some((inner_callee_def_id, _, inner_receiver, inner_args)) =
+                get_callee_substs_and_args(cx, expr);
+            let inner_args = std::iter::once(inner_receiver)
+                .flatten()
+                .chain(inner_args)
+                .collect::<Vec<_>>();
+            if let [inner_arg] = inner_args.as_slice();
             let inner_arg_ty = cx.typeck_results().expr_ty(inner_arg);
             let adjustment_mutabilities = adjustment_mutabilities(cx, inner_arg);
             let (new_ty, refs_prefix) = build_ty_and_refs_prefix(
@@ -254,7 +264,7 @@ mod test {
 }
 
 // smoelius: `get_callee_substs_and_args` was copied from:
-// https://github.com/rust-lang/rust-clippy/blob/c419d0a8b538de6000226cc54a2f18a03bbd31d6/clippy_lints/src/methods/unnecessary_to_owned.rs#L341-L365
+// https://github.com/rust-lang/rust-clippy/blob/98bf99e2f8cf8b357d63a67ce67d5fc5ceef8b3c/clippy_lints/src/methods/unnecessary_to_owned.rs#L306-L330
 
 #[cfg_attr(
     dylint_lib = "inconsistent_qualification",
@@ -265,22 +275,27 @@ mod test {
 fn get_callee_substs_and_args<'tcx>(
     cx: &LateContext<'tcx>,
     expr: &'tcx Expr<'tcx>,
-) -> Option<(DefId, SubstsRef<'tcx>, &'tcx [Expr<'tcx>])> {
+) -> Option<(
+    DefId,
+    SubstsRef<'tcx>,
+    Option<&'tcx Expr<'tcx>>,
+    &'tcx [Expr<'tcx>],
+)> {
     if_chain! {
         if let ExprKind::Call(callee, args) = expr.kind;
         let callee_ty = cx.typeck_results().expr_ty(callee);
         if let ty::FnDef(callee_def_id, _) = callee_ty.kind();
         then {
             let substs = cx.typeck_results().node_substs(callee.hir_id);
-            return Some((*callee_def_id, substs, args));
+            return Some((*callee_def_id, substs, None, args));
         }
     }
     if_chain! {
-        if let ExprKind::MethodCall(_, args, _) = expr.kind;
+        if let ExprKind::MethodCall(_, recv, args, _) = expr.kind;
         if let Some(method_def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id);
         then {
             let substs = cx.typeck_results().node_substs(expr.hir_id);
-            return Some((method_def_id, substs, args));
+            return Some((method_def_id, substs, Some(recv), args));
         }
     }
     None
@@ -358,7 +373,7 @@ fn inner_arg_implements_traits<'tcx>(
 }
 
 // smoelius: `replace_types` was copied from:
-// https://github.com/rust-lang/rust-clippy/blob/c419d0a8b538de6000226cc54a2f18a03bbd31d6/clippy_lints/src/dereference.rs#L1137-L1191
+// https://github.com/rust-lang/rust-clippy/blob/2d4349c22d855f4735f89d5fcfc397ecb11f5b9c/clippy_lints/src/dereference.rs#L1142-L1196
 
 #[cfg_attr(
     dylint_lib = "inconsistent_qualification",
@@ -385,7 +400,7 @@ fn replace_types<'tcx>(
     while let Some((param_ty, new_ty)) = deque.pop_front() {
         // If `replaced.is_empty()`, then `param_ty` and `new_ty` are those initially passed in.
         if !fn_sig.inputs_and_output.iter().enumerate().all(|(i, ty)| {
-            (replaced.is_empty() && i == arg_index) || !contains_ty(ty, param_ty.to_ty(cx.tcx))
+            (replaced.is_empty() && i == arg_index) || !ty.contains(param_ty.to_ty(cx.tcx))
         }) {
             return false;
         }
@@ -396,14 +411,13 @@ fn replace_types<'tcx>(
         if replaced.insert(param_ty.index) {
             for projection_predicate in projection_predicates {
                 if projection_predicate.projection_ty.self_ty() == param_ty.to_ty(cx.tcx)
-                    && let ty::Term::Ty(term_ty) = projection_predicate.term
+                    && let Some(term_ty) = projection_predicate.term.ty()
                     && let ty::Param(term_param_ty) = term_ty.kind()
                 {
                     let item_def_id = projection_predicate.projection_ty.item_def_id;
                     let assoc_item = cx.tcx.associated_item(item_def_id);
                     let projection = cx.tcx
                         .mk_projection(assoc_item.def_id, cx.tcx.mk_substs_trait(new_ty, &[]));
-
 
                     if let Ok(projected_ty) = cx.tcx.try_normalize_erasing_regions(cx.param_env, projection)
                         && substs[term_param_ty.index as usize] != ty::GenericArg::from(projected_ty)

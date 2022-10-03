@@ -70,7 +70,7 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
                 })
             );
             if let Some(def_id) = path.segments.iter().rev().find_map(|segment| {
-                if let Some(Res::Def(DefKind::Mod, def_id)) = segment.res {
+                if let Res::Def(DefKind::Mod, def_id) = segment.res {
                     Some(def_id)
                 } else {
                     None

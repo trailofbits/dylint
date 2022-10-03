@@ -110,7 +110,7 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
         visit_error_paths(cx, fn_kind, mir, |path, contributing_calls| {
             // smoelius: The path is from a return to the start block.
             for (i, &index) in path.iter().enumerate() {
-                let basic_block = &mir.basic_blocks()[index];
+                let basic_block = &mir.basic_blocks[index];
 
                 if_chain! {
                     if !contributing_calls.contains(index);

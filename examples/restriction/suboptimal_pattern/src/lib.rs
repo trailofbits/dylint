@@ -19,7 +19,7 @@ use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
 use rustc_hir::{
     intravisit::{walk_expr, FnKind, Visitor},
-    BindingAnnotation, Body, Expr, ExprKind, FnDecl, HirId, Node, Pat, PatKind, UnOp,
+    BindingAnnotation, Body, ByRef, Expr, ExprKind, FnDecl, HirId, Node, Pat, PatKind, UnOp,
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{self, adjustment::Adjust};
@@ -97,12 +97,8 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
 
                 if_chain! {
                     if let ty::Tuple(tys) = referent_ty.kind();
-                    if let PatKind::Binding(
-                        BindingAnnotation::Unannotated | BindingAnnotation::Mutable,
-                        hir_id,
-                        ident,
-                        None,
-                    ) = pat.kind;
+                    if let PatKind::Binding(BindingAnnotation(ByRef::No, _), hir_id, ident, None) =
+                        pat.kind;
                     if let Some(projections) = exclusively_projected(cx.tcx, hir_id, &body.value);
                     then {
                         let tuple_pattern =
@@ -225,10 +221,10 @@ fn collect_non_ref_idents(pat: &Pat<'_>) -> Option<FxHashSet<HirId>> {
     pat.walk(|pat| {
         if let PatKind::Binding(annotation, _, _, _) = pat.kind {
             match annotation {
-                BindingAnnotation::Unannotated | BindingAnnotation::Mutable => {
+                BindingAnnotation(ByRef::No, _) => {
                     hir_ids.as_mut().map(|hir_ids| hir_ids.insert(pat.hir_id));
                 }
-                BindingAnnotation::Ref | BindingAnnotation::RefMut => {
+                BindingAnnotation(ByRef::Yes, _) => {
                     hir_ids = None;
                 }
             }

@@ -32,7 +32,7 @@ pub fn visit_error_paths<'tcx>(
     mir: &'tcx Body<'tcx>,
     visitor: impl Fn(&[BasicBlock], &BitSet<BasicBlock>),
 ) {
-    for (index, basic_block) in mir.basic_blocks().iter_enumerated() {
+    for (index, basic_block) in mir.basic_blocks.iter_enumerated() {
         let terminator = basic_block.terminator();
         if terminator.kind == TerminatorKind::Return {
             let mut guide = Guide::new(cx, fn_kind, mir, &visitor);
@@ -124,9 +124,9 @@ where
             fn_kind,
             mir,
             visitor,
-            blocks_visited: BitSet::new_empty(mir.basic_blocks().len()),
-            block_path: Vec::with_capacity(mir.basic_blocks().len()),
-            contributing_calls: BitSet::new_empty(mir.basic_blocks().len()),
+            blocks_visited: BitSet::new_empty(mir.basic_blocks.len()),
+            block_path: Vec::with_capacity(mir.basic_blocks.len()),
+            contributing_calls: BitSet::new_empty(mir.basic_blocks.len()),
             work: 0,
         }
     }

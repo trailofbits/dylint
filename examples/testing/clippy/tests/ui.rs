@@ -1,9 +1,9 @@
 use anyhow::{anyhow, Context, Result};
 use cargo_metadata::Dependency;
-use dylint_internal::{clone, env, find_and_replace, packaging::isolate};
+use dylint_internal::{clone, env, packaging::isolate};
 use std::{
     env::set_var,
-    fs::{read_dir, read_to_string, remove_file, write},
+    fs::{read_to_string, write},
     path::Path,
 };
 use tempfile::tempdir_in;
@@ -27,7 +27,8 @@ fn ui() {
     isolate(tempdir.path()).unwrap();
 
     let src_base = tempdir.path().join("tests").join("ui");
-    disable_rustfix(&src_base).unwrap();
+    // smoelius: I can't remember why disabling `rustfix` was necessary.
+    // disable_rustfix(&src_base).unwrap();
     adjust_macro_use_imports_test(&src_base).unwrap();
 
     // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
@@ -87,31 +88,6 @@ fn clippy_lints_dependency() -> Result<Dependency> {
         .find(|dependency| dependency.name == "clippy_lints")
         .ok_or_else(|| anyhow!("Could not find dependency"))?;
     Ok(dependency.clone())
-}
-
-fn disable_rustfix(src_base: &Path) -> Result<()> {
-    for entry in read_dir(src_base)
-        .with_context(|| format!("`read_dir` failed for `{}`", src_base.to_string_lossy()))?
-    {
-        let entry = entry
-            .with_context(|| format!("`read_dir` failed for `{}`", src_base.to_string_lossy()))?;
-        let path = entry.path();
-        if let Some(extension) = path.extension() {
-            match &*extension.to_string_lossy() {
-                "rs" => {
-                    find_and_replace(&path, &[r#"s/\brun-rustfix\b//"#])?;
-                }
-                "fixed" => {
-                    remove_file(&path).with_context(|| {
-                        format!("Could not remove `{}`", path.to_string_lossy())
-                    })?;
-                }
-                _ => {}
-            }
-        }
-    }
-
-    Ok(())
 }
 
 // smoelius: The `macro_use_imports` test produces the right four errors, but not in the right
