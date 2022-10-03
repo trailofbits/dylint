@@ -9,7 +9,7 @@ use test_log::test;
 const BOUNDARIES: [(&str, &str); 2] = [("2022-07-14", "2022-07-15"), ("2022-09-08", "2022-09-09")];
 
 #[test]
-fn boundary_toolchain() {
+fn boundary_toolchains() {
     for (before, after) in BOUNDARIES {
         for date in [before, after] {
             let channel = format!("nightly-{}", date);
