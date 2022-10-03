@@ -171,10 +171,10 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         .current_dir(package)
         .success()?;
 
-    let binary = metadata.target_directory.join("debug").join(format!(
-        "dylint_driver-{toolchain}{}",
-        consts::EXE_SUFFIX
-    ));
+    let binary = metadata
+        .target_directory
+        .join("debug")
+        .join(format!("dylint_driver-{toolchain}{}", consts::EXE_SUFFIX));
     #[cfg_attr(
         dylint_lib = "non_thread_safe_call_in_test",
         allow(non_thread_safe_call_in_test)
