@@ -28,7 +28,7 @@ mod custom_toolchain {
         patch_dylint_template(tempdir.path(), &custom_toolchain).unwrap();
 
         dylint_internal::cargo::test(
-            &format!("with custom toolchain `{}`", custom_toolchain),
+            &format!("with custom toolchain `{custom_toolchain}`"),
             false,
         )
         .sanitize_environment()
@@ -50,7 +50,7 @@ mod custom_toolchain {
 
     fn link_toolchain(toolchain: &str, path: &Path) -> Result<()> {
         Command::new("rustup")
-            .args(&["toolchain", "link", toolchain, &path.to_string_lossy()])
+            .args(["toolchain", "link", toolchain, &path.to_string_lossy()])
             .success()
     }
 
@@ -60,7 +60,7 @@ mod custom_toolchain {
 
     fn uninstall_toolchain(toolchain: &str) -> Result<()> {
         Command::new("rustup")
-            .args(&["toolchain", "uninstall", toolchain])
+            .args(["toolchain", "uninstall", toolchain])
             .success()
     }
 }

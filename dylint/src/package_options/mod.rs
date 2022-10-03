@@ -74,19 +74,19 @@ fn fill_in(name: &str, from: &Path, to: &Path) -> Result<()> {
 
         find_and_replace(
             &from.join(rel_path),
-            &[&format!(r#"s/\bfill_me_in\b/{}/g"#, lower_snake_case)],
+            &[&format!(r#"s/\bfill_me_in\b/{lower_snake_case}/g"#)],
         )?;
         find_and_replace(
             &from.join(rel_path),
-            &[&format!(r#"s/\bFILL_ME_IN\b/{}/g"#, upper_snake_case)],
+            &[&format!(r#"s/\bFILL_ME_IN\b/{upper_snake_case}/g"#)],
         )?;
         find_and_replace(
             &from.join(rel_path),
-            &[&format!(r#"s/\bfill-me-in\b/{}/g"#, kebab_case)],
+            &[&format!(r#"s/\bfill-me-in\b/{kebab_case}/g"#)],
         )?;
         find_and_replace(
             &from.join(rel_path),
-            &[&format!(r#"s/\bFillMeIn\b/{}/g"#, camel_case)],
+            &[&format!(r#"s/\bFillMeIn\b/{camel_case}/g"#)],
         )?;
 
         let from_path = from.join(rel_path);
@@ -184,7 +184,7 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
         if dylint_internal::cargo::build(&description, opts.quiet)
             .sanitize_environment()
             .current_dir(path)
-            .args(&["--tests"])
+            .args(["--tests"])
             .success()
             .is_err()
         {

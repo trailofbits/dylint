@@ -16,7 +16,7 @@ mod nightly_toolchain {
 
     fn update_nightly() -> Result<()> {
         Command::new("rustup")
-            .args(&["update", "--no-self-update", "nightly"])
+            .args(["update", "--no-self-update", "nightly"])
             .success()
     }
 }

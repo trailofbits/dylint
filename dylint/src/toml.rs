@@ -5,9 +5,11 @@
 #![allow(unused_imports)]
 #![allow(clippy::default_trait_access)]
 #![allow(clippy::doc_markdown)]
+#![allow(clippy::option_if_let_else)]
 #![allow(clippy::semicolon_if_nothing_returned)]
 #![allow(clippy::single_char_pattern)]
 #![allow(clippy::too_many_lines)]
+#![allow(clippy::uninlined_format_args)]
 #![cfg_attr(
     dylint_lib = "non_local_effect_before_error_return",
     allow(non_local_effect_before_error_return)

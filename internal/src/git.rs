@@ -57,11 +57,11 @@ fn clone_with_git2(url: &str, path: &Path, _quiet: bool) -> Result<Repository> {
 pub fn checkout(repository: &Repository, refname: &str) -> Result<()> {
     let (object, reference) = repository
         .revparse_ext(refname)
-        .with_context(|| format!("`revparse_ext` failed for `{}`", refname))?;
+        .with_context(|| format!("`revparse_ext` failed for `{refname}`"))?;
 
     repository
         .checkout_tree(&object, None)
-        .with_context(|| format!("`checkout_tree` failed for `{:?}`", object))?;
+        .with_context(|| format!("`checkout_tree` failed for `{object:?}`"))?;
 
     if_chain! {
         if let Some(reference) = reference;
@@ -69,7 +69,7 @@ pub fn checkout(repository: &Repository, refname: &str) -> Result<()> {
         then {
             repository
                 .set_head(refname)
-                .with_context(|| format!("`set_head` failed for `{}`", refname))?;
+                .with_context(|| format!("`set_head` failed for `{refname}`"))?;
         } else {
             repository
                 .set_head_detached(object.id())

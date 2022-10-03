@@ -302,7 +302,7 @@ fn package_library_path(
         )
         .sanitize_environment()
         .current_dir(package_root)
-        .args(&["--release", "--target-dir", &target_dir.to_string_lossy()])
+        .args(["--release", "--target-dir", &target_dir.to_string_lossy()])
         .success()?;
     }
 

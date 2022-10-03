@@ -27,16 +27,15 @@ fn cargo_toml(toolchain: &str, dylint_driver_spec: &str) -> String {
     format!(
         r#"
 [package]
-name = "dylint_driver-{}"
+name = "dylint_driver-{toolchain}"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
 anyhow = "1.0.38"
 env_logger = "0.8.3"
-dylint_driver = {{ {} }}
+dylint_driver = {{ {dylint_driver_spec} }}
 "#,
-        toolchain, dylint_driver_spec,
     )
 }
 
@@ -44,10 +43,9 @@ fn rust_toolchain(toolchain: &str) -> String {
     format!(
         r#"
 [toolchain]
-channel = "{}"
+channel = "{toolchain}"
 components = ["llvm-tools-preview", "rustc-dev"]
 "#,
-        toolchain,
     )
 }
 
@@ -72,7 +70,7 @@ pub fn main() -> Result<()> {
 pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
     let dylint_drivers = dylint_drivers()?;
 
-    let driver_dir = dylint_drivers.join(&toolchain);
+    let driver_dir = dylint_drivers.join(toolchain);
     if !driver_dir.is_dir() {
         create_dir_all(&driver_dir).with_context(|| {
             format!(
@@ -117,7 +115,7 @@ fn dylint_drivers() -> Result<PathBuf> {
 fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<bool> {
     (|| -> Result<bool> {
         let mut command = dylint_driver(toolchain, driver)?;
-        let output = command.args(&["-V"]).output()?;
+        let output = command.args(["-V"]).output()?;
         let stdout = std::str::from_utf8(&output.stdout)?;
         let theirs = stdout
             .trim_end()
@@ -126,7 +124,7 @@ fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<b
             .ok_or_else(|| anyhow!("Could not determine driver version"))?;
 
         let their_version = Version::parse(theirs)
-            .with_context(|| format!("Could not parse driver version `{}`", theirs))?;
+            .with_context(|| format!("Could not parse driver version `{theirs}`"))?;
 
         let our_version = Version::parse(env!("CARGO_PKG_VERSION"))?;
 
@@ -167,15 +165,14 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         warn(opts, "In debug mode building driver from `crates.io`");
     }
 
-    dylint_internal::cargo::build(&format!("driver for toolchain `{}`", toolchain), opts.quiet)
+    dylint_internal::cargo::build(&format!("driver for toolchain `{toolchain}`"), opts.quiet)
         .sanitize_environment()
         .envs(vec![(env::RUSTFLAGS, rustflags)])
-        .current_dir(&package)
+        .current_dir(package)
         .success()?;
 
     let binary = metadata.target_directory.join("debug").join(format!(
-        "dylint_driver-{}{}",
-        toolchain,
+        "dylint_driver-{toolchain}{}",
         consts::EXE_SUFFIX
     ));
     #[cfg_attr(
@@ -184,8 +181,7 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     )]
     copy(&binary, driver).with_context(|| {
         format!(
-            "Could not copy `{}` to `{}`",
-            binary,
+            "Could not copy `{binary}` to `{}`",
             driver.to_string_lossy()
         )
     })?;
@@ -205,7 +201,7 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
         format!(", path = \"{}\"", path.replace('\\', "\\\\"))
     });
 
-    let dylint_driver_spec = format!("{}{}", version_spec, path_spec);
+    let dylint_driver_spec = format!("{version_spec}{path_spec}");
 
     let cargo_toml_path = package.join("Cargo.toml");
     write(&cargo_toml_path, cargo_toml(toolchain, &dylint_driver_spec))

@@ -18,7 +18,7 @@ fn main() {
         let path = dylint_manifest_dir.join("..").join("driver");
 
         // smoelius: Ensure the path exists at build time.
-        assert!(path.is_dir(), "{:?} is not a directory", path);
+        assert!(path.is_dir(), "{path:?} is not a directory");
 
         format!(
             r#"Some("{}")"#,
@@ -34,8 +34,7 @@ fn main() {
         .unwrap();
     writeln!(
         file,
-        "const DYLINT_DRIVER_MANIFEST_DIR: Option<&str> = {};",
-        dylint_driver_manifest_dir
+        "const DYLINT_DRIVER_MANIFEST_DIR: Option<&str> = {dylint_driver_manifest_dir};"
     )
     .unwrap();
 

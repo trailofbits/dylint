@@ -62,7 +62,7 @@ const TEMPORARY_FILES: &[&str] = &[
 
 pub fn bisect(opts: &Dylint, path: &Path, start: &str) -> Result<()> {
     Command::new("cargo")
-        .args(&["bisect-rustc", "-V"])
+        .args(["bisect-rustc", "-V"])
         .success()
         .with_context(|| "Could not find `cargo-bisect-rustc`. Is it installed?")?;
 
@@ -70,12 +70,12 @@ pub fn bisect(opts: &Dylint, path: &Path, start: &str) -> Result<()> {
 
     let test_dir = path
         .canonicalize()
-        .with_context(|| format!("Could not canonicalize {:?}", path))?;
+        .with_context(|| format!("Could not canonicalize {path:?}"))?;
 
     remove_temporary_files(path);
 
     let mut command = Command::new("cargo");
-    command.args(&[
+    command.args([
         "bisect-rustc",
         "--start",
         start,
@@ -108,7 +108,7 @@ pub fn bisect(opts: &Dylint, path: &Path, start: &str) -> Result<()> {
     dylint_internal::cargo::build(&description, opts.quiet)
         .sanitize_environment()
         .current_dir(path)
-        .args(&["--tests"])
+        .args(["--tests"])
         .success()
 }
 

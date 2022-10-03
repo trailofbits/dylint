@@ -12,7 +12,7 @@ const BOUNDARIES: [(&str, &str); 2] = [("2022-07-14", "2022-07-15"), ("2022-09-0
 fn boundary_toolchain() {
     for (before, after) in BOUNDARIES {
         for date in [before, after] {
-            let channel = format!("nightly-{}", date);
+            let channel = format!("nightly-{date}");
 
             let tempdir = tempdir().unwrap();
 
@@ -26,7 +26,7 @@ fn boundary_toolchain() {
 
             set_toolchain_channel(tempdir.path(), &channel).unwrap();
 
-            dylint_internal::cargo::test(&format!("with channel `{}`", channel), false)
+            dylint_internal::cargo::test(&format!("with channel `{channel}`"), false)
                 .sanitize_environment()
                 .current_dir(&tempdir)
                 .success()

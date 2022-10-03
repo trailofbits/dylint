@@ -16,10 +16,9 @@ fn workspace_metadata(path_spec: &str) -> String {
         r#"
 [workspace.metadata.dylint]
 libraries = [
-    {{ path = "{}" }},
+    {{ path = "{path_spec}" }},
 ]
 "#,
-        path_spec,
     )
 }
 
@@ -52,7 +51,7 @@ fn fix() {
 
     std::process::Command::new("cargo")
         .current_dir(&tempdir)
-        .args(&[
+        .args([
             "init",
             "--edition=2018",
             "--name",
@@ -73,7 +72,7 @@ fn fix() {
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
         .current_dir(&tempdir)
-        .args(&["dylint", "--fix", LIB_NAME])
+        .args(["dylint", "--fix", LIB_NAME])
         .assert()
         .success();
 

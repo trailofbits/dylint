@@ -23,7 +23,7 @@ pub fn active_toolchain(path: &Path) -> Result<String> {
     let output = Command::new("rustup")
         .sanitize_environment()
         .current_dir(path)
-        .args(&["show", "active-toolchain"])
+        .args(["show", "active-toolchain"])
         .output()?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     stdout
@@ -36,7 +36,7 @@ pub fn toolchain_path(path: &Path) -> Result<PathBuf> {
     let output = Command::new("rustup")
         .sanitize_environment()
         .current_dir(path)
-        .args(&["which", "rustc"])
+        .args(["which", "rustc"])
         .output()?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     let path = PathBuf::from(stdout);

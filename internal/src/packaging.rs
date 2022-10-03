@@ -30,7 +30,7 @@ pub fn new_template(to: &Path) -> Result<()> {
             .open(&to_path)
             .with_context(|| format!("Could not open `{}`", to_path.to_string_lossy()))?;
         file.write_all(&embedded_file.data)
-            .with_context(|| format!("Could not write to {:?}", to_path))?;
+            .with_context(|| format!("Could not write to {to_path:?}"))?;
     }
 
     Ok(())
@@ -125,7 +125,7 @@ mod test {
             .filter(|path| PATHS.binary_search(&&**path).is_err())
             .collect::<Vec<_>>();
 
-        assert!(paths.is_empty(), "found {:#?}", paths);
+        assert!(paths.is_empty(), "found {paths:#?}");
     }
 
     #[test]
