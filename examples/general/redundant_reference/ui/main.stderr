@@ -1,4 +1,4 @@
-error: `.cx` is the only field of `V` that uses lifetime `'cx`, and is used only to read `.cx.tcx`, whose type `rustc_middle::ty::TyCtxt` implements `Copy`
+error: `.cx` is the only field of `V` that uses lifetime `'cx`, and is used only to read `.cx.tcx`, whose type `rustc_middle::ty::TyCtxt<'_>` implements `Copy`
   --> $DIR/main.rs:38:9
    |
 LL |         cx: &'cx LateContext<'tcx>,
