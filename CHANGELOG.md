@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.13
+
+- Support rust-lang/rust#101501 in `dylint_linting` ([06bdab3](https://github.com/trailofbits/dylint/commit/06bdab31922b6019757e715896077265e1d0d764))
+- Update library package template ([f119c03](https://github.com/trailofbits/dylint/commit/f119c037eff9acea85a91f1f37512d53157b327a) and [256aa92](https://github.com/trailofbits/dylint/commit/256aa927e15e205b7e087f4ae36be4cba4503e92))
+
 ## 2.0.12
 
 - Strip current directory when listing libraries ([7268b0a](https://github.com/trailofbits/dylint/commit/7268b0aaedf6b8d52a3e9bf8c5ba24a8a4cd94c6))

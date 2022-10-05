@@ -230,7 +230,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.0.12"
+version = "2.0.13"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -251,7 +251,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.0.12"
+version = "2.0.13"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -267,7 +267,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.0.12"
+version = "2.0.13"
 dependencies = [
  "paste",
  "rustversion",
@@ -275,7 +275,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.0.12"
+version = "2.0.13"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -928,7 +928,7 @@ checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
 
 [[package]]
 name = "unnecessary_conversion_for_trait"
-version = "2.0.12"
+version = "2.0.13"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
