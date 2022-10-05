@@ -4,7 +4,9 @@ use crate::{
 };
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo::{
-    core::{source::MaybePackage, Dependency, Features, Package, PackageId, Source, SourceId},
+    core::{
+        source::MaybePackage, Dependency, Features, Package, PackageId, QueryKind, Source, SourceId,
+    },
     util::Config,
 };
 use cargo_metadata::{Error, Metadata, MetadataCommand};
@@ -235,7 +237,7 @@ fn sample_package_id(dep: &Dependency, source: &mut dyn Source) -> Result<Packag
     let mut package_id: Option<PackageId> = None;
 
     while {
-        let poll = source.fuzzy_query(dep, &mut |summary| {
+        let poll = source.query(dep, QueryKind::Fuzzy, &mut |summary| {
             if package_id.is_none() {
                 package_id = Some(summary.package_id());
             }

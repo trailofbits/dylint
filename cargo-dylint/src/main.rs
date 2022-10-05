@@ -1,4 +1,4 @@
-use clap::{crate_version, Parser};
+use clap::{crate_version, ArgAction, Parser};
 use dylint_internal::env;
 use std::{
     ffi::{OsStr, OsString},
@@ -6,7 +6,7 @@ use std::{
 };
 
 #[derive(Debug, Parser)]
-#[clap(bin_name = "cargo")]
+#[clap(display_name = "cargo")]
 struct Opts {
     #[clap(subcommand)]
     subcmd: CargoSubCommand,
@@ -78,7 +78,7 @@ struct Dylint {
     new_path: Option<String>,
 
     #[clap(
-        multiple_occurrences = true,
+        action = ArgAction::Append,
         number_of_values = 1,
         short,
         long = "package",
@@ -177,7 +177,7 @@ struct NameOpts {
     all: bool,
 
     #[clap(
-        multiple_occurrences = true,
+        action = ArgAction::Append,
         number_of_values = 1,
         long = "lib",
         value_name = "name",
@@ -195,7 +195,7 @@ struct NameOpts {
     no_metadata: bool,
 
     #[clap(
-        multiple_occurrences = true,
+        action = ArgAction::Append,
         number_of_values = 1,
         long = "path",
         value_name = "path",
@@ -344,4 +344,10 @@ fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> dylint::ColorizedResult<()> {
         CargoSubCommand::Dylint(opts) => dylint::run(&dylint::Dylint::from(opts)),
     }
     .map_err(dylint::ColorizedError::new)
+}
+
+#[test]
+fn verify_cli() {
+    use clap::CommandFactory;
+    Opts::command().debug_assert();
 }

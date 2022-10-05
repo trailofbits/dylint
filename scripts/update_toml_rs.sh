@@ -18,9 +18,9 @@ TMP="$(mktemp -d)"
 
 git clone 'https://github.com/rust-lang/cargo' "$TMP"
 cd "$TMP"
-git checkout "$FROM_TAG"
-cp "$OUR_TOML_RS" "$THEIR_TOML_RS"
-git stash
+# git checkout "$FROM_TAG"
+# cp "$OUR_TOML_RS" "$THEIR_TOML_RS"
+# git stash
 git checkout "$TO_TAG"
-git stash pop || true
+# git stash pop || true
 cp "$THEIR_TOML_RS" "$OUR_TOML_RS"
