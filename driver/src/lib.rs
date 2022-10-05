@@ -90,7 +90,7 @@ struct Callbacks {
 }
 
 impl Callbacks {
-    // smoelius: Load the libraries when Callbacks is created and not later (e.g., in `config`)
+    // smoelius: Load the libraries when `Callbacks` is created and not later (e.g., in `config`)
     // to ensure that the libraries live long enough.
     fn new(paths: Vec<PathBuf>) -> Self {
         let mut loaded_libs = Vec::new();
@@ -136,7 +136,7 @@ fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
     config.opts.debugging_opts.mir_opt_level.zero();
 }
 
-// Relevant PR and merge commit:
+// smoelius: Relevant PR and merge commit:
 // * https://github.com/rust-lang/rust/pull/98975
 // * https://github.com/rust-lang/rust/commit/0ed9c64c3e63acac9bd77abce62501696c390450
 #[rustversion::since(2022-07-14)]

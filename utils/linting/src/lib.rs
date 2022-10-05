@@ -47,7 +47,7 @@ macro_rules! __make_late_closure {
     };
 }
 
-// Relevant PR and merge commit:
+// smoelius: Relevant PR and merge commit:
 // * https://github.com/rust-lang/rust/pull/101501
 // * https://github.com/rust-lang/rust/commit/87788097b776f8e3662f76627944230684b671bd
 #[rustversion::since(2022-09-08)]
