@@ -1,5 +1,5 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.64.0) with
+// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.65.0) with
 // adjustments to make some things public.
 
 #![allow(unused_imports)]
@@ -46,7 +46,7 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
-use std::str;
+use std::str::{self, FromStr};
 
 use anyhow::{anyhow, bail, Context as _};
 use cargo_platform::Platform;
