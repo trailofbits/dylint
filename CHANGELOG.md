@@ -2,7 +2,7 @@
 
 ## 2.0.13
 
-- Support rust-lang/rust#101501 in `dylint_linting` ([06bdab3](https://github.com/trailofbits/dylint/commit/06bdab31922b6019757e715896077265e1d0d764))
+- Support [rust-lang/rust#101501](https://github.com/rust-lang/rust/pull/101501) in `dylint_linting` ([06bdab3](https://github.com/trailofbits/dylint/commit/06bdab31922b6019757e715896077265e1d0d764))
 - Update library package template ([f119c03](https://github.com/trailofbits/dylint/commit/f119c037eff9acea85a91f1f37512d53157b327a) and [256aa92](https://github.com/trailofbits/dylint/commit/256aa927e15e205b7e087f4ae36be4cba4503e92))
 
 ## 2.0.12
