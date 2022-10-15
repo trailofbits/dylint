@@ -50,6 +50,8 @@ for DIR in $DIRS; do
             #     -W clippy::cargo
         fi
 
+        # smoelius: `--all-targets` cannot be used here. It would cause the command to fail on the
+        # lint examples.
         "$CARGO_DYLINT" dylint $LINTS --workspace -- --all-features --tests
     done
     popd

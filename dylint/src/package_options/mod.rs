@@ -184,7 +184,7 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
         if dylint_internal::cargo::build(&description, opts.quiet)
             .sanitize_environment()
             .current_dir(path)
-            .args(["--tests"])
+            .args(["--all-targets"])
             .success()
             .is_err()
         {

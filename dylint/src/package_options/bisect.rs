@@ -44,13 +44,13 @@ trap '
 sed -i "s/^channel = \"[^\"]*\"$/channel = \"$CHANNEL\"/" rust-toolchain
 
 if [[ ! -f first_channel_seen ]]; then
-    cargo build --tests || (touch first_channel_seen && false)
+    cargo build --all-targets || (touch first_channel_seen && false)
 elif [[ ! -f successful_build_seen ]]; then
     # smoelius: Pretend the build succeeds (even if it doesn't) and proceed backwards until we find
     # one that actually succeeds.
-    (cargo build --tests && touch successful_build_seen) || true
+    (cargo build --all-targets && touch successful_build_seen) || true
 else
-    cargo build --tests
+    cargo build --all-targets
 fi
 "#;
 
@@ -108,7 +108,7 @@ pub fn bisect(opts: &Dylint, path: &Path, start: &str) -> Result<()> {
     dylint_internal::cargo::build(&description, opts.quiet)
         .sanitize_environment()
         .current_dir(path)
-        .args(["--tests"])
+        .args(["--all-targets"])
         .success()
 }
 
