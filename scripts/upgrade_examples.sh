@@ -48,7 +48,7 @@ for EXAMPLE in examples/*/* internal/template; do
             pushd examples/testing/straggler
             sed -i "s/^\(clippy_utils\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$PREV_REV\3/" Cargo.toml
             sed -i "s/^channel = \"[^\"]*\"$/$PREV_CHANNEL/" rust-toolchain
-            cargo build --tests
+            cargo build --all-targets
             popd
         fi
     fi
