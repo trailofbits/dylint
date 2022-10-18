@@ -31,8 +31,7 @@ dylint_linting::declare_late_lint! {
     ///
     /// **Why is this bad?** The use of destructuring patterns in closure parameters (for example)
     /// often leads to more concise closure bodies. Beyond that, the benefits of this lint are
-    /// similar to those of
-    /// [pattern-type-mismatch](https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch).
+    /// similar to those of [pattern-type-mismatch].
     ///
     /// **Known problems:**
     /// * Currently only checks closure parameters (not, e.g., match patterns).
@@ -58,6 +57,8 @@ dylint_linting::declare_late_lint! {
     /// suggest to destructure a reference unless it would eliminate at least one explicit
     /// dereference. Setting this environment variable to anything other than `0` disables this
     /// check.
+    ///
+    /// [pattern-type-mismatch]: https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch
     pub SUBOPTIMAL_PATTERN,
     Warn,
     "patterns that could perform additional destructuring"

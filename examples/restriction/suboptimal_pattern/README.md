@@ -4,8 +4,7 @@
 
 **Why is this bad?** The use of destructuring patterns in closure parameters (for example)
 often leads to more concise closure bodies. Beyond that, the benefits of this lint are
-similar to those of
-[pattern-type-mismatch](https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch).
+similar to those of [pattern-type-mismatch].
 
 **Known problems:**
 
@@ -34,3 +33,5 @@ let ys = xs.iter().map(|&x| x == 0).collect::<Vec<_>>();
 suggest to destructure a reference unless it would eliminate at least one explicit
 dereference. Setting this environment variable to anything other than `0` disables this
 check.
+
+[pattern-type-mismatch]: https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch
