@@ -9,11 +9,7 @@ pub fn build() -> Result<()> {
     // smoelius: The examples use `dylint-link` as the linker, so it must be built first.
     crate::cargo::build("dylint-link", false)
         .sanitize_environment()
-        .current_dir(
-            Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("..")
-                .join("dylint-link"),
-        )
+        .current_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("../dylint-link"))
         .success()?;
 
     for example in iter()? {
@@ -33,9 +29,7 @@ pub fn build() -> Result<()> {
 #[allow(unknown_lints)]
 #[allow(env_cargo_path)]
 pub fn iter() -> Result<impl Iterator<Item = Result<PathBuf>>> {
-    let examples = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("examples");
+    let examples = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
     let iter = WalkDir::new(examples)
         .into_iter()
         .filter_entry(|entry| entry.depth() <= 2);

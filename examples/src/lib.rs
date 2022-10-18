@@ -27,7 +27,7 @@ mod test {
             if path.file_name() == Some(OsStr::new("straggler")) {
                 continue;
             }
-            let config_toml = path.join(".cargo").join("config.toml");
+            let config_toml = path.join(".cargo/config.toml");
             let curr = read_to_string(config_toml).unwrap();
             if let Some(prev) = &prev {
                 assert_eq!(*prev, curr);

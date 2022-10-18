@@ -136,18 +136,8 @@ fn canonical_path() {
         .unwrap();
 
     for path in [
-        tempdir
-            .path()
-            .join("target")
-            .join("..")
-            .join("target")
-            .join("debug"),
-        tempdir
-            .path()
-            .join("target")
-            .join("debug")
-            .join("..")
-            .join("debug"),
+        tempdir.path().join("target/../target/debug"),
+        tempdir.path().join("target/debug/../debug"),
     ] {
         let canonical_path = path.canonicalize().unwrap();
 
@@ -178,8 +168,7 @@ fn list_by_path() {
     let path = glob(
         &tempdir
             .path()
-            .join("target")
-            .join("debug")
+            .join("target/debug")
             .join(library_filename("fill_me_in", "*"))
             .to_string_lossy(),
     )

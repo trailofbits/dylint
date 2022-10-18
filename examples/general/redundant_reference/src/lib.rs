@@ -278,15 +278,11 @@ fn ui() {
 #[test]
 fn ui_main_rs_starts_with() {
     let ui_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("ui")
-            .join("main.rs"),
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui/main.rs"),
     )
     .unwrap();
     let ui_no_lifetime_check_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("ui_no_lifetime_check")
-            .join("main.rs"),
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_no_lifetime_check/main.rs"),
     )
     .unwrap();
     assert!(ui_main_rs.starts_with(&ui_no_lifetime_check_main_rs));

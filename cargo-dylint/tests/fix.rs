@@ -58,7 +58,7 @@ fn fix() {
 
     append_workspace_metadata(tempdir.path()).unwrap();
 
-    write(tempdir.path().join("src").join("main.rs"), MAIN_RS).unwrap();
+    write(tempdir.path().join("src/main.rs"), MAIN_RS).unwrap();
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
@@ -67,7 +67,7 @@ fn fix() {
         .assert()
         .success();
 
-    let main_actual = read_to_string(tempdir.path().join("src").join("main.rs")).unwrap();
+    let main_actual = read_to_string(tempdir.path().join("src/main.rs")).unwrap();
 
     assert_eq!(main_actual, MAIN_FIXED);
 }

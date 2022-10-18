@@ -115,10 +115,7 @@ mod test {
     fn test(rustflags: &str, assert: impl Fn(Assert) -> Assert) {
         let _lock = MUTEX.lock().unwrap();
 
-        let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("..")
-            .join("..");
+        let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
 
         Command::new("cargo")
             .current_dir(&manifest_dir)
