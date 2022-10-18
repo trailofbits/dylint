@@ -9,7 +9,7 @@ use tempfile::tempdir;
 use test_log::test;
 
 const CATEGORY: &str = "restriction";
-const LIB_NAME: &str = "path_separator_in_string_literal";
+const LIB_NAME: &str = "const_path_join";
 
 fn workspace_metadata(path_spec: &str) -> String {
     format!(
@@ -22,26 +22,17 @@ libraries = [
     )
 }
 
-#[cfg(target_os = "windows")]
 const MAIN_RS: &str = r#"
 fn main() {
-    let _ = std::path::Path::new("..\\target");
-    let _ = std::path::PathBuf::from("..\\target");
-}
-"#;
-
-#[cfg(not(target_os = "windows"))]
-const MAIN_RS: &str = r#"
-fn main() {
-    let _ = std::path::Path::new("../target");
-    let _ = std::path::PathBuf::from("../target");
+    let _ = std::path::Path::new("..").join("target");
+    let _ = std::path::PathBuf::from("..").join("target");
 }
 "#;
 
 const MAIN_FIXED: &str = r#"
 fn main() {
-    let _ = std::path::Path::new("..").join("target").as_path();
-    let _ = std::path::PathBuf::from("..").join("target");
+    let _ = std::path::PathBuf::from("../target");
+    let _ = std::path::PathBuf::from("../target");
 }
 "#;
 

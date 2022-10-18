@@ -17,7 +17,8 @@ pub const FS_WRITE: [&str; 3] = ["std", "fs", "write"];
 
 pub const IO_ERROR: [&str; 4] = ["std", "io", "error", "Error"];
 
+pub const PATH_JOIN: [&str; 4] = ["std", "path", "Path", "join"];
 pub const PATH_NEW: [&str; 4] = ["std", "path", "Path", "new"];
-pub const PATH_BUF_FROM: [&str; 4] = ["std", "path", "PathBuf", "from"];
+pub const PATH_BUF: [&str; 3] = ["std", "path", "PathBuf"];
 
 pub const TEST_DESC_AND_FN: [&str; 3] = ["test", "types", "TestDescAndFn"];
