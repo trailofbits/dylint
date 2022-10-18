@@ -1,0 +1,8 @@
+// run-rustfix
+
+fn main() {
+    let _ = std::path::PathBuf::from("../target");
+    let _ = std::path::PathBuf::from("../target");
+    let _ = std::path::PathBuf::from("../target").as_path();
+    let _ = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../target");
+}
