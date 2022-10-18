@@ -13,7 +13,7 @@ fn dylint_driver_path() {
 
     new_template(tempdir.path()).unwrap();
 
-    let dylint_driver_path = tempdir.path().join("target").join("dylint_drivers");
+    let dylint_driver_path = tempdir.path().join("target/dylint_drivers");
 
     create_dir_all(&dylint_driver_path).unwrap();
 

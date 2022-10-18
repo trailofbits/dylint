@@ -26,7 +26,7 @@ fn ui() {
 
     isolate(tempdir.path()).unwrap();
 
-    let src_base = tempdir.path().join("tests").join("ui");
+    let src_base = tempdir.path().join("tests/ui");
     // smoelius: I can't remember why disabling `rustfix` was necessary.
     // disable_rustfix(&src_base).unwrap();
     adjust_macro_use_imports_test(&src_base).unwrap();

@@ -15,7 +15,7 @@ pub fn clippy_utils_version_from_rust_version(rust_version: &str) -> Result<Stri
 
 #[allow(clippy::module_name_repetitions)]
 pub fn clippy_utils_package_version(path: &Path) -> Result<String> {
-    let cargo_toml = path.join("clippy_utils").join("Cargo.toml");
+    let cargo_toml = path.join("clippy_utils/Cargo.toml");
     let file = read_to_string(&cargo_toml).with_context(|| {
         format!(
             "`read_to_string` failed for `{}`",
