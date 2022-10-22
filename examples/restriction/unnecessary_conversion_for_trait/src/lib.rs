@@ -44,6 +44,9 @@ use std::{
     path::PathBuf,
 };
 
+mod check_inherents;
+use check_inherents::check_inherents;
+
 dylint_linting::impl_late_lint! {
     /// **What it does:** Checks for trait-behavior-preserving calls in positions where a trait
     /// implementation is expected.
@@ -57,19 +60,13 @@ dylint_linting::impl_late_lint! {
     ///
     /// ```rust
     /// # use std::{path::Path, process::Command};
-    /// let _ = Command::new("ls")
-    ///     .args(["-a", "-l"].iter())
-    ///     .status()
-    ///     .unwrap();
+    /// let _ = Command::new("ls").args(["-a", "-l"].iter());
     /// let _ = Path::new("/").join(Path::new("."));
     /// ```
     /// Use instead:
     /// ```rust
     /// # use std::{path::Path, process::Command};
-    /// let _ = Command::new("ls")
-    ///     .args(["-a", "-l"])
-    ///     .status()
-    ///     .unwrap();
+    /// let _ = Command::new("ls").args(["-a", "-l"]);
     /// let _ = Path::new("/").join(".");
     /// ```
     pub UNNECESSARY_CONVERSION_FOR_TRAIT,
@@ -83,9 +80,8 @@ struct UnnecessaryConversionForTrait {
     callee_paths: BTreeSet<Vec<String>>,
 }
 
-const WATCHLIST: &[&[&str]] = &[
+const TRAIT_WATCHLIST: &[&[&str]] = &[
     &["alloc", "borrow", "ToOwned", "to_owned"],
-    &["alloc", "string", "String", "as_bytes"],
     &["alloc", "string", "ToString", "to_string"],
     &["core", "borrow", "Borrow", "borrow"],
     &["core", "borrow", "BorrowMut", "borrow_mut"],
@@ -93,11 +89,46 @@ const WATCHLIST: &[&[&str]] = &[
     &["core", "convert", "AsRef", "as_ref"],
     &["core", "ops", "deref", "Deref", "deref"],
     &["core", "ops", "deref", "DerefMut", "deref_mut"],
+];
+
+const INHERENT_WATCHLIST: &[&[&str]] = &[
+    &["alloc", "string", "String", "as_bytes"],
+    &["alloc", "string", "String", "as_mut_str"],
+    &["alloc", "string", "String", "as_str"],
+    &["alloc", "string", "String", "into_bytes"],
+    &["alloc", "vec", "Vec", "as_mut_slice"],
+    &["alloc", "vec", "Vec", "as_slice"],
     &["core", "slice", "<impl [T]>", "iter"],
+    &["core", "slice", "<impl [T]>", "iter_mut"],
     &["core", "str", "<impl str>", "as_bytes"],
+    &["std", "ffi", "os_str", "OsStr", "new"],
+    &["std", "ffi", "os_str", "OsStr", "to_os_string"],
+    &["std", "ffi", "os_str", "OsString", "as_os_str"],
+    &["std", "path", "Path", "as_os_str"],
+    &["std", "path", "Path", "iter"],
     &["std", "path", "Path", "new"],
+    &["std", "path", "Path", "to_path_buf"],
+    &["std", "path", "PathBuf", "as_path"],
+    &["std", "path", "PathBuf", "into_os_string"],
     &["tempfile", "dir", "TempDir", "path"],
     &["tempfile", "file", "NamedTempFile", "path"],
+];
+
+const INHERENT_IGNORELIST: &[&[&str]] = &[
+    &["alloc", "string", "String", "from_utf16_lossy"],
+    &["alloc", "vec", "Vec", "leak"],
+    &["alloc", "vec", "Vec", "spare_capacity_mut"],
+    &["alloc", "vec", "Vec", "into_flattened"],
+    &["core", "slice", "<impl [T]>", "as_chunks_unchecked"],
+    &["core", "slice", "<impl [T]>", "as_chunks_unchecked_mut"],
+    &["core", "str", "<impl str>", "as_bytes_mut"],
+    &["core", "str", "<impl str>", "trim"],
+    &["core", "str", "<impl str>", "trim_start"],
+    &["core", "str", "<impl str>", "trim_end"],
+    &["core", "str", "<impl str>", "trim_left"],
+    &["core", "str", "<impl str>", "trim_right"],
+    &["std", "ffi", "os_str", "OsStr", "to_ascii_lowercase"],
+    &["std", "ffi", "os_str", "OsStr", "to_ascii_uppercase"],
 ];
 
 impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
@@ -143,8 +174,9 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
             if let Some(snippet) = snippet_opt(cx, inner_arg.span);
             then {
                 let inner_callee_path = cx.get_def_path(inner_callee_def_id);
-                if !WATCHLIST
+                if !TRAIT_WATCHLIST
                     .iter()
+                    .chain(INHERENT_WATCHLIST.iter())
                     .any(|path| match_def_path(cx, inner_callee_def_id, path))
                 {
                     if enabled("DEBUG_WATCHLIST") {
@@ -213,16 +245,39 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
             }
         }
     }
+
+    // smoelius: This is a hack. In `check_inherents`, we need to iterate over the items in
+    // `core::str::<impl str>`. But for some reason, that impl is not listed by `module_children`.
+    //
+    // On the other hand, the impl is returned by `parent` if one has the `DefId` of an item within
+    // the impl.
+    //
+    // The easiest way I have found to obtain such a `DefId` is to refer to one of the impl's
+    // items (e.g., `str::len`) and let the compiler perform resolution.
+    //
+    // Note that a similar hack is not needed to obtain a `DefId` within `core::slice::<impl [T]>`
+    // because one can use `LanguageItems::slice_len_fn`.
+    fn check_expr_post(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
+        const STR_LEN: [&str; 4] = ["core", "str", "<impl str>", "len"];
+        if enabled("CHECK_INHERENTS")
+            && let Some(def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id)
+            && match_def_path(cx, def_id, &STR_LEN)
+        {
+            check_inherents(cx, def_id);
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
     use std::{
-        env::{remove_var, set_var},
-        fs::{read_to_string, remove_file},
+        env::{remove_var, set_var, var_os},
+        ffi::{OsStr, OsString},
+        fs::{read_to_string, remove_file, write},
         sync::Mutex,
     };
+    use tempfile::tempdir;
 
     static MUTEX: Mutex<()> = Mutex::new(());
 
@@ -233,24 +288,52 @@ mod test {
     #[test]
     fn general() {
         let _lock = MUTEX.lock().unwrap();
+        let _var = VarGuard::set("COVERAGE", "1");
 
-        set_var(option("COVERAGE"), "1");
+        assert!(!enabled("CHECK_INHERENTS"));
 
         let path = coverage_path("general");
         remove_file(&path).unwrap_or_default();
 
         dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "general");
 
-        let coverage = read_to_string(path).unwrap();
-        assert_eq!(
-            WATCHLIST
-                .iter()
-                .map(|path| format!("{:?}\n", path))
-                .collect::<String>(),
-            coverage
-        );
+        let mut combined_watchlist = TRAIT_WATCHLIST
+            .iter()
+            .chain(INHERENT_WATCHLIST.iter())
+            .collect::<Vec<_>>();
+        combined_watchlist.sort();
 
-        remove_var(option("COVERAGE"));
+        let coverage = read_to_string(path).unwrap();
+        let coverage_lines = coverage.lines().collect::<Vec<_>>();
+
+        for (left, right) in combined_watchlist
+            .iter()
+            .map(|path| format!("{:?}", path))
+            .zip(coverage_lines.iter())
+        {
+            assert_eq!(&left, right);
+        }
+
+        assert_eq!(combined_watchlist.len(), coverage_lines.len());
+    }
+
+    #[cfg_attr(
+        dylint_lib = "non_thread_safe_call_in_test",
+        allow(non_thread_safe_call_in_test)
+    )]
+    #[test]
+    fn check_inherents() {
+        let _lock = MUTEX.lock().unwrap();
+        let _var = VarGuard::set("CHECK_INHERENTS", "1");
+
+        assert!(!enabled("COVERAGE"));
+
+        let tempdir = tempdir().unwrap();
+
+        // smoelius: Regarding `str::len`, see the comment above `check_expr_post` in this file.
+        write(tempdir.path().join("main.rs"), "fn main() { str::len; }").unwrap();
+
+        dylint_testing::ui_test(env!("CARGO_PKG_NAME"), tempdir.path());
     }
 
     #[test]
@@ -258,8 +341,36 @@ mod test {
         let _lock = MUTEX.lock().unwrap();
 
         assert!(!enabled("COVERAGE"));
+        assert!(!enabled("CHECK_INHERENTS"));
 
         dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "unnecessary_to_owned");
+    }
+
+    // smoelius: `VarGuard` is from the following with the use of `option` added:
+    // https://github.com/rust-lang/rust-clippy/blob/9cc8da222b3893bc13bc13c8827e93f8ea246854/tests/compile-test.rs
+
+    /// Restores an env var on drop
+    #[must_use]
+    struct VarGuard {
+        key: &'static str,
+        value: Option<OsString>,
+    }
+
+    impl VarGuard {
+        fn set(key: &'static str, val: impl AsRef<OsStr>) -> Self {
+            let value = var_os(key);
+            set_var(option(key), val);
+            Self { key, value }
+        }
+    }
+
+    impl Drop for VarGuard {
+        fn drop(&mut self) {
+            match self.value.as_deref() {
+                None => remove_var(option(self.key)),
+                Some(value) => set_var(option(self.key), value),
+            }
+        }
     }
 }
 

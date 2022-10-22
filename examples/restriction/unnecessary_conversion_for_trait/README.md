@@ -11,19 +11,13 @@ performance.
 **Example:**
 
 ```rust
-let _ = Command::new("ls")
-    .args(["-a", "-l"].iter())
-    .status()
-    .unwrap();
+let _ = Command::new("ls").args(["-a", "-l"].iter());
 let _ = Path::new("/").join(Path::new("."));
 ```
 
 Use instead:
 
 ```rust
-let _ = Command::new("ls")
-    .args(["-a", "-l"])
-    .status()
-    .unwrap();
+let _ = Command::new("ls").args(["-a", "-l"]);
 let _ = Path::new("/").join(".");
 ```

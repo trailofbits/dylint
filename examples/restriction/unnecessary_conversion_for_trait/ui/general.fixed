@@ -4,40 +4,75 @@
 
 use std::{
     borrow::{Borrow, BorrowMut},
+    ffi::{OsStr, OsString},
     io::Read,
     ops::{Deref, DerefMut},
-    path::Path,
+    path::{Path, PathBuf},
     process::Command,
 };
 use tempfile::{NamedTempFile, TempDir};
 
 fn main() {
     let mut readable = Box::new(&[] as &[u8]);
-    let s = String::new();
+    let mut s = String::new();
+    let mut vec = Vec::<u8>::new();
+    let osstr = OsStr::new("");
+    let osstring = OsString::new();
+    let path = Path::new("x");
+    let path_buf = PathBuf::from("x");
     let tempdir = TempDir::new().unwrap();
     let tempfile = NamedTempFile::new().unwrap();
 
+    // trait methods
+
+    let _ = std::fs::write("x", "");
+
+    let _ = std::fs::write("x", "");
+
+    let _ = std::fs::write("x", "");
+
+    read(&mut readable);
+    read(&mut readable);
+
+    read(&mut readable);
+
+    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", "");
+
+    let _ = std::fs::write("x", "");
+
+    read(&mut readable);
+
+    // inherent methods
+
     let _ = std::fs::write("x", &s);
-    let _ = std::fs::write("x", "");
-    let _ = std::fs::write("x", "");
-    let _ = std::fs::write("x", "");
-    let _ = std::fs::write("x", "");
-    let _ = std::fs::write("x", "");
-    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", &mut s);
+    let _ = std::fs::write("x", &s);
+    let _ = std::fs::write("x", s.clone());
+
+    let _ = std::fs::write("x", &mut vec);
+    let _ = std::fs::write("x", &vec);
+
+    let _ = Command::new("ls").args(["-a", "-l"]);
+    let _ = Command::new("ls").args(["-a", "-l"]);
+
     let _ = std::fs::write("x", "");
 
-    read(&mut readable);
-    read(&mut readable);
-    read(&mut readable);
-    read(&mut readable);
+    let _ = std::fs::write("x", "");
+    let _ = std::fs::write(osstr, "");
 
-    let _ = Command::new("ls")
-        .args(["-a", "-l"])
-        .status()
-        .unwrap();
-    let _ = Path::new("/").join(".");
-    let _ = Path::new("/").join(&tempdir);
-    let _ = Path::new("/").join(&tempfile);
+    let _ = std::fs::write(&osstring, "");
+
+    let _ = std::fs::write(path, "");
+    let _ = Command::new("ls").args(path);
+    let _ = std::fs::write("x", "");
+    let _ = std::fs::write(path, "");
+
+    let _ = std::fs::write(&path_buf, "");
+    let _ = std::fs::write(path_buf.clone(), "");
+
+    let _ = std::fs::write(&tempdir, "");
+    let _ = std::fs::write(&tempfile, "");
 }
 
 fn read(_: impl Read) {}
