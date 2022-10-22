@@ -1,100 +1,184 @@
 error: the receiver implements the required traits
-  --> $DIR/general.rs:20:33
+  --> $DIR/general.rs:28:35
    |
-LL |     let _ = std::fs::write("x", s.as_bytes());
-   |                                 ^^^^^^^^^^^^ help: use: `&s`
+LL |     let _ = std::fs::write("x", "".to_owned());
+   |                                   ^^^^^^^^^^^ help: remove this
    |
    = note: `-D unnecessary-conversion-for-trait` implied by `-D warnings`
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:21:35
-   |
-LL |     let _ = std::fs::write("x", "".as_bytes());
-   |                                   ^^^^^^^^^^^ help: remove this
-
-error: the receiver implements the required traits
-  --> $DIR/general.rs:22:35
-   |
-LL |     let _ = std::fs::write("x", "".to_owned());
-   |                                   ^^^^^^^^^^^ help: remove this
-
-error: the receiver implements the required traits
-  --> $DIR/general.rs:23:35
+  --> $DIR/general.rs:30:35
    |
 LL |     let _ = std::fs::write("x", "".to_string());
    |                                   ^^^^^^^^^^^^ help: remove this
 
-error: the inner argument implements the required traits
-  --> $DIR/general.rs:24:33
-   |
-LL |     let _ = std::fs::write("x", <_ as AsRef<[u8]>>::as_ref(""));
-   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `""`
-
-error: the inner argument implements the required traits
-  --> $DIR/general.rs:25:33
-   |
-LL |     let _ = std::fs::write("x", <_ as AsRef<str>>::as_ref(""));
-   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `""`
-
 error: the receiver implements the required traits
-  --> $DIR/general.rs:26:35
+  --> $DIR/general.rs:32:35
    |
 LL |     let _ = std::fs::write("x", "".borrow());
    |                                   ^^^^^^^^^ help: remove this
 
-error: the receiver implements the required traits
-  --> $DIR/general.rs:27:35
-   |
-LL |     let _ = std::fs::write("x", "".deref());
-   |                                   ^^^^^^^^ help: remove this
-
-error: the receiver implements the required traits
-  --> $DIR/general.rs:29:10
-   |
-LL |     read(readable.as_mut());
-   |          ^^^^^^^^^^^^^^^^^ help: use: `&mut readable`
-
 error: the inner argument implements the required traits
-  --> $DIR/general.rs:30:10
+  --> $DIR/general.rs:34:10
    |
 LL |     read(<_ as BorrowMut<&[u8]>>::borrow_mut(&mut readable));
    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `&mut readable`
 
 error: the inner argument implements the required traits
-  --> $DIR/general.rs:31:10
+  --> $DIR/general.rs:35:10
    |
 LL |     read(<_ as BorrowMut<Box<_>>>::borrow_mut(&mut readable));
    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `&mut readable`
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:32:10
+  --> $DIR/general.rs:37:10
+   |
+LL |     read(readable.as_mut());
+   |          ^^^^^^^^^^^^^^^^^ help: use: `&mut readable`
+
+error: the inner argument implements the required traits
+  --> $DIR/general.rs:39:33
+   |
+LL |     let _ = std::fs::write("x", <_ as AsRef<[u8]>>::as_ref(""));
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `""`
+
+error: the inner argument implements the required traits
+  --> $DIR/general.rs:40:33
+   |
+LL |     let _ = std::fs::write("x", <_ as AsRef<str>>::as_ref(""));
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `""`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:42:35
+   |
+LL |     let _ = std::fs::write("x", "".deref());
+   |                                   ^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:44:10
    |
 LL |     read(readable.deref_mut());
    |          ^^^^^^^^^^^^^^^^^^^^ help: use: `&mut readable`
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:35:27
+  --> $DIR/general.rs:48:33
    |
-LL |         .args(["-a", "-l"].iter())
-   |                           ^^^^^^^ help: remove this
+LL |     let _ = std::fs::write("x", s.as_bytes());
+   |                                 ^^^^^^^^^^^^ help: use: `&s`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:49:33
+   |
+LL |     let _ = std::fs::write("x", s.as_mut_str());
+   |                                 ^^^^^^^^^^^^^^ help: use: `&mut s`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:50:33
+   |
+LL |     let _ = std::fs::write("x", s.as_str());
+   |                                 ^^^^^^^^^^ help: use: `&s`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:51:42
+   |
+LL |     let _ = std::fs::write("x", s.clone().into_bytes());
+   |                                          ^^^^^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:53:33
+   |
+LL |     let _ = std::fs::write("x", vec.as_mut_slice());
+   |                                 ^^^^^^^^^^^^^^^^^^ help: use: `&mut vec`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:54:33
+   |
+LL |     let _ = std::fs::write("x", vec.as_slice());
+   |                                 ^^^^^^^^^^^^^^ help: use: `&vec`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:56:49
+   |
+LL |     let _ = Command::new("ls").args(["-a", "-l"].iter());
+   |                                                 ^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:57:49
+   |
+LL |     let _ = Command::new("ls").args(["-a", "-l"].iter_mut());
+   |                                                 ^^^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:59:35
+   |
+LL |     let _ = std::fs::write("x", "".as_bytes());
+   |                                   ^^^^^^^^^^^ help: remove this
 
 error: the inner argument implements the required traits
-  --> $DIR/general.rs:38:33
+  --> $DIR/general.rs:61:28
    |
-LL |     let _ = Path::new("/").join(Path::new("."));
-   |                                 ^^^^^^^^^^^^^^ help: use: `"."`
+LL |     let _ = std::fs::write(OsStr::new("x"), "");
+   |                            ^^^^^^^^^^^^^^^ help: use: `"x"`
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:39:33
+  --> $DIR/general.rs:62:33
    |
-LL |     let _ = Path::new("/").join(tempdir.path());
-   |                                 ^^^^^^^^^^^^^^ help: use: `&tempdir`
+LL |     let _ = std::fs::write(osstr.to_os_string(), "");
+   |                                 ^^^^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:40:33
+  --> $DIR/general.rs:64:28
    |
-LL |     let _ = Path::new("/").join(tempfile.path());
-   |                                 ^^^^^^^^^^^^^^^ help: use: `&tempfile`
+LL |     let _ = std::fs::write(osstring.as_os_str(), "");
+   |                            ^^^^^^^^^^^^^^^^^^^^ help: use: `&osstring`
 
-error: aborting due to 16 previous errors
+error: the receiver implements the required traits
+  --> $DIR/general.rs:66:32
+   |
+LL |     let _ = std::fs::write(path.as_os_str(), "");
+   |                                ^^^^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:67:41
+   |
+LL |     let _ = Command::new("ls").args(path.iter());
+   |                                         ^^^^^^^ help: remove this
+
+error: the inner argument implements the required traits
+  --> $DIR/general.rs:68:28
+   |
+LL |     let _ = std::fs::write(Path::new("x"), "");
+   |                            ^^^^^^^^^^^^^^ help: use: `"x"`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:69:32
+   |
+LL |     let _ = std::fs::write(path.to_path_buf(), "");
+   |                                ^^^^^^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:71:28
+   |
+LL |     let _ = std::fs::write(path_buf.as_path(), "");
+   |                            ^^^^^^^^^^^^^^^^^^ help: use: `&path_buf`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:72:44
+   |
+LL |     let _ = std::fs::write(path_buf.clone().into_os_string(), "");
+   |                                            ^^^^^^^^^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:74:28
+   |
+LL |     let _ = std::fs::write(tempdir.path(), "");
+   |                            ^^^^^^^^^^^^^^ help: use: `&tempdir`
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:75:28
+   |
+LL |     let _ = std::fs::write(tempfile.path(), "");
+   |                            ^^^^^^^^^^^^^^^ help: use: `&tempfile`
+
+error: aborting due to 30 previous errors
 
