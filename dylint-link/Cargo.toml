@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
-anyhow = "1.0.65"
+anyhow = "1.0.66"
 env_logger = "0.9.1"
 if_chain = "1.0.2"
 toml_edit = "0.14.4"
@@ -19,7 +19,7 @@ dylint_internal = { version = "=2.0.13", path = "../internal", features = ["carg
 dylint_internal = { version = "=2.0.13", path = "../internal" }
 
 [dev-dependencies]
-assert_cmd = "2.0.4"
+assert_cmd = "2.0.5"
 predicates = "2.1.1"
 tempfile = "3.3.0"
 test-log = "0.2.11"
