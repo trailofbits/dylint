@@ -48,17 +48,30 @@ fn ui() {
     // temporary target directory.
     let target_dir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
 
-    dylint_internal::cargo::test("clippy", false)
+    let mut command = dylint_internal::cargo::test("clippy", false);
+    command
         .current_dir(&tempdir)
-        .envs(vec![
+        .envs([
             (env::CARGO_TARGET_DIR, &*target_dir.path().to_string_lossy()),
             (env::DYLINT_LIBS, &dylint_libs),
             (env::CLIPPY_DRIVER_PATH, &*driver.to_string_lossy()),
             (env::DYLINT_RUSTFLAGS, r#"--cfg feature="cargo-clippy""#),
         ])
-        .args(&["--test", "compile-test"])
-        .success()
-        .unwrap();
+        .args(&["--test", "compile-test"]);
+
+    // smoelius: Error messages like the following have occurred in Windows GitHub workflows:
+    //   LINK : fatal error LNK1318: Unexpected PDB error; OK (0) 'D:\a\dylint\dylint\examples\
+    //     testing\clippy\...\debug\test\ui\useless_attribute.stage-id.aux\proc_macro_derive.pdb'
+    // According to Microsoft Learn, "This error message is produced for uncommon issues in PDB
+    // files":
+    // https://learn.microsoft.com/en-us/cpp/error-messages/tool-errors/linker-tools-error-lnk1318?view=msvc-170
+    // While I don't know the underlying cause, my approach to this problem is to not link PDB
+    // files. Taken from here:
+    // https://github.com/rust-lang/rust/issues/67012#issuecomment-561801877
+    #[cfg(windows)]
+    command.envs([(env::RUSTFLAGS, "-C link-arg=/DEBUG:NONE")]);
+
+    command.success().unwrap();
 }
 
 fn clone_rust_clippy(path: &Path) -> Result<()> {
