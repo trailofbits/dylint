@@ -27,4 +27,4 @@ test-log = "0.2.11"
 dylint_internal = { version = "=2.0.13", path = "../internal", features = ["packaging"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-cc = "1.0.73"
+cc = "1.0.74"
