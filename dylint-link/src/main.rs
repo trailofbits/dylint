@@ -212,6 +212,7 @@ const ARCHITECTURES: &[&str] = &[
     "aarch64_be",
     "arm",
     "arm64_32",
+    "armeb",
     "armebv7r",
     "armv4t",
     "armv5te",
