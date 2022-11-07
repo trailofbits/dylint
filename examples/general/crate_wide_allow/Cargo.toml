@@ -20,7 +20,7 @@ if_chain = "1.0.2"
 dylint_linting = { path = "../../../utils/linting" }
 
 [target.'cfg(not(no_dev_dependencies))'.dev-dependencies]
-assert_cmd = "2.0.5"
+assert_cmd = "2.0.6"
 cargo_metadata = "0.15.1"
 
 dylint_internal = { path = "../../../internal" }
