@@ -1,4 +1,4 @@
-use super::{INHERENT_IGNORELIST, INHERENT_WATCHLIST};
+use super::{IGNORED_INHERENTS, WATCHED_INHERENTS};
 use clippy_utils::{def_path_res, get_trait_def_id, match_def_path, ty::get_associated_type};
 use if_chain::if_chain;
 use rustc_hir::{def_id::DefId, Unsafety};
@@ -16,7 +16,7 @@ pub(super) fn check_inherents(cx: &LateContext<'_>, str_len_def_id: DefId) {
     let iterator_def_id =
         get_trait_def_id(cx, &["core", "iter", "traits", "iterator", "Iterator"]).unwrap();
 
-    let mut type_paths = INHERENT_WATCHLIST
+    let mut type_paths = WATCHED_INHERENTS
         .iter()
         .filter_map(|path| {
             if path.first() == Some(&"core") || path.first() == Some(&"tempfile") {
@@ -72,7 +72,7 @@ pub(super) fn check_inherents(cx: &LateContext<'_>, str_len_def_id: DefId) {
     };
 
     // smoelius: Watched and ignored inherents are "of interest."
-    for path in INHERENT_WATCHLIST.iter().chain(INHERENT_IGNORELIST.iter()) {
+    for path in WATCHED_INHERENTS.iter().chain(IGNORED_INHERENTS.iter()) {
         if path.first() == Some(&"core") || path.first() == Some(&"tempfile") {
             continue;
         }
@@ -103,9 +103,9 @@ pub(super) fn check_inherents(cx: &LateContext<'_>, str_len_def_id: DefId) {
         for &assoc_item_def_id in cx.tcx.associated_item_def_ids(impl_def_id) {
             if of_interest(assoc_item_def_id) {
                 assert!(
-                    INHERENT_WATCHLIST
+                    WATCHED_INHERENTS
                         .iter()
-                        .chain(INHERENT_IGNORELIST.iter())
+                        .chain(IGNORED_INHERENTS.iter())
                         .any(|path| match_def_path(cx, assoc_item_def_id, path)),
                     "{:?} is missing",
                     cx.get_def_path(assoc_item_def_id)
