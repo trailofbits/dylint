@@ -1,8 +1,9 @@
 #![feature(rustc_private)]
 #![feature(let_chains)]
-#![warn(unused_extern_crates)]
 #![recursion_limit = "256"]
+#![warn(unused_extern_crates)]
 
+extern crate rustc_data_structures;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
@@ -19,6 +20,7 @@ use clippy_utils::{
 };
 use dylint_internal::cargo::current_metadata;
 use if_chain::if_chain;
+use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
 use rustc_hir::{
     def_id::{DefId, LOCAL_CRATE},
@@ -78,6 +80,7 @@ dylint_linting::impl_late_lint! {
 #[derive(Default)]
 struct UnnecessaryConversionForTrait {
     callee_paths: BTreeSet<Vec<String>>,
+    inherents_def_ids: FxHashSet<DefId>,
 }
 
 const WATCHED_TRAITS: &[&[&str]] = &[
@@ -92,29 +95,43 @@ const WATCHED_TRAITS: &[&[&str]] = &[
 ];
 
 const WATCHED_INHERENTS: &[&[&str]] = &[
+    &["alloc", "slice", "<impl [T]>", "into_vec"],
+    &["alloc", "slice", "<impl [T]>", "to_vec"],
+    &["alloc", "str", "<impl str>", "into_boxed_bytes"],
+    &["alloc", "str", "<impl str>", "into_string"],
     &["alloc", "string", "String", "as_bytes"],
     &["alloc", "string", "String", "as_mut_str"],
     &["alloc", "string", "String", "as_str"],
+    &["alloc", "string", "String", "into_boxed_str"],
     &["alloc", "string", "String", "into_bytes"],
     &["alloc", "vec", "Vec", "as_mut_slice"],
     &["alloc", "vec", "Vec", "as_slice"],
+    &["alloc", "vec", "Vec", "into_boxed_slice"],
     &["core", "slice", "<impl [T]>", "iter"],
     &["core", "slice", "<impl [T]>", "iter_mut"],
     &["core", "str", "<impl str>", "as_bytes"],
+    &["std", "ffi", "os_str", "OsStr", "into_os_string"],
     &["std", "ffi", "os_str", "OsStr", "new"],
     &["std", "ffi", "os_str", "OsStr", "to_os_string"],
     &["std", "ffi", "os_str", "OsString", "as_os_str"],
+    &["std", "ffi", "os_str", "OsString", "into_boxed_os_str"],
     &["std", "path", "Path", "as_os_str"],
+    &["std", "path", "Path", "into_path_buf"],
     &["std", "path", "Path", "iter"],
     &["std", "path", "Path", "new"],
     &["std", "path", "Path", "to_path_buf"],
     &["std", "path", "PathBuf", "as_path"],
+    &["std", "path", "PathBuf", "into_boxed_path"],
     &["std", "path", "PathBuf", "into_os_string"],
     &["tempfile", "dir", "TempDir", "path"],
     &["tempfile", "file", "NamedTempFile", "path"],
 ];
 
 const IGNORED_INHERENTS: &[&[&str]] = &[
+    &["alloc", "str", "<impl str>", "to_ascii_lowercase"],
+    &["alloc", "str", "<impl str>", "to_ascii_uppercase"],
+    &["alloc", "str", "<impl str>", "to_lowercase"],
+    &["alloc", "str", "<impl str>", "to_uppercase"],
     &["alloc", "string", "String", "from_utf16_lossy"],
     &["alloc", "vec", "Vec", "leak"],
     &["alloc", "vec", "Vec", "spare_capacity_mut"],
@@ -130,6 +147,20 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["std", "ffi", "os_str", "OsStr", "to_ascii_lowercase"],
     &["std", "ffi", "os_str", "OsStr", "to_ascii_uppercase"],
 ];
+
+// smoelius: See the comment preceding `check_expr_post` below.
+const INHERENT_SEEDS: &[&[&str]] = &[
+    &["alloc", "slice", "<impl [T]>", "to_vec"],
+    &["alloc", "str", "<impl str>", "into_string"],
+    &["core", "str", "<impl str>", "len"],
+];
+
+#[cfg(test)]
+const MAIN_RS: &str = "fn main() {
+    <[u8]>::to_vec;
+    str::into_string;
+    str::len;
+}";
 
 impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
@@ -148,80 +179,103 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                 .position(|arg| arg.hir_id == maybe_arg.hir_id);
             if let Some(input) = outer_fn_sig.inputs().get(i);
             if let Param(param_ty) = input.kind();
-            if let Some((inner_callee_def_id, _, inner_receiver, inner_args)) =
-                get_callee_substs_and_args(cx, expr);
-            let inner_args = std::iter::once(inner_receiver)
-                .flatten()
-                .chain(inner_args)
-                .collect::<Vec<_>>();
-            if let [inner_arg] = inner_args.as_slice();
-            let inner_arg_ty = cx.typeck_results().expr_ty(inner_arg);
-            let adjustment_mutabilities = adjustment_mutabilities(cx, inner_arg);
-            let (new_ty, refs_prefix) = build_ty_and_refs_prefix(
-                cx,
-                inner_arg_ty,
-                &[adjustment_mutabilities, ancestor_mutabilities].concat(),
-            );
-            if inner_arg_implements_traits(
-                cx,
-                outer_callee_def_id,
-                outer_fn_sig,
-                outer_substs,
-                i,
-                *param_ty,
-                new_ty,
-            );
-            if let Some(snippet) = snippet_opt(cx, inner_arg.span);
             then {
-                let inner_callee_path = cx.get_def_path(inner_callee_def_id);
-                if !WATCHED_TRAITS
-                    .iter()
-                    .chain(WATCHED_INHERENTS.iter())
-                    .any(|path| match_def_path(cx, inner_callee_def_id, path))
+                let mut strip_unnecessary_conversions = |mut expr, mut mutabilities| {
+                    let mut refs_prefix = None;
+
+                    loop {
+                        if_chain! {
+                            if let Some((inner_callee_def_id, _, inner_receiver, inner_args)) =
+                                get_callee_substs_and_args(cx, expr);
+                            let inner_args = std::iter::once(inner_receiver)
+                                .flatten()
+                                .chain(inner_args)
+                                .collect::<Vec<_>>();
+                            if let [inner_arg] = inner_args.as_slice();
+                            let inner_arg_ty = cx.typeck_results().expr_ty(inner_arg);
+                            let adjustment_mutabilities = adjustment_mutabilities(cx, inner_arg);
+                            let new_mutabilities = [adjustment_mutabilities, mutabilities].concat();
+                            let (new_ty, new_refs_prefix) = build_ty_and_refs_prefix(
+                                cx,
+                                inner_arg_ty,
+                                &new_mutabilities,
+                            );
+                            if inner_arg_implements_traits(
+                                cx,
+                                outer_callee_def_id,
+                                outer_fn_sig,
+                                outer_substs,
+                                i,
+                                *param_ty,
+                                new_ty,
+                            );
+                            then {
+                                let inner_callee_path = cx.get_def_path(inner_callee_def_id);
+                                if !WATCHED_TRAITS
+                                    .iter()
+                                    .chain(WATCHED_INHERENTS.iter())
+                                    .any(|path| match_def_path(cx, inner_callee_def_id, path))
+                                {
+                                    if enabled("DEBUG_WATCHLIST") {
+                                        span_lint(
+                                            cx,
+                                            UNNECESSARY_CONVERSION_FOR_TRAIT,
+                                            expr.span,
+                                            &format!("ignoring {:?}", inner_callee_path),
+                                        );
+                                    }
+                                    break;
+                                }
+                                self.callee_paths.insert(
+                                    inner_callee_path
+                                        .into_iter()
+                                        .map(Symbol::to_ident_string)
+                                        .collect(),
+                                );
+                                expr = inner_arg;
+                                mutabilities = new_mutabilities;
+                                refs_prefix = Some(new_refs_prefix);
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    Some(expr).zip(refs_prefix)
+                };
+
+                if let Some((inner_arg, refs_prefix)) = strip_unnecessary_conversions(expr, ancestor_mutabilities)
+                    && let Some(snippet) = snippet_opt(cx, inner_arg.span)
                 {
-                    if enabled("DEBUG_WATCHLIST") {
-                        span_lint(
+                    let (is_bare_method_call, subject) =
+                        if matches!(expr.kind, ExprKind::MethodCall(..)) {
+                            (maybe_arg.hir_id == expr.hir_id, "receiver")
+                        } else {
+                            (false, "inner argument")
+                        };
+                    let msg = format!("the {} implements the required traits", subject);
+                    if is_bare_method_call && refs_prefix.is_empty() {
+                        span_lint_and_sugg(
                             cx,
                             UNNECESSARY_CONVERSION_FOR_TRAIT,
-                            expr.span,
-                            &format!("ignoring {:?}", inner_callee_path),
+                            maybe_arg.span.with_lo(inner_arg.span.hi()),
+                            &msg,
+                            "remove this",
+                            String::new(),
+                            Applicability::MachineApplicable,
+                        );
+                    } else {
+                        span_lint_and_sugg(
+                            cx,
+                            UNNECESSARY_CONVERSION_FOR_TRAIT,
+                            maybe_arg.span,
+                            &msg,
+                            "use",
+                            format!("{}{}", refs_prefix, snippet),
+                            Applicability::MachineApplicable,
                         );
                     }
-                    return;
-                }
-                self.callee_paths.insert(
-                    inner_callee_path
-                        .into_iter()
-                        .map(Symbol::to_ident_string)
-                        .collect(),
-                );
-                let (is_bare_method_call, subject) =
-                    if matches!(expr.kind, ExprKind::MethodCall(..)) {
-                        (maybe_arg.hir_id == expr.hir_id, "receiver")
-                    } else {
-                        (false, "inner argument")
-                    };
-                let msg = format!("the {} implements the required traits", subject);
-                if is_bare_method_call && refs_prefix.is_empty() {
-                    span_lint_and_sugg(
-                        cx,
-                        UNNECESSARY_CONVERSION_FOR_TRAIT,
-                        maybe_arg.span.with_lo(inner_arg.span.hi()),
-                        &msg,
-                        "remove this",
-                        String::new(),
-                        Applicability::MachineApplicable,
-                    );
-                } else {
-                    span_lint_and_sugg(
-                        cx,
-                        UNNECESSARY_CONVERSION_FOR_TRAIT,
-                        maybe_arg.span,
-                        &msg,
-                        "use",
-                        format!("{}{}", refs_prefix, snippet),
-                        Applicability::MachineApplicable,
-                    );
                 }
             }
         }
@@ -244,10 +298,23 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                 writeln!(file, "{:?}", path).unwrap();
             }
         }
+
+        if enabled("CHECK_INHERENTS") {
+            assert_eq!(INHERENT_SEEDS.len(), self.inherents_def_ids.len());
+            check_inherents(
+                cx,
+                std::iter::once(cx.tcx.lang_items().slice_len_fn().unwrap())
+                    .chain(self.inherents_def_ids.iter().copied()),
+            );
+        }
     }
 
-    // smoelius: This is a hack. In `check_inherents`, we need to iterate over the items in
-    // `core::str::<impl str>`. But for some reason, that impl is not listed by `module_children`.
+    // smoelius: This is a hack. In `check_inherents`, we need to iterate over the items in the
+    // following impls:
+    // - `alloc::slice::<impl [T]>`
+    // - `alloc::str::<impl str>`
+    // - `core::str::<impl str>`
+    // But for unknown reasons, at least some of those impls are not listed by `module_children`.
     //
     // On the other hand, the impl is returned by `parent` if one has the `DefId` of an item within
     // the impl.
@@ -258,12 +325,11 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
     // Note that a similar hack is not needed to obtain a `DefId` within `core::slice::<impl [T]>`
     // because one can use `LanguageItems::slice_len_fn`.
     fn check_expr_post(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
-        const STR_LEN: [&str; 4] = ["core", "str", "<impl str>", "len"];
         if enabled("CHECK_INHERENTS")
             && let Some(def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id)
-            && match_def_path(cx, def_id, &STR_LEN)
+            && INHERENT_SEEDS.iter().any(|path| match_def_path(cx, def_id, path))
         {
-            check_inherents(cx, def_id);
+            self.inherents_def_ids.insert(def_id);
         }
     }
 }
@@ -330,8 +396,8 @@ mod test {
 
         let tempdir = tempdir().unwrap();
 
-        // smoelius: Regarding `str::len`, see the comment above `check_expr_post` in this file.
-        write(tempdir.path().join("main.rs"), "fn main() { str::len; }").unwrap();
+        // smoelius: Regarding `str::len`, etc., see the comment preceding `check_expr_post` above.
+        write(tempdir.path().join("main.rs"), MAIN_RS).unwrap();
 
         dylint_testing::ui_test(env!("CARGO_PKG_NAME"), tempdir.path());
     }
