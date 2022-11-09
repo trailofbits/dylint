@@ -80,7 +80,7 @@ struct UnnecessaryConversionForTrait {
     callee_paths: BTreeSet<Vec<String>>,
 }
 
-const TRAIT_WATCHLIST: &[&[&str]] = &[
+const WATCHED_TRAITS: &[&[&str]] = &[
     &["alloc", "borrow", "ToOwned", "to_owned"],
     &["alloc", "string", "ToString", "to_string"],
     &["core", "borrow", "Borrow", "borrow"],
@@ -91,7 +91,7 @@ const TRAIT_WATCHLIST: &[&[&str]] = &[
     &["core", "ops", "deref", "DerefMut", "deref_mut"],
 ];
 
-const INHERENT_WATCHLIST: &[&[&str]] = &[
+const WATCHED_INHERENTS: &[&[&str]] = &[
     &["alloc", "string", "String", "as_bytes"],
     &["alloc", "string", "String", "as_mut_str"],
     &["alloc", "string", "String", "as_str"],
@@ -114,7 +114,7 @@ const INHERENT_WATCHLIST: &[&[&str]] = &[
     &["tempfile", "file", "NamedTempFile", "path"],
 ];
 
-const INHERENT_IGNORELIST: &[&[&str]] = &[
+const IGNORED_INHERENTS: &[&[&str]] = &[
     &["alloc", "string", "String", "from_utf16_lossy"],
     &["alloc", "vec", "Vec", "leak"],
     &["alloc", "vec", "Vec", "spare_capacity_mut"],
@@ -174,9 +174,9 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
             if let Some(snippet) = snippet_opt(cx, inner_arg.span);
             then {
                 let inner_callee_path = cx.get_def_path(inner_callee_def_id);
-                if !TRAIT_WATCHLIST
+                if !WATCHED_TRAITS
                     .iter()
-                    .chain(INHERENT_WATCHLIST.iter())
+                    .chain(WATCHED_INHERENTS.iter())
                     .any(|path| match_def_path(cx, inner_callee_def_id, path))
                 {
                     if enabled("DEBUG_WATCHLIST") {
@@ -297,9 +297,9 @@ mod test {
 
         dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "general");
 
-        let mut combined_watchlist = TRAIT_WATCHLIST
+        let mut combined_watchlist = WATCHED_TRAITS
             .iter()
-            .chain(INHERENT_WATCHLIST.iter())
+            .chain(WATCHED_INHERENTS.iter())
             .collect::<Vec<_>>();
         combined_watchlist.sort();
 
