@@ -10,7 +10,10 @@ use rustc_middle::ty::{
 };
 use rustc_span::symbol::sym;
 
-pub(super) fn check_inherents(cx: &LateContext<'_>, str_len_def_id: DefId) {
+pub(super) fn check_inherents<I: Iterator<Item = DefId>>(
+    cx: &LateContext<'_>,
+    inherent_def_ids: I,
+) {
     let into_iterator_def_id =
         get_trait_def_id(cx, &["core", "iter", "traits", "collect", "IntoIterator"]).unwrap();
     let iterator_def_id =
@@ -19,7 +22,7 @@ pub(super) fn check_inherents(cx: &LateContext<'_>, str_len_def_id: DefId) {
     let mut type_paths = WATCHED_INHERENTS
         .iter()
         .filter_map(|path| {
-            if path.first() == Some(&"core") || path.first() == Some(&"tempfile") {
+            if is_primitive_impl(path) || path.first() == Some(&"tempfile") {
                 return None;
             }
             Some(path.split_last().unwrap().1)
@@ -59,8 +62,7 @@ pub(super) fn check_inherents(cx: &LateContext<'_>, str_len_def_id: DefId) {
         }
 
         [input_ty, output_ty].into_iter().all(|ty| {
-            let ty = ty.peel_refs();
-            let ty = peel_as_ref(cx, ty, def_id);
+            let ty = peel_unwanted(cx, def_id, ty);
             ty.is_slice()
                 || ty.is_str()
                 || ty.ty_adt_def().map_or(false, |adt_def| {
@@ -73,7 +75,7 @@ pub(super) fn check_inherents(cx: &LateContext<'_>, str_len_def_id: DefId) {
 
     // smoelius: Watched and ignored inherents are "of interest."
     for path in WATCHED_INHERENTS.iter().chain(IGNORED_INHERENTS.iter()) {
-        if path.first() == Some(&"core") || path.first() == Some(&"tempfile") {
+        if is_primitive_impl(path) || path.first() == Some(&"tempfile") {
             continue;
         }
 
@@ -94,11 +96,7 @@ pub(super) fn check_inherents(cx: &LateContext<'_>, str_len_def_id: DefId) {
             cx.tcx.inherent_impls(def_id)
         })
         .copied()
-        .chain(
-            [cx.tcx.lang_items().slice_len_fn().unwrap(), str_len_def_id]
-                .into_iter()
-                .map(|def_id| cx.tcx.parent(def_id)),
-        )
+        .chain(inherent_def_ids.map(|def_id| cx.tcx.parent(def_id)))
     {
         for &assoc_item_def_id in cx.tcx.associated_item_def_ids(impl_def_id) {
             if of_interest(assoc_item_def_id) {
@@ -113,6 +111,10 @@ pub(super) fn check_inherents(cx: &LateContext<'_>, str_len_def_id: DefId) {
             }
         }
     }
+}
+
+fn is_primitive_impl(path: &[&str]) -> bool {
+    path.iter().any(|s| s.starts_with('<'))
 }
 
 fn implements_trait_with_item<'tcx>(
@@ -147,7 +149,42 @@ fn replace_params_with_global_ty<'tcx>(cx: &LateContext<'tcx>, ty: ty::Ty<'tcx>)
     .fold_ty(ty)
 }
 
-fn peel_as_ref<'tcx>(cx: &LateContext<'tcx>, ty: ty::Ty<'tcx>, def_id: DefId) -> ty::Ty<'tcx> {
+fn peel_unwanted<'tcx>(
+    cx: &LateContext<'tcx>,
+    def_id: DefId,
+    mut ty: ty::Ty<'tcx>,
+) -> ty::Ty<'tcx> {
+    const BOX: [&str; 3] = ["alloc", "boxed", "Box"];
+
+    loop {
+        match ty.kind() {
+            ty::Ref(_, referent_ty, _) => {
+                ty = *referent_ty;
+                continue;
+            }
+            ty::Adt(adt_def, substs) if match_def_path(cx, adt_def.did(), &BOX) => {
+                ty = substs[0].expect_ty();
+                continue;
+            }
+            _ => {}
+        }
+
+        if let Some(as_ref_ty) = strip_as_ref(cx, def_id, ty) {
+            ty = as_ref_ty;
+            continue;
+        }
+
+        break;
+    }
+
+    ty
+}
+
+fn strip_as_ref<'tcx>(
+    cx: &LateContext<'tcx>,
+    def_id: DefId,
+    ty: ty::Ty<'tcx>,
+) -> Option<ty::Ty<'tcx>> {
     cx.tcx
         .param_env(def_id)
         .caller_bounds()
@@ -167,5 +204,4 @@ fn peel_as_ref<'tcx>(cx: &LateContext<'tcx>, ty: ty::Ty<'tcx>, def_id: DefId) ->
                 }
             }
         })
-        .unwrap_or(ty)
 }

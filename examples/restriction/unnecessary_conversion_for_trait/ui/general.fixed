@@ -1,6 +1,6 @@
 // run-rustfix
 
-#![allow(unused_imports)]
+#![allow(unused_imports, unused_parens)]
 
 use std::{
     borrow::{Borrow, BorrowMut},
@@ -45,25 +45,36 @@ fn main() {
 
     // inherent methods
 
+    let _ = std::fs::write("x", (Box::new([]) as Box<[u8]>));
+    let _ = std::fs::write("x", (&[] as &[u8]));
+
+    let _ = is_empty(s.clone());
+    let _ = is_empty(s.clone());
+
     let _ = std::fs::write("x", &s);
     let _ = std::fs::write("x", &mut s);
     let _ = std::fs::write("x", &s);
+    let _ = is_empty(s.clone());
     let _ = std::fs::write("x", s.clone());
 
     let _ = std::fs::write("x", &mut vec);
     let _ = std::fs::write("x", &vec);
+    let _ = std::fs::write("x", vec);
 
     let _ = Command::new("ls").args(["-a", "-l"]);
     let _ = Command::new("ls").args(["-a", "-l"]);
 
     let _ = std::fs::write("x", "");
 
+    let _ = is_empty_os(osstring.clone());
     let _ = std::fs::write("x", "");
     let _ = std::fs::write(osstr, "");
 
     let _ = std::fs::write(&osstring, "");
+    let _ = is_empty_os(osstring.clone());
 
     let _ = std::fs::write(path, "");
+    let _ = std::fs::write(PathBuf::from("x"), "");
     let _ = Command::new("ls").args(path);
     let _ = std::fs::write("x", "");
     let _ = std::fs::write(path, "");
@@ -76,3 +87,13 @@ fn main() {
 }
 
 fn read(_: impl Read) {}
+
+#[must_use]
+fn is_empty<T: From<Box<str>> + PartialEq>(x: T) -> bool {
+    x == T::from(String::new().into_boxed_str())
+}
+
+#[must_use]
+fn is_empty_os<T: From<Box<OsStr>> + PartialEq>(x: T) -> bool {
+    x == T::from(OsString::new().into_boxed_os_str())
+}
