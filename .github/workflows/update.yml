@@ -32,7 +32,7 @@ jobs:
 
       - name: Update dependencies
         run: |
-          for X in $(find . -name Cargo.lock); do
+          find . -name Cargo.lock | while read -r X; do
             pushd "$(dirname "$X")"
             rm -f Cargo.lock
             cargo build --workspace --all-targets

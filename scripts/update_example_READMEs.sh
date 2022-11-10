@@ -20,13 +20,15 @@ LISTED=
 
 IFS=
 cat README.md |
-while read X; do
+while read -r X; do
     if [[ "$X" =~ ^\| ]]; then
         if [[ -z "$LISTED" ]]; then
             CATEGORY="${CATEGORIES[0]}"
+            # shellcheck disable=SC2206
             CATEGORIES=(${CATEGORIES[@]:1})
             echo '| Example | Description |'
             echo '| - | - |'
+            # shellcheck disable=SC2016
             grep '^description = "[^"]*"$' "$CATEGORY"/*/Cargo.toml |
             sed 's,^\([^/]*/\([^/]*\)\)/Cargo.toml:description = "\([^"]*\)"$,| [`\2`](./\1) | \3 |,'
             LISTED=1

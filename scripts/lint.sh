@@ -20,6 +20,7 @@ EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d)"
 
 # smoelius: Remove `straggler`, as it is used only for testing purposes. Also, it uses a different
 # toolchain than the other examples.
+# shellcheck disable=SC2001
 EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:space:]]*,,')"
 
 DIRS=". driver $EXAMPLE_DIRS"
@@ -52,6 +53,7 @@ for DIR in $DIRS; do
 
         # smoelius: `--all-targets` cannot be used here. It would cause the command to fail on the
         # lint examples.
+        # shellcheck disable=SC2086
         "$CARGO_DYLINT" dylint $LINTS --workspace -- --all-features --tests
     done
     popd

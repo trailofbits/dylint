@@ -8,9 +8,9 @@ if [[ $# -ne 0 ]]; then
     exit 1
 fi
 
-find . -mindepth 2 -name Cargo.toml |
-xargs -n 1 cargo license --manifest-path |
-while read X; do
+find . -mindepth 2 -name Cargo.toml -print0 |
+xargs -0 -n 1 cargo license --manifest-path |
+while read -r X; do
     # smoelius: Exception for Cargo dependencies.
     if [[ "$X" = 'MPL-2.0+ (3): bitmaps, im-rc, sized-chunks' ]]; then
         continue
