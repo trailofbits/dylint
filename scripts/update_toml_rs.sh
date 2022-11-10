@@ -8,7 +8,7 @@ if [[ $# -ne 2 ]]; then
     exit 1
 fi
 
-FROM_TAG="$1"
+# FROM_TAG="$1"
 TO_TAG="$2"
 
 OUR_TOML_RS="$PWD"/"$(find . -name toml.rs)"

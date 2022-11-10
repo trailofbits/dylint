@@ -23,19 +23,24 @@ jobs:
       - name: Install dylint-link
         run: cargo install --path ./dylint-link
 
+      - name: Actionlint
+        run: go install github.com/rhysd/actionlint/cmd/actionlint@latest && "$HOME"/go/bin/actionlint
+
+      - name: Shellcheck
+        run: shellcheck --exclude=SC2002 scripts/*
+
       - name: Prettier
         run: |
           npm install -g prettier && prettier --check '**/*.md' '**/*.yml'
           ./scripts/unquote_yaml_strings.sh && git diff --exit-code
 
       - name: Markdown link check
-        run: |
-          npm install -g markdown-link-check && markdown-link-check **/*.md
+        run: npm install -g markdown-link-check && markdown-link-check ./**/*.md
 
       - name: Cargo sort
         run: |
           cargo install cargo-sort
-          find . -name Cargo.toml | xargs -n 1 dirname | xargs -n 1 cargo sort --check --grouped
+          find . -name Cargo.toml -print0 | xargs -0 -n 1 dirname | xargs -n 1 cargo sort --check --grouped
 
       - name: Format
         run: find . -name '*.rs' -exec rustfmt {} \; && git diff --exit-code
@@ -124,7 +129,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: |
+      - run: true
 
   coverage:
     # smoelius: Disable coverage until the following issue is resolved:
