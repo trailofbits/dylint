@@ -10,10 +10,16 @@ enum Target {
     Examples,
 }
 
+#[derive(Clone, Default)]
+pub(super) struct Config {
+    pub(super) rustc_flags: Vec<String>,
+    pub(super) dylint_toml: Option<String>,
+}
+
 pub struct Test {
     name: String,
     target: Target,
-    rustc_flags: Vec<String>,
+    config: Config,
 }
 
 impl Test {
@@ -36,8 +42,14 @@ impl Test {
         &mut self,
         rustc_flags: impl IntoIterator<Item = impl AsRef<str>>,
     ) -> &mut Self {
-        self.rustc_flags
+        self.config
+            .rustc_flags
             .extend(rustc_flags.into_iter().map(|s| s.as_ref().to_owned()));
+        self
+    }
+
+    pub fn dylint_toml(&mut self, dylint_toml: impl AsRef<str>) -> &mut Self {
+        self.config.dylint_toml = Some(dylint_toml.as_ref().to_owned());
         self
     }
 
@@ -49,7 +61,7 @@ impl Test {
         Self {
             name: name.to_owned(),
             target,
-            rustc_flags: Vec::new(),
+            config: Config::default(),
         }
     }
 
@@ -58,7 +70,7 @@ impl Test {
 
         match &self.target {
             Target::SrcBase(src_base) => {
-                run_tests(driver, src_base, self.rustc_flags.iter());
+                run_tests(driver, src_base, &self.config);
             }
             Target::Example(example) => {
                 let metadata = dylint_internal::cargo::current_metadata().unwrap();
@@ -67,14 +79,7 @@ impl Test {
                     dylint_internal::cargo::package_with_root(&metadata, &current_dir).unwrap();
                 let target = example_target(&package, example).unwrap();
 
-                run_example_test(
-                    driver,
-                    &metadata,
-                    &package,
-                    &target,
-                    self.rustc_flags.iter(),
-                )
-                .unwrap();
+                run_example_test(driver, &metadata, &package, &target, &self.config).unwrap();
             }
             Target::Examples => {
                 let metadata = dylint_internal::cargo::current_metadata().unwrap();
@@ -84,14 +89,7 @@ impl Test {
                 let targets = example_targets(&package).unwrap();
 
                 for target in targets {
-                    run_example_test(
-                        driver,
-                        &metadata,
-                        &package,
-                        &target,
-                        self.rustc_flags.iter(),
-                    )
-                    .unwrap();
+                    run_example_test(driver, &metadata, &package, &target, &self.config).unwrap();
                 }
             }
         }

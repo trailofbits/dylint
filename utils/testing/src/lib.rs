@@ -6,14 +6,17 @@ use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
 use regex::Regex;
 use std::{
-    env::{consts, set_var},
+    env::{consts, remove_var, set_var, var_os},
+    ffi::{OsStr, OsString},
     fs::{copy, read_dir, remove_file},
     io::BufRead,
     path::Path,
     path::PathBuf,
+    sync::Mutex,
 };
 
 pub mod ui;
+use ui::Config;
 
 static DRIVER: OnceCell<PathBuf> = OnceCell::new();
 static LINKING_FLAGS: OnceCell<Vec<String>> = OnceCell::new();
@@ -88,12 +91,12 @@ fn example_targets(package: &Package) -> Result<Vec<Target>> {
         .collect())
 }
 
-fn run_example_test<'test>(
+fn run_example_test(
     driver: &Path,
     metadata: &Metadata,
     package: &Package,
     target: &Target,
-    rustc_flags: impl Iterator<Item = &'test String>,
+    config: &Config,
 ) -> Result<()> {
     let linking_flags = linking_flags(metadata, package, target)?;
     let file_name = target
@@ -115,7 +118,10 @@ fn run_example_test<'test>(
     ["fixed", "stderr", "stdout"]
         .map(|extension| copy_with_extension(&target.src_path, &to, extension).unwrap_or_default());
 
-    run_tests(driver, src_base, rustc_flags.chain(linking_flags.iter()));
+    let mut config = config.clone();
+    config.rustc_flags.extend(linking_flags.iter().cloned());
+
+    run_tests(driver, src_base, &config);
 
     Ok(())
 }
@@ -272,22 +278,63 @@ fn copy_with_extension<P: AsRef<Path>, Q: AsRef<Path>>(
     copy(from, to).map_err(Into::into)
 }
 
-fn run_tests<'test>(
-    driver: &Path,
-    src_base: &Path,
-    rustc_flags: impl Iterator<Item = &'test String>,
-) {
+lazy_static! {
+    static ref MUTEX: Mutex<()> = Mutex::new(());
+}
+
+fn run_tests(driver: &Path, src_base: &Path, config: &Config) {
+    let _lock = MUTEX.lock().unwrap();
+
+    // smoelius: There doesn't seem to be a way to set environment variables using `compiletest`'s
+    // [`Config`](https://docs.rs/compiletest_rs/0.7.1/compiletest_rs/common/struct.Config.html)
+    // struct. For comparison, where Clippy uses `compiletest`, it sets environment variables
+    // directly (see: https://github.com/rust-lang/rust-clippy/blob/master/tests/compile-test.rs).
+    //   Of course, even if `compiletest` had such support, it would need to be incorporated into
+    // `dylint_testing`.
+
+    let _var = config
+        .dylint_toml
+        .as_ref()
+        .map(|value| VarGuard::set(env::DYLINT_TOML, value));
+
     let config = compiletest::Config {
         mode: compiletest::common::Mode::Ui,
         rustc_path: driver.to_path_buf(),
         src_base: src_base.to_path_buf(),
         target_rustcflags: Some(
-            rustc_flags.cloned().collect::<Vec<_>>().join(" ")
-                + " --emit=metadata -Dwarnings -Zui-testing",
+            config.rustc_flags.clone().join(" ") + " --emit=metadata -Dwarnings -Zui-testing",
         ),
         ..compiletest::Config::default()
     };
+
     compiletest::run_tests(&config);
+}
+
+// smoelius: `VarGuard` was copied from:
+// https://github.com/rust-lang/rust-clippy/blob/9cc8da222b3893bc13bc13c8827e93f8ea246854/tests/compile-test.rs
+
+/// Restores an env var on drop
+#[must_use]
+struct VarGuard {
+    key: &'static str,
+    value: Option<OsString>,
+}
+
+impl VarGuard {
+    fn set(key: &'static str, val: impl AsRef<OsStr>) -> Self {
+        let value = var_os(key);
+        set_var(key, val);
+        Self { key, value }
+    }
+}
+
+impl Drop for VarGuard {
+    fn drop(&mut self) {
+        match self.value.as_deref() {
+            None => remove_var(self.key),
+            Some(value) => set_var(self.key, value),
+        }
+    }
 }
 
 fn snake_case(name: &str) -> String {
