@@ -121,12 +121,28 @@ fn maybe_build_packages(
     let pattern = if let Some(pattern) = &library.pattern {
         dependency_root.join(pattern)
     } else {
-        dependency_root
+        dependency_root.clone()
     };
 
     let entries = glob(&pattern.to_string_lossy())?;
 
-    let paths = entries.collect::<std::result::Result<Vec<_>, _>>()?;
+    let paths = entries
+        .map(|entry| {
+            entry.map_err(Into::into).and_then(|path| {
+                if let Some(pattern) = &library.pattern {
+                    let path = path
+                        .canonicalize()
+                        .with_context(|| format!("Could not canonicalize {path:?}"))?;
+                    ensure!(
+                        path.starts_with(&dependency_root),
+                        "Pattern `{pattern}` refers to paths outside of `{}`",
+                        dependency_root.to_string_lossy()
+                    );
+                }
+                Ok(path)
+            })
+        })
+        .collect::<std::result::Result<Vec<_>, _>>()?;
 
     ensure!(
         !paths.is_empty(),
