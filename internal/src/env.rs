@@ -18,6 +18,7 @@ declare_const!(DYLINT_LIBRARY_PATH);
 declare_const!(DYLINT_LIBS);
 declare_const!(DYLINT_LIST);
 declare_const!(DYLINT_RUSTFLAGS);
+declare_const!(DYLINT_TOML);
 declare_const!(OUT_DIR);
 declare_const!(PATH);
 declare_const!(RUSTC);

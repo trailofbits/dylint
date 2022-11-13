@@ -8,5 +8,18 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
+cargo_metadata = "0.15.1"
 paste = "1.0.9"
 rustversion = "1.0.9"
+serde = "1.0.147"
+thiserror = "1.0.37"
+toml = "0.5.9"
+
+dylint_internal = { version = "=2.0.14", path = "../../internal" }
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../examples/*/*" },
+]

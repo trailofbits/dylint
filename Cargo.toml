@@ -1,4 +1,5 @@
-# smoelius: `dylint_driver` is in its own workspace because it requires specific Rust components.
+# smoelius: `dylint_driver` and `dylint_linting` are in their own workspaces because they require
+# specific Rust components.
 
 [workspace]
 members = [
@@ -8,7 +9,7 @@ members = [
     "dylint-link",
     "examples",
     "internal",
-    "utils/linting",
+    # "utils/linting",
     "utils/testing",
 ]
 
