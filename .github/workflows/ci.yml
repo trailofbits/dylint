@@ -101,6 +101,9 @@ jobs:
       - name: Test
         run: |
           if [[ '${{ matrix.package }}' != 'other' ]]; then
+            if [[ '${{ matrix.environment }}' = 'windows-latest' && '${{ matrix.package }}' = 'examples' ]]; then
+              export CARGO_INCREMENTAL=0
+            fi
             cargo test -p '${{ matrix.package }}' --all-features -- --nocapture
           else
             cargo test --workspace --exclude cargo-dylint --exclude examples --all-features -- --nocapture
