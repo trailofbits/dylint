@@ -45,7 +45,8 @@ impl<'tcx> Visitor<'tcx> for V<'tcx>
 }
 ```
 
-**Options:**
-`REDUNDANT_REFERENCE_NO_LIFETIME_CHECK`: Setting this environment variable to anything other
-than `0` disables the check that the lifetime use is unique. That is, the lint becomes a
-check for: fields that are references used only to read one copyable subfield.
+**Configuration**
+
+- `lifetime_check: bool` (default `true`): Setting this to `false` disables the check that
+  the lifetime use is unique. That is, the lint becomes a check for: fields that are
+  references used only to read one copyable subfield.

@@ -13,7 +13,6 @@ use clippy_utils::{
     source::snippet,
     ty::{is_copy, peel_mid_ty_refs},
 };
-use dylint_internal::env::enabled;
 use if_chain::if_chain;
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
@@ -24,9 +23,10 @@ use rustc_hir::{
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{self, adjustment::Adjust};
 use rustc_span::Span;
+use serde::Deserialize;
 use std::{cmp::min, fmt::Write};
 
-dylint_linting::declare_late_lint! {
+dylint_linting::impl_late_lint! {
     /// **What it does:** Checks for patterns that could perform additional destructuring.
     ///
     /// **Why is this bad?** The use of destructuring patterns in closure parameters (for example)
@@ -52,20 +52,42 @@ dylint_linting::declare_late_lint! {
     /// let ys = xs.iter().map(|&x| x == 0).collect::<Vec<_>>();
     /// ```
     ///
-    /// **Options:**
-    /// `SUBOPTIMAL_PATTERN_NO_EXPLICIT_DEREF_CHECK`: By default, `suboptimal_pattern` will not
-    /// suggest to destructure a reference unless it would eliminate at least one explicit
-    /// dereference. Setting this environment variable to anything other than `0` disables this
-    /// check.
+    /// **Configuration**
+    /// - `explicit_deref_check: bool` (default `true`): By default, `suboptimal_pattern` will not
+    ///   suggest to destructure a reference unless it would eliminate at least one explicit
+    ///   dereference. Setting `explicit_deref_check` to `false` disables this check.
     ///
     /// [pattern-type-mismatch]: https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch
     pub SUBOPTIMAL_PATTERN,
     Warn,
-    "patterns that could perform additional destructuring"
+    "patterns that could perform additional destructuring",
+    SuboptimalPattern::new()
 }
 
-const SUBOPTIMAL_PATTERN_NO_EXPLICIT_DEREF_CHECK: &str =
-    "SUBOPTIMAL_PATTERN_NO_EXPLICIT_DEREF_CHECK";
+#[derive(Deserialize)]
+struct Config {
+    explicit_deref_check: bool,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            explicit_deref_check: true,
+        }
+    }
+}
+
+struct SuboptimalPattern {
+    config: Config,
+}
+
+impl SuboptimalPattern {
+    pub fn new() -> Self {
+        Self {
+            config: dylint_linting::config_or_default(env!("CARGO_PKG_NAME")),
+        }
+    }
+}
 
 impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
     fn check_fn(
@@ -127,7 +149,12 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                 if_chain! {
                     if !matches!(pat.kind, PatKind::Wild);
                     if let Some(hir_ids) = collect_non_ref_idents(pat);
-                    if let Some(n_derefs) = exclusively_dereferenced(cx, hir_ids, &body.value);
+                    if let Some(n_derefs) = exclusively_dereferenced(
+                        self.config.explicit_deref_check,
+                        cx,
+                        hir_ids,
+                        &body.value,
+                    );
                     if n_derefs > 0;
                     then {
                         let snippet = snippet(cx, pat.span, "_");
@@ -236,6 +263,7 @@ fn collect_non_ref_idents(pat: &Pat<'_>) -> Option<FxHashSet<HirId>> {
 }
 
 fn exclusively_dereferenced<'tcx>(
+    explicit_deref_check: bool,
     cx: &LateContext<'tcx>,
     hir_ids: FxHashSet<HirId>,
     expr: &'tcx Expr<'tcx>,
@@ -244,7 +272,7 @@ fn exclusively_dereferenced<'tcx>(
         cx,
         hir_ids,
         n_derefs: usize::MAX,
-        explicit_deref: enabled(SUBOPTIMAL_PATTERN_NO_EXPLICIT_DEREF_CHECK),
+        explicit_deref: !explicit_deref_check,
     };
     visitor.visit_expr(expr);
     if visitor.n_derefs < usize::MAX && visitor.explicit_deref {
@@ -322,25 +350,22 @@ fn count_derefs<'tcx>(cx: &LateContext<'tcx>, mut expr: &Expr<'tcx>) -> (usize, 
     }
 }
 
-#[cfg_attr(
-    dylint_lib = "non_thread_safe_call_in_test",
-    allow(non_thread_safe_call_in_test)
-)]
 #[test]
 fn ui() {
     dylint_testing::ui_test(
         env!("CARGO_PKG_NAME"),
         &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
     );
+}
 
-    // smoelius: See comment in `redundant_reference` regarding `compiletest` and environment
-    // variables.
-    std::env::set_var(SUBOPTIMAL_PATTERN_NO_EXPLICIT_DEREF_CHECK, "1");
-
-    dylint_testing::ui_test(
+#[test]
+fn ui_no_explicit_deref_check() {
+    dylint_testing::ui::Test::src_base(
         env!("CARGO_PKG_NAME"),
         &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_no_explicit_deref_check"),
-    );
+    )
+    .dylint_toml("suboptimal_pattern.explicit_deref_check = false")
+    .run();
 }
 
 #[test]

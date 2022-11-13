@@ -27,6 +27,7 @@ use rustc_middle::mir::{
 // not clear that this idea would be more efficient than simply considering all error paths.
 
 pub fn visit_error_paths<'tcx>(
+    work_limit: u64,
     cx: &LateContext<'tcx>,
     fn_kind: FnKind<'tcx>,
     mir: &'tcx Body<'tcx>,
@@ -35,7 +36,7 @@ pub fn visit_error_paths<'tcx>(
     for (index, basic_block) in mir.basic_blocks.iter_enumerated() {
         let terminator = basic_block.terminator();
         if terminator.kind == TerminatorKind::Return {
-            let mut guide = Guide::new(cx, fn_kind, mir, &visitor);
+            let mut guide = Guide::new(work_limit, cx, fn_kind, mir, &visitor);
             let state = State::new();
             guide.visit_error_paths_to_block_terminator(&state, index);
         }
@@ -99,6 +100,7 @@ impl State {
 }
 
 struct Guide<'cx, 'tcx, V> {
+    work_limit: u64,
     cx: &'cx LateContext<'tcx>,
     fn_kind: FnKind<'tcx>,
     mir: &'tcx Body<'tcx>,
@@ -106,7 +108,7 @@ struct Guide<'cx, 'tcx, V> {
     blocks_visited: BitSet<BasicBlock>,
     block_path: Vec<BasicBlock>,
     contributing_calls: BitSet<BasicBlock>,
-    work: usize,
+    work: u64,
 }
 
 impl<'cx, 'tcx, V> Guide<'cx, 'tcx, V>
@@ -114,12 +116,14 @@ where
     V: Fn(&[BasicBlock], &BitSet<BasicBlock>),
 {
     fn new(
+        work_limit: u64,
         cx: &'cx LateContext<'tcx>,
         fn_kind: FnKind<'tcx>,
         mir: &'tcx Body<'tcx>,
         visitor: V,
     ) -> Self {
         Self {
+            work_limit,
             cx,
             fn_kind,
             mir,
@@ -228,17 +232,16 @@ where
 
     // Emits a warning and returns true if work limit has been reached.
     fn work(&mut self) -> bool {
-        let work_limit = work_limit();
-        if self.work >= work_limit {
+        if self.work >= self.work_limit {
             let name = match self.fn_kind {
                 FnKind::ItemFn(ident, _, _) | FnKind::Method(ident, _) => format!("`{}`", ident),
                 FnKind::Closure => "closure".to_owned(),
             };
             self.cx.sess().warn(&format!(
-                "reached work limit ({}) while checking {}; set `{}` to override",
-                work_limit,
+                "reached work limit ({}) while checking {}; set `{}.work_limit` in `dylint.toml` to override",
+                self.work_limit,
                 name,
-                env!("CARGO_PKG_NAME").to_uppercase() + WORK_LIMIT_SUFFIX
+                env!("CARGO_PKG_NAME")
             ));
             return true;
         }
@@ -309,16 +312,4 @@ fn ends_with_discriminant_switch<'tcx>(
             None
         }
     }
-}
-
-const WORK_LIMIT_DEFAULT: usize = 500_000;
-const WORK_LIMIT_SUFFIX: &str = "_WORK_LIMIT";
-
-#[must_use]
-fn work_limit() -> usize {
-    let key = env!("CARGO_PKG_NAME").to_uppercase() + WORK_LIMIT_SUFFIX;
-    std::env::var(key)
-        .ok()
-        .and_then(|value| value.parse::<usize>().ok())
-        .unwrap_or(WORK_LIMIT_DEFAULT)
 }
