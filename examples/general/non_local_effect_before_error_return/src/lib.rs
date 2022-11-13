@@ -20,6 +20,7 @@ use rustc_middle::{
     ty,
 };
 use rustc_span::{sym, Span};
+use serde::Deserialize;
 
 mod visit_error_paths;
 use visit_error_paths::visit_error_paths;
@@ -27,7 +28,7 @@ use visit_error_paths::visit_error_paths;
 mod rvalue_places;
 use rvalue_places::rvalue_places;
 
-dylint_linting::declare_late_lint! {
+dylint_linting::impl_late_lint! {
     /// **What it does:** Checks for non-local effects (e.g., assignments to mutable references)
     /// before return of an error.
     ///
@@ -37,7 +38,7 @@ dylint_linting::declare_late_lint! {
     ///
     /// **Known problems:**
     /// * The search strategy is exponential in the number of blocks in a function body. To help
-    ///   deal with complex bodies, the lint includes a "work limit" (see "Options" below).
+    ///   deal with complex bodies, the lint includes a "work limit" (see "Configuration" below).
     /// * Errors in loops are not handled properly.
     ///
     /// **Example:**
@@ -71,14 +72,39 @@ dylint_linting::declare_late_lint! {
     /// }
     /// ```
     ///
-    /// **Options:**
-    /// `NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN_WORK_LIMIT` (default 500000): When exploring a
-    /// function body, the maximum number of times the search path is extended. Setting this to a
-    /// higher number allows more bodies to be explored exhaustively, but at the expense of greater
-    /// runtime.
+    /// **Configuration**
+    /// - `work_limit: u64` (default 500000): When exploring a function body, the maximum number of
+    ///   times the search path is extended. Setting this to a higher number allows more bodies to
+    ///   be explored exhaustively, but at the expense of greater runtime.
     pub NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
     Warn,
-    "non-local effects before return of an error"
+    "non-local effects before return of an error",
+    NonLocalEffectBeforeErrorReturn::new()
+}
+
+#[derive(Deserialize)]
+struct Config {
+    work_limit: u64,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            work_limit: 500_000,
+        }
+    }
+}
+
+struct NonLocalEffectBeforeErrorReturn {
+    config: Config,
+}
+
+impl NonLocalEffectBeforeErrorReturn {
+    pub fn new() -> Self {
+        Self {
+            config: dylint_linting::config_or_default(env!("CARGO_PKG_NAME")),
+        }
+    }
 }
 
 impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
@@ -107,36 +133,42 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             write_mir_fn(cx.tcx, mir, &mut |_, _| Ok(()), &mut std::io::stdout()).unwrap();
         }
 
-        visit_error_paths(cx, fn_kind, mir, |path, contributing_calls| {
-            // smoelius: The path is from a return to the start block.
-            for (i, &index) in path.iter().enumerate() {
-                let basic_block = &mir.basic_blocks[index];
+        visit_error_paths(
+            self.config.work_limit,
+            cx,
+            fn_kind,
+            mir,
+            |path, contributing_calls| {
+                // smoelius: The path is from a return to the start block.
+                for (i, &index) in path.iter().enumerate() {
+                    let basic_block = &mir.basic_blocks[index];
 
-                if_chain! {
-                    if !contributing_calls.contains(index);
-                    if let Some(call_span) = is_call_with_mut_ref(cx, mir, &path[i..]);
-                    then {
-                        span_lint(
-                            cx,
-                            NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                            call_span,
-                            "call with mutable reference before error return",
-                        );
+                    if_chain! {
+                        if !contributing_calls.contains(index);
+                        if let Some(call_span) = is_call_with_mut_ref(cx, mir, &path[i..]);
+                        then {
+                            span_lint(
+                                cx,
+                                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
+                                call_span,
+                                "call with mutable reference before error return",
+                            );
+                        }
+                    }
+
+                    for statement in basic_block.statements.iter().rev() {
+                        if let Some(assign_span) = is_deref_assign(cx, mir, statement) {
+                            span_lint(
+                                cx,
+                                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
+                                assign_span,
+                                "assignment to dereference before error return",
+                            );
+                        }
                     }
                 }
-
-                for statement in basic_block.statements.iter().rev() {
-                    if let Some(assign_span) = is_deref_assign(cx, mir, statement) {
-                        span_lint(
-                            cx,
-                            NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                            assign_span,
-                            "assignment to dereference before error return",
-                        );
-                    }
-                }
-            }
-        });
+            },
+        );
     }
 }
 

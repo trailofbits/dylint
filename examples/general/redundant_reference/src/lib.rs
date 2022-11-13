@@ -10,7 +10,6 @@ use clippy_utils::{
     get_parent_expr,
     ty::{is_copy, peel_mid_ty_refs},
 };
-use dylint_internal::env::enabled;
 use if_chain::if_chain;
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
@@ -22,6 +21,7 @@ use rustc_hir::{
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_middle::ty;
 use rustc_span::{symbol::Ident, Span};
+use serde::Deserialize;
 use std::collections::HashSet;
 
 dylint_linting::impl_late_lint! {
@@ -80,17 +80,28 @@ dylint_linting::impl_late_lint! {
     /// }
     /// ```
     ///
-    /// **Options:**
-    /// `REDUNDANT_REFERENCE_NO_LIFETIME_CHECK`: Setting this environment variable to anything other
-    /// than `0` disables the check that the lifetime use is unique. That is, the lint becomes a
-    /// check for: fields that are references used only to read one copyable subfield.
+    /// **Configuration**
+    /// - `lifetime_check: bool` (default `true`): Setting this to `false` disables the check that
+    ///   the lifetime use is unique. That is, the lint becomes a check for: fields that are
+    ///   references used only to read one copyable subfield.
     pub REDUNDANT_REFERENCE,
     Warn,
     "reference fields used only to read one copyable subfield",
-    RedundantReference::default()
+    RedundantReference::new()
 }
 
-const REDUNDANT_REFERENCE_NO_LIFETIME_CHECK: &str = "REDUNDANT_REFERENCE_NO_LIFETIME_CHECK";
+#[derive(Deserialize)]
+struct Config {
+    lifetime_check: bool,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            lifetime_check: true,
+        }
+    }
+}
 
 #[derive(Default)]
 struct FieldUse {
@@ -98,9 +109,18 @@ struct FieldUse {
     other_use: bool,
 }
 
-#[derive(Default)]
 struct RedundantReference {
+    config: Config,
     field_uses: FxHashMap<(LocalDefId, Ident), FieldUse>,
+}
+
+impl RedundantReference {
+    pub fn new() -> Self {
+        Self {
+            config: dylint_linting::config_or_default(env!("CARGO_PKG_NAME")),
+            field_uses: FxHashMap::default(),
+        }
+    }
 }
 
 impl<'tcx> LateLintPass<'tcx> for RedundantReference {
@@ -161,7 +181,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                     },
                 ) = field_def.ty.kind;
                 if let LifetimeName::Param(_, ParamName::Plain(ident)) = lifetime.name;
-                if enabled(REDUNDANT_REFERENCE_NO_LIFETIME_CHECK) || {
+                if !self.config.lifetime_check || {
                     let lifetime_uses = lifetime_uses(ident, item);
                     lifetime_uses.len() == 1 && {
                         assert_eq!(
@@ -174,18 +194,17 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                 if subfield_accesses.keys().len() == 1;
                 if !other_use;
                 then {
-                    let (lifetime_msg, lifetime_help) =
-                        if enabled(REDUNDANT_REFERENCE_NO_LIFETIME_CHECK) {
-                            (String::new(), " instead".to_owned())
-                        } else {
-                            (
-                                format!(
-                                    " is the only field of `{}` that uses lifetime `{}`, and",
-                                    item.ident, lifetime
-                                ),
-                                format!(" to eliminate the need for `{}`", lifetime),
-                            )
-                        };
+                    let (lifetime_msg, lifetime_help) = if self.config.lifetime_check {
+                        (
+                            format!(
+                                " is the only field of `{}` that uses lifetime `{}`, and",
+                                item.ident, lifetime
+                            ),
+                            format!(" to eliminate the need for `{}`", lifetime),
+                        )
+                    } else {
+                        (String::new(), " instead".to_owned())
+                    };
                     let (subfield, (subfield_ty, access_spans)) =
                         subfield_accesses.iter().next().unwrap();
                     cx.struct_span_lint(REDUNDANT_REFERENCE, field_def.span, |diag| {
@@ -243,17 +262,16 @@ impl<'tcx> Visitor<'tcx> for LifetimeUses {
     }
 }
 
-#[cfg_attr(
-    dylint_lib = "non_thread_safe_call_in_test",
-    allow(non_thread_safe_call_in_test)
-)]
 #[test]
 fn ui() {
     dylint_testing::ui_test(
         env!("CARGO_PKG_NAME"),
         &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
     );
+}
 
+#[test]
+fn ui_no_lifetime_check() {
     // smoelius: For some reason, the diagnostic messages are printed in a different order on Linux
     // than on Mac and Windows.
     // smoelius: However, the current workaround should allow the tests to succeed on all platforms.
@@ -261,18 +279,12 @@ fn ui() {
     //     return;
     // }
 
-    // smoelius: There doesn't seem to be a way to set environment variables using `compiletest`'s
-    // [`Config`](https://docs.rs/compiletest_rs/0.7.1/compiletest_rs/common/struct.Config.html)
-    // struct. For comparison, where Clippy uses `compiletest`, it sets environment variables
-    // directly (see: https://github.com/rust-lang/rust-clippy/blob/master/tests/compile-test.rs).
-    //   Of course, even if `compiletest` had such support, it would need to be incorporated into
-    // `dylint_testing`.
-    std::env::set_var(REDUNDANT_REFERENCE_NO_LIFETIME_CHECK, "1");
-
-    dylint_testing::ui_test(
+    dylint_testing::ui::Test::src_base(
         env!("CARGO_PKG_NAME"),
         &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_no_lifetime_check"),
-    );
+    )
+    .dylint_toml("redundant_reference.lifetime_check = false")
+    .run();
 }
 
 #[test]

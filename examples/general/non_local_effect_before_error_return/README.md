@@ -10,7 +10,7 @@ should be as though the function was never called.
 **Known problems:**
 
 - The search strategy is exponential in the number of blocks in a function body. To help
-  deal with complex bodies, the lint includes a "work limit" (see "Options" below).
+  deal with complex bodies, the lint includes a "work limit" (see "Configuration" below).
 - Errors in loops are not handled properly.
 
 **Example:**
@@ -42,8 +42,8 @@ impl Account {
 }
 ```
 
-**Options:**
-`NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN_WORK_LIMIT` (default 500000): When exploring a
-function body, the maximum number of times the search path is extended. Setting this to a
-higher number allows more bodies to be explored exhaustively, but at the expense of greater
-runtime.
+**Configuration**
+
+- `work_limit: u64` (default 500000): When exploring a function body, the maximum number of
+  times the search path is extended. Setting this to a higher number allows more bodies to
+  be explored exhaustively, but at the expense of greater runtime.

@@ -28,10 +28,10 @@ let xs = [0, 1, 2];
 let ys = xs.iter().map(|&x| x == 0).collect::<Vec<_>>();
 ```
 
-**Options:**
-`SUBOPTIMAL_PATTERN_NO_EXPLICIT_DEREF_CHECK`: By default, `suboptimal_pattern` will not
-suggest to destructure a reference unless it would eliminate at least one explicit
-dereference. Setting this environment variable to anything other than `0` disables this
-check.
+**Configuration**
+
+- `explicit_deref_check: bool` (default `true`): By default, `suboptimal_pattern` will not
+  suggest to destructure a reference unless it would eliminate at least one explicit
+  dereference. Setting `explicit_deref_check` to `false` disables this check.
 
 [pattern-type-mismatch]: https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch
