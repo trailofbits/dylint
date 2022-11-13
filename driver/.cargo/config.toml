@@ -1,2 +1,2 @@
 [build]
-target-dir = "../target/driver"
+target-dir = "../target/nightly"

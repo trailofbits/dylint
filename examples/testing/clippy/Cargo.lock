@@ -323,8 +323,13 @@ dependencies = [
 name = "dylint_linting"
 version = "2.0.14"
 dependencies = [
+ "cargo_metadata 0.15.1",
+ "dylint_internal",
  "paste",
  "rustversion",
+ "serde",
+ "thiserror",
+ "toml",
 ]
 
 [[package]]

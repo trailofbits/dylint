@@ -636,14 +636,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dylint_linting"
-version = "2.0.14"
-dependencies = [
- "paste",
- "rustversion",
-]
-
-[[package]]
 name = "dylint_testing"
 version = "2.0.14"
 dependencies = [
@@ -1227,12 +1219,6 @@ name = "os_str_bytes"
 version = "6.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b7820b9daea5457c9f21c69448905d723fbd21136ccf521748f23fd49e723ee"
-
-[[package]]
-name = "paste"
-version = "1.0.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1de2e551fb905ac83f73f7aedf2f0cb4a0da7e35efa24a202a936269f1f18e1"
 
 [[package]]
 name = "pathdiff"

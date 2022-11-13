@@ -24,5 +24,13 @@ updates:
       time: "03:00"
     open-pull-requests-limit: 10
 
+  - package-ecosystem: cargo
+    directory: /utils/linting
+    schedule:
+      interval: weekly
+      day: sunday
+      time: "03:00"
+    open-pull-requests-limit: 10
+
   # smoelius: It would be nice to include the examples as well. But this issue suggests they cannot
   # be included in the obvious way: https://github.com/dependabot/dependabot-core/issues/2178
