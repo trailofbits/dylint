@@ -20,7 +20,7 @@ dylint_linting = { path = "../../../utils/linting" }
 [dev-dependencies]
 anyhow = "1.0.66"
 cargo_metadata = "0.15.1"
-env_logger = "0.9.1"
+env_logger = "0.9.3"
 log = "0.4.17"
 tempfile = "3.3.0"
 test-log = "0.2.11"
