@@ -231,7 +231,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.0.13"
+version = "2.0.14"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -252,7 +252,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.0.13"
+version = "2.0.14"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -268,7 +268,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.0.13"
+version = "2.0.14"
 dependencies = [
  "paste",
  "rustversion",
@@ -276,7 +276,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.0.13"
+version = "2.0.14"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -896,7 +896,7 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "try_io_result"
-version = "2.0.13"
+version = "2.0.14"
 dependencies = [
  "anyhow",
  "clippy_utils",

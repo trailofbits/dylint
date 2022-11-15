@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.14
+
+- Prevent patterns from escaping dependency directories ([#486](https://github.com/trailofbits/dylint/pull/486))&mdash;thanks [@shepmaster](https://github.com/shepmaster) for the [bug report](https://github.com/trailofbits/dylint/issues/485)
+
 ## 2.0.13
 
 - Support [rust-lang/rust#101501](https://github.com/rust-lang/rust/pull/101501) in `dylint_linting` ([06bdab3](https://github.com/trailofbits/dylint/commit/06bdab31922b6019757e715896077265e1d0d764))
