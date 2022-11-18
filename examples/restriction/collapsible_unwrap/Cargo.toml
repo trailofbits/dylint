@@ -1,0 +1,37 @@
+[package]
+name = "collapsible_unwrap"
+version = "2.1.1"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for an `unwrap` that could be combined with an `expect` or `unwrap` using `and_then`"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[[example]]
+name = "ui"
+path = "ui/main.rs"
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f4850f7292efa33759b4f7f9b7621268979e9914" }
+heck = "0.4.0"
+if_chain = "1.0.2"
+
+dylint_internal = { path = "../../../internal" }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+toml = "0.5.9"
+
+dylint_testing = { path = "../../../utils/testing" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../*/*" },
+]
