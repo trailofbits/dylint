@@ -172,8 +172,8 @@ fn list_by_path() {
             .join(library_filename("fill_me_in", "*"))
             .to_string_lossy(),
     )
-    .unwrap()
-    .next()
+    .ok()
+    .and_then(|mut paths| paths.next())
     .unwrap()
     .unwrap();
 
