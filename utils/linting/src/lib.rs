@@ -170,8 +170,30 @@ macro_rules! declare_late_lint {
 
 pub type ConfigResult<T> = Result<T, ConfigError>;
 
+#[derive(Debug)]
+pub struct ConfigError {
+    inner: ConfigErrorInner,
+}
+
+impl std::fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.inner)
+    }
+}
+
+impl<T> From<T> for ConfigError
+where
+    ConfigErrorInner: From<T>,
+{
+    fn from(value: T) -> Self {
+        Self {
+            inner: ConfigErrorInner::from(value),
+        }
+    }
+}
+
 #[derive(Debug, Error)]
-pub enum ConfigError {
+enum ConfigErrorInner {
     #[error("cargo metadata error: {0}")]
     CargoMetadata(#[from] cargo_metadata::Error),
     #[error("io error: {0}")]
@@ -201,7 +223,7 @@ pub fn config_toml(name: &str) -> ConfigResult<Option<toml::Value>> {
     let config_table = CONFIG_TABLE.lock().unwrap();
     let config_table = config_table.borrow();
     let config_table = config_table.as_ref().ok_or_else(|| {
-        ConfigError::Other(
+        ConfigErrorInner::Other(
             "Config is not initialized; `init_config` should have been called from `register_lints`"
                 .into(),
         )
@@ -235,11 +257,11 @@ pub fn try_init_config(sess: &Session) -> ConfigResult<()> {
         let local_crate_source_file = sess
             .local_crate_source_file
             .as_ref()
-            .ok_or_else(|| ConfigError::Other("No source file".into()))?;
+            .ok_or_else(|| ConfigErrorInner::Other("No source file".into()))?;
 
         let parent = local_crate_source_file
             .parent()
-            .ok_or_else(|| ConfigError::Other("Could not get parent directory".into()))?;
+            .ok_or_else(|| ConfigErrorInner::Other("Could not get parent directory".into()))?;
 
         let result = MetadataCommand::new().current_dir(parent).no_deps().exec();
 
@@ -274,7 +296,7 @@ pub fn try_init_config(sess: &Session) -> ConfigResult<()> {
         .map(|toml| {
             toml.as_table()
                 .cloned()
-                .ok_or_else(|| ConfigError::Other("Value is not a table".into()))
+                .ok_or_else(|| ConfigErrorInner::Other("Value is not a table".into()))
         })
         .transpose()?;
 
