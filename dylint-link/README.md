@@ -25,5 +25,5 @@ If your library uses `dylint-link` and the [`dylint_library!`] macro, then all y
 
 [`dylint_library!`]: ../utils/linting
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
-[dylint]: https://github.com/trailofbits/dylint
+[dylint]: ..
 [examples]: ../examples

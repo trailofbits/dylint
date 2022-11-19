@@ -15,6 +15,7 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
   - [Writing lints]
 - [How libraries are found]
 - [Workspace metadata]
+- [Configurable libraries]
 - [Conditional compilation]
 - [Library requirements]
 - [Utilities]
@@ -104,6 +105,19 @@ libraries = [
     { git = "https://github.com/trailofbits/dylint", pattern = "examples/restriction/try_io_result" },
 ]
 ```
+
+## Configurable libraries
+
+Libraries can be configured by including a `dylint.toml` file in a linted workspace's root directory. The file should encode a [toml table] whose keys are library names. A library determines how its value in the table (if any) is interpreted.
+
+As an example, a `dylint.toml` file with the following contents sets the [`non_local_effect_before_error_return`] library's `work_limit` configuration to `1_000_000`:
+
+```toml
+[non_local_effect_before_error_return]
+work_limit = 1_000_000
+```
+
+For instructions on creating a configurable library, see the [`dylint_linting`] documentation.
 
 ## Conditional compilation
 
@@ -238,8 +252,10 @@ Helpful resources for writing lints include the following:
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ../dylint-link
 [`dylint_library!`]: ../utils/linting
+[`dylint_linting`]: ../utils/linting
 [`env_cargo_path`]: ../examples/general/env_cargo_path
 [`latelintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
+[`non_local_effect_before_error_return`]: ../examples/general/non_local_effect_before_error_return
 [`non_thread_safe_call_in_test`]: ../examples/general/non_thread_safe_call_in_test
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 [`try_io_result`]: ../examples/restriction/try_io_result
@@ -249,6 +265,7 @@ Helpful resources for writing lints include the following:
 [author lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md#author-lint
 [common tools for writing lints]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/common_tools_writing_lints.md
 [conditional compilation]: #conditional-compilation
+[configurable libraries]: #configurable-libraries
 [crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 [crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
 [dylint/src/lib.rs]: ../dylint/src/lib.rs
@@ -269,6 +286,7 @@ Helpful resources for writing lints include the following:
 [running dylint]: #running-dylint
 [rust-analyzer]: https://github.com/rust-analyzer/rust-analyzer
 [struct `rustc_lint::latecontext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html
+[toml table]: https://toml.io/en/v1.0.0#table
 [utilities]: #utilities
 [vs code integration]: #vs-code-integration
 [workspace metadata]: #workspace-metadata

@@ -1,16 +1,21 @@
 # dylint_linting
 
-This crate provides the following macros to help in creating [Dylint] libraries:
+[docs.rs documentation]
+
+This crate provides macros for creating [Dylint] libraries, and utilities for creating configurable libraries.
+
+**Contents**
 
 - [`dylint_library!`]
 - [`declare_late_lint!`, `declare_early_lint!`, `declare_pre_expansion_lint!`]
 - [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]
+- [Configurable libraries]
 
 ## `dylint_library!`
 
 The `dylint_library!` macro expands to the following:
 
-```rust
+```rust,ignore
 #[allow(unused_extern_crates)]
 extern crate rustc_driver;
 
@@ -35,16 +40,17 @@ If your library contains just one lint, using `declare_late_lint!`, etc. can mak
 
 For example, `declare_late_lint!(vis NAME, Level, "description")` expands to the following:
 
-```rust
+```rust,ignore
 dylint_linting::dylint_library!();
 
 extern crate rustc_lint;
 extern crate rustc_session;
 
 #[no_mangle]
-pub fn register_lints(_sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
+pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
+    dylint_linting::init_config(sess);
     lint_store.register_lints(&[NAME]);
-    lint_store.register_late_pass(|| Box::new(Name));
+    lint_store.register_late_pass(|_| Box::new(Name));
 }
 
 rustc_session::declare_lint!(vis NAME, Level, "description");
@@ -63,12 +69,72 @@ rustc_session::declare_lint_pass!(Name => [NAME]);
 
 That is, `impl_late_lint!`'s additional argument is what goes here:
 
-```rust
-    lint_store.register_late_pass(|| Box::new(...));
-                                              ^^^
+```rust,ignore
+    lint_store.register_late_pass(|_| Box::new(...));
+                                               ^^^
 ```
 
 An example use of `impl_pre_expansion_lint!` can be found in [env_cargo_path] in this repository.
+
+## Configurable libraries
+
+Libraries can be configured by including a `dylint.toml` file in the target workspace's root directory. This crate provides the following functions for reading and parsing `dylint.toml` files:
+
+- [`config_or_default`]
+- [`config`]
+- [`config_toml`]
+- [`init_config`]
+- [`try_init_config`]
+
+A configurable library containing just one lint will typically have a `lib.rs` file of the following form:
+
+```rust,ignore
+dylint_linting::impl_late_lint! {
+    ...,
+    LintName::new()
+}
+
+// Lint configuration
+#[derive(Default, serde::Deserialize)]
+struct Config {
+    boolean: bool,
+    strings: Vec<String>,
+}
+
+// Keep a copy of the configuration in the `LintPass` structure.
+struct LintName {
+    config: Config,
+}
+
+// Read the configuration from the `dylint.toml` file, or use the default configuration if
+// none is present.
+impl LintName {
+    pub fn new() -> Self {
+        Self {
+            config: dylint_linting::config_or_default(env!("CARGO_PKG_NAME")),
+        }
+    }
+}
+```
+
+For a concrete example of a `lib.rs` file with this form, see the [non_local_effect_before_error_return] library in this repository.
+
+A library containing more than one lint must implement the `register_lints` function without relying on the above macros. If the library is configurable, then its `register_lints` function should include a call to `dylint_linting::init_config`, as in the following example:
+
+```rust,ignore
+#[no_mangle]
+pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
+    // `init_config` or `try_init_config` must be called before `config_or_default`, `config`,
+    // or `config_toml` is called.
+    dylint_linting::init_config(sess);
+
+    lint_store.register_lints(&[FIRST_LINT_NAME, SECOND_LINT_NAME]);
+
+    lint_store.register_late_pass(|_| Box::new(LintPassName::new()));
+}
+```
+
+Additional documentation on `config_or_default`, etc. can be found on [docs.rs].
 
 [`declare_late_lint!`, `declare_early_lint!`, `declare_pre_expansion_lint!`]: #declare_late_lint-etc
 [`declare_lint!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint.html
@@ -79,6 +145,10 @@ An example use of `impl_pre_expansion_lint!` can be found in [env_cargo_path] in
 [`impl_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html
 [`lintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
-[dylint]: https://github.com/trailofbits/dylint
+[configurable libraries]: #configurable-libraries
+[docs.rs documentation]: https://docs.rs/dylint_linting/latest/dylint_linting/
+[docs.rs]: https://docs.rs/dylint_linting/latest/dylint_linting/
+[dylint]: ../..
 [env_cargo_path]: ../../examples/general/env_cargo_path/src/lib.rs
 [examples]: ../../examples
+[non_local_effect_before_error_return]: ../../examples/general/non_local_effect_before_error_return/src/lib.rs

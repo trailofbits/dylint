@@ -1,12 +1,14 @@
 # dylint_testing
 
+[docs.rs documentation]
+
 This crate provides convenient access to the [`compiletest_rs`] package for testing [Dylint] libraries.
 
 Specifically, this crate provides the following three functions. Note: If your test has dependencies, you must use `ui_test_example` or `ui_test_examples`. See the [question_mark_in_expression] example in this repository.
 
 - `ui_test` - test a library on all source files in a directory
 
-  ```rust
+  ```rust,ignore
   pub fn ui_test(name: &str, src_base: &Path)
   ```
 
@@ -17,7 +19,7 @@ Specifically, this crate provides the following three functions. Note: If your t
 
 - `ui_test_example` - test a library on one example target
 
-  ```rust
+  ```rust,ignore
   pub fn ui_test_example(name: &str, example: &str)
   ```
 
@@ -25,14 +27,14 @@ Specifically, this crate provides the following three functions. Note: If your t
   - `example` is an example target on which to test the library.
 
 - `ui_test_examples` - test a library on all example targets
-  ```rust
+  ```rust,ignore
   pub fn ui_test_examples(name: &str)
   ```
   - `name` is the name of a Dylint library to be tested.
 
 For most situations, you can add the following to your library's `lib.rs` file:
 
-```rust
+```rust,ignore
 #[test]
 fn ui() {
     dylint_testing::ui_test(
@@ -58,9 +60,15 @@ In each case, the constructor's arguments are exactly those of the corresponding
 
 A `Test` instance has the following methods:
 
+- `dylint_toml` - set the `dylint.toml` file's contents (for testing [configurable libraries])
+
+  ```rust,ignore
+  pub fn dylint_toml(&mut self, dylint_toml: impl AsRef<str>) -> &mut Self
+  ```
+
 - `rustc_flags` - pass flags to the compiler when running the test
 
-  ```rust
+  ```rust,ignore
   pub fn rustc_flags(
       &mut self,
       rustc_flags: impl IntoIterator<Item = impl AsRef<str>>,
@@ -69,7 +77,7 @@ A `Test` instance has the following methods:
 
 - `run` - run the test
 
-  ```rust
+  ```rust,ignore
   pub fn run(&mut self)
   ```
 
@@ -77,7 +85,7 @@ A `Test` instance has the following methods:
 
 If the standard error that results from running your `.rs` file differs from the contents of your `.stderr` file, `compiletest_rs` will produce a report like the following:
 
-```rust
+```rust,ignore
 diff of stderr:
 
  error: calling `std::env::set_var` in a test could affect the outcome of other tests
@@ -117,7 +125,9 @@ In general, it is not too hard to update a `.stderr` file by hand. However, the 
 Additional documentation on `compiletest_rs` can be found in [its repository].
 
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
-[dylint]: https://github.com/trailofbits/dylint
+[configurable libraries]: ../..#configurable-libraries
+[docs.rs documentation]: https://docs.rs/dylint_testing/latest/dylint_testing/
+[dylint]: ../..
 [examples]: ../../examples
 [its repository]: https://github.com/Manishearth/compiletest-rs
 [non_thread_safe_call_in_test]: ../../examples/general/non_thread_safe_call_in_test/src/lib.rs
