@@ -106,9 +106,9 @@ dependencies = [
 
 [[package]]
 name = "cargo_metadata"
-version = "0.15.1"
+version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "406c859255d568f4f742b3146d51851f3bfd49f734a2c289d9107c4395ee0062"
+checksum = "982a0cf6a99c350d7246035613882e376d58cebe571785abc5da4f648d53ac0a"
 dependencies = [
  "camino",
  "cargo-platform",
@@ -138,7 +138,7 @@ name = "clippy"
 version = "2.0.14"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.15.1",
+ "cargo_metadata 0.15.2",
  "clippy_lints",
  "clippy_utils",
  "dylint",
@@ -289,7 +289,7 @@ dependencies = [
  "ansi_term",
  "anyhow",
  "atty",
- "cargo_metadata 0.15.1",
+ "cargo_metadata 0.15.2",
  "dirs",
  "dylint_internal",
  "heck",
@@ -310,7 +310,7 @@ dependencies = [
  "ansi_term",
  "anyhow",
  "atty",
- "cargo_metadata 0.15.1",
+ "cargo_metadata 0.15.2",
  "dirs",
  "git2",
  "if_chain",
@@ -323,7 +323,7 @@ dependencies = [
 name = "dylint_linting"
 version = "2.0.14"
 dependencies = [
- "cargo_metadata 0.15.1",
+ "cargo_metadata 0.15.2",
  "dylint_internal",
  "paste",
  "rustversion",
@@ -337,7 +337,7 @@ name = "dylint_testing"
 version = "2.0.14"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.15.1",
+ "cargo_metadata 0.15.2",
  "compiletest_rs",
  "dylint",
  "dylint_internal",
