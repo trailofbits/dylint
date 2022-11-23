@@ -15,6 +15,11 @@ struct Template;
 
 pub fn new_template(to: &Path) -> Result<()> {
     for path in Template::iter() {
+        let embedded_file = Template::get(&path)
+            .ok_or_else(|| anyhow!("Could not get embedded file `{}`", path))?;
+        if embedded_file.metadata.is_dir() {
+            continue;
+        }
         let to_path = to.join(path.trim_end_matches('~'));
         let parent = to_path
             .parent()
@@ -22,8 +27,6 @@ pub fn new_template(to: &Path) -> Result<()> {
         create_dir_all(parent).with_context(|| {
             format!("`create_dir_all` failed for `{}`", parent.to_string_lossy())
         })?;
-        let embedded_file = Template::get(&path)
-            .ok_or_else(|| anyhow!("Could not get embedded file `{}`", path))?;
         let mut file = OpenOptions::new()
             .create(true)
             .write(true)
@@ -122,7 +125,10 @@ mod test {
         assert_eq!(paths_sorted, PATHS);
 
         let paths = Template::iter()
-            .filter(|path| PATHS.binary_search(&&**path).is_err())
+            .filter(|path| {
+                !Template::get(path).unwrap().metadata.is_dir()
+                    && PATHS.binary_search(&&**path).is_err()
+            })
             .collect::<Vec<_>>();
 
         assert!(paths.is_empty(), "found {paths:#?}");
