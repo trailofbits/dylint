@@ -1,6 +1,6 @@
 [package]
 name = "dylint_internal"
-version = "2.0.14"
+version = "2.0.15"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Dylint internals"
 edition = "2021"
