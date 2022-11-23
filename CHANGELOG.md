@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.15
+
+- Allow libraries to be configured via a `dylint.toml` file in a workspace's root directory ([#484](https://github.com/trailofbits/dylint/pull/484) and [#496](https://github.com/trailofbits/dylint/pull/496))&mdash;thanks [@shepmaster](https://github.com/shepmaster) for the [suggestion](https://github.com/trailofbits/dylint/issues/482)
+- Address `cargo dylint new` failures ([#497](https://github.com/trailofbits/dylint/pull/497))&mdash;thanks [@mattvmsft](https://github.com/mattvmsft) for the [bug report](https://github.com/trailofbits/dylint/issues/495)
+
 ## 2.0.14
 
 - Prevent patterns from escaping dependency directories ([#486](https://github.com/trailofbits/dylint/pull/486))&mdash;thanks [@shepmaster](https://github.com/shepmaster) for the [bug report](https://github.com/trailofbits/dylint/issues/485)
