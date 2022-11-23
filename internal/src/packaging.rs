@@ -68,8 +68,21 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
         .open(&manifest)
         .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
 
+    // smoelius: `use_local_packages` broke when `dylint_linting` was removed from the workspace.
+    // For now, add `dylint_linting` manually.
     writeln!(file)
         .and_then(|_| writeln!(file, "[patch.crates-io]"))
+        .and_then(|_| {
+            writeln!(
+                file,
+                r#"dylint_linting = {{ path = "{}" }}"#,
+                metadata
+                    .workspace_root
+                    .join("utils/linting")
+                    .to_string()
+                    .replace('\\', "\\\\")
+            )
+        })
         .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
 
     for package_id in &metadata.workspace_members {

@@ -303,12 +303,7 @@ pub fn try_init_config(sess: &Session) -> ConfigResult<()> {
             Some(Symbol::intern(&value)),
         ));
         Some(value)
-    } else {
-        let local_crate_source_file = sess
-            .local_crate_source_file
-            .as_ref()
-            .ok_or_else(|| ConfigErrorInner::Other("No source file".into()))?;
-
+    } else if let Some(local_crate_source_file) = sess.local_crate_source_file.as_ref() {
         let parent = local_crate_source_file
             .parent()
             .ok_or_else(|| ConfigErrorInner::Other("Could not get parent directory".into()))?;
@@ -338,6 +333,8 @@ pub fn try_init_config(sess: &Session) -> ConfigResult<()> {
                 }
             }
         }
+    } else {
+        None
     };
 
     let toml: Option<toml::Value> = value.as_deref().map(toml::from_str).transpose()?;
