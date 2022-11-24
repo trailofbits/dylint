@@ -231,7 +231,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.0.14"
+version = "2.1.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -252,7 +252,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.0.14"
+version = "2.1.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -268,7 +268,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.0.14"
+version = "2.1.0"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -281,7 +281,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.0.14"
+version = "2.1.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -557,7 +557,7 @@ dependencies = [
 
 [[package]]
 name = "non_thread_safe_call_in_test"
-version = "2.0.14"
+version = "2.1.0"
 dependencies = [
  "clippy_utils",
  "dylint_internal",

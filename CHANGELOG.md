@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## 2.1.0
 
 - Allow libraries to be configured via a `dylint.toml` file in a workspace's root directory ([#484](https://github.com/trailofbits/dylint/pull/484) and [#496](https://github.com/trailofbits/dylint/pull/496))&mdash;thanks [@shepmaster](https://github.com/shepmaster) for the [suggestion](https://github.com/trailofbits/dylint/issues/482)
 
