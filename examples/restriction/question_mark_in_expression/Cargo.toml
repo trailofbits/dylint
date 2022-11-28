@@ -22,7 +22,7 @@ name = "non-empty"
 path = "ui/non-empty.rs"
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "e43f5a17d4d9263616ae6fc28a7c5353e80d8a12" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f4850f7292efa33759b4f7f9b7621268979e9914" }
 if_chain = "1.0.2"
 
 dylint_linting = { path = "../../../utils/linting" }

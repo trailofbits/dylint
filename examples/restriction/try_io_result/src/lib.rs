@@ -4,12 +4,14 @@
 
 extern crate rustc_hir;
 extern crate rustc_middle;
+extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_help, match_def_path, paths};
+use clippy_utils::{diagnostics::span_lint_and_help, match_def_path};
 use if_chain::if_chain;
 use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{subst::GenericArgKind, Ty, TyKind};
+use rustc_span::sym;
 
 dylint_linting::declare_late_lint! {
     /// **What it does:** Checks for `?` operators applied to values of type `std::io::Result`.
@@ -76,7 +78,7 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
 fn is_io_result(cx: &LateContext<'_>, ty: Ty) -> bool {
     if_chain! {
         if let TyKind::Adt(def, substs) = ty.kind();
-        if match_def_path(cx, def.did(), &paths::RESULT);
+        if cx.tcx.is_diagnostic_item(sym::Result, def.did());
         if let [_, generic_arg] = substs.iter().collect::<Vec<_>>().as_slice();
         if let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack();
         if let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind();

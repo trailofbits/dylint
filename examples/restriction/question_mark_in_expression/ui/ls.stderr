@@ -4,8 +4,8 @@ error: using the `?` operator within an expression
 LL |     Ok(std::path::PathBuf::from(&std::env::var("PWD")?))
    |                                  ^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D question-mark-in-expression` implied by `-D warnings`
    = help: consider breaking this up into multiple expressions
+   = note: `-D question-mark-in-expression` implied by `-D warnings`
 
 error: aborting due to previous error
 

@@ -4,8 +4,8 @@ error: silently overrides `--warn clippy::assertions-on-constants` and `--deny c
 LL | #![allow(clippy::assertions_on_constants)]
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D crate-wide-allow` implied by `-D warnings`
    = help: pass `--allow clippy::assertions-on-constants` on the command line
+   = note: `-D crate-wide-allow` implied by `-D warnings`
 
 error: aborting due to previous error
 

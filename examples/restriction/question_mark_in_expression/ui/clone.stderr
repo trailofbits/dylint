@@ -4,8 +4,8 @@ error: using the `?` operator within an expression
 LL |     let _ = git2::Repository::clone(DYLINT_URL, tempfile::tempdir()?.path())?;
    |                                                 ^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D question-mark-in-expression` implied by `-D warnings`
    = help: consider breaking this up into multiple expressions
+   = note: `-D question-mark-in-expression` implied by `-D warnings`
 
 error: aborting due to previous error
 

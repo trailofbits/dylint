@@ -4,9 +4,9 @@ version = 3
 
 [[package]]
 name = "aho-corasick"
-version = "0.7.19"
+version = "0.7.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4f55bd91a0978cbfd91c457a164bab8b4001c833b7f323132c0a4e1922dd44e"
+checksum = "cc936419f96fa211c1b9166887b38e5e40b19958e5b895be7c1f93adec7071ac"
 dependencies = [
  "memchr",
 ]
@@ -154,11 +154,12 @@ dependencies = [
 
 [[package]]
 name = "clippy_lints"
-version = "0.1.66"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=e43f5a17d4d9263616ae6fc28a7c5353e80d8a12#e43f5a17d4d9263616ae6fc28a7c5353e80d8a12"
+version = "0.1.67"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=f4850f7292efa33759b4f7f9b7621268979e9914#f4850f7292efa33759b4f7f9b7621268979e9914"
 dependencies = [
  "cargo_metadata 0.14.2",
  "clippy_utils",
+ "declare_clippy_lint",
  "if_chain",
  "itertools",
  "pulldown-cmark",
@@ -175,8 +176,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.66"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=e43f5a17d4d9263616ae6fc28a7c5353e80d8a12#e43f5a17d4d9263616ae6fc28a7c5353e80d8a12"
+version = "0.1.67"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=f4850f7292efa33759b4f7f9b7621268979e9914#f4850f7292efa33759b4f7f9b7621268979e9914"
 dependencies = [
  "arrayvec",
  "if_chain",
@@ -223,6 +224,16 @@ checksum = "1bfb12502f3fc46cca1bb51ac28df9d618d813cdc3d2f25b9fe775a34af26bb3"
 dependencies = [
  "generic-array",
  "typenum",
+]
+
+[[package]]
+name = "declare_clippy_lint"
+version = "0.1.67"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=f4850f7292efa33759b4f7f9b7621268979e9914#f4850f7292efa33759b4f7f9b7621268979e9914"
+dependencies = [
+ "itertools",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -632,9 +643,9 @@ checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
 
 [[package]]
 name = "openssl-sys"
-version = "0.9.77"
+version = "0.9.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b03b84c3b2d099b81f0953422b4d4ad58761589d0229b5506356afca05a3670a"
+checksum = "07d5c8cb6e57b3a3612064d7b18b117912b4ce70955c2504d4b741c9e244b132"
 dependencies = [
  "autocfg",
  "cc",
@@ -856,9 +867,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.88"
+version = "1.0.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e8b3801309262e8184d9687fb697586833e939767aea0dda89f5a8e650e8bd7"
+checksum = "020ff22c755c2ed3f8cf162dbb41a7268d934702f3ed3631656ea597e08fc3db"
 dependencies = [
  "itoa",
  "ryu",
