@@ -62,8 +62,8 @@ fn one_name_multiple_toolchains() {
         .assert()
         .success()
         .stdout(
-            predicate::str::contains(&format!("fill_me_in@{CHANNEL_A}"))
-                .and(predicate::str::contains(&format!("fill_me_in@{CHANNEL_B}"))),
+            predicate::str::contains(format!("fill_me_in@{CHANNEL_A}"))
+                .and(predicate::str::contains(format!("fill_me_in@{CHANNEL_B}"))),
         );
 }
 
@@ -111,11 +111,11 @@ fn one_name_multiple_paths() {
         .assert()
         .success()
         .stdout(
-            predicate::str::contains(&format!(
+            predicate::str::contains(format!(
                 "fill_me_in ({})",
                 target_debug(tempdirs.0.path()).unwrap().to_string_lossy()
             ))
-            .and(predicate::str::contains(&format!(
+            .and(predicate::str::contains(format!(
                 "fill_me_in ({})",
                 target_debug(tempdirs.1.path()).unwrap().to_string_lossy()
             ))),

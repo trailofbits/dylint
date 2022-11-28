@@ -541,7 +541,7 @@ mod test {
             let metadata = dylint_internal::cargo::current_metadata().unwrap();
             // smoelius: As of version 0.1.14, `cargo-llvm-cov` no longer sets `CARGO_TARGET_DIR`.
             // So `dylint_library_path` no longer requires a `cfg!(coverage)` special case.
-            let dylint_library_path = join_paths(&[
+            let dylint_library_path = join_paths([
                     metadata.target_directory.join("examples").join("debug"),
                     metadata.target_directory.join("straggler").join("debug"),
                 ])
