@@ -51,7 +51,7 @@ pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()
         .and_then(|table| table.get_mut("rev"))
         .map(|value| *value = Value::from(rev))
         .ok_or_else(|| anyhow!("Could not set `clippy_utils` revision"))?;
-    write(cargo_toml, &document.to_string()).map_err(Into::into)
+    write(cargo_toml, document.to_string()).map_err(Into::into)
 }
 
 pub fn toolchain_channel(path: &Path) -> Result<String> {
@@ -90,5 +90,5 @@ pub fn set_toolchain_channel(path: &Path, channel: &str) -> Result<()> {
         .and_then(Item::as_value_mut)
         .map(|value| *value = Value::from(channel))
         .ok_or_else(|| anyhow!("Could not set Rust toolchain channel"))?;
-    write(rust_toolchain, &document.to_string()).map_err(Into::into)
+    write(rust_toolchain, document.to_string()).map_err(Into::into)
 }

@@ -160,9 +160,9 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
     let cargo_toml_path = path.join("Cargo.toml");
 
     let mut rust_toolchain_backup =
-        Backup::new(&rust_toolchain_path).with_context(|| "Could not backup `rust-toolchain`")?;
+        Backup::new(rust_toolchain_path).with_context(|| "Could not backup `rust-toolchain`")?;
     let mut cargo_toml_backup =
-        Backup::new(&cargo_toml_path).with_context(|| "Could not backup `Cargo.toml`")?;
+        Backup::new(cargo_toml_path).with_context(|| "Could not backup `Cargo.toml`")?;
 
     if should_find_and_replace {
         set_toolchain_channel(path, &rev.channel)?;

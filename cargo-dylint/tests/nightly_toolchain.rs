@@ -10,7 +10,7 @@ mod nightly_toolchain {
     fn nightly_toolchain() {
         update_nightly().unwrap();
 
-        #[allow(clippy::let_underscore_drop)]
+        #[allow(let_underscore_drop)]
         let _ = dylint::driver_builder::get(&dylint::Dylint::default(), "nightly").unwrap();
     }
 
