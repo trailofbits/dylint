@@ -4,8 +4,8 @@ error: returning a `std::io::Result` could discard relevant context (e.g., files
 LL |     let _ = File::open("/dev/null")?;
    |             ^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D try-io-result` implied by `-D warnings`
    = help: return a type that includes relevant context
+   = note: `-D try-io-result` implied by `-D warnings`
 
 error: aborting due to previous error
 

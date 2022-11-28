@@ -104,6 +104,7 @@ const WATCHED_INHERENTS: &[&[&str]] = &[
     &["alloc", "string", "String", "as_str"],
     &["alloc", "string", "String", "into_boxed_str"],
     &["alloc", "string", "String", "into_bytes"],
+    &["alloc", "string", "String", "leak"],
     &["alloc", "vec", "Vec", "as_mut_slice"],
     &["alloc", "vec", "Vec", "as_slice"],
     &["alloc", "vec", "Vec", "into_boxed_slice"],
@@ -542,10 +543,11 @@ fn inner_arg_implements_traits<'tcx>(
 
     predicates.iter().all(|predicate| {
         let predicate = EarlyBinder(predicate).subst(cx.tcx, &substs_with_new_ty);
-        let obligation = Obligation::new(ObligationCause::dummy(), cx.param_env, predicate);
+        let obligation = Obligation::new(cx.tcx, ObligationCause::dummy(), cx.param_env, predicate);
         cx.tcx
             .infer_ctxt()
-            .enter(|infcx| infcx.predicate_must_hold_modulo_regions(&obligation))
+            .build()
+            .predicate_must_hold_modulo_regions(&obligation)
     })
 }
 

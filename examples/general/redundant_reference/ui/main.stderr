@@ -4,13 +4,13 @@ error: `.cx` is the only field of `V` that uses lifetime `'cx`, and is used only
 LL |         cx: &'cx LateContext<'tcx>,
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D redundant-reference` implied by `-D warnings`
 note: read here
   --> $DIR/main.rs:46:17
    |
 LL |             self.cx.tcx.hir()
    |                 ^^^^^^^
    = help: consider storing a copy of `.cx.tcx` to eliminate the need for `'cx`
+   = note: `-D redundant-reference` implied by `-D warnings`
 
 error: aborting due to previous error
 

@@ -4,12 +4,12 @@ error: calling `std::env::set_var` in a test could affect the outcome of other t
 LL |         std::env::set_var("KEY", "VALUE");
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D non-thread-safe-call-in-test` implied by `-D warnings`
 note: the call is reachable from at least this test
   --> $DIR/interprocedural.rs:6:8
    |
 LL |     fn foo() {
    |        ^^^
+   = note: `-D non-thread-safe-call-in-test` implied by `-D warnings`
 
 error: aborting due to previous error
 

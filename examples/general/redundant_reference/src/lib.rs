@@ -207,21 +207,25 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                     };
                     let (subfield, (subfield_ty, access_spans)) =
                         subfield_accesses.iter().next().unwrap();
-                    cx.struct_span_lint(REDUNDANT_REFERENCE, field_def.span, |diag| {
-                        let mut diag = diag.build(&format!(
+                    cx.struct_span_lint(
+                        REDUNDANT_REFERENCE,
+                        field_def.span,
+                        &format!(
                             "`.{}`{} is used only to read `.{}.{}`, \
-                            whose type `{}` implements `Copy`",
+                        whose type `{}` implements `Copy`",
                             field, lifetime_msg, field, subfield, subfield_ty
-                        ));
-                        for access_span in access_spans {
-                            diag.span_note(*access_span, "read here");
-                        }
-                        diag.help(&format!(
-                            "consider storing a copy of `.{}.{}`{}",
-                            field, subfield, lifetime_help
-                        ));
-                        diag.emit();
-                    });
+                        ),
+                        |diag| {
+                            for access_span in access_spans {
+                                diag.span_note(*access_span, "read here");
+                            }
+                            diag.help(&format!(
+                                "consider storing a copy of `.{}.{}`{}",
+                                field, subfield, lifetime_help
+                            ));
+                            diag
+                        },
+                    );
                 }
             }
         }

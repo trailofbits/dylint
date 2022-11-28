@@ -4,13 +4,13 @@ error: `.bar` is used only to read `.bar.qux`, whose type `bool` implements `Cop
 LL |         bar: &'a super::Bar,
    |         ^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D redundant-reference` implied by `-D warnings`
 note: read here
   --> $DIR/main.rs:28:17
    |
 LL |             self.bar.qux
    |                 ^^^^^^^^
    = help: consider storing a copy of `.bar.qux` instead
+   = note: `-D redundant-reference` implied by `-D warnings`
 
 error: aborting due to previous error
 

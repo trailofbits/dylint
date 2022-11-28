@@ -4,12 +4,12 @@ error: inconsistent qualification
 LL |     assert_eq!(var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D inconsistent-qualification` implied by `-D warnings`
 note: items from `std::env` were imported here
   --> $DIR/main.rs:3:1
    |
 LL | use std::env::var;
    | ^^^^^^^^^^^^^^^^^^
+   = note: `-D inconsistent-qualification` implied by `-D warnings`
 
 error: inconsistent qualification
   --> $DIR/main.rs:13:43

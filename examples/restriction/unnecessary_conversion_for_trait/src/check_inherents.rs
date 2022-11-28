@@ -79,7 +79,10 @@ pub(super) fn check_inherents<I: Iterator<Item = DefId>>(
             continue;
         }
 
-        let def_id = def_path_res(cx, path).def_id();
+        let def_id = def_path_res(cx, path)
+            .into_iter()
+            .find_map(|res| res.opt_def_id())
+            .unwrap();
 
         assert!(
             of_interest(def_id),
@@ -91,10 +94,9 @@ pub(super) fn check_inherents<I: Iterator<Item = DefId>>(
     // smoelius: Watched inherents are complete(ish).
     for impl_def_id in type_paths
         .iter()
-        .flat_map(|type_path| {
-            let def_id = def_path_res(cx, type_path).def_id();
-            cx.tcx.inherent_impls(def_id)
-        })
+        .flat_map(|type_path| def_path_res(cx, type_path))
+        .flat_map(|res| res.opt_def_id())
+        .flat_map(|def_id| cx.tcx.inherent_impls(def_id))
         .copied()
         .chain(inherent_def_ids.map(|def_id| cx.tcx.parent(def_id)))
     {
@@ -131,7 +133,10 @@ fn implements_trait_with_item<'tcx>(
 // parameters with the default `Allocator`, `alloc::alloc::Global`. A more robust solution would
 // at least consider trait bounds and alert when a trait other than `Allocator` was encountered.
 fn replace_params_with_global_ty<'tcx>(cx: &LateContext<'tcx>, ty: ty::Ty<'tcx>) -> ty::Ty<'tcx> {
-    let global_def_id = def_path_res(cx, &["alloc", "alloc", "Global"]).def_id();
+    let global_def_id = def_path_res(cx, &["alloc", "alloc", "Global"])
+        .into_iter()
+        .find_map(|res| res.opt_def_id())
+        .unwrap();
     let global_adt_def = cx.tcx.adt_def(global_def_id);
     let global_ty = cx.tcx.mk_adt(global_adt_def, ty::List::empty());
     BottomUpFolder {

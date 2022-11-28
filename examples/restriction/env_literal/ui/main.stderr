@@ -4,8 +4,8 @@ error: referring to an environment variable with a string literal is error prone
 LL |     let _ = std::env::var("RUSTFLAGS");
    |                           ^^^^^^^^^^^
    |
-   = note: `-D env-literal` implied by `-D warnings`
    = help: define a constant `RUSTFLAGS` and use that instead
+   = note: `-D env-literal` implied by `-D warnings`
 
 error: referring to an environment variable with a string literal is error prone
   --> $DIR/main.rs:3:26
