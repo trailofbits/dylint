@@ -9,7 +9,7 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 anyhow = "1.0.66"
-clap = { version = "4.0.26", features = ["cargo", "derive", "wrap_help"] }
+clap = { version = "4.0.27", features = ["cargo", "derive", "wrap_help"] }
 env_logger = "0.9.3"
 
 dylint = { version = "=2.1.0", path = "../dylint", features = ["package_options"] }
@@ -17,7 +17,7 @@ dylint_internal = { version = "=2.1.0", path = "../internal" }
 
 [dev-dependencies]
 assert_cmd = "2.0.6"
-cargo_metadata = "0.15.1"
+cargo_metadata = "0.15.2"
 glob = "0.3.0"
 lazy_static = "1.4.0"
 log = "0.4.17"
