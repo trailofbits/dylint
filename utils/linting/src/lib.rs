@@ -9,7 +9,7 @@ use cargo_metadata::{Metadata, MetadataCommand};
 use dylint_internal::env;
 use rustc_session::Session;
 use rustc_span::Symbol;
-use std::{any::type_name, cell::RefCell, fs::read_to_string, sync::Mutex};
+use std::{any::type_name, cell::RefCell, fs::read_to_string, path::Path, sync::Mutex};
 use thiserror::Error;
 
 pub const DYLINT_VERSION: &str = "0.1.0";
@@ -303,7 +303,12 @@ pub fn try_init_config(sess: &Session) -> ConfigResult<()> {
             Some(Symbol::intern(&value)),
         ));
         Some(value)
-    } else if let Some(local_crate_source_file) = sess.local_crate_source_file.as_ref() {
+    } else if let Some(local_crate_source_file) = sess
+        .local_crate_source_file
+        .as_deref()
+        .map(Path::canonicalize)
+        .transpose()?
+    {
         let parent = local_crate_source_file
             .parent()
             .ok_or_else(|| ConfigErrorInner::Other("Could not get parent directory".into()))?;
