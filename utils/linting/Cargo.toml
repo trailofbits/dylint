@@ -1,6 +1,6 @@
 [package]
 name = "dylint_linting"
-version = "2.1.0"
+version = "2.1.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Utilities for writing Dylint libraries"
 edition = "2021"
@@ -15,7 +15,7 @@ serde = "1.0.148"
 thiserror = "1.0.37"
 toml = "0.5.9"
 
-dylint_internal = { version = "=2.1.0", path = "../../internal" }
+dylint_internal = { version = "=2.1.1", path = "../../internal" }
 
 [workspace]
 
