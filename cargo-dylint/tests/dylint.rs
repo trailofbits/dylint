@@ -1,5 +1,5 @@
 use anyhow::Result;
-use cargo_metadata::{Dependency, Metadata};
+use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::cargo::current_metadata;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -21,6 +21,19 @@ fn versions_are_equal() {
             "{}",
             package.name
         );
+    }
+}
+
+#[test]
+fn nightly_crates_have_same_version_as_workspace() {
+    for path in ["../driver", "../utils/linting"] {
+        let metadata = MetadataCommand::new()
+            .current_dir(path)
+            .no_deps()
+            .exec()
+            .unwrap();
+        let package = metadata.root_package().unwrap();
+        assert_eq!(package.version.to_string(), env!("CARGO_PKG_VERSION"));
     }
 }
 
