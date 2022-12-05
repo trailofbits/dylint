@@ -500,9 +500,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.137"
+version = "0.2.138"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc7fcc620a3bff7cdd7a365be3376c97191aeaccc2a603e600951e452615bf89"
+checksum = "db6d7e329c562c5dfab7a46a2afabc8b987ab9a4834c9d1ca04dc54c1546cef8"
 
 [[package]]
 name = "libgit2-sys"
@@ -592,9 +592,9 @@ checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
 
 [[package]]
 name = "openssl-sys"
-version = "0.9.77"
+version = "0.9.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b03b84c3b2d099b81f0953422b4d4ad58761589d0229b5506356afca05a3670a"
+checksum = "07d5c8cb6e57b3a3612064d7b18b117912b4ce70955c2504d4b741c9e244b132"
 dependencies = [
  "autocfg",
  "cc",
@@ -687,9 +687,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed"
-version = "6.5.0"
+version = "6.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa80de5f776fa29ff3a2cca0870336fb293304c37737f303b6bc7ac0c00e754e"
+checksum = "283ffe2f866869428c92e0d61c2f35dfb4355293cdfdc48f49e895c15f1333d1"
 dependencies = [
  "rust-embed-impl",
  "rust-embed-utils",
@@ -698,9 +698,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-impl"
-version = "6.4.0"
+version = "6.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "301d857909c92e96893b03e7a048510da1bd16b814ef18c4826e7829b6095fed"
+checksum = "31ab23d42d71fb9be1b643fe6765d292c5e14d46912d13f3ae2815ca048ea04d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -711,9 +711,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-utils"
-version = "7.4.0"
+version = "7.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f52f7adca730960f96813a30bc943e43d0abe30c2e0ec3fd14632251dbd3f41"
+checksum = "c1669d81dfabd1b5f8e2856b8bbe146c6192b0ba22162edc738ac0a5de18f054"
 dependencies = [
  "globset",
  "sha2",
@@ -821,9 +821,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.104"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ae548ec36cf198c0ef7710d3c230987c2d6d7bd98ad6edc0274462724c585ce"
+checksum = "60b9b43d45702de4c839cb9b51d9f529c5dd26a4aff255b42b1ebc03e88ee908"
 dependencies = [
  "proc-macro2",
  "quote",
