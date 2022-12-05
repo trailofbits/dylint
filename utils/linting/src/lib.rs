@@ -1,8 +1,11 @@
 #![doc = include_str!("../README.md")]
-#![feature(rustc_private)]
+#![cfg_attr(not(docsrs), feature(rustc_private))]
 #![warn(unused_extern_crates)]
 
+#[cfg(not(docsrs))]
 extern crate rustc_session;
+
+#[cfg(not(docsrs))]
 extern crate rustc_span;
 
 use cargo_metadata::{Metadata, MetadataCommand};
