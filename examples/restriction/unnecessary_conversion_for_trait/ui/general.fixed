@@ -1,7 +1,6 @@
 // run-rustfix
 
 #![allow(unused_imports, unused_parens)]
-#![feature(string_leak)]
 
 use std::{
     borrow::{Borrow, BorrowMut},
@@ -56,7 +55,6 @@ fn main() {
     let _ = std::fs::write("x", &mut s);
     let _ = std::fs::write("x", &s);
     let _ = is_empty(s.clone());
-    let _ = std::fs::write("x", s.clone());
     let _ = std::fs::write("x", s.clone());
 
     let _ = std::fs::write("x", &mut vec);
