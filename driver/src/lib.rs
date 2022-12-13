@@ -8,6 +8,7 @@ extern crate rustc_driver;
 extern crate rustc_interface;
 extern crate rustc_lint;
 extern crate rustc_session;
+extern crate rustc_span;
 
 use anyhow::{bail, ensure, Result};
 use dylint_internal::{env, parse_path_filename, rustup::is_rustc};
@@ -159,6 +160,12 @@ impl rustc_driver::Callbacks for Callbacks {
                 });
             }
             for loaded_lib in &loaded_libs {
+                if let Some(path) = loaded_lib.path.to_str() {
+                    sess.parse_sess
+                        .file_depinfo
+                        .lock()
+                        .insert(rustc_span::Symbol::intern(path));
+                }
                 loaded_lib.register_lints(sess, lint_store);
             }
             if list_enabled() {
