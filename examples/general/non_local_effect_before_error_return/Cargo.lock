@@ -559,10 +559,12 @@ dependencies = [
 name = "non_local_effect_before_error_return"
 version = "2.1.1"
 dependencies = [
+ "bitflags",
  "clippy_utils",
  "dylint_linting",
  "dylint_testing",
  "if_chain",
+ "lazy_static",
  "serde",
 ]
 
