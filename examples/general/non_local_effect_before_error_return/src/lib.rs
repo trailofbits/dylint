@@ -14,8 +14,8 @@ use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
-        pretty::write_mir_fn, BasicBlock, BasicBlockData, Body, Location, Mutability, Operand,
-        Place, ProjectionElem, Statement, StatementKind, TerminatorKind,
+        pretty::write_mir_fn, BasicBlock, Body, Location, Mutability, Operand, Place,
+        ProjectionElem, Statement, StatementKind, TerminatorKind,
     },
     ty,
 };
@@ -192,7 +192,7 @@ fn is_call_with_mut_ref<'tcx>(
         if let TerminatorKind::Call { args, fn_span, .. } = &terminator.kind;
         if args
             .iter()
-            .any(|arg| is_mut_ref_arg(cx, mir, path, basic_block, arg));
+            .any(|arg| is_mut_ref_arg(cx, mir, path, arg));
         then {
             Some(*fn_span)
         } else {
@@ -208,7 +208,6 @@ fn is_mut_ref_arg<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
-    basic_block: &BasicBlockData<'tcx>,
     arg: &Operand<'tcx>,
 ) -> bool {
     let body_args = 1..=mir.arg_count;
@@ -225,8 +224,9 @@ fn is_mut_ref_arg<'tcx>(
             return true;
         }
 
+        let basic_block = &mir[index];
+
         if i != 0 {
-            let basic_block = &mir[index];
             let terminator = basic_block.terminator();
             // smoelius: If a call assigns to a followed local, then for each argument that is a
             // mutable reference, assume it refers to the same underlying memory as the local.
