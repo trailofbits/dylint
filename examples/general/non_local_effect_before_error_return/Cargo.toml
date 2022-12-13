@@ -9,6 +9,10 @@ publish = false
 [lib]
 crate-type = ["cdylib"]
 
+[[example]]
+name = "ui"
+path = "ui/main.rs"
+
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f4850f7292efa33759b4f7f9b7621268979e9914" }
 if_chain = "1.0.2"
@@ -17,6 +21,9 @@ serde = { version = "1.0.148", features = ["derive"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
+bitflags = "1.3.2"
+lazy_static = "1.4.0"
+
 dylint_testing = { path = "../../../utils/testing" }
 
 [package.metadata.rust-analyzer]

@@ -2,20 +2,22 @@
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
 
+extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::diagnostics::span_lint;
+use clippy_utils::{diagnostics::span_lint_and_then, match_def_path, paths};
 use if_chain::if_chain;
+use rustc_errors::Diagnostic;
 use rustc_hir::intravisit::FnKind;
 use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
-        pretty::write_mir_fn, BasicBlock, Body, Location, Mutability, Operand, Place,
-        ProjectionElem, Statement, StatementKind, TerminatorKind,
+        pretty::write_mir_fn, BasicBlock, Body, Constant, Local, Location, Mutability, Operand,
+        Place, ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind,
     },
     ty,
 };
@@ -138,7 +140,7 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             cx,
             fn_kind,
             mir,
-            |path, contributing_calls| {
+            |path, contributing_calls, span| {
                 // smoelius: The path is from a return to the start block.
                 for (i, &index) in path.iter().enumerate() {
                     let basic_block = &mir.basic_blocks[index];
@@ -147,22 +149,24 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
                         if !contributing_calls.contains(index);
                         if let Some(call_span) = is_call_with_mut_ref(cx, mir, &path[i..]);
                         then {
-                            span_lint(
+                            span_lint_and_then(
                                 cx,
                                 NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
                                 call_span,
                                 "call with mutable reference before error return",
+                                error_note(span),
                             );
                         }
                     }
 
                     for statement in basic_block.statements.iter().rev() {
-                        if let Some(assign_span) = is_deref_assign(cx, mir, statement) {
-                            span_lint(
+                        if let Some(assign_span) = is_deref_assign(statement) {
+                            span_lint_and_then(
                                 cx,
                                 NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
                                 assign_span,
                                 "assignment to dereference before error return",
+                                error_note(span),
                             );
                         }
                     }
@@ -189,10 +193,19 @@ fn is_call_with_mut_ref<'tcx>(
     let basic_block = &mir[index];
     let terminator = basic_block.terminator();
     if_chain! {
-        if let TerminatorKind::Call { args, fn_span, .. } = &terminator.kind;
-        if args
-            .iter()
-            .any(|arg| is_mut_ref_arg(cx, mir, path, arg));
+        if let TerminatorKind::Call {
+            func,
+            args,
+            fn_span,
+            ..
+        } = &terminator.kind;
+        // smoelius: `deref_mut` generates too much noise.
+        if func.const_fn_def().map_or(true, |(def_id, _)| {
+            !match_def_path(cx, def_id, &paths::DEREF_MUT_TRAIT_METHOD)
+        });
+        let (locals, constants) = collect_locals_and_constants(cx, mir, path, args);
+        if locals.iter().any(|local| is_mut_ref_arg(mir, local))
+            || constants.iter().any(|constant| is_const_ref(constant));
         then {
             Some(*fn_span)
         } else {
@@ -201,44 +214,101 @@ fn is_call_with_mut_ref<'tcx>(
     }
 }
 
-// smoelius: From: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.local_decls
-// The first local is the return value pointer, followed by `arg_count` locals for the function arguments, ...
-//                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-fn is_mut_ref_arg<'tcx>(
+// smoelius: Roughly, a "followed" local is assumed to refer to mutable memory. Locals are followed
+// "narrowly" or "widely," and functions are "narrowing," "width preserving," or "widening." If a
+// function outputs to a followed local, then the function's inputs are followed according to the
+// next table:
+//
+//                    +--------------------+-------------------+---------------------------+
+//                    | narrowing function | width-preserving function | widening function |
+//   +----------------+--------------------+---------------------------+-------------------+
+//   | local followed |  mut ref inputs    |        all inputs         |                   |
+//   | narrowly       | followed narrowly  |     followed narrowly     |                   |
+//   +----------------+------------------------------------------------+                   |
+//   | local followed |                                                     all inputs     |
+//   | widely         |                                                   followed widely  |
+//   +----------------+--------------------------------------------------------------------+
+//
+// Locals are followed narrowly by default, and most functions are narrowing.
+//
+// Intuitively, a widening function casts an immutable reference to a mutable one, thereby requiring
+// that the set of followed locals be "widened."
+//
+// Width-preserving functions are a bit of a hack. They essentially provide a way of delaying the
+// determination of whether a followed local is output to by a narrowing or widening function. At
+// present, I am not sure what the "right" solution would be---perhaps another pass, preceding the
+// current one, to identify all of the widening functions.
+
+const WIDTH_PRESERVING: &[&[&str]] = &[&["core", "result", "Result", "unwrap"]];
+
+const WIDENING: &[&[&str]] = &[&["std", "sync", "mutex", "Mutex", "lock"]];
+
+fn collect_locals_and_constants<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
-    arg: &Operand<'tcx>,
-) -> bool {
-    let body_args = 1..=mir.arg_count;
+    args: &[Operand<'tcx>],
+) -> (BitSet<Local>, Vec<&'tcx Constant<'tcx>>) {
+    let mut locals_narrowly = BitSet::new_empty(mir.local_decls.len());
+    let mut locals_widely = BitSet::new_empty(mir.local_decls.len());
+    let mut constants = Vec::new();
 
-    let mut locals = BitSet::new_empty(mir.local_decls.len());
-    if let Some(arg_place) = mut_ref_operand_place(cx, mir, arg) {
-        locals.insert(arg_place.local)
-    } else {
-        return false;
-    };
+    for arg in args {
+        if let Some(arg_place) = mut_ref_operand_place(cx, mir, arg) {
+            locals_narrowly.insert(arg_place.local);
+        }
+    }
+
+    if locals_narrowly.is_empty() {
+        return (locals_narrowly, constants);
+    }
 
     for (i, &index) in path.iter().enumerate() {
-        if body_args.clone().any(|arg| locals.contains(arg.into())) {
-            return true;
-        }
-
         let basic_block = &mir[index];
 
         if i != 0 {
             let terminator = basic_block.terminator();
-            // smoelius: If a call assigns to a followed local, then for each argument that is a
-            // mutable reference, assume it refers to the same underlying memory as the local.
             if_chain! {
                 if let TerminatorKind::Call {
-                    destination, args, ..
+                    func,
+                    destination,
+                    args,
+                    ..
                 } = &terminator.kind;
-                if locals.remove(destination.local);
+                let followed_narrowly = locals_narrowly.remove(destination.local);
+                let followed_widely = locals_widely.remove(destination.local);
+                if followed_narrowly || followed_widely;
                 then {
+                    let width_preserving = func.const_fn_def().map_or(false, |(def_id, _)| {
+                        WIDTH_PRESERVING
+                            .iter()
+                            .any(|path| match_def_path(cx, def_id, path))
+                    });
+                    let widening = func.const_fn_def().map_or(false, |(def_id, _)| {
+                        WIDENING.iter().any(|path| match_def_path(cx, def_id, path))
+                    });
                     for arg in args {
-                        if let Some(arg_place) = mut_ref_operand_place(cx, mir, arg) {
-                            locals.insert(arg_place.local);
+                        let mut_ref_operand_place = mut_ref_operand_place(cx, mir, arg);
+                        let arg_place = arg.place();
+                        if_chain! {
+                            if followed_narrowly && !widening;
+                            if let Some(arg_place) = mut_ref_operand_place.or_else(|| {
+                                if width_preserving {
+                                    arg_place
+                                } else {
+                                    None
+                                }
+                            });
+                            then {
+                                locals_narrowly.insert(arg_place.local);
+                            }
+                        }
+                        if_chain! {
+                            if followed_widely || widening;
+                            if let Some(arg_place) = arg_place;
+                            then {
+                                locals_widely.insert(arg_place.local);
+                            }
                         }
                     }
                 }
@@ -246,29 +316,49 @@ fn is_mut_ref_arg<'tcx>(
         }
 
         for (statement_index, statement) in basic_block.statements.iter().enumerate().rev() {
-            if body_args.clone().any(|arg| locals.contains(arg.into())) {
-                return true;
-            }
-
             if_chain! {
                 if let StatementKind::Assign(box (assign_place, rvalue)) = &statement.kind;
-                if locals.remove(assign_place.local);
-                if let [rvalue_place, ..] = rvalue_places(
-                    rvalue,
-                    Location {
-                        block: index,
-                        statement_index,
-                    },
-                )
-                .as_slice();
+                let followed_narrowly = locals_narrowly.remove(assign_place.local);
+                let followed_widely = locals_widely.remove(assign_place.local);
+                if followed_narrowly || followed_widely;
                 then {
-                    locals.insert(rvalue_place.local);
+                    if let Rvalue::Use(Operand::Constant(constant)) = rvalue {
+                        constants.push(constant)
+                    } else if let [rvalue_place, ..] = rvalue_places(
+                        rvalue,
+                        Location {
+                            block: index,
+                            statement_index,
+                        },
+                    )
+                    .as_slice()
+                    {
+                        if followed_narrowly {
+                            locals_narrowly.insert(rvalue_place.local);
+                        }
+                        if followed_widely {
+                            locals_widely.insert(rvalue_place.local);
+                        }
+                    }
                 }
             }
         }
     }
 
-    body_args.clone().any(|arg| locals.contains(arg.into()))
+    locals_narrowly.union(&locals_widely);
+
+    (locals_narrowly, constants)
+}
+
+// smoelius: From: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.local_decls
+// The first local is the return value pointer, followed by `arg_count` locals for the function arguments, ...
+//                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fn is_mut_ref_arg<'tcx>(mir: &'tcx Body<'tcx>, local: Local) -> bool {
+    (1..=mir.arg_count).contains(&local.into()) && is_mut_ref(mir.local_decls[local].ty)
+}
+
+fn is_const_ref<'tcx>(constant: &Constant<'tcx>) -> bool {
+    constant.ty().is_ref()
 }
 
 fn mut_ref_operand_place<'tcx>(
@@ -278,10 +368,7 @@ fn mut_ref_operand_place<'tcx>(
 ) -> Option<Place<'tcx>> {
     if_chain! {
         if let Some(operand_place) = operand.place();
-        if matches!(
-            operand_place.ty(&mir.local_decls, cx.tcx).ty.kind(),
-            ty::Ref(_, _, Mutability::Mut)
-        );
+        if is_mut_ref(operand_place.ty(&mir.local_decls, cx.tcx).ty);
         then {
             Some(operand_place)
         } else {
@@ -290,11 +377,11 @@ fn mut_ref_operand_place<'tcx>(
     }
 }
 
-fn is_deref_assign<'tcx>(
-    _cx: &LateContext<'tcx>,
-    _mir: &'tcx Body<'tcx>,
-    statement: &Statement,
-) -> Option<Span> {
+fn is_mut_ref(ty: ty::Ty<'_>) -> bool {
+    matches!(ty.kind(), ty::Ref(_, _, Mutability::Mut))
+}
+
+fn is_deref_assign<'tcx>(statement: &Statement) -> Option<Span> {
     if_chain! {
         if let StatementKind::Assign(box (Place { projection, .. }, _)) = &statement.kind;
         if projection.iter().any(|elem| elem == ProjectionElem::Deref);
@@ -302,6 +389,14 @@ fn is_deref_assign<'tcx>(
             Some(statement.source_info.span)
         } else {
             None
+        }
+    }
+}
+
+fn error_note(span: Option<Span>) -> impl FnOnce(&mut Diagnostic) {
+    move |diag| {
+        if let Some(span) = span {
+            diag.span_note(span, "error is determined here");
         }
     }
 }
@@ -314,8 +409,5 @@ fn enabled(opt: &str) -> bool {
 
 #[test]
 fn ui() {
-    dylint_testing::ui_test(
-        env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-    );
+    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "ui");
 }

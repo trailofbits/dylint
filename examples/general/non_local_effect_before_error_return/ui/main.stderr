@@ -1,64 +1,147 @@
 error: assignment to dereference before error return
-  --> $DIR/main.rs:21:5
+  --> $DIR/main.rs:23:5
    |
 LL |     *flag = true;
    |     ^^^^^^^^^^^^
    |
+note: error is determined here
+  --> $DIR/main.rs:24:5
+   |
+LL |     Err(VarError::NotPresent)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: `-D non-local-effect-before-error-return` implied by `-D warnings`
 
 error: call with mutable reference before error return
-  --> $DIR/main.rs:26:8
+  --> $DIR/main.rs:28:8
    |
 LL |     xs.push(0);
    |        ^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:29:5
+   |
+LL |     Err(VarError::NotPresent)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: assignment to dereference before error return
-  --> $DIR/main.rs:31:5
+  --> $DIR/main.rs:33:5
    |
 LL |     *flag = true;
    |     ^^^^^^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:34:13
+   |
+LL |     let _ = var("X")?;
+   |             ^^^^^^^^^
 
 error: call with mutable reference before error return
-  --> $DIR/main.rs:37:8
+  --> $DIR/main.rs:39:8
    |
 LL |     xs.push(0);
    |        ^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:40:13
+   |
+LL |     let _ = var("X")?;
+   |             ^^^^^^^^^
 
 error: assignment to dereference before error return
-  --> $DIR/main.rs:56:5
+  --> $DIR/main.rs:58:5
    |
 LL |     *flag = true;
    |     ^^^^^^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:57:18
+   |
+LL |     let result = Err(VarError::NotPresent);
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: call with mutable reference before error return
-  --> $DIR/main.rs:62:8
+  --> $DIR/main.rs:64:8
    |
 LL |     xs.push(0);
    |        ^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:63:18
+   |
+LL |     let result = Err(VarError::NotPresent);
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: assignment to dereference before error return
-  --> $DIR/main.rs:93:13
+  --> $DIR/main.rs:95:13
    |
 LL |             *flag = true;
    |             ^^^^^^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:92:5
+   |
+LL |     match result {
+   |     ^^^^^^^^^^^^
 
 error: call with mutable reference before error return
-  --> $DIR/main.rs:104:16
+  --> $DIR/main.rs:106:16
    |
 LL |             xs.push(0);
    |                ^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:103:5
+   |
+LL |     match result {
+   |     ^^^^^^^^^^^^
 
 error: assignment to dereference before error return
-  --> $DIR/main.rs:130:13
+  --> $DIR/main.rs:132:13
    |
 LL |             self.balance -= amount;
    |             ^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:134:24
+   |
+LL |                 return Err(InsufficientBalance);
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: assignment to dereference before error return
-  --> $DIR/main.rs:156:9
+  --> $DIR/main.rs:158:9
    |
 LL |         *flag = true;
    |         ^^^^^^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:159:9
+   |
+LL |         Err(Error::Two)
+   |         ^^^^^^^^^^^^^^^
 
-error: aborting due to 10 previous errors
+error: call with mutable reference before error return
+  --> $DIR/main.rs:186:15
+   |
+LL |         flags.insert(flag);
+   |               ^^^^^^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:188:20
+   |
+LL |             return Err(());
+   |                    ^^^^^^^
+
+error: call with mutable reference before error return
+  --> $DIR/main.rs:203:11
+   |
+LL |         s.push('x');
+   |           ^^^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:204:9
+   |
+LL |         Err(())
+   |         ^^^^^^^
+
+error: aborting due to 12 previous errors
 

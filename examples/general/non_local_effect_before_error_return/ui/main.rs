@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::{
     env::{var, VarError},
     fs::File,
@@ -155,5 +157,50 @@ mod more_than_two_variants {
     fn deref_assign_before_err_return(flag: &mut bool) -> Result<(), Error> {
         *flag = true;
         Err(Error::Two)
+    }
+}
+
+mod bitflags {
+    bitflags::bitflags! {
+        struct Flags: u8 {
+            const FOO = 1 << 0;
+            const BAR = 1 << 1;
+        }
+    }
+
+    lazy_static::lazy_static! {
+        static ref FLAGS: std::sync::Mutex<Flags> = std::sync::Mutex::new(Flags::empty());
+    }
+
+    fn double_check(flag: Flags) -> Result<bool, ()> {
+        let flags = FLAGS.lock().unwrap();
+        let prev = flags.contains(flag);
+        if prev && !flags.contains(flag) {
+            return Err(());
+        }
+        Ok(prev)
+    }
+
+    fn write_and_check(flag: Flags) -> Result<(), ()> {
+        let mut flags = FLAGS.lock().unwrap();
+        flags.insert(flag);
+        if !flags.contains(flag) {
+            return Err(());
+        }
+        Ok(())
+    }
+}
+
+mod mut_ref_arg {
+    // smoelius: Should not lint
+    fn foo(mut s: String) -> Result<(), ()> {
+        s.push('x');
+        Err(())
+    }
+
+    // smoelius: Should lint
+    fn bar(s: &mut String) -> Result<(), ()> {
+        s.push('x');
+        Err(())
     }
 }

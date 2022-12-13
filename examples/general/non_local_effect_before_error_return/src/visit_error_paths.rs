@@ -7,6 +7,7 @@ use rustc_middle::mir::{
     BasicBlock, Body, Local, Place, Rvalue, StatementKind, Terminator, TerminatorKind,
     RETURN_PLACE, START_BLOCK,
 };
+use rustc_span::Span;
 
 // smoelius: I originally tried to write this analysis using the dataflow framework. But because
 // individual paths must be considered, and because of how complicated the state is, this analysis
@@ -31,7 +32,7 @@ pub fn visit_error_paths<'tcx>(
     cx: &LateContext<'tcx>,
     fn_kind: FnKind<'tcx>,
     mir: &'tcx Body<'tcx>,
-    visitor: impl Fn(&[BasicBlock], &BitSet<BasicBlock>),
+    visitor: impl Fn(&[BasicBlock], &BitSet<BasicBlock>, Option<Span>),
 ) {
     for (index, basic_block) in mir.basic_blocks.iter_enumerated() {
         let terminator = basic_block.terminator();
@@ -48,6 +49,7 @@ struct State {
     local: Option<Local>,
     possible_variants: BitSet<usize>,
     confirmed_variant: Option<usize>,
+    span: Option<Span>,
 }
 
 impl State {
@@ -56,6 +58,7 @@ impl State {
             local: Some(RETURN_PLACE),
             possible_variants: BitSet::new_filled(2),
             confirmed_variant: None,
+            span: None,
         }
     }
     fn on_error_path(&self) -> bool {
@@ -85,16 +88,18 @@ impl State {
         assert!(self.local.is_none());
         self.local = Some(local);
     }
-    fn remove_possibile_variant(&mut self, variant: usize) {
+    fn remove_possibile_variant(&mut self, variant: usize, span: Span) {
         if self.confirmed_variant.is_none() {
             self.possible_variants.remove(variant);
+            self.span = self.span.or(Some(span));
         }
     }
-    fn set_confirmed_variant(&mut self, variant: usize) {
+    fn set_confirmed_variant(&mut self, variant: usize, span: Span) {
         if self.possible_variants.contains(variant) {
             // smoelius: Once the variant is confirmed, there is no point in tracking the local.
             self.local = None;
             self.confirmed_variant = self.confirmed_variant.or(Some(variant));
+            self.span = self.span.or(Some(span));
         }
     }
 }
@@ -113,7 +118,7 @@ struct Guide<'cx, 'tcx, V> {
 
 impl<'cx, 'tcx, V> Guide<'cx, 'tcx, V>
 where
-    V: Fn(&[BasicBlock], &BitSet<BasicBlock>),
+    V: Fn(&[BasicBlock], &BitSet<BasicBlock>, Option<Span>),
 {
     fn new(
         work_limit: u64,
@@ -161,7 +166,10 @@ where
                     variant_index,
                 } => {
                     if state.is_local(place.local) {
-                        state.set_confirmed_variant(variant_index.as_usize());
+                        state.set_confirmed_variant(
+                            variant_index.as_usize(),
+                            statement.source_info.span,
+                        );
                     }
                 }
                 _ => {}
@@ -179,7 +187,7 @@ where
         assert!(self.blocks_visited.contains(index));
         if index == START_BLOCK {
             if state.on_error_path() {
-                (self.visitor)(&self.block_path, &self.contributing_calls);
+                (self.visitor)(&self.block_path, &self.contributing_calls, state.span);
             }
             return;
         }
@@ -214,7 +222,7 @@ where
                         then {
                             for (value, target) in targets.iter() {
                                 if target != index {
-                                    state.remove_possibile_variant(value as usize);
+                                    state.remove_possibile_variant(value as usize, terminator.source_info.span);
                                 }
                             }
                         }
