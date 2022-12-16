@@ -257,6 +257,7 @@ const ARCHITECTURES: &[&str] = &[
     "sparc64",
     "sparcv9",
     "thumbv4t",
+    "thumbv5te",
     "thumbv6m",
     "thumbv7a",
     "thumbv7em",
