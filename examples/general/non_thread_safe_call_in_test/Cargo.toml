@@ -23,7 +23,7 @@ path = "ui_late/set_current_dir.rs"
 
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f4850f7292efa33759b4f7f9b7621268979e9914" }
-if_chain = "1.0.2"
+if_chain = "1.0"
 
 dylint_internal = { path = "../../../internal" }
 dylint_linting = { path = "../../../utils/linting" }

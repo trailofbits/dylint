@@ -12,18 +12,18 @@ crate-type = ["cdylib"]
 [dependencies]
 clippy_lints = { git = "https://github.com/rust-lang/rust-clippy", rev = "f4850f7292efa33759b4f7f9b7621268979e9914" }
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f4850f7292efa33759b4f7f9b7621268979e9914" }
-serde_json = "1.0.91"
+serde_json = "1.0"
 
 dylint_internal = { path = "../../../internal" }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-anyhow = "1.0.68"
-cargo_metadata = "0.15.2"
-env_logger = "0.9.3"
-log = "0.4.17"
-tempfile = "3.3.0"
-test-log = "0.2.11"
+anyhow = "1.0"
+cargo_metadata = "0.15"
+env_logger = "0.9"
+log = "0.4"
+tempfile = "3.3"
+test-log = "0.2"
 
 dylint = { path = "../../../dylint", default-features = false }
 dylint_internal = { path = "../../../internal", features = ["git"] }

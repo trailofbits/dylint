@@ -8,25 +8,25 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
-anyhow = "1.0.68"
-clap = { version = "4.0.29", features = ["cargo", "derive", "wrap_help"] }
-env_logger = "0.9.3"
+anyhow = "1.0"
+clap = { version = "4.0", features = ["cargo", "derive", "wrap_help"] }
+env_logger = "0.9"
 
 dylint = { version = "=2.1.1", path = "../dylint", features = ["package_options"] }
 dylint_internal = { version = "=2.1.1", path = "../internal" }
 
 [dev-dependencies]
-assert_cmd = "2.0.7"
-cargo_metadata = "0.15.2"
-glob = "0.3.0"
-lazy_static = "1.4.0"
-log = "0.4.17"
-predicates = "2.1.4"
-regex = "1.7.0"
-sedregex = "0.2.5"
-semver = "1.0.16"
-tempfile = "3.3.0"
-test-log = "0.2.11"
-walkdir = "2.3.2"
+assert_cmd = "2.0"
+cargo_metadata = "0.15"
+glob = "0.3"
+lazy_static = "1.4"
+log = "0.4"
+predicates = "2.1"
+regex = "1.7"
+sedregex = "0.2"
+semver = "1.0"
+tempfile = "3.3"
+test-log = "0.2"
+walkdir = "2.3"
 
 dylint_internal = { version = "=2.1.1", path = "../internal", features = ["testing"] }
