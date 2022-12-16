@@ -8,23 +8,23 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
-anyhow = "1.0.68"
-if_chain = "1.0.2"
+anyhow = "1.0"
+if_chain = "1.0"
 
-ansi_term = { version = "0.12.1", optional = true }
-atty = { version = "0.2.14", optional = true }
-cargo_metadata = { version = "0.15.2", optional = true }
-dirs = { version = "4.0.0", optional = true }
-git2 = { version = "0.14.4", optional = true }
-log = { version = "0.4.17", optional = true }
-rust-embed = { version = "6.4.2", features = ["include-exclude"], optional = true }
-sedregex = { version = "0.2.5", optional = true }
-semver = { version = "1.0.16", optional = true }
-toml_edit = { version = "0.14.4", optional = true }
-walkdir = { version = "2.3.2", optional = true }
+ansi_term = { version = "0.12", optional = true }
+atty = { version = "0.2", optional = true }
+cargo_metadata = { version = "0.15", optional = true }
+dirs = { version = "4.0", optional = true }
+git2 = { version = "0.14", optional = true }
+log = { version = "0.4", optional = true }
+rust-embed = { version = "6.4", features = ["include-exclude"], optional = true }
+sedregex = { version = "0.2", optional = true }
+semver = { version = "1.0", optional = true }
+toml_edit = { version = "0.14", optional = true }
+walkdir = { version = "2.3", optional = true }
 
 [dev-dependencies]
-toml_edit = "0.14.4"
+toml_edit = "0.14"
 
 [features]
 cargo = ["ansi_term", "atty", "cargo_metadata", "command", "dirs"]

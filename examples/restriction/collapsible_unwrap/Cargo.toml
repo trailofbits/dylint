@@ -15,14 +15,14 @@ path = "ui/main.rs"
 
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f4850f7292efa33759b4f7f9b7621268979e9914" }
-heck = "0.4.0"
-if_chain = "1.0.2"
+heck = "0.4"
+if_chain = "1.0"
 
 dylint_internal = { path = "../../../internal" }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-toml = "0.5.10"
+toml = "0.5"
 
 dylint_testing = { path = "../../../utils/testing" }
 

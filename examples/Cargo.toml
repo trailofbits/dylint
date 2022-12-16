@@ -7,6 +7,6 @@ license = "MIT OR Apache-2.0"
 publish = false
 
 [dev-dependencies]
-cargo_metadata = "0.15.2"
+cargo_metadata = "0.15"
 
 dylint_internal = { version = "=2.1.1", path = "../internal", features = ["clippy_utils", "examples"] }

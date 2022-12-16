@@ -8,10 +8,10 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
-anyhow = "1.0.68"
-env_logger = "0.9.3"
-if_chain = "1.0.2"
-toml_edit = "0.14.4"
+anyhow = "1.0"
+env_logger = "0.9"
+if_chain = "1.0"
+toml_edit = "0.14"
 
 dylint_internal = { version = "=2.1.1", path = "../internal", features = ["cargo"] }
 
@@ -19,12 +19,12 @@ dylint_internal = { version = "=2.1.1", path = "../internal", features = ["cargo
 dylint_internal = { version = "=2.1.1", path = "../internal" }
 
 [dev-dependencies]
-assert_cmd = "2.0.7"
-predicates = "2.1.4"
-tempfile = "3.3.0"
-test-log = "0.2.11"
+assert_cmd = "2.0"
+predicates = "2.1"
+tempfile = "3.3"
+test-log = "0.2"
 
 dylint_internal = { version = "=2.1.1", path = "../internal", features = ["packaging"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-cc = "1.0.78"
+cc = "1.0"
