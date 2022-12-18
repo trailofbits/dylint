@@ -19,7 +19,7 @@ git2 = { version = "0.14.4", optional = true }
 log = { version = "0.4.17", optional = true }
 rust-embed = { version = "6.4.2", features = ["include-exclude"], optional = true }
 sedregex = { version = "0.2.5", optional = true }
-semver = { version = "1.0.14", optional = true }
+semver = { version = "1.0.15", optional = true }
 toml_edit = { version = "0.14.4", optional = true }
 walkdir = { version = "2.3.2", optional = true }
 
