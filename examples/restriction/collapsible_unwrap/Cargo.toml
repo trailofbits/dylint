@@ -22,7 +22,7 @@ dylint_internal = { path = "../../../internal" }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-toml = "0.5.9"
+toml = "0.5.10"
 
 dylint_testing = { path = "../../../utils/testing" }
 
