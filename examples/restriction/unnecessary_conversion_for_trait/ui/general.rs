@@ -1,6 +1,7 @@
 // run-rustfix
 
 #![allow(unused_imports, unused_parens)]
+#![feature(path_as_mut_os_str)]
 
 use std::{
     borrow::{Borrow, BorrowMut},
@@ -16,10 +17,10 @@ fn main() {
     let mut readable = Box::new(&[] as &[u8]);
     let mut s = String::new();
     let mut vec = Vec::<u8>::new();
+    let mut path_buf = PathBuf::from("x");
     let osstr = OsStr::new("");
     let osstring = OsString::new();
     let path = Path::new("x");
-    let path_buf = PathBuf::from("x");
     let tempdir = TempDir::new().unwrap();
     let tempfile = NamedTempFile::new().unwrap();
 
@@ -74,11 +75,13 @@ fn main() {
     let _ = is_empty_os(osstring.clone().into_boxed_os_str());
 
     let _ = std::fs::write(path.as_os_str(), "");
+    let _ = std::fs::write(PathBuf::from("x").as_mut_os_str(), "");
     let _ = std::fs::write(PathBuf::from("x").into_boxed_path().into_path_buf(), "");
     let _ = Command::new("ls").args(path.iter());
     let _ = std::fs::write(Path::new("x"), "");
     let _ = std::fs::write(path.to_path_buf(), "");
 
+    let _ = std::fs::write(path_buf.as_mut_os_string(), "");
     let _ = std::fs::write(path_buf.as_path(), "");
     let _ = std::fs::write(path_buf.clone().into_os_string(), "");
 

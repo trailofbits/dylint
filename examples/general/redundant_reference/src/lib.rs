@@ -16,7 +16,7 @@ use rustc_hir::{
     def_id::LocalDefId,
     intravisit::{walk_generic_param, walk_lifetime, Visitor},
     Expr, ExprKind, GenericParam, GenericParamKind, HirId, Item, ItemKind, Lifetime, LifetimeName,
-    MutTy, Mutability, ParamName, TyKind, VariantData,
+    MutTy, Mutability, TyKind, VariantData,
 };
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_middle::ty;
@@ -180,9 +180,9 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                         mutbl: Mutability::Not,
                     },
                 ) = field_def.ty.kind;
-                if let LifetimeName::Param(_, ParamName::Plain(ident)) = lifetime.name;
+                if let LifetimeName::Param(local_def_id) = lifetime.res;
                 if !self.config.lifetime_check || {
-                    let lifetime_uses = lifetime_uses(ident, item);
+                    let lifetime_uses = lifetime_uses(local_def_id, item);
                     lifetime_uses.len() == 1 && {
                         assert_eq!(
                             lifetime_uses.iter().copied().next().unwrap(),
@@ -232,9 +232,9 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
     }
 }
 
-fn lifetime_uses(ident: Ident, item: &Item<'_>) -> FxHashSet<HirId> {
+fn lifetime_uses(local_def_id: LocalDefId, item: &Item<'_>) -> FxHashSet<HirId> {
     let mut visitor = LifetimeUses {
-        ident,
+        local_def_id,
         uses: Default::default(),
     };
     visitor.visit_item(item);
@@ -242,15 +242,15 @@ fn lifetime_uses(ident: Ident, item: &Item<'_>) -> FxHashSet<HirId> {
 }
 
 struct LifetimeUses {
-    ident: Ident,
+    local_def_id: LocalDefId,
     uses: FxHashSet<HirId>,
 }
 
 impl<'tcx> Visitor<'tcx> for LifetimeUses {
     fn visit_lifetime(&mut self, lifetime: &'tcx Lifetime) {
         if_chain! {
-            if let LifetimeName::Param(_, ParamName::Plain(ident)) = lifetime.name;
-            if ident == self.ident;
+            if let LifetimeName::Param(local_def_id) = lifetime.res;
+            if self.local_def_id == local_def_id;
             then {
                 self.uses.insert(lifetime.hir_id);
             }

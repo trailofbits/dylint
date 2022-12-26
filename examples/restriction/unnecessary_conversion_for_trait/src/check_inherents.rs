@@ -1,5 +1,5 @@
 use super::{IGNORED_INHERENTS, WATCHED_INHERENTS};
-use clippy_utils::{def_path_res, get_trait_def_id, match_def_path, ty::get_associated_type};
+use clippy_utils::{def_path_res, get_trait_def_id, match_def_path};
 use if_chain::if_chain;
 use rustc_hir::{def_id::DefId, Unsafety};
 use rustc_lint::LateContext;
@@ -124,7 +124,7 @@ fn implements_trait_with_item<'tcx>(
     ty: ty::Ty<'tcx>,
     trait_id: DefId,
 ) -> Option<ty::Ty<'tcx>> {
-    get_associated_type(cx, replace_params_with_global_ty(cx, ty), trait_id, "Item")
+    cx.get_associated_type(replace_params_with_global_ty(cx, ty), trait_id, "Item")
 }
 
 // smoelius: This is a hack. For `get_associated_type` to return `Some(..)`, all of its argument
@@ -196,7 +196,7 @@ fn strip_as_ref<'tcx>(
         .iter()
         .find_map(|predicate| {
             if_chain! {
-                if let ty::PredicateKind::Trait(ty::TraitPredicate { trait_ref, .. }) =
+                if let ty::PredicateKind::Clause(ty::Clause::Trait(ty::TraitPredicate { trait_ref, .. })) =
                     predicate.kind().skip_binder();
                 if cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id);
                 if let [self_arg, subst_arg] = trait_ref.substs.as_slice();
