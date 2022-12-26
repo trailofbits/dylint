@@ -33,7 +33,7 @@ use rustc_middle::ty::{
     self,
     adjustment::{Adjust, Adjustment, AutoBorrow},
     subst::SubstsRef,
-    EarlyBinder, FnSig, Param, ParamTy, PredicateKind, ProjectionPredicate, Ty, TypeAndMut,
+    Clause, EarlyBinder, FnSig, Param, ParamTy, PredicateKind, ProjectionPredicate, Ty, TypeAndMut,
 };
 use rustc_span::symbol::{sym, Symbol};
 use rustc_trait_selection::traits::{
@@ -117,9 +117,11 @@ const WATCHED_INHERENTS: &[&[&str]] = &[
     &["std", "ffi", "os_str", "OsString", "into_boxed_os_str"],
     &["std", "path", "Path", "as_os_str"],
     &["std", "path", "Path", "into_path_buf"],
+    &["std", "path", "Path", "as_mut_os_str"],
     &["std", "path", "Path", "iter"],
     &["std", "path", "Path", "new"],
     &["std", "path", "Path", "to_path_buf"],
+    &["std", "path", "PathBuf", "as_mut_os_string"],
     &["std", "path", "PathBuf", "as_path"],
     &["std", "path", "PathBuf", "into_boxed_path"],
     &["std", "path", "PathBuf", "into_os_string"],
@@ -497,7 +499,8 @@ fn inner_arg_implements_traits<'tcx>(
     let projection_predicates = predicates
         .iter()
         .filter_map(|predicate| {
-            if let PredicateKind::Projection(projection_predicate) = predicate.kind().skip_binder()
+            if let PredicateKind::Clause(Clause::Projection(projection_predicate)) =
+                predicate.kind().skip_binder()
             {
                 Some(projection_predicate)
             } else {
@@ -510,7 +513,7 @@ fn inner_arg_implements_traits<'tcx>(
     if predicates
         .iter()
         .filter_map(|predicate| {
-            if let PredicateKind::Trait(trait_predicate) = predicate.kind().skip_binder()
+            if let PredicateKind::Clause(Clause::Trait(trait_predicate)) = predicate.kind().skip_binder()
                 && trait_predicate.trait_ref.self_ty() == param_ty.to_ty(cx.tcx)
             {
                 Some(trait_predicate.trait_ref.def_id)
@@ -552,7 +555,7 @@ fn inner_arg_implements_traits<'tcx>(
 }
 
 // smoelius: `replace_types` was copied from:
-// https://github.com/rust-lang/rust-clippy/blob/2d4349c22d855f4735f89d5fcfc397ecb11f5b9c/clippy_lints/src/dereference.rs#L1142-L1196
+// https://github.com/rust-lang/rust-clippy/blob/ed519ad746e31f64c4e9255be561785612532d37/clippy_lints/src/dereference.rs#L1295-L1349
 
 #[cfg_attr(
     dylint_lib = "inconsistent_qualification",
@@ -593,10 +596,10 @@ fn replace_types<'tcx>(
                     && let Some(term_ty) = projection_predicate.term.ty()
                     && let ty::Param(term_param_ty) = term_ty.kind()
                 {
-                    let item_def_id = projection_predicate.projection_ty.item_def_id;
+                    let item_def_id = projection_predicate.projection_ty.def_id;
                     let assoc_item = cx.tcx.associated_item(item_def_id);
                     let projection = cx.tcx
-                        .mk_projection(assoc_item.def_id, cx.tcx.mk_substs_trait(new_ty, &[]));
+                        .mk_projection(assoc_item.def_id, cx.tcx.mk_substs_trait(new_ty, []));
 
                     if let Ok(projected_ty) = cx.tcx.try_normalize_erasing_regions(cx.param_env, projection)
                         && substs[term_param_ty.index as usize] != ty::GenericArg::from(projected_ty)

@@ -48,3 +48,11 @@ mod use_mod {
         assert_eq!(env::var("LD_PRELOAD"), Err(env::VarError::NotPresent));
     }
 }
+
+mod trait_import {
+    use std::io::Write;
+
+    fn foo() {
+        write!(std::io::sink(), "x").unwrap();
+    }
+}

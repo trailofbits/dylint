@@ -63,7 +63,7 @@ fn fix() {
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
         .current_dir(&tempdir)
-        .args(["dylint", "--fix", LIB_NAME])
+        .args(["dylint", "--fix", LIB_NAME, "--", "--allow-dirty"])
         .assert()
         .success();
 

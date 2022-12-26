@@ -69,7 +69,8 @@ impl EarlyLintPass for EnvCargoPath {
             if mac.path == sym!(env) || mac.path == sym!(option_env);
             if let [TokenTree::Token(token, _)] = mac
                 .args
-                .inner_tokens()
+                .tokens
+                .clone()
                 .into_trees()
                 .collect::<Vec<_>>()
                 .as_slice();

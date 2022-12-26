@@ -52,7 +52,7 @@ dylint_linting::declare_late_lint! {
 }
 
 impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
-    fn check_path(&mut self, cx: &LateContext<'tcx>, path: &'tcx Path<'tcx>, hir_id: HirId) {
+    fn check_path(&mut self, cx: &LateContext<'tcx>, path: &Path<'tcx>, hir_id: HirId) {
         if_chain! {
             // smoelius: On the Dylint source code itself, simply checking
             // `path.span.in_derive_expansion()` isn't sufficient to prevent false positives.
@@ -107,7 +107,7 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
 struct UseVisitor<'cx, 'tcx, 'syms> {
     cx: &'cx LateContext<'tcx>,
     enclosing_scope_hir_id: Option<HirId>,
-    path: &'tcx Path<'tcx>,
+    path: &'cx Path<'tcx>,
     syms_prefix: &'syms [Symbol],
 }
 
@@ -142,7 +142,7 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
             if self.cx.tcx.hir().get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id;
             if let ItemKind::Use(path, use_kind) = item.kind;
             // smoelius: An exception is made for trait imports.
-            if !matches!(path.res, Res::Def(DefKind::Trait, _));
+            if !path.res.iter().any(|res| matches!(res, Res::Def(DefKind::Trait, _)));
             let syms = path
                 .segments
                 .iter()
