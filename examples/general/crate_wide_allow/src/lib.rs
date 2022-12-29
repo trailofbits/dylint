@@ -111,6 +111,7 @@ mod test {
     // smoelius: The real reason this test is slow is that setting `RUSTFLAGS` causes the metadata
     // entries to be rebuilt. Running `clippy` once and passing `--no-build` thereafter avoids this
     // problem.
+    // smoelius: Metadata entries are no longer rebuilt when `RUSTFLAGS` changes.
 
     fn test(rustflags: &str, assert: impl Fn(Assert) -> Assert) {
         let _lock = MUTEX.lock().unwrap();

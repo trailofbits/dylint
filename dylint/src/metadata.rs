@@ -10,7 +10,7 @@ use cargo::{
     util::Config,
 };
 use cargo_metadata::{Error, Metadata, MetadataCommand};
-use dylint_internal::rustup::SanitizeEnvironment;
+use dylint_internal::{env, rustup::SanitizeEnvironment};
 use glob::glob;
 use if_chain::if_chain;
 use serde::Deserialize;
@@ -314,11 +314,14 @@ fn package_library_path(
     let target_dir = target_dir(metadata, package_root, package_id)?;
 
     if !opts.no_build {
+        // smoelius: Clear `RUSTFLAGS` so that changes to it do not cause workspace metadata entries
+        // to be rebuilt.
         dylint_internal::cargo::build(
             &format!("workspace metadata entry `{}`", package_id.name()),
             opts.quiet,
         )
         .sanitize_environment()
+        .env_remove(env::RUSTFLAGS)
         .current_dir(package_root)
         .args(["--release", "--target-dir", &target_dir.to_string_lossy()])
         .success()?;
