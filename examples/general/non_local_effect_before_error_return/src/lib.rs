@@ -350,6 +350,7 @@ fn collect_locals_and_constants<'tcx>(
     (locals_narrowly, constants)
 }
 
+#[rustfmt::skip]
 // smoelius: From: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.local_decls
 // The first local is the return value pointer, followed by `arg_count` locals for the function arguments, ...
 //                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

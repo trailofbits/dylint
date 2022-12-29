@@ -40,15 +40,15 @@ fn initialize(name: &str) -> Result<&Path> {
         .get_or_try_init(|| {
             let _ = env_logger::builder().try_init();
 
-            // smoelius: Try to order failures by how informative they are: failure to build the library,
-            // failure to find the library, failure to build/find the driver.
+            // smoelius: Try to order failures by how informative they are: failure to build the
+            // library, failure to find the library, failure to build/find the driver.
 
             dylint_internal::cargo::build(&format!("library `{name}`"), false).success()?;
 
             // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-            // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is no longer
-            // the case. I am leaving the comment here for now in case removal of the `name_toolchain_map`
-            // call causes a regression.
+            // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is
+            // no longer the case. I am leaving the comment here for now in case removal
+            // of the `name_toolchain_map` call causes a regression.
             let metadata = dylint_internal::cargo::current_metadata().unwrap();
             let dylint_library_path = metadata.target_directory.join("debug");
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
@@ -164,8 +164,8 @@ fn linking_flags(
 //   - Cons: Not as easily parsable, requires synchronization (see below)
 // * Use a custom executor like Siderophile does: https://github.com/trailofbits/siderophile/blob/26c067306f6c2f66d9530dacef6b17dbf59cdf8c/src/trawl_source/mod.rs#L399
 //   - Pros: Ground truth
-//   - Cons: Seems a bit of a heavy lift
-//     Note: I think Siderophile's approach was inspired by `cargo-geiger`.
+//   - Cons: Seems a bit of a heavy lift (Note: I think Siderophile's approach was inspired by
+//     `cargo-geiger`.)
 // * Set `RUSTC_WORKSPACE_WRAPPER` to something that logs `rustc` invocations
 //   - Pros: Ground truth
 //   - Cons: Requires a separate executable/script, portability could be an issue

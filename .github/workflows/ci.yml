@@ -43,7 +43,9 @@ jobs:
           find . -name Cargo.toml -print0 | xargs -0 -n 1 dirname | xargs -n 1 cargo sort --check --grouped
 
       - name: Format
-        run: find . -name '*.rs' -exec rustfmt {} \; && git diff --exit-code
+        run: |
+          rustup install nightly
+          find . -name Cargo.toml -exec cargo +nightly fmt --manifest-path {} \; && git diff --exit-code
 
       - name: Format example READMEs
         run: ./scripts/update_example_READMEs.sh && git diff --exit-code

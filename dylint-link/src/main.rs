@@ -63,7 +63,8 @@ fn linker() -> Result<PathBuf> {
 fn default_linker() -> Result<PathBuf> {
     let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
     if rustup_toolchain.split('-').last() == Some("msvc") {
-        // MinerSebas: Removes the Release Information: "nightly-2021-04-08-x86_64-pc-windows-msvc" -> "x86_64-pc-windows-msvc"
+        // MinerSebas: Removes the Release Information: "nightly-2021-04-08-x86_64-pc-windows-msvc"
+        // -> "x86_64-pc-windows-msvc"
         // smoelius: The approach has changed slightly.
         if let Some(tool) = parse_toolchain(&rustup_toolchain)
             .and_then(|(_, target)| cc::windows_registry::find_tool(&target, "link.exe"))
@@ -120,8 +121,8 @@ where
 #[cfg(target_os = "windows")]
 fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<Option<PathBuf>> {
     // MinerSebas: On Windows the cmd line has a Limit of 8191 Characters.
-    // If your command would exceed this you can instead use a Linker Response File to set arguments.
-    // (https://docs.microsoft.com/en-us/cpp/build/reference/at-specify-a-linker-response-file?view=msvc-160)
+    // If your command would exceed this you can instead use a Linker Response File to set
+    // arguments. (https://docs.microsoft.com/en-us/cpp/build/reference/at-specify-a-linker-response-file?view=msvc-160)
 
     // MinerSebas: Read the Linker Response File
     let mut buf: Vec<u8> = Vec::new();
