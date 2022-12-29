@@ -1,5 +1,5 @@
 use assert_cmd::prelude::*;
-use dylint_internal::packaging::isolate;
+use dylint_internal::{env, packaging::isolate};
 use predicates::prelude::*;
 use std::{fs::OpenOptions, io::Write};
 use tempfile::{tempdir, tempdir_in};
@@ -106,4 +106,49 @@ path = "../../examples/general/nonexistent_library"
         .assert()
         .failure()
         .stderr(predicate::str::contains("No paths matched"));
+}
+
+#[test]
+fn rustflags_change() {
+    let tempdir = tempdir_in(".").unwrap();
+
+    dylint_internal::cargo::init("package `rustflags_change_test`", false)
+        .current_dir(&tempdir)
+        .args(["--name", "rustflags_change_test"])
+        .success()
+        .unwrap();
+
+    isolate(tempdir.path()).unwrap();
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(tempdir.path().join("Cargo.toml"))
+        .unwrap();
+
+    write!(
+        file,
+        r#"
+[[workspace.metadata.dylint.libraries]]
+path = "../../examples/general/crate_wide_allow"
+"#
+    )
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .args(["dylint", "--all"])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("Compiling"));
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .env(env::RUSTFLAGS, "--verbose")
+        .args(["dylint", "--all"])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("Compiling").not());
 }
