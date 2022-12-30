@@ -30,7 +30,8 @@ drivers.
 DYLINT_LIBRARY_PATH (default: none) is a colon-separated list of directories where Dylint searches
 for libraries.
 
-DYLINT_RUSTFLAGS (default: none) is a space-separated list of flags that Dylint passes to `rustc`.
+DYLINT_RUSTFLAGS (default: none) is a space-separated list of flags that Dylint passes to `rustc`
+when checking the packages in the workspace.
 
 METADATA EXAMPLE:
 
