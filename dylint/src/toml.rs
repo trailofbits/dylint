@@ -13,6 +13,7 @@
     dylint_lib = "non_local_effect_before_error_return",
     allow(non_local_effect_before_error_return)
 )]
+#![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 
 // smoelius: `Context::new` does not appear in the original.
 #[allow(clippy::too_many_arguments)]

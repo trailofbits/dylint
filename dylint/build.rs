@@ -1,12 +1,11 @@
 use dylint_internal::{cargo::cargo_home, env};
 use std::{fs::OpenOptions, io::Write, path::Path};
 
-#[allow(unknown_lints)]
-#[allow(env_cargo_path)]
 fn main() {
     let cargo_home = cargo_home().unwrap();
     let out_dir = env::var(env::OUT_DIR).unwrap();
 
+    #[allow(unknown_lints, env_cargo_path)]
     let dylint_manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
 
     let dylint_driver_manifest_dir = if dylint_manifest_dir.starts_with(cargo_home)

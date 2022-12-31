@@ -3,10 +3,9 @@ use anyhow::{anyhow, Result};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-#[allow(unknown_lints)]
-#[allow(env_cargo_path)]
 pub fn build() -> Result<()> {
     // smoelius: The examples use `dylint-link` as the linker, so it must be built first.
+    #[allow(unknown_lints, env_cargo_path)]
     crate::cargo::build("dylint-link", false)
         .sanitize_environment()
         .current_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("../dylint-link"))
@@ -26,9 +25,8 @@ pub fn build() -> Result<()> {
     Ok(())
 }
 
-#[allow(unknown_lints)]
-#[allow(env_cargo_path)]
 pub fn iter() -> Result<impl Iterator<Item = Result<PathBuf>>> {
+    #[allow(unknown_lints, env_cargo_path)]
     let examples = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
     let iter = WalkDir::new(examples)
         .into_iter()
