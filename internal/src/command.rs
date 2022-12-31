@@ -59,6 +59,7 @@ impl Command {
         dylint_lib = "non_local_effect_before_error_return",
         allow(non_local_effect_before_error_return)
     )]
+    #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
     pub fn output(&mut self) -> Result<Output> {
         log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());
         log::debug!("{:?}", self.command.get_current_dir());
@@ -86,6 +87,7 @@ impl Command {
         dylint_lib = "non_local_effect_before_error_return",
         allow(non_local_effect_before_error_return)
     )]
+    #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
     pub fn success(&mut self) -> Result<()> {
         log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());
         log::debug!("{:?}", self.command.get_current_dir());

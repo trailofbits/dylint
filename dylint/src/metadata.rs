@@ -229,10 +229,10 @@ fn dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
     }
 }
 
-#[allow(clippy::default_trait_access)]
 fn git_dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
     let _lock = config.acquire_package_cache_lock()?;
 
+    #[allow(clippy::default_trait_access)]
     let mut source = dep.source_id().load(config, &Default::default())?;
 
     let package_id = sample_package_id(dep, &mut *source)?;
@@ -248,6 +248,7 @@ fn git_dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
     dylint_lib = "non_local_effect_before_error_return",
     allow(non_local_effect_before_error_return)
 )]
+#[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 fn sample_package_id(dep: &Dependency, source: &mut dyn Source) -> Result<PackageId> {
     let mut package_id: Option<PackageId> = None;
 

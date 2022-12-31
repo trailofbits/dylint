@@ -72,8 +72,6 @@ fn fix() {
     assert_eq!(main_actual, MAIN_FIXED);
 }
 
-#[allow(unknown_lints)]
-#[allow(env_cargo_path)]
 fn append_workspace_metadata(path: &Path) -> Result<()> {
     let manifest = path.join("Cargo.toml");
     let mut file = OpenOptions::new()
@@ -82,6 +80,7 @@ fn append_workspace_metadata(path: &Path) -> Result<()> {
         .open(&manifest)
         .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
 
+    #[allow(unknown_lints, env_cargo_path)]
     let parent = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .ok_or_else(|| anyhow!("Could not get parent directory"))?;

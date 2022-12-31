@@ -124,8 +124,7 @@ fn readme_reference_links_are_sorted() {
     }
 }
 
-#[allow(unknown_lints)]
-#[allow(env_cargo_path)]
+#[allow(unknown_lints, env_cargo_path)]
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
     read_to_string(
         Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -145,8 +144,7 @@ fn compare_lines(left: &str, right: &str) {
 }
 
 // smoelius: Skip examples directory for now.
-#[allow(unknown_lints)]
-#[allow(env_cargo_path)]
+#[allow(unknown_lints, env_cargo_path)]
 fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
     walkdir::WalkDir::new(Path::new(env!("CARGO_MANIFEST_DIR")).join(".."))
         .into_iter()
