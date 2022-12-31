@@ -1,0 +1,75 @@
+error: `allow` could be moved closer to diagnostic source
+  --> $DIR/main.rs:6:9
+   |
+LL | #[allow(clippy::module_name_repetitions)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: `allow` could be moved here
+  --> $DIR/main.rs:8:5
+   |
+LL |     pub struct ItemStruct;
+   |     ^
+   = note: `-D overscoped-allow` implied by `-D warnings`
+
+error: `allow` could be moved closer to diagnostic source
+  --> $DIR/main.rs:14:13
+   |
+LL |     #[allow(clippy::unused_self)]
+   |             ^^^^^^^^^^^^^^^^^^^
+   |
+help: `allow` could be moved here
+  --> $DIR/main.rs:16:9
+   |
+LL |         fn foo(&self) {}
+   |         ^
+
+error: `allow` could be moved closer to diagnostic source
+  --> $DIR/main.rs:20:9
+   |
+LL | #[allow(clippy::unwrap_used)]
+   |         ^^^^^^^^^^^^^^^^^^^
+   |
+help: `allow` could be moved here
+  --> $DIR/main.rs:22:5
+   |
+LL |     Some(()).unwrap();
+   |     ^
+
+error: `allow` could be moved closer to diagnostic source
+  --> $DIR/main.rs:25:9
+   |
+LL | #[allow(clippy::unwrap_used)]
+   |         ^^^^^^^^^^^^^^^^^^^
+   |
+help: `allow` could be moved here
+  --> $DIR/main.rs:28:9
+   |
+LL |         Some(()).unwrap();
+   |         ^
+
+error: `allow` could be moved closer to diagnostic source
+  --> $DIR/main.rs:32:42
+   |
+LL | #[allow(clippy::module_name_repetitions, clippy::unwrap_used)]
+   |                                          ^^^^^^^^^^^^^^^^^^^
+   |
+help: `allow` could be moved here
+  --> $DIR/main.rs:34:5
+   |
+LL |     Some(()).unwrap();
+   |     ^
+
+error: `allow` could be moved closer to diagnostic source
+  --> $DIR/main.rs:37:25
+   |
+LL | #[cfg_attr(all(), allow(clippy::unwrap_used))]
+   |                         ^^^^^^^^^^^^^^^^^^^
+   |
+help: `allow` could be moved here
+  --> $DIR/main.rs:39:5
+   |
+LL |     Some(()).unwrap();
+   |     ^
+
+error: aborting due to 6 previous errors
+
