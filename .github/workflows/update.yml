@@ -35,7 +35,7 @@ jobs:
           find . -name Cargo.lock | while read -r X; do
             pushd "$(dirname "$X")"
             rm -f Cargo.lock
-            cargo build --workspace --all-targets
+            cargo build --all-targets
             cargo upgrade --offline
             popd
           done
