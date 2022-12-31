@@ -1,0 +1,41 @@
+[package]
+name = "overscoped_allow"
+version = "2.1.2"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "`allow` attributes whose scope could be reduced"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[[example]]
+name = "ui"
+path = "ui/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "4bdfb0741dbcecd5279a2635c3280726db0604b5" }
+if_chain = "1.0"
+rustfix = "0.6"
+serde = "1.0"
+serde_json = "1.0"
+
+dylint_internal = { path = "../../../internal" }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+assert_cmd = "2.0"
+tempfile = "3.3"
+
+dylint_testing = { path = "../../../utils/testing" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../*/*" },
+]
