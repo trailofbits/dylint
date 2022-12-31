@@ -71,8 +71,8 @@ jobs:
       #   run: |
       #     rustup toolchain install nightly
       #     cargo install cargo-udeps
-      #     cargo clean && cargo +nightly udeps --workspace --all-targets --no-default-features
-      #     cargo clean && cargo +nightly udeps --workspace --all-targets
+      #     cargo clean && cargo +nightly udeps --all-targets --no-default-features
+      #     cargo clean && cargo +nightly udeps --all-targets
 
   test:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]' }}
@@ -166,7 +166,7 @@ jobs:
         run: rustup +nightly component add llvm-tools-preview
 
       - name: Coverage
-        run: cargo llvm-cov --workspace --failure-mode all --lcov --output-path workspace.lcov
+        run: cargo llvm-cov --failure-mode all --lcov --output-path workspace.lcov
         env:
           RUSTUP_TOOLCHAIN: nightly
 
