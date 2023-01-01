@@ -1,19 +1,17 @@
 # template
 
-**What it does:**
+### What it does
 
-**Why is this bad?**
+### Why is this bad?
 
-**Known problems:** None.
+### Known problems
+Remove if none.
 
-**Example:**
-
+### Example
 ```rust
 // example code where a warning is issued
 ```
-
 Use instead:
-
 ```rust
 // example code that does not raise a warning
 ```

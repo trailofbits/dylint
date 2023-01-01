@@ -11,21 +11,19 @@ use rustc_lint::{EarlyContext, EarlyLintPass};
 use rustc_span::sym;
 
 dylint_linting::declare_early_lint! {
-    /// **What it does:** Checks for use of `#![allow(...)]` at the crate level.
+    /// ### What it does
+    /// Checks for use of `#![allow(...)]` at the crate level.
     ///
-    /// **Why is this bad?** Such uses cannot be overridden with `--warn` or `--deny` from the
-    /// command line. They *can* be overridden with `--force-warn` or `--forbid`, but one must
+    /// ### Why is this bad?
+    /// Such uses cannot be overridden with `--warn` or `--deny` from the
+    /// command line. They _can_ be overridden with `--force-warn` or `--forbid`, but one must
     /// know the `#![allow(...)]` are present to use these unconventional options.
     ///
-    /// **Known problems:** None.
-    ///
-    /// **Example:**
-    /// Bad:
+    /// ### Example
     /// ```rust
     /// #![allow(clippy::assertions_on_constants)] // in code
     /// ```
-    ///
-    /// Good:
+    /// Use instead:
     /// ```rust
     /// // Pass `--allow clippy::assertions-on-constants` on the command line.
     /// ```

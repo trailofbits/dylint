@@ -50,16 +50,15 @@ mod check_inherents;
 use check_inherents::check_inherents;
 
 dylint_linting::impl_late_lint! {
-    /// **What it does:** Checks for trait-behavior-preserving calls in positions where a trait
+    /// ### What it does
+    /// Checks for trait-behavior-preserving calls in positions where a trait
     /// implementation is expected.
     ///
-    /// **Why is this bad?** Such unnecessary calls make the code more verbose and could impact
+    /// ### Why is this bad?
+    /// Such unnecessary calls make the code more verbose and could impact
     /// performance.
     ///
-    /// **Known problems:** None.
-    ///
-    /// **Example:**
-    ///
+    /// ### Example
     /// ```rust
     /// # use std::{path::Path, process::Command};
     /// let _ = Command::new("ls").args(["-a", "-l"].iter());

@@ -31,7 +31,9 @@ jobs:
 
       - name: Prettier
         run: |
-          npm install -g prettier && prettier --check '**/*.md' '**/*.yml'
+          npm install -g prettier
+          prettier --check --ignore-path <(echo examples; echo template) '**/*.md' '**/*.yml'
+          prettier --write 'examples/**/*.md' 'internal/template/**/*.md' && [ -z "$(git diff --ignore-blank-lines)" ] && git checkout examples internal/template
           ./scripts/unquote_yaml_strings.sh && git diff --exit-code
 
       - name: Markdown link check

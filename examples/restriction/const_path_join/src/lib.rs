@@ -19,15 +19,14 @@ use rustc_middle::ty;
 use rustc_span::Span;
 
 dylint_linting::declare_late_lint! {
-    /// **What it does:** Checks for joining of constant path components.
+    /// ### What it does
+    /// Checks for joining of constant path components.
     ///
-    /// **Why is this bad?** Such paths can be constructed from string literals using `/`, since `/`
+    /// ### Why is this bad?
+    /// Such paths can be constructed from string literals using `/`, since `/`
     /// works as a path separator on both Unix and Windows (see [std::path::Path]).
     ///
-    /// **Known problems:** None.
-    ///
-    /// **Example:**
-    ///
+    /// ### Example
     /// ```rust
     /// # use std::path::PathBuf;
     /// # let _ =
@@ -41,6 +40,7 @@ dylint_linting::declare_late_lint! {
     /// PathBuf::from("../target")
     /// # ;
     /// ```
+    ///
     /// [std::path::Path]: https://doc.rust-lang.org/std/path/struct.Path.html
     pub CONST_PATH_JOIN,
     Warn,

@@ -4,14 +4,15 @@
 use rustc_lint::LateLintPass;
 
 dylint_linting::declare_late_lint! {
-    /// **What it does:** This lint does nothing. Its Rust toolchain is intentionally held back for
+    /// ### What it does
+    /// This lint does nothing. Its Rust toolchain is intentionally held back for
     /// testing purposes.
     ///
-    /// **Why is this bad?** It's not.
+    /// ### Why is this bad?
+    /// It's not.
     ///
-    /// **Known problems:** This lint does nothing.
-    ///
-    /// **Example:**
+    /// ### Known problems
+    /// This lint does nothing.
     pub STRAGGLER,
     Allow,
     "this lint does nothing"

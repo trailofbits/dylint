@@ -9,15 +9,14 @@ use rustc_hir::{Expr, ExprKind, HirId, LangItem, MatchSource, Node, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 
 dylint_linting::declare_late_lint! {
-    /// **What it does:** Checks for `?` operators embedded within a larger expression.
+    /// ### What it does
+    /// Checks for `?` operators embedded within a larger expression.
     ///
-    /// **Why is this bad?** It can be easy to overlook the `?`. Code is more readable when a `?` is
+    /// ### Why is this bad?
+    /// It can be easy to overlook the `?`. Code is more readable when a `?` is
     /// the outermost operator in an expression.
     ///
-    /// **Known problems:** None.
-    ///
-    /// **Example:**
-    ///
+    /// ### Example
     /// ```rust
     /// # use std::{env::{var, VarError}, path::PathBuf};
     /// # let _: Result<PathBuf, VarError> = (|| {
