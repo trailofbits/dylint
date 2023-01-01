@@ -14,17 +14,19 @@ use rustc_middle::ty::{subst::GenericArgKind, Ty, TyKind};
 use rustc_span::sym;
 
 dylint_linting::declare_late_lint! {
-    /// **What it does:** Checks for `?` operators applied to values of type `std::io::Result`.
+    /// ### What it does
+    /// Checks for `?` operators applied to values of type `std::io::Result`.
     ///
-    /// **Why is this bad?** Returning a `std::io::Result` could mean relevant context (e.g., files
+    /// ### Why is this bad?
+    /// Returning a `std::io::Result` could mean relevant context (e.g., files
     /// or paths involved) is lost. The problem is discussed under "Verbose IO errors" here:
     /// https://blog.yoshuawuyts.com/error-handling-survey/
     ///
-    /// **Known problems:** No interprocedural analysis is done. So if context is added by the
+    /// ### Known problems
+    /// No interprocedural analysis is done. So if context is added by the
     /// caller, it will go unnoticed.
     ///
-    /// **Example:**
-    ///
+    /// ### Example
     /// ```rust
     /// # use std::fs::File;
     /// fn foo() -> std::io::Result<()> {

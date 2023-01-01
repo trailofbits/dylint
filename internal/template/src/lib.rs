@@ -22,14 +22,14 @@ extern crate rustc_trait_selection;
 use rustc_lint::LateLintPass;
 
 dylint_linting::declare_late_lint! {
-    /// **What it does:**
+    /// ### What it does
     ///
-    /// **Why is this bad?**
+    /// ### Why is this bad?
     ///
-    /// **Known problems:** None.
+    /// ### Known problems
+    /// Remove if none.
     ///
-    /// **Example:**
-    ///
+    /// ### Example
     /// ```rust
     /// // example code where a warning is issued
     /// ```

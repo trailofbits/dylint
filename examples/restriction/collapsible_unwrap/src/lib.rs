@@ -22,18 +22,20 @@ use rustc_middle::ty;
 use rustc_span::{sym, Span};
 
 dylint_linting::impl_late_lint! {
-    /// **What it does:** Checks for an `unwrap` that could be combined with an `expect` or `unwrap`
+    /// ### What it does
+    /// Checks for an `unwrap` that could be combined with an `expect` or `unwrap`
     /// using `and_then`.
     ///
-    /// **Why is this bad?** Using `and_then`s tends to produce shorter method call chains, which
+    /// ### Why is this bad?
+    /// Using `and_then`s tends to produce shorter method call chains, which
     /// are easier to read and reason about.
     ///
-    /// **Known problems:** The lint considers only `unwrap`s in method call chains. It does not
+    /// ### Known problems
+    /// The lint considers only `unwrap`s in method call chains. It does not
     /// consider unwrapped values that are assigned to local variables, or assignments to local
     /// variables that are later unwrapped, for example.
     ///
-    /// **Example:**
-    ///
+    /// ### Example
     /// ```rust,no_run
     /// # let toml = "".parse::<toml::Value>().unwrap();
     /// let package = toml.as_table().unwrap().get("package").unwrap();
