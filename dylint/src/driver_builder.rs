@@ -136,8 +136,6 @@ fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<b
     })
 }
 
-#[allow(clippy::assertions_on_constants)]
-#[allow(clippy::expect_used)]
 fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
     let package = tempdir.path();

@@ -292,7 +292,6 @@ fn git_dependency_root_from_package<'a>(
     }
 }
 
-#[allow(clippy::unwrap_used)]
 fn package_id(source_id: SourceId, package_root: &Path) -> Result<PackageId> {
     let metadata = MetadataCommand::new()
         .current_dir(package_root)
