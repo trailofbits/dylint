@@ -155,7 +155,7 @@ Combine with `--all` to list all lints in all discovered libraries."
 
         #[clap(
             long,
-            help = "Unix only/experimental: Update dependencies and search for the earliest \
+            help = "Unix only/experimental: Update dependencies and search for the most recent \
             applicable toolchain"
         )]
         bisect: bool,
