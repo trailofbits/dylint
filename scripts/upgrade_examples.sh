@@ -48,7 +48,9 @@ for EXAMPLE in examples/*/* internal/template; do
             pushd examples/testing/straggler
             sed -i "s/^\(clippy_utils\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$PREV_REV\3/" Cargo.toml
             sed -i "s/^channel = \"[^\"]*\"$/$PREV_CHANNEL/" rust-toolchain
-            cargo build --all-targets
+            # smoelius: If the upgraded library does not build, let CI fail after the PR has been
+            # created, not now.
+            # cargo build --all-targets
             popd
         fi
     fi
@@ -57,7 +59,7 @@ for EXAMPLE in examples/*/* internal/template; do
         mv "$EXAMPLE"/Cargo.toml~ "$EXAMPLE"/Cargo.toml
     fi
 
-    $CARGO_DYLINT upgrade "$EXAMPLE" --bisect
+    $CARGO_DYLINT upgrade "$EXAMPLE"
 
     if [[ "$EXAMPLE" = 'internal/template' ]]; then
         mv "$EXAMPLE"/Cargo.toml "$EXAMPLE"/Cargo.toml~

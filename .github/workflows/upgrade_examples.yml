@@ -19,16 +19,16 @@ jobs:
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
           ssh-key: ${{ secrets.PR_SSH_KEY }}
 
-      - name: Install cargo-bisect-rustc
-        run: cargo install cargo-bisect-rustc
-
-      - name: Install dylint-link
-        run: cargo install --path ./dylint-link
-
       - name: Upgrade examples
-        run: scripts/upgrade_examples.sh
+        id: upgrade-examples
+        run: |
+          scripts/upgrade_examples.sh
+          if git diff --name-only | grep -v '\<Cargo.lock$'; then
+            echo 'create-pull-request=1' >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Create pull request
+        if: ${{ steps.upgrade-examples.outputs.create-pull-request != 0 }}
         uses: peter-evans/create-pull-request@v4
         with:
           title: Upgrade examples
