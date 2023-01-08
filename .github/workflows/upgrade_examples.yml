@@ -20,15 +20,11 @@ jobs:
           ssh-key: ${{ secrets.PR_SSH_KEY }}
 
       - name: Upgrade examples
-        id: upgrade-examples
         run: |
           scripts/upgrade_examples.sh
-          if git diff --name-only | grep -v '\<Cargo.lock$'; then
-            echo 'create-pull-request=1' >> "$GITHUB_OUTPUT"
-          fi
+          git diff --name-only
 
       - name: Create pull request
-        if: ${{ steps.upgrade-examples.outputs.create-pull-request != 0 }}
         uses: peter-evans/create-pull-request@v4
         with:
           title: Upgrade examples
