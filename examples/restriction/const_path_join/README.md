@@ -19,4 +19,4 @@ Use instead:
 PathBuf::from("../target")
 ```
 
-[std::path::path]: https://doc.rust-lang.org/std/path/struct.Path.html
+[std::path::Path]: https://doc.rust-lang.org/std/path/struct.Path.html
