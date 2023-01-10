@@ -217,7 +217,7 @@ Dylint results can be viewed in VS Code using [rust-analyzer]. To do so, add the
 If you want to use rust-analyzer inside a lint library, you need to add the following to your VS Code `settings.json` file:
 
 ```json
-    "rust-analyzer.rustcSource": "discover",
+    "rust-analyzer.rustc.source": "discover",
 ```
 
 And add the following to the library's `Cargo.toml` file:
