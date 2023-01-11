@@ -133,7 +133,7 @@ dependencies = [
 
 [[package]]
 name = "collapsible_unwrap"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -244,7 +244,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -265,7 +265,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -281,7 +281,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -294,7 +294,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "anyhow",
  "cargo_metadata",

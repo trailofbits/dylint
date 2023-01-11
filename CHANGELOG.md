@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.2
+
+- Rerun `cargo check` when library code changes ([6235e99](https://github.com/trailofbits/dylint/commit/6235e9993aa374a8a568fbbda4c333d718985835))
+- Clear `RUSTFLAGS` when building workspace metadata entries ([a5f0d4f](https://github.com/trailofbits/dylint/commit/a5f0d4ffe13b20a29681759191275456a3cd236b))
+- Fix help messages ([cc10586](https://github.com/trailofbits/dylint/commit/cc105862ddd78ddf3379a83e27401100d6242fa5) and [9d60366](https://github.com/trailofbits/dylint/commit/9d603667cd5096fea01b7c635d1d24cceea73ade))
+- Fix rust-analyzer configuration in [VS Code integration](https://github.com/trailofbits/dylint#vs-code-integration) section of README ([#540](https://github.com/trailofbits/dylint/pull/540))&mdash;thanks [@fcasal](https://github.com/fcasal)
+
 ## 2.1.1
 
 - Fix a bug that would cause `dylint_linting::init_config` to fail when run on a build.rs file in the workspace root ([#503](https://github.com/trailofbits/dylint/pull/503))
