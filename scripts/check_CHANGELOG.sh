@@ -23,3 +23,5 @@ WORKSPACE="$(realpath "$SCRIPTS"/..)"
 cd "$WORKSPACE"
 
 grep "^## $VERSION$" CHANGELOG.md
+
+scripts/lint_CHANGELOG.sh
