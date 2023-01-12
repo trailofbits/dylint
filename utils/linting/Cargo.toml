@@ -20,6 +20,9 @@ dylint_internal = { version = "=2.1.2", path = "../../internal" }
 [package.metadata.docs.rs]
 rustdoc-args = ["--cfg", "docsrs"]
 
+[package.metadata.rust-analyzer]
+rustc_private = true
+
 [workspace]
 
 [workspace.metadata.dylint]
