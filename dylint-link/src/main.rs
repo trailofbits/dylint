@@ -363,6 +363,7 @@ linker = "false"
 
         std::process::Command::new("cargo")
             .env(env::CARGO_HOME, cargo_home.path())
+            .env(env::CARGO_TERM_COLOR, "never")
             .current_dir(&package)
             .arg("build")
             .assert()
