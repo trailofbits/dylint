@@ -173,7 +173,8 @@ fn list_by_path() {
             .to_string_lossy(),
     )
     .ok()
-    .and_then(|mut paths| paths.next())
+    .as_mut()
+    .and_then(Iterator::next)
     .unwrap()
     .unwrap();
 
