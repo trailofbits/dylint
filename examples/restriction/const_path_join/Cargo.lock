@@ -156,7 +156,7 @@ dependencies = [
 
 [[package]]
 name = "const_path_join"
-version = "2.1.2"
+version = "2.1.3"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -243,7 +243,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.1.2"
+version = "2.1.3"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -264,7 +264,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.1.2"
+version = "2.1.3"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -280,7 +280,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.1.2"
+version = "2.1.3"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -293,7 +293,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.1.2"
+version = "2.1.3"
 dependencies = [
  "anyhow",
  "cargo_metadata",
