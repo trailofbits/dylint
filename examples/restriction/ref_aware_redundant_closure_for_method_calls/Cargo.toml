@@ -1,0 +1,38 @@
+[package]
+name = "ref_aware_redundant_closure_for_method_calls"
+version = "2.1.4"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A ref-aware fork of `redundant_closure_for_method_calls`"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[[example]]
+name = "eta"
+path = "ui/eta.rs"
+
+[[example]]
+name = "ref_aware"
+path = "ui/ref_aware.rs"
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1480cea393d0cee195e59949eabdfbcf1230f7f9" }
+if_chain = "1.0"
+
+dylint_internal = { path = "../../../internal" }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../*/*" },
+]
