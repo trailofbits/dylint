@@ -1,0 +1,28 @@
+error: redundant closure
+  --> $DIR/ref_aware.rs:29:9
+   |
+LL |         .and_then(|mut entries| entries.next())
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: replace the closure with the method itself: `.as_mut().and_then(std::iter::Iterator::next)`
+   |
+   = note: `-D ref-aware-redundant-closure-for-method-calls` implied by `-D warnings`
+
+error: redundant closure
+  --> $DIR/ref_aware.rs:32:36
+   |
+LL |     let _ = Some(String::from("a")).map(|s| s.is_empty());
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^ help: replace the closure with the method itself: `.as_ref().map(std::string::String::is_empty)`
+
+error: redundant closure
+  --> $DIR/ref_aware.rs:33:36
+   |
+LL |     let _ = Some(String::from("a")).map(|s| s.to_uppercase());
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: replace the closure with the method itself: `.as_deref().map(str::to_uppercase)`
+
+error: redundant closure
+  --> $DIR/ref_aware.rs:34:49
+   |
+LL |     let _ = Some(DerefMutExample { value: 'a' }).map(|mut x| x.make_ascii_uppercase());
+   |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: replace the closure with the method itself: `.as_deref_mut().map(char::make_ascii_uppercase)`
+
+error: aborting due to 4 previous errors
+
