@@ -18,7 +18,7 @@ toml = "0.5"
 dylint_internal = { version = "=2.1.2", path = "../../internal" }
 
 [package.metadata.docs.rs]
-rustc-args = ["--cfg", "docsrs"]
+rustdoc-args = ["--cfg", "docsrs"]
 
 [workspace]
 
