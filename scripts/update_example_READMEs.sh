@@ -15,7 +15,7 @@ cd "$WORKSPACE"/examples
 
 TMP="$(mktemp)"
 
-CATEGORIES=(general restriction testing)
+CATEGORIES=(general supplementary restriction testing)
 LISTED=
 
 IFS=
