@@ -333,8 +333,7 @@ fn target_dir(metadata: &Metadata, package_root: &Path, _package_id: PackageId) 
     let toolchain = dylint_internal::rustup::active_toolchain(package_root)?;
     Ok(metadata
         .target_directory
-        .join("dylint")
-        .join("libraries")
+        .join("dylint/libraries")
         .join(toolchain)
         .into())
 }
