@@ -10,7 +10,7 @@ use rustc_middle::ty::{
 };
 use rustc_span::symbol::sym;
 
-pub(super) fn check_inherents<I: Iterator<Item = DefId>>(
+pub fn check_inherents<I: Iterator<Item = DefId>>(
     cx: &LateContext<'_>,
     inherent_def_ids: I,
 ) {
@@ -95,7 +95,7 @@ pub(super) fn check_inherents<I: Iterator<Item = DefId>>(
     for impl_def_id in type_paths
         .iter()
         .flat_map(|type_path| def_path_res(cx, type_path))
-        .flat_map(|res| res.opt_def_id())
+        .filter_map(|res| res.opt_def_id())
         .flat_map(|def_id| cx.tcx.inherent_impls(def_id))
         .copied()
         .chain(inherent_def_ids.map(|def_id| cx.tcx.parent(def_id)))

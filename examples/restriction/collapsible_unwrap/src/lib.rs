@@ -78,6 +78,7 @@ impl CollapsibleUnwrap {
         let mut and_then_span_sugg = None;
         let mut unwrap_span_sugg = None;
 
+        #[allow(clippy::while_let_loop)]
         loop {
             if_chain! {
                 if let Some((method, mut recv, _, _, span)) = method_call(expr);
@@ -199,7 +200,7 @@ fn suggest_name_from_type(cx: &LateContext<'_>, ty: ty::Ty<'_>) -> String {
         None
     }
     .and_then(|def_id| cx.get_def_path(def_id).last().copied())
-    .map_or(String::from("value"), |sym| sym.as_str().to_snake_case())
+    .map_or_else(|| String::from("value"), |sym| sym.as_str().to_snake_case())
 }
 
 fn is_option(cx: &LateContext<'_>, ty: ty::Ty<'_>) -> bool {

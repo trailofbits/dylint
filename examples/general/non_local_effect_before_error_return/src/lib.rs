@@ -124,7 +124,7 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             return;
         }
 
-        if !is_result(cx, cx.typeck_results().expr_ty(&body.value)) {
+        if !is_result(cx, cx.typeck_results().expr_ty(body.value)) {
             return;
         }
 
@@ -293,7 +293,7 @@ fn collect_locals_and_constants<'tcx>(
                         let arg_place = arg.place();
                         if_chain! {
                             if followed_narrowly && !widening;
-                            if let Some(arg_place) = mut_ref_operand_place.or_else(|| {
+                            if let Some(arg_place) = mut_ref_operand_place.or({
                                 if width_preserving {
                                     arg_place
                                 } else {
@@ -324,7 +324,7 @@ fn collect_locals_and_constants<'tcx>(
                 if followed_narrowly || followed_widely;
                 then {
                     if let Rvalue::Use(Operand::Constant(constant)) = rvalue {
-                        constants.push(constant)
+                        constants.push(constant);
                     } else if let [rvalue_place, ..] = rvalue_places(
                         rvalue,
                         Location {
@@ -359,7 +359,7 @@ fn is_mut_ref_arg<'tcx>(mir: &'tcx Body<'tcx>, local: Local) -> bool {
     (1..=mir.arg_count).contains(&local.into()) && is_mut_ref(mir.local_decls[local].ty)
 }
 
-fn is_const_ref<'tcx>(constant: &Constant<'tcx>) -> bool {
+fn is_const_ref(constant: &Constant<'_>) -> bool {
     constant.ty().is_ref()
 }
 
@@ -383,7 +383,7 @@ fn is_mut_ref(ty: ty::Ty<'_>) -> bool {
     matches!(ty.kind(), ty::Ref(_, _, Mutability::Mut))
 }
 
-fn is_deref_assign<'tcx>(statement: &Statement) -> Option<Span> {
+fn is_deref_assign(statement: &Statement) -> Option<Span> {
     if_chain! {
         if let StatementKind::Assign(box (Place { projection, .. }, _)) = &statement.kind;
         if projection.iter().any(|elem| elem == ProjectionElem::Deref);

@@ -73,7 +73,7 @@ impl EarlyLintPass for NonThreadSafeCallInTest {
         if_chain! {
             if self.in_test_item();
             if let ExprKind::Call(callee, _) = &expr.kind;
-            if let Some(path) = is_blacklisted_function(&*callee);
+            if let Some(path) = is_blacklisted_function(callee);
             then {
                 span_lint(
                     cx,
@@ -118,12 +118,11 @@ fn is_test_item(item: &Item) -> bool {
 
 fn is_blacklisted_function(callee: &Expr) -> Option<&'static [&'static str]> {
     if let ExprKind::Path(None, path) = &callee.kind {
-        let symbols: Vec<&str> = path
+        let strs: Vec<&str> = path
             .segments
             .iter()
             .map(|segment| segment.ident.as_str())
             .collect();
-        let strs: Vec<&str> = symbols.iter().map(|&symbol| &*symbol).collect();
         crate::blacklist::BLACKLIST
             .iter()
             .copied()

@@ -107,7 +107,6 @@ fn maybe_build_libraries(
     Ok(paths.into_iter().flatten().collect())
 }
 
-#[allow(clippy::option_if_let_else)]
 fn maybe_build_packages(
     opts: &crate::Dylint,
     metadata: &Metadata,

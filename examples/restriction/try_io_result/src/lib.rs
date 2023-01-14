@@ -60,7 +60,7 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
             let body_owner_hir_id = cx.tcx.hir().enclosing_body_owner(expr.hir_id);
             let body_id = cx.tcx.hir().body_owned_by(body_owner_hir_id);
             let body = cx.tcx.hir().body(body_id);
-            let body_ty = cx.typeck_results().expr_ty(&body.value);
+            let body_ty = cx.typeck_results().expr_ty(body.value);
             if !is_io_result(cx, body_ty);
             then {
                 span_lint_and_help(

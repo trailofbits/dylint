@@ -154,6 +154,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
         }
     }
 
+    #[allow(clippy::nonminimal_bool)]
     fn check_crate_post(&mut self, cx: &LateContext<'tcx>) {
         for (
             (local_def_id, field),
@@ -199,7 +200,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                                 " is the only field of `{}` that uses lifetime `{}`, and",
                                 item.ident, lifetime
                             ),
-                            format!(" to eliminate the need for `{}`", lifetime),
+                            format!(" to eliminate the need for `{lifetime}`"),
                         )
                     } else {
                         (String::new(), " instead".to_owned())
@@ -210,17 +211,15 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                         REDUNDANT_REFERENCE,
                         field_def.span,
                         &format!(
-                            "`.{}`{} is used only to read `.{}.{}`, \
-                        whose type `{}` implements `Copy`",
-                            field, lifetime_msg, field, subfield, subfield_ty
+                            "`.{field}`{lifetime_msg} is used only to read `.{field}.{subfield}`, \
+                        whose type `{subfield_ty}` implements `Copy`"
                         ),
                         |diag| {
                             for access_span in access_spans {
                                 diag.span_note(*access_span, "read here");
                             }
                             diag.help(&format!(
-                                "consider storing a copy of `.{}.{}`{}",
-                                field, subfield, lifetime_help
+                                "consider storing a copy of `.{field}.{subfield}`{lifetime_help}"
                             ));
                             diag
                         },
@@ -234,7 +233,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
 fn lifetime_uses(local_def_id: LocalDefId, item: &Item<'_>) -> FxHashSet<HirId> {
     let mut visitor = LifetimeUses {
         local_def_id,
-        uses: Default::default(),
+        uses: FxHashSet::default(),
     };
     visitor.visit_item(item);
     visitor.uses

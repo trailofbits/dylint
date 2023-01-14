@@ -81,7 +81,7 @@ impl LoadedLibrary {
             Ok(())
         })()
         .unwrap_or_else(|err| {
-            sess.err(&err.to_string());
+            sess.err(err.to_string());
         });
     }
 }
@@ -293,7 +293,7 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
     }
     for path in paths {
         if let Some((name, _)) = parse_path_filename(path.as_ref()) {
-            rustc_args.push(format!(r#"--cfg=dylint_lib="{}""#, name));
+            rustc_args.push(format!(r#"--cfg=dylint_lib="{name}""#));
         } else {
             bail!("could not parse `{}`", path.as_ref().to_string_lossy());
         }

@@ -165,6 +165,7 @@ const MAIN_RS: &str = "fn main() {
 }";
 
 impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
+    #[allow(clippy::too_many_lines)]
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         if_chain! {
             if let Some((maybe_call, maybe_arg, ancestor_mutabilities)) =
@@ -185,6 +186,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                 let mut strip_unnecessary_conversions = |mut expr, mut mutabilities| {
                     let mut refs_prefix = None;
 
+                    #[allow(clippy::while_let_loop)]
                     loop {
                         if_chain! {
                             if let Some((inner_callee_def_id, _, inner_receiver, inner_args)) =
@@ -223,7 +225,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                                             cx,
                                             UNNECESSARY_CONVERSION_FOR_TRAIT,
                                             expr.span,
-                                            &format!("ignoring {:?}", inner_callee_path),
+                                            &format!("ignoring {inner_callee_path:?}"),
                                         );
                                     }
                                     break;
@@ -256,7 +258,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                         } else {
                             (false, "inner argument")
                         };
-                    let msg = format!("the {} implements the required traits", subject);
+                    let msg = format!("the {subject} implements the required traits");
                     if is_bare_method_call && refs_prefix.is_empty() {
                         span_lint_and_sugg(
                             cx,
@@ -274,7 +276,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             maybe_arg.span,
                             &msg,
                             "use",
-                            format!("{}{}", refs_prefix, snippet),
+                            format!("{refs_prefix}{snippet}"),
                             Applicability::MachineApplicable,
                         );
                     }
@@ -297,7 +299,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                 .open(&path)
                 .unwrap();
             for path in &self.callee_paths {
-                writeln!(file, "{:?}", path).unwrap();
+                writeln!(file, "{path:?}").unwrap();
             }
         }
 
@@ -376,7 +378,7 @@ mod test {
 
         for (left, right) in combined_watchlist
             .iter()
-            .map(|path| format!("{:?}", path))
+            .map(|path| format!("{path:?}"))
             .zip(coverage_lines.iter())
         {
             assert_eq!(&left, right);

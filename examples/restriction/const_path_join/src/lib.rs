@@ -55,12 +55,9 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
         }
         let path = components.join("/");
         let (span, sugg) = if let Some(partial_span) = maybe_partial_span {
-            (partial_span, format!(r#".join("{}")"#, path))
+            (partial_span, format!(r#".join("{path}")"#))
         } else {
-            (
-                expr.span,
-                format!(r#"std::path::PathBuf::from("{}")"#, path),
-            )
+            (expr.span, format!(r#"std::path::PathBuf::from("{path}")"#))
         };
         span_lint_and_sugg(
             cx,
@@ -78,6 +75,7 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
     let mut components_reversed = Vec::new();
     let mut partial_span = expr.span.with_lo(expr.span.hi());
 
+    #[allow(clippy::while_let_loop)]
     loop {
         if_chain! {
             if let ExprKind::MethodCall(_, receiver, [arg], _) = expr.kind;
