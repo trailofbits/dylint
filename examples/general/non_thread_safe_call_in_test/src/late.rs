@@ -77,7 +77,7 @@ impl<'tcx> LateLintPass<'tcx> for NonThreadSafeCallInTest {
 }
 
 impl NonThreadSafeCallInTest {
-    fn find_test_fns<'tcx>(&mut self, cx: &LateContext<'tcx>) {
+    fn find_test_fns(&mut self, cx: &LateContext<'_>) {
         for item_id in cx.tcx.hir().items() {
             let item = cx.tcx.hir().item(item_id);
             // smoelius:
@@ -140,21 +140,21 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
                         path.join("::")
                     ),
                     Some(self.item.ident.span),
-                    &format!("the call is reachable from at least this test"),
+                    "the call is reachable from at least this test",
                 );
                 return;
-            } else {
-                if_chain! {
-                    if let Some(callee_def_id) = path_def_id(self.cx, *callee);
-                    if let Some(local_def_id) = callee_def_id.as_local();
-                    if !self.visited.contains(&local_def_id);
-                    let _ = self.visited.insert(local_def_id);
-                    if let Some(body_id) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id);
-                    then {
-                        let body = self.cx.tcx.hir().body(body_id);
-                        walk_body(self, body);
-                        return;
-                    }
+            }
+
+            if_chain! {
+                if let Some(callee_def_id) = path_def_id(self.cx, *callee);
+                if let Some(local_def_id) = callee_def_id.as_local();
+                if !self.visited.contains(&local_def_id);
+                let _ = self.visited.insert(local_def_id);
+                if let Some(body_id) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id);
+                then {
+                    let body = self.cx.tcx.hir().body(body_id);
+                    walk_body(self, body);
+                    return;
                 }
             }
         }

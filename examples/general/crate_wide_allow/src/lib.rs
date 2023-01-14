@@ -56,9 +56,9 @@ impl EarlyLintPass for CrateWideAllow {
                         cx,
                         CRATE_WIDE_ALLOW,
                         attr.span,
-                        &format!("silently overrides `--warn {}` and `--deny {}`", path, path),
+                        &format!("silently overrides `--warn {path}` and `--deny {path}`"),
                         None,
-                        &format!("pass `--allow {}` on the command line", path),
+                        &format!("pass `--allow {path}` on the command line"),
                     );
                 }
             }
@@ -136,7 +136,7 @@ mod test {
             let mut command = Command::new(&cargo_dylint);
             command
                 .env_remove(env::DYLINT_LIBRARY_PATH)
-                .args(&["dylint", "--lib", "clippy"]);
+                .args(["dylint", "--lib", "clippy"]);
             if let Some(rustflags) = example_rustflags {
                 command.env(
                     env::RUSTFLAGS,

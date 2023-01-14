@@ -123,7 +123,7 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                     if let ty::Tuple(tys) = referent_ty.kind();
                     if let PatKind::Binding(BindingAnnotation(ByRef::No, _), hir_id, ident, None) =
                         pat.kind;
-                    if let Some(projections) = exclusively_projected(cx.tcx, hir_id, &body.value);
+                    if let Some(projections) = exclusively_projected(cx.tcx, hir_id, body.value);
                     then {
                         let tuple_pattern =
                             build_tuple_pattern(ident.name.as_str(), &projections, tys.len());
@@ -154,7 +154,7 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                         self.config.explicit_deref_check,
                         cx,
                         hir_ids,
-                        &body.value,
+                        body.value,
                     );
                     if n_derefs > 0;
                     then {
@@ -231,7 +231,7 @@ fn build_tuple_pattern(ident: &str, projections: &FxHashSet<usize>, size: usize)
     let mut buf = "(".to_owned();
     for i in 0..size {
         if projections.contains(&i) {
-            write!(buf, "{}_{}", ident, i).unwrap();
+            write!(buf, "{ident}_{i}").unwrap();
         } else {
             write!(buf, "_").unwrap();
         }

@@ -91,7 +91,6 @@ fn dylint_library_paths() -> Result<Vec<(PathBuf, bool)>> {
     Ok(paths)
 }
 
-#[allow(clippy::option_if_let_else)]
 fn dylint_libraries_in(
     path: &Path,
 ) -> Result<impl Iterator<Item = Result<(String, String, PathBuf)>>> {

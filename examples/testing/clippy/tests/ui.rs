@@ -35,7 +35,7 @@ fn ui() {
     // smoelius: This is no longer true. See comment in `dylint_testing::initialize`.
     let metadata = dylint_internal::cargo::current_metadata().unwrap();
     let dylint_library_path = metadata.target_directory.join("debug");
-    set_var(env::DYLINT_LIBRARY_PATH, &dylint_library_path);
+    set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
 
     let dylint_libs = dylint_testing::dylint_libs("clippy").unwrap();
     let driver =
@@ -57,7 +57,7 @@ fn ui() {
             (env::CLIPPY_DRIVER_PATH, &*driver.to_string_lossy()),
             (env::DYLINT_RUSTFLAGS, r#"--cfg feature="cargo-clippy""#),
         ])
-        .args(&["--test", "compile-test"]);
+        .args(["--test", "compile-test"]);
 
     // smoelius: Error messages like the following have occurred in Windows GitHub workflows:
     //   LINK : fatal error LNK1318: Unexpected PDB error; OK (0) 'D:\a\dylint\dylint\examples\
@@ -149,7 +149,7 @@ fn adjust_macro_use_imports_test(src_base: &Path) -> Result<()> {
         &stderr_file,
         permuted
             .iter()
-            .map(|line| format!("{}\n", line))
+            .map(|line| format!("{line}\n"))
             .collect::<String>(),
     )
     .with_context(|| format!("Could not write to `{}`", stderr_file.to_string_lossy()))?;

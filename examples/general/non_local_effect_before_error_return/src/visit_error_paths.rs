@@ -242,10 +242,10 @@ where
     fn work(&mut self) -> bool {
         if self.work >= self.work_limit {
             let name = match self.fn_kind {
-                FnKind::ItemFn(ident, _, _) | FnKind::Method(ident, _) => format!("`{}`", ident),
+                FnKind::ItemFn(ident, _, _) | FnKind::Method(ident, _) => format!("`{ident}`"),
                 FnKind::Closure => "closure".to_owned(),
             };
-            self.cx.sess().warn(&format!(
+            self.cx.sess().warn(format!(
                 "reached work limit ({}) while checking {}; set `{}.work_limit` in `dylint.toml` to override",
                 self.work_limit,
                 name,

@@ -124,7 +124,7 @@ impl<'cx, 'tcx, 'syms> UseVisitor<'cx, 'tcx, 'syms> {
             Node::ImplItem(impl_item) => self.visit_impl_item(impl_item),
             Node::Block(block) => self.visit_block(block),
             _ => {
-                panic!("Unexpected node: {:?}", node)
+                panic!("Unexpected node: {node:?}")
             }
         }
     }
@@ -167,7 +167,7 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
                     self.path.span,
                     "inconsistent qualification",
                     Some(item.span),
-                    &format!("items from `{}` were imported here", prefix),
+                    &format!("items from `{prefix}` were imported here"),
                 );
             }
         }

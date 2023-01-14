@@ -78,7 +78,7 @@ impl EarlyLintPass for EnvCargoPath {
                 .as_slice();
             if let TokenKind::Literal(lit) = token.kind;
             if lit.kind == LitKind::Str;
-            if is_blacklisted_variable(&lit.symbol.as_str());
+            if is_blacklisted_variable(lit.symbol.as_str());
             then {
                 span_lint(
                     cx,
