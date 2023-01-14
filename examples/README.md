@@ -2,8 +2,9 @@
 
 The example libraries are separated into the following three categories:
 
-- [general] - applicable to most projects
-- [restriction] - would likely be considered "restriction lints" by [Clippy], e.g., reflect concerns not necessarily held by all authors
+- [general] - significant concerns; may produce false positives
+- [supplementary] - lesser concerns, but with a low false positive rate
+- [restriction] - lesser or stylistic concerns; may produce false positives (similar to [Clippy]'s "restriction" category)
 - [testing] - used only for testing purposes
 
 ## General
@@ -15,7 +16,14 @@ The example libraries are separated into the following three categories:
 | [`env_cargo_path`](./general/env_cargo_path)                                             | A lint to check for `env!` applied to Cargo environment variables containing paths |
 | [`non_local_effect_before_error_return`](./general/non_local_effect_before_error_return) | A lint to check for non-local effects before return of an error                    |
 | [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test)                 | A lint to check for non-thread-safe function calls in tests                        |
-| [`redundant_reference`](./general/redundant_reference)                                   | A lint to check for reference fields used only to read one copyable subfield       |
+
+## Supplementary
+
+| Example                                                                                | Description                                                                  |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [`overscoped_allow`](./supplementary/overscoped_allow)                                 | `allow` attributes whose scope could be reduced                              |
+| [`redundant_reference`](./supplementary/redundant_reference)                           | A lint to check for reference fields used only to read one copyable subfield |
+| [`unnecessary_conversion_for_trait`](./supplementary/unnecessary_conversion_for_trait) | A lint to check for unnecessary trait-behavior-preserving calls              |
 
 ## Restriction
 
@@ -25,12 +33,10 @@ The example libraries are separated into the following three categories:
 | [`const_path_join`](./restriction/const_path_join)                                                           | A lint to check for joining of constant path components                                              |
 | [`env_literal`](./restriction/env_literal)                                                                   | A lint to check for environment variables referred to with string literals                           |
 | [`inconsistent_qualification`](./restriction/inconsistent_qualification)                                     | A lint to check for inconsistent qualification of module items                                       |
-| [`overscoped_allow`](./restriction/overscoped_allow)                                                         | `allow` attributes whose scope could be reduced                                                      |
 | [`question_mark_in_expression`](./restriction/question_mark_in_expression)                                   | A lint to check for the `?` operator in expressions                                                  |
 | [`ref_aware_redundant_closure_for_method_calls`](./restriction/ref_aware_redundant_closure_for_method_calls) | A ref-aware fork of `redundant_closure_for_method_calls`                                             |
 | [`suboptimal_pattern`](./restriction/suboptimal_pattern)                                                     | A lint to check for patterns that could perform additional destructuring                             |
 | [`try_io_result`](./restriction/try_io_result)                                                               | A lint to check for the `?` operator applied to `std::io::Result`                                    |
-| [`unnecessary_conversion_for_trait`](./restriction/unnecessary_conversion_for_trait)                         | A lint to check for unnecessary trait-behavior-preserving calls                                      |
 
 ## Testing
 
@@ -51,4 +57,5 @@ The example libraries are separated into the following three categories:
 [clippy]: https://github.com/rust-lang/rust-clippy#clippy
 [general]: #general
 [restriction]: #restriction
+[supplementary]: #supplementary
 [testing]: #testing
