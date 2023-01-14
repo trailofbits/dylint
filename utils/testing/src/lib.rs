@@ -254,7 +254,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
 }
 
 fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> Result<()> {
-    let examples = metadata.target_directory.join("debug").join("examples");
+    let examples = metadata.target_directory.join("debug/examples");
     for entry in
         read_dir(&examples).with_context(|| format!("`read_dir` failed for `{examples}`"))?
     {
