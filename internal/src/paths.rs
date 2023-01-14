@@ -1,3 +1,7 @@
+pub const CAMINO_UTF8_PATH_JOIN: [&str; 3] = ["camino", "Utf8Path", "join"];
+pub const CAMINO_UTF8_PATH_NEW: [&str; 3] = ["camino", "Utf8Path", "new"];
+pub const CAMINO_UTF8_PATH_BUF: [&str; 2] = ["camino", "Utf8PathBuf"];
+
 pub const ENV_REMOVE_VAR: [&str; 3] = ["std", "env", "remove_var"];
 pub const ENV_SET_CURRENT_DIR: [&str; 3] = ["std", "env", "set_current_dir"];
 pub const ENV_SET_VAR: [&str; 3] = ["std", "env", "set_var"];

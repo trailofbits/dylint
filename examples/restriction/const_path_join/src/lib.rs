@@ -8,7 +8,7 @@ extern crate rustc_hir;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_sugg, is_expr_path_def_path, match_def_path};
+use clippy_utils::{diagnostics::span_lint_and_sugg, is_expr_path_def_path, match_any_def_paths};
 use dylint_internal::paths;
 use if_chain::if_chain;
 use rustc_ast::LitKind;
@@ -47,17 +47,23 @@ dylint_linting::declare_late_lint! {
     "joining of constant path components"
 }
 
+enum TyOrPartialSpan {
+    Ty(&'static [&'static str]),
+    PartialSpan(Span),
+}
+
 impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
-        let (components, maybe_partial_span) = collect_components(cx, expr);
+        let (components, ty_or_partial_span) = collect_components(cx, expr);
         if components.len() < 2 {
             return;
         }
         let path = components.join("/");
-        let (span, sugg) = if let Some(partial_span) = maybe_partial_span {
-            (partial_span, format!(r#".join("{path}")"#))
-        } else {
-            (expr.span, format!(r#"std::path::PathBuf::from("{path}")"#))
+        let (span, sugg) = match ty_or_partial_span {
+            TyOrPartialSpan::Ty(ty) => (expr.span, format!(r#"{}::from("{path}")"#, ty.join("::"))),
+            TyOrPartialSpan::PartialSpan(partial_span) => {
+                (partial_span, format!(r#".join("{path}")"#))
+            }
         };
         span_lint_and_sugg(
             cx,
@@ -71,7 +77,7 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
     }
 }
 
-fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>, Option<Span>) {
+fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>, TyOrPartialSpan) {
     let mut components_reversed = Vec::new();
     let mut partial_span = expr.span.with_lo(expr.span.hi());
 
@@ -80,7 +86,12 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
         if_chain! {
             if let ExprKind::MethodCall(_, receiver, [arg], _) = expr.kind;
             if let Some(method_def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id);
-            if match_def_path(cx, method_def_id, &paths::PATH_JOIN);
+            if match_any_def_paths(
+                cx,
+                method_def_id,
+                &[&paths::CAMINO_UTF8_PATH_JOIN, &paths::PATH_JOIN],
+            )
+            .is_some();
             if let Some(s) = is_lit_string(arg);
             then {
                 expr = receiver;
@@ -93,33 +104,51 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
         }
     }
 
-    let maybe_partial_span = if_chain! {
+    let ty_or_partial_span = if_chain! {
         if let ExprKind::Call(callee, [arg]) = expr.kind;
-        if is_expr_path_def_path(cx, callee, &paths::PATH_NEW) || is_path_buf_from(cx, callee, expr);
+        let ty = is_path_buf_from(cx, callee, expr);
+        if is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW)
+            || is_expr_path_def_path(cx, callee, &paths::PATH_NEW)
+            || ty.is_some();
         if let Some(s) = is_lit_string(arg);
         then {
             components_reversed.push(s);
-            None
+            TyOrPartialSpan::Ty(ty.unwrap_or_else(|| {
+                if is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW) {
+                    &paths::CAMINO_UTF8_PATH_BUF
+                } else {
+                    &paths::PATH_BUF
+                }
+            }))
         } else {
-            Some(partial_span)
+            TyOrPartialSpan::PartialSpan(partial_span)
         }
     };
 
     components_reversed.reverse();
-    (components_reversed, maybe_partial_span)
+    (components_reversed, ty_or_partial_span)
 }
 
-fn is_path_buf_from(cx: &LateContext<'_>, callee: &Expr<'_>, expr: &Expr<'_>) -> bool {
+fn is_path_buf_from(
+    cx: &LateContext<'_>,
+    callee: &Expr<'_>,
+    expr: &Expr<'_>,
+) -> Option<&'static [&'static str]> {
     if_chain! {
         if let Some(callee_def_id) = cx.typeck_results().type_dependent_def_id(callee.hir_id);
         if cx.tcx.lang_items().from_fn() == Some(callee_def_id);
         let ty = cx.typeck_results().expr_ty(expr);
         if let ty::Adt(adt_def, _) = ty.kind();
-        if match_def_path(cx, adt_def.did(), &paths::PATH_BUF);
         then {
-            true
+            let paths: &[&[&str]] = &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_BUF];
+            match_any_def_paths(
+                cx,
+                adt_def.did(),
+                &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_BUF],
+            )
+            .map(|i| paths[i])
         } else {
-            false
+            None
         }
     }
 }
@@ -139,8 +168,5 @@ fn is_lit_string(expr: &Expr<'_>) -> Option<String> {
 
 #[test]
 fn ui() {
-    dylint_testing::ui_test(
-        env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-    );
+    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "ui");
 }

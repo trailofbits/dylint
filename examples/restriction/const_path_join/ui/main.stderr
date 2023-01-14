@@ -27,5 +27,32 @@ LL | |         .join("..")
 LL | |         .join("target");
    | |_______________________^ help: use: `.join("../target")`
 
-error: aborting due to 4 previous errors
+error: path could be constructed from a string literal
+  --> $DIR/main.rs:11:13
+   |
+LL |     let _ = camino::Utf8Path::new("..").join("target");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `camino::Utf8PathBuf::from("../target")`
+
+error: path could be constructed from a string literal
+  --> $DIR/main.rs:12:13
+   |
+LL |     let _ = camino::Utf8PathBuf::from("..").join("target");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `camino::Utf8PathBuf::from("../target")`
+
+error: path could be constructed from a string literal
+  --> $DIR/main.rs:13:13
+   |
+LL |     let _ = camino::Utf8PathBuf::from("..").join("target").as_path();
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `camino::Utf8PathBuf::from("../target")`
+
+error: path could be constructed from a string literal
+  --> $DIR/main.rs:14:66
+   |
+LL |       let _ = camino::Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+   |  __________________________________________________________________^
+LL | |         .join("..")
+LL | |         .join("target");
+   | |_______________________^ help: use: `.join("../target")`
+
+error: aborting due to 8 previous errors
 
