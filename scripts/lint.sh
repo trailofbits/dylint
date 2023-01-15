@@ -42,7 +42,6 @@ for LINTS in "$EXAMPLES" clippy; do
         DYLINT_RUSTFLAGS="$DYLINT_RUSTFLAGS
             -W clippy::pedantic
             -W clippy::nursery
-            -A clippy::cargo-common-metadata
             -A clippy::option-if-let-else
             -A clippy::missing-errors-doc
             -A clippy::missing-panics-doc
