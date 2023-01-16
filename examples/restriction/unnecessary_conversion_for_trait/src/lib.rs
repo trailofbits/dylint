@@ -13,7 +13,7 @@ extern crate rustc_span;
 extern crate rustc_trait_selection;
 
 use clippy_utils::{
-    diagnostics::{span_lint, span_lint_and_sugg},
+    diagnostics::{span_lint, span_lint_and_help, span_lint_and_sugg},
     get_parent_expr, match_def_path,
     source::snippet_opt,
     ty::is_copy,
@@ -195,7 +195,12 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                                 .flatten()
                                 .chain(inner_args)
                                 .collect::<Vec<_>>();
-                            if let [inner_arg] = inner_args.as_slice();
+                            if let [mut inner_arg] = inner_args.as_slice();
+                            let _ = {
+                                if let ExprKind::Box(box_arg) = inner_arg.kind {
+                                    inner_arg = box_arg;
+                                }
+                            };
                             let inner_arg_ty = cx.typeck_results().expr_ty(inner_arg);
                             let adjustment_mutabilities = adjustment_mutabilities(cx, inner_arg);
                             let new_mutabilities = [adjustment_mutabilities, mutabilities].concat();
@@ -259,7 +264,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             (false, "inner argument")
                         };
                     let msg = format!("the {subject} implements the required traits");
-                    if is_bare_method_call && refs_prefix.is_empty() {
+                    if is_bare_method_call && refs_prefix.is_empty() && !maybe_arg.span.from_expansion() {
                         span_lint_and_sugg(
                             cx,
                             UNNECESSARY_CONVERSION_FOR_TRAIT,
@@ -268,6 +273,16 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             "remove this",
                             String::new(),
                             Applicability::MachineApplicable,
+                        );
+                    } else if maybe_arg.span.from_expansion() && let Some(span) = maybe_arg.span.parent_callsite() {
+                        // smoelius: This message could be more informative.
+                        span_lint_and_help(
+                            cx,
+                            UNNECESSARY_CONVERSION_FOR_TRAIT,
+                            span,
+                            &msg,
+                            None,
+                            "use the macro arguments directly",
                         );
                     } else {
                         span_lint_and_sugg(
@@ -414,6 +429,16 @@ mod test {
         assert!(!enabled("CHECK_INHERENTS"));
 
         dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "unnecessary_to_owned");
+    }
+
+    #[test]
+    fn vec() {
+        let _lock = MUTEX.lock().unwrap();
+
+        assert!(!enabled("COVERAGE"));
+        assert!(!enabled("CHECK_INHERENTS"));
+
+        dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "vec");
     }
 
     // smoelius: `VarGuard` is from the following with the use of `option` added:
