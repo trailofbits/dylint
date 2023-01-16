@@ -17,6 +17,10 @@ path = "ui/general.rs"
 name = "unnecessary_to_owned"
 path = "ui/unnecessary_to_owned.rs"
 
+[[example]]
+name = "vec"
+path = "ui/vec.rs"
+
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1480cea393d0cee195e59949eabdfbcf1230f7f9" }
 if_chain = "1.0"
