@@ -54,7 +54,7 @@ fn one_name_multiple_toolchains() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .envs(vec![(
+        .envs([(
             env::DYLINT_LIBRARY_PATH,
             target_debug(tempdir.path()).unwrap(),
         )])
@@ -106,7 +106,7 @@ fn one_name_multiple_paths() {
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .envs(vec![(env::DYLINT_LIBRARY_PATH, paths)])
+        .envs([(env::DYLINT_LIBRARY_PATH, paths)])
         .args(["dylint", "list", "--all", "--no-metadata"])
         .assert()
         .success()
@@ -145,7 +145,7 @@ fn canonical_path() {
 
         std::process::Command::cargo_bin("cargo-dylint")
             .unwrap()
-            .envs(vec![(env::DYLINT_LIBRARY_PATH, &path)])
+            .envs([(env::DYLINT_LIBRARY_PATH, &path)])
             .args(["dylint", "list"])
             .assert()
             .success()

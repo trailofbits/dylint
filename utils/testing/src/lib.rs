@@ -145,7 +145,7 @@ fn linking_flags(
                     linking_flags.push(flag);
                 } else if flag == "--extern" || flag == "-L" {
                     let arg = next(&flag, &mut iter)?;
-                    linking_flags.extend(vec![flag, arg.trim_matches('\'').to_owned()]);
+                    linking_flags.extend([flag, arg.trim_matches('\'').to_owned()]);
                 }
             }
 
@@ -191,7 +191,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
         // "Building example `target`" for one example but not for others is confusing. So instead
         // say "Building `package` examples".
         dylint_internal::cargo::build(&format!("`{}` examples", package.name), false)
-            .envs(vec![(env::CARGO_TERM_COLOR, "never")])
+            .envs([(env::CARGO_TERM_COLOR, "never")])
             .args([
                 "--manifest-path",
                 package.manifest_path.as_ref(),

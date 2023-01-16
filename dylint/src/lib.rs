@@ -412,11 +412,11 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
             // gets the lints loaded. However, we don't actually use it to list the lints.
             let mut command = dylint_driver(toolchain, &driver)?;
             command
-                .envs(vec![
+                .envs([
                     (env::DYLINT_LIBS, dylint_libs.as_str()),
                     (env::DYLINT_LIST, "1"),
                 ])
-                .args(vec!["rustc", "-W", "help"])
+                .args(["rustc", "-W", "help"])
                 .success()?;
 
             println!();
@@ -472,7 +472,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         // hurt and it provides a small amount of backward compatibility.
         let result = command
             .sanitize_environment()
-            .envs(vec![
+            .envs([
                 (
                     env::CLIPPY_DISABLE_DOCS_LINKS,
                     clippy_disable_docs_links.as_str(),
