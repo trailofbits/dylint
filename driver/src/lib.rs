@@ -286,7 +286,7 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
         }
     }
     if let Some(sysroot) = sysroot {
-        rustc_args.extend(vec![
+        rustc_args.extend([
             "--sysroot".to_owned(),
             sysroot.to_string_lossy().to_string(),
         ]);

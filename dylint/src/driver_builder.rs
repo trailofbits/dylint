@@ -165,7 +165,7 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
 
     dylint_internal::cargo::build(&format!("driver for toolchain `{toolchain}`"), opts.quiet)
         .sanitize_environment()
-        .envs(vec![(env::RUSTFLAGS, rustflags)])
+        .envs([(env::RUSTFLAGS, rustflags)])
         .current_dir(package)
         .success()?;
 
