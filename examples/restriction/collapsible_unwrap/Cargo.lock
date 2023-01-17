@@ -137,7 +137,6 @@ name = "collapsible_unwrap"
 version = "2.1.2"
 dependencies = [
  "clippy_utils",
- "dylint_internal",
  "dylint_linting",
  "dylint_testing",
  "heck",
