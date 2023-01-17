@@ -18,7 +18,6 @@ clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "4bdfb0
 heck = "0.4"
 if_chain = "1.0"
 
-dylint_internal = { path = "../../../internal" }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
