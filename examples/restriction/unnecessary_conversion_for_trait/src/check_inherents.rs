@@ -10,10 +10,7 @@ use rustc_middle::ty::{
 };
 use rustc_span::symbol::sym;
 
-pub fn check_inherents<I: Iterator<Item = DefId>>(
-    cx: &LateContext<'_>,
-    inherent_def_ids: I,
-) {
+pub fn check_inherents<I: Iterator<Item = DefId>>(cx: &LateContext<'_>, inherent_def_ids: I) {
     let into_iterator_def_id =
         get_trait_def_id(cx, &["core", "iter", "traits", "collect", "IntoIterator"]).unwrap();
     let iterator_def_id =
@@ -196,8 +193,10 @@ fn strip_as_ref<'tcx>(
         .iter()
         .find_map(|predicate| {
             if_chain! {
-                if let ty::PredicateKind::Clause(ty::Clause::Trait(ty::TraitPredicate { trait_ref, .. })) =
-                    predicate.kind().skip_binder();
+                if let ty::PredicateKind::Clause(ty::Clause::Trait(ty::TraitPredicate {
+                    trait_ref,
+                    ..
+                })) = predicate.kind().skip_binder();
                 if cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id);
                 if let [self_arg, subst_arg] = trait_ref.substs.as_slice();
                 if self_arg.unpack() == ty::GenericArgKind::Type(ty);

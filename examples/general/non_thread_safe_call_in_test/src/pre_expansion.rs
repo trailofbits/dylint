@@ -14,9 +14,8 @@ declare_lint! {
     ///
     /// ### Why is this bad?
     /// "When you run multiple tests, by default they run in parallel using
-    /// threads"
-    /// (https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively).
-    /// Calling a non-thread-safe function in one test could affect the outcome of another.
+    /// threads" ([reference]). Calling a non-thread-safe function in one test could affect the
+    /// outcome of another.
     ///
     /// ### Known problems
     /// - Synchronization is not considered, so false positives could result.
@@ -38,12 +37,14 @@ declare_lint! {
     /// ```rust
     /// #[test]
     /// fn set_var() {
-    ///    std::process::Command::new("env")
-    ///        .env("KEY", "SOME_VALUE")
-    ///        .status()
-    ///        .unwrap();
+    ///     std::process::Command::new("env")
+    ///         .env("KEY", "SOME_VALUE")
+    ///         .status()
+    ///         .unwrap();
     /// }
     /// ```
+    ///
+    /// [reference]: https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively
     pub NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXPANSION,
     Allow,
     "non-thread-safe function calls in tests"

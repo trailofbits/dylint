@@ -4,9 +4,9 @@
 Checks for patterns that could perform additional destructuring.
 
 ### Why is this bad?
-The use of destructuring patterns in closure parameters (for example)
-often leads to more concise closure bodies. Beyond that, the benefits of this lint are
-similar to those of [pattern-type-mismatch].
+The use of destructuring patterns in closure parameters (for example) often leads to more
+concise closure bodies. Beyond that, the benefits of this lint are similar to those of
+[pattern-type-mismatch].
 
 ### Known problems
 - Currently only checks closure parameters (not, e.g., match patterns).

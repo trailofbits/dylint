@@ -18,9 +18,8 @@ mod pre_expansion;
 #[no_mangle]
 pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
     lint_store.register_lints(&[pre_expansion::NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXPANSION]);
-    lint_store.register_pre_expansion_pass(|| {
-        Box::<pre_expansion::NonThreadSafeCallInTest>::default()
-    });
+    lint_store
+        .register_pre_expansion_pass(|| Box::<pre_expansion::NonThreadSafeCallInTest>::default());
 
     lint_store.register_lints(&[late::NON_THREAD_SAFE_CALL_IN_TEST]);
     lint_store.register_late_pass(|_| Box::<late::NonThreadSafeCallInTest>::default());

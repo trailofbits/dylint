@@ -51,12 +51,11 @@ use check_inherents::check_inherents;
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
-    /// Checks for trait-behavior-preserving calls in positions where a trait
-    /// implementation is expected.
+    /// Checks for trait-behavior-preserving calls in positions where a trait implementation is
+    /// expected.
     ///
     /// ### Why is this bad?
-    /// Such unnecessary calls make the code more verbose and could impact
-    /// performance.
+    /// Such unnecessary calls make the code more verbose and could impact performance.
     ///
     /// ### Example
     /// ```rust

@@ -16,8 +16,7 @@ dylint_linting::declare_late_lint! {
     /// Checks for environment variables referred to with string literals.
     ///
     /// ### Why is this bad?
-    /// A typo in the string literal will result in a runtime error, not a
-    /// compile time error.
+    /// A typo in the string literal will result in a runtime error, not a compile time error.
     ///
     /// ### Example
     /// ```rust

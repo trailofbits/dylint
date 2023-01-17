@@ -1,8 +1,8 @@
 # inconsistent_qualification
 
 ### What it does
-Checks that a module's items are either imported or qualified with the
-module's path, but not both.
+Checks that a module's items are either imported or qualified with the module's path, but
+not both.
 
 ### Why is this bad?
 Mixing the two styles can lead to confusing code.
@@ -28,6 +28,9 @@ fn main() {
 Or use:
 ```rust
 fn main() {
-    assert_eq!(std::env::var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
+    assert_eq!(
+        std::env::var("LD_PRELOAD"),
+        Err(std::env::VarError::NotPresent)
+    );
 }
 ```
