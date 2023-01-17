@@ -1,7 +1,9 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(not(docsrs), feature(rustc_private))]
+#![warn(unused_extern_crates)]
 
 #[cfg(not(docsrs))]
+#[allow(unused_extern_crates)]
 extern crate rustc_driver;
 
 #[cfg(not(docsrs))]
