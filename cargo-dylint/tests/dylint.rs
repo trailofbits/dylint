@@ -113,14 +113,13 @@ fn readme_reference_links_are_sorted() {
             .lines()
             .filter(|line| re.is_match(line))
             .collect::<Vec<_>>();
-        let mut links_sorted_deduped = links.clone();
-        links_sorted_deduped.sort_unstable();
-        links_sorted_deduped.dedup();
+        let mut links_sorted = links.clone();
+        links_sorted.sort_unstable();
         assert!(
-            links_sorted_deduped == links,
+            links_sorted == links,
             "contents of `{}` are not what was expected:\n{}\n",
             path.canonicalize().unwrap().to_string_lossy(),
-            links_sorted_deduped.join("\n")
+            links_sorted.join("\n")
         );
     }
 }
