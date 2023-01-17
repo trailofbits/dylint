@@ -222,7 +222,10 @@ where
                         then {
                             for (value, target) in targets.iter() {
                                 if target != index {
-                                    state.remove_possibile_variant(value as usize, terminator.source_info.span);
+                                    state.remove_possibile_variant(
+                                        value as usize,
+                                        terminator.source_info.span,
+                                    );
                                 }
                             }
                         }

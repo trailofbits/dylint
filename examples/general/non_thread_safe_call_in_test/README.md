@@ -6,9 +6,8 @@ Checks for calls to non-thread-safe functions in code attributed with
 
 ### Why is this bad?
 "When you run multiple tests, by default they run in parallel using
-threads"
-(https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively).
-Calling a non-thread-safe function in one test could affect the outcome of another.
+threads" ([reference]). Calling a non-thread-safe function in one test could affect the
+outcome of another.
 
 ### Known problems
 Synchronization is not considered, so false positives could result.
@@ -25,12 +24,14 @@ Use instead:
 ```rust
 #[test]
 fn set_var() {
-   std::process::Command::new("env")
-       .env("KEY", "SOME_VALUE")
-       .status()
-       .unwrap();
+    std::process::Command::new("env")
+        .env("KEY", "SOME_VALUE")
+        .status()
+        .unwrap();
 }
 ```
+
+[reference]: https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively
 ## Pre-expansion implementation
 
 ### What it does
@@ -39,9 +40,8 @@ Checks for calls to non-thread-safe functions in code attributed with
 
 ### Why is this bad?
 "When you run multiple tests, by default they run in parallel using
-threads"
-(https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively).
-Calling a non-thread-safe function in one test could affect the outcome of another.
+threads" ([reference]). Calling a non-thread-safe function in one test could affect the
+outcome of another.
 
 ### Known problems
 - Synchronization is not considered, so false positives could result.
@@ -63,9 +63,11 @@ Use instead:
 ```rust
 #[test]
 fn set_var() {
-   std::process::Command::new("env")
-       .env("KEY", "SOME_VALUE")
-       .status()
-       .unwrap();
+    std::process::Command::new("env")
+        .env("KEY", "SOME_VALUE")
+        .status()
+        .unwrap();
 }
 ```
+
+[reference]: https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively

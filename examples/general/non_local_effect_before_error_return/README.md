@@ -1,13 +1,13 @@
 # non_local_effect_before_error_return
 
 ### What it does
-Checks for non-local effects (e.g., assignments to mutable references)
-before return of an error.
+Checks for non-local effects (e.g., assignments to mutable references) before return of an
+error.
 
 ### Why is this bad?
-Functions that make changes to the program state before returning an
-error are difficult to reason about. Generally speaking, if a function returns an error, it
-should be as though the function was never called.
+Functions that make changes to the program state before returning an error are difficult to
+reason about. Generally speaking, if a function returns an error, it should be as though
+the function was never called.
 
 ### Known problems
 - The search strategy is exponential in the number of blocks in a function body. To help

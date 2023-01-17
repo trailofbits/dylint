@@ -1,13 +1,12 @@
 # redundant_reference
 
 ### What it does
-Checks for fields that are references used only to read one copyable
-subfield, and whose lifetimes are not used elsewhere.
+Checks for fields that are references used only to read one copyable subfield, and whose
+lifetimes are not used elsewhere.
 
 ### Why is this bad?
-Storing the reference instead of a copy of the subfield adds an
-unnecessary lifetime parameter to the struct. It also creates an unnecessary pointer
-dereference at runtime.
+Storing the reference instead of a copy of the subfield adds an unnecessary lifetime
+parameter to the struct. It also creates an unnecessary pointer dereference at runtime.
 
 ### Example
 ```rust
@@ -15,8 +14,7 @@ struct V<'cx, 'tcx> {
     cx: &'cx LateContext<'tcx>,
 }
 
-impl<'cx, 'tcx> Visitor<'tcx> for V<'cx, 'tcx>
-{
+impl<'cx, 'tcx> Visitor<'tcx> for V<'cx, 'tcx> {
     type Map = rustc_middle::hir::map::Map<'tcx>;
     type NestedFilter = rustc_middle::hir::nested_filter::All;
 
@@ -31,8 +29,7 @@ struct V<'tcx> {
     tcx: TyCtxt<'tcx>,
 }
 
-impl<'tcx> Visitor<'tcx> for V<'tcx>
-{
+impl<'tcx> Visitor<'tcx> for V<'tcx> {
     type Map = rustc_middle::hir::map::Map<'tcx>;
     type NestedFilter = rustc_middle::hir::nested_filter::All;
 

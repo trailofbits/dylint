@@ -4,8 +4,8 @@
 Checks for `?` operators embedded within a larger expression.
 
 ### Why is this bad?
-It can be easy to overlook the `?`. Code is more readable when a `?` is
-the outermost operator in an expression.
+It can be easy to overlook the `?`. Code is more readable when a `?` is the outermost
+operator in an expression.
 
 ### Example
 ```rust

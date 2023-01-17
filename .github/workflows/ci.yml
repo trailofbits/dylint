@@ -49,8 +49,11 @@ jobs:
 
       - name: Format
         run: |
+          rm -f "$HOME"/.cargo/bin/cargo-fmt
+          rm -f "$HOME"/.cargo/bin/rustfmt
           rustup install nightly
-          find . -name Cargo.toml -exec cargo +nightly fmt --manifest-path {} \; && git diff --exit-code
+          rustup component add rustfmt --toolchain nightly
+          ./scripts/format.sh && git diff --exit-code
 
       - name: Format example READMEs
         run: ./scripts/update_example_READMEs.sh && git diff --exit-code

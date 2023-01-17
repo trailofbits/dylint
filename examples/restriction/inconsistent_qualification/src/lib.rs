@@ -17,8 +17,8 @@ use rustc_span::Symbol;
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
-    /// Checks that a module's items are either imported or qualified with the
-    /// module's path, but not both.
+    /// Checks that a module's items are either imported or qualified with the module's path, but
+    /// not both.
     ///
     /// ### Why is this bad?
     /// Mixing the two styles can lead to confusing code.
@@ -44,7 +44,10 @@ dylint_linting::declare_late_lint! {
     /// Or use:
     /// ```rust
     /// fn main() {
-    ///     assert_eq!(std::env::var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
+    ///     assert_eq!(
+    ///         std::env::var("LD_PRELOAD"),
+    ///         Err(std::env::VarError::NotPresent)
+    ///     );
     /// }
     /// ```
     pub INCONSISTENT_QUALIFICATION,
@@ -143,7 +146,10 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
             if self.cx.tcx.hir().get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id;
             if let ItemKind::Use(path, use_kind) = item.kind;
             // smoelius: An exception is made for trait imports.
-            if !path.res.iter().any(|res| matches!(res, Res::Def(DefKind::Trait, _)));
+            if !path
+                .res
+                .iter()
+                .any(|res| matches!(res, Res::Def(DefKind::Trait, _)));
             let syms = path
                 .segments
                 .iter()
