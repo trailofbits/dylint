@@ -27,7 +27,9 @@ jobs:
         run: cargo install --path ./dylint-link
 
       - name: Actionlint
-        run: go install github.com/rhysd/actionlint/cmd/actionlint@latest && "$HOME"/go/bin/actionlint
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@latest
+          "$HOME"/go/bin/actionlint
 
       - name: Shellcheck
         run: shellcheck --exclude=SC2002 scripts/*
@@ -35,12 +37,12 @@ jobs:
       - name: Prettier
         run: |
           npm install -g prettier
-          prettier --check --ignore-path <(echo examples; echo template) '**/*.md' '**/*.yml'
-          prettier --write 'examples/**/*.md' 'internal/template/**/*.md' && [ -z "$(git diff --ignore-blank-lines)" ] && git checkout examples internal/template
-          ./scripts/unquote_yaml_strings.sh && git diff --exit-code
+          ./scripts/check_prettier.sh
 
       - name: Markdown link check
-        run: npm install -g markdown-link-check && markdown-link-check ./**/*.md
+        run: |
+          npm install -g markdown-link-check
+          markdown-link-check ./**/*.md
 
       - name: Cargo sort
         run: |
