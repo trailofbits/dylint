@@ -9,9 +9,9 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 anyhow = "1.0"
-env_logger = "0.9"
+env_logger = "0.10"
 if_chain = "1.0"
-toml_edit = "0.14"
+toml_edit = "0.17"
 
 dylint_internal = { version = "=2.1.2", path = "../internal", features = ["cargo"] }
 

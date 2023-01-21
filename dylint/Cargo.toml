@@ -11,7 +11,7 @@ repository = "https://github.com/trailofbits/dylint"
 ansi_term = "0.12"
 anyhow = "1.0"
 atty = "0.2"
-cargo = { version = "0.65", optional = true }
+cargo = { version = "0.67", optional = true }
 cargo-platform = { version = "0.1", optional = true }
 cargo-util = { version = "0.2", optional = true }
 cargo_metadata = "0.15"
@@ -34,7 +34,7 @@ dylint_internal = { version = "=2.1.2", path = "../internal", features = ["git",
 dylint_internal = { version = "=2.1.2", path = "../internal", features = ["cargo"] }
 
 [dev-dependencies]
-env_logger = "0.9"
+env_logger = "0.10"
 lazy_static = "1.4"
 test-log = "0.2"
 
