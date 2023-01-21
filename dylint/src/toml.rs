@@ -1,5 +1,5 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.65.0) with
+// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.675.1) with
 // adjustments to make some things public.
 
 #![allow(unused_imports)]
@@ -121,7 +121,7 @@ pub struct DetailedTomlDependency<P: Clone = String> {
     package: Option<String>,
     public: Option<bool>,
 
-    /// One ore more of 'bin', 'cdylib', 'staticlib', 'bin:<name>'.
+    /// One or more of `bin`, `cdylib`, `staticlib`, `bin:<name>`.
     artifact: Option<StringOrVec>,
     /// If set, the artifact should also be a dependency
     lib: Option<bool>,
