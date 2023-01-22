@@ -1,9 +1,5 @@
 # Changelog
 
-## 2.1.3
-
-- Set rust-analyzer's `rustc_private=true` in `dylint_linting` package metadata ([#543](https://github.com/trailofbits/dylint/pull/543))
-
 ## 2.1.2
 
 - Rerun `cargo check` when library code changes ([6235e99](https://github.com/trailofbits/dylint/commit/6235e9993aa374a8a568fbbda4c333d718985835))
