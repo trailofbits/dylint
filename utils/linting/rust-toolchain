@@ -1,3 +1,4 @@
 [toolchain]
-channel = "nightly"
+# smoelius: Temporarily pin to `nightly-2023-01-19` until rust-lang/rust#106810 can be dealt with.
+channel = "nightly-2023-01-19"
 components = ["llvm-tools-preview", "rustc-dev"]
