@@ -16,7 +16,13 @@ use cargo_metadata::{Metadata, MetadataCommand};
 use dylint_internal::env;
 use rustc_session::Session;
 use rustc_span::Symbol;
-use std::{any::type_name, cell::RefCell, fs::read_to_string, path::Path, sync::Mutex};
+use std::{
+    any::type_name,
+    cell::RefCell,
+    fs::read_to_string,
+    path::{Path, PathBuf},
+    sync::Mutex,
+};
 use thiserror::Error;
 
 pub const DYLINT_VERSION: &str = "0.1.0";
@@ -72,8 +78,8 @@ macro_rules! __make_late_closure {
 }
 
 // smoelius: Relevant PR and merge commit:
-// * https://github.com/rust-lang/rust/pull/101501
-// * https://github.com/rust-lang/rust/commit/87788097b776f8e3662f76627944230684b671bd
+// - https://github.com/rust-lang/rust/pull/101501
+// - https://github.com/rust-lang/rust/commit/87788097b776f8e3662f76627944230684b671bd
 #[rustversion::since(2022-09-08)]
 #[doc(hidden)]
 #[macro_export]
@@ -310,8 +316,7 @@ pub fn try_init_config(sess: &Session) -> ConfigResult<()> {
             Some(Symbol::intern(&value)),
         ));
         Some(value)
-    } else if let Some(local_crate_source_file) = sess
-        .local_crate_source_file
+    } else if let Some(local_crate_source_file) = local_crate_source_file(sess)
         .as_deref()
         .map(Path::canonicalize)
         .transpose()?
@@ -362,4 +367,17 @@ pub fn try_init_config(sess: &Session) -> ConfigResult<()> {
     config_table.replace(Some(table.unwrap_or_default()));
 
     Ok(())
+}
+
+#[rustversion::before(2023-01-19)]
+fn local_crate_source_file(sess: &Session) -> Option<PathBuf> {
+    sess.local_crate_source_file.clone()
+}
+
+// smoelius: Relevant PR and merge commit:
+// - https://github.com/rust-lang/rust/pull/106810
+// - https://github.com/rust-lang/rust/commit/65d2f2a5f9c323c88d1068e8e90d0b47a20d491c
+#[rustversion::since(2023-01-19)]
+fn local_crate_source_file(sess: &Session) -> Option<PathBuf> {
+    sess.local_crate_source_file()
 }

@@ -50,7 +50,7 @@ published() {
     echo '[workspace]' >> Cargo.toml
     cat > rust-toolchain << EOF
 [toolchain]
-channel = "nightly-2023-01-19"
+channel = "nightly"
 components = ["llvm-tools-preview", "rustc-dev"]
 EOF
     echo "Checking whether \`$1:$2\` is published ..." >&2
