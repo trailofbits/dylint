@@ -1,22 +1,21 @@
 // smoelius: On Windows, `rustup update nightly` generates "could not create link" errors similar to
 // this one: https://github.com/rust-lang/rustup/issues/1316
-#[cfg(not(target_os = "windows"))]
-mod nightly_toolchain {
-    use anyhow::Result;
-    use dylint_internal::Command;
-    use test_log::test;
+#![cfg(not(target_os = "windows"))]
 
-    #[test]
-    fn nightly_toolchain() {
-        update_nightly().unwrap();
+use anyhow::Result;
+use dylint_internal::Command;
+use test_log::test;
 
-        #[allow(let_underscore_drop)]
-        let _ = dylint::driver_builder::get(&dylint::Dylint::default(), "nightly").unwrap();
-    }
+#[test]
+fn nightly_toolchain() {
+    update_nightly().unwrap();
 
-    fn update_nightly() -> Result<()> {
-        Command::new("rustup")
-            .args(["update", "--no-self-update", "nightly"])
-            .success()
-    }
+    #[allow(let_underscore_drop)]
+    let _ = dylint::driver_builder::get(&dylint::Dylint::default(), "nightly").unwrap();
+}
+
+fn update_nightly() -> Result<()> {
+    Command::new("rustup")
+        .args(["update", "--no-self-update", "nightly"])
+        .success()
 }
