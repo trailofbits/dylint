@@ -1,4 +1,16 @@
 use assert_cmd::{assert::AssertResult, prelude::*};
+use dylint_internal::env;
+
+#[test]
+fn builds_with_cfg_docsrs() {
+    update_nightly().unwrap();
+
+    std::process::Command::new("cargo")
+        .env(env::RUSTFLAGS, "--cfg docsrs")
+        .args(["+nightly", "build"])
+        .assert()
+        .success();
+}
 
 #[test]
 fn builds_with_latest_nightly() {
