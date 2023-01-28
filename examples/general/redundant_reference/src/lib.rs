@@ -36,6 +36,7 @@ dylint_linting::impl_late_lint! {
     /// ### Example
     /// ```rust
     /// # #![feature(rustc_private)]
+    /// # extern crate rustc_driver;
     /// # extern crate rustc_hir;
     /// # extern crate rustc_lint;
     /// # extern crate rustc_middle;
@@ -57,6 +58,7 @@ dylint_linting::impl_late_lint! {
     /// Use instead:
     /// ```rust
     /// # #![feature(rustc_private)]
+    /// # extern crate rustc_driver;
     /// # extern crate rustc_hir;
     /// # extern crate rustc_lint;
     /// # extern crate rustc_middle;
@@ -170,7 +172,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                 let field_def_local_def_id = cx.tcx.hir().local_def_id(field_def.hir_id);
                 if !cx.tcx.visibility(*local_def_id).is_public()
                     || !cx.tcx.visibility(field_def_local_def_id).is_public();
-                if let TyKind::Rptr(
+                if let TyKind::Ref(
                     lifetime,
                     MutTy {
                         ty: _,

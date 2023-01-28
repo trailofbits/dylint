@@ -206,8 +206,7 @@ struct ProjectionVisitor<'tcx> {
 impl<'tcx> Visitor<'tcx> for ProjectionVisitor<'tcx> {
     fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
         if path_to_local_id(expr, self.hir_id) {
-            let parent_hir_id = self.tcx.hir().get_parent_node(expr.hir_id);
-            let node = self.tcx.hir().get(parent_hir_id);
+            let node = self.tcx.hir().get_parent(expr.hir_id);
             if_chain! {
                 if let Node::Expr(Expr {
                     kind: ExprKind::Field(_, ident),
