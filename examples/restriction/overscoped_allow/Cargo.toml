@@ -15,7 +15,7 @@ path = "ui/main.rs"
 
 [dependencies]
 anyhow = "1.0"
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "4bdfb0741dbcecd5279a2635c3280726db0604b5" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1480cea393d0cee195e59949eabdfbcf1230f7f9" }
 if_chain = "1.0"
 rustfix = "0.6"
 serde = "1.0"

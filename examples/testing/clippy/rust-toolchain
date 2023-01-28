@@ -1,4 +1,4 @@
 [toolchain]
-channel = "nightly-2022-12-17"
+channel = "nightly-2023-01-27"
 # smoelius: The `or_fun_call` test passes only if `rust-src` is installed.
 components = ["llvm-tools-preview", "rustc-dev", "rust-src"]
