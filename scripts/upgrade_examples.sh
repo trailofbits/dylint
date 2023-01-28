@@ -65,3 +65,9 @@ for EXAMPLE in examples/*/* internal/template; do
         mv "$EXAMPLE"/Cargo.toml "$EXAMPLE"/Cargo.toml~
     fi
 done
+
+if git diff --exit-code; then
+    exit 0
+fi
+
+scripts/update_lockfiles.sh
