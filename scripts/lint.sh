@@ -23,7 +23,7 @@ EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d)"
 # shellcheck disable=SC2001
 EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:space:]]*,,')"
 
-DIRS=". driver $EXAMPLE_DIRS"
+DIRS=". driver utils/linting $EXAMPLE_DIRS"
 
 EXAMPLES="$(echo "$EXAMPLE_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 
