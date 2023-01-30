@@ -309,7 +309,13 @@ pub fn try_init_config(sess: &rustc_session::Session) -> ConfigResult<()> {
             Some(Symbol::intern(&value)),
         ));
         Some(value)
-    } else if let Some(local_crate_source_file) = local_crate_source_file(sess) {
+    } else if let Some(local_crate_source_file) = local_crate_source_file(sess).and_then(|path| {
+        if path == PathBuf::new() {
+            None
+        } else {
+            Some(path)
+        }
+    }) {
         let local_crate_source_file = local_crate_source_file.canonicalize().map_err(|error| {
             ConfigErrorInner::Io(
                 format!("Could not canonicalize {local_crate_source_file:?}"),
