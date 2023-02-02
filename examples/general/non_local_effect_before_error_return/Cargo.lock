@@ -232,7 +232,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.1.3"
+version = "2.1.4"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -253,7 +253,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.1.3"
+version = "2.1.4"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -269,7 +269,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.1.3"
+version = "2.1.4"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -282,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.1.3"
+version = "2.1.4"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -641,7 +641,7 @@ dependencies = [
 
 [[package]]
 name = "non_local_effect_before_error_return"
-version = "2.1.3"
+version = "2.1.4"
 dependencies = [
  "bitflags",
  "clippy_utils",

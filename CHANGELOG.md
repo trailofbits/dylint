@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.4
+
+- Address [rust-lang/rust#106810](https://github.com/rust-lang/rust/pull/106810) ([#590](https://github.com/trailofbits/dylint/pull/590))
+
 ## 2.1.3
 
 - Set rust-analyzer's `rustc_private=true` in `dylint_linting` package metadata ([#543](https://github.com/trailofbits/dylint/pull/543))
