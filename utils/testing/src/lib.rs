@@ -23,14 +23,28 @@ use ui::Config;
 static DRIVER: OnceCell<PathBuf> = OnceCell::new();
 static LINKING_FLAGS: OnceCell<Vec<String>> = OnceCell::new();
 
+/// Test a library on all source files in a directory.
+///
+/// - `name` is the name of a Dylint library to be tested. (Often, this is the same as the package
+///   name.)
+/// - `src_base` is a directory containing:
+///   - source files on which to test the library (`.rs` files), and
+///   - the output those files should produce (`.stderr` files).
 pub fn ui_test(name: &str, src_base: &Path) {
     ui::Test::src_base(name, src_base).run();
 }
 
+/// Test a library on one example target.
+///
+/// - `name` is the name of a Dylint library to be tested.
+/// - `example` is an example target on which to test the library.
 pub fn ui_test_example(name: &str, example: &str) {
     ui::Test::example(name, example).run();
 }
 
+/// Test a library on all example targets.
+///
+/// - `name` is the name of a Dylint library to be tested.
 pub fn ui_test_examples(name: &str) {
     ui::Test::examples(name).run();
 }
@@ -65,6 +79,7 @@ fn initialize(name: &str) -> Result<&Path> {
         .map(PathBuf::as_path)
 }
 
+#[doc(hidden)]
 pub fn dylint_libs(name: &str) -> Result<String> {
     let metadata = dylint_internal::cargo::current_metadata().unwrap();
     let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
