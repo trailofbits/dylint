@@ -16,6 +16,7 @@ pub(super) struct Config {
     pub(super) dylint_toml: Option<String>,
 }
 
+/// Test builder
 pub struct Test {
     name: String,
     target: Target,
@@ -23,21 +24,31 @@ pub struct Test {
 }
 
 impl Test {
+    /// Test a library on all source files in a directory (similar to [`ui_test`]).
+    ///
+    /// [`ui_test`]: crate::ui_test
     #[must_use]
     pub fn src_base(name: &str, src_base: &Path) -> Self {
         Self::new(name, Target::SrcBase(src_base.to_owned()))
     }
 
+    /// Test a library on one example target (similar to [`ui_test_example`]).
+    ///
+    /// [`ui_test_example`]: crate::ui_test_example
     #[must_use]
     pub fn example(name: &str, example: &str) -> Self {
         Self::new(name, Target::Example(example.to_owned()))
     }
 
+    /// Test a library on all example targets (similar to [`ui_test_examples`]).
+    ///
+    /// [`ui_test_examples`]: crate::ui_test_examples
     #[must_use]
     pub fn examples(name: &str) -> Self {
         Self::new(name, Target::Examples)
     }
 
+    /// Pass flags to the compiler when running the test.
     pub fn rustc_flags(
         &mut self,
         rustc_flags: impl IntoIterator<Item = impl AsRef<str>>,
@@ -48,11 +59,13 @@ impl Test {
         self
     }
 
+    /// Set the `dylint.toml` file's contents (for testing configurable libraries).
     pub fn dylint_toml(&mut self, dylint_toml: impl AsRef<str>) -> &mut Self {
         self.config.dylint_toml = Some(dylint_toml.as_ref().to_owned());
         self
     }
 
+    /// Run the test.
     pub fn run(&mut self) {
         self.run_immutable();
     }
