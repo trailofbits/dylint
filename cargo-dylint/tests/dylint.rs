@@ -59,6 +59,34 @@ fn versions_are_exact_and_match() {
 }
 
 #[test]
+fn requirements_do_not_include_patch_versions() {
+    let metadata = ["../driver", "../utils/linting"].map(|path| {
+        MetadataCommand::new()
+            .current_dir(path)
+            .no_deps()
+            .exec()
+            .unwrap()
+    });
+
+    for metadata in std::iter::once(&*METADATA).chain(metadata.iter()) {
+        for package in &metadata.packages {
+            for Dependency { name: dep, req, .. } in &package.dependencies {
+                if dep.starts_with("dylint") {
+                    continue;
+                }
+                assert!(
+                    req.comparators
+                        .iter()
+                        .all(|comparator| comparator.patch.is_none()),
+                    "`{}` requirement on `{dep}` includes patch version: {req}",
+                    package.name
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn workspace_and_cargo_dylint_readmes_are_equivalent() {
     let workspace_readme = readme_contents(".").unwrap();
 
