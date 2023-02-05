@@ -591,6 +591,7 @@ dependencies = [
  "cargo_metadata",
  "dirs",
  "git2",
+ "home",
  "if_chain",
  "log",
  "rust-embed",

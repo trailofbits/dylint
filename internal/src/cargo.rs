@@ -1,12 +1,10 @@
-use crate::env;
 use ansi_term::Style;
 use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
-use std::{
-    io::Write,
-    path::{Path, PathBuf},
-    process::Stdio,
-};
+use std::{io::Write, path::Path, process::Stdio};
+
+#[allow(clippy::module_name_repetitions)]
+pub use home::cargo_home;
 
 #[must_use]
 pub fn build(description: &str, quiet: bool) -> crate::Command {
@@ -67,23 +65,13 @@ fn cargo(subcommand: &str, verb: &str, description: &str, quiet: bool) -> crate:
                 .chain(std::env::split_paths(&old_path)),
         )
         .unwrap();
-        command.envs(vec![(env::PATH, new_path)]);
+        command.envs(vec![(crate::env::PATH, new_path)]);
     }
     command.args([subcommand]);
     if quiet {
         command.stderr(Stdio::null());
     }
     command
-}
-
-#[allow(clippy::module_name_repetitions)]
-pub fn cargo_home() -> Result<PathBuf> {
-    match env::var(env::CARGO_HOME) {
-        Ok(value) => Ok(PathBuf::from(value)),
-        Err(error) => dirs::home_dir()
-            .map(|path| path.join(".cargo"))
-            .ok_or(error),
-    }
 }
 
 /// Get metadata based on the current directory.
