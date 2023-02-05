@@ -35,7 +35,7 @@ fn linker() -> Result<PathBuf> {
     let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
     let target = parse_toolchain(&rustup_toolchain)
         .map_or_else(|| env!("TARGET").to_owned(), |(_, target)| target);
-    let cargo_home = cargo_home()?;
+    let cargo_home = cargo_home().with_context(|| "Could not determine `CARGO_HOME`")?;
     let config_toml = cargo_home.join("config.toml");
     if config_toml.is_file() {
         let file = read_to_string(&config_toml).with_context(|| {
