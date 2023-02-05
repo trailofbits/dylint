@@ -1,5 +1,5 @@
 // run-rustfix
-#![warn(clippy::redundant_closure, clippy::redundant_closure_for_method_calls)]
+#![feature(custom_inner_attributes)] #![rustfmt::skip]
 #![allow(unused)]
 #![allow(
     clippy::needless_borrow,
