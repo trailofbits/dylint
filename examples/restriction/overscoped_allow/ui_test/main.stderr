@@ -1,0 +1,18 @@
+error: `allow` could be moved closer to diagnostic source
+  --> $DIR/main.rs:1:40
+   |
+LL | #![allow(clippy::missing_const_for_fn, clippy::panic)]
+   |                                        ^^^^^^^^^^^^^
+   |
+help: `allow` could be moved here
+  --> $DIR/main.rs:7:1
+   |
+LL | #[test]
+   | ------- in this procedural macro expansion
+LL | fn panic() {
+   | ^
+   = note: `-D overscoped-allow` implied by `-D warnings`
+   = note: this error originates in the attribute macro `test` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: aborting due to previous error
+

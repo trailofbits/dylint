@@ -8,8 +8,10 @@ An `allow` attribute whose scope is too large could suppress warnings/errors and
 to go unnoticed.
 
 ### Known problems
-Recommends to reduce to item, `Impl` item, and statement scopes only (not arbitrary inner
-scopes).
+- Recommends to reduce to item, `Impl` item, and statement scopes only (not arbitrary inner
+  scopes).
+- Cannot see inside `#[test]` functions, i.e., does not recommend to reduce to a scope
+  smaller than an entire test.
 
 ### How to use this lint
 Two steps are required:
