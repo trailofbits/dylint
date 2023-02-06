@@ -1,5 +1,4 @@
 #![allow(dead_code)]
-#![warn(clippy::module_name_repetitions, clippy::unused_self)]
 
 fn main() {}
 
@@ -22,20 +21,38 @@ fn stmt() {
     Some(()).unwrap();
 }
 
+#[allow(clippy::module_name_repetitions)]
+mod nested_item {
+    mod item {
+        pub struct ItemStruct;
+    }
+}
+
+mod nested_impl_item {
+    #[allow(clippy::unused_self)]
+    mod impl_item {
+        struct S;
+
+        impl S {
+            fn foo(&self) {}
+        }
+    }
+}
+
 #[allow(clippy::unwrap_used)]
-mod nested {
+mod nested_stmt {
     fn stmt() {
         Some(()).unwrap();
     }
 }
 
-#[allow(clippy::module_name_repetitions, clippy::unwrap_used)]
-fn multiple_allows() {
+#[cfg_attr(all(), allow(clippy::unwrap_used))]
+fn cfg_attr() {
     Some(()).unwrap();
 }
 
-#[cfg_attr(all(), allow(clippy::unwrap_used))]
-fn cfg_attr() {
+#[allow(clippy::module_name_repetitions, clippy::unwrap_used)]
+fn multiple_allows() {
     Some(()).unwrap();
 }
 

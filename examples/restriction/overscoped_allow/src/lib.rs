@@ -17,7 +17,7 @@ use dylint_internal::env::var;
 use if_chain::if_chain;
 use rustc_ast::ast::{Attribute, MetaItem, NestedMetaItem};
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
-use rustc_hir::{Block, HirId, ImplItem, Item};
+use rustc_hir::{Block, HirId, ImplItem, Item, CRATE_HIR_ID};
 use rustc_lint::{LateContext, LateLintPass, LintContext, LintStore};
 use rustc_session::{declare_lint, impl_lint_pass, Session};
 use rustc_span::{sym, BytePos, CharPos, FileLines, FileName, RealFileName, Span, Symbol};
@@ -39,8 +39,10 @@ declare_lint! {
     /// to go unnoticed.
     ///
     /// ### Known problems
-    /// Recommends to reduce to item, `Impl` item, and statement scopes only (not arbitrary inner
-    /// scopes).
+    /// - Recommends to reduce to item, `Impl` item, and statement scopes only (not arbitrary inner
+    ///   scopes).
+    /// - Cannot see inside `#[test]` functions, i.e., does not recommend to reduce to a scope
+    ///   smaller than an entire test.
     ///
     /// ### How to use this lint
     /// Two steps are required:
@@ -154,6 +156,10 @@ impl<'tcx> LateLintPass<'tcx> for OverscopedAllow {
         for stmt in block.stmts {
             self.visit(cx, stmt.hir_id);
         }
+    }
+
+    fn check_crate_post(&mut self, cx: &LateContext<'tcx>) {
+        self.emit(cx, CRATE_HIR_ID);
     }
 }
 
@@ -331,16 +337,24 @@ fn meta_item_for_diagnostic(attr: &Attribute, diagnostic: &Diagnostic) -> Option
 mod test {
     use super::OVERSCOPED_ALLOW_PATH;
     use assert_cmd::prelude::*;
-    use std::{env::set_var, process::Command};
+    use std::{env::set_var, process::Command, sync::Mutex};
     use tempfile::NamedTempFile;
 
+    static MUTEX: Mutex<()> = Mutex::new(());
+
+    #[cfg_attr(
+        dylint_lib = "non_thread_safe_call_in_test",
+        allow(non_thread_safe_call_in_test)
+    )]
     #[test]
-    fn ui() {
+    fn ui_general() {
+        let _lock = MUTEX.lock().unwrap();
+
         let (file, temp_path) = NamedTempFile::new().unwrap().into_parts();
         Command::new("cargo")
             .args([
                 "clippy",
-                "--examples",
+                "--example=ui_general",
                 "--message-format=json",
                 "--",
                 "--force-warn=clippy::module-name-repetitions",
@@ -359,7 +373,39 @@ mod test {
         // (temporary) `warnings.json` file.
         dylint_testing::ui_test(
             env!("CARGO_PKG_NAME"),
-            &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
+            &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_general"),
         );
+    }
+
+    #[cfg_attr(
+        dylint_lib = "non_thread_safe_call_in_test",
+        allow(non_thread_safe_call_in_test)
+    )]
+    #[test]
+    fn ui_test() {
+        let _lock = MUTEX.lock().unwrap();
+
+        let (file, temp_path) = NamedTempFile::new().unwrap().into_parts();
+        Command::new("cargo")
+            .args([
+                "clippy",
+                "--tests",
+                "--message-format=json",
+                "--",
+                "--force-warn=clippy::panic",
+            ])
+            .stdout(file)
+            .assert()
+            .success();
+        set_var(
+            OVERSCOPED_ALLOW_PATH,
+            temp_path.to_string_lossy().to_string(),
+        );
+        dylint_testing::ui::Test::src_base(
+            env!("CARGO_PKG_NAME"),
+            &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_test"),
+        )
+        .rustc_flags(["--test"])
+        .run();
     }
 }
