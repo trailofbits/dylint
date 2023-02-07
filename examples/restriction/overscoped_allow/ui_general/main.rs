@@ -7,6 +7,13 @@ mod item {
     pub struct ItemStruct;
 }
 
+#[allow(clippy::wrong_self_convention)]
+mod trait_item {
+    trait T {
+        fn into_foo(&self) {}
+    }
+}
+
 mod impl_item {
     struct S;
 
@@ -25,6 +32,15 @@ fn stmt() {
 mod nested_item {
     mod item {
         pub struct ItemStruct;
+    }
+}
+
+#[allow(clippy::wrong_self_convention)]
+mod nested_trait_item {
+    mod trait_item {
+        trait T {
+            fn into_foo(&self) {}
+        }
     }
 }
 
@@ -61,6 +77,13 @@ mod negative_item {
     pub struct NegativeItemStruct;
 }
 
+mod negative_trait_item {
+    trait T {
+        #[allow(clippy::unused_self)]
+        fn foo(&self) {}
+    }
+}
+
 mod negative_impl_item {
     struct S;
 
@@ -76,7 +99,12 @@ fn negative_stmt() {
 }
 
 #[allow(clippy::unwrap_used)]
+fn negative_semi() {
+    Some(()).unwrap() as ();
+}
+
+#[allow(clippy::unwrap_used)]
 fn negative_multiple_diagnostics() {
     Some(()).unwrap();
-    Some(()).unwrap();
+    Some(()).unwrap() as ();
 }
