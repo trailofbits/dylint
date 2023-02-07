@@ -17,7 +17,9 @@ use dylint_internal::env::var;
 use if_chain::if_chain;
 use rustc_ast::ast::{Attribute, MetaItem, NestedMetaItem};
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
-use rustc_hir::{Block, HirId, ImplItem, Item, CRATE_HIR_ID};
+use rustc_hir::{
+    Block, Expr, ExprKind, HirId, ImplItem, Item, ItemKind, Node, Stmt, StmtKind, CRATE_HIR_ID,
+};
 use rustc_lint::{LateContext, LateLintPass, LintContext, LintStore};
 use rustc_session::{declare_lint, impl_lint_pass, Session};
 use rustc_span::{sym, BytePos, CharPos, FileLines, FileName, RealFileName, Span, Symbol};
@@ -39,8 +41,8 @@ declare_lint! {
     /// to go unnoticed.
     ///
     /// ### Known problems
-    /// - Recommends to reduce to item, `Impl` item, and statement scopes only (not arbitrary inner
-    ///   scopes).
+    /// - Recommends to reduce to item, trait item, `impl` item, and statement scopes only (not
+    ///   arbitrary inner scopes).
     /// - Cannot see inside `#[test]` functions, i.e., does not recommend to reduce to a scope
     ///   smaller than an entire test.
     ///
@@ -88,7 +90,7 @@ declare_lint! {
 #[derive(Default)]
 struct OverscopedAllow {
     diagnostics: Vec<Diagnostic>,
-    ancestor_meta_item_span_map: FxHashMap<HirId, FxHashMap<Span, FxHashSet<Span>>>,
+    ancestor_meta_item_span_map: FxHashMap<HirId, FxHashMap<Span, FxHashSet<Option<Span>>>>,
 }
 
 impl_lint_pass!(OverscopedAllow => [OVERSCOPED_ALLOW]);
@@ -152,9 +154,22 @@ impl<'tcx> LateLintPass<'tcx> for OverscopedAllow {
         self.visit(cx, impl_item.hir_id());
     }
 
+    // smoelius: `LateLintPass` does not currently have `check_stmt_post` or `check_trait_item_post`
+    // methods:
+    // https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/passes/trait.LateLintPass.html
     fn check_block_post(&mut self, cx: &LateContext<'tcx>, block: &'tcx Block<'tcx>) {
         for stmt in block.stmts {
             self.visit(cx, stmt.hir_id);
+        }
+
+        // smoelius: The grandparent is the potential trait item (in which case, the parent is an
+        // `Expr`).
+        if let Node::TraitItem(trait_item) = cx
+            .tcx
+            .hir()
+            .get_parent(cx.tcx.hir().parent_id(block.hir_id))
+        {
+            self.visit(cx, trait_item.hir_id());
         }
     }
 
@@ -175,7 +190,7 @@ impl OverscopedAllow {
         while i < self.diagnostics.len() {
             if span_contains_diagnostic(cx, span, &self.diagnostics[i]) {
                 let diagnostic = self.diagnostics.swap_remove(i);
-                self.check_ancestor_lint_attrs(cx, hir_id, span, &diagnostic);
+                self.check_ancestor_lint_attrs(cx, hir_id, &diagnostic);
             } else {
                 i += 1;
             }
@@ -186,29 +201,47 @@ impl OverscopedAllow {
         &mut self,
         cx: &LateContext<'_>,
         hir_id: HirId,
-        span: Span,
         diagnostic: &Diagnostic,
     ) {
+        let started_in_test = is_extern_crate_test(cx, hir_id);
+        let mut target_hir_id = None;
+
         for ancestor_hir_id in std::iter::once(hir_id)
             .chain(cx.tcx.hir().parent_iter(hir_id).map(|(hir_id, _)| hir_id))
         {
+            if !can_have_attrs(cx, ancestor_hir_id) {
+                continue;
+            }
+
+            if target_hir_id.is_none() {
+                target_hir_id = Some(ancestor_hir_id);
+            }
+
             for attr in cx.tcx.hir().attrs(ancestor_hir_id) {
                 if !is_lint_attr(attr) {
                     continue;
                 }
                 if let Some(meta_item) = meta_item_for_diagnostic(attr, diagnostic) {
                     if attr.has_name(sym::allow) {
-                        if hir_id != ancestor_hir_id {
-                            let meta_item_span_map = self
-                                .ancestor_meta_item_span_map
-                                .entry(ancestor_hir_id)
-                                .or_default();
-                            let spans = meta_item_span_map.entry(meta_item.span).or_default();
-                            spans.insert(span.with_hi(span.lo()));
-                        }
+                        let target_span = target_hir_id.and_then(|target_hir_id| {
+                            if target_hir_id == ancestor_hir_id {
+                                None
+                            } else {
+                                Some(cx.tcx.hir().span(target_hir_id))
+                            }
+                        });
+                        let meta_item_span_map = self
+                            .ancestor_meta_item_span_map
+                            .entry(ancestor_hir_id)
+                            .or_default();
+                        let spans = meta_item_span_map.entry(meta_item.span).or_default();
+                        spans.insert(target_span);
                     } else {
+                        // smoelius: Don't alert if we started in a test. The `allow` could have
+                        // appeared inside the test, and `overscoped_allow` currently cannot see
+                        // inside tests.
                         assert!(
-                            attr.has_name(sym::expect),
+                            started_in_test || attr.has_name(sym::expect),
                             "Could not find `allow` for diagnostic: {diagnostic:?}"
                         );
                     }
@@ -222,17 +255,19 @@ impl OverscopedAllow {
         if let Some(meta_item_span_map) = self.ancestor_meta_item_span_map.remove(&hir_id) {
             for (meta_item_span, spans) in meta_item_span_map {
                 // smoelius: Don't warn about `allow`s spanning multiple diagnostics.
-                if spans.len() == 1 {
-                    for span in spans {
-                        span_lint_and_help(
-                            cx,
-                            OVERSCOPED_ALLOW,
-                            meta_item_span,
-                            "`allow` could be moved closer to diagnostic source",
-                            Some(span),
-                            "`allow` could be moved here",
-                        );
-                    }
+                // smoelius: If a span is `None`, it means we could not find a `Node` satisfying
+                // `can_have_attrs` between the diagnostic source (inclusive) and the `allow`
+                // (exclusive). This is likely due to `can_have_attrs` being incomplete.
+                if let [Some(span)] = spans.iter().collect::<Vec<_>>().as_slice() {
+                    let span = span.with_hi(span.lo());
+                    span_lint_and_help(
+                        cx,
+                        OVERSCOPED_ALLOW,
+                        meta_item_span,
+                        "`allow` could be moved closer to diagnostic source",
+                        Some(span),
+                        "`allow` could be moved here",
+                    );
                 }
             }
         }
@@ -291,6 +326,52 @@ fn local_path_from_span(cx: &LateContext<'_>, span: Span) -> Option<PathBuf> {
     } else {
         None
     }
+}
+
+fn is_extern_crate_test(cx: &LateContext<'_>, hir_id: HirId) -> bool {
+    let node = cx.tcx.hir().get(hir_id);
+    if let Node::Item(Item {
+        kind: ItemKind::ExternCrate(None),
+        ident,
+        ..
+    }) = node
+    {
+        ident.as_str() == "test"
+    } else {
+        false
+    }
+}
+
+// smoelius: `can_have_attrs` is not complete.
+fn can_have_attrs(cx: &LateContext<'_>, hir_id: HirId) -> bool {
+    let node = cx.tcx.hir().get(hir_id);
+
+    if matches!(node, Node::Item(_) | Node::TraitItem(_) | Node::ImplItem(_)) {
+        return true;
+    }
+
+    let Node::Stmt(Stmt { kind: stmt_kind , ..}) = node else {
+        return false;
+    };
+
+    // smoelius: Accept all non-semi statements.
+    let StmtKind::Semi(Expr { kind: expr_kind, .. }) = stmt_kind else {
+        return true;
+    };
+
+    // smoelius: Attributes have the same precedence as unary operators:
+    // https://github.com/rust-lang/rust/issues/15701#issuecomment-138092406
+    // Expression precedence is documented here:
+    // https://doc.rust-lang.org/reference/expressions.html#expression-precedence
+    matches!(
+        expr_kind,
+        ExprKind::Path(_)
+            | ExprKind::MethodCall(..)
+            | ExprKind::Field(..)
+            | ExprKind::Call(..)
+            | ExprKind::Index(..)
+            | ExprKind::Unary(..),
+    )
 }
 
 fn is_lint_attr(attr: &Attribute) -> bool {
@@ -360,6 +441,7 @@ mod test {
                 "--force-warn=clippy::module-name-repetitions",
                 "--force-warn=clippy::unused-self",
                 "--force-warn=clippy::unwrap-used",
+                "--force-warn=clippy::wrong-self-convention",
             ])
             .stdout(file)
             .assert()
