@@ -13,15 +13,15 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
 - [Quick start]
   - [Running Dylint]
   - [Writing lints]
-- [How libraries are found]
-- [Workspace metadata]
-- [Configurable libraries]
-- [Conditional compilation]
-- [Library requirements]
+- [Features]
+  - [Workspace metadata]
+  - [Configurable libraries]
+  - [Conditional compilation]
+  - [VS Code integration]
 - [Utilities]
-- [VS Code integration]
-- [Limitations]
 - [Resources]
+
+Documentation is also available on [how Dylint works].
 
 ## Quick start
 
@@ -49,7 +49,7 @@ The next three steps install Dylint and run all of this repository's [example li
    cargo dylint --all --workspace
    ```
 
-In the above example, the libraries are found via [workspace metadata] (see below).
+In the above example, the libraries are found via [workspace metadata], which is the recommended way. For additional ways of finding libraries, see [How Dylint works].
 
 ### Writing lints
 
@@ -66,27 +66,9 @@ All you have to do is implement the [`LateLintPass`] trait and accommodate the s
 
 Helpful [resources] for writing lints appear below.
 
-## How libraries are found
+## Features
 
-Dylint tries to run all lints in all libraries named on the command line. Dylint resolves names to libraries in the following three ways:
-
-1. Via the `DYLINT_LIBRARY_PATH` environment variable. If `DYLINT_LIBRARY_PATH` is set when Dylint is started, Dylint treats it as a colon-separated list of paths, and searches each path for files with names of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` (see [Library requirements] below). For each such file found, `LIBRARY_NAME` resolves to that file.
-
-2. Via workspace metadata. If Dylint is started in a workspace, Dylint checks the workspace's `Cargo.toml` file for `workspace.metadata.dylint.libraries` (see [Workspace metadata] below). Dylint downloads and builds each listed entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched and names are resolved in the manner described in 1 above.
-
-3. By path. If a name does not resolve to a library via 1 or 2, it is treated as a path.
-
-It is considered an error if a name used on the command line resolves to multiple libraries.
-
-If `--lib name` is used, then `name` is is treated only as a library name, and not as a path.
-
-If `--path name` is used, then `name` is is treated only as a path, and not as a library name.
-
-If `--all` is used, Dylint runs all lints in all libraries discovered via 1 and 2 above.
-
-Note: Earlier versions of Dylint searched the current package's `target/debug` and `target/release` directories for libraries. This feature has been removed.
-
-## Workspace metadata
+### Workspace metadata
 
 A workspace can name the libraries it should be linted with in its `Cargo.toml` file. Specifically, a workspace's manifest can contain a TOML list under `workspace.metadata.dylint.libraries`. Each list entry must have the form of a Cargo `git` or `path` dependency, with the following differences:
 
@@ -94,7 +76,7 @@ A workspace can name the libraries it should be linted with in its `Cargo.toml` 
 - `path` entries can contain [glob] patterns, e.g., `*`.
 - Any entry can contain a `pattern` field whose value is a [glob] pattern. The `pattern` field indicates the subdirectories that contain Dylint libraries.
 
-Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements] below).
+Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements] under [How Dylint works]).
 
 As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run on your workspace all of this repository's [example general lints], as well as the example restriction lint [`try_io_result`].
 
@@ -106,7 +88,7 @@ libraries = [
 ]
 ```
 
-## Configurable libraries
+### Configurable libraries
 
 Libraries can be configured by including a `dylint.toml` file in a linted workspace's root directory. The file should encode a [toml table] whose keys are library names. A library determines how its value in the table (if any) is interpreted.
 
@@ -119,7 +101,7 @@ work_limit = 1_000_000
 
 For instructions on creating a configurable library, see the [`dylint_linting`] documentation.
 
-## Conditional compilation
+### Conditional compilation
 
 For each library that Dylint uses to check a crate, Dylint passes the following to the Rust compiler:
 
@@ -144,61 +126,7 @@ Also note that the just described approach does not work for pre-expansion lints
 
 For an example involving [`env_cargo_path`], see [internal/src/examples.rs] in this repository.
 
-## Library requirements
-
-A Dylint library must satisfy four requirements. **Note:** Before trying to satisfy these explicitly, see [Utilities] below.
-
-1. Have a filename of the form:
-
-   ```
-   DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX
-   ```
-
-   The following is a concrete example on Linux:
-
-   ```
-   libquestion_mark_in_expression@nightly-2021-04-08-x86_64-unknown-linux-gnu.so
-   ```
-
-   The filename components are as follows:
-
-   - `DLL_PREFIX` and `DLL_SUFFIX` are OS-specific strings. For example, on Linux, they are `lib` and `.so`, respectively.
-   - `LIBRARY_NAME` is a name chosen by the library's author.
-   - `TOOLCHAIN` is the Rust toolchain for which the library is compiled, e.g., `nightly-2021-04-08-x86_64-unknown-linux-gnu`.
-
-2. Export a `dylint_version` function:
-
-   ```rust
-   extern "C" fn dylint_version() -> *mut std::os::raw::c_char
-   ```
-
-   This function should return `0.1.0`. This may change in future versions of Dylint.
-
-3. Export a `register_lints` function:
-
-   ```rust
-   fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore)
-   ```
-
-   This is a function called by the Rust compiler. It is documented [here].
-
-4. Link against the `rustc_driver` dynamic library. This ensures the library uses Dylint's copies of the Rust compiler crates. This requirement can be satisfied by including the following declaration in your library's `lib.rs` file:
-   ```rust
-   extern crate rustc_driver;
-   ```
-
-Dylint provides [utilities] to help meet the above requirements. If your library uses the [`dylint-link`] tool and the [`dylint_library!`] macro, then all you should have to do is implement the [`register_lints`] function.
-
-## Utilities
-
-The following utilities can be helpful for writing Dylint libraries:
-
-- [`dylint-link`] is a wrapper around Rust's default linker (`cc`) that creates a copy of your library with a filename that Dylint recognizes.
-- [`dylint_library!`] is a macro that automatically defines the `dylint_version` function and adds the `extern crate rustc_driver` declaration.
-- [`ui_test`] is a function that can be used to test Dylint libraries. It provides convenient access to the [`compiletest_rs`] package.
-- [`clippy_utils`] is a collection of utilities to make writing lints easier. It is generously made public by the Rust Clippy Developers. Note that, like `rustc`, `clippy_utils` provides no stability guarantees for its APIs.
-
-## VS Code integration
+### VS Code integration
 
 Dylint results can be viewed in VS Code using [rust-analyzer]. To do so, add the following to your VS Code `settings.json` file:
 
@@ -227,11 +155,14 @@ And add the following to the library's `Cargo.toml` file:
 rustc_private = true
 ```
 
-## Limitations
+## Utilities
 
-To run a library's lints on a package, Dylint tries to build the package with the same toolchain used to build the library. So if a package requires a specific toolchain to build, Dylint may not be able to apply certain libraries to that package.
+The following utilities can be helpful for writing Dylint libraries:
 
-One way this problem can manifest itself is if you try to run one library's lints on the source code of another library. That is, if two libraries use different toolchains, they may not be applicable to each other.
+- [`dylint-link`] is a wrapper around Rust's default linker (`cc`) that creates a copy of your library with a filename that Dylint recognizes.
+- [`dylint_library!`] is a macro that automatically defines the `dylint_version` function and adds the `extern crate rustc_driver` declaration.
+- [`ui_test`] is a function that can be used to test Dylint libraries. It provides convenient access to the [`compiletest_rs`] package.
+- [`clippy_utils`] is a collection of utilities to make writing lints easier. It is generously made public by the Rust Clippy Developers. Note that, like `rustc`, `clippy_utils` provides no stability guarantees for its APIs.
 
 ## Resources
 
@@ -257,7 +188,6 @@ Helpful resources for writing lints include the following:
 [`latelintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
 [`non_local_effect_before_error_return`]: ../examples/general/non_local_effect_before_error_return
 [`non_thread_safe_call_in_test`]: ../examples/general/non_thread_safe_call_in_test
-[`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 [`try_io_result`]: ../examples/restriction/try_io_result
 [`ui_test`]: ../utils/testing
 [`unknown_lints`]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#unknown-lints
@@ -271,14 +201,13 @@ Helpful resources for writing lints include the following:
 [dylint/src/lib.rs]: ../dylint/src/lib.rs
 [example general lints]: ../examples/general
 [example lints]: ../examples
+[features]: #features
 [field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
 [glob]: https://docs.rs/glob/0.3.0/glob/struct.Pattern.html
 [guide to rustc development]: https://rustc-dev-guide.rust-lang.org/
-[here]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
-[how libraries are found]: #how-libraries-are-found
+[how dylint works]: ../docs/how_dylint_works.md
 [internal/src/examples.rs]: ../internal/src/examples.rs
-[library requirements]: #library-requirements
-[limitations]: #limitations
+[library requirements]: ../docs/how_dylint_works.md#library-requirements
 [method `hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.hir
 [method `typeck_results`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#method.typeck_results
 [quick start]: #quick-start
