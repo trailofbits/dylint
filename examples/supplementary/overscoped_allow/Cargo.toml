@@ -2,7 +2,7 @@
 name = "overscoped_allow"
 version = "2.1.4"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "`allow` attributes whose scope could be reduced"
+description = "A lint to check for `allow` attributes whose scope could be reduced"
 edition = "2021"
 publish = false
 

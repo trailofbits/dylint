@@ -9,38 +9,38 @@ The example libraries are separated into the following three categories:
 
 ## General
 
-| Example                                                                                  | Description                                                                        |
-| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| [`await_holding_span_guard`](./general/await_holding_span_guard)                         | A lint to check for Span guards held while calling await inside an async function  |
-| [`crate_wide_allow`](./general/crate_wide_allow)                                         | A lint to check for `#![allow(...)]` used at the crate level                       |
-| [`env_cargo_path`](./general/env_cargo_path)                                             | A lint to check for `env!` applied to Cargo environment variables containing paths |
-| [`non_local_effect_before_error_return`](./general/non_local_effect_before_error_return) | A lint to check for non-local effects before return of an error                    |
-| [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test)                 | A lint to check for non-thread-safe function calls in tests                        |
+| Example                                                                                  | Description/check                                              |
+| ---------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [`await_holding_span_guard`](./general/await_holding_span_guard)                         | Span guards held while calling await inside an async function  |
+| [`crate_wide_allow`](./general/crate_wide_allow)                                         | `#![allow(...)]` used at the crate level                       |
+| [`env_cargo_path`](./general/env_cargo_path)                                             | `env!` applied to Cargo environment variables containing paths |
+| [`non_local_effect_before_error_return`](./general/non_local_effect_before_error_return) | Non-local effects before return of an error                    |
+| [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test)                 | Non-thread-safe function calls in tests                        |
 
 ## Supplementary
 
-| Example                                                                                | Description                                                                  |
-| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| [`overscoped_allow`](./supplementary/overscoped_allow)                                 | `allow` attributes whose scope could be reduced                              |
-| [`redundant_reference`](./supplementary/redundant_reference)                           | A lint to check for reference fields used only to read one copyable subfield |
-| [`unnecessary_conversion_for_trait`](./supplementary/unnecessary_conversion_for_trait) | A lint to check for unnecessary trait-behavior-preserving calls              |
+| Example                                                                                | Description/check                                        |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| [`overscoped_allow`](./supplementary/overscoped_allow)                                 | `allow` attributes whose scope could be reduced          |
+| [`redundant_reference`](./supplementary/redundant_reference)                           | Reference fields used only to read one copyable subfield |
+| [`unnecessary_conversion_for_trait`](./supplementary/unnecessary_conversion_for_trait) | Unnecessary trait-behavior-preserving calls              |
 
 ## Restriction
 
-| Example                                                                                                      | Description                                                                                          |
-| ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| [`collapsible_unwrap`](./restriction/collapsible_unwrap)                                                     | A lint to check for an `unwrap` that could be combined with an `expect` or `unwrap` using `and_then` |
-| [`const_path_join`](./restriction/const_path_join)                                                           | A lint to check for joining of constant path components                                              |
-| [`env_literal`](./restriction/env_literal)                                                                   | A lint to check for environment variables referred to with string literals                           |
-| [`inconsistent_qualification`](./restriction/inconsistent_qualification)                                     | A lint to check for inconsistent qualification of module items                                       |
-| [`question_mark_in_expression`](./restriction/question_mark_in_expression)                                   | A lint to check for the `?` operator in expressions                                                  |
-| [`ref_aware_redundant_closure_for_method_calls`](./restriction/ref_aware_redundant_closure_for_method_calls) | A ref-aware fork of `redundant_closure_for_method_calls`                                             |
-| [`suboptimal_pattern`](./restriction/suboptimal_pattern)                                                     | A lint to check for patterns that could perform additional destructuring                             |
-| [`try_io_result`](./restriction/try_io_result)                                                               | A lint to check for the `?` operator applied to `std::io::Result`                                    |
+| Example                                                                                                      | Description/check                                                                |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| [`collapsible_unwrap`](./restriction/collapsible_unwrap)                                                     | An `unwrap` that could be combined with an `expect` or `unwrap` using `and_then` |
+| [`const_path_join`](./restriction/const_path_join)                                                           | Joining of constant path components                                              |
+| [`env_literal`](./restriction/env_literal)                                                                   | Environment variables referred to with string literals                           |
+| [`inconsistent_qualification`](./restriction/inconsistent_qualification)                                     | Inconsistent qualification of module items                                       |
+| [`question_mark_in_expression`](./restriction/question_mark_in_expression)                                   | The `?` operator in expressions                                                  |
+| [`ref_aware_redundant_closure_for_method_calls`](./restriction/ref_aware_redundant_closure_for_method_calls) | A ref-aware fork of `redundant_closure_for_method_calls`                         |
+| [`suboptimal_pattern`](./restriction/suboptimal_pattern)                                                     | Patterns that could perform additional destructuring                             |
+| [`try_io_result`](./restriction/try_io_result)                                                               | The `?` operator applied to `std::io::Result`                                    |
 
 ## Testing
 
-| Example                            | Description                                            |
+| Example                            | Description/check                                      |
 | ---------------------------------- | ------------------------------------------------------ |
 | [`clippy`](./testing/clippy)       | All of the Clippy lints as a Dylint library            |
 | [`straggler`](./testing/straggler) | A lint that uses an old toolchain for testing purposes |
