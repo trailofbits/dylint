@@ -677,6 +677,7 @@ version = "2.1.4"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
+ "toml_edit 0.19.3",
 ]
 
 [[package]]
@@ -1812,6 +1813,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "toml_datetime"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ab8ed2edee10b50132aed5f331333428b011c99402b5a534154ed15746f9622"
+
+[[package]]
 name = "toml_edit"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1822,7 +1829,7 @@ dependencies = [
  "itertools",
  "kstring",
  "serde",
- "toml_datetime",
+ "toml_datetime 0.5.1",
 ]
 
 [[package]]
@@ -1834,7 +1841,18 @@ dependencies = [
  "indexmap",
  "itertools",
  "nom8",
- "toml_datetime",
+ "toml_datetime 0.5.1",
+]
+
+[[package]]
+name = "toml_edit"
+version = "0.19.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5e6a7712b49e1775fb9a7b998de6635b299237f48b404dde71704f2e0e7f37e5"
+dependencies = [
+ "indexmap",
+ "nom8",
+ "toml_datetime 0.6.1",
 ]
 
 [[package]]
