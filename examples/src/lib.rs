@@ -5,6 +5,7 @@ mod test {
         clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment,
     };
     use std::{ffi::OsStr, fs::read_to_string};
+    use toml_edit::{Document, Item, Value};
 
     #[test]
     fn examples() {
@@ -68,6 +69,30 @@ mod test {
             } else {
                 prev = Some(curr);
             }
+        }
+    }
+
+    #[test]
+    fn examples_do_not_require_rust_src() {
+        for path in iter().unwrap() {
+            let path = path.unwrap();
+
+            let contents = read_to_string(path.join("rust-toolchain")).unwrap();
+            let document = contents.parse::<Document>().unwrap();
+            let values = document
+                .as_table()
+                .get("toolchain")
+                .and_then(Item::as_table)
+                .and_then(|table| table.get("components"))
+                .and_then(Item::as_array)
+                .unwrap();
+            let components = values
+                .iter()
+                .map(Value::as_str)
+                .collect::<Option<Vec<_>>>()
+                .unwrap();
+
+            assert!(!components.contains(&"rust-src"));
         }
     }
 }
