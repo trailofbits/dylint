@@ -26,11 +26,12 @@ while read -r X; do
             CATEGORY="${CATEGORIES[0]}"
             # shellcheck disable=SC2206
             CATEGORIES=(${CATEGORIES[@]:1})
-            echo '| Example | Description |'
+            echo '| Example | Description/check |'
             echo '| - | - |'
             # shellcheck disable=SC2016
             grep '^description = "[^"]*"$' "$CATEGORY"/*/Cargo.toml |
-            sed 's,^\([^/]*/\([^/]*\)\)/Cargo.toml:description = "\([^"]*\)"$,| [`\2`](./\1) | \3 |,'
+            sed 's,^\([^/]*/\([^/]*\)\)/Cargo.toml:description = "\([^"]*\)"$,| [`\2`](./\1) | \3 |,' |
+            sed 's/| A lint to check for \([^|]*\) |$/| \u\1 |/'
             LISTED=1
         fi
         continue
