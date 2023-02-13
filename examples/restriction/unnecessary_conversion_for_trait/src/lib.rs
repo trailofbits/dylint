@@ -253,8 +253,8 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                     Some(expr).zip(refs_prefix)
                 };
 
-                if let Some((inner_arg, refs_prefix)) = strip_unnecessary_conversions(expr, ancestor_mutabilities)
-                    && let Some(snippet) = snippet_opt(cx, inner_arg.span)
+                if let Some((inner_arg, refs_prefix)) =
+                    strip_unnecessary_conversions(expr, ancestor_mutabilities)
                 {
                     let (is_bare_method_call, subject) =
                         if matches!(expr.kind, ExprKind::MethodCall(..)) {
@@ -283,7 +283,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             None,
                             "use the macro arguments directly",
                         );
-                    } else {
+                    } else if let Some(snippet) = snippet_opt(cx, inner_arg.span) {
                         span_lint_and_sugg(
                             cx,
                             UNNECESSARY_CONVERSION_FOR_TRAIT,
