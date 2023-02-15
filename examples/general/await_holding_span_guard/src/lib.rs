@@ -28,7 +28,7 @@ dylint_linting::declare_late_lint! {
     /// This means that another task will begin executing while remaining in the entered span.
     ///
     /// ### Known problems
-    /// Will report false positive for explicitly dropped refs ([#6353](https://github.com/rust-lang/rust-clippy/issues/6353)).
+    /// Will report false positive for explicitly dropped refs ([#6353]).
     ///
     /// ### Example
     /// ```rust,ignore
@@ -75,6 +75,8 @@ dylint_linting::declare_late_lint! {
     ///     .await // ...and await it.
     /// }
     /// ```
+    ///
+    /// [#6353]: https://github.com/rust-lang/rust-clippy/issues/6353
     pub AWAIT_HOLDING_SPAN_GUARD,
     Warn,
     "Inside an async function, holding a Span guard while calling await"

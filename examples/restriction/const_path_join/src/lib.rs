@@ -24,7 +24,7 @@ dylint_linting::declare_late_lint! {
     ///
     /// ### Why is this bad?
     /// Such paths can be constructed from string literals using `/`, since `/` works as a path
-    /// separator on both Unix and Windows (see [std::path::Path]).
+    /// separator on both Unix and Windows (see [`std::path::Path`]).
     ///
     /// ### Example
     /// ```rust
@@ -41,7 +41,7 @@ dylint_linting::declare_late_lint! {
     /// # ;
     /// ```
     ///
-    /// [std::path::Path]: https://doc.rust-lang.org/std/path/struct.Path.html
+    /// [`std::path::Path`]: https://doc.rust-lang.org/std/path/struct.Path.html
     pub CONST_PATH_JOIN,
     Warn,
     "joining of constant path components"

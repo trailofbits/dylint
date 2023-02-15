@@ -28,4 +28,4 @@ fn foo() -> anyhow::Result<()> {
 }
 ```
 
-[Error Handling Survey]: https://blog.yoshuawuyts.com/error-handling-survey/
+[error handling survey]: https://blog.yoshuawuyts.com/error-handling-survey/

@@ -153,19 +153,19 @@
 //! [`declare_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint_pass.html
 //! [`dylint-link`]: ../../dylint-link
 //! [`dylint_library!`]: #dylint_library
+//! [`env_cargo_path`]: ../../examples/general/env_cargo_path/src/lib.rs
 //! [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]: #impl_late_lint-etc
 //! [`impl_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html
 //! [`init_config`]: crate::init_config
 //! [`lintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
+//! [`non_local_effect_before_error_return`]: ../../examples/general/non_local_effect_before_error_return/src/lib.rs
 //! [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 //! [`try_init_config`]: crate::try_init_config
 //! [configurable libraries]: #configurable-libraries
 //! [docs.rs documentation]: https://docs.rs/dylint_linting/latest/dylint_linting/
 //! [docs.rs]: https://docs.rs/dylint_linting/latest/dylint_linting/
 //! [dylint]: ../..
-//! [env_cargo_path]: ../../examples/general/env_cargo_path/src/lib.rs
 //! [examples]: ../../examples
-//! [non_local_effect_before_error_return]: ../../examples/general/non_local_effect_before_error_return/src/lib.rs
 
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
