@@ -41,10 +41,17 @@ declare_lint! {
     /// to go unnoticed.
     ///
     /// ### Known problems
-    /// - Recommends to reduce to item, trait item, `impl` item, and statement scopes only (not
-    ///   arbitrary inner scopes).
+    /// - Recommends to reduce to the following scopes only (not arbitrary inner scopes):
+    ///   - item
+    ///   - trait item
+    ///   - `impl` item
+    ///   - statement
+    ///   - expression at the end of a block
     /// - Cannot see inside `#[test]` functions, i.e., does not recommend to reduce to a scope
     ///   smaller than an entire test.
+    /// - `--force-warn` does not override `clippy.toml` settings. So if `allow-unwrap-in-tests` is
+    ///   set to `true`, `overscoped_allow` will not recommend to reduce scopes inside modules
+    ///   marked with `#[cfg(test)]`, for example.
     ///
     /// ### How to use this lint
     /// Two steps are required:
@@ -162,6 +169,10 @@ impl<'tcx> LateLintPass<'tcx> for OverscopedAllow {
     fn check_block_post(&mut self, cx: &LateContext<'tcx>, block: &'tcx Block<'tcx>) {
         for stmt in block.stmts {
             self.visit(cx, stmt.hir_id);
+        }
+
+        if let Some(expr) = block.expr {
+            self.visit(cx, expr.hir_id);
         }
 
         // smoelius: The grandparent is the potential trait item (in which case, the parent is an
@@ -352,28 +363,37 @@ fn can_have_attrs(cx: &LateContext<'_>, hir_id: HirId) -> bool {
         return true;
     }
 
-    let Node::Stmt(Stmt { kind: stmt_kind , ..}) = node else {
-        return false;
-    };
+    if let Node::Stmt(Stmt {
+        kind: StmtKind::Semi(Expr {
+            kind: expr_kind, ..
+        }),
+        ..
+    })
+    | Node::Expr(Expr {
+        kind: expr_kind, ..
+    }) = node
+    {
+        // smoelius: Attributes have the same precedence as unary operators:
+        // https://github.com/rust-lang/rust/issues/15701#issuecomment-138092406
+        // Expression precedence is documented here:
+        // https://doc.rust-lang.org/reference/expressions.html#expression-precedence
+        return matches!(
+            expr_kind,
+            ExprKind::Path(_)
+                | ExprKind::MethodCall(..)
+                | ExprKind::Field(..)
+                | ExprKind::Call(..)
+                | ExprKind::Index(..)
+                | ExprKind::Unary(..),
+        );
+    }
 
     // smoelius: Accept all non-semi statements.
-    let StmtKind::Semi(Expr { kind: expr_kind, .. }) = stmt_kind else {
+    if matches!(node, Node::Stmt(_)) {
         return true;
-    };
+    }
 
-    // smoelius: Attributes have the same precedence as unary operators:
-    // https://github.com/rust-lang/rust/issues/15701#issuecomment-138092406
-    // Expression precedence is documented here:
-    // https://doc.rust-lang.org/reference/expressions.html#expression-precedence
-    matches!(
-        expr_kind,
-        ExprKind::Path(_)
-            | ExprKind::MethodCall(..)
-            | ExprKind::Field(..)
-            | ExprKind::Call(..)
-            | ExprKind::Index(..)
-            | ExprKind::Unary(..),
-    )
+    false
 }
 
 fn is_lint_attr(attr: &Attribute) -> bool {

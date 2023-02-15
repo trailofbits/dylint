@@ -28,6 +28,11 @@ fn stmt() {
     Some(()).unwrap();
 }
 
+#[allow(clippy::unwrap_used)]
+fn block_expr() {
+    Some(()).unwrap()
+}
+
 #[allow(clippy::module_name_repetitions)]
 mod nested_item {
     mod item {
@@ -59,6 +64,13 @@ mod nested_impl_item {
 mod nested_stmt {
     fn stmt() {
         Some(()).unwrap();
+    }
+}
+
+#[allow(clippy::unwrap_used)]
+mod nested_block_expr {
+    fn block_expr() {
+        Some(()).unwrap()
     }
 }
 
@@ -96,6 +108,11 @@ mod negative_impl_item {
 fn negative_stmt() {
     #[allow(clippy::unwrap_used)]
     Some(()).unwrap();
+}
+
+fn negative_block_expr() {
+    #[allow(clippy::unwrap_used)]
+    Some(()).unwrap()
 }
 
 #[allow(clippy::unwrap_used)]
