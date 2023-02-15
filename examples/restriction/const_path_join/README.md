@@ -5,7 +5,7 @@ Checks for joining of constant path components.
 
 ### Why is this bad?
 Such paths can be constructed from string literals using `/`, since `/` works as a path
-separator on both Unix and Windows (see [std::path::Path]).
+separator on both Unix and Windows (see [`std::path::Path`]).
 
 ### Example
 ```rust
@@ -16,4 +16,4 @@ Use instead:
 PathBuf::from("../target")
 ```
 
-[std::path::Path]: https://doc.rust-lang.org/std/path/struct.Path.html
+[`std::path::Path`]: https://doc.rust-lang.org/std/path/struct.Path.html

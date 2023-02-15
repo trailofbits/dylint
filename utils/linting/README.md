@@ -159,18 +159,18 @@ Additional documentation on `config_or_default`, etc. can be found on [docs.rs].
 [`declare_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint_pass.html
 [`dylint-link`]: ../../dylint-link
 [`dylint_library!`]: #dylint_library
+[`env_cargo_path`]: ../../examples/general/env_cargo_path/src/lib.rs
 [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]: #impl_late_lint-etc
 [`impl_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html
 [`init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.init_config.html
 [`lintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
+[`non_local_effect_before_error_return`]: ../../examples/general/non_local_effect_before_error_return/src/lib.rs
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 [`try_init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.try_init_config.html
 [configurable libraries]: #configurable-libraries
 [docs.rs documentation]: https://docs.rs/dylint_linting/latest/dylint_linting/
 [docs.rs]: https://docs.rs/dylint_linting/latest/dylint_linting/
 [dylint]: ../..
-[env_cargo_path]: ../../examples/general/env_cargo_path/src/lib.rs
 [examples]: ../../examples
-[non_local_effect_before_error_return]: ../../examples/general/non_local_effect_before_error_return/src/lib.rs
 
 <!-- cargo-rdme end -->

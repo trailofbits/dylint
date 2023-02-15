@@ -14,7 +14,7 @@ dropped (because the async block will eventually resume execution from that awai
 This means that another task will begin executing while remaining in the entered span.
 
 ### Known problems
-Will report false positive for explicitly dropped refs ([#6353](https://github.com/rust-lang/rust-clippy/issues/6353)).
+Will report false positive for explicitly dropped refs ([#6353]).
 
 ### Example
 ```rust,ignore
@@ -61,3 +61,5 @@ async fn foo() {
     .await // ...and await it.
 }
 ```
+
+[#6353]: https://github.com/rust-lang/rust-clippy/issues/6353

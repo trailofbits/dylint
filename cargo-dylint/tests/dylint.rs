@@ -113,16 +113,18 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
 }
 
 #[test]
-fn readmes_do_not_use_inline_links() {
+fn markdown_does_not_use_inline_links() {
     for entry in walkdir(false) {
         let entry = entry.unwrap();
         let path = entry.path();
-        if path.file_name() != Some(OsStr::new("README.md")) {
+        if path.extension() != Some(OsStr::new("md"))
+            || path.file_name() == Some(OsStr::new("CHANGELOG.md"))
+        {
             continue;
         }
-        let readme = read_to_string(path).unwrap();
+        let markdown = read_to_string(path).unwrap();
         assert!(
-            !Regex::new(r#"\[[^\]]*\]\("#).unwrap().is_match(&readme),
+            !Regex::new(r#"\[[^\]]*\]\("#).unwrap().is_match(&markdown),
             "`{}` uses inline links",
             path.canonicalize().unwrap().to_string_lossy()
         );
@@ -130,16 +132,18 @@ fn readmes_do_not_use_inline_links() {
 }
 
 #[test]
-fn readme_reference_links_are_sorted() {
+fn markdown_reference_links_are_sorted() {
     let re = Regex::new(r#"^\[[^\]]*\]:"#).unwrap();
     for entry in walkdir(true) {
         let entry = entry.unwrap();
         let path = entry.path();
-        if path.file_name() != Some(OsStr::new("README.md")) {
+        if path.extension() != Some(OsStr::new("md"))
+            || path.file_name() == Some(OsStr::new("CHANGELOG.md"))
+        {
             continue;
         }
-        let readme = read_to_string(path).unwrap();
-        let links = readme
+        let markdown = read_to_string(path).unwrap();
+        let links = markdown
             .lines()
             .filter(|line| re.is_match(line))
             .collect::<Vec<_>>();
@@ -151,6 +155,62 @@ fn readme_reference_links_are_sorted() {
             path.canonicalize().unwrap().to_string_lossy(),
             links_sorted.join("\n")
         );
+    }
+}
+
+#[test]
+fn markdown_reference_links_are_valid_and_used() {
+    const CODE: &str = "`[^`]*`";
+    const CODE_BLOCK: &str = "```([^`]|`[^`]|``[^`])*```";
+    let ref_re = Regex::new(&format!(r#"(?m){CODE}|{CODE_BLOCK}|\[([^\]]*)\]([^:]|$)"#)).unwrap();
+    let link_re = Regex::new(r#"(?m)^\[([^\]]*)\]:"#).unwrap();
+    for entry in walkdir(true) {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        // smoelius: The ` ["\n```"] ` in `missing_doc_comment_openai`'s readme causes problems, and
+        // I haven't found a good solution/workaround.
+        if path.extension() != Some(OsStr::new("md"))
+            || path.file_name() == Some(OsStr::new("CHANGELOG.md"))
+            || path.ends_with("examples/README.md")
+            || path.ends_with("examples/restriction/missing_doc_comment_openai/README.md")
+        {
+            continue;
+        }
+        let markdown = read_to_string(path).unwrap();
+        let mut refs = ref_re
+            .captures_iter(&markdown)
+            .filter_map(|captures| {
+                // smoelius: 2 because 1 is the parenthesized expression in `CODE_BLOCK`.
+                captures.get(2).map(|m| {
+                    m.as_str()
+                        .replace('\r', "")
+                        .replace('\n', " ")
+                        .to_lowercase()
+                })
+            })
+            .collect::<Vec<_>>();
+
+        // smoelius: The use of `to_lowercase` in the next statement is a convenience and should
+        // eventually be removed. `prettier` 2.8.2 stopped lowercasing link labels. But as of this
+        // writing, the latest version of the Prettier VS Code extension (9.10.4) still appears to
+        // use `prettier` 2.8.0.
+        //
+        // References:
+        // - https://github.com/prettier/prettier/pull/13155
+        // - https://github.com/prettier/prettier/blob/main/CHANGELOG.md#282
+        // - https://github.com/prettier/prettier-vscode/blob/main/CHANGELOG.md#9103
+        let mut links = link_re
+            .captures_iter(&markdown)
+            .map(|captures| captures.get(1).unwrap().as_str().to_lowercase())
+            .collect::<Vec<_>>();
+
+        refs.sort_unstable();
+        refs.dedup();
+
+        links.sort_unstable();
+        links.dedup();
+
+        assert_eq!(refs, links, "failed for {path:?}");
     }
 }
 
