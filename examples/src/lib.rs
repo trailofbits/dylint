@@ -79,14 +79,14 @@ mod test {
 
             let contents = read_to_string(path.join("rust-toolchain")).unwrap();
             let document = contents.parse::<Document>().unwrap();
-            let values = document
+            let array = document
                 .as_table()
                 .get("toolchain")
                 .and_then(Item::as_table)
                 .and_then(|table| table.get("components"))
                 .and_then(Item::as_array)
                 .unwrap();
-            let components = values
+            let components = array
                 .iter()
                 .map(Value::as_str)
                 .collect::<Option<Vec<_>>>()

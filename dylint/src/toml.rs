@@ -10,6 +10,10 @@
 #![allow(clippy::too_many_lines)]
 #![allow(clippy::uninlined_format_args)]
 #![cfg_attr(
+    dylint_lib = "misleading_variable_name",
+    allow(misleading_variable_name)
+)]
+#![cfg_attr(
     dylint_lib = "non_local_effect_before_error_return",
     allow(non_local_effect_before_error_return)
 )]

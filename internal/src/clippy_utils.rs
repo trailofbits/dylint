@@ -16,13 +16,13 @@ pub fn clippy_utils_version_from_rust_version(rust_version: &str) -> Result<Stri
 #[allow(clippy::module_name_repetitions)]
 pub fn clippy_utils_package_version(path: &Path) -> Result<String> {
     let cargo_toml = path.join("clippy_utils/Cargo.toml");
-    let file = read_to_string(&cargo_toml).with_context(|| {
+    let contents = read_to_string(&cargo_toml).with_context(|| {
         format!(
             "`read_to_string` failed for `{}`",
             cargo_toml.to_string_lossy(),
         )
     })?;
-    let document = file.parse::<Document>()?;
+    let document = contents.parse::<Document>()?;
     document
         .as_table()
         .get("package")
@@ -35,13 +35,13 @@ pub fn clippy_utils_package_version(path: &Path) -> Result<String> {
 
 pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()> {
     let cargo_toml = path.join("Cargo.toml");
-    let file = read_to_string(&cargo_toml).with_context(|| {
+    let contents = read_to_string(&cargo_toml).with_context(|| {
         format!(
             "`read_to_string` failed for `{}`",
             cargo_toml.to_string_lossy(),
         )
     })?;
-    let mut document = file.parse::<Document>()?;
+    let mut document = contents.parse::<Document>()?;
     document
         .as_table_mut()
         .get_mut("dependencies")
@@ -56,13 +56,13 @@ pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()
 
 pub fn toolchain_channel(path: &Path) -> Result<String> {
     let rust_toolchain = path.join("rust-toolchain");
-    let file = read_to_string(&rust_toolchain).with_context(|| {
+    let contents = read_to_string(&rust_toolchain).with_context(|| {
         format!(
             "`read_to_string` failed for `{}`",
             rust_toolchain.to_string_lossy(),
         )
     })?;
-    let document = file.parse::<Document>()?;
+    let document = contents.parse::<Document>()?;
     document
         .as_table()
         .get("toolchain")
@@ -75,13 +75,13 @@ pub fn toolchain_channel(path: &Path) -> Result<String> {
 
 pub fn set_toolchain_channel(path: &Path, channel: &str) -> Result<()> {
     let rust_toolchain = path.join("rust-toolchain");
-    let file = read_to_string(&rust_toolchain).with_context(|| {
+    let contents = read_to_string(&rust_toolchain).with_context(|| {
         format!(
             "`read_to_string` failed for `{}`",
             rust_toolchain.to_string_lossy(),
         )
     })?;
-    let mut document = file.parse::<Document>()?;
+    let mut document = contents.parse::<Document>()?;
     document
         .as_table_mut()
         .get_mut("toolchain")
