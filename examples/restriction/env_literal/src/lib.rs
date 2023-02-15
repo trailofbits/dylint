@@ -44,8 +44,8 @@ impl<'tcx> LateLintPass<'tcx> for EnvLiteral {
             if !args.is_empty();
             if let ExprKind::Lit(lit) = &args[0].kind;
             if let LitKind::Str(symbol, _) = lit.node;
-            let ident = symbol.to_ident_string();
-            if is_upper_snake_case(&ident);
+            let s = symbol.to_ident_string();
+            if is_upper_snake_case(&s);
             then {
                 span_lint_and_help(
                     cx,
@@ -53,15 +53,15 @@ impl<'tcx> LateLintPass<'tcx> for EnvLiteral {
                     args[0].span,
                     "referring to an environment variable with a string literal is error prone",
                     None,
-                    &format!("define a constant `{ident}` and use that instead"),
+                    &format!("define a constant `{s}` and use that instead"),
                 );
             }
         }
     }
 }
 
-fn is_upper_snake_case(ident: &str) -> bool {
-    !ident.is_empty() && ident.chars().all(|c| c.is_ascii_uppercase() || c == '_')
+fn is_upper_snake_case(s: &str) -> bool {
+    !s.is_empty() && s.chars().all(|c| c.is_ascii_uppercase() || c == '_')
 }
 
 #[test]

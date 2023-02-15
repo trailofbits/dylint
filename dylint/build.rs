@@ -15,14 +15,14 @@ fn main() {
     {
         "None".to_owned()
     } else {
-        let path = dylint_manifest_dir.join("../driver");
+        let path_buf = dylint_manifest_dir.join("../driver");
 
         // smoelius: Ensure the path exists at build time.
-        assert!(path.is_dir(), "{path:?} is not a directory");
+        assert!(path_buf.is_dir(), "{path_buf:?} is not a directory");
 
         format!(
             r#"Some("{}")"#,
-            path.to_string_lossy().replace('\\', "\\\\")
+            path_buf.to_string_lossy().replace('\\', "\\\\")
         )
     };
 

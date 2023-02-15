@@ -19,13 +19,13 @@ fn check_components() {
 
     let contents = read_to_string(rust_toolchain).unwrap();
     let table = contents.parse::<Table>().unwrap();
-    let values = table
+    let array = table
         .get("toolchain")
         .and_then(Value::as_table)
         .and_then(|table| table.get("components"))
         .and_then(Value::as_array)
         .unwrap();
-    let components = values
+    let components = array
         .iter()
         .map(Value::as_str)
         .collect::<Option<Vec<_>>>()

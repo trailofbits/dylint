@@ -15,27 +15,27 @@ const RUST_VERSION: &str = "1.64.0";
 fn new_package() {
     let tempdir = tempdir().unwrap();
 
-    let path = tempdir.path().join("filled_in");
+    let path_buf = tempdir.path().join("filled_in");
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .args(["dylint", "new", &path.to_string_lossy(), "--isolate"])
+        .args(["dylint", "new", &path_buf.to_string_lossy(), "--isolate"])
         .assert()
         .success();
 
-    check_dylint_dependencies(&path).unwrap();
+    check_dylint_dependencies(&path_buf).unwrap();
 
-    dylint_internal::packaging::use_local_packages(&path).unwrap();
+    dylint_internal::packaging::use_local_packages(&path_buf).unwrap();
 
     dylint_internal::cargo::build("filled-in dylint-template", false)
         .sanitize_environment()
-        .current_dir(&path)
+        .current_dir(&path_buf)
         .success()
         .unwrap();
 
     dylint_internal::cargo::test("filled-in dylint-template", false)
         .sanitize_environment()
-        .current_dir(&path)
+        .current_dir(&path_buf)
         .success()
         .unwrap();
 }
@@ -132,13 +132,13 @@ fn downgrade_upgrade_package() {
 fn rust_version(path: &Path) -> Result<Version> {
     let re = Regex::new(r#"^clippy_utils = .*\btag = "rust-([^"]*)""#).unwrap();
     let manifest = path.join("Cargo.toml");
-    let file = read_to_string(&manifest).with_context(|| {
+    let contents = read_to_string(&manifest).with_context(|| {
         format!(
             "`read_to_string` failed for `{}`",
             manifest.to_string_lossy()
         )
     })?;
-    let rust_version = file
+    let rust_version = contents
         .lines()
         .find_map(|line| re.captures(line).map(|captures| captures[1].to_owned()))
         .ok_or_else(|| anyhow!("Could not determine `clippy_utils` version"))?;

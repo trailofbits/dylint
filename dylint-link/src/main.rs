@@ -38,13 +38,13 @@ fn linker() -> Result<PathBuf> {
     let cargo_home = cargo_home().with_context(|| "Could not determine `CARGO_HOME`")?;
     let config_toml = cargo_home.join("config.toml");
     if config_toml.is_file() {
-        let file = read_to_string(&config_toml).with_context(|| {
+        let contents = read_to_string(&config_toml).with_context(|| {
             format!(
                 "`read_to_string` failed for `{}`",
                 config_toml.to_string_lossy()
             )
         })?;
-        let document = file.parse::<Document>()?;
+        let document = contents.parse::<Document>()?;
         document
             .as_table()
             .get("target")

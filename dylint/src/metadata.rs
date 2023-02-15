@@ -129,11 +129,11 @@ fn maybe_build_packages(
         .map(|entry| {
             entry.map_err(Into::into).and_then(|path| {
                 if let Some(pattern) = &library.pattern {
-                    let path = path
+                    let path_buf = path
                         .canonicalize()
                         .with_context(|| format!("Could not canonicalize {path:?}"))?;
                     ensure!(
-                        path.starts_with(&dependency_root),
+                        path_buf.starts_with(&dependency_root),
                         "Pattern `{pattern}` refers to paths outside of `{}`",
                         dependency_root.to_string_lossy()
                     );
