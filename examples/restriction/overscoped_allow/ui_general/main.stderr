@@ -50,74 +50,98 @@ LL |     Some(()).unwrap();
 error: `allow` could be moved closer to diagnostic source
   --> $DIR/main.rs:31:9
    |
+LL | #[allow(clippy::unwrap_used)]
+   |         ^^^^^^^^^^^^^^^^^^^
+   |
+help: `allow` could be moved here
+  --> $DIR/main.rs:33:5
+   |
+LL |     Some(()).unwrap()
+   |     ^
+
+error: `allow` could be moved closer to diagnostic source
+  --> $DIR/main.rs:36:9
+   |
 LL | #[allow(clippy::module_name_repetitions)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 help: `allow` could be moved here
-  --> $DIR/main.rs:34:9
+  --> $DIR/main.rs:39:9
    |
 LL |         pub struct ItemStruct;
    |         ^
 
 error: `allow` could be moved closer to diagnostic source
-  --> $DIR/main.rs:38:9
+  --> $DIR/main.rs:43:9
    |
 LL | #[allow(clippy::wrong_self_convention)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 help: `allow` could be moved here
-  --> $DIR/main.rs:42:13
+  --> $DIR/main.rs:47:13
    |
 LL |             fn into_foo(&self) {}
    |             ^
 
 error: `allow` could be moved closer to diagnostic source
-  --> $DIR/main.rs:48:13
+  --> $DIR/main.rs:53:13
    |
 LL |     #[allow(clippy::unused_self)]
    |             ^^^^^^^^^^^^^^^^^^^
    |
 help: `allow` could be moved here
-  --> $DIR/main.rs:53:13
+  --> $DIR/main.rs:58:13
    |
 LL |             fn foo(&self) {}
    |             ^
 
 error: `allow` could be moved closer to diagnostic source
-  --> $DIR/main.rs:58:9
+  --> $DIR/main.rs:63:9
    |
 LL | #[allow(clippy::unwrap_used)]
    |         ^^^^^^^^^^^^^^^^^^^
    |
 help: `allow` could be moved here
-  --> $DIR/main.rs:61:9
+  --> $DIR/main.rs:66:9
    |
 LL |         Some(()).unwrap();
    |         ^
 
 error: `allow` could be moved closer to diagnostic source
-  --> $DIR/main.rs:65:25
+  --> $DIR/main.rs:70:9
+   |
+LL | #[allow(clippy::unwrap_used)]
+   |         ^^^^^^^^^^^^^^^^^^^
+   |
+help: `allow` could be moved here
+  --> $DIR/main.rs:73:9
+   |
+LL |         Some(()).unwrap()
+   |         ^
+
+error: `allow` could be moved closer to diagnostic source
+  --> $DIR/main.rs:77:25
    |
 LL | #[cfg_attr(all(), allow(clippy::unwrap_used))]
    |                         ^^^^^^^^^^^^^^^^^^^
    |
 help: `allow` could be moved here
-  --> $DIR/main.rs:67:5
+  --> $DIR/main.rs:79:5
    |
 LL |     Some(()).unwrap();
    |     ^
 
 error: `allow` could be moved closer to diagnostic source
-  --> $DIR/main.rs:70:42
+  --> $DIR/main.rs:82:42
    |
 LL | #[allow(clippy::module_name_repetitions, clippy::unwrap_used)]
    |                                          ^^^^^^^^^^^^^^^^^^^
    |
 help: `allow` could be moved here
-  --> $DIR/main.rs:72:5
+  --> $DIR/main.rs:84:5
    |
 LL |     Some(()).unwrap();
    |     ^
 
-error: aborting due to 10 previous errors
+error: aborting due to 12 previous errors
 
