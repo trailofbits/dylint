@@ -1,0 +1,69 @@
+#![allow(unused)]
+
+use anyhow::{Context, Result};
+use std::{
+    fs::read_to_string,
+    io::{BufRead, Cursor},
+    path::Path,
+};
+
+mod one_type {
+    pub struct Bar;
+
+    pub fn foo() -> bool {
+        false
+    }
+}
+
+mod two_types {
+    pub struct Bar;
+    pub struct Baz;
+
+    pub fn foo() -> bool {
+        false
+    }
+}
+
+mod private {
+    struct Bar;
+
+    pub fn foo() -> bool {
+        false
+    }
+}
+
+mod rename {
+    pub use std::process::Command as Bar;
+
+    pub fn foo() -> Bar {
+        Bar::new("true")
+    }
+}
+
+fn main() -> Result<()> {
+    let path = Path::new("x");
+
+    let file = read_to_string(path)?;
+    let file = read_to_string(path).with_context(|| "read")?;
+    let file = read_to_string(path).unwrap();
+
+    let buf_reader = Cursor::new([]).lines();
+
+    let bar = one_type::foo();
+
+    let bar = two_types::foo();
+
+    // negative tests
+    let contents = read_to_string(path).unwrap();
+
+    let lines = Cursor::new([]).lines();
+
+    let bar = private::foo();
+
+    // private in extern crate
+    let command = cargo_metadata::MetadataCommand::new();
+
+    let bar = rename::foo();
+
+    Ok(())
+}
