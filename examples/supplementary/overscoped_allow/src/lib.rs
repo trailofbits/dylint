@@ -113,9 +113,7 @@ pub fn register_lints(sess: &Session, lint_store: &mut LintStore) {
     let diagnostics = match read_diagnostics() {
         Ok(diagnostics) => diagnostics,
         Err(error) => {
-            sess.warn(format!(
-                "`overscoped_allow` is disabled: {error:?}"
-            ));
+            sess.warn(format!("`overscoped_allow` is disabled: {error:?}"));
             Vec::new()
         }
     };
