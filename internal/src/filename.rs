@@ -1,5 +1,30 @@
 use std::{env::consts, path::Path};
 
+/// Returns the filename of a Dylint library.
+///
+/// # Examples
+///
+/// ```
+/// use dylint_internal::library_filename;
+///
+/// #[cfg(target_os = "linux")]
+/// assert_eq!(
+///     library_filename("foo", "stable-x86_64-unknown-linux-gnu"),
+///     "libfoo@stable-x86_64-unknown-linux-gnu.so"
+/// );
+///
+/// #[cfg(target_os = "macos")]
+/// assert_eq!(
+///     library_filename("foo", "stable-x86_64-apple-darwin"),
+///     "libfoo@stable-x86_64-apple-darwin.dylib"
+/// );
+///
+/// #[cfg(target_os = "windows")]
+/// assert_eq!(
+///     library_filename("foo", "stable-x86_64-pc-windows-msvc"),
+///     "foo@stable-x86_64-pc-windows-msvc.dll"
+/// );
+/// ```
 // smoelius: Build a standard rlib, and the filename will use snake case. `library_filename`'s
 // behavior is consistent with that.
 #[allow(clippy::module_name_repetitions, clippy::uninlined_format_args)]
@@ -14,6 +39,41 @@ pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
     )
 }
 
+/// Parses the filename of a Dylint library path into a tuple of (name, toolchain).
+///
+/// # Examples
+///
+/// ```
+/// use dylint_internal::parse_path_filename;
+/// use std::path::Path;
+///
+/// #[cfg(target_os = "linux")]
+/// assert_eq!(
+///     parse_path_filename(Path::new("libfoo@stable-x86_64-unknown-linux-gnu.so")),
+///     Some((
+///         String::from("foo"),
+///         String::from("stable-x86_64-unknown-linux-gnu")
+///     ))
+/// );
+///
+/// #[cfg(target_os = "macos")]
+/// assert_eq!(
+///     parse_path_filename(Path::new("libfoo@stable-x86_64-apple-darwin.dylib")),
+///     Some((
+///         String::from("foo"),
+///         String::from("stable-x86_64-apple-darwin")
+///     ))
+/// );
+///
+/// #[cfg(target_os = "windows")]
+/// assert_eq!(
+///     parse_path_filename(Path::new("foo@stable-x86_64-pc-windows-msvc.dll")),
+///     Some((
+///         String::from("foo"),
+///         String::from("stable-x86_64-pc-windows-msvc")
+///     ))
+/// );
+/// ```
 #[allow(clippy::module_name_repetitions)]
 #[must_use]
 pub fn parse_path_filename(path: &Path) -> Option<(String, String)> {
