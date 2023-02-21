@@ -226,7 +226,13 @@ static CONFIG_TABLE: Mutex<RefCell<Option<toml::value::Table>>> = Mutex::new(Ref
 /// `init_config`.
 pub fn config_or_default<T: Default + serde::de::DeserializeOwned>(name: &str) -> T {
     config::<T>(name).map_or_else(
-        |_| panic!("Could not parse config as `{}`", type_name::<T>()),
+        |error| {
+            panic!(
+                "Could not parse config as `{}`: {}",
+                type_name::<T>(),
+                error
+            )
+        },
         Option::unwrap_or_default,
     )
 }
