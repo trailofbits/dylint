@@ -29,11 +29,29 @@ declare_const!(RUSTUP_TOOLCHAIN);
 declare_const!(RUST_BACKTRACE);
 declare_const!(TARGET);
 
+/// Returns true if the environment variable `key` is set to a non-zero value.
+///
+/// # Examples
+///
+/// ```
+/// use dylint_internal::env::enabled;
+/// use std::env;
+///
+/// env::set_var("FOO", "1");
+/// assert_eq!(enabled("FOO"), true);
+///
+/// env::set_var("FOO", "0");
+/// assert_eq!(enabled("FOO"), false);
+///
+/// env::remove_var("FOO");
+/// assert_eq!(enabled("FOO"), false);
+/// ```
 #[must_use]
 pub fn enabled(key: &str) -> bool {
     std::env::var(key).map_or(false, |value| value != "0")
 }
 
+/// A wrapper around `std::env::var` that converts the error into an `anyhow::Error`.
 pub fn var(key: &str) -> Result<String> {
     std::env::var(key).map_err(|err| anyhow!(format!("{err}: {key}")))
 }
