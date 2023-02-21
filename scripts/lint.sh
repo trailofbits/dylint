@@ -36,6 +36,10 @@ EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<clippy\>[[:space:]]*//')"
 # shellcheck disable=SC2001
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<overscoped_allow\>[[:space:]]*//')"
 
+# smoelius: `missing_doc_comment_openai` isn't ready for primetime yet.
+# shellcheck disable=SC2001
+EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<missing_doc_comment_openai\>[[:space:]]*//')"
+
 # shellcheck disable=SC2001
 EXAMPLES_AS_FLAGS="$(echo "$EXAMPLES" | sed 's/\<[^[:space:]]\+\>/--lib &/g')"
 
