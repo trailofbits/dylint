@@ -40,6 +40,14 @@ mod rename {
     }
 }
 
+mod rc {
+    pub struct Bar;
+
+    pub fn foo() -> std::rc::Rc<Bar> {
+        std::rc::Rc::new(Bar)
+    }
+}
+
 fn main() -> Result<()> {
     let path = Path::new("x");
 
@@ -64,6 +72,8 @@ fn main() -> Result<()> {
     let command = cargo_metadata::MetadataCommand::new();
 
     let bar = rename::foo();
+
+    let bar = rc::foo();
 
     Ok(())
 }
