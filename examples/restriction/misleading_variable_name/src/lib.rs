@@ -5,7 +5,10 @@ extern crate rustc_hir;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_help, ty::implements_trait};
+use clippy_utils::{
+    diagnostics::span_lint_and_help,
+    ty::{implements_trait, is_type_diagnostic_item},
+};
 use heck::ToSnakeCase;
 use if_chain::if_chain;
 use rustc_hir::{
@@ -59,7 +62,7 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
                 init: Some(init),
                 ..
             }) = stmt.kind;
-            let init_ty = erase_substs(cx.tcx, cx.typeck_results().expr_ty(init).peel_refs());
+            let init_ty = erase_substs(cx.tcx, peel_refs_and_rcs(cx, cx.typeck_results().expr_ty(init)));
             let expr = peel_try_unwrap_and_similar(cx, init);
             if let Some(callee_def_id) = callee_def_id(cx, expr);
             let module_def_id = parent_module(cx.tcx, callee_def_id);
@@ -112,6 +115,27 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
             }
         }
     }
+}
+
+fn peel_refs_and_rcs<'tcx>(cx: &LateContext<'tcx>, mut ty: ty::Ty<'tcx>) -> ty::Ty<'tcx> {
+    loop {
+        match ty.kind() {
+            ty::Ref(_, referent_ty, _) => {
+                ty = *referent_ty;
+            }
+            ty::Adt(_, substs)
+                if is_type_diagnostic_item(cx, ty, sym::Arc)
+                    | is_type_diagnostic_item(cx, ty, sym::Rc) =>
+            {
+                ty = substs[0].expect_ty();
+            }
+            _ => {
+                break;
+            }
+        }
+    }
+
+    ty
 }
 
 fn peel_try_unwrap_and_similar<'tcx>(
