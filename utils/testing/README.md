@@ -2,17 +2,22 @@
 
 [docs.rs documentation]
 
-This crate provides convenient access to the [`compiletest_rs`] package for testing [Dylint] libraries.
+<!-- cargo-rdme start -->
 
-Specifically, this crate provides the following three functions. Note: If your test has dependencies, you must use `ui_test_example` or `ui_test_examples`. See the [question_mark_in_expression] example in this repository.
+This crate provides convenient access to the [`compiletest_rs`] package for testing [Dylint]
+libraries.
 
-- `ui_test` - test a library on all source files in a directory
-- `ui_test_example` - test a library on one example target
-- `ui_test_examples` - test a library on all example targets
+Specifically, this crate provides the following three functions. Note: If your test has
+dependencies, you must use `ui_test_example` or `ui_test_examples`. See the
+[`question_mark_in_expression`] example in this repository.
+
+- [`ui_test`] - test a library on all source files in a directory
+- [`ui_test_example`] - test a library on one example target
+- [`ui_test_examples`] - test a library on all example targets
 
 For most situations, you can add the following to your library's `lib.rs` file:
 
-```rust,ignore
+```rust
 #[test]
 fn ui() {
     dylint_testing::ui_test(
@@ -22,17 +27,20 @@ fn ui() {
 }
 ```
 
-And include one or more `.rs` and `.stderr` files in a `ui` directory alongside your library's `src` directory. See the [examples] in this repository.
+And include one or more `.rs` and `.stderr` files in a `ui` directory alongside your library's
+`src` directory. See the [examples] in this repository.
 
 ## Test builder
 
-In addition to the above three functions, `dylint_testing::ui:Test` is a test "builder." Currently, the main advantage of using `Test` over the above functions is that `Test` allows flags to be passed to `rustc`. For an example of its use, see [non_thread_safe_call_in_test] in this repository.
+In addition to the above three functions, [`ui::Test`] is a test "builder." Currently, the main
+advantage of using `Test` over the above functions is that `Test` allows flags to be passed to
+`rustc`. For an example of its use, see [`non_thread_safe_call_in_test`] in this repository.
 
 `Test` has three constructors, which correspond to the above three functions as follows:
 
-- `Test::src_base` <-> `ui_test`
-- `Test::example` <-> `ui_test_example`
-- `Test::examples` <-> `ui_test_examples`
+- [`ui::Test::src_base`] <-> [`ui_test`]
+- [`ui::Test::example`] <-> [`ui_test_example`]
+- [`ui::Test::examples`] <-> [`ui_test_examples`]
 
 In each case, the constructor's arguments are exactly those of the corresponding function.
 
@@ -44,7 +52,8 @@ A `Test` instance has the following methods:
 
 ## Updating `.stderr` files
 
-If the standard error that results from running your `.rs` file differs from the contents of your `.stderr` file, `compiletest_rs` will produce a report like the following:
+If the standard error that results from running your `.rs` file differs from the contents of
+your `.stderr` file, `compiletest_rs` will produce a report like the following:
 
 ```text
 diff of stderr:
@@ -74,22 +83,38 @@ Actual stderr saved to ...
 
 The meaning of each line is as follows:
 
-- A line beginning with a plus (`+`) is in the actual standard error, but not in your `.stderr` file.
-- A line beginning with a minus (`-`) is in your `.stderr` file, but not in the actual standard error.
-- A line beginning with a space (` `) is in both the actual standard error and your `.stderr` file, and is provided for context.
+- A line beginning with a plus (`+`) is in the actual standard error, but not in your `.stderr`
+  file.
+- A line beginning with a minus (`-`) is in your `.stderr` file, but not in the actual standard
+  error.
+- A line beginning with a space (` `) is in both the actual standard error and your `.stderr`
+  file, and is provided for context.
 - All other lines (e.g., `diff of stderr:`) contain `compiletest_rs` messages.
 
-**Note:** In the actual standard error, a blank line usually follows the `error: aborting due to N previous errors` line. So a correct `.stderr` file will typically contain one blank line at the end.
+**Note:** In the actual standard error, a blank line usually follows the `error: aborting due to
+N previous errors` line. So a correct `.stderr` file will typically contain one blank line at
+the end.
 
-In general, it is not too hard to update a `.stderr` file by hand. However, the `compiletest_rs` report should contain a line of the form `Actual stderr saved to PATH`. Copying `PATH` to your `.stderr` file should update it completely.
+In general, it is not too hard to update a `.stderr` file by hand. However, the `compiletest_rs`
+report should contain a line of the form `Actual stderr saved to PATH`. Copying `PATH` to your
+`.stderr` file should update it completely.
 
 Additional documentation on `compiletest_rs` can be found in [its repository].
 
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
+[`non_thread_safe_call_in_test`]: ../../examples/general/non_thread_safe_call_in_test/src/lib.rs
+[`question_mark_in_expression`]: ../../examples/restriction/question_mark_in_expression/Cargo.toml
+[`ui::test::example`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.example
+[`ui::test::examples`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.examples
+[`ui::test::src_base`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.src_base
+[`ui::test`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html
+[`ui_test_example`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_example.html
+[`ui_test_examples`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_examples.html
+[`ui_test`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test.html
 [configurable libraries]: ../..#configurable-libraries
 [docs.rs documentation]: https://docs.rs/dylint_testing/latest/dylint_testing/
 [dylint]: ../..
 [examples]: ../../examples
 [its repository]: https://github.com/Manishearth/compiletest-rs
-[non_thread_safe_call_in_test]: ../../examples/general/non_thread_safe_call_in_test/src/lib.rs
-[question_mark_in_expression]: ../../examples/restriction/question_mark_in_expression/Cargo.toml
+
+<!-- cargo-rdme end -->
