@@ -17,7 +17,7 @@ cd "$WORKSPACE"
 find examples -name '*.rs' |
 while read -r X; do
     TMP="$(mktemp)"
-    cat "$X" | tr '\n' '\v' | sed 's,\(\v */// [(A-Za-z][^\v]*[)A-Za-z]\)\v */// \([(A-Za-z]\),\1 \2,g' | tr '\v' '\n' > "$TMP"
+    cat "$X" | tr '\n' '\v' | sed 's,\(\v *//[!/] [(A-Za-z][^\v]*[)A-Za-z]\)\v *//[!/] \([(A-Za-z]\),\1 \2,g' | tr '\v' '\n' > "$TMP"
     mv "$TMP" "$X"
 done
 
