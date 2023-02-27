@@ -38,13 +38,7 @@ fn check_components() {
 fn add_components() {
     for component in COMPONENTS {
         assert!(std::process::Command::new("rustup")
-            .args([
-                "component",
-                "add",
-                component.as_str().unwrap(),
-                "--toolchain",
-                "nightly"
-            ])
+            .args(["component", "add", component, "--toolchain", "nightly"])
             .status()
             .unwrap()
             .success());
