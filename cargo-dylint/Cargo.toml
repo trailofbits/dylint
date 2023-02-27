@@ -25,7 +25,7 @@ predicates = "2.1"
 regex = "1.7"
 sedregex = "0.2"
 semver = "1.0"
-tempfile = "3.3"
+tempfile = "3.4"
 test-log = "0.2"
 walkdir = "2.3"
 
