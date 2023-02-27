@@ -232,7 +232,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.1.4"
+version = "2.1.5"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -253,7 +253,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.1.4"
+version = "2.1.5"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -270,7 +270,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.1.4"
+version = "2.1.5"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -283,7 +283,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.1.4"
+version = "2.1.5"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -913,7 +913,7 @@ dependencies = [
 
 [[package]]
 name = "suboptimal_pattern"
-version = "2.1.4"
+version = "2.1.5"
 dependencies = [
  "clippy_utils",
  "dylint_linting",

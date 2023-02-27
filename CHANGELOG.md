@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.5
+
+- Use [`home`](https://crates.io/crates/home) crate to determine `CARGO_HOME` ([#604](https://github.com/trailofbits/dylint/pull/604))
+- When `dylint.toml` cannot be parsed, show reason why ([d6f9d5f](https://github.com/trailofbits/dylint/commit/d6f9d5fa03d0c3fe23db66dc8f2361605c4a59fe))
+- Update `tempfile` to version 3.4.0 ([#624](https://github.com/trailofbits/dylint/pull/624))
+
 ## 2.1.4
 
 - Address [rust-lang/rust#106810](https://github.com/rust-lang/rust/pull/106810) ([#590](https://github.com/trailofbits/dylint/pull/590))
