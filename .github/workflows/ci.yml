@@ -127,6 +127,10 @@ jobs:
             cargo test --all-features -- --nocapture
             popd
 
+            pushd utils/linting
+            cargo test --all-features -- --nocapture
+            popd
+
             # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
             for X in examples/*/*; do
               if [[ ! -d "$X" ]]; then

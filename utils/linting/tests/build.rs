@@ -7,7 +7,7 @@ fn builds_with_cfg_docsrs() {
 
     std::process::Command::new("cargo")
         .env(env::RUSTFLAGS, "--cfg docsrs")
-        .args(["+nightly", "build"])
+        .arg("build")
         .assert()
         .success();
 }
@@ -17,7 +17,7 @@ fn builds_with_latest_nightly() {
     update_nightly().unwrap();
 
     std::process::Command::new("cargo")
-        .args(["+nightly", "build"])
+        .arg("build")
         .assert()
         .success();
 }
