@@ -48,11 +48,12 @@ impl<'tcx> LateLintPass<'tcx> for QuestionMarkInExpression {
             if let ExprKind::Match(_, _, MatchSource::TryDesugar) = expr.kind;
             if let Some((Node::Expr(ancestor), child_hir_id)) =
                 get_filtered_ancestor(cx, expr.hir_id);
-            // smoelius: `If`, `Let`, and `Match` expressions get a pass.
+            // smoelius: `AssignOp`, `If`, `Let`, and `Match` expressions get a pass.
             if !match ancestor.kind {
                 ExprKind::Let(..) => true,
                 ExprKind::If(condition, _, _) => condition.hir_id == child_hir_id,
                 ExprKind::Match(scrutinee, _, _) => scrutinee.hir_id == child_hir_id,
+                ExprKind::AssignOp(_, _, expr) => expr.hir_id == child_hir_id,
                 _ => false,
             };
             then {
