@@ -62,12 +62,12 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
                 init: Some(init),
                 ..
             }) = stmt.kind;
-            let init_ty = erase_substs(cx.tcx, peel_refs_and_rcs(cx, cx.typeck_results().expr_ty(init)));
             let expr = peel_try_unwrap_and_similar(cx, init);
             if let Some(callee_def_id) = callee_def_id(cx, expr);
             let module_def_id = parent_module(cx.tcx, callee_def_id);
             let child_types = module_public_child_types(cx.tcx, module_def_id);
             if let Some((child_ty_name, child_ty)) = child_types.get(ident.name.as_str());
+            let init_ty = erase_substs(cx.tcx, peel_refs_and_rcs(cx, module_def_id, cx.typeck_results().expr_ty(init)));
             if init_ty != *child_ty;
             then {
                 let help_msg = child_types
@@ -117,15 +117,22 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
     }
 }
 
-fn peel_refs_and_rcs<'tcx>(cx: &LateContext<'tcx>, mut ty: ty::Ty<'tcx>) -> ty::Ty<'tcx> {
+fn peel_refs_and_rcs<'tcx>(
+    cx: &LateContext<'tcx>,
+    module_def_id: DefId,
+    mut ty: ty::Ty<'tcx>,
+) -> ty::Ty<'tcx> {
     loop {
         match ty.kind() {
             ty::Ref(_, referent_ty, _) => {
                 ty = *referent_ty;
             }
-            ty::Adt(_, substs)
-                if is_type_diagnostic_item(cx, ty, sym::Arc)
-                    | is_type_diagnostic_item(cx, ty, sym::Rc) =>
+            // smoelius: If the initializer originates from the same module as `Arc` or `Rc`, don't
+            // peel them.
+            ty::Adt(adt_def, substs)
+                if module_def_id != parent_module(cx.tcx, adt_def.did())
+                    && (is_type_diagnostic_item(cx, ty, sym::Arc)
+                        || is_type_diagnostic_item(cx, ty, sym::Rc)) =>
             {
                 ty = substs[0].expect_ty();
             }
