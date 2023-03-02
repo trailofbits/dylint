@@ -75,5 +75,7 @@ fn main() -> Result<()> {
 
     let bar = rc::foo();
 
+    let rc = std::rc::Rc::new(String::new());
+
     Ok(())
 }
