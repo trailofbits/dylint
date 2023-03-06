@@ -23,9 +23,9 @@ where
     }
 }
 
-// smoelius: The use of `\r` is a bit of a hack, but it works, most notably with `anyhow` backtraces
-// (which require a nightly compiler, BTW). Another way might be to implement the `Termination`
-// trait, but that trait is still unstable: https://github.com/rust-lang/rust/issues/43301
+// smoelius: The use of `\r` is a bit of a hack, but it works, most notably with `anyhow`
+// backtraces. Another way might be to implement the `Termination` trait, but that trait is still
+// unstable: https://github.com/rust-lang/rust/issues/43301
 impl<E> std::fmt::Debug for ColorizedError<E>
 where
     E: std::fmt::Debug,
