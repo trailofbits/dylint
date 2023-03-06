@@ -1,5 +1,4 @@
 use clap::{crate_version, ArgAction, Parser};
-use dylint_internal::env;
 use std::{
     ffi::{OsStr, OsString},
     fmt::Debug,
@@ -328,16 +327,7 @@ fn main() -> dylint::ColorizedResult<()> {
 
     let args: Vec<_> = std::env::args().map(OsString::from).collect();
 
-    let result = cargo_dylint(&args);
-
-    if result.is_err() && env::enabled(env::RUST_BACKTRACE) {
-        eprintln!(
-            "If you don't see a backtrace below, it could be because `cargo-dylint` wasn't built \
-            with a nightly compiler."
-        );
-    }
-
-    result
+    cargo_dylint(&args)
 }
 
 fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> dylint::ColorizedResult<()> {
