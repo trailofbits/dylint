@@ -1,4 +1,5 @@
 use anyhow::Result;
+use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::cargo::current_metadata;
 use lazy_static::lazy_static;
@@ -6,6 +7,7 @@ use regex::Regex;
 use sedregex::find_and_replace;
 use semver::Version;
 use std::{ffi::OsStr, fs::read_to_string, path::Path};
+use tempfile::tempdir;
 use test_log::test;
 
 lazy_static! {
@@ -152,6 +154,46 @@ fn readme_reference_links_are_sorted() {
     }
 }
 
+#[cfg(not(target_os = "windows"))]
+#[test]
+fn markdown_link_check() {
+    let tempdir = tempdir().unwrap();
+
+    Command::new("npm")
+        .args(["install", "markdown-link-check"])
+        .current_dir(&tempdir)
+        .assert()
+        .success();
+
+    // smoelius: https://github.com/rust-lang/crates.io/issues/788
+    let config = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/markdown_link_check.json");
+
+    for entry in walkdir(true) {
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        if path.extension() != Some(OsStr::new("md")) {
+            continue;
+        }
+
+        // smoelius: Skip `dylint_linting` until I can get it to build on `docs.rs`.
+        if path.ends_with("utils/linting/README.md") {
+            continue;
+        }
+
+        Command::new("npx")
+            .args([
+                "markdown-link-check",
+                "--config",
+                &config.to_string_lossy(),
+                &path.to_string_lossy(),
+            ])
+            .current_dir(&tempdir)
+            .assert()
+            .success();
+    }
+}
+
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
     #[allow(unknown_lints, env_cargo_path)]
     read_to_string(
@@ -177,6 +219,7 @@ fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkd
     walkdir::WalkDir::new(Path::new(env!("CARGO_MANIFEST_DIR")).join(".."))
         .into_iter()
         .filter_entry(move |entry| {
-            include_examples || entry.path().file_name() != Some(OsStr::new("examples"))
+            entry.path().file_name() != Some(OsStr::new("target"))
+                && (include_examples || entry.path().file_name() != Some(OsStr::new("examples")))
         })
 }
