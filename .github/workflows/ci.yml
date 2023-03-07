@@ -39,12 +39,6 @@ jobs:
           npm install -g prettier
           ./scripts/check_prettier.sh
 
-      - name: Markdown link check
-        # smoelius: Skip `dylint_linting` until I can get it to build on `docs.rs`.
-        run: |
-          npm install -g markdown-link-check
-          find . -name '*.md' ! -path '*/target/*' ! -path '*/utils/linting/README.md' -print0 | xargs -0 -n 1 markdown-link-check
-
       - name: Cargo sort
         run: |
           cargo install cargo-sort
