@@ -286,7 +286,10 @@ impl OverscopedAllow {
 }
 
 fn include_trailing_semicolons(cx: &LateContext<'_>, mut span: Span) -> Span {
-    let FileLines { file, .. } = cx.sess().source_map().span_to_lines(span).unwrap();
+    // smoelius: I have seen `span_to_lines` fail on real code.
+    let Ok(FileLines { file, .. }) = cx.sess().source_map().span_to_lines(span) else {
+        return span;
+    };
     while span.hi() < file.end_pos {
         let next = span.with_hi(span.hi() + BytePos(1));
         if !snippet_opt(cx, next).map_or(false, |snip| snip.ends_with(';')) {
@@ -313,7 +316,7 @@ fn span_contains_diagnostic_span(
         if let Some(lhs) = local_path_from_span(cx, span).and_then(|path| path.canonicalize().ok());
         if let Ok(rhs) = Path::new(&diagnostic_span.file_name).canonicalize();
         if lhs == rhs;
-        let FileLines { lines, .. } = cx.sess().source_map().span_to_lines(span).unwrap();
+        if let Ok(FileLines { lines, .. }) = cx.sess().source_map().span_to_lines(span);
         if let Some(first_line) = lines.first();
         if let Some(last_line) = lines.last();
         then {
