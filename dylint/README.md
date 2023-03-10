@@ -27,7 +27,7 @@ Documentation is also available on [how Dylint works].
 
 ### Running Dylint
 
-The next three steps install Dylint and run all of this repository's [example lints] on a workspace:
+The next three steps install Dylint and run all of this repository's [general-purpose, example lints] on a workspace:
 
 1. Install `cargo-dylint` and `dylint-link`:
 
@@ -40,7 +40,7 @@ The next three steps install Dylint and run all of this repository's [example li
    ```toml
    [workspace.metadata.dylint]
    libraries = [
-       { git = "https://github.com/trailofbits/dylint", pattern = "examples/*/*" },
+       { git = "https://github.com/trailofbits/dylint", pattern = "examples/general/*" },
    ]
    ```
 
@@ -78,7 +78,7 @@ A workspace can name the libraries it should be linted with in its `Cargo.toml` 
 
 Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements] under [How Dylint works]).
 
-As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run on your workspace all of this repository's [example general lints], as well as the example restriction lint [`try_io_result`].
+As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run on your workspace all of this repository's [example general-purpose lints], as well as the example restriction lint [`try_io_result`].
 
 ```toml
 [workspace.metadata.dylint]
@@ -199,10 +199,10 @@ Helpful resources for writing lints include the following:
 [crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 [crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
 [dylint/src/lib.rs]: ../dylint/src/lib.rs
-[example general lints]: ../examples/general
-[example lints]: ../examples
+[example general-purpose lints]: ../examples/general
 [features]: #features
 [field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
+[general-purpose, example lints]: ../examples#general
 [glob]: https://docs.rs/glob/0.3.0/glob/struct.Pattern.html
 [guide to rustc development]: https://rustc-dev-guide.rust-lang.org/
 [how dylint works]: ../docs/how_dylint_works.md
