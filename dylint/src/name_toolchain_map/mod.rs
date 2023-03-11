@@ -8,10 +8,16 @@ use std::{
     path::{Path, PathBuf},
 };
 
+mod maybe_library;
+pub use maybe_library::MaybeLibrary;
+
 pub type ToolchainMap = BTreeMap<String, BTreeSet<PathBuf>>;
 
 #[allow(clippy::redundant_pub_crate)]
-pub(crate) type NameToolchainMap = BTreeMap<String, ToolchainMap>;
+pub(crate) type NameToolchainMap = BTreeMap<String, LazyToolchainMap>;
+
+#[allow(clippy::redundant_pub_crate)]
+pub(crate) type LazyToolchainMap = BTreeMap<String, BTreeSet<MaybeLibrary>>;
 
 #[cfg_attr(not(feature = "metadata"), allow(dead_code))]
 struct Inner<'opts> {
@@ -41,27 +47,31 @@ impl<'opts> Lazy<'opts> {
                 let mut name_toolchain_map = NameToolchainMap::new();
 
                 let dylint_library_paths = dylint_library_paths()?;
-                #[cfg(feature = "metadata")]
-                let workspace_metadata_paths =
-                    crate::metadata::workspace_metadata_paths(self.inner.opts)?;
-                #[cfg(not(feature = "metadata"))]
-                let workspace_metadata_paths = vec![];
 
-                for (path, require_existence) in
-                    dylint_library_paths.iter().chain(&workspace_metadata_paths)
-                {
-                    if !require_existence && !path.exists() {
-                        continue;
-                    }
-                    for entry in dylint_libraries_in(path)? {
+                #[cfg(feature = "metadata")]
+                let workspace_metadata_packages =
+                    crate::metadata::workspace_metadata_packages(self.inner.opts)?;
+
+                for path in dylint_library_paths {
+                    for entry in dylint_libraries_in(&path)? {
                         let (name, toolchain, path) = entry?;
                         name_toolchain_map
                             .entry(name)
                             .or_insert_with(Default::default)
                             .entry(toolchain)
                             .or_insert_with(Default::default)
-                            .insert(path);
+                            .insert(MaybeLibrary::from(path));
                     }
+                }
+
+                #[cfg(feature = "metadata")]
+                for package in workspace_metadata_packages {
+                    name_toolchain_map
+                        .entry(package.lib_name.clone())
+                        .or_insert_with(Default::default)
+                        .entry(package.toolchain.clone())
+                        .or_insert_with(Default::default)
+                        .insert(MaybeLibrary::from(package));
                 }
 
                 Ok(name_toolchain_map)
@@ -69,7 +79,7 @@ impl<'opts> Lazy<'opts> {
     }
 }
 
-fn dylint_library_paths() -> Result<Vec<(PathBuf, bool)>> {
+fn dylint_library_paths() -> Result<Vec<PathBuf>> {
     let mut paths = Vec::new();
 
     if let Ok(val) = env::var(env::DYLINT_LIBRARY_PATH) {
@@ -84,7 +94,7 @@ fn dylint_library_paths() -> Result<Vec<(PathBuf, bool)>> {
                 "DYLINT_LIBRARY_PATH contains `{}`, which is not a directory",
                 path.to_string_lossy()
             );
-            paths.push((path, true));
+            paths.push(path);
         }
     }
 
