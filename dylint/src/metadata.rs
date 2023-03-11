@@ -5,16 +5,76 @@ use crate::{
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo::{
     core::{
-        source::MaybePackage, Dependency, Features, Package, PackageId, QueryKind, Source, SourceId,
+        source::MaybePackage, Dependency, Features, Package as CargoPackage, PackageId, QueryKind,
+        Source, SourceId,
     },
     util::Config,
 };
 use cargo_metadata::{Error, Metadata, MetadataCommand};
-use dylint_internal::{env, rustup::SanitizeEnvironment};
+use dylint_internal::{env, library_filename, rustup::SanitizeEnvironment};
 use glob::glob;
 use if_chain::if_chain;
 use serde::Deserialize;
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    rc::Rc,
+};
+
+#[derive(Clone, Debug)]
+pub struct Package {
+    metadata: Rc<Metadata>,
+    pub root: PathBuf,
+    pub id: PackageId,
+    pub lib_name: String,
+    pub toolchain: String,
+}
+
+impl Eq for Package {}
+
+impl PartialEq for Package {
+    fn eq(&self, other: &Self) -> bool {
+        (&self.root, &self.id, &self.lib_name, &self.toolchain)
+            == (&other.root, &other.id, &other.lib_name, &other.toolchain)
+    }
+}
+
+impl Ord for Package {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (&self.root, &self.id, &self.lib_name, &self.toolchain).cmp(&(
+            &other.root,
+            &other.id,
+            &other.lib_name,
+            &other.toolchain,
+        ))
+    }
+}
+
+impl PartialOrd for Package {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        (&self.root, &self.id, &self.lib_name, &self.toolchain).partial_cmp(&(
+            &other.root,
+            &other.id,
+            &other.lib_name,
+            &other.toolchain,
+        ))
+    }
+}
+
+impl Package {
+    pub fn target_directory(&self) -> PathBuf {
+        self.metadata
+            .target_directory
+            .join("dylint/libraries")
+            .join(&self.toolchain)
+            .into_std_path_buf()
+    }
+
+    pub fn path(&self) -> PathBuf {
+        self.target_directory()
+            .join("release")
+            .join(library_filename(&self.lib_name, &self.toolchain))
+    }
+}
 
 #[derive(Debug, Deserialize)]
 struct Library {
@@ -23,7 +83,7 @@ struct Library {
     details: DetailedTomlDependency,
 }
 
-pub fn workspace_metadata_paths(opts: &crate::Dylint) -> Result<Vec<(PathBuf, bool)>> {
+pub fn workspace_metadata_packages(opts: &crate::Dylint) -> Result<Vec<Package>> {
     if opts.no_metadata {
         return Ok(vec![]);
     }
@@ -37,11 +97,7 @@ pub fn workspace_metadata_paths(opts: &crate::Dylint) -> Result<Vec<(PathBuf, bo
     match command.exec() {
         Ok(metadata) => {
             if let serde_json::Value::Object(object) = &metadata.workspace_metadata {
-                let paths = dylint_metadata_paths(opts, &metadata, object)?;
-                Ok(paths
-                    .into_iter()
-                    .map(|path| (path, !opts.no_build))
-                    .collect())
+                dylint_metadata_packages(opts, &Rc::new(metadata.clone()), object)
             } else {
                 Ok(vec![])
             }
@@ -64,11 +120,11 @@ pub fn workspace_metadata_paths(opts: &crate::Dylint) -> Result<Vec<(PathBuf, bo
     }
 }
 
-fn dylint_metadata_paths(
+fn dylint_metadata_packages(
     opts: &crate::Dylint,
-    metadata: &Metadata,
+    metadata: &Rc<Metadata>,
     object: &serde_json::Map<String, serde_json::Value>,
-) -> Result<Vec<PathBuf>> {
+) -> Result<Vec<Package>> {
     if let Some(value) = object.get("dylint") {
         if let serde_json::Value::Object(object) = value {
             let libraries = object
@@ -76,7 +132,7 @@ fn dylint_metadata_paths(
                 .map(|(key, value)| {
                     if key == "libraries" {
                         let libraries = serde_json::from_value::<Vec<Library>>(value.clone())?;
-                        maybe_build_libraries(opts, metadata, &libraries)
+                        library_packages(opts, metadata, &libraries)
                     } else {
                         bail!("Unknown key `{}`", key)
                     }
@@ -91,28 +147,28 @@ fn dylint_metadata_paths(
     }
 }
 
-fn maybe_build_libraries(
+fn library_packages(
     opts: &crate::Dylint,
-    metadata: &Metadata,
+    metadata: &Rc<Metadata>,
     libraries: &[Library],
-) -> Result<Vec<PathBuf>> {
+) -> Result<Vec<Package>> {
     let config = Config::default()?;
 
-    let paths = libraries
+    let packages = libraries
         .iter()
-        .map(|library| maybe_build_packages(opts, metadata, &config, library))
+        .map(|library| library_package(opts, metadata, &config, library))
         .collect::<Result<Vec<_>>>()
         .with_context(|| "Could not build metadata entries")?;
 
-    Ok(paths.into_iter().flatten().collect())
+    Ok(packages.into_iter().flatten().collect())
 }
 
-fn maybe_build_packages(
+fn library_package(
     opts: &crate::Dylint,
-    metadata: &Metadata,
+    metadata: &Rc<Metadata>,
     config: &Config,
     library: &Library,
-) -> Result<Vec<PathBuf>> {
+) -> Result<Vec<Package>> {
     let dep = dependency(opts, metadata, config, library)?;
 
     let dependency_root = dependency_root(config, &dep)?;
@@ -158,23 +214,27 @@ fn maybe_build_packages(
     // workspace are intended to be built with the same version of the compiler"
     // (https://github.com/rust-lang/rustup/issues/1399#issuecomment-383376082).
 
-    let package_root_ids = paths
+    let packages = paths
         .into_iter()
-        .filter_map(|path| {
+        .map(|path| {
             if path.is_dir() {
-                Some(package_id(dep.source_id(), &path).map(|package_id| (path, package_id)))
+                let package_id = package_id(dep.source_id(), &path)?;
+                let lib_name = package_library_name(&path)?;
+                let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
+                Ok(Some(Package {
+                    metadata: metadata.clone(),
+                    root: path,
+                    id: package_id,
+                    lib_name,
+                    toolchain,
+                }))
             } else {
-                None
+                Ok(None)
             }
         })
         .collect::<Result<Vec<_>>>()?;
 
-    package_root_ids
-        .into_iter()
-        .map(|(package_root, package_id)| {
-            package_library_path(opts, metadata, &package_root, package_id)
-        })
-        .collect()
+    Ok(packages.into_iter().flatten().collect())
 }
 
 fn dependency(
@@ -272,7 +332,7 @@ fn sample_package_id(dep: &Dependency, source: &mut dyn Source) -> Result<Packag
 fn git_dependency_root_from_package<'a>(
     config: &'a Config,
     source: &(dyn Source + 'a),
-    package: &Package,
+    package: &CargoPackage,
 ) -> Result<PathBuf> {
     let package_root = package.root();
 
@@ -304,38 +364,58 @@ fn package_id(source_id: SourceId, package_root: &Path) -> Result<PackageId> {
     PackageId::new(&package.name, &package.version, source_id)
 }
 
-fn package_library_path(
-    opts: &crate::Dylint,
-    metadata: &Metadata,
-    package_root: &Path,
-    package_id: PackageId,
-) -> Result<PathBuf> {
-    let target_dir = target_dir(metadata, package_root, package_id)?;
+pub fn package_library_name(package_root: &Path) -> Result<String> {
+    let metadata = MetadataCommand::new()
+        .current_dir(package_root)
+        .no_deps()
+        .exec()?;
+
+    let package = dylint_internal::cargo::package_with_root(&metadata, package_root)?;
+
+    package
+        .targets
+        .iter()
+        .find_map(|target| {
+            if target.kind.iter().any(|kind| kind == "cdylib") {
+                Some(target.name.clone())
+            } else {
+                None
+            }
+        })
+        .ok_or_else(|| {
+            anyhow!(
+                "Could not find `cdylib` target for package `{}`",
+                package.id
+            )
+        })
+}
+
+pub fn build_library(opts: &crate::Dylint, package: &Package) -> Result<PathBuf> {
+    let target_dir = package.target_directory();
+
+    let path = package.path();
 
     if !opts.no_build {
         // smoelius: Clear `RUSTFLAGS` so that changes to it do not cause workspace metadata entries
         // to be rebuilt.
         dylint_internal::cargo::build(
-            &format!("workspace metadata entry `{}`", package_id.name()),
+            &format!("workspace metadata entry `{}`", package.id.name()),
             opts.quiet,
         )
         .sanitize_environment()
         .env_remove(env::RUSTFLAGS)
-        .current_dir(package_root)
+        .current_dir(&package.root)
         .args(["--release", "--target-dir", &target_dir.to_string_lossy()])
         .success()?;
+
+        let exists = path
+            .try_exists()
+            .with_context(|| format!("Could not determine whether {path:?} exists"))?;
+
+        ensure!(exists, "Could not find {path:?} despite successful build");
     }
 
-    Ok(target_dir.join("release"))
-}
-
-fn target_dir(metadata: &Metadata, package_root: &Path, _package_id: PackageId) -> Result<PathBuf> {
-    let toolchain = dylint_internal::rustup::active_toolchain(package_root)?;
-    Ok(metadata
-        .target_directory
-        .join("dylint/libraries")
-        .join(toolchain)
-        .into())
+    Ok(path)
 }
 
 // smoelius: `pkg_dir` and `target_short_hash` are based on functions with the same names in

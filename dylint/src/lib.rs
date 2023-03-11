@@ -11,6 +11,7 @@ use dylint_internal::{
 };
 use lazy_static::lazy_static;
 use std::{
+    collections::BTreeMap,
     env::{consts, current_dir},
     ffi::OsStr,
     fmt::Debug,
@@ -29,6 +30,7 @@ pub use error::{ColorizedError, ColorizedResult};
 
 mod name_toolchain_map;
 pub use name_toolchain_map::{Lazy as NameToolchainMap, ToolchainMap};
+use name_toolchain_map::{LazyToolchainMap, MaybeLibrary};
 
 #[cfg(feature = "metadata")]
 pub(crate) mod metadata;
@@ -210,15 +212,16 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
 
     let toolchain_width = name_toolchain_map
         .values()
-        .flat_map(ToolchainMap::keys)
+        .flat_map(LazyToolchainMap::keys)
         .map(String::len)
         .max()
         .unwrap_or_default();
 
     for (name, toolchain_map) in name_toolchain_map {
-        for (toolchain, paths) in toolchain_map {
-            for path in paths {
-                let location = location(path)?;
+        for (toolchain, maybe_libraries) in toolchain_map {
+            for maybe_library in maybe_libraries {
+                let location = display_location(&maybe_library.path())?;
+
                 println!(
                     "{name:<name_width$}  {toolchain:<toolchain_width$}  {}",
                     location.to_string_lossy()
@@ -240,20 +243,25 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
     if opts.all {
         let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
 
-        name_toolchain_map.values().cloned().for_each(|other| {
-            for (toolchain, mut paths) in other {
+        for other in name_toolchain_map.values() {
+            for (toolchain, maybe_libraries) in other {
+                let paths = maybe_libraries
+                    .iter()
+                    .map(|maybe_library| maybe_library.build(opts))
+                    .collect::<Result<Vec<_>>>()?;
                 toolchain_map
-                    .entry(toolchain)
+                    .entry(toolchain.clone())
                     .or_insert_with(Default::default)
-                    .append(&mut paths);
+                    .extend(paths);
             }
-        });
+        }
     }
 
     for name in &opts.libs {
         ensure!(!opts.all, "`--lib` cannot be used with `--all`");
-        let (toolchain, path) =
+        let (toolchain, maybe_library) =
             name_as_lib(name_toolchain_map, name, true)?.unwrap_or_else(|| unreachable!());
+        let path = maybe_library.build(opts)?;
         toolchain_map
             .entry(toolchain)
             .or_insert_with(Default::default)
@@ -271,13 +279,14 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
     let mut not_found = Vec::new();
 
     for name in &opts.names {
-        if let Some((toolchain, path)) = name_as_lib(name_toolchain_map, name, false)? {
+        if let Some((toolchain, maybe_library)) = name_as_lib(name_toolchain_map, name, false)? {
             ensure!(
                 !opts.all,
                 "`{}` is a library name and cannot be used with `--all`; if a path was meant, use `--path {}`",
                 name,
                 name
             );
+            let path = maybe_library.build(opts)?;
             toolchain_map
                 .entry(toolchain)
                 .or_insert_with(Default::default)
@@ -310,7 +319,7 @@ pub fn name_as_lib(
     name_toolchain_map: &NameToolchainMap,
     name: &str,
     as_lib_only: bool,
-) -> Result<Option<(String, PathBuf)>> {
+) -> Result<Option<(String, MaybeLibrary)>> {
     if !is_valid_lib_name(name) {
         ensure!(!as_lib_only, "`{}` is not a valid library name", name);
         return Ok(None);
@@ -319,15 +328,15 @@ pub fn name_as_lib(
     let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
 
     if let Some(toolchain_map) = name_toolchain_map.get(name) {
-        let mut toolchain_paths = flatten_toolchain_map(toolchain_map);
+        let mut toolchain_maybe_libraries = flatten_toolchain_map(toolchain_map);
 
-        return match toolchain_paths.len() {
+        return match toolchain_maybe_libraries.len() {
             0 => Ok(None),
-            1 => Ok(Some(toolchain_paths.remove(0))),
+            1 => Ok(Some(toolchain_maybe_libraries.remove(0))),
             _ => Err(anyhow!(
                 "Found multiple libraries matching `{}`: {:?}",
                 name,
-                toolchain_paths
+                toolchain_maybe_libraries
                     .iter()
                     .map(|(_, path)| path)
                     .collect::<Vec<_>>()
@@ -344,13 +353,17 @@ fn is_valid_lib_name(name: &str) -> bool {
     Path::new(name).file_name() == Some(OsStr::new(name))
 }
 
-fn flatten_toolchain_map(toolchain_map: &ToolchainMap) -> Vec<(String, PathBuf)> {
+fn flatten_toolchain_map<I, T>(toolchain_map: &BTreeMap<String, I>) -> Vec<(String, T)>
+where
+    for<'a> &'a I: IntoIterator<Item = &'a T>,
+    T: Clone,
+{
     toolchain_map
         .iter()
-        .flat_map(|(toolchain, paths)| {
-            paths
-                .iter()
-                .map(|path| (toolchain.clone(), path.clone()))
+        .flat_map(|(toolchain, values)| {
+            values
+                .into_iter()
+                .map(|value| (toolchain.clone(), value.clone()))
                 .collect::<Vec<_>>()
         })
         .collect()
@@ -403,7 +416,7 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
                 print!("@{toolchain}");
             }
             if paths.len() >= 2 {
-                let location = location(path)?;
+                let location = display_location(path)?;
                 print!(" ({})", location.to_string_lossy());
             }
             println!();
@@ -426,12 +439,18 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
     Ok(())
 }
 
-fn location(path: &Path) -> Result<&Path> {
+fn display_location(path: &Path) -> Result<PathBuf> {
     let current_dir = current_dir().with_context(|| "Could not get current directory")?;
-    let parent = path
+    let path_buf = path
+        .canonicalize()
+        .with_context(|| format!("Could not canonicalize {path:?}"))?;
+    let parent = path_buf
         .parent()
         .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-    Ok(parent.strip_prefix(&current_dir).unwrap_or(parent))
+    Ok(parent
+        .strip_prefix(&current_dir)
+        .unwrap_or(parent)
+        .to_path_buf())
 }
 
 fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
@@ -532,22 +551,23 @@ mod test {
 
     lazy_static! {
         static ref OPTS: Dylint = Dylint {
-                no_metadata: true,
-                ..Dylint::default()
-            };
-        static ref NAME_TOOLCHAIN_MAP: NameToolchainMap<'static> = {
-            examples::build().unwrap();
-            let metadata = dylint_internal::cargo::current_metadata().unwrap();
-            // smoelius: As of version 0.1.14, `cargo-llvm-cov` no longer sets `CARGO_TARGET_DIR`.
-            // So `dylint_library_path` no longer requires a `cfg!(coverage)` special case.
-            let dylint_library_path = join_paths([
-                    metadata.target_directory.join("examples/debug"),
-                    metadata.target_directory.join("straggler/debug"),
-                ])
-                .unwrap();
-            set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-            NameToolchainMap::new(&OPTS)
+            no_metadata: true,
+            ..Dylint::default()
         };
+    }
+
+    fn name_toolchain_map() -> NameToolchainMap<'static> {
+        examples::build().unwrap();
+        let metadata = dylint_internal::cargo::current_metadata().unwrap();
+        // smoelius: As of version 0.1.14, `cargo-llvm-cov` no longer sets `CARGO_TARGET_DIR`.
+        // So `dylint_library_path` no longer requires a `cfg!(coverage)` special case.
+        let dylint_library_path = join_paths([
+            metadata.target_directory.join("examples/debug"),
+            metadata.target_directory.join("straggler/debug"),
+        ])
+        .unwrap();
+        set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
+        NameToolchainMap::new(&OPTS)
     }
 
     #[cfg_attr(
@@ -556,12 +576,12 @@ mod test {
     )]
     #[test]
     fn multiple_libraries_multiple_toolchains() {
-        let name_toolchain_map = NAME_TOOLCHAIN_MAP.get_or_try_init().unwrap();
+        let name_toolchain_map = name_toolchain_map();
 
-        let question_mark_in_expression = name_toolchain_map
-            .get("question_mark_in_expression")
-            .unwrap();
-        let straggler = name_toolchain_map.get("straggler").unwrap();
+        let inited = name_toolchain_map.get_or_try_init().unwrap();
+
+        let question_mark_in_expression = inited.get("question_mark_in_expression").unwrap();
+        let straggler = inited.get("straggler").unwrap();
 
         assert_ne!(
             question_mark_in_expression.keys().collect::<Vec<_>>(),
@@ -576,7 +596,7 @@ mod test {
             ..Dylint::default()
         };
 
-        run_with_name_toolchain_map(&opts, &NAME_TOOLCHAIN_MAP).unwrap();
+        run_with_name_toolchain_map(&opts, &name_toolchain_map).unwrap();
     }
 
     // smoelius: Check that loading multiple libraries with the same Rust toolchain works. At one
@@ -603,12 +623,12 @@ mod test {
     )]
     #[test]
     fn multiple_libraries_one_toolchain() {
-        let name_toolchain_map = NAME_TOOLCHAIN_MAP.get_or_try_init().unwrap();
+        let name_toolchain_map = name_toolchain_map();
 
-        let clippy = name_toolchain_map.get("clippy").unwrap();
-        let question_mark_in_expression = name_toolchain_map
-            .get("question_mark_in_expression")
-            .unwrap();
+        let inited = name_toolchain_map.get_or_try_init().unwrap();
+
+        let clippy = inited.get("clippy").unwrap();
+        let question_mark_in_expression = inited.get("question_mark_in_expression").unwrap();
 
         assert_eq!(
             clippy.keys().collect::<Vec<_>>(),
@@ -623,6 +643,6 @@ mod test {
             ..Dylint::default()
         };
 
-        run_with_name_toolchain_map(&opts, &NAME_TOOLCHAIN_MAP).unwrap();
+        run_with_name_toolchain_map(&opts, &name_toolchain_map).unwrap();
     }
 }

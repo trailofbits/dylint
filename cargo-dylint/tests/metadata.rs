@@ -108,6 +108,7 @@ path = "../../examples/general/nonexistent_library"
         .stderr(predicate::str::contains("No paths matched"));
 }
 
+/// Verify that changes to `RUSTFLAGS` do not cause workspace metadata entries to be rebuilt.
 #[test]
 fn rustflags_change() {
     let tempdir = tempdir_in(".").unwrap();
