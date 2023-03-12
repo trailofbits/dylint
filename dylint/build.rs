@@ -12,6 +12,7 @@ fn main() {
         || dylint_manifest_dir
             .parent()
             .map_or(false, |path| path.ends_with("target/package"))
+        || env::var(env::DOCS_RS).is_ok()
     {
         "None".to_owned()
     } else {
