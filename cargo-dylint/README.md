@@ -202,7 +202,7 @@ Helpful resources for writing lints include the following:
 [example general-purpose lints]: ../examples/general
 [features]: #features
 [field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
-[general-purpose, example lints]: ../examples#general
+[general-purpose, example lints]: ../examples/README.md#general
 [glob]: https://docs.rs/glob/0.3.0/glob/struct.Pattern.html
 [guide to rustc development]: https://rustc-dev-guide.rust-lang.org/
 [how dylint works]: ../docs/how_dylint_works.md
