@@ -13,6 +13,7 @@ declare_const!(CARGO_TARGET_DIR);
 declare_const!(CARGO_TERM_COLOR);
 declare_const!(CLIPPY_DISABLE_DOCS_LINKS);
 declare_const!(CLIPPY_DRIVER_PATH);
+declare_const!(DOCS_RS);
 declare_const!(DYLINT_DRIVER_PATH);
 declare_const!(DYLINT_LIBRARY_PATH);
 declare_const!(DYLINT_LIBS);
