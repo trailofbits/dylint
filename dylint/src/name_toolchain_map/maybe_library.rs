@@ -51,6 +51,7 @@ impl Inner {
         }
     }
 
+    #[cfg_attr(not(feature = "metadata"), allow(unused_variables))]
     fn build(&self, opts: &crate::Dylint) -> Result<PathBuf> {
         match self {
             Self::Path(path) => Ok(path.clone()),
