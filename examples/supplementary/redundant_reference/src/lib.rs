@@ -169,7 +169,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                 if let Some(field_def) = field_defs
                     .iter()
                     .find(|field_def| field_def.ident == *field);
-                let field_def_local_def_id = cx.tcx.hir().local_def_id(field_def.hir_id);
+                let field_def_local_def_id = field_def.def_id;
                 if !cx.tcx.visibility(*local_def_id).is_public()
                     || !cx.tcx.visibility(field_def_local_def_id).is_public();
                 if let TyKind::Ref(

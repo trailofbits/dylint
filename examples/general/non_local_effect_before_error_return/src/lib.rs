@@ -11,7 +11,7 @@ extern crate rustc_span;
 use clippy_utils::{diagnostics::span_lint_and_then, match_def_path, paths};
 use if_chain::if_chain;
 use rustc_errors::Diagnostic;
-use rustc_hir::intravisit::FnKind;
+use rustc_hir::{def_id::LocalDefId, intravisit::FnKind};
 use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
@@ -118,7 +118,7 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
         _: &'tcx rustc_hir::FnDecl<'_>,
         body: &'tcx rustc_hir::Body<'_>,
         span: Span,
-        _: rustc_hir::HirId,
+        _: LocalDefId,
     ) {
         if span.from_expansion() {
             return;

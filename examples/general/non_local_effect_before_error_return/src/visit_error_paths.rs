@@ -4,8 +4,8 @@ use rustc_hir::intravisit::FnKind;
 use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LintContext};
 use rustc_middle::mir::{
-    BasicBlock, Body, Local, Place, Rvalue, StatementKind, Terminator, TerminatorKind,
-    RETURN_PLACE, START_BLOCK,
+    AggregateKind, BasicBlock, Body, Local, Place, Rvalue, StatementKind, Terminator,
+    TerminatorKind, RETURN_PLACE, START_BLOCK,
 };
 use rustc_span::Span;
 
@@ -151,17 +151,11 @@ where
         let basic_block = &self.mir[index];
         for statement in basic_block.statements.iter().rev() {
             match &statement.kind {
-                StatementKind::Assign(box (assign_place, rvalue)) => {
-                    if_chain! {
-                        if state.remove_local(assign_place.local);
-                        if let Rvalue::Use(rvalue_operand) = rvalue;
-                        if let Some(rvalue_place) = rvalue_operand.place();
-                        then {
-                            state.set_local(rvalue_place.local);
-                        }
-                    }
-                }
-                StatementKind::SetDiscriminant {
+                StatementKind::Assign(box (
+                    place,
+                    Rvalue::Aggregate(box AggregateKind::Adt(_, variant_index, _, _, _), _),
+                ))
+                | StatementKind::SetDiscriminant {
                     place: box place,
                     variant_index,
                 } => {
@@ -170,6 +164,16 @@ where
                             variant_index.as_usize(),
                             statement.source_info.span,
                         );
+                    }
+                }
+                StatementKind::Assign(box (assign_place, rvalue)) => {
+                    if_chain! {
+                        if state.remove_local(assign_place.local);
+                        if let Rvalue::Use(rvalue_operand) = rvalue;
+                        if let Some(rvalue_place) = rvalue_operand.place();
+                        then {
+                            state.set_local(rvalue_place.local);
+                        }
                     }
                 }
                 _ => {}

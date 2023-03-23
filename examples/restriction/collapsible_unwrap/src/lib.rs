@@ -188,7 +188,7 @@ fn method_call<'tcx>(
 }
 
 fn has_ref_mut_self(cx: &LateContext<'_>, def_id: DefId) -> bool {
-    let self_ty = cx.tcx.fn_sig(def_id).skip_binder().inputs()[0];
+    let self_ty = cx.tcx.fn_sig(def_id).skip_binder().skip_binder().inputs()[0];
     matches!(self_ty.kind(), ty::Ref(_, _, Mutability::Mut))
 }
 

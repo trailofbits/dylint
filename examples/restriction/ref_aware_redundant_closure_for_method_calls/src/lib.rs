@@ -25,7 +25,7 @@ use rustc_hir::{Closure, Expr, ExprKind, Param, PatKind, Unsafety};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::adjustment::{Adjust, Adjustment, AutoBorrow};
 use rustc_middle::ty::binding::BindingMode;
-use rustc_middle::ty::{self, EarlyBinder, SubstsRef, Ty, TypeVisitable};
+use rustc_middle::ty::{self, EarlyBinder, SubstsRef, Ty, TypeVisitable, TypeVisitableExt};
 use rustc_session::{declare_lint_pass, declare_tool_lint};
 use rustc_span::symbol::sym;
 
@@ -149,7 +149,7 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
             if is_type_diagnostic_item(cx, parent_receiver_ty, sym::Option);
             let method_def_id = cx.typeck_results().type_dependent_def_id(body.value.hir_id).unwrap();
             let substs = cx.typeck_results().node_substs(body.value.hir_id);
-            let call_ty = cx.tcx.bound_type_of(method_def_id).subst(cx.tcx, substs);
+            let call_ty = cx.tcx.type_of(method_def_id).subst(cx.tcx, substs);
             if check_sig(cx, closure_ty, call_ty);
             then {
                 let parent_method_call_span = trim_span(
@@ -269,7 +269,7 @@ fn get_ufcs_type_name<'tcx>(
     match assoc_item.container {
         ty::TraitContainer => cx.tcx.def_path_str(def_id),
         ty::ImplContainer => {
-            let ty = cx.tcx.type_of(def_id);
+            let ty = cx.tcx.type_of(def_id).skip_binder();
             match ty.kind() {
                 ty::Adt(adt, _) => cx.tcx.def_path_str(adt.did()),
                 ty::Array(..)

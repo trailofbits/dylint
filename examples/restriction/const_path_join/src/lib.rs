@@ -16,7 +16,7 @@ use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty;
-use rustc_span::Span;
+use rustc_span::{sym, Span};
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
@@ -136,7 +136,7 @@ fn is_path_buf_from(
 ) -> Option<&'static [&'static str]> {
     if_chain! {
         if let Some(callee_def_id) = cx.typeck_results().type_dependent_def_id(callee.hir_id);
-        if cx.tcx.lang_items().from_fn() == Some(callee_def_id);
+        if cx.tcx.is_diagnostic_item(sym::from_fn, callee_def_id);
         let ty = cx.typeck_results().expr_ty(expr);
         if let ty::Adt(adt_def, _) = ty.kind();
         then {

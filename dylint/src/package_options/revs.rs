@@ -74,6 +74,7 @@ impl<'revs> Iterator for RevIter<'revs> {
         dylint_lib = "non_local_effect_before_error_return",
         allow(non_local_effect_before_error_return)
     )]
+    #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
     fn next(&mut self) -> Option<Self::Item> {
         (|| -> Result<Option<Rev>> {
             let mut prev_rev: Option<Rev> = None;
