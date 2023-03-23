@@ -64,6 +64,7 @@ for FLAGS in "$EXAMPLES_AS_FLAGS" '--lib clippy'; do
             -A clippy::option-if-let-else
             -A clippy::missing-errors-doc
             -A clippy::missing-panics-doc
+            -A clippy::significant-drop-tightening
         "
     fi
     export DYLINT_RUSTFLAGS

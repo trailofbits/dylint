@@ -133,6 +133,7 @@ impl MissingDocCommentOpenai {
     }
 }
 
+#[allow(clippy::no_mangle_with_rust_abi)]
 #[no_mangle]
 pub fn register_lints(sess: &Session, lint_store: &mut LintStore) {
     dylint_linting::init_config(sess);
