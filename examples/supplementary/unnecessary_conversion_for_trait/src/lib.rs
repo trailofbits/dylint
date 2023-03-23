@@ -33,7 +33,8 @@ use rustc_middle::ty::{
     self,
     adjustment::{Adjust, Adjustment, AutoBorrow},
     subst::SubstsRef,
-    Clause, EarlyBinder, FnSig, Param, ParamTy, PredicateKind, ProjectionPredicate, Ty, TypeAndMut,
+    Clause, EarlyBinder, FnDef, FnSig, Param, ParamTy, PredicateKind, ProjectionPredicate, Ty,
+    TypeAndMut,
 };
 use rustc_span::symbol::{sym, Symbol};
 use rustc_trait_selection::traits::{
@@ -175,7 +176,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                 .flatten()
                 .chain(outer_args)
                 .collect::<Vec<_>>();
-            let outer_fn_sig = cx.tcx.fn_sig(outer_callee_def_id).skip_binder();
+            let outer_fn_sig = cx.tcx.fn_sig(outer_callee_def_id).skip_binder().skip_binder();
             if let Some(i) = outer_args
                 .iter()
                 .position(|arg| arg.hir_id == maybe_arg.hir_id);
@@ -194,12 +195,8 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                                 .flatten()
                                 .chain(inner_args)
                                 .collect::<Vec<_>>();
-                            if let [mut inner_arg] = inner_args.as_slice();
-                            let _ = {
-                                if let ExprKind::Box(box_arg) = inner_arg.kind {
-                                    inner_arg = box_arg;
-                                }
-                            };
+                            if let &[maybe_boxed_inner_arg] = inner_args.as_slice();
+                            let inner_arg = peel_boxes(cx, maybe_boxed_inner_arg);
                             let inner_arg_ty = cx.typeck_results().expr_ty(inner_arg);
                             let adjustment_mutabilities = adjustment_mutabilities(cx, inner_arg);
                             let new_mutabilities = [adjustment_mutabilities, mutabilities].concat();
@@ -653,6 +650,33 @@ fn ancestor_addr_of_mutabilities<'tcx>(
         }
     }
     None
+}
+
+fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
+    const BOX_NEW: [&str; 4] = ["alloc", "boxed", "Box", "new"];
+
+    loop {
+        if let ExprKind::Box(inner_expr) = expr.kind {
+            expr = inner_expr;
+            continue;
+        }
+
+        if_chain! {
+            if let ExprKind::Call(callee, args) = expr.kind;
+            let callee_ty = cx.typeck_results().expr_ty(callee);
+            if let FnDef(callee_def_id, _) = callee_ty.kind();
+            if match_def_path(cx, *callee_def_id, &BOX_NEW);
+            if let [inner_arg] = args;
+            then {
+                expr = inner_arg;
+                continue;
+            }
+        }
+
+        break;
+    }
+
+    expr
 }
 
 fn adjustment_mutabilities<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> Vec<Mutability> {

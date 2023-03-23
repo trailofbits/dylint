@@ -6,7 +6,6 @@ use rustc_lint::LateContext;
 use rustc_middle::ty::{
     self,
     fold::{BottomUpFolder, TypeFolder},
-    DefIdTree,
 };
 use rustc_span::symbol::sym;
 
@@ -38,8 +37,8 @@ pub fn check_inherents<I: Iterator<Item = DefId>>(cx: &LateContext<'_>, inherent
             return false;
         }
 
-        let fn_sig = cx.tcx.fn_sig(assoc_item.def_id);
-        if fn_sig.unsafety() == Unsafety::Unsafe || fn_sig.inputs().skip_binder().len() != 1 {
+        let fn_sig = cx.tcx.fn_sig(assoc_item.def_id).skip_binder();
+        if fn_sig.unsafety() == Unsafety::Unsafe || fn_sig.skip_binder().inputs().len() != 1 {
             return false;
         }
 

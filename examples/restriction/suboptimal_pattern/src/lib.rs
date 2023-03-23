@@ -17,6 +17,7 @@ use if_chain::if_chain;
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
 use rustc_hir::{
+    def_id::LocalDefId,
     intravisit::{walk_expr, FnKind, Visitor},
     BindingAnnotation, Body, ByRef, Expr, ExprKind, FnDecl, HirId, Node, Pat, PatKind, UnOp,
 };
@@ -98,7 +99,7 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
         _: &'tcx FnDecl<'tcx>,
         body: &'tcx Body<'tcx>,
         span: Span,
-        _: HirId,
+        _: LocalDefId,
     ) {
         if !matches!(fn_kind, FnKind::Closure) {
             return;

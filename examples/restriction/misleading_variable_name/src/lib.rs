@@ -17,7 +17,7 @@ use rustc_hir::{
     Expr, ExprKind, LangItem, Local, MatchSource, Pat, PatKind, QPath, Stmt, StmtKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{self, DefIdTree};
+use rustc_middle::ty;
 use rustc_span::{sym, symbol::Symbol};
 use std::collections::BTreeMap;
 
@@ -228,7 +228,7 @@ fn module_public_child_types(
                 child_name.as_str().to_snake_case(),
                 (
                     child_name,
-                    erase_substs(tcx, tcx.type_of(child_def_id).peel_refs()),
+                    erase_substs(tcx, tcx.type_of(child_def_id).skip_binder().peel_refs()),
                 ),
             );
         }
