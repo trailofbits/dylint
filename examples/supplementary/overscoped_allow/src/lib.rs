@@ -108,6 +108,7 @@ struct Message {
     message: Option<Diagnostic>,
 }
 
+#[allow(clippy::no_mangle_with_rust_abi)]
 #[no_mangle]
 pub fn register_lints(sess: &Session, lint_store: &mut LintStore) {
     let diagnostics = match read_diagnostics() {

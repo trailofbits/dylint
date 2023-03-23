@@ -1,4 +1,4 @@
-#![allow(clippy::missing_const_for_fn)]
+#![allow(clippy::missing_const_for_fn, clippy::manual_assert)]
 #![cfg_attr(dylint_lib = "crate_wide_allow", allow(crate_wide_allow))]
 #![warn(clippy::panic)]
 
