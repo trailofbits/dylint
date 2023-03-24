@@ -546,8 +546,16 @@ mod test {
     use super::*;
     use dylint_internal::examples;
     use lazy_static::lazy_static;
-    use std::env::{join_paths, set_var};
+    use std::{
+        env::{join_paths, set_var},
+        sync::Mutex,
+    };
     use test_log::test;
+
+    // smoelius: With the upgrade to nightly-2023-03-10, I started running into this:
+    // https://github.com/rust-lang/rustup/issues/988
+    // The easiest solution is to just not run the tests concurrently.
+    static MUTEX: Mutex<()> = Mutex::new(());
 
     lazy_static! {
         static ref OPTS: Dylint = Dylint {
@@ -576,6 +584,8 @@ mod test {
     )]
     #[test]
     fn multiple_libraries_multiple_toolchains() {
+        let _lock = MUTEX.lock().unwrap();
+
         let name_toolchain_map = name_toolchain_map();
 
         let inited = name_toolchain_map.get_or_try_init().unwrap();
@@ -623,6 +633,8 @@ mod test {
     )]
     #[test]
     fn multiple_libraries_one_toolchain() {
+        let _lock = MUTEX.lock().unwrap();
+
         let name_toolchain_map = name_toolchain_map();
 
         let inited = name_toolchain_map.get_or_try_init().unwrap();
