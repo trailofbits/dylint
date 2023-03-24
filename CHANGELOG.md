@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.6
+
+- Enable backtraces for stable builds ([#630](https://github.com/trailofbits/dylint/pull/630))
+- Dylint now builds libraries only when they are needed to run. For example, `cargo dylint --lib foo` builds just library `foo`, whereas it used to build all available libraries. ([#633](https://github.com/trailofbits/dylint/pull/633))
+
 ## 2.1.5
 
 - Use [`home`](https://crates.io/crates/home) crate to determine `CARGO_HOME` ([#604](https://github.com/trailofbits/dylint/pull/604))
