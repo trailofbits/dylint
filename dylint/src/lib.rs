@@ -25,6 +25,7 @@ pub mod driver_builder;
 
 mod error;
 use error::warn;
+#[doc(hidden)]
 pub use error::warn as __warn;
 pub use error::{ColorizedError, ColorizedResult};
 
