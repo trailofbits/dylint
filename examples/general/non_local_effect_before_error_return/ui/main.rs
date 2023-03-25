@@ -162,6 +162,7 @@ mod more_than_two_variants {
 
 mod bitflags {
     bitflags::bitflags! {
+        #[derive(Clone, Copy)]
         struct Flags: u8 {
             const FOO = 1 << 0;
             const BAR = 1 << 1;

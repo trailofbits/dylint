@@ -1,5 +1,5 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.675.1) with
+// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.69.1) with
 // adjustments to make some things public.
 
 #![allow(unused_imports)]
@@ -45,7 +45,7 @@ impl<'a, 'b> Context<'a, 'b> {
     }
 }
 
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt;
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
@@ -55,6 +55,7 @@ use std::str::{self, FromStr};
 use anyhow::{anyhow, bail, Context as _};
 use cargo_platform::Platform;
 use cargo_util::paths;
+// use itertools::Itertools;
 // use lazycell::LazyCell;
 use log::{debug, trace};
 use semver::{self, VersionReq};
@@ -68,9 +69,8 @@ use crate::core::compiler::{CompileKind, CompileTarget};
 use crate::core::dependency::{Artifact, ArtifactTarget, DepKind};
 use crate::core::manifest::{ManifestMetadata, TargetSourcePath, Warnings};
 use crate::core::resolver::ResolveBehavior;
-use crate::core::{
-    find_workspace_root, resolve_relative_path, Dependency, Manifest, PackageId, Summary, Target,
-};
+use crate::core::{find_workspace_root, resolve_relative_path, CliUnstable};
+use crate::core::{Dependency, Manifest, PackageId, Summary, Target};
 use crate::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
 use crate::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
 use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
