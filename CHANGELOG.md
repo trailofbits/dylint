@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.7
+
+- Update dependencies, including `openssl` to version 0.10.48 ([#652](https://github.com/trailofbits/dylint/pull/652))
+
 ## 2.1.6
 
 - Enable backtraces for stable builds ([#630](https://github.com/trailofbits/dylint/pull/630))

@@ -1,6 +1,6 @@
 [package]
 name = "env_cargo_path"
-version = "2.1.6"
+version = "2.1.7"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for `env!` applied to Cargo environment variables containing paths"
 edition = "2021"
