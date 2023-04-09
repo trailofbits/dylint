@@ -25,7 +25,7 @@ jobs:
           git diff --name-only
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v5
         with:
           title: Upgrade examples
           token: ${{ secrets.PR_GITHUB_TOKEN }}
