@@ -33,7 +33,7 @@ dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
 git2 = "0.16"
-tempfile = "3.4"
+tempfile = "3.5"
 
 dylint_testing = { path = "../../../utils/testing" }
 

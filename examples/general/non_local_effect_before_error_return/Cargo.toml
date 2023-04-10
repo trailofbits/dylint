@@ -21,7 +21,7 @@ serde = { version = "1.0", features = ["derive"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-bitflags = "2.0"
+bitflags = "2.1"
 lazy_static = "1.4"
 
 dylint_testing = { path = "../../../utils/testing" }
