@@ -14,12 +14,12 @@ WORKSPACE="$(realpath "$SCRIPTS"/..)"
 cd "$WORKSPACE"
 
 package_name() {
-    grep -o '^name = "[^"]*"$' Cargo.toml |
+    grep -m 1 -o '^name = "[^"]*"$' Cargo.toml |
     sed 's/^name = "\([^"]*\)"$/\1/'
 }
 
 package_version() {
-    grep -o '^version = "[^"]*"$' Cargo.toml |
+    grep -m 1 -o '^version = "[^"]*"$' Cargo.toml |
     sed 's/^version = "\([^"]*\)"$/\1/'
 }
 
