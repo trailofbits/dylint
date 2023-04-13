@@ -143,5 +143,11 @@ note: error is determined here
 LL |         Err(())
    |         ^^^^^^^
 
-error: aborting due to 12 previous errors
+error: call with mutable reference before error return
+  --> $DIR/main.rs:214:10
+   |
+LL |         .env("RUST_LOG", "debug")
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 13 previous errors
 
