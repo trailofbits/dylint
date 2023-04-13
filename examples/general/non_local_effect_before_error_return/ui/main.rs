@@ -205,3 +205,13 @@ mod mut_ref_arg {
         Err(())
     }
 }
+
+// smoelius: Currently, a warning is generated for the call to `env` because it modifies `command`.
+// Notably, the call is not considered to "contribute" to the error because `Command` does not
+// implement the `Try` trait. We may want to revisit this decision.
+fn debug(command: &mut std::process::Command) -> Result<bool, Error> {
+    command
+        .env("RUST_LOG", "debug")
+        .status()
+        .map(|status| status.success())
+}
