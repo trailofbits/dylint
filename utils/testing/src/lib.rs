@@ -406,9 +406,7 @@ fn copy_with_extension<P: AsRef<Path>, Q: AsRef<Path>>(
     copy(from, to).map_err(Into::into)
 }
 
-lazy_static! {
-    static ref MUTEX: Mutex<()> = Mutex::new(());
-}
+static MUTEX: Mutex<()> = Mutex::new(());
 
 fn run_tests(driver: &Path, src_base: &Path, config: &Config) {
     let _lock = MUTEX.lock().unwrap();

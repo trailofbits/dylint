@@ -1,5 +1,6 @@
 use assert_cmd::{assert::AssertResult, prelude::*};
 use dylint_internal::env;
+use std::sync::Mutex;
 
 #[test]
 fn builds_with_cfg_docsrs() {
@@ -22,7 +23,12 @@ fn builds_with_latest_nightly() {
         .success();
 }
 
+// smoelius: Avoid: https://github.com/rust-lang/rustup/issues/988
+static MUTEX: Mutex<()> = Mutex::new(());
+
 fn update_nightly() -> AssertResult {
+    let _lock = MUTEX.lock().unwrap();
+
     std::process::Command::new("rustup")
         .args(["update", "--no-self-update", "nightly"])
         .assert()
