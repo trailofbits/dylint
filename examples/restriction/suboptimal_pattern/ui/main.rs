@@ -118,3 +118,10 @@ mod deref_impl {
         // let _ = [X(Y)].iter().map(|&&x| x).collect::<Vec<_>>();
     }
 }
+
+fn tuple_with_wildcard() {
+    let ws: Vec<&str> = vec!["quick", "brown", "fox"];
+    let _ = ws.split_last().map(|(w, _)| *w);
+    // smoelius: Does not compile:
+    // let _ = ws.split_last().map(|&(w, _)| w);
+}
