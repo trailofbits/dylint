@@ -120,31 +120,31 @@ LL |         Err(Error::Two)
    |         ^^^^^^^^^^^^^^^
 
 error: call with mutable reference before error return
-  --> $DIR/main.rs:187:15
+  --> $DIR/main.rs:185:15
    |
 LL |         flags.insert(flag);
    |               ^^^^^^^^^^^^
    |
 note: error is determined here
-  --> $DIR/main.rs:189:20
+  --> $DIR/main.rs:187:20
    |
 LL |             return Err(());
    |                    ^^^^^^^
 
 error: call with mutable reference before error return
-  --> $DIR/main.rs:204:11
+  --> $DIR/main.rs:202:11
    |
 LL |         s.push('x');
    |           ^^^^^^^^^
    |
 note: error is determined here
-  --> $DIR/main.rs:205:9
+  --> $DIR/main.rs:203:9
    |
 LL |         Err(())
    |         ^^^^^^^
 
 error: call with mutable reference before error return
-  --> $DIR/main.rs:214:10
+  --> $DIR/main.rs:212:10
    |
 LL |         .env("RUST_LOG", "debug")
    |          ^^^^^^^^^^^^^^^^^^^^^^^^

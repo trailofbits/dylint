@@ -169,9 +169,7 @@ mod bitflags {
         }
     }
 
-    lazy_static::lazy_static! {
-        static ref FLAGS: std::sync::Mutex<Flags> = std::sync::Mutex::new(Flags::empty());
-    }
+    static FLAGS: std::sync::Mutex<Flags> = std::sync::Mutex::new(Flags::empty());
 
     fn double_check(flag: Flags) -> Result<bool, ()> {
         let flags = FLAGS.lock().unwrap();

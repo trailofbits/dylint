@@ -57,7 +57,7 @@ fn cargo(subcommand: &str, verb: &str, description: &str, quiet: bool) -> crate:
     let mut command = crate::Command::new("cargo");
     #[cfg(windows)]
     {
-        // smoelius: Work around https://github.com/rust-lang/rustup/pull/2978
+        // smoelius: Work around: https://github.com/rust-lang/rustup/pull/2978
         let cargo_home = cargo_home().unwrap();
         let old_path = crate::env::var(crate::env::PATH).unwrap();
         let new_path = std::env::join_paths(
