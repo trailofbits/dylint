@@ -149,7 +149,7 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                 }
 
                 if_chain! {
-                    if !matches!(pat.kind, PatKind::Wild);
+                    if !contains_wild(pat);
                     if let Some(hir_ids) = collect_non_ref_idents(pat);
                     if let Some(n_derefs) = exclusively_dereferenced(
                         self.config.explicit_deref_check,
@@ -243,6 +243,15 @@ fn build_tuple_pattern(ident: &str, projections: &FxHashSet<usize>, size: usize)
     }
     write!(buf, ")").unwrap();
     buf
+}
+
+fn contains_wild(pat: &Pat<'_>) -> bool {
+    let mut found = false;
+    pat.walk(|pat| {
+        found |= matches!(pat.kind, PatKind::Wild);
+        !found
+    });
+    found
 }
 
 fn collect_non_ref_idents(pat: &Pat<'_>) -> Option<FxHashSet<HirId>> {

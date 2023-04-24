@@ -132,5 +132,11 @@ error: could destructure reference
 LL |         let _ = [X(Y)].iter().map(|x| **x).collect::<Vec<_>>();
    |                                    ^ help: use: `&x`
 
-error: aborting due to 22 previous errors
+error: could destructure reference
+  --> $DIR/main.rs:124:35
+   |
+LL |     let _ = ws.split_last().map(|(w, _)| *w);
+   |                                   ^ help: use: `&w`
+
+error: aborting due to 23 previous errors
 
