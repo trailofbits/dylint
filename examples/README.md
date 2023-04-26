@@ -19,11 +19,12 @@ The example libraries are separated into the following three categories:
 
 ## Supplementary
 
-| Example                                                                                | Description/check                                        |
-| -------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| [`overscoped_allow`](./supplementary/overscoped_allow)                                 | `allow` attributes whose scope could be reduced          |
-| [`redundant_reference`](./supplementary/redundant_reference)                           | Reference fields used only to read one copyable subfield |
-| [`unnecessary_conversion_for_trait`](./supplementary/unnecessary_conversion_for_trait) | Unnecessary trait-behavior-preserving calls              |
+| Example                                                                                | Description/check                                              |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [`overscoped_allow`](./supplementary/overscoped_allow)                                 | `allow` attributes whose scope could be reduced                |
+| [`redundant_reference`](./supplementary/redundant_reference)                           | Reference fields used only to read one copyable subfield       |
+| [`unnecessary_borrow_mut`](./supplementary/unnecessary_borrow_mut)                     | Calls to `RefCell::borrow_mut` that could be `RefCell::borrow` |
+| [`unnecessary_conversion_for_trait`](./supplementary/unnecessary_conversion_for_trait) | Unnecessary trait-behavior-preserving calls                    |
 
 ## Restriction
 

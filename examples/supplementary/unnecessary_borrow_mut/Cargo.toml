@@ -1,0 +1,30 @@
+[package]
+name = "unnecessary_borrow_mut"
+version = "2.1.7"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for calls to `RefCell::borrow_mut` that could be `RefCell::borrow`"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "991610a9ecb6a9f905238d13ac45613ffe7b7daf" }
+if_chain = "1.0"
+
+dylint_internal = { path = "../../../internal" }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../*/*" },
+]

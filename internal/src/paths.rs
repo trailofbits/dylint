@@ -25,4 +25,6 @@ pub const PATH_JOIN: [&str; 4] = ["std", "path", "Path", "join"];
 pub const PATH_NEW: [&str; 4] = ["std", "path", "Path", "new"];
 pub const PATH_BUF: [&str; 3] = ["std", "path", "PathBuf"];
 
+pub const REFCELL_BORROW_MUT: [&str; 4] = ["core", "cell", "RefCell", "borrow_mut"];
+
 pub const TEST_DESC_AND_FN: [&str; 3] = ["test", "types", "TestDescAndFn"];
