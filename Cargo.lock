@@ -863,6 +863,7 @@ dependencies = [
  "cargo_metadata",
  "dylint_internal",
  "toml_edit 0.19.8",
+ "walkdir",
 ]
 
 [[package]]
