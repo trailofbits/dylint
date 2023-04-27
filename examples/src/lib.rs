@@ -6,6 +6,7 @@ mod test {
     };
     use std::{ffi::OsStr, fs::read_to_string};
     use toml_edit::{Document, Item, Value};
+    use walkdir::WalkDir;
 
     #[test]
     fn examples() {
@@ -93,6 +94,19 @@ mod test {
                 .unwrap();
 
             assert!(!components.contains(&"rust-src"));
+        }
+    }
+
+    #[test]
+    fn examples_do_not_have_gitignore() {
+        for entry in WalkDir::new(".") {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            assert_ne!(
+                path.file_name(),
+                Some(OsStr::new(".gitignore")),
+                "failed for {path:?}"
+            );
         }
     }
 }
