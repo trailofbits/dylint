@@ -14,7 +14,7 @@ name = "ui"
 path = "ui/main.rs"
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "991610a9ecb6a9f905238d13ac45613ffe7b7daf" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f16bfa478f131b2ec2ad9742f88dc6a9beea52b7" }
 if_chain = "1.0"
 
 dylint_internal = { path = "../../../internal" }
