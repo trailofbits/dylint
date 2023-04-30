@@ -1,6 +1,8 @@
 #![feature(rustc_private)]
 #![feature(let_chains)]
 #![recursion_limit = "256"]
+#![allow(clippy::items_after_test_module)]
+#![cfg_attr(dylint_lib = "crate_wide_allow", allow(crate_wide_allow))]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_data_structures;
@@ -656,10 +658,11 @@ fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx
     const BOX_NEW: [&str; 4] = ["alloc", "boxed", "Box", "new"];
 
     loop {
-        if let ExprKind::Box(inner_expr) = expr.kind {
+        // smoelius: No longer necessary since: https://github.com/rust-lang/rust/pull/108471
+        /* if let ExprKind::Box(inner_expr) = expr.kind {
             expr = inner_expr;
             continue;
-        }
+        } */
 
         if_chain! {
             if let ExprKind::Call(callee, args) = expr.kind;

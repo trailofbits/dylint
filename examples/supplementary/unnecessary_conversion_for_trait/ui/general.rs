@@ -1,7 +1,6 @@
 // run-rustfix
 
 #![allow(unused_imports, unused_parens)]
-#![feature(path_as_mut_os_str)]
 
 use std::{
     borrow::{Borrow, BorrowMut},
