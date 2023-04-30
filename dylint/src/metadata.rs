@@ -176,6 +176,7 @@ fn library_package(
     let pattern = if let Some(pattern) = &library.pattern {
         dependency_root.join(pattern)
     } else {
+        #[allow(clippy::redundant_clone)]
         dependency_root.clone()
     };
 
