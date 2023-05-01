@@ -29,3 +29,4 @@ jobs:
         with:
           title: Upgrade examples
           token: ${{ secrets.PR_GITHUB_TOKEN }}
+          branch-suffix: random

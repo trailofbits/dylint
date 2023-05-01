@@ -45,3 +45,4 @@ jobs:
         with:
           title: Update dependencies
           token: ${{ secrets.PR_GITHUB_TOKEN }}
+          branch-suffix: random
