@@ -90,6 +90,12 @@ struct Callbacks {
     loaded_libs: Vec<LoadedLibrary>,
 }
 
+// smoelius: Use of thread local storage was added to Clippy by:
+// https://github.com/rust-lang/rust-clippy/commit/3c06e0b1ce003912f8fe0536d3a7fe22558e38cf
+// This results in a segfault after the Clippy library has been unloaded; see the following issue
+// for an explanation as to why: https://github.com/nagisa/rust_libloading/issues/5
+// The workaround I've chosen is:
+// https://github.com/nagisa/rust_libloading/issues/5#issuecomment-244195096
 impl Callbacks {
     // smoelius: Load the libraries when `Callbacks` is created and not later (e.g., in `config`)
     // to ensure that the libraries live long enough.
@@ -97,7 +103,20 @@ impl Callbacks {
         let mut loaded_libs = Vec::new();
         for path in paths {
             unsafe {
-                let lib = libloading::Library::new(&path).unwrap_or_else(|err| {
+                // smoelius: `libloading` does not define `RTLD_NODELETE`.
+                #[cfg(unix)]
+                let result = libloading::os::unix::Library::open(
+                    Some(&path),
+                    libloading::os::unix::RTLD_LAZY
+                        | libloading::os::unix::RTLD_LOCAL
+                        | libc::RTLD_NODELETE,
+                )
+                .map(Into::into);
+
+                #[cfg(not(unix))]
+                let result = libloading::Library::new(&path);
+
+                let lib = result.unwrap_or_else(|err| {
                     rustc_session::early_error(
                         rustc_session::config::ErrorOutputType::default(),
                         &format!(
@@ -107,6 +126,7 @@ impl Callbacks {
                         ),
                     );
                 });
+
                 loaded_libs.push(LoadedLibrary { path, lib });
             }
         }
