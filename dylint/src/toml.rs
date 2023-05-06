@@ -1,6 +1,14 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.69.1) with
+// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.70.1) with
 // adjustments to make some things public.
+// smoelius: I experimented with creating a reduced Cargo crate that included just this module and
+// the things it depends upon. Such a crate could reduce build times and incur less of a maintenance
+// burden than this file. However, Cargo's modules appear to be highly interdependent, as can be
+// seen by running the following command in the root of the Cargo repository:
+//
+//    cargo modules generate graph --package cargo --lib --uses
+//
+// Hence, I think that idea is a dead end.
 
 #![allow(unused_imports)]
 #![allow(clippy::default_trait_access)]
@@ -18,6 +26,13 @@
     allow(non_local_effect_before_error_return)
 )]
 #![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
+
+// smoelius: `DetailedTomlDependency::unused_keys` does not appear in the original.
+impl DetailedTomlDependency {
+    pub fn unused_keys(&self) -> Vec<String> {
+        self.other.keys().cloned().collect()
+    }
+}
 
 // smoelius: `Context::new` does not appear in the original.
 #[allow(clippy::too_many_arguments)]
@@ -60,9 +75,9 @@ use cargo_util::paths;
 use log::{debug, trace};
 use semver::{self, VersionReq};
 use serde::de;
+use serde::de::IntoDeserializer as _;
 use serde::ser;
 use serde::{Deserialize, Serialize};
-// use toml_edit::easy as toml;
 // use url::Url;
 
 use crate::core::compiler::{CompileKind, CompileTarget};
@@ -132,6 +147,10 @@ pub struct DetailedTomlDependency<P: Clone = String> {
     lib: Option<bool>,
     /// A platform name, like `x86_64-apple-darwin`
     target: Option<String>,
+    /// This is here to provide a way to see the "unused manifest keys" when deserializing
+    #[serde(skip_serializing)]
+    #[serde(flatten)]
+    other: BTreeMap<String, toml::Value>,
 }
 
 // Explicit implementation so we avoid pulling in P: Default
@@ -155,6 +174,7 @@ impl<P: Clone> Default for DetailedTomlDependency<P> {
             artifact: Default::default(),
             lib: Default::default(),
             target: Default::default(),
+            other: Default::default(),
         }
     }
 }
