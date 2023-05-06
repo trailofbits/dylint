@@ -244,6 +244,18 @@ fn dependency(
     config: &Config,
     library: &Library,
 ) -> Result<Dependency> {
+    let mut unused_keys = library.details.unused_keys();
+    if !unused_keys.is_empty() {
+        unused_keys.sort_unstable();
+        bail!(
+            "Unknown library keys:{}",
+            unused_keys
+                .iter()
+                .map(|name| format!("\n    {name}"))
+                .collect::<String>()
+        );
+    }
+
     let name_in_toml = "library";
 
     let mut deps = vec![];
