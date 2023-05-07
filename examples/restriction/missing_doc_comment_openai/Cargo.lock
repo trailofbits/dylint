@@ -298,7 +298,6 @@ dependencies = [
  "anyhow",
  "atty",
  "cargo_metadata",
- "dirs",
  "git2",
  "home",
  "if_chain",
