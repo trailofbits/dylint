@@ -153,3 +153,47 @@ path = "../../examples/general/crate_wide_allow"
         .success()
         .stderr(predicate::str::contains("Compiling").not());
 }
+
+#[test]
+fn unknown_keys() {
+    let tempdir = tempdir().unwrap();
+
+    dylint_internal::cargo::init("package `unknown_keys_test`", false)
+        .current_dir(&tempdir)
+        .args(["--name", "unknown_keys_test"])
+        .success()
+        .unwrap();
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(tempdir.path().join("Cargo.toml"))
+        .unwrap();
+
+    write!(
+        file,
+        r#"
+[[workspace.metadata.dylint.libraries]]
+git = "https://github.com/trailofbits/dylint"
+pattern = "examples/general/crate_wide_allow"
+"#,
+    )
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .args(["dylint", "--all"])
+        .assert()
+        .success();
+
+    writeln!(file, r#"revision = "{REV}""#,).unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .args(["dylint", "--all"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::is_match(r#"Unknown library keys:\r?\n\s*revision\r?\n"#).unwrap());
+}
