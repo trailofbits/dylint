@@ -171,6 +171,8 @@ fn library_package(
 ) -> Result<Vec<Package>> {
     let dep = dependency(opts, metadata, config, library)?;
 
+    // smoelius: The dependency root cannot be canonicalized here. It could contain a `glob` pattern
+    // (e.g., `*`), because Dylint allows `path` entries to contain `glob` patterns.
     let dependency_root = dependency_root(config, &dep)?;
 
     let pattern = if let Some(pattern) = &library.pattern {
@@ -189,9 +191,15 @@ fn library_package(
                     let path_buf = path
                         .canonicalize()
                         .with_context(|| format!("Could not canonicalize {path:?}"))?;
+                    // smoelius: On Windows, the dependency root must be canonicalized to ensure it
+                    // has a path prefix.
+                    let dependency_root = dependency_root
+                        .canonicalize()
+                        .with_context(|| format!("Could not canonicalize {dependency_root:?}"))?;
                     ensure!(
                         path_buf.starts_with(&dependency_root),
-                        "Pattern `{pattern}` refers to paths outside of `{}`",
+                        "Pattern `{pattern}` could refer to `{}`, which is outside of `{}`",
+                        path_buf.to_string_lossy(),
                         dependency_root.to_string_lossy()
                     );
                 }
