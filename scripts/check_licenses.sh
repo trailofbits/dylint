@@ -11,6 +11,10 @@ fi
 find . -mindepth 2 -name Cargo.toml -print0 |
 xargs -0 -n 1 cargo license --manifest-path |
 while read -r X; do
+    # smoelius: Exception for `dirs` dependencies.
+    if [[ "$X" = 'MPL-2.0 (1): option-ext' ]]; then
+        continue
+    fi
     # smoelius: Exception for Cargo dependencies.
     if [[ "$X" = 'MPL-2.0+ (3): bitmaps, im-rc, sized-chunks' ]]; then
         continue
