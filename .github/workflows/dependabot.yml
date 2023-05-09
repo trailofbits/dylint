@@ -6,6 +6,9 @@ on: [pull_request_target]
 
 jobs:
   dependabot:
+    # smoelius: A comment now removed from ci.yml that I want to retain:
+    # > Note that `github.event.pull_request.user.login` is the user that opened the pull request,
+    # > which may be different from the user that triggered the action.
     if: ${{ github.actor == 'dependabot[bot]' }}
 
     runs-on: ubuntu-latest
