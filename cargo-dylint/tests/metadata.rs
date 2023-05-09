@@ -57,12 +57,64 @@ libraries = [
 }
 
 #[test]
-fn nonexistent_library() {
+fn nonexistent_git_library() {
+    let tempdir = tempdir().unwrap();
+
+    dylint_internal::cargo::init("package `nonexistent_git_library_test`", false)
+        .current_dir(&tempdir)
+        .args(["--name", "nonexistent_git_library_test"])
+        .success()
+        .unwrap();
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(tempdir.path().join("Cargo.toml"))
+        .unwrap();
+
+    write!(
+        file,
+        r#"
+[[workspace.metadata.dylint.libraries]]
+git = "https://github.com/trailofbits/dylint"
+pattern = "examples/general/crate_wide_allow"
+"#
+    )
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .args(["dylint", "--all"])
+        .assert()
+        .success();
+
+    write!(
+        file,
+        r#"
+[[workspace.metadata.dylint.libraries]]
+git = "https://github.com/trailofbits/dylint"
+pattern = "examples/general/nonexistent_library"
+"#
+    )
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .args(["dylint", "--all"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("No paths matched"));
+}
+
+#[test]
+fn nonexistent_path_library() {
     let tempdir = tempdir_in(".").unwrap();
 
-    dylint_internal::cargo::init("package `nonexistent_library_test`", false)
+    dylint_internal::cargo::init("package `nonexistent_path_library_test`", false)
         .current_dir(&tempdir)
-        .args(["--name", "nonexistent_library_test"])
+        .args(["--name", "nonexistent_path_library_test"])
         .success()
         .unwrap();
 
