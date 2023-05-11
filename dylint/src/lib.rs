@@ -222,11 +222,7 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
         for (toolchain, maybe_libraries) in toolchain_map {
             for maybe_library in maybe_libraries {
                 let location = display_location(&maybe_library.path())?;
-
-                println!(
-                    "{name:<name_width$}  {toolchain:<toolchain_width$}  {}",
-                    location.to_string_lossy()
-                );
+                println!("{name:<name_width$}  {toolchain:<toolchain_width$}  {location}",);
             }
         }
     }
@@ -418,7 +414,7 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
             }
             if paths.len() >= 2 {
                 let location = display_location(path)?;
-                print!(" ({})", location.to_string_lossy());
+                print!(" ({location})");
             }
             println!();
 
@@ -440,18 +436,22 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
     Ok(())
 }
 
-fn display_location(path: &Path) -> Result<PathBuf> {
+fn display_location(path: &Path) -> Result<String> {
     let current_dir = current_dir().with_context(|| "Could not get current directory")?;
-    let path_buf = path
-        .canonicalize()
-        .with_context(|| format!("Could not canonicalize {path:?}"))?;
+    let path_buf = match path.canonicalize() {
+        Ok(path_buf) => path_buf,
+        Err(_) => {
+            return Ok("<unbuilt>".to_owned());
+        }
+    };
     let parent = path_buf
         .parent()
         .ok_or_else(|| anyhow!("Could not get parent directory"))?;
     Ok(parent
         .strip_prefix(&current_dir)
         .unwrap_or(parent)
-        .to_path_buf())
+        .to_string_lossy()
+        .to_string())
 }
 
 fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
