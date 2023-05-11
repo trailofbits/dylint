@@ -122,9 +122,8 @@ fn one_name_multiple_paths() {
         );
 }
 
-// #[test]
-#[allow(dead_code)]
-fn canonical_path() {
+#[test]
+fn relative_path() {
     let tempdir = tempdir().unwrap();
 
     new_template(tempdir.path()).unwrap();
@@ -143,13 +142,20 @@ fn canonical_path() {
 
         assert_ne!(path, canonical_path);
 
+        // smoelius: On Windows, `tempdir.path()` must be canonicalized to ensure it has a path
+        // prefix. Otherwise, the call to `strip_prefix` could fail.
+        let relative_path = canonical_path
+            .strip_prefix(tempdir.path().canonicalize().unwrap())
+            .unwrap();
+
         std::process::Command::cargo_bin("cargo-dylint")
             .unwrap()
+            .current_dir(&tempdir)
             .envs([(env::DYLINT_LIBRARY_PATH, &path)])
             .args(["dylint", "list"])
             .assert()
             .success()
-            .stdout(predicate::str::contains(canonical_path.to_string_lossy()));
+            .stdout(predicate::str::contains(relative_path.to_string_lossy()));
     }
 }
 
