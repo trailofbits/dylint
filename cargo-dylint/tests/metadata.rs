@@ -57,6 +57,41 @@ libraries = [
 }
 
 #[test]
+fn list() {
+    let tempdir = tempdir().unwrap();
+
+    dylint_internal::cargo::init("package `list_test`", false)
+        .current_dir(&tempdir)
+        .args(["--name", "list_test"])
+        .success()
+        .unwrap();
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(tempdir.path().join("Cargo.toml"))
+        .unwrap();
+
+    write!(
+        file,
+        r#"
+[[workspace.metadata.dylint.libraries]]
+git = "https://github.com/trailofbits/dylint"
+pattern = "examples/general/crate_wide_allow"
+"#,
+    )
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .args(["dylint", "list"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("<unbuilt>"));
+}
+
+#[test]
 fn nonexistent_git_library() {
     let tempdir = tempdir().unwrap();
 
