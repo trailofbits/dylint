@@ -1,7 +1,7 @@
 use clippy_utils::diagnostics::span_lint;
 use if_chain::if_chain;
-use rustc_ast::{Expr, ExprKind, Item, NodeId};
-use rustc_lint::{EarlyContext, EarlyLintPass};
+use rustc_ast::{Crate, Expr, ExprKind, Item, NodeId};
+use rustc_lint::{EarlyContext, EarlyLintPass, LintContext};
 use rustc_session::{declare_lint, impl_lint_pass};
 use rustc_span::sym;
 
@@ -58,6 +58,12 @@ pub struct NonThreadSafeCallInTest {
 impl_lint_pass!(NonThreadSafeCallInTest => [NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXPANSION]);
 
 impl EarlyLintPass for NonThreadSafeCallInTest {
+    fn check_crate(&mut self, cx: &EarlyContext, _crate: &Crate) {
+        if !cx.sess().opts.test {
+            cx.sess().warn("`non_thread_safe_call_in_test` is unlikely to be effective as `--test` was not passed to rustc");
+        }
+    }
+
     fn check_item(&mut self, _cx: &EarlyContext, item: &Item) {
         if self.in_test_item() || is_test_item(item) {
             self.stack.push(item.id);
