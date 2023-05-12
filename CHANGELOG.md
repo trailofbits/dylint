@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.8
+
+- Allow libraries to use thread local storage ([3db9dda](https://github.com/trailofbits/dylint/commit/3db9dda14ecb939ff019f1b6c27c5515df91bfaa))
+- Fix a bug causing false "invalid pattern" errors on Windows ([49e0353](https://github.com/trailofbits/dylint/commit/49e0353b3a590554d0ee79ff1f86f5ed24e1039c))
+- Don't treat unbuilt libraries as errors when listing libraries ([75190fb](https://github.com/trailofbits/dylint/commit/75190fbdc39cc29b152737a32959d00c17980b2e))
+
 ## 2.1.7
 
 - Update dependencies, including `openssl` to version 0.10.48 ([#652](https://github.com/trailofbits/dylint/pull/652))
