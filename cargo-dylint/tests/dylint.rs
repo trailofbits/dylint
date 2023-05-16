@@ -256,6 +256,15 @@ fn markdown_link_check() {
     }
 }
 
+#[test]
+fn supply_chain() {
+    Command::new("cargo")
+        .args(["supply-chain", "publishers", "--no-dev"])
+        .assert()
+        .success()
+        .stdout(predicates::path::eq_file("tests/publishers.txt"));
+}
+
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
     #[allow(unknown_lints, env_cargo_path)]
     read_to_string(
