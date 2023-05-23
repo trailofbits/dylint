@@ -457,7 +457,7 @@ pub fn init_config(sess: &rustc_session::Session) {
     try_init_config(sess).unwrap_or_else(|err| {
         rustc_session::early_error(
             rustc_session::config::ErrorOutputType::default(),
-            &format!("could not read configuration file: {err}"),
+            format!("could not read configuration file: {err}").as_str(),
         );
     });
 }

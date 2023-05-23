@@ -117,13 +117,16 @@ impl Callbacks {
                 let result = libloading::Library::new(&path);
 
                 let lib = result.unwrap_or_else(|err| {
+                    // smoelius: rust-lang/rust#111633 changed the type of `early_error`'s `msg`
+                    // argument from `&str` to `impl Into<DiagnosticMessage>`.
                     rustc_session::early_error(
                         rustc_session::config::ErrorOutputType::default(),
-                        &format!(
+                        format!(
                             "could not load library `{}`: {}",
                             path.to_string_lossy(),
                             err
-                        ),
+                        )
+                        .as_str(),
                     );
                 });
 
