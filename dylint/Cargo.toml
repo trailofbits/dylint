@@ -1,6 +1,6 @@
 [package]
 name = "dylint"
-version = "2.1.8"
+version = "2.1.9"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
 edition = "2021"
@@ -31,17 +31,17 @@ tempfile = "3.5"
 toml = { version = "0.7", optional = true }
 walkdir = "2.3"
 
-dylint_internal = { version = "=2.1.8", path = "../internal", features = ["git", "packaging", "rustup", "sed"] }
+dylint_internal = { version = "=2.1.9", path = "../internal", features = ["git", "packaging", "rustup", "sed"] }
 
 [build-dependencies]
-dylint_internal = { version = "=2.1.8", path = "../internal", features = ["cargo"] }
+dylint_internal = { version = "=2.1.9", path = "../internal", features = ["cargo"] }
 
 [dev-dependencies]
 env_logger = "0.10"
 lazy_static = "1.4"
 test-log = "0.2"
 
-dylint_internal = { version = "=2.1.8", path = "../internal", features = ["examples"] }
+dylint_internal = { version = "=2.1.9", path = "../internal", features = ["examples"] }
 
 [features]
 default = ["metadata"]

@@ -1,6 +1,6 @@
 [package]
 name = "dylint-link"
-version = "2.1.8"
+version = "2.1.9"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A wrapper around Rust's default linker to help create Dyling libraries"
 edition = "2021"
@@ -13,10 +13,10 @@ env_logger = "0.10"
 if_chain = "1.0"
 toml_edit = "0.19"
 
-dylint_internal = { version = "=2.1.8", path = "../internal", features = ["cargo"] }
+dylint_internal = { version = "=2.1.9", path = "../internal", features = ["cargo"] }
 
 [build-dependencies]
-dylint_internal = { version = "=2.1.8", path = "../internal" }
+dylint_internal = { version = "=2.1.9", path = "../internal" }
 
 [dev-dependencies]
 assert_cmd = "2.0"
@@ -24,7 +24,7 @@ predicates = "3.0"
 tempfile = "3.5"
 test-log = "0.2"
 
-dylint_internal = { version = "=2.1.8", path = "../internal", features = ["packaging"] }
+dylint_internal = { version = "=2.1.9", path = "../internal", features = ["packaging"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 cc = "1.0"

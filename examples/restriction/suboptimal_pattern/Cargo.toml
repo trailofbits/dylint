@@ -1,6 +1,6 @@
 [package]
 name = "suboptimal_pattern"
-version = "2.1.8"
+version = "2.1.9"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for patterns that could perform additional destructuring"
 edition = "2021"
