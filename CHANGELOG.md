@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.9
+
+- Address [rust-lang/rust#111633](https://github.com/rust-lang/rust/pull/111633) ([#694](https://github.com/trailofbits/dylint/pull/694))
+
 ## 2.1.8
 
 - Allow libraries to use thread local storage ([3db9dda](https://github.com/trailofbits/dylint/commit/3db9dda14ecb939ff019f1b6c27c5515df91bfaa))

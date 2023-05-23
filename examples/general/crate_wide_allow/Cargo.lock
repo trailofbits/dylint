@@ -197,7 +197,7 @@ dependencies = [
 
 [[package]]
 name = "crate_wide_allow"
-version = "2.1.8"
+version = "2.1.9"
 dependencies = [
  "assert_cmd",
  "cargo_metadata",
@@ -290,7 +290,7 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
 name = "dylint"
-version = "2.1.8"
+version = "2.1.9"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -311,7 +311,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.1.8"
+version = "2.1.9"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -327,7 +327,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.1.8"
+version = "2.1.9"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -340,7 +340,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.1.8"
+version = "2.1.9"
 dependencies = [
  "anyhow",
  "cargo_metadata",
