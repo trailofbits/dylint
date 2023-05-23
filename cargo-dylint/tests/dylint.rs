@@ -259,10 +259,19 @@ fn markdown_link_check() {
 #[test]
 fn supply_chain() {
     Command::new("cargo")
+        .args(["supply-chain", "update"])
+        .assert()
+        .success();
+
+    Command::new("cargo")
         .args(["supply-chain", "publishers", "--no-dev"])
         .assert()
         .success()
-        .stdout(predicates::path::eq_file("tests/publishers.txt"));
+        .stdout(
+            predicates::path::eq_file("tests/publishers.txt")
+                .utf8()
+                .unwrap(),
+        );
 }
 
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {

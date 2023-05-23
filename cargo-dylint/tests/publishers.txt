@@ -130,19 +130,19 @@ The following individuals can publish updates for your dependencies:
 
 All members of the following teams can publish updates for your dependencies:
 
- 1. "github:servo:cargo-publish" (https://github.com/servo) via crates: core-foundation, core-foundation-sys, fnv, form_urlencoded, idna, ordered-float, percent-encoding, unicode-bidi, url
- 2. "github:rust-lang:libs" (https://github.com/rust-lang) via crates: backtrace, cargo, cc, cfg-if, crates-io, libc, regex, regex-syntax
- 3. "github:rust-lang-nursery:libs" (https://github.com/rust-lang-nursery) via crates: bitflags, crates-io, env_logger, getopts, glob, lazy_static, log
- 4. "github:rustcrypto:formats" (https://github.com/rustcrypto) via crates: base16ct, base64ct, const-oid, der, pem-rfc7468, pkcs8, spki
- 5. "github:rustwasm:core" (https://github.com/rustwasm) via crates: js-sys, wasm-bindgen, wasm-bindgen-backend, wasm-bindgen-macro, wasm-bindgen-macro-support, wasm-bindgen-shared
- 6. "github:rust-lang:release-publishers" (https://github.com/rust-lang) via crates: cargo, cargo-platform, cargo-util, crates-io
- 7. "github:rustcrypto:elliptic-curves" (https://github.com/rustcrypto) via crates: elliptic-curve, p384, primeorder, sec1
- 8. "github:servo:rust-url" (https://github.com/servo) via crates: form_urlencoded, idna, percent-encoding, url
- 9. "github:toml-rs:maintainers" (https://github.com/toml-rs) via crates: serde_spanned, toml, toml_datetime, toml_edit
- 10. "github:alacritty:publishers" (https://github.com/alacritty) via crates: utf8parse, vte, vte_generate_state_changes
- 11. "github:clap-rs:admins" (https://github.com/clap-rs) via crates: clap, clap_derive, clap_lex
- 12. "github:rust-bus:maintainers" (https://github.com/rust-bus) via crates: arrayvec, tinyvec, vcpkg
- 13. "github:rust-cli:maintainers" (https://github.com/rust-cli) via crates: anstyle, clap, clap_lex
+ 1. "github:rust-cli:maintainers" (https://github.com/rust-cli) via crates: anstream, anstyle, anstyle-parse, anstyle-query, anstyle-wincon, clap, clap_builder, clap_lex, colorchoice
+ 2. "github:servo:cargo-publish" (https://github.com/servo) via crates: core-foundation, core-foundation-sys, fnv, form_urlencoded, idna, ordered-float, percent-encoding, unicode-bidi, url
+ 3. "github:rust-lang:libs" (https://github.com/rust-lang) via crates: backtrace, cargo, cc, cfg-if, crates-io, libc, regex, regex-syntax
+ 4. "github:rust-lang-nursery:libs" (https://github.com/rust-lang-nursery) via crates: bitflags, crates-io, env_logger, getopts, glob, lazy_static, log
+ 5. "github:rustcrypto:formats" (https://github.com/rustcrypto) via crates: base16ct, base64ct, const-oid, der, pem-rfc7468, pkcs8, spki
+ 6. "github:rustwasm:core" (https://github.com/rustwasm) via crates: js-sys, wasm-bindgen, wasm-bindgen-backend, wasm-bindgen-macro, wasm-bindgen-macro-support, wasm-bindgen-shared
+ 7. "github:clap-rs:admins" (https://github.com/clap-rs) via crates: clap, clap_builder, clap_derive, clap_lex
+ 8. "github:rust-lang:release-publishers" (https://github.com/rust-lang) via crates: cargo, cargo-platform, cargo-util, crates-io
+ 9. "github:rustcrypto:elliptic-curves" (https://github.com/rustcrypto) via crates: elliptic-curve, p384, primeorder, sec1
+ 10. "github:servo:rust-url" (https://github.com/servo) via crates: form_urlencoded, idna, percent-encoding, url
+ 11. "github:toml-rs:maintainers" (https://github.com/toml-rs) via crates: serde_spanned, toml, toml_datetime, toml_edit
+ 12. "github:alacritty:publishers" (https://github.com/alacritty) via crates: utf8parse, vte, vte_generate_state_changes
+ 13. "github:rust-bus:maintainers" (https://github.com/rust-bus) via crates: arrayvec, tinyvec, vcpkg
  14. "github:rust-lang:core" (https://github.com/rust-lang) via crates: cargo, cargo-platform, crates-io
  15. "github:rust-random:maintainers" (https://github.com/rust-random) via crates: getrandom, rand_core, rand_xoshiro
  16. "github:rustcrypto:traits" (https://github.com/rustcrypto) via crates: crypto-common, digest, signature
