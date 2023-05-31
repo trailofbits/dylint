@@ -14,6 +14,7 @@ fn builds_with_cfg_docsrs() {
 }
 
 #[test]
+#[ignore]
 fn builds_with_latest_nightly() {
     update_nightly().unwrap();
 

@@ -7,6 +7,7 @@ use dylint_internal::Command;
 use test_log::test;
 
 #[test]
+#[ignore]
 fn nightly_toolchain() {
     update_nightly().unwrap();
 

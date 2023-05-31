@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - master
+  schedule:
+    - cron: "0 3 * * 2" # 2 = Tuesday
   workflow_dispatch:
 
 concurrency:
@@ -116,15 +118,28 @@ jobs:
           fi
           if [[ '${{ matrix.package }}' != 'other' ]]; then
             cargo test -p '${{ matrix.package }}' --all-features -- --nocapture
+            if [[ ${{ github.event_name }} = 'schedule' ]]; then
+              cargo test -p '${{ matrix.package }}' --all-features -- --nocapture --ignored
+            fi
           else
-            cargo test --workspace --exclude cargo-dylint --exclude examples --all-features -- --nocapture
+            TEST_CMD='cargo test --workspace --exclude cargo-dylint --exclude examples --all-features -- --nocapture'
+            $TEST_CMD
+            if [[ ${{ github.event_name }} = 'schedule' ]]; then
+              $TEST_CMD --ignored
+            fi
 
             pushd driver
             cargo test --all-features -- --nocapture
+            if [[ ${{ github.event_name }} = 'schedule' ]]; then
+              cargo test --all-features -- --nocapture --ignored
+            fi
             popd
 
             pushd utils/linting
             cargo test --all-features -- --nocapture
+            if [[ ${{ github.event_name }} = 'schedule' ]]; then
+              cargo test --all-features -- --nocapture --ignored
+            fi
             popd
 
             # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.

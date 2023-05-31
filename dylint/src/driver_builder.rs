@@ -233,6 +233,7 @@ mod test {
         allow(non_thread_safe_call_in_test)
     )]
     #[test]
+    #[ignore]
     fn nightly() {
         let tempdir = tempdir().unwrap();
         build(
