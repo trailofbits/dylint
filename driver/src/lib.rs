@@ -119,14 +119,17 @@ impl Callbacks {
                 let lib = result.unwrap_or_else(|err| {
                     // smoelius: rust-lang/rust#111633 changed the type of `early_error`'s `msg`
                     // argument from `&str` to `impl Into<DiagnosticMessage>`.
+                    // smoelius: And rust-lang/rust#111748 made it that `msg` is borrowed for
+                    // `'static`. Since the program is about to exit, it's probably fine to leak the
+                    // string.
+                    let msg = format!(
+                        "could not load library `{}`: {}",
+                        path.to_string_lossy(),
+                        err
+                    );
                     rustc_session::early_error(
                         rustc_session::config::ErrorOutputType::default(),
-                        format!(
-                            "could not load library `{}`: {}",
-                            path.to_string_lossy(),
-                            err
-                        )
-                        .as_str(),
+                        Box::leak(msg.into_boxed_str()) as &str,
                     );
                 });
 
