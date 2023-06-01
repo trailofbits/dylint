@@ -56,3 +56,19 @@ mod trait_import {
         write!(std::io::sink(), "x").unwrap();
     }
 }
+
+// smoelius: The lint triggers on `diesel::expression::SelectableExpression`. My current best guess
+// is that the compiler is not returning the correct span for that path.
+#[cfg_attr(
+    dylint_lib = "inconsistent_qualification",
+    allow(inconsistent_qualification)
+)]
+mod diesel {
+    use diesel::table;
+
+    table! {
+        users {
+            id -> Integer,
+        }
+    }
+}
