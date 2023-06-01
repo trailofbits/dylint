@@ -28,7 +28,6 @@ semver = "1.0"
 serde_json = "1.0"
 similar-asserts = "1.4"
 tempfile = "3.5"
-test-log = "0.2"
 walkdir = "2.3"
 
 dylint_internal = { version = "=2.1.9", path = "../internal", features = ["testing"] }

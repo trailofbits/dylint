@@ -11,7 +11,6 @@ use dylint_internal::{
 };
 use std::path::Path;
 use tempfile::{tempdir, NamedTempFile};
-use test_log::test;
 
 #[test]
 fn custom_toolchain() {

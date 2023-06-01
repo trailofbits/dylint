@@ -3,7 +3,6 @@ use dylint_internal::{env, packaging::isolate};
 use predicates::prelude::*;
 use std::{fs::OpenOptions, io::Write};
 use tempfile::{tempdir, tempdir_in};
-use test_log::test;
 
 // smoelius: "Separate lints into categories" commit
 const REV: &str = "402fc24351c60a3c474e786fd76aa66aa8638d55";
