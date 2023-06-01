@@ -26,7 +26,6 @@ regex = "1.8"
 sedregex = "0.2"
 semver = "1.0"
 tempfile = "3.5"
-test-log = "0.2"
 walkdir = "2.3"
 
 dylint_internal = { version = "=2.1.9", path = "../internal", features = ["testing"] }
