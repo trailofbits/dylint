@@ -8,7 +8,10 @@ use test_log::test;
 // smoelius: The channel date is one day later than the `rustc --version` date.
 // smoelius: Put recent boundaries first, since they're more likely to cause problems.
 // smoelius: The relevant PRs and merge commits appear before each boundary.
-const BOUNDARIES: [(&str, &str); 4] = [
+const BOUNDARIES: [(&str, &str); 5] = [
+    // https://github.com/rust-lang/rust/pull/111748
+    // https://github.com/rust-lang/rust/commit/70e04bd88d85cab8ed110ace5a278fab106d0ef5
+    ("2023-05-29", "2023-05-30"),
     // https://github.com/rust-lang/rust/pull/111633
     // https://github.com/rust-lang/rust/commit/08efb9d652c840715d15954592426e2befe13b36
     ("2023-05-18", "2023-05-19"),

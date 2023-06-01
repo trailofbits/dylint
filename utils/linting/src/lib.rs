@@ -455,9 +455,10 @@ pub fn config_toml(name: &str) -> ConfigResult<Option<toml::Value>> {
 /// etc. includes a call to `init_config`.
 pub fn init_config(sess: &rustc_session::Session) {
     try_init_config(sess).unwrap_or_else(|err| {
+        let msg = format!("could not read configuration file: {err}");
         rustc_session::early_error(
             rustc_session::config::ErrorOutputType::default(),
-            format!("could not read configuration file: {err}").as_str(),
+            Box::leak(msg.into_boxed_str()) as &str,
         );
     });
 }

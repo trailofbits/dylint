@@ -2,8 +2,8 @@
 The following individuals can publish updates for your dependencies:
 
  1. alexcrichton via crates: backtrace, bitflags, bumpalo, cargo, cargo-platform, cfg-if, crates-io, curl, curl-sys, env_logger, filetime, flate2, getopts, git2, git2-curl, glob, home, jobserver, js-sys, libc, libgit2-sys, libnghttp2-sys, libssh2-sys, libz-sys, log, miow, openssl-probe, openssl-sys, pkg-config, rand_core, regex, regex-syntax, rustc-demangle, rustc-workspace-hack, socket2, tar, term, toml, unicode-normalization, unicode-width, unicode-xid, wasi, wasm-bindgen, wasm-bindgen-backend, wasm-bindgen-macro, wasm-bindgen-macro-support, wasm-bindgen-shared
- 2. tarcieri via crates: base16ct, base64ct, const-oid, cpufeatures, crypto-bigint, der, ecdsa, elliptic-curve, pem-rfc7468, pkcs8, primeorder, rfc6979, sec1, sha1, sha2, signature, spki, zeroize
- 3. rust-lang-owner via crates: cargo, cargo-platform, cargo-util, cc, cfg-if, crates-io, flate2, git2, git2-curl, glob, home, libc, libgit2-sys, libz-sys, log, pkg-config, rustc-demangle
+ 2. rust-lang-owner via crates: cargo, cargo-platform, cargo-util, cc, cfg-if, crates-io, flate2, git2, git2-curl, glob, home, jobserver, libc, libgit2-sys, libz-sys, log, pkg-config, rustc-demangle
+ 3. tarcieri via crates: base16ct, base64ct, const-oid, cpufeatures, crypto-bigint, der, ecdsa, elliptic-curve, pem-rfc7468, pkcs8, primeorder, rfc6979, sec1, sha1, sha2, signature, spki, zeroize
  4. dtolnay via crates: anyhow, itoa, proc-macro2, quote, rustversion, ryu, semver, serde, serde_derive, serde_ignored, serde_json, syn, thiserror, thiserror-impl, unicode-ident
  5. epage via crates: anstream, anstyle, anstyle-parse, anstyle-query, anstyle-wincon, clap_builder, clap_lex, colorchoice, serde_spanned, toml, toml_datetime, toml_edit, winnow
  6. BurntSushi via crates: aho-corasick, bstr, globset, ignore, memchr, regex, regex-automata, regex-syntax, same-file, termcolor, walkdir, winapi-util
