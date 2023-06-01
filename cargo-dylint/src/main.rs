@@ -323,7 +323,12 @@ impl NameOpts {
 }
 
 fn main() -> dylint::ColorizedResult<()> {
-    env_logger::init();
+    env_logger::try_init().unwrap_or_else(|error| {
+        dylint::__warn(
+            &dylint::Dylint::default(),
+            &format!("`env_logger` already initialized: {error}"),
+        );
+    });
 
     let args: Vec<_> = std::env::args().map(OsString::from).collect();
 

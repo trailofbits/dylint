@@ -3,7 +3,6 @@ use dylint_internal::{
     testing::new_template,
 };
 use tempfile::tempdir;
-use test_log::test;
 
 // smoelius: The channel date is one day later than the `rustc --version` date.
 // smoelius: Put recent boundaries first, since they're more likely to cause problems.

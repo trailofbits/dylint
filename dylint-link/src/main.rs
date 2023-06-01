@@ -282,7 +282,6 @@ mod test {
     use predicates::prelude::*;
     use std::fs::{create_dir, write};
     use tempfile::{tempdir, tempdir_in};
-    use test_log::test;
 
     #[test]
     fn architectures_are_current() {

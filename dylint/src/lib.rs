@@ -551,7 +551,6 @@ mod test {
         env::{join_paths, set_var},
         sync::Mutex,
     };
-    use test_log::test;
 
     // smoelius: With the upgrade to nightly-2023-03-10, I started running into this:
     // https://github.com/rust-lang/rustup/issues/988

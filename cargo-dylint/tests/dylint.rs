@@ -15,7 +15,6 @@ use std::{
     str::FromStr,
 };
 use tempfile::tempdir;
-use test_log::test;
 
 lazy_static! {
     static ref METADATA: Metadata = current_metadata().unwrap();

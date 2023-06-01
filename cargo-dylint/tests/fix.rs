@@ -6,7 +6,6 @@ use std::{
     path::Path,
 };
 use tempfile::tempdir;
-use test_log::test;
 
 const CATEGORY: &str = "restriction";
 const LIB_NAME: &str = "const_path_join";

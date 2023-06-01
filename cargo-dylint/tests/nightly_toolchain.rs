@@ -4,7 +4,6 @@
 
 use anyhow::Result;
 use dylint_internal::Command;
-use test_log::test;
 
 #[test]
 fn nightly_toolchain() {
