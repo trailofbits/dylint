@@ -264,11 +264,11 @@ fn supply_chain() {
         .success();
 
     Command::new("cargo")
-        .args(["supply-chain", "publishers", "--no-dev"])
+        .args(["supply-chain", "json", "--no-dev"])
         .assert()
         .success()
         .stdout(
-            predicates::path::eq_file("tests/publishers.txt")
+            predicates::path::eq_file("tests/supply_chain.json")
                 .utf8()
                 .unwrap(),
         );
