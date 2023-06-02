@@ -232,6 +232,7 @@ const ARCHITECTURES: &[&str] = &[
     "i386",
     "i586",
     "i686",
+    "loongarch64",
     "m68k",
     "mips",
     "mips64",
