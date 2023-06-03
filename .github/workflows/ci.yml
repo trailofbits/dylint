@@ -110,6 +110,15 @@ jobs:
         run: |
           cargo install cargo-supply-chain
 
+      - name: Free up space on Ubuntu
+        if: ${{ matrix.environment == 'ubuntu-latest' }}
+        run: |
+          # https://github.com/actions/runner-images/issues/2606#issuecomment-772683150
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/share/swift
+          # du -sh /usr/*/* 2>/dev/null | sort -h || true
+
       - name: Test
         run: |
           if [[ '${{ matrix.environment }}' = 'windows-latest' ]]; then
