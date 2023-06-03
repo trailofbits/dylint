@@ -1,12 +1,19 @@
 use anyhow::Result;
 use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
-use dylint_internal::cargo::current_metadata;
+use dylint_internal::{cargo::current_metadata, env::enabled};
 use lazy_static::lazy_static;
 use regex::Regex;
 use sedregex::find_and_replace;
 use semver::Version;
-use std::{ffi::OsStr, fs::read_to_string, path::Path};
+use similar_asserts::SimpleDiff;
+use std::{
+    ffi::OsStr,
+    fs::{read_to_string, write},
+    path::Path,
+    process::Command as StdCommand,
+    str::FromStr,
+};
 use tempfile::tempdir;
 use test_log::test;
 
@@ -256,6 +263,12 @@ fn markdown_link_check() {
     }
 }
 
+// smoelius: `supply_chain` is the only test that uses `supply_chain.json`. So there is no race.
+#[cfg_attr(
+    dylint_lib = "non_thread_safe_call_in_test",
+    allow(non_thread_safe_call_in_test)
+)]
+#[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 #[test]
 fn supply_chain() {
     Command::new("cargo")
@@ -263,15 +276,28 @@ fn supply_chain() {
         .assert()
         .success();
 
-    Command::new("cargo")
+    let output = StdCommand::new("cargo")
         .args(["supply-chain", "json", "--no-dev"])
-        .assert()
-        .success()
-        .stdout(
-            predicates::path::eq_file("tests/supply_chain.json")
-                .utf8()
-                .unwrap(),
+        .output()
+        .unwrap();
+
+    let stdout_actual = std::str::from_utf8(&output.stdout).unwrap();
+    let value = serde_json::Value::from_str(stdout_actual).unwrap();
+    let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
+
+    let path = Path::new("tests/supply_chain.json");
+
+    let stdout_expected = read_to_string(path).unwrap();
+
+    if enabled("BLESS") {
+        write(path, stdout_normalized).unwrap();
+    } else {
+        assert!(
+            stdout_expected == stdout_normalized,
+            "{}",
+            SimpleDiff::from_str(&stdout_expected, &stdout_normalized, "left", "right")
         );
+    }
 }
 
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
