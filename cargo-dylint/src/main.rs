@@ -347,3 +347,20 @@ fn verify_cli() {
     use clap::CommandFactory;
     Opts::command().debug_assert();
 }
+
+/// `no_env_logger_warning` fails if [`std::process::Command::new`] is replaced with
+/// [`assert_cmd::cargo::CommandCargoExt::cargo_bin`]. I don't understand why.
+///
+/// [`assert_cmd::cargo::CommandCargoExt::cargo_bin`]: https://docs.rs/assert_cmd/latest/assert_cmd/cargo/trait.CommandCargoExt.html#tymethod.cargo_bin
+/// [`std::process::Command::new`]: https://doc.rust-lang.org/std/process/struct.Command.html#method.new
+#[test]
+fn no_env_logger_warning() {
+    use assert_cmd::prelude::*;
+    use predicates::prelude::*;
+    std::process::Command::new("cargo")
+        .args(["run", "--bin", "cargo-dylint"])
+        // std::process::Command::cargo_bin("cargo-dylint").unwrap()
+        .assert()
+        .failure()
+        .stderr(predicates::str::contains("`env_logger` already initialized").not());
+}
