@@ -630,24 +630,6 @@
         "name": "Ed Page"
       }
     ],
-    "commoncrypto": [
-      {
-        "avatar": "https://avatars1.githubusercontent.com/u/11417?v=4",
-        "id": 3013,
-        "kind": "user",
-        "login": "malept",
-        "name": "Mark Lee"
-      }
-    ],
-    "commoncrypto-sys": [
-      {
-        "avatar": "https://avatars1.githubusercontent.com/u/11417?v=4",
-        "id": 3013,
-        "kind": "user",
-        "login": "malept",
-        "name": "Mark Lee"
-      }
-    ],
     "compiletest_rs": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
@@ -839,15 +821,6 @@
         "kind": "user",
         "login": "newpavlov",
         "name": "Artyom Pavlov"
-      }
-    ],
-    "crypto-hash": [
-      {
-        "avatar": "https://avatars1.githubusercontent.com/u/11417?v=4",
-        "id": 3013,
-        "kind": "user",
-        "login": "malept",
-        "name": "Mark Lee"
       }
     ],
     "ct-codecs": [
@@ -1195,24 +1168,6 @@
         "kind": "user",
         "login": "SimonSapin",
         "name": "Simon Sapin"
-      }
-    ],
-    "foreign-types": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/1455697?v=4",
-        "id": 5,
-        "kind": "user",
-        "login": "sfackler",
-        "name": "Steven Fackler"
-      }
-    ],
-    "foreign-types-shared": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/1455697?v=4",
-        "id": 5,
-        "kind": "user",
-        "login": "sfackler",
-        "name": "Steven Fackler"
       }
     ],
     "form_urlencoded": [
@@ -2116,31 +2071,6 @@
         "kind": "user",
         "login": "Seeker14491",
         "name": "Brian Bowman"
-      }
-    ],
-    "openssl": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/1455697?v=4",
-        "id": 5,
-        "kind": "user",
-        "login": "sfackler",
-        "name": "Steven Fackler"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/772?v=4",
-        "id": 163,
-        "kind": "user",
-        "login": "alex",
-        "name": "Alex Gaynor"
-      }
-    ],
-    "openssl-macros": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/1455697?v=4",
-        "id": 5,
-        "kind": "user",
-        "login": "sfackler",
-        "name": "Steven Fackler"
       }
     ],
     "openssl-probe": [
