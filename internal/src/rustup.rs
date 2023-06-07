@@ -48,7 +48,7 @@ pub fn toolchain_path(path: &Path) -> Result<PathBuf> {
 }
 
 pub fn is_rustc<T: AsRef<OsStr> + ?Sized>(arg: &T) -> bool {
-    Path::new(arg).file_name() == Some(OsStr::new("rustc"))
+    Path::new(arg).file_stem() == Some(OsStr::new("rustc"))
 }
 
 #[test]
