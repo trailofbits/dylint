@@ -111,6 +111,7 @@ const WATCHED_INHERENTS: &[&[&str]] = &[
     &["core", "slice", "<impl [T]>", "iter"],
     &["core", "slice", "<impl [T]>", "iter_mut"],
     &["core", "str", "<impl str>", "as_bytes"],
+    &["std", "ffi", "os_str", "OsStr", "as_os_str_bytes"],
     &["std", "ffi", "os_str", "OsStr", "into_os_string"],
     &["std", "ffi", "os_str", "OsStr", "new"],
     &["std", "ffi", "os_str", "OsStr", "to_os_string"],

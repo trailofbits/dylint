@@ -1,6 +1,7 @@
 // run-rustfix
 
 #![allow(unused_imports, unused_parens)]
+#![feature(os_str_bytes)]
 
 use std::{
     borrow::{Borrow, BorrowMut},
@@ -66,6 +67,7 @@ fn main() {
 
     let _ = std::fs::write("x", "".as_bytes());
 
+    let _ = os_str_or_bytes(osstr.as_os_str_bytes());
     let _ = is_empty_os(osstring.clone().into_boxed_os_str().into_os_string());
     let _ = std::fs::write(OsStr::new("x"), "");
     let _ = std::fs::write(osstr.to_os_string(), "");
@@ -99,3 +101,10 @@ fn is_empty<T: From<Box<str>> + PartialEq>(x: T) -> bool {
 fn is_empty_os<T: From<Box<OsStr>> + PartialEq>(x: T) -> bool {
     x == T::from(OsString::new().into_boxed_os_str())
 }
+
+// smoelius: This is a hack, but I can't readily think of a trait that both `&OsStr` and `&[u8]`
+// implement. Reference: https://github.com/rust-lang/rust/issues/111544
+trait OsStrOrBytes {}
+impl OsStrOrBytes for &OsStr {}
+impl OsStrOrBytes for &[u8] {}
+fn os_str_or_bytes(_: impl OsStrOrBytes) {}
