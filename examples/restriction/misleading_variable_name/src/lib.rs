@@ -67,7 +67,10 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
             let module_def_id = parent_module(cx.tcx, callee_def_id);
             let child_types = module_public_child_types(cx.tcx, module_def_id);
             if let Some((child_ty_name, child_ty)) = child_types.get(ident.name.as_str());
-            let init_ty = erase_substs(cx.tcx, peel_refs_and_rcs(cx, module_def_id, cx.typeck_results().expr_ty(init)));
+            let init_ty = erase_substs(
+                cx.tcx,
+                peel_refs_and_rcs(cx, module_def_id, cx.typeck_results().expr_ty(init)),
+            );
             if init_ty != *child_ty;
             then {
                 let help_msg = child_types

@@ -178,7 +178,11 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                 .flatten()
                 .chain(outer_args)
                 .collect::<Vec<_>>();
-            let outer_fn_sig = cx.tcx.fn_sig(outer_callee_def_id).skip_binder().skip_binder();
+            let outer_fn_sig = cx
+                .tcx
+                .fn_sig(outer_callee_def_id)
+                .skip_binder()
+                .skip_binder();
             if let Some(i) = outer_args
                 .iter()
                 .position(|arg| arg.hir_id == maybe_arg.hir_id);
