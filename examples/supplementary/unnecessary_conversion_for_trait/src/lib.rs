@@ -569,7 +569,7 @@ fn inner_arg_implements_traits<'tcx>(
     }
 
     predicates.iter().all(|predicate| {
-        let predicate = EarlyBinder(predicate).subst(cx.tcx, &substs_with_new_ty);
+        let predicate = EarlyBinder::bind(predicate).subst(cx.tcx, &substs_with_new_ty);
         let obligation = Obligation::new(cx.tcx, ObligationCause::dummy(), cx.param_env, predicate);
         cx.tcx
             .infer_ctxt()

@@ -209,15 +209,15 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                     cx.struct_span_lint(
                         REDUNDANT_REFERENCE,
                         field_def.span,
-                        &format!(
+                        format!(
                             "`.{field}`{lifetime_msg} is used only to read `.{field}.{subfield}`, \
-                        whose type `{subfield_ty}` implements `Copy`"
+                            whose type `{subfield_ty}` implements `Copy`"
                         ),
                         |diag| {
                             for access_span in access_spans {
                                 diag.span_note(*access_span, "read here");
                             }
-                            diag.help(&format!(
+                            diag.help(format!(
                                 "consider storing a copy of `.{field}.{subfield}`{lifetime_help}"
                             ));
                             diag
