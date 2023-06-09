@@ -27,7 +27,7 @@ sedregex = "0.2"
 semver = "1.0"
 serde_json = "1.0"
 similar-asserts = "1.4"
-tempfile = "3.5"
+tempfile = "3.6"
 walkdir = "2.3"
 
 dylint_internal = { version = "=2.1.9", path = "../internal", features = ["testing"] }
