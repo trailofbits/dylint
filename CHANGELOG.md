@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.10
+
+- Address [rust-lang/rust#111748](https://github.com/rust-lang/rust/pull/111748) ([#699](https://github.com/trailofbits/dylint/pull/699))
+- Fix a bug causing `dylint_testing` to fail to determine `rustc` flags on Windows ([730696a](https://github.com/trailofbits/dylint/commit/730696a4438b11f9bca8b174500f4ae11eb75419))
+- Eliminate last reference to `syn` 1.0 ([#709](https://github.com/trailofbits/dylint/pull/709))
+
 ## 2.1.9
 
 - Address [rust-lang/rust#111633](https://github.com/rust-lang/rust/pull/111633) ([#694](https://github.com/trailofbits/dylint/pull/694))

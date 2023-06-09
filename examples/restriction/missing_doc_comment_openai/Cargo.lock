@@ -272,7 +272,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -293,7 +293,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -309,7 +309,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -322,7 +322,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -685,7 +685,7 @@ dependencies = [
 
 [[package]]
 name = "missing_doc_comment_openai"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "clippy_utils",
  "curl",
