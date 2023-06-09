@@ -60,7 +60,7 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "await_holding_span_guard"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -252,7 +252,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -273,7 +273,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -289,7 +289,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -302,7 +302,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "anyhow",
  "cargo_metadata",

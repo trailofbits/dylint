@@ -272,7 +272,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -293,7 +293,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -309,7 +309,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -322,7 +322,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -540,7 +540,7 @@ checksum = "cb56e1aa765b4b4f3aadfab769793b7087bb03a4ea4920644a6d238e2df5b9ed"
 
 [[package]]
 name = "inconsistent_qualification"
-version = "2.1.9"
+version = "2.1.10"
 dependencies = [
  "clippy_utils",
  "diesel",
