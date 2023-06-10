@@ -65,6 +65,8 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
             let expr = peel_try_unwrap_and_similar(cx, init);
             if let Some(callee_def_id) = callee_def_id(cx, expr);
             let module_def_id = parent_module(cx.tcx, callee_def_id);
+            // smoelius: Don't flag functions/types defined in the same module as the call.
+            if module_def_id != cx.tcx.parent_module(stmt.hir_id).to_def_id();
             let child_types = module_public_child_types(cx.tcx, module_def_id);
             if let Some((child_ty_name, child_ty)) = child_types.get(ident.name.as_str());
             let init_ty = erase_substs(

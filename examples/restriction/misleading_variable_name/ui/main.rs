@@ -79,3 +79,16 @@ fn main() -> Result<()> {
 
     Ok(())
 }
+
+// smoelius: Don't flag functions/types defined in the same module as the call.
+mod same_mod {
+    pub struct Bar;
+
+    pub fn foo() -> bool {
+        false
+    }
+
+    fn baz() {
+        let bar = foo();
+    }
+}
