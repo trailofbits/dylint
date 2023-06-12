@@ -26,6 +26,7 @@ use rustc_span::{sym, BytePos, CharPos, FileLines, FileName, RealFileName, Span,
 use rustfix::diagnostics::{Diagnostic, DiagnosticSpan};
 use serde::Deserialize;
 use std::{
+    cell::RefCell,
     fs::OpenOptions,
     path::{Path, PathBuf},
 };
@@ -98,6 +99,7 @@ declare_lint! {
 struct OverscopedAllow {
     diagnostics: Vec<Diagnostic>,
     ancestor_meta_item_span_map: FxHashMap<HirId, FxHashMap<Span, FxHashSet<Option<Span>>>>,
+    canonical_paths_cache: RefCell<FxHashMap<PathBuf, PathBuf>>,
 }
 
 impl_lint_pass!(OverscopedAllow => [OVERSCOPED_ALLOW]);
@@ -149,6 +151,7 @@ impl OverscopedAllow {
         Self {
             diagnostics,
             ancestor_meta_item_span_map: FxHashMap::default(),
+            canonical_paths_cache: RefCell::new(FxHashMap::default()),
         }
     }
 }
@@ -303,9 +306,25 @@ impl OverscopedAllow {
         span: Span,
         diagnostic_span: &DiagnosticSpan,
     ) -> bool {
+        let Some(span_local_path) = local_path_from_span(cx, span) else {
+            return false;
+        };
+        let lhs = &span_local_path;
+        let rhs = Path::new(&diagnostic_span.file_name);
+        for path in [lhs, rhs] {
+            if_chain! {
+                if self.canonical_paths_cache.borrow().get(path).is_none();
+                if let Ok(canonical_path) = path.canonicalize();
+                then {
+                    self.canonical_paths_cache
+                        .borrow_mut()
+                        .insert(path.to_path_buf(), canonical_path);
+                }
+            }
+        }
         if_chain! {
-            if let Some(lhs) = local_path_from_span(cx, span).and_then(|path| path.canonicalize().ok());
-            if let Ok(rhs) = Path::new(&diagnostic_span.file_name).canonicalize();
+            if let Some(lhs) = self.canonical_paths_cache.borrow().get(lhs);
+            if let Some(rhs) = self.canonical_paths_cache.borrow().get(rhs);
             if lhs == rhs;
             if let Ok(FileLines { lines, .. }) = cx.sess().source_map().span_to_lines(span);
             if let Some(first_line) = lines.first();
@@ -313,10 +332,12 @@ impl OverscopedAllow {
             then {
                 (first_line.line_index + 1 < diagnostic_span.line_start
                     || (first_line.line_index + 1 == diagnostic_span.line_start
-                        && first_line.start_col + CharPos(1) <= CharPos(diagnostic_span.column_start)))
+                        && first_line.start_col + CharPos(1)
+                            <= CharPos(diagnostic_span.column_start)))
                     && (diagnostic_span.line_end < last_line.line_index + 1
                         || (diagnostic_span.line_end == last_line.line_index + 1
-                            && CharPos(diagnostic_span.column_end) <= last_line.end_col + CharPos(1)))
+                            && CharPos(diagnostic_span.column_end)
+                                <= last_line.end_col + CharPos(1)))
             } else {
                 false
             }
