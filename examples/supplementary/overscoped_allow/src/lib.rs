@@ -200,7 +200,7 @@ impl OverscopedAllow {
         let span = include_trailing_semicolons(cx, cx.tcx.hir().span(hir_id));
         let mut i = 0;
         while i < self.diagnostics.len() {
-            if span_contains_diagnostic(cx, span, &self.diagnostics[i]) {
+            if self.span_contains_diagnostic(cx, span, &self.diagnostics[i]) {
                 let diagnostic = self.diagnostics.swap_remove(i);
                 self.check_ancestor_lint_attrs(cx, hir_id, &diagnostic);
             } else {
@@ -284,6 +284,44 @@ impl OverscopedAllow {
             }
         }
     }
+
+    fn span_contains_diagnostic(
+        &self,
+        cx: &LateContext<'_>,
+        span: Span,
+        diagnostic: &Diagnostic,
+    ) -> bool {
+        diagnostic
+            .spans
+            .iter()
+            .all(|diagnostic_span| self.span_contains_diagnostic_span(cx, span, diagnostic_span))
+    }
+
+    fn span_contains_diagnostic_span(
+        &self,
+        cx: &LateContext<'_>,
+        span: Span,
+        diagnostic_span: &DiagnosticSpan,
+    ) -> bool {
+        if_chain! {
+            if let Some(lhs) = local_path_from_span(cx, span).and_then(|path| path.canonicalize().ok());
+            if let Ok(rhs) = Path::new(&diagnostic_span.file_name).canonicalize();
+            if lhs == rhs;
+            if let Ok(FileLines { lines, .. }) = cx.sess().source_map().span_to_lines(span);
+            if let Some(first_line) = lines.first();
+            if let Some(last_line) = lines.last();
+            then {
+                (first_line.line_index + 1 < diagnostic_span.line_start
+                    || (first_line.line_index + 1 == diagnostic_span.line_start
+                        && first_line.start_col + CharPos(1) <= CharPos(diagnostic_span.column_start)))
+                    && (diagnostic_span.line_end < last_line.line_index + 1
+                        || (diagnostic_span.line_end == last_line.line_index + 1
+                            && CharPos(diagnostic_span.column_end) <= last_line.end_col + CharPos(1)))
+            } else {
+                false
+            }
+        }
+    }
 }
 
 fn include_trailing_semicolons(cx: &LateContext<'_>, mut span: Span) -> Span {
@@ -299,38 +337,6 @@ fn include_trailing_semicolons(cx: &LateContext<'_>, mut span: Span) -> Span {
         span = next;
     }
     span
-}
-
-fn span_contains_diagnostic(cx: &LateContext<'_>, span: Span, diagnostic: &Diagnostic) -> bool {
-    diagnostic
-        .spans
-        .iter()
-        .all(|diagnostic_span| span_contains_diagnostic_span(cx, span, diagnostic_span))
-}
-
-fn span_contains_diagnostic_span(
-    cx: &LateContext<'_>,
-    span: Span,
-    diagnostic_span: &DiagnosticSpan,
-) -> bool {
-    if_chain! {
-        if let Some(lhs) = local_path_from_span(cx, span).and_then(|path| path.canonicalize().ok());
-        if let Ok(rhs) = Path::new(&diagnostic_span.file_name).canonicalize();
-        if lhs == rhs;
-        if let Ok(FileLines { lines, .. }) = cx.sess().source_map().span_to_lines(span);
-        if let Some(first_line) = lines.first();
-        if let Some(last_line) = lines.last();
-        then {
-            (first_line.line_index + 1 < diagnostic_span.line_start
-                || (first_line.line_index + 1 == diagnostic_span.line_start
-                    && first_line.start_col + CharPos(1) <= CharPos(diagnostic_span.column_start)))
-                && (diagnostic_span.line_end < last_line.line_index + 1
-                    || (diagnostic_span.line_end == last_line.line_index + 1
-                        && CharPos(diagnostic_span.column_end) <= last_line.end_col + CharPos(1)))
-        } else {
-            false
-        }
-    }
 }
 
 fn local_path_from_span(cx: &LateContext<'_>, span: Span) -> Option<PathBuf> {
