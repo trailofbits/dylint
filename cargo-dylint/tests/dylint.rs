@@ -11,7 +11,6 @@ use std::{
     ffi::OsStr,
     fs::{read_to_string, write},
     path::Path,
-    process::Command as StdCommand,
     str::FromStr,
 };
 use tempfile::tempdir;
@@ -275,12 +274,12 @@ fn supply_chain() {
         .assert()
         .success();
 
-    let output = StdCommand::new("cargo")
+    let assert = Command::new("cargo")
         .args(["supply-chain", "json", "--no-dev"])
-        .output()
-        .unwrap();
+        .assert()
+        .success();
 
-    let stdout_actual = std::str::from_utf8(&output.stdout).unwrap();
+    let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
     let value = serde_json::Value::from_str(stdout_actual).unwrap();
     let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
 
