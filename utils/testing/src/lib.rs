@@ -1,9 +1,10 @@
 //! This crate provides convenient access to the [`compiletest_rs`] package for testing [Dylint]
 //! libraries.
 //!
-//! Specifically, this crate provides the following three functions. Note: If your test has
-//! dependencies, you must use `ui_test_example` or `ui_test_examples`. See the
-//! [`question_mark_in_expression`] example in this repository.
+//! **Note: If your test has dependencies, you must use `ui_test_example` or `ui_test_examples`.**
+//! See the [`question_mark_in_expression`] example in this repository.
+//!
+//! This crate provides the following three functions:
 //!
 //! - [`ui_test`] - test a library on all source files in a directory
 //! - [`ui_test_example`] - test a library on one example target
