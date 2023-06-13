@@ -108,6 +108,7 @@ jobs:
       # smoelius: This list will grow: https://github.com/trailofbits/dylint/issues/636
       - name: Install dependencies
         run: |
+          cargo install cargo-hack
           cargo install cargo-supply-chain
 
       - name: Free up space on Ubuntu
