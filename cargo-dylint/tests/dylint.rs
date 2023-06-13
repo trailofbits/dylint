@@ -118,6 +118,15 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
 }
 
 #[test]
+fn hack_feature_powerset() {
+    Command::new("cargo")
+        .args(["hack", "--feature-powerset", "check"])
+        .current_dir("..")
+        .assert()
+        .success();
+}
+
+#[test]
 fn markdown_does_not_use_inline_links() {
     for entry in walkdir(false) {
         let entry = entry.unwrap();

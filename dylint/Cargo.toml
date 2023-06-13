@@ -45,4 +45,4 @@ dylint_internal = { version = "=2.1.10", path = "../internal", features = ["exam
 [features]
 default = ["metadata"]
 metadata = ["cargo", "cargo-platform", "cargo-util", "glob", "if_chain", "toml"]
-package_options = ["dylint_internal/clippy_utils", "dylint_internal/git"]
+package_options = ["if_chain", "dylint_internal/clippy_utils", "dylint_internal/git"]
