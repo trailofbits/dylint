@@ -8,6 +8,7 @@ use sedregex::find_and_replace;
 use semver::Version;
 use similar_asserts::SimpleDiff;
 use std::{
+    env::set_current_dir,
     ffi::OsStr,
     fs::{read_to_string, write},
     path::Path,
@@ -17,6 +18,11 @@ use tempfile::tempdir;
 
 lazy_static! {
     static ref METADATA: Metadata = current_metadata().unwrap();
+}
+
+#[ctor::ctor]
+fn initialize() {
+    set_current_dir("..").unwrap();
 }
 
 #[test]
@@ -33,7 +39,7 @@ fn versions_are_equal() {
 
 #[test]
 fn nightly_crates_have_same_version_as_workspace() {
-    for path in ["../driver", "../utils/linting"] {
+    for path in ["driver", "utils/linting"] {
         let metadata = MetadataCommand::new()
             .current_dir(path)
             .no_deps()
@@ -67,7 +73,7 @@ fn versions_are_exact_and_match() {
 
 #[test]
 fn requirements_do_not_include_patch_versions() {
-    let metadata = ["../driver", "../utils/linting"].map(|path| {
+    let metadata = ["driver", "utils/linting"].map(|path| {
         MetadataCommand::new()
             .current_dir(path)
             .no_deps()
@@ -302,7 +308,6 @@ fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
     #[allow(unknown_lints, env_cargo_path)]
     read_to_string(
         Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
             .join(dir)
             .join("README.md"),
     )
@@ -320,7 +325,7 @@ fn compare_lines(left: &str, right: &str) {
 // smoelius: Skip examples directory for now.
 fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
     #[allow(unknown_lints, env_cargo_path)]
-    walkdir::WalkDir::new(Path::new(env!("CARGO_MANIFEST_DIR")).join(".."))
+    walkdir::WalkDir::new(Path::new(env!("CARGO_MANIFEST_DIR")))
         .into_iter()
         .filter_entry(move |entry| {
             entry.path().file_name() != Some(OsStr::new("target"))
