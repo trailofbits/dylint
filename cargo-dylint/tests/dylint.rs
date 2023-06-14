@@ -289,7 +289,7 @@ fn supply_chain() {
     let value = serde_json::Value::from_str(stdout_actual).unwrap();
     let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
 
-    let path = Path::new("tests/supply_chain.json");
+    let path = Path::new("cargo-dylint/tests/supply_chain.json");
 
     let stdout_expected = read_to_string(path).unwrap();
 
@@ -308,6 +308,8 @@ fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
     #[allow(unknown_lints, env_cargo_path)]
     read_to_string(
         Path::new(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .unwrap()
             .join(dir)
             .join("README.md"),
     )

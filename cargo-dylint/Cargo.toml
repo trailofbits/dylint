@@ -18,6 +18,7 @@ dylint_internal = { version = "=2.1.10", path = "../internal" }
 [dev-dependencies]
 assert_cmd = "2.0"
 cargo_metadata = "0.15"
+ctor = "0.1"
 glob = "0.3"
 lazy_static = "1.4"
 log = "0.4"
@@ -29,6 +30,5 @@ serde_json = "1.0"
 similar-asserts = "1.4"
 tempfile = "3.6"
 walkdir = "2.3"
-ctor = "0.1"
 
 dylint_internal = { version = "=2.1.10", path = "../internal", features = ["testing"] }
