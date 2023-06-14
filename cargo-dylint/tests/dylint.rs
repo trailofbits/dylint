@@ -336,7 +336,7 @@ fn compare_lines(left: &str, right: &str) {
 // smoelius: Skip examples directory for now.
 fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
     #[allow(unknown_lints, env_cargo_path)]
-    walkdir::WalkDir::new(Path::new(env!("CARGO_MANIFEST_DIR")))
+    walkdir::WalkDir::new(Path::new(env!("CARGO_MANIFEST_DIR")).parent().unwrap())
         .into_iter()
         .filter_entry(move |entry| {
             entry.path().file_name() != Some(OsStr::new("target"))
