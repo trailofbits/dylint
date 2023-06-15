@@ -7,7 +7,9 @@ use regex::Regex;
 use sedregex::find_and_replace;
 use semver::Version;
 use similar_asserts::SimpleDiff;
+use std::env::current_dir;
 use std::{
+    env,
     env::set_current_dir,
     ffi::OsStr,
     fs::{read_to_string, write},
@@ -127,7 +129,6 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
 fn hack_feature_powerset() {
     Command::new("cargo")
         .args(["hack", "--feature-powerset", "check"])
-        .current_dir("..")
         .assert()
         .success();
 }
@@ -316,9 +317,7 @@ fn supply_chain() {
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
     #[allow(unknown_lints, env_cargo_path)]
     read_to_string(
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
+        Path::new(current_dir().unwrap().to_str().unwrap())
             .join(dir)
             .join("README.md"),
     )
@@ -336,7 +335,7 @@ fn compare_lines(left: &str, right: &str) {
 // smoelius: Skip examples directory for now.
 fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
     #[allow(unknown_lints, env_cargo_path)]
-    walkdir::WalkDir::new(Path::new(env!("CARGO_MANIFEST_DIR")).parent().unwrap())
+    walkdir::WalkDir::new(Path::new(current_dir().unwrap().to_str().unwrap()))
         .into_iter()
         .filter_entry(move |entry| {
             entry.path().file_name() != Some(OsStr::new("target"))
