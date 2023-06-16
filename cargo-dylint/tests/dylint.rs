@@ -7,9 +7,8 @@ use regex::Regex;
 use sedregex::find_and_replace;
 use semver::Version;
 use similar_asserts::SimpleDiff;
-use std::env::current_dir;
 use std::{
-    env,
+    env::current_dir,
     env::set_current_dir,
     ffi::OsStr,
     fs::{read_to_string, write},
@@ -316,12 +315,7 @@ fn supply_chain() {
 
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
     #[allow(unknown_lints, env_cargo_path)]
-    read_to_string(
-        Path::new(current_dir().unwrap().to_str().unwrap())
-            .join(dir)
-            .join("README.md"),
-    )
-    .map_err(Into::into)
+    read_to_string(dir.as_ref().join("README.md")).map_err(Into::into)
 }
 
 fn compare_lines(left: &str, right: &str) {
@@ -335,7 +329,7 @@ fn compare_lines(left: &str, right: &str) {
 // smoelius: Skip examples directory for now.
 fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
     #[allow(unknown_lints, env_cargo_path)]
-    walkdir::WalkDir::new(Path::new(current_dir().unwrap().to_str().unwrap()))
+    walkdir::WalkDir::new(current_dir().unwrap())
         .into_iter()
         .filter_entry(move |entry| {
             entry.path().file_name() != Some(OsStr::new("target"))
