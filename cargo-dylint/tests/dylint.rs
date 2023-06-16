@@ -8,7 +8,6 @@ use sedregex::find_and_replace;
 use semver::Version;
 use similar_asserts::SimpleDiff;
 use std::{
-    env::current_dir,
     env::set_current_dir,
     ffi::OsStr,
     fs::{read_to_string, write},
@@ -234,6 +233,8 @@ fn markdown_reference_links_are_valid_and_used() {
     }
 }
 
+// smoelius: `markdown_link_check` must use absolute paths because `npx markdown-link-check` is run
+// from a temporary directory.
 #[cfg(not(target_os = "windows"))]
 #[test]
 fn markdown_link_check() {
@@ -258,17 +259,14 @@ fn markdown_link_check() {
             continue;
         }
 
-        // smoelius: Skip `dylint_linting` until I can get it to build on `docs.rs`.
-        if path.ends_with("utils/linting/README.md") {
-            continue;
-        }
+        let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join(path);
 
         Command::new("npx")
             .args([
                 "markdown-link-check",
                 "--config",
                 &config.to_string_lossy(),
-                &path.to_string_lossy(),
+                &path_buf.to_string_lossy(),
             ])
             .current_dir(&tempdir)
             .assert()
@@ -329,7 +327,7 @@ fn compare_lines(left: &str, right: &str) {
 // smoelius: Skip examples directory for now.
 fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
     #[allow(unknown_lints, env_cargo_path)]
-    walkdir::WalkDir::new(current_dir().unwrap())
+    walkdir::WalkDir::new(".")
         .into_iter()
         .filter_entry(move |entry| {
             entry.path().file_name() != Some(OsStr::new("target"))
