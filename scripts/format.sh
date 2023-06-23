@@ -29,7 +29,8 @@ while read -r X; do
     }' "$X"
 done
 
-find . -name Cargo.toml -exec cargo +nightly fmt --manifest-path {} \;
+# smoelius: Skip root manifest. Related: https://github.com/rust-lang/rustfmt/issues/4432
+find . -mindepth 2 -name Cargo.toml -exec cargo +nightly fmt --manifest-path {} \;
 
 find examples -name '*.rs' |
 while read -r X; do

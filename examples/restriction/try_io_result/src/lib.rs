@@ -19,8 +19,8 @@ dylint_linting::declare_late_lint! {
     ///
     /// ### Why is this bad?
     /// Returning a `std::io::Result` could mean relevant context (e.g., files or paths involved) is
-    /// lost. The problem is discussed under "Verbose IO errors" in Yoshua Wuyts' [Error
-    /// Handling Survey].
+    /// lost. The problem is discussed under "Verbose IO errors" in Yoshua Wuyts' [Error Handling
+    /// Survey].
     ///
     /// ### Known problems
     /// No interprocedural analysis is done. So if context is added by the caller, it will go

@@ -6,8 +6,8 @@ error.
 
 ### Why is this bad?
 Functions that make changes to the program state before returning an error are difficult to
-reason about. Generally speaking, if a function returns an error, it should be as though
-the function was never called.
+reason about. Generally speaking, if a function returns an error, it should be as though the
+function was never called.
 
 ### Known problems
 - The search strategy is exponential in the number of blocks in a function body. To help

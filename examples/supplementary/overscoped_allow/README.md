@@ -25,15 +25,19 @@ Two steps are required:
 1. For the lint whose `allow` scopes you want to check, run it at the [`force-warn`] level
    and store the resulting warnings in a file called `warnings.json`. For example, to check
    the scopes of `allow(clippy::unwrap_used)`, you might run the following command:
+
    ```sh
    cargo clippy --message-format=json -- --force-warn clippy::unwrap-used > warnings.json
    ```
+
    To perform a similar check for the Dylint lint `non_thread_safe_call_in_test`, you might
    run the following command:
+
    ```sh
    DYLINT_RUSTFLAGS='--force-warn non_thread_safe_call_in_test' cargo dylint \
       --lib non_thread_safe_call_in_test -- --message-format=json > warnings.json
    ```
+
 2. Run the `overscoped_allow` lint. The lint will find and use the `warnings.json` file
    generated in 1.
 
