@@ -1,5 +1,5 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.70.1) with
+// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.71.0) with
 // adjustments to make some things public.
 // smoelius: I experimented with creating a reduced Cargo crate that included just this module and
 // the things it depends upon. Such a crate could reduce build times and incur less of a maintenance
@@ -17,6 +17,10 @@
 #![allow(clippy::single_char_pattern)]
 #![allow(clippy::too_many_lines)]
 #![allow(clippy::uninlined_format_args)]
+#![cfg_attr(
+    dylint_lib = "inconsistent_qualification",
+    allow(inconsistent_qualification)
+)]
 #![cfg_attr(
     dylint_lib = "misleading_variable_name",
     allow(misleading_variable_name)
@@ -61,7 +65,7 @@ impl<'a, 'b> Context<'a, 'b> {
 }
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::fmt;
+use std::fmt::{self, Display, Write};
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
@@ -74,8 +78,8 @@ use cargo_util::paths;
 // use lazycell::LazyCell;
 use log::{debug, trace};
 use semver::{self, VersionReq};
-use serde::de;
 use serde::de::IntoDeserializer as _;
+use serde::de::{self, Unexpected};
 use serde::ser;
 use serde::{Deserialize, Serialize};
 // use url::Url;
@@ -240,8 +244,8 @@ impl<P: ResolveToPath + Clone> DetailedTomlDependency<P> {
         if self.version.is_none() && self.path.is_none() && self.git.is_none() {
             let msg = format!(
                 "dependency ({}) specified without \
-                 providing a local path, Git repository, or \
-                 version to use. This will be considered an \
+                 providing a local path, Git repository, version, or \
+                 workspace dependency to use. This will be considered an \
                  error in future versions",
                 name_in_toml
             );
