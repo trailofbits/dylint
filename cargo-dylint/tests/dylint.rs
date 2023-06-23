@@ -1,14 +1,14 @@
 use anyhow::Result;
 use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
-use dylint_internal::{cargo::current_metadata, env::enabled};
+use dylint_internal::{cargo::current_metadata, env};
 use lazy_static::lazy_static;
 use regex::Regex;
 use sedregex::find_and_replace;
 use semver::Version;
 use similar_asserts::SimpleDiff;
 use std::{
-    env::set_current_dir,
+    env::{set_current_dir, set_var},
     ffi::OsStr,
     fs::{read_to_string, write},
     path::Path,
@@ -23,6 +23,7 @@ lazy_static! {
 #[ctor::ctor]
 fn initialize() {
     set_current_dir("..").unwrap();
+    set_var(env::CARGO_TERM_COLOR, "never");
 }
 
 #[test]
@@ -300,7 +301,7 @@ fn supply_chain() {
 
     let stdout_expected = read_to_string(path).unwrap();
 
-    if enabled("BLESS") {
+    if env::enabled("BLESS") {
         write(path, stdout_normalized).unwrap();
     } else {
         assert!(
