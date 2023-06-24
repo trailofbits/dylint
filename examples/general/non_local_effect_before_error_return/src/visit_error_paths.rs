@@ -88,7 +88,7 @@ impl State {
         assert!(self.local.is_none());
         self.local = Some(local);
     }
-    fn remove_possibile_variant(&mut self, variant: usize, span: Span) {
+    fn remove_possible_variant(&mut self, variant: usize, span: Span) {
         if self.confirmed_variant.is_none() {
             self.possible_variants.remove(variant);
             self.span = self.span.or(Some(span));
@@ -226,7 +226,7 @@ where
                         then {
                             for (value, target) in targets.iter() {
                                 if target != index {
-                                    state.remove_possibile_variant(
+                                    state.remove_possible_variant(
                                         value as usize,
                                         terminator.source_info.span,
                                     );
