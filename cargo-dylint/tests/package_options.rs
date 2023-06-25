@@ -8,7 +8,9 @@ use semver::Version;
 use std::{fs::read_to_string, path::Path};
 use tempfile::tempdir;
 
-const RUST_VERSION: &str = "1.64.0";
+// smoelius: I expected `git2-0.17.2` to build with nightly-2022-06-30, which corresponds to
+// `--rust-version 1.64.0`. I'm not sure why it doesn't.
+const RUST_VERSION: &str = "1.65.0";
 
 #[test]
 fn new_package() {
