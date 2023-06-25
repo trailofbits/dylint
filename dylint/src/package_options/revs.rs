@@ -135,7 +135,18 @@ mod test {
     use lazy_static::lazy_static;
 
     lazy_static! {
-        static ref EXAMPLES: [Rev; 4] = [
+        static ref EXAMPLES: [Rev; 6] = [
+            Rev {
+                version: "0.1.65".to_owned(),
+                channel: "nightly-2022-08-11".to_owned(),
+                rev: "2b2190cb5667cdd276a24ef8b9f3692209c54a89".to_owned(),
+            },
+            Rev {
+                version: "0.1.64".to_owned(),
+                channel: "nightly-2022-06-30".to_owned(),
+                rev: "0cb0f7636851f9fcc57085cf80197a2ef6db098f".to_owned(),
+            },
+            // smoelius: 0.1.62 and 0.1.63 omitted (for no particular reason).
             Rev {
                 version: "0.1.61".to_owned(),
                 channel: "nightly-2022-02-24".to_owned(),
