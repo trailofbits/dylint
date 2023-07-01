@@ -116,8 +116,7 @@ use anyhow::{anyhow, ensure, Context, Result};
 use cargo_metadata::{Metadata, Package, Target};
 use compiletest_rs as compiletest;
 use dylint_internal::{env, library_filename, rustup::is_rustc};
-use lazy_static::lazy_static;
-use once_cell::sync::OnceCell;
+use once_cell::sync::{Lazy, OnceCell};
 use regex::Regex;
 use std::{
     env::{consts, remove_var, set_var, var_os},
@@ -300,9 +299,7 @@ fn linking_flags(
 // I am going with the second option for now, because it seems to be the least of all evils. This
 // decision may need to be revisited.
 
-lazy_static! {
-    static ref RE: Regex = Regex::new(r"^\s*Running\s*`(.*)`$").unwrap();
-}
+static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s*Running\s*`(.*)`$").unwrap());
 
 fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Result<Vec<String>> {
     // smoelius: The following comments are old and retained for posterity. The linking flags are
