@@ -132,10 +132,10 @@ mod test {
     #![allow(clippy::unwrap_used)]
 
     use super::*;
-    use lazy_static::lazy_static;
+    use once_cell::sync::Lazy;
 
-    lazy_static! {
-        static ref EXAMPLES: [Rev; 6] = [
+    static EXAMPLES: Lazy<[Rev; 6]> = Lazy::new(|| {
+        [
             Rev {
                 version: "0.1.65".to_owned(),
                 channel: "nightly-2022-08-11".to_owned(),
@@ -167,8 +167,8 @@ mod test {
                 channel: "nightly-2021-10-21".to_owned(),
                 rev: "91496c2ac6abf6454c413bb23e8becf6b6dc20ea".to_owned(),
             },
-        ];
-    }
+        ]
+    });
 
     #[test]
     fn examples() {

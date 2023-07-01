@@ -257,7 +257,6 @@ dependencies = [
  "dirs",
  "dylint_internal",
  "heck",
- "lazy_static",
  "log",
  "once_cell",
  "semver",
@@ -306,7 +305,6 @@ dependencies = [
  "dylint",
  "dylint_internal",
  "env_logger",
- "lazy_static",
  "once_cell",
  "regex",
  "serde_json",
@@ -674,7 +672,7 @@ dependencies = [
  "dylint_linting",
  "dylint_testing",
  "if_chain",
- "lazy_static",
+ "once_cell",
  "serde",
 ]
 

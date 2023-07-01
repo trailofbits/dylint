@@ -2,7 +2,7 @@ use anyhow::Result;
 use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::{cargo::current_metadata, env};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use sedregex::find_and_replace;
 use semver::Version;
@@ -16,9 +16,7 @@ use std::{
 };
 use tempfile::tempdir;
 
-lazy_static! {
-    static ref METADATA: Metadata = current_metadata().unwrap();
-}
+static METADATA: Lazy<Metadata> = Lazy::new(|| current_metadata().unwrap());
 
 #[ctor::ctor]
 fn initialize() {

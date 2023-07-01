@@ -9,7 +9,7 @@ use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment,
 };
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::{
     collections::BTreeMap,
     env::{consts, current_dir},
@@ -42,13 +42,13 @@ mod toml;
 #[cfg(feature = "package_options")]
 mod package_options;
 
-lazy_static! {
-    static ref REQUIRED_FORM: String = format!(
+static REQUIRED_FORM: Lazy<String> = Lazy::new(|| {
+    format!(
         r#""{}" LIBRARY_NAME "@" TOOLCHAIN "{}""#,
         consts::DLL_PREFIX,
         consts::DLL_SUFFIX
-    );
-}
+    )
+});
 
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Default)]
@@ -546,7 +546,7 @@ mod test {
 
     use super::*;
     use dylint_internal::examples;
-    use lazy_static::lazy_static;
+    use once_cell::sync::Lazy;
     use std::{
         env::{join_paths, set_var},
         sync::Mutex,
@@ -557,12 +557,10 @@ mod test {
     // The easiest solution is to just not run the tests concurrently.
     static MUTEX: Mutex<()> = Mutex::new(());
 
-    lazy_static! {
-        static ref OPTS: Dylint = Dylint {
-            no_metadata: true,
-            ..Dylint::default()
-        };
-    }
+    static OPTS: Lazy<Dylint> = Lazy::new(|| Dylint {
+        no_metadata: true,
+        ..Dylint::default()
+    });
 
     fn name_toolchain_map() -> NameToolchainMap<'static> {
         examples::build().unwrap();
