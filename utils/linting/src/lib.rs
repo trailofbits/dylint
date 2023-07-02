@@ -456,10 +456,7 @@ pub fn config_toml(name: &str) -> ConfigResult<Option<toml::Value>> {
 pub fn init_config(sess: &rustc_session::Session) {
     try_init_config(sess).unwrap_or_else(|err| {
         let msg = format!("could not read configuration file: {err}");
-        rustc_session::early_error(
-            rustc_session::config::ErrorOutputType::default(),
-            Box::leak(msg.into_boxed_str()) as &str,
-        );
+        early_error(msg);
     });
 }
 
@@ -564,4 +561,22 @@ fn local_crate_source_file(sess: &rustc_session::Session) -> Option<PathBuf> {
 #[rustversion::since(2023-01-19)]
 fn local_crate_source_file(sess: &rustc_session::Session) -> Option<PathBuf> {
     sess.local_crate_source_file()
+}
+
+#[rustversion::before(2023-06-28)]
+fn early_error(msg: String) -> ! {
+    rustc_session::early_error(
+        rustc_session::config::ErrorOutputType::default(),
+        Box::leak(msg.into_boxed_str()) as &str,
+    )
+}
+
+#[rustversion::since(2023-06-28)]
+extern crate rustc_errors;
+
+#[rustversion::since(2023-06-28)]
+fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
+    let handler =
+        rustc_session::EarlyErrorHandler::new(rustc_session::config::ErrorOutputType::default());
+    handler.early_error(msg)
 }
