@@ -1,0 +1,32 @@
+[package]
+name = "commented_code"
+version = "2.1.10"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for code that has been commented out"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "30448e8cf98d4754350db0c959644564f317bc0f" }
+if_chain = "1.0"
+once_cell = "1.18"
+regex = "1.8"
+syn = { version = "2.0", features = ["full"] }
+
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../*/*" },
+]

@@ -1,0 +1,46 @@
+error: commented out code
+  --> $DIR/main.rs:6:5
+   |
+LL |     // dbg!(x);
+   |     ^^^^^^^^^^^
+   |
+   = help: uncomment or remove
+   = note: `-D commented-code` implied by `-D warnings`
+
+error: commented out code
+  --> $DIR/main.rs:10:5
+   |
+LL |     /* dbg!(x); */
+   |     ^^^^^^^^^^^^^^
+   |
+   = help: uncomment or remove
+
+error: commented out code
+  --> $DIR/main.rs:14:5
+   |
+LL |     // dbg!(x);
+   |     ^^^^^^^^^^^
+   |
+   = help: uncomment or remove
+
+error: commented out code
+  --> $DIR/main.rs:18:5
+   |
+LL |     /* dbg!(y); */
+   |     ^^^^^^^^^^^^^^
+   |
+   = help: uncomment or remove
+
+error: commented out code
+  --> $DIR/main.rs:22:5
+   |
+LL | /     /*
+LL | |         dbg!(x);
+LL | |         dbg!(y);
+LL | |     */
+   | |______^
+   |
+   = help: uncomment or remove
+
+error: aborting due to 5 previous errors
+
