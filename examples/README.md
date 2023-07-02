@@ -21,6 +21,7 @@ The example libraries are separated into the following three categories:
 
 | Example                                                                                | Description/check                                              |
 | -------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [`commented_code`](./supplementary/commented_code)                                     | Code that has been commented out                               |
 | [`overscoped_allow`](./supplementary/overscoped_allow)                                 | `allow` attributes whose scope could be reduced                |
 | [`redundant_reference`](./supplementary/redundant_reference)                           | Reference fields used only to read one copyable subfield       |
 | [`unnecessary_borrow_mut`](./supplementary/unnecessary_borrow_mut)                     | Calls to `RefCell::borrow_mut` that could be `RefCell::borrow` |
