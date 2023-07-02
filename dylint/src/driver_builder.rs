@@ -136,6 +136,7 @@ fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<b
     })
 }
 
+#[cfg_attr(dylint_lib = "commented_code", allow(commented_code))]
 fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
     let package = tempdir.path();

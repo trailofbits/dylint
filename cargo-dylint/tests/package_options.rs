@@ -53,6 +53,7 @@ fn check_dylint_dependencies(path: &Path) -> Result<()> {
     Ok(())
 }
 
+#[cfg_attr(dylint_lib = "commented_code", allow(commented_code))]
 #[test]
 fn downgrade_upgrade_package() {
     let tempdir = tempdir().unwrap();
