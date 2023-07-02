@@ -160,7 +160,14 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
         }
 
         // smoelius: Only enable for functions for now.
-        let ItemKind::Fn(FnSig { span: fn_sig_span, ..}, _, _) = item.kind else {
+        let ItemKind::Fn(
+            FnSig {
+                span: fn_sig_span, ..
+            },
+            _,
+            _,
+        ) = item.kind
+        else {
             return;
         };
 
