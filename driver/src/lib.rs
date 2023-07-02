@@ -127,10 +127,7 @@ impl Callbacks {
                         path.to_string_lossy(),
                         err
                     );
-                    rustc_session::early_error(
-                        rustc_session::config::ErrorOutputType::default(),
-                        Box::leak(msg.into_boxed_str()) as &str,
-                    );
+                    early_error(msg);
                 });
 
                 loaded_libs.push(LoadedLibrary { path, lib });
@@ -138,6 +135,24 @@ impl Callbacks {
         }
         Self { loaded_libs }
     }
+}
+
+#[rustversion::before(2023-06-28)]
+fn early_error(msg: String) -> ! {
+    rustc_session::early_error(
+        rustc_session::config::ErrorOutputType::default(),
+        Box::leak(msg.into_boxed_str()) as &str,
+    )
+}
+
+#[rustversion::since(2023-06-28)]
+extern crate rustc_errors;
+
+#[rustversion::since(2023-06-28)]
+fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
+    let handler =
+        rustc_session::EarlyErrorHandler::new(rustc_session::config::ErrorOutputType::default());
+    handler.early_error(msg)
 }
 
 #[rustversion::before(2022-07-14)]
