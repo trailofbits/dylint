@@ -2,6 +2,7 @@ use ansi_term::{
     Color::{Red, Yellow},
     Style,
 };
+use is_terminal::IsTerminal;
 use std::io::Write;
 
 // smoelius: `ColorizedError` is currently used only by `cargo-dylint`. But given the similarity of
@@ -34,7 +35,7 @@ where
         write!(
             f,
             "{}{:?}",
-            if atty::is(atty::Stream::Stdout) {
+            if std::io::stderr().is_terminal() {
                 format!("\r{}: ", Red.bold().paint("Error"))
             } else {
                 String::new()
@@ -53,7 +54,7 @@ pub fn warn(opts: &crate::Dylint, message: &str) {
         std::io::stderr()
             .write_fmt(format_args!(
                 "{}: {message}\n",
-                if atty::is(atty::Stream::Stdout) {
+                if std::io::stderr().is_terminal() {
                     Yellow.bold()
                 } else {
                     Style::new()

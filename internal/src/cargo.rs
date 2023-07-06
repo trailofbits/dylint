@@ -1,6 +1,7 @@
 use ansi_term::Style;
 use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
+use is_terminal::IsTerminal;
 use std::{io::Write, path::Path, process::Stdio};
 
 #[allow(clippy::module_name_repetitions)]
@@ -45,7 +46,7 @@ fn cargo(subcommand: &str, verb: &str, description: &str, quiet: bool) -> crate:
         std::io::stderr()
             .write_fmt(format_args!(
                 "{}\n",
-                if atty::is(atty::Stream::Stdout) {
+                if std::io::stderr().is_terminal() {
                     Style::new().bold()
                 } else {
                     Style::new()
