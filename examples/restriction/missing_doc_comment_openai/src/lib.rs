@@ -69,7 +69,7 @@ dylint_linting::impl_late_lint! {
     /// An elaborate, high quality rustdoc comment for the above function:
     /// ```rust
     /// ````
-    /// The prompt's [`stop` parameter] is set to ` ["\n```"] `. Thus, OpenAI should stop generating tokens once the second code block is complete. The suggested doc comment is the one that appears in that code block, if any.
+    /// The prompt's [`stop` parameter] is set to `["\n```"]`. Thus, OpenAI should stop generating tokens once the second code block is complete. The suggested doc comment is the one that appears in that code block, if any.
     ///
     /// The phrase "An elaborate..." is configurable (see below).
     ///
