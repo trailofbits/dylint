@@ -1,0 +1,47 @@
+[package]
+name = "derive_opportunity"
+version = "2.1.11"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for traits that could be derived"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[[example]]
+name = "ui"
+path = "ui/main.rs"
+
+[[example]]
+name = "ui_at_least_one_field"
+path = "ui_at_least_one_field/main.rs"
+
+[[example]]
+name = "ui_ignore"
+path = "ui_ignore/main.rs"
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "dd8e44c5a22ab646821252604420c5bb82c36aa9" }
+if_chain = "1.0"
+once_cell = "1.8"
+serde = "1.0"
+
+dylint_internal = { path = "../../../internal" }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+bitflags = "2.0"
+serde_derive = "1.0"
+
+dylint_testing = { path = "../../../utils/testing" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../*/*" },
+]

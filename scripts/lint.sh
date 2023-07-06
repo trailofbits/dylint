@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# shellcheck disable=SC2001
+
 # set -x
 set -euo pipefail
 
@@ -20,7 +22,6 @@ EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d)"
 
 # smoelius: Remove `straggler`, as it is used only for testing purposes. Also, it uses a different
 # toolchain than the other examples.
-# shellcheck disable=SC2001
 EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:space:]]*,,')"
 
 DIRS=". driver utils/linting $EXAMPLE_DIRS"
@@ -29,18 +30,15 @@ EXAMPLES="$(echo "$EXAMPLE_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 
 # smoelius: `clippy` must be run separately because, for any lint not loaded alongside of it, rustc
 # complains about the clippy-specific flags.
-# shellcheck disable=SC2001
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<clippy\>[[:space:]]*//')"
 
 # smoelius: `overscoped_allow` must be run after other lints have been run. (See its documentation.)
-# shellcheck disable=SC2001
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<overscoped_allow\>[[:space:]]*//')"
 
-# smoelius: `missing_doc_comment_openai` isn't ready for primetime yet.
-# shellcheck disable=SC2001
+# smoelius: `derive_opportunity` and `missing_doc_comment_openai` aren't ready for primetime yet.
+EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<derive_opportunity\>[[:space:]]*//')"
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<missing_doc_comment_openai\>[[:space:]]*//')"
 
-# shellcheck disable=SC2001
 EXAMPLES_AS_FLAGS="$(echo "$EXAMPLES" | sed 's/\<[^[:space:]]\+\>/--lib &/g')"
 
 force_check() {
@@ -84,7 +82,6 @@ for FLAGS in "$EXAMPLES_AS_FLAGS" '--lib clippy'; do
     # smoelius: For `overscoped_allow`.
     DYLINT_RUSTFLAGS="$(echo "$DYLINT_RUSTFLAGS" | sed 's/-D warnings\>//g;s/-W\>/--force-warn/g')"
     if [[ "$FLAGS" != '--lib clippy' ]]; then
-        # shellcheck disable=SC2001
         DYLINT_RUSTFLAGS="$DYLINT_RUSTFLAGS $(echo "$FLAGS" | sed 's/--lib\>/--force-warn/g')"
     fi
     export DYLINT_RUSTFLAGS

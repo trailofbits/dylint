@@ -1,0 +1,73 @@
+// run-rustfix
+#![allow(dead_code)]
+
+fn main() {}
+
+#[derive(Default, serde::Deserialize)]
+#[derive(Clone, Copy, Hash)]
+struct Derived;
+
+#[derive(Default, serde::Deserialize)]
+#[derive(Clone, Copy, Hash)]
+struct DerivedWithParam<T> {
+    foo: T,
+}
+
+#[derive(Clone, Copy, Default, Hash)]
+struct Empty;
+
+#[derive(Clone, Copy, Default, Hash)]
+struct SimpleStruct {
+    foo: Derived,
+}
+
+#[derive(Clone, Copy, Hash)]
+enum SimpleEnum {
+    Foo(Derived),
+}
+
+#[derive(Clone, Copy, Default, Hash)]
+struct StructWithParam<T> {
+    foo: Derived,
+    bar: T,
+}
+
+#[derive(Clone, Copy, Hash)]
+enum EnumWithParam<T> {
+    Foo(Derived),
+    Bar(T),
+}
+
+#[derive(Clone, Copy, Default, Hash)]
+struct TransitiveStruct {
+    foo: SimpleStruct,
+}
+
+#[derive(Clone, Copy, Hash)]
+enum TransitiveEnum {
+    Foo(SimpleStruct),
+}
+
+#[derive(Default)]
+#[derive(Clone, Copy, Hash)]
+struct PartiallyDerivedStruct {
+    foo: Derived,
+}
+
+#[derive(serde::Deserialize)]
+#[derive(Clone, Copy, Hash)]
+enum PartiallyDerivedEnum {
+    Foo(Derived),
+}
+
+bitflags::bitflags! {
+    struct Flags: u8 {
+        const X = 1 << 0;
+        const Y = 1 << 1;
+        const Z = 1 << 2;
+    }
+}
+
+struct StructWithFlags {
+    flags: Flags,
+}

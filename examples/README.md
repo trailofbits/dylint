@@ -33,6 +33,7 @@ The example libraries are separated into the following three categories:
 | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
 | [`collapsible_unwrap`](./restriction/collapsible_unwrap)                                                     | An `unwrap` that could be combined with an `expect` or `unwrap` using `and_then` |
 | [`const_path_join`](./restriction/const_path_join)                                                           | Joining of constant path components                                              |
+| [`derive_opportunity`](./restriction/derive_opportunity)                                                     | Traits that could be derived                                                     |
 | [`env_literal`](./restriction/env_literal)                                                                   | Environment variables referred to with string literals                           |
 | [`inconsistent_qualification`](./restriction/inconsistent_qualification)                                     | Inconsistent qualification of module items                                       |
 | [`misleading_variable_name`](./restriction/misleading_variable_name)                                         | Variables whose names suggest they have types other than the ones they have      |
