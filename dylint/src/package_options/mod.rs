@@ -42,14 +42,14 @@ pub fn new_package(opts: &Dylint, path: &Path) -> Result<()> {
     if !opts.isolate {
         find_and_replace(
             &tempdir.path().join("Cargo.toml"),
-            &[r#"s/\r?\n\[workspace\]\r?\n//"#],
+            &[r"s/\r?\n\[workspace\]\r?\n//"],
         )?;
     }
 
     // smoelius: So is allowing unused extern crates.
     find_and_replace(
         &tempdir.path().join("src/lib.rs"),
-        &[r#"s/(?m)^.. (#!\[warn\(unused_extern_crates\)\])$/${1}/"#],
+        &[r"s/(?m)^.. (#!\[warn\(unused_extern_crates\)\])$/${1}/"],
     )?;
 
     fill_in(&name, tempdir.path(), path)?;

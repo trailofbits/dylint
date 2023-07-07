@@ -192,10 +192,10 @@ fn strip_as_ref<'tcx>(
         .iter()
         .find_map(|predicate| {
             if_chain! {
-                if let ty::PredicateKind::Clause(ty::Clause::Trait(ty::TraitPredicate {
+                if let ty::ClauseKind::Trait(ty::TraitPredicate {
                     trait_ref,
                     ..
-                })) = predicate.kind().skip_binder();
+                }) = predicate.kind().skip_binder();
                 if cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id);
                 if let [self_arg, subst_arg] = trait_ref.substs.as_slice();
                 if self_arg.unpack() == ty::GenericArgKind::Type(ty);

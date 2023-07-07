@@ -1,15 +1,10 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Result};
 use cargo_metadata::Dependency;
-use dylint_internal::{clone, env, packaging::isolate};
-use std::{
-    env::set_var,
-    fs::{read_to_string, write},
-    path::Path,
-};
-use tempfile::tempdir_in;
+use dylint_internal::{clone, env};
+use std::{env::set_var, path::Path};
+use tempfile::{tempdir, tempdir_in};
 
-const ERROR_LINES: usize = 5;
-
+#[cfg_attr(dylint_lib = "commented_code", allow(commented_code))]
 #[test]
 fn ui() {
     // smoelius: Try to order failures by how informative they are: failure to build the library,
@@ -19,14 +14,13 @@ fn ui() {
         .success()
         .unwrap();
 
-    let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let tempdir = tempdir().unwrap();
 
     clone_rust_clippy(tempdir.path()).unwrap();
 
-    isolate(tempdir.path()).unwrap();
-
-    let src_base = tempdir.path().join("tests/ui");
-    adjust_macro_use_imports_test(&src_base).unwrap();
+    // smoelius: `adjust_macro_use_imports_test` no longer seems to be necessary.
+    // let src_base = tempdir.path().join("tests/ui");
+    // adjust_macro_use_imports_test(&src_base).unwrap();
 
     // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
     // smoelius: This is no longer true. See comment in `dylint_testing::initialize`.
@@ -100,56 +94,67 @@ fn clippy_lints_dependency() -> Result<Dependency> {
     Ok(dependency.clone())
 }
 
-// smoelius: The `macro_use_imports` test produces the right four errors, but not in the right
-// order. I haven't yet figured out why. Hence, this hack.
-#[allow(clippy::shadow_unrelated)]
-fn adjust_macro_use_imports_test(src_base: &Path) -> Result<()> {
-    let stderr_file = src_base.join("macro_use_imports.stderr");
-    let contents = read_to_string(&stderr_file).with_context(|| {
-        format!(
-            "`read_to_string` failed for `{}`",
-            stderr_file.to_string_lossy()
+#[cfg(any())]
+mod unused {
+    use anyhow::{Context, Result};
+    use std::{
+        fs::{read_to_string, write},
+        path::Path,
+    };
+
+    const ERROR_LINES: usize = 5;
+
+    // smoelius: The `macro_use_imports` test produces the right four errors, but not in the right
+    // order. I haven't yet figured out why. Hence, this hack.
+    #[allow(clippy::shadow_unrelated)]
+    fn adjust_macro_use_imports_test(src_base: &Path) -> Result<()> {
+        let stderr_file = src_base.join("macro_use_imports.stderr");
+        let contents = read_to_string(&stderr_file).with_context(|| {
+            format!(
+                "`read_to_string` failed for `{}`",
+                stderr_file.to_string_lossy()
+            )
+        })?;
+        let lines: Vec<String> = contents.lines().map(ToString::to_string).collect();
+
+        let (first_error, rest) = lines.split_at(ERROR_LINES);
+        let (note, rest) = rest.split_at(2);
+        let (_blank_line, rest) = rest.split_at(1);
+        let (second_error, rest) = rest.split_at(ERROR_LINES);
+        let (_blank_line, rest) = rest.split_at(1);
+        let (third_error, rest) = rest.split_at(ERROR_LINES);
+        let (_blank_line, rest) = rest.split_at(1);
+        let (fourth_error, rest) = rest.split_at(ERROR_LINES);
+        let (blank_line, summary) = rest.split_at(rest.len() - 2);
+
+        let permuted: Vec<String> = std::iter::empty()
+            .chain(first_error.iter().cloned())
+            .chain(note.iter().cloned())
+            .chain(blank_line.iter().cloned())
+            .chain(second_error.iter().cloned())
+            .chain(blank_line.iter().cloned())
+            .chain(third_error.iter().cloned())
+            .chain(blank_line.iter().cloned())
+            .chain(fourth_error.iter().cloned())
+            .chain(blank_line.iter().cloned())
+            .chain(summary.iter().cloned())
+            .collect();
+
+        let mut lines_sorted = lines.clone();
+        let mut permuted_sorted = permuted.clone();
+        lines_sorted.sort();
+        permuted_sorted.sort();
+        assert_eq!(lines_sorted, permuted_sorted);
+
+        write(
+            &stderr_file,
+            permuted
+                .iter()
+                .map(|line| format!("{line}\n"))
+                .collect::<String>(),
         )
-    })?;
-    let lines: Vec<String> = contents.lines().map(ToString::to_string).collect();
+        .with_context(|| format!("Could not write to `{}`", stderr_file.to_string_lossy()))?;
 
-    let (first_error, rest) = lines.split_at(ERROR_LINES);
-    let (note, rest) = rest.split_at(2);
-    let (_blank_line, rest) = rest.split_at(1);
-    let (second_error, rest) = rest.split_at(ERROR_LINES);
-    let (_blank_line, rest) = rest.split_at(1);
-    let (third_error, rest) = rest.split_at(ERROR_LINES);
-    let (_blank_line, rest) = rest.split_at(1);
-    let (fourth_error, rest) = rest.split_at(ERROR_LINES);
-    let (blank_line, summary) = rest.split_at(rest.len() - 2);
-
-    let permuted: Vec<String> = std::iter::empty()
-        .chain(first_error.iter().cloned())
-        .chain(note.iter().cloned())
-        .chain(blank_line.iter().cloned())
-        .chain(second_error.iter().cloned())
-        .chain(blank_line.iter().cloned())
-        .chain(third_error.iter().cloned())
-        .chain(blank_line.iter().cloned())
-        .chain(fourth_error.iter().cloned())
-        .chain(blank_line.iter().cloned())
-        .chain(summary.iter().cloned())
-        .collect();
-
-    let mut lines_sorted = lines.clone();
-    let mut permuted_sorted = permuted.clone();
-    lines_sorted.sort();
-    permuted_sorted.sort();
-    assert_eq!(lines_sorted, permuted_sorted);
-
-    write(
-        &stderr_file,
-        permuted
-            .iter()
-            .map(|line| format!("{line}\n"))
-            .collect::<String>(),
-    )
-    .with_context(|| format!("Could not write to `{}`", stderr_file.to_string_lossy()))?;
-
-    Ok(())
+        Ok(())
+    }
 }

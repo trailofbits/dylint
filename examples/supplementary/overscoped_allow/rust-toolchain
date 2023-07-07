@@ -1,4 +1,4 @@
 [toolchain]
-channel = "nightly-2023-06-02"
+channel = "nightly-2023-06-29"
 # smoelius: The ui tests require `clippy`.
 components = ["clippy", "llvm-tools-preview", "rustc-dev"]

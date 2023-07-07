@@ -106,7 +106,7 @@ fn workspace_and_cargo_dylint_readmes_are_equivalent() {
 
     let lifted_cargo_dylint_readme = find_and_replace(
         &cargo_dylint_readme,
-        &[r#"s/(?m)^(\[[^\]]*\]: *\.)\./${1}/g"#],
+        &[r"s/(?m)^(\[[^\]]*\]: *\.)\./${1}/g"],
     )
     .unwrap();
 
@@ -142,7 +142,7 @@ fn markdown_does_not_use_inline_links() {
         }
         let markdown = read_to_string(path).unwrap();
         assert!(
-            !Regex::new(r#"\[[^\]]*\]\("#).unwrap().is_match(&markdown),
+            !Regex::new(r"\[[^\]]*\]\(").unwrap().is_match(&markdown),
             "`{}` uses inline links",
             path.canonicalize().unwrap().to_string_lossy()
         );
@@ -151,7 +151,7 @@ fn markdown_does_not_use_inline_links() {
 
 #[test]
 fn markdown_reference_links_are_sorted() {
-    let re = Regex::new(r#"^\[[^\]]*\]:"#).unwrap();
+    let re = Regex::new(r"^\[[^\]]*\]:").unwrap();
     for entry in walkdir(true) {
         let entry = entry.unwrap();
         let path = entry.path();
@@ -181,7 +181,7 @@ fn markdown_reference_links_are_valid_and_used() {
     const CODE: &str = "`[^`]*`";
     const CODE_BLOCK: &str = "```([^`]|`[^`]|``[^`])*```";
     let ref_re = Regex::new(&format!(r#"(?m){CODE}|{CODE_BLOCK}|\[([^\]]*)\]([^:]|$)"#)).unwrap();
-    let link_re = Regex::new(r#"(?m)^\[([^\]]*)\]:"#).unwrap();
+    let link_re = Regex::new(r"(?m)^\[([^\]]*)\]:").unwrap();
     for entry in walkdir(true) {
         let entry = entry.unwrap();
         let path = entry.path();
