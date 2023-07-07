@@ -35,8 +35,7 @@ use rustc_middle::ty::{
     self,
     adjustment::{Adjust, Adjustment, AutoBorrow},
     subst::SubstsRef,
-    Clause, EarlyBinder, FnDef, FnSig, Param, ParamTy, PredicateKind, ProjectionPredicate, Ty,
-    TypeAndMut,
+    ClauseKind, EarlyBinder, FnDef, FnSig, Param, ParamTy, ProjectionPredicate, Ty, TypeAndMut,
 };
 use rustc_span::symbol::{sym, Symbol};
 use rustc_trait_selection::traits::{
@@ -528,9 +527,7 @@ fn inner_arg_implements_traits<'tcx>(
     let projection_predicates = predicates
         .iter()
         .filter_map(|predicate| {
-            if let PredicateKind::Clause(Clause::Projection(projection_predicate)) =
-                predicate.kind().skip_binder()
-            {
+            if let ClauseKind::Projection(projection_predicate) = predicate.kind().skip_binder() {
                 Some(projection_predicate)
             } else {
                 None
@@ -542,7 +539,7 @@ fn inner_arg_implements_traits<'tcx>(
     if predicates
         .iter()
         .filter_map(|predicate| {
-            if let PredicateKind::Clause(Clause::Trait(trait_predicate)) = predicate.kind().skip_binder()
+            if let ClauseKind::Trait(trait_predicate) = predicate.kind().skip_binder()
                 && trait_predicate.trait_ref.self_ty() == param_ty.to_ty(cx.tcx)
             {
                 Some(trait_predicate.trait_ref.def_id)

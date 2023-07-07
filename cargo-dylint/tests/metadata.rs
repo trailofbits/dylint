@@ -281,5 +281,5 @@ pattern = "examples/general/crate_wide_allow"
         .args(["dylint", "--all"])
         .assert()
         .failure()
-        .stderr(predicate::str::is_match(r#"Unknown library keys:\r?\n\s*revision\r?\n"#).unwrap());
+        .stderr(predicate::str::is_match(r"Unknown library keys:\r?\n\s*revision\r?\n").unwrap());
 }

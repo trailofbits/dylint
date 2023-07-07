@@ -172,7 +172,7 @@ mod test {
 
     #[test]
     fn examples() {
-        for example in EXAMPLES.iter() {
+        for example in &*EXAMPLES {
             let revs = Revs::new(false).unwrap();
             let mut iter = revs.iter().unwrap();
             let rev = iter
