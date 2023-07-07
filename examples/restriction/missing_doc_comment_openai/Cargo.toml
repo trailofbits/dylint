@@ -1,6 +1,6 @@
 [package]
 name = "missing_doc_comment_openai"
-version = "2.1.10"
+version = "2.1.11"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint that suggests doc comments using OpenAI"
 edition = "2021"

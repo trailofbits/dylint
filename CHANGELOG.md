@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.11
+
+- Address [rust-lang/rust#112692](https://github.com/rust-lang/rust/pull/112692) ([f4094c8](https://github.com/trailofbits/dylint/commit/f4094c82229ea79a764e9dbf644e28feb8997dd1))
+- Migrate away from `atty` ([#736](https://github.com/trailofbits/dylint/pull/736))
+
 ## 2.1.10
 
 - Address [rust-lang/rust#111748](https://github.com/rust-lang/rust/pull/111748) ([#699](https://github.com/trailofbits/dylint/pull/699))
