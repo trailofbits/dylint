@@ -272,7 +272,7 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
 name = "dylint"
-version = "2.1.10"
+version = "2.1.11"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -292,7 +292,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.1.10"
+version = "2.1.11"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -308,7 +308,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.1.10"
+version = "2.1.11"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -321,7 +321,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.1.10"
+version = "2.1.11"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -716,7 +716,7 @@ checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
 
 [[package]]
 name = "overscoped_allow"
-version = "2.1.10"
+version = "2.1.11"
 dependencies = [
  "anyhow",
  "assert_cmd",
