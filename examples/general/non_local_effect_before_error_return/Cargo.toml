@@ -14,7 +14,7 @@ name = "ui"
 path = "ui/main.rs"
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "30448e8cf98d4754350db0c959644564f317bc0f" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "dd8e44c5a22ab646821252604420c5bb82c36aa9" }
 if_chain = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 
