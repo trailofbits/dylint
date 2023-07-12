@@ -24,6 +24,7 @@ The example libraries are separated into the following three categories:
 | [`commented_code`](./supplementary/commented_code)                                     | Code that has been commented out                               |
 | [`overscoped_allow`](./supplementary/overscoped_allow)                                 | `allow` attributes whose scope could be reduced                |
 | [`redundant_reference`](./supplementary/redundant_reference)                           | Reference fields used only to read one copyable subfield       |
+| [`unnamed_constant`](./supplementary/unnamed_constant)                                 | Unnamed constants, aka magic numbers                           |
 | [`unnecessary_borrow_mut`](./supplementary/unnecessary_borrow_mut)                     | Calls to `RefCell::borrow_mut` that could be `RefCell::borrow` |
 | [`unnecessary_conversion_for_trait`](./supplementary/unnecessary_conversion_for_trait) | Unnecessary trait-behavior-preserving calls                    |
 
