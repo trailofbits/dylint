@@ -270,6 +270,7 @@ const ARCHITECTURES: &[&str] = &[
     "wasm32",
     "wasm64",
     "x86_64",
+    "x86_64h",
 ];
 
 #[cfg(test)]
