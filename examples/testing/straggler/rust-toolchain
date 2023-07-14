@@ -1,4 +1,4 @@
 [toolchain]
 # smoelius: `straggler` is intentionally held back for testing purposes.
-channel = "nightly-2023-06-02"
+channel = "nightly-2023-06-29"
 components = ["llvm-tools-preview", "rustc-dev"]
