@@ -10,7 +10,7 @@ use cargo::{
     },
     util::Config,
 };
-use cargo_metadata::{Error, Metadata, MetadataCommand};
+use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage};
 use dylint_internal::{env, library_filename, rustup::SanitizeEnvironment};
 use glob::glob;
 use if_chain::if_chain;
@@ -225,8 +225,9 @@ fn library_package(
         .into_iter()
         .map(|path| {
             if path.is_dir() {
-                let package_id = package_id(dep.source_id(), &path)?;
-                let lib_name = package_library_name(&path)?;
+                let package = package_with_root(&path)?;
+                let package_id = package_id(&package, dep.source_id())?;
+                let lib_name = package_library_name(&package)?;
                 let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
                 Ok(Some(Package {
                     metadata: metadata.clone(),
@@ -372,25 +373,22 @@ fn git_dependency_root_from_package<'a>(
     }
 }
 
-fn package_id(source_id: SourceId, package_root: &Path) -> Result<PackageId> {
+fn package_with_root(package_root: &Path) -> Result<MetadataPackage> {
+    // smoelius: For the long term, we should investigate having a "cache" that maps paths to
+    // `cargo_metadata::Metadata`.
     let metadata = MetadataCommand::new()
         .current_dir(package_root)
         .no_deps()
         .exec()?;
 
-    let package = dylint_internal::cargo::package_with_root(&metadata, package_root)?;
+    dylint_internal::cargo::package_with_root(&metadata, package_root)
+}
 
+fn package_id(package: &MetadataPackage, source_id: SourceId) -> Result<PackageId> {
     PackageId::new(&package.name, &package.version, source_id)
 }
 
-pub fn package_library_name(package_root: &Path) -> Result<String> {
-    let metadata = MetadataCommand::new()
-        .current_dir(package_root)
-        .no_deps()
-        .exec()?;
-
-    let package = dylint_internal::cargo::package_with_root(&metadata, package_root)?;
-
+pub fn package_library_name(package: &MetadataPackage) -> Result<String> {
     package
         .targets
         .iter()
