@@ -32,7 +32,7 @@ jobs:
       - name: Shellcheck
         run: shellcheck --exclude=SC2002 scripts/*
 
-      - name: Install dependencies
+      - name: Install tools
         run: |
           npm install -g prettier
           rm -f "$HOME"/.cargo/bin/cargo-fmt
