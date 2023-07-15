@@ -218,6 +218,9 @@ fn library_package(
     // workspace are intended to be built with the same version of the compiler"
     // (https://github.com/rust-lang/rustup/issues/1399#issuecomment-383376082).
 
+    // smoelius: Experiments suggest that a considerable amount of Dylint's start up time is spent
+    // in the following "loop," and a considerable (though not necessarily dominant) fraction of
+    // that is spent in `active_toolchain`.
     let packages = paths
         .into_iter()
         .map(|path| {
