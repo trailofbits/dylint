@@ -51,12 +51,7 @@ impl Ord for Package {
 
 impl PartialOrd for Package {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        (&self.root, &self.id, &self.lib_name, &self.toolchain).partial_cmp(&(
-            &other.root,
-            &other.id,
-            &other.lib_name,
-            &other.toolchain,
-        ))
+        Some(self.cmp(other))
     }
 }
 
