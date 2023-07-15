@@ -581,7 +581,7 @@ fn inner_arg_implements_traits<'tcx>(
 }
 
 // smoelius: `replace_types` was copied from:
-// https://github.com/rust-lang/rust-clippy/blob/ed519ad746e31f64c4e9255be561785612532d37/clippy_lints/src/dereference.rs#L1295-L1349
+// https://github.com/rust-lang/rust-clippy/blob/cf8a67d9ad81547895ec986f8bcb17e912037c38/clippy_lints/src/dereference.rs#L1295-L1349
 
 #[cfg_attr(
     dylint_lib = "inconsistent_qualification",
@@ -622,10 +622,10 @@ fn replace_types<'tcx>(
                     && let Some(term_ty) = projection_predicate.term.ty()
                     && let ty::Param(term_param_ty) = term_ty.kind()
                 {
-                    let item_def_id = projection_predicate.projection_ty.def_id;
-                    let assoc_item = cx.tcx.associated_item(item_def_id);
-                    let projection = cx.tcx
-                        .mk_projection(assoc_item.def_id, cx.tcx.mk_substs_trait(new_ty, []));
+                    let projection = cx.tcx.mk_ty_from_kind(ty::Alias(
+                        ty::Projection,
+                        projection_predicate.projection_ty.with_self_ty(cx.tcx, new_ty),
+                    ));
 
                     if let Ok(projected_ty) = cx.tcx.try_normalize_erasing_regions(cx.param_env, projection)
                         && substs[term_param_ty.index as usize] != ty::GenericArg::from(projected_ty)
@@ -713,7 +713,8 @@ fn build_ty_and_refs_prefix<'tcx>(
         if is_copy(cx, ty) {
             break;
         }
-        ty = cx.tcx.mk_ref(
+        ty = Ty::new_ref(
+            cx.tcx,
             cx.tcx.lifetimes.re_erased,
             TypeAndMut {
                 ty,

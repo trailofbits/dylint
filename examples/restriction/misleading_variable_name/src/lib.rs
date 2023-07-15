@@ -276,7 +276,7 @@ fn module_public_children(tcx: ty::TyCtxt<'_>, module_def_id: DefId) -> Vec<(Sym
 // smoelius: `erase_substs` is incomplete.
 fn erase_substs<'tcx>(tcx: ty::TyCtxt<'tcx>, ty: ty::Ty<'tcx>) -> ty::Ty<'tcx> {
     match ty.kind() {
-        ty::Adt(adt_def, _) => tcx.mk_adt(*adt_def, ty::List::empty()),
+        ty::Adt(adt_def, _) => ty::Ty::new_adt(tcx, *adt_def, ty::List::empty()),
         _ => ty,
     }
 }

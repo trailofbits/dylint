@@ -134,7 +134,7 @@ fn replace_params_with_global_ty<'tcx>(cx: &LateContext<'tcx>, ty: ty::Ty<'tcx>)
         .find_map(|res| res.opt_def_id())
         .unwrap();
     let global_adt_def = cx.tcx.adt_def(global_def_id);
-    let global_ty = cx.tcx.mk_adt(global_adt_def, ty::List::empty());
+    let global_ty = ty::Ty::new_adt(cx.tcx, global_adt_def, ty::List::empty());
     BottomUpFolder {
         tcx: cx.tcx,
         ty_op: |ty| {
@@ -192,10 +192,8 @@ fn strip_as_ref<'tcx>(
         .iter()
         .find_map(|predicate| {
             if_chain! {
-                if let ty::ClauseKind::Trait(ty::TraitPredicate {
-                    trait_ref,
-                    ..
-                }) = predicate.kind().skip_binder();
+                if let ty::ClauseKind::Trait(ty::TraitPredicate { trait_ref, .. }) =
+                    predicate.kind().skip_binder();
                 if cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id);
                 if let [self_arg, subst_arg] = trait_ref.substs.as_slice();
                 if self_arg.unpack() == ty::GenericArgKind::Type(ty);
