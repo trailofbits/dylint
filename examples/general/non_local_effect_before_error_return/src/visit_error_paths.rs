@@ -253,7 +253,8 @@ where
                 FnKind::Closure => "closure".to_owned(),
             };
             self.cx.sess().warn(format!(
-                "reached work limit ({}) while checking {}; set `{}.work_limit` in `dylint.toml` to override",
+                "reached work limit ({}) while checking {}; set `{}.work_limit` in `dylint.toml` \
+                 to override",
                 self.work_limit,
                 name,
                 env!("CARGO_PKG_NAME")

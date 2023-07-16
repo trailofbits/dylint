@@ -69,8 +69,8 @@ struct Dylint {
     #[clap(
         long,
         value_name = "path",
-        help = "Path to Cargo.toml. Note: if the manifest uses metadata, then \
-        `--manifest-path <path>` must appear before `--`, not after."
+        help = "Path to Cargo.toml. Note: if the manifest uses metadata, then `--manifest-path \
+                <path>` must appear before `--`, not after."
     )]
     manifest_path: Option<String>,
 
@@ -92,7 +92,7 @@ struct Dylint {
         short,
         long,
         help = "Do not show warnings or progress running commands besides `cargo check` and \
-        `cargo fix`"
+                `cargo fix`"
     )]
     quiet: bool,
 
@@ -146,7 +146,8 @@ Combine with `--all` to list all lints in all discovered libraries."
 
     #[clap(
         about = "Upgrade library package",
-        long_about = "Upgrade the library package at <PATH> to the latest version of `clippy_utils`"
+        long_about = "Upgrade the library package at <PATH> to the latest version of \
+                      `clippy_utils`"
     )]
     Upgrade {
         #[clap(long, hide = true)]
@@ -155,7 +156,7 @@ Combine with `--all` to list all lints in all discovered libraries."
         #[clap(
             long,
             help = "Unix only/experimental: Update dependencies and search for the most recent \
-            applicable toolchain"
+                    applicable toolchain"
         )]
         bisect: bool,
 
