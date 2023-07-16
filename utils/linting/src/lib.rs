@@ -439,7 +439,8 @@ pub fn config_toml(name: &str) -> ConfigResult<Option<toml::Value>> {
     let config_table = CONFIG_TABLE.lock().unwrap();
     let config_table = config_table.as_ref().ok_or_else(|| {
         ConfigErrorInner::Other(
-            "Config is not initialized; `init_config` should have been called from `register_lints`"
+            "Config is not initialized; `init_config` should have been called from \
+             `register_lints`"
                 .into(),
         )
     })?;

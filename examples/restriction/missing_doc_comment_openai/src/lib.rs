@@ -133,8 +133,8 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         if std::env::var(OPENAI_API_KEY).is_err() {
             cx.sess().warn(format!(
-                "`missing_doc_comment_openai` suggestions are disabled because environment variable \
-                `{OPENAI_API_KEY}` is not set"
+                "`missing_doc_comment_openai` suggestions are disabled because environment \
+                 variable `{OPENAI_API_KEY}` is not set"
             ));
         }
     }

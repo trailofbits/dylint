@@ -117,7 +117,8 @@ fn check_interior_types(
                     cx,
                     AWAIT_HOLDING_SPAN_GUARD,
                     ty_cause.span,
-                    "this Span guard is held across an 'await' point. Consider using the `.instrument()` combinator or the `.in_scope()` method instead",
+                    "this Span guard is held across an 'await' point. Consider using the \
+                     `.instrument()` combinator or the `.in_scope()` method instead",
                     ty_cause.scope_span.or(Some(span)),
                     "these are all the await points this ref is held through",
                 );

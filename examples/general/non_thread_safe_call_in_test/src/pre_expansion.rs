@@ -60,7 +60,10 @@ impl_lint_pass!(NonThreadSafeCallInTest => [NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXP
 impl EarlyLintPass for NonThreadSafeCallInTest {
     fn check_crate(&mut self, cx: &EarlyContext, _crate: &Crate) {
         if !cx.sess().opts.test {
-            cx.sess().warn("`non_thread_safe_call_in_test` is unlikely to be effective as `--test` was not passed to rustc");
+            cx.sess().warn(
+                "`non_thread_safe_call_in_test` is unlikely to be effective as `--test` was not \
+                 passed to rustc",
+            );
         }
     }
 

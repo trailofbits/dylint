@@ -111,7 +111,7 @@ pub fn run(opts: &Dylint) -> Result<()> {
             warn(
                 opts,
                 "`--force` is deprecated and its meaning may change in the future. Use \
-                `--allow-downgrade`.",
+                 `--allow-downgrade`.",
             );
         }
         Dylint {
@@ -279,7 +279,8 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
         if let Some((toolchain, maybe_library)) = name_as_lib(name_toolchain_map, name, false)? {
             ensure!(
                 !opts.all,
-                "`{}` is a library name and cannot be used with `--all`; if a path was meant, use `--path {}`",
+                "`{}` is a library name and cannot be used with `--all`; if a path was meant, use \
+                 `--path {}`",
                 name,
                 name
             );
