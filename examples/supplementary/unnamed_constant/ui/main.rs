@@ -13,6 +13,8 @@ fn main() {
 
     const MILLIS: i64 = 1000;
 
+    const GIGABYTE: u64 = 1024 * 1024 * 1024;
+
     let a: [&str; 2] = ["x", "y"];
 
     x *= -1;
