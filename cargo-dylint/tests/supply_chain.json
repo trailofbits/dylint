@@ -1083,13 +1083,6 @@
     ],
     "dunce": [
       {
-        "avatar": "https://avatars.githubusercontent.com/u/38887296?v=4",
-        "id": 362,
-        "kind": "team",
-        "login": "github:rust-bus:maintainers",
-        "name": "maintainers"
-      },
-      {
         "avatar": "https://avatars.githubusercontent.com/u/72159?v=4",
         "id": 988,
         "kind": "user",
@@ -2019,13 +2012,6 @@
         "kind": "user",
         "login": "scottlamb",
         "name": "Scott Lamb"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/39033067?v=4",
-        "id": 21274,
-        "kind": "user",
-        "login": "rust-bus-owner",
-        "name": "Rust-Bus"
       }
     ],
     "humantime": [
