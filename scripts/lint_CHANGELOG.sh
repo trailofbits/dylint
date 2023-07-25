@@ -20,7 +20,6 @@ while read -r LINK; do
     TEXT="$(echo "$LINK" | sed 's/^\[\([^]]*\)\](.*)$/\1/')"
     URL="$(echo "$LINK" | sed 's/^\[[^]]*\](\(.*\))$/\1/')"
     if [[
-        "$TEXT" = "${TEXT,,}" &&
         ( ${#TEXT} -eq 7 || "$TEXT" = 'c28639ee' ) &&
         $(expr "$URL" : "https://.*/commit/${TEXT}[0-9a-z]*") -eq ${#URL}
     ]]; then
