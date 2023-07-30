@@ -12,7 +12,7 @@ anyhow = "1.0"
 if_chain = "1.0"
 
 ansi_term = { version = "0.12", optional = true }
-cargo_metadata = { version = "0.15", optional = true }
+cargo_metadata = { version = "0.17", optional = true }
 ctor = { version = "0.2", optional = true }
 env_logger = { version = "0.10", optional = true }
 git2 = { version = "0.17", optional = true }
