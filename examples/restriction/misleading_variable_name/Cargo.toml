@@ -22,7 +22,7 @@ dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
 anyhow = "1.0"
-cargo_metadata = "0.15"
+cargo_metadata = "0.17"
 
 dylint_testing = { path = "../../../utils/testing" }
 

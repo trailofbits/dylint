@@ -129,7 +129,7 @@ name = "clippy"
 version = "2.1.11"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.15.4",
+ "cargo_metadata 0.17.0",
  "clippy_lints",
  "clippy_utils",
  "dylint",
@@ -291,7 +291,7 @@ version = "2.1.11"
 dependencies = [
  "ansi_term",
  "anyhow",
- "cargo_metadata 0.15.4",
+ "cargo_metadata 0.17.0",
  "dirs",
  "dylint_internal",
  "heck",
@@ -339,7 +339,7 @@ name = "dylint_testing"
 version = "2.1.11"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.15.4",
+ "cargo_metadata 0.17.0",
  "compiletest_rs",
  "dylint",
  "dylint_internal",

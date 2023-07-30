@@ -7,7 +7,7 @@ license = "MIT OR Apache-2.0"
 publish = false
 
 [dev-dependencies]
-cargo_metadata = "0.15"
+cargo_metadata = "0.17"
 toml_edit = "0.19"
 walkdir = "2.3"
 
