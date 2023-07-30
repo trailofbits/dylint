@@ -15,7 +15,7 @@ anyhow = "1.0"
 cargo = { version = "0.71", optional = true }
 cargo-platform = { version = "0.1", optional = true }
 cargo-util = { version = "0.2", optional = true }
-cargo_metadata = "0.15"
+cargo_metadata = "0.17"
 dirs = "5.0"
 glob = { version = "0.3", optional = true }
 heck = "0.4"

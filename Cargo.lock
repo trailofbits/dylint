@@ -334,7 +334,7 @@ version = "2.1.11"
 dependencies = [
  "anyhow",
  "assert_cmd",
- "cargo_metadata 0.15.4",
+ "cargo_metadata",
  "clap",
  "ctor",
  "dylint",
@@ -382,20 +382,6 @@ dependencies = [
  "tempfile",
  "walkdir",
  "windows-sys 0.45.0",
-]
-
-[[package]]
-name = "cargo_metadata"
-version = "0.15.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eee4243f1f26fc7a42710e7439c149e2b10b05472f88090acce52632f231a73a"
-dependencies = [
- "camino",
- "cargo-platform",
- "semver",
- "serde",
- "serde_json",
- "thiserror",
 ]
 
 [[package]]
@@ -776,7 +762,7 @@ dependencies = [
  "cargo",
  "cargo-platform",
  "cargo-util",
- "cargo_metadata 0.15.4",
+ "cargo_metadata",
  "dirs 5.0.1",
  "dylint_internal",
  "env_logger",
@@ -815,7 +801,7 @@ version = "2.1.11"
 dependencies = [
  "ansi_term",
  "anyhow",
- "cargo_metadata 0.17.0",
+ "cargo_metadata",
  "ctor",
  "env_logger",
  "git2",
@@ -835,7 +821,7 @@ name = "dylint_testing"
 version = "2.1.11"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.15.4",
+ "cargo_metadata",
  "compiletest_rs",
  "dylint",
  "dylint_internal",
@@ -946,7 +932,7 @@ dependencies = [
 name = "examples"
 version = "2.1.11"
 dependencies = [
- "cargo_metadata 0.15.4",
+ "cargo_metadata",
  "dylint_internal",
  "toml_edit",
  "walkdir",
