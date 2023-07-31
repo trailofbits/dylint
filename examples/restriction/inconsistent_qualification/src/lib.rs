@@ -1,4 +1,5 @@
 #![feature(rustc_private)]
+#![recursion_limit = "256"]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
@@ -9,10 +10,12 @@ use clippy_utils::diagnostics::span_lint_and_note;
 use if_chain::if_chain;
 use rustc_hir::{
     def::{DefKind, Res},
+    def_id::{DefId, CRATE_DEF_ID},
     intravisit::{walk_item, Visitor},
-    HirId, Item, ItemKind, Node, Path, UseKind,
+    HirId, Item, ItemKind, Node, OwnerNode, Path, PathSegment, UseKind, UsePath,
 };
 use rustc_lint::{LateContext, LateLintPass};
+use rustc_middle::ty::TyCtxt;
 use rustc_span::Symbol;
 
 dylint_linting::declare_late_lint! {
@@ -73,15 +76,13 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
                     ..
                 })
             );
-            if let Some(def_id) = path.segments.iter().rev().find_map(|segment| {
-                if let Res::Def(DefKind::Mod, def_id) = segment.res {
-                    Some(def_id)
-                } else {
-                    None
-                }
-            });
+            if let Some(mod_def_id) = path
+                .segments
+                .iter()
+                .rev()
+                .find_map(|segment| segment.res.mod_def_id());
             then {
-                let syms_prefix = cx.get_def_path(def_id);
+                let syms_mod = cx.get_def_path(mod_def_id);
                 // smoelius: Iterate over all enclosing scopes.
                 let mut current_hir_id = hir_id;
                 loop {
@@ -90,7 +91,7 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
                         cx,
                         enclosing_scope_hir_id,
                         path,
-                        syms_prefix: &syms_prefix,
+                        syms_mod: &syms_mod,
                     };
                     if let Some(enclosing_scope_hir_id) = enclosing_scope_hir_id {
                         let node = cx.tcx.hir().find(enclosing_scope_hir_id).unwrap();
@@ -112,7 +113,7 @@ struct UseVisitor<'cx, 'tcx, 'syms> {
     cx: &'cx LateContext<'tcx>,
     enclosing_scope_hir_id: Option<HirId>,
     path: &'cx Path<'tcx>,
-    syms_prefix: &'syms [Symbol],
+    syms_mod: &'syms [Symbol],
 }
 
 // smoelius: `visit_scope` is based on the source of:
@@ -133,6 +134,11 @@ impl<'cx, 'tcx, 'syms> UseVisitor<'cx, 'tcx, 'syms> {
     }
 }
 
+enum PathMatch<'hir> {
+    Prefix(&'hir [PathSegment<'hir>]),
+    Mod,
+}
+
 impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
     type NestedFilter = rustc_middle::hir::nested_filter::All;
 
@@ -144,41 +150,116 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
         if_chain! {
             if !item.span.from_expansion();
             if self.cx.tcx.hir().get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id;
-            if let ItemKind::Use(path, use_kind) = item.kind;
-            // smoelius: An exception is made for trait imports.
-            if !path
+            if let ItemKind::Use(use_path, use_kind) = item.kind;
+            let local_owner_path = if use_path.res.iter().copied().any(is_local) {
+                let local_def_id = self
+                    .enclosing_scope_hir_id
+                    .and_then(|hir_id| get_owner(self.cx.tcx, hir_id))
+                    .map_or(CRATE_DEF_ID, |owner| owner.def_id().def_id);
+                self.cx.get_def_path(local_def_id.into())
+            } else {
+                Vec::new()
+            };
+            let syms = local_owner_path
+                .into_iter()
+                .chain(use_path.segments.iter().map(|segment| segment.ident.name))
+                .collect::<Vec<_>>();
+            if let Some(path_match) = {
+                match use_kind {
+                    UseKind::Single => {
+                        if let Some(matched_prefix) = match_path_prefix(use_path, self.path) {
+                            Some(PathMatch::Prefix(matched_prefix))
+                        } else if syms[..syms.len() - 1] == *self.syms_mod {
+                            Some(PathMatch::Mod)
+                        } else {
+                            None
+                        }
+                    }
+                    UseKind::Glob => {
+                        if syms == self.syms_mod {
+                            Some(PathMatch::Mod)
+                        } else {
+                            None
+                        }
+                    }
+                    UseKind::ListStem => None,
+                }
+            };
+            let use_path_is_trait = use_path
                 .res
                 .iter()
                 .any(|res| matches!(res, Res::Def(DefKind::Trait, _)));
-            let syms = path
-                .segments
-                .iter()
-                .map(|segment| segment.ident.name)
-                .collect::<Vec<_>>();
-            if match use_kind {
-                UseKind::Single => syms[..syms.len() - 1] == *self.syms_prefix,
-                UseKind::Glob => syms == self.syms_prefix,
-                UseKind::ListStem => false,
-            };
+            // smoelius: If `use_path` corresponds to a trait, then it must match some prefix of
+            // `self.path` exactly for a warning to be emitted.
+            if !use_path_is_trait || matches!(path_match, PathMatch::Prefix(_));
             then {
-                let prefix = self
-                    .syms_prefix
-                    .iter()
-                    .map(Symbol::as_str)
-                    .collect::<Vec<_>>()
-                    .join("::");
+                let (span, msg) = match path_match {
+                    PathMatch::Prefix(matched_prefix) => {
+                        let span = matched_prefix
+                            .first()
+                            .unwrap()
+                            .ident
+                            .span
+                            .with_hi(matched_prefix.last().unwrap().ident.span.hi());
+                        let path = path_to_string(
+                            matched_prefix.iter().map(|segment| &segment.ident.name),
+                        );
+                        (span, format!("`{path}` was imported here"))
+                    }
+                    PathMatch::Mod => {
+                        let path = path_to_string(self.syms_mod);
+                        (
+                            self.path.span,
+                            format!("items from `{path}` were imported here"),
+                        )
+                    }
+                };
                 span_lint_and_note(
                     self.cx,
                     INCONSISTENT_QUALIFICATION,
-                    self.path.span,
+                    span,
                     "inconsistent qualification",
                     Some(item.span),
-                    &format!("items from `{prefix}` were imported here"),
+                    &msg,
                 );
             }
         }
         walk_item(self, item);
     }
+}
+
+fn is_local(res: Res) -> bool {
+    res.opt_def_id().map_or(false, DefId::is_local)
+}
+
+fn get_owner(tcx: TyCtxt<'_>, hir_id: HirId) -> Option<OwnerNode<'_>> {
+    std::iter::once(tcx.hir().get(hir_id))
+        .chain(tcx.hir().parent_iter(hir_id).map(|(_, node)| node))
+        .find_map(Node::as_owner)
+}
+
+fn match_path_prefix<'hir>(
+    use_path: &'hir UsePath<'_>,
+    path: &'hir Path<'hir>,
+) -> Option<&'hir [PathSegment<'hir>]> {
+    // smoelius: `skip(1)` to prevent matching `path`'s first segment.
+    for (i, segment) in path.segments.iter().enumerate().skip(1).rev() {
+        if use_path
+            .res
+            .iter()
+            .any(|res| res.opt_def_id().is_some() && res.opt_def_id() == segment.res.opt_def_id())
+        {
+            return Some(&path.segments[..=i]);
+        }
+    }
+    None
+}
+
+fn path_to_string<'hir>(path: impl IntoIterator<Item = &'hir Symbol>) -> String {
+    path.into_iter()
+        .map(Symbol::as_str)
+        .collect::<Vec<_>>()
+        .join("::")
 }
 
 #[test]

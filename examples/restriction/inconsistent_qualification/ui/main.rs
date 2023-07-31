@@ -72,3 +72,44 @@ mod diesel {
         }
     }
 }
+
+mod local_path_false_negative {
+    use bar::Baz;
+
+    fn foo() -> Baz {
+        bar::Baz::new()
+    }
+
+    mod bar {
+        pub struct Baz;
+
+        impl Baz {
+            pub fn new() -> Self {
+                Self
+            }
+        }
+    }
+}
+
+mod trait_path {
+    use std::borrow::Borrow;
+
+    fn foo<T>(x: &impl Borrow<T>) -> &T {
+        <_ as std::borrow::Borrow<T>>::borrow(x)
+    }
+}
+
+mod relative_module_path {
+    #[allow(unused_imports)]
+    use bar::baz;
+
+    fn foo() {
+        bar::baz::qux()
+    }
+
+    mod bar {
+        pub mod baz {
+            pub fn qux() {}
+        }
+    }
+}
