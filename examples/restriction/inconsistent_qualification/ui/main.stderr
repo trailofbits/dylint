@@ -59,5 +59,41 @@ note: items from `std::env` were imported here
 LL |         use std::env::var_os;
    |         ^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 5 previous errors
+error: inconsistent qualification
+  --> $DIR/main.rs:80:9
+   |
+LL |         bar::Baz::new()
+   |         ^^^^^^^^
+   |
+note: `bar::Baz` was imported here
+  --> $DIR/main.rs:77:5
+   |
+LL |     use bar::Baz;
+   |     ^^^^^^^^^^^^^
+
+error: inconsistent qualification
+  --> $DIR/main.rs:98:15
+   |
+LL |         <_ as std::borrow::Borrow<T>>::borrow(x)
+   |               ^^^^^^^^^^^^^^^^^^^
+   |
+note: `std::borrow::Borrow` was imported here
+  --> $DIR/main.rs:95:5
+   |
+LL |     use std::borrow::Borrow;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: inconsistent qualification
+  --> $DIR/main.rs:107:9
+   |
+LL |         bar::baz::qux()
+   |         ^^^^^^^^
+   |
+note: `bar::baz` was imported here
+  --> $DIR/main.rs:104:5
+   |
+LL |     use bar::baz;
+   |     ^^^^^^^^^^^^^
+
+error: aborting due to 8 previous errors
 
