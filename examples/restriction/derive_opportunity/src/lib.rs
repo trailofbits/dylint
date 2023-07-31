@@ -271,7 +271,7 @@ impl<'tcx> DeriveOpportunity<'tcx> {
 }
 
 fn all_params_are_lifetimes(tcx: ty::TyCtxt<'_>, trait_id: DefId) -> bool {
-    std::iter::once(trait_id)
+    iter::once(trait_id)
         .chain(super_traits_of(tcx, trait_id))
         .all(|trait_id| {
             let generics = tcx.generics_of(trait_id);

@@ -129,7 +129,6 @@ use std::{
 };
 
 pub mod ui;
-use ui::Config;
 
 static DRIVER: OnceCell<PathBuf> = OnceCell::new();
 static LINKING_FLAGS: OnceCell<Vec<String>> = OnceCell::new();
@@ -224,7 +223,7 @@ fn run_example_test(
     metadata: &Metadata,
     package: &Package,
     target: &Target,
-    config: &Config,
+    config: &ui::Config,
 ) -> Result<()> {
     let linking_flags = linking_flags(metadata, package, target)?;
     let file_name = target
@@ -406,7 +405,7 @@ fn copy_with_extension<P: AsRef<Path>, Q: AsRef<Path>>(
 
 static MUTEX: Mutex<()> = Mutex::new(());
 
-fn run_tests(driver: &Path, src_base: &Path, config: &Config) {
+fn run_tests(driver: &Path, src_base: &Path, config: &ui::Config) {
     let _lock = MUTEX.lock().unwrap();
 
     // smoelius: There doesn't seem to be a way to set environment variables using `compiletest`'s
