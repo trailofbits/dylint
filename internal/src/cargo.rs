@@ -41,7 +41,7 @@ pub fn update(description: &str, quiet: bool) -> crate::Command {
 
 fn cargo(subcommand: &str, verb: &str, description: &str, quiet: bool) -> crate::Command {
     if !quiet {
-        // smoelius: Writing directly to `stderr` avoids capture by `libtest`.
+        // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
         let message = format!("{verb} {description}");
         std::io::stderr()
             .write_fmt(format_args!(
