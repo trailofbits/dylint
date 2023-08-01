@@ -50,7 +50,7 @@ pub type ColorizedResult<T> = Result<T, ColorizedError<anyhow::Error>>;
 #[allow(clippy::expect_used)]
 pub fn warn(opts: &crate::Dylint, message: &str) {
     if !opts.quiet {
-        // smoelius: Writing directly to `stderr` avoids capture by `libtest`.
+        // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
         std::io::stderr()
             .write_fmt(format_args!(
                 "{}: {message}\n",
