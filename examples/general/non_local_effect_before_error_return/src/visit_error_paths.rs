@@ -1,11 +1,15 @@
 use clippy_utils::ty::implements_trait;
 use if_chain::if_chain;
+use rustc_abi::VariantIdx;
 use rustc_hir::intravisit::FnKind;
 use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LintContext};
-use rustc_middle::mir::{
-    AggregateKind, BasicBlock, Body, Local, Place, Rvalue, StatementKind, Terminator,
-    TerminatorKind, RETURN_PLACE, START_BLOCK,
+use rustc_middle::{
+    mir::{
+        AggregateKind, BasicBlock, Body, Local, Place, Rvalue, StatementKind, Terminator,
+        TerminatorKind, RETURN_PLACE, START_BLOCK,
+    },
+    ty::{AdtDef, TyCtxt},
 };
 use rustc_span::Span;
 
@@ -47,8 +51,8 @@ pub fn visit_error_paths<'tcx>(
 #[derive(Clone, Debug)]
 struct State {
     local: Option<Local>,
-    possible_variants: BitSet<usize>,
-    confirmed_variant: Option<usize>,
+    possible_variants: BitSet<VariantIdx>,
+    confirmed_variant: Option<VariantIdx>,
     span: Option<Span>,
 }
 
@@ -63,14 +67,14 @@ impl State {
     }
     fn on_error_path(&self) -> bool {
         if let Some(variant) = self.confirmed_variant {
-            // smoelius: The discriminant values of both `Result::Err` and `ControlFlow::Break` are
+            // smoelius: The variant indices of both `Result::Err` and `ControlFlow::Break` are
             // 1. But this check should be made more robust.
-            variant == 1
+            variant == VariantIdx::from_u32(1)
         } else {
             // smoelius: The next condition intentionally ignores `self.local`. Note that if
             // `self.local` is `None`, then the local was removed and not replaced. One can
             // interpret this to mean: the source of the error was found.
-            self.possible_variants.contains(1)
+            self.possible_variants.contains(VariantIdx::from_u32(1))
         }
     }
     fn is_local(&self, local: Local) -> bool {
@@ -88,13 +92,13 @@ impl State {
         assert!(self.local.is_none());
         self.local = Some(local);
     }
-    fn remove_possible_variant(&mut self, variant: usize, span: Span) {
+    fn remove_possible_variant(&mut self, variant: VariantIdx, span: Span) {
         if self.confirmed_variant.is_none() {
             self.possible_variants.remove(variant);
             self.span = self.span.or(Some(span));
         }
     }
-    fn set_confirmed_variant(&mut self, variant: usize, span: Span) {
+    fn set_confirmed_variant(&mut self, variant: VariantIdx, span: Span) {
         if self.possible_variants.contains(variant) {
             // smoelius: Once the variant is confirmed, there is no point in tracking the local.
             self.local = None;
@@ -160,10 +164,7 @@ where
                     variant_index,
                 } => {
                     if state.is_local(place.local) {
-                        state.set_confirmed_variant(
-                            variant_index.as_usize(),
-                            statement.source_info.span,
-                        );
+                        state.set_confirmed_variant(*variant_index, statement.source_info.span);
                     }
                 }
                 StatementKind::Assign(box (assign_place, rvalue)) => {
@@ -224,10 +225,15 @@ where
                             ends_with_discriminant_switch(self.cx, self.mir, predecessor);
                         if state.is_local(rvalue_place.local);
                         then {
+                            let adt_def =
+                                self.mir.local_decls[RETURN_PLACE].ty.ty_adt_def().unwrap();
                             for (value, target) in targets.iter() {
                                 if target != index {
+                                    let variant_idx =
+                                        variant_for_discriminant(self.cx.tcx, adt_def, value)
+                                            .unwrap();
                                     state.remove_possible_variant(
-                                        value as usize,
+                                        variant_idx,
                                         terminator.source_info.span,
                                     );
                                 }
@@ -328,4 +334,14 @@ fn ends_with_discriminant_switch<'tcx>(
             None
         }
     }
+}
+
+fn variant_for_discriminant<'tcx>(
+    tcx: TyCtxt<'tcx>,
+    adt_def: AdtDef<'tcx>,
+    value: u128,
+) -> Option<VariantIdx> {
+    adt_def
+        .discriminants(tcx)
+        .find_map(|(i, discr)| if value == discr.val { Some(i) } else { None })
 }
