@@ -40,9 +40,7 @@ jobs:
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
           cargo install cargo-license
-          # smoelius: Pin `cargo-rdme` to version 1.4.0 until the following issue is resolved:
-          # https://github.com/orium/cargo-rdme/issues/176
-          cargo install cargo-rdme@1.4.0
+          cargo install cargo-rdme
           cargo install cargo-sort
 
       - name: Prettier
