@@ -2,6 +2,7 @@
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
 
+extern crate rustc_abi;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
