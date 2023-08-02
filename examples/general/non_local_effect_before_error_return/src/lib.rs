@@ -125,6 +125,11 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             return;
         }
 
+        // smoelius: Ignore async functions (at least for now).
+        if in_async_function(cx.tcx, body.id().hir_id) {
+            return;
+        }
+
         if !is_result(cx, cx.typeck_results().expr_ty(body.value)) {
             return;
         }
@@ -176,6 +181,15 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             },
         );
     }
+}
+
+fn in_async_function(tcx: ty::TyCtxt<'_>, hir_id: rustc_hir::HirId) -> bool {
+    std::iter::once((hir_id, tcx.hir().get(hir_id)))
+        .chain(tcx.hir().parent_iter(hir_id))
+        .any(|(_, node)| {
+            node.fn_kind()
+                .map_or(false, |fn_kind| fn_kind.asyncness().is_async())
+        })
 }
 
 fn is_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
