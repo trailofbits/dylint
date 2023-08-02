@@ -6,8 +6,8 @@ use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LintContext};
 use rustc_middle::{
     mir::{
-        AggregateKind, BasicBlock, Body, Local, Place, Rvalue, StatementKind, Terminator,
-        TerminatorKind, RETURN_PLACE, START_BLOCK,
+        AggregateKind, BasicBlock, Body, Local, Place, ProjectionElem, Rvalue, StatementKind,
+        Terminator, TerminatorKind, RETURN_PLACE, START_BLOCK,
     },
     ty::{AdtDef, TyCtxt},
 };
@@ -223,6 +223,12 @@ where
                     if_chain! {
                         if let Some(rvalue_place) =
                             ends_with_discriminant_switch(self.cx, self.mir, predecessor);
+                        // smoelius: The next list may need to expand beyond just
+                        // `ProjectionElem::Downcast`.
+                        if !rvalue_place
+                            .projection
+                            .iter()
+                            .any(|elem| matches!(elem, ProjectionElem::Downcast(_, _)));
                         if state.is_local(rvalue_place.local);
                         then {
                             let adt_def =
