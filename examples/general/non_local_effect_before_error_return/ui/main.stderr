@@ -149,5 +149,11 @@ error: call with mutable reference before error return
 LL |         .env("RUST_LOG", "debug")
    |          ^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 13 previous errors
+error: assignment to dereference before error return
+  --> $DIR/main.rs:244:9
+   |
+LL |         *flag = true;
+   |         ^^^^^^^^^^^^
+
+error: aborting due to 14 previous errors
 

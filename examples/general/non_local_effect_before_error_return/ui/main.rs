@@ -213,3 +213,43 @@ fn debug(command: &mut std::process::Command) -> Result<bool, Error> {
         .status()
         .map(|status| status.success())
 }
+
+// smoelius: I don't yet understand what is going on with async functions. But this is the smallest
+// example I have produced that exhibits the false positive.
+mod async_false_positive {
+    use std::{convert::Infallible, sync::Arc};
+
+    async fn deref_assign_before_noop_and_async_arc_consume() -> Result<(), Infallible> {
+        let arc = Arc::new(());
+        noop();
+        async_arc_consume(arc).await?;
+        Ok(())
+    }
+
+    fn noop() {}
+
+    async fn async_arc_consume(_: Arc<()>) -> Result<(), Infallible> {
+        Ok(())
+    }
+}
+
+mod downcast {
+    enum Error {
+        Zero,
+        One,
+        Two,
+    }
+
+    fn deref_assign_before_downcast(flag: &mut bool) -> Result<(), Error> {
+        *flag = true;
+        let result = foo();
+        match result {
+            Err(Error::Two) => Ok(()),
+            _ => result,
+        }
+    }
+
+    fn foo() -> Result<(), Error> {
+        Ok(())
+    }
+}
