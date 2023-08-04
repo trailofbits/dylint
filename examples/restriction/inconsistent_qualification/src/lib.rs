@@ -149,6 +149,8 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
     fn visit_item(&mut self, item: &'tcx Item) {
         if_chain! {
             if !item.span.from_expansion();
+            // smoelius: Ignore underscore imports.
+            if item.ident.name.as_str() != "_";
             if self.cx.tcx.hir().get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id;
             if let ItemKind::Use(use_path, use_kind) = item.kind;
             let local_owner_path = if use_path.res.iter().copied().any(is_local) {

@@ -113,3 +113,21 @@ mod relative_module_path {
         }
     }
 }
+
+mod underscore_import {
+    use baz::Qux as _;
+
+    struct Foo;
+
+    impl baz::Qux for Foo {}
+
+    fn bar() {
+        Foo.qux();
+    }
+
+    mod baz {
+        pub trait Qux {
+            fn qux(&self) {}
+        }
+    }
+}
