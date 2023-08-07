@@ -1610,6 +1610,15 @@
         "name": "Sebastian Thiel"
       }
     ],
+    "gix-fs": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
     "gix-glob": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
@@ -1629,6 +1638,15 @@
       }
     ],
     "gix-hashtable": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
+    "gix-ignore": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
         "id": 980,
@@ -1781,6 +1799,15 @@
         "name": "Sebastian Thiel"
       }
     ],
+    "gix-trace": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
     "gix-transport": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
@@ -1800,6 +1827,15 @@
       }
     ],
     "gix-url": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
+    "gix-utils": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
         "id": 980,
@@ -2107,15 +2143,6 @@
         "name": "Josh Stone"
       }
     ],
-    "instant": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/1734958?v=4",
-        "id": 86,
-        "kind": "user",
-        "login": "sebcrozet",
-        "name": "Sébastien Crozet"
-      }
-    ],
     "io-close": [
       {
         "avatar": "https://avatars1.githubusercontent.com/u/34943028?v=4",
@@ -2205,6 +2232,15 @@
         "kind": "team",
         "login": "github:rustwasm:core",
         "name": "core"
+      }
+    ],
+    "kstring": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/60961?v=4",
+        "id": 6743,
+        "kind": "user",
+        "login": "epage",
+        "name": "Ed Page"
       }
     ],
     "lazy_static": [
@@ -2545,22 +2581,6 @@
         "kind": "user",
         "login": "yoshuawuyts",
         "name": "Yosh"
-      }
-    ],
-    "nix": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/6180?v=4",
-        "id": 10,
-        "kind": "user",
-        "login": "carllerche",
-        "name": "Carl Lerche"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/17190941?v=3",
-        "id": 32,
-        "kind": "team",
-        "login": "github:nix-rust:nix-maintainers",
-        "name": "nix-maintainers"
       }
     ],
     "nom": [
@@ -3189,15 +3209,6 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
-      }
-    ],
-    "rustc-workspace-hack": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
       }
     ],
     "rustfix": [

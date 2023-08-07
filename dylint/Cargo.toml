@@ -12,7 +12,7 @@ rust-version = "1.64"
 ansi_term = "0.12"
 anyhow = "1.0"
 # smoelius: The `cargo` dependency should be kept in sync with dylint/src/toml.rs.
-cargo = { version = "0.71", optional = true }
+cargo = { version = "0.72", optional = true }
 cargo-platform = { version = "0.1", optional = true }
 cargo-util = { version = "0.2", optional = true }
 cargo_metadata = "0.17"
