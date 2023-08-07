@@ -1,6 +1,6 @@
 [package]
 name = "non_thread_safe_call_in_test"
-version = "2.1.11"
+version = "2.1.12"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for non-thread-safe function calls in tests"
 edition = "2021"
