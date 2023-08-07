@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.12
+
+- Update `cargo` to version 0.72.1 ([#786](https://github.com/trailofbits/dylint/pull/786))
+
 ## 2.1.11
 
 - Address [rust-lang/rust#112692](https://github.com/rust-lang/rust/pull/112692) ([f4094c8](https://github.com/trailofbits/dylint/commit/f4094c82229ea79a764e9dbf644e28feb8997dd1))
