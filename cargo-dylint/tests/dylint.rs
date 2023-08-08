@@ -86,6 +86,10 @@ fn requirements_do_not_include_patch_versions() {
                 if dep.starts_with("dylint") {
                     continue;
                 }
+                // smoelius: Work around: https://github.com/luser/strip-ansi-escapes/issues/17
+                if dep == "strip-ansi-escapes" {
+                    continue;
+                }
                 assert!(
                     req.comparators
                         .iter()
