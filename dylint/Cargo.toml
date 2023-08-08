@@ -30,6 +30,9 @@ tempfile = "3.7"
 toml = { version = "0.7", optional = true }
 walkdir = "2.3"
 
+# smoelius: Work around: https://github.com/luser/strip-ansi-escapes/issues/17
+strip-ansi-escapes = "=0.1.1"
+
 dylint_internal = { version = "=2.1.12", path = "../internal", features = ["git", "packaging", "rustup", "sed"] }
 
 [build-dependencies]
