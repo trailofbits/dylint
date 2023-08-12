@@ -51,6 +51,10 @@ for EXAMPLE in */* ../internal/template; do
         continue
     fi
 
+    if [[ "$(basename "$EXAMPLE")" = '.cargo' || "$(basename "$EXAMPLE")" = 'src' ]]; then
+        continue
+    fi
+
     pushd "$EXAMPLE" >/dev/null
 
     (

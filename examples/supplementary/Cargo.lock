@@ -715,6 +715,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "redundant_reference"
+version = "2.1.12"
+dependencies = [
+ "clippy_utils",
+ "dylint_linting",
+ "dylint_testing",
+ "if_chain",
+ "serde",
+]
+
+[[package]]
 name = "regex"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -900,6 +911,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "supplementary"
+version = "2.1.12"
+dependencies = [
+ "commented_code",
+ "dylint_linting",
+ "redundant_reference",
+ "unnamed_constant",
+ "unnecessary_borrow_mut",
+ "unnecessary_conversion_for_trait",
+]
+
+[[package]]
 name = "syn"
 version = "2.0.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1057,6 +1080,40 @@ name = "unicode-width"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
+
+[[package]]
+name = "unnamed_constant"
+version = "2.1.12"
+dependencies = [
+ "clippy_utils",
+ "dylint_linting",
+ "dylint_testing",
+ "if_chain",
+ "serde",
+]
+
+[[package]]
+name = "unnecessary_borrow_mut"
+version = "2.1.12"
+dependencies = [
+ "clippy_utils",
+ "dylint_internal",
+ "dylint_linting",
+ "dylint_testing",
+ "if_chain",
+]
+
+[[package]]
+name = "unnecessary_conversion_for_trait"
+version = "2.1.12"
+dependencies = [
+ "clippy_utils",
+ "dylint_internal",
+ "dylint_linting",
+ "dylint_testing",
+ "if_chain",
+ "tempfile",
+]
 
 [[package]]
 name = "url"

@@ -24,6 +24,4 @@ rustc_private = true
 [workspace]
 
 [workspace.metadata.dylint]
-libraries = [
-    { path = "../../*/*" },
-]
+libraries = []

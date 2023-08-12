@@ -23,6 +23,9 @@ toml = "0.7"
 [dev-dependencies]
 assert_cmd = "2.0"
 
+[features]
+constituent = []
+
 [package.metadata.docs.rs]
 rustc-args = ["--cfg", "docsrs"]
 
@@ -33,5 +36,8 @@ rustc_private = true
 
 [workspace.metadata.dylint]
 libraries = [
-    { path = "../../examples/*/*" },
+    { path = "../../examples/general" },
+    { path = "../../examples/supplementary" },
+    { path = "../../examples/testing/clippy" },
+    { path = "../../examples/restriction/*" },
 ]

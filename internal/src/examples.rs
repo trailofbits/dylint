@@ -1,5 +1,5 @@
 use crate::rustup::SanitizeEnvironment;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
@@ -11,7 +11,7 @@ pub fn build() -> Result<()> {
         .current_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("../dylint-link"))
         .success()?;
 
-    for example in iter()? {
+    for example in iter(true)? {
         let example = example?;
         let file_name = example
             .file_name()
@@ -25,7 +25,7 @@ pub fn build() -> Result<()> {
     Ok(())
 }
 
-pub fn iter() -> Result<impl Iterator<Item = Result<PathBuf>>> {
+pub fn iter(workspace: bool) -> Result<impl Iterator<Item = Result<PathBuf>>> {
     #[allow(unknown_lints, env_cargo_path)]
     let examples = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
     let iter = WalkDir::new(examples)
@@ -35,11 +35,26 @@ pub fn iter() -> Result<impl Iterator<Item = Result<PathBuf>>> {
         .map(move |entry| -> Result<Option<PathBuf>> {
             let entry = entry?;
             let path = entry.path();
-            Ok(if entry.depth() >= 2 && path.is_dir() {
-                Some(path.to_path_buf())
-            } else {
-                None
-            })
+            let rust_toolchain_path = path.join("rust-toolchain");
+            let cargo_toml_path = path.join("Cargo.toml");
+            if entry.depth() < 1 || !path.is_dir() {
+                return Ok(None);
+            }
+            if workspace
+                && rust_toolchain_path.try_exists().with_context(|| {
+                    format!("Could not determine whether {rust_toolchain_path:?} exists")
+                })?
+            {
+                return Ok(Some(path.to_path_buf()));
+            }
+            if !workspace
+                && cargo_toml_path.try_exists().with_context(|| {
+                    format!("Could not determine whether {cargo_toml_path:?} exists")
+                })?
+            {
+                return Ok(Some(path.to_path_buf()));
+            }
+            Ok(None)
         })
         .filter_map(Result::transpose))
 }

@@ -16,5 +16,8 @@ resolver = "2"
 
 [workspace.metadata.dylint]
 libraries = [
-    { path = "examples/*/*" },
+    { path = "examples/general" },
+    { path = "examples/supplementary" },
+    { path = "examples/testing/clippy" },
+    { path = "examples/restriction/*" },
 ]

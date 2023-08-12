@@ -145,9 +145,6 @@ mod test {
                 command.args(["--no-build"]);
             }
             command.args(["--", "--examples"]);
-            if example_rustflags.is_some() {
-                command.args(["--no-default-features"]);
-            }
             command.assert()
         };
 

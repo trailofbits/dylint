@@ -918,6 +918,7 @@ dependencies = [
 name = "examples"
 version = "2.1.12"
 dependencies = [
+ "cargo-util",
  "cargo_metadata",
  "dylint_internal",
  "toml_edit",
