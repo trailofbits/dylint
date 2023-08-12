@@ -1,0 +1,39 @@
+[package]
+name = "supplementary"
+version = "2.1.12"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "Supplementary lints"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+commented_code = { path = "commented_code", features = ["rlib"] }
+redundant_reference = { path = "redundant_reference", features = ["rlib"] }
+unnamed_constant = { path = "unnamed_constant", features = ["rlib"] }
+unnecessary_borrow_mut = { path = "unnecessary_borrow_mut", features = ["rlib"] }
+unnecessary_conversion_for_trait = { path = "unnecessary_conversion_for_trait", features = ["rlib"] }
+
+dylint_linting = { path = "../../utils/linting" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+members = [
+    "commented_code",
+    "redundant_reference",
+    "unnamed_constant",
+    "unnecessary_borrow_mut",
+    "unnecessary_conversion_for_trait",
+]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../general" },
+    { path = "../supplementary" },
+    { path = "../testing/clippy" },
+    { path = "../restriction/*" },
+]

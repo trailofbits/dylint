@@ -10,7 +10,7 @@ mod test {
 
     #[test]
     fn examples() {
-        for path in iter().unwrap() {
+        for path in iter(false).unwrap() {
             let path = path.unwrap();
             let file_name = path.file_name().unwrap();
             dylint_internal::cargo::test(
@@ -26,7 +26,7 @@ mod test {
 
     #[test]
     fn examples_have_same_version_as_workspace() {
-        for path in iter().unwrap() {
+        for path in iter(false).unwrap() {
             let path = path.unwrap();
             let metadata = MetadataCommand::new()
                 .current_dir(path)
@@ -39,15 +39,35 @@ mod test {
     }
 
     #[test]
-    fn examples_have_identical_cargo_configs() {
+    fn examples_have_equivalent_cargo_configs() {
         let mut prev = None;
-        for path in iter().unwrap() {
+        for path in iter(true).unwrap() {
             let path = path.unwrap();
             if path.file_name() == Some(OsStr::new("straggler")) {
                 continue;
             }
             let config_toml = path.join(".cargo/config.toml");
-            let curr = read_to_string(config_toml).unwrap();
+            let contents = read_to_string(config_toml).unwrap();
+            let mut document = contents.parse::<Document>().unwrap();
+            // smoelius: Hack. `build.target-dir` is expected to be a relative path. Replace it with
+            // an absolute one. However, the directory might not exist when this test is run. So use
+            // `cargo_util::cargo_util::paths::normalize_path` rather than `Path::canonicalize`.
+            document
+                .as_table_mut()
+                .get_mut("build")
+                .and_then(Item::as_table_mut)
+                .and_then(|table| table.get_mut("target-dir"))
+                .and_then(Item::as_value_mut)
+                .and_then(|value| {
+                    let target_dir = value.as_str()?;
+                    *value = cargo_util::paths::normalize_path(&path.join(target_dir))
+                        .to_string_lossy()
+                        .as_ref()
+                        .into();
+                    Some(())
+                })
+                .unwrap();
+            let curr = document.to_string();
             if let Some(prev) = &prev {
                 assert_eq!(*prev, curr);
             } else {
@@ -59,7 +79,7 @@ mod test {
     #[test]
     fn examples_use_same_toolchain_channel() {
         let mut prev = None;
-        for path in iter().unwrap() {
+        for path in iter(true).unwrap() {
             let path = path.unwrap();
             if path.file_name() == Some(OsStr::new("straggler")) {
                 continue;
@@ -75,7 +95,7 @@ mod test {
 
     #[test]
     fn examples_do_not_require_rust_src() {
-        for path in iter().unwrap() {
+        for path in iter(true).unwrap() {
             let path = path.unwrap();
 
             let contents = read_to_string(path.join("rust-toolchain")).unwrap();

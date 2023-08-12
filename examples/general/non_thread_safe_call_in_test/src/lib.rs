@@ -2,6 +2,7 @@
 #![recursion_limit = "256"]
 #![warn(unused_extern_crates)]
 
+#[cfg(not(feature = "rlib"))]
 dylint_linting::dylint_library!();
 
 extern crate rustc_ast;
@@ -16,7 +17,7 @@ mod late;
 mod pre_expansion;
 
 #[allow(clippy::no_mangle_with_rust_abi)]
-#[no_mangle]
+#[cfg_attr(not(feature = "rlib"), no_mangle)]
 pub fn register_lints(_sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
     lint_store.register_lints(&[pre_expansion::NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXPANSION]);
     lint_store

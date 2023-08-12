@@ -35,5 +35,8 @@ rustc_private = true
 
 [workspace.metadata.dylint]
 libraries = [
-    { path = "../../*/*" },
+    { path = "../../general" },
+    { path = "../../supplementary" },
+    { path = "../../testing/clippy" },
+    { path = "../../restriction/*" },
 ]

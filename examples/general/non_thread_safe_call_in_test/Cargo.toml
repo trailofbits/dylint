@@ -7,7 +7,7 @@ edition = "2021"
 publish = false
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [[example]]
 name = "interprocedural"
@@ -31,12 +31,8 @@ dylint_linting = { path = "../../../utils/linting" }
 [dev-dependencies]
 dylint_testing = { path = "../../../utils/testing" }
 
+[features]
+rlib = ["dylint_linting/constituent"]
+
 [package.metadata.rust-analyzer]
 rustc_private = true
-
-[workspace]
-
-[workspace.metadata.dylint]
-libraries = [
-    { path = "../../*/*" },
-]

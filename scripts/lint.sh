@@ -18,13 +18,10 @@ cd "$WORKSPACE"
 cargo build -p cargo-dylint
 CARGO_DYLINT="$PWD/target/debug/cargo-dylint"
 
-EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d)"
+EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d ! -name .cargo ! -name src)"
 
-# smoelius: Remove `straggler`, as it is used only for testing purposes. Also, it uses a different
-# toolchain than the other examples.
+# smoelius: Remove `straggler`, as it uses a different toolchain than the other examples.
 EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:space:]]*,,')"
-
-DIRS=". driver utils/linting $EXAMPLE_DIRS"
 
 EXAMPLES="$(echo "$EXAMPLE_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 
@@ -32,20 +29,29 @@ EXAMPLES="$(echo "$EXAMPLE_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 # complains about the clippy-specific flags.
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<clippy\>[[:space:]]*//')"
 
+RESTRICTION_DIRS="$(echo examples/restriction/*)"
+RESTRICTIONS="$(echo "$RESTRICTION_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
+
 # smoelius: `overscoped_allow` must be run after other lints have been run. (See its documentation.)
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<overscoped_allow\>[[:space:]]*//')"
+RESTRICTIONS="$(echo "$RESTRICTIONS" | sed 's/\<overscoped_allow\>[[:space:]]*//')"
 
 # smoelius: `derive_opportunity` and `missing_doc_comment_openai` aren't ready for primetime yet.
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<derive_opportunity\>[[:space:]]*//')"
-EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<missing_doc_comment_openai\>[[:space:]]*//')"
+RESTRICTIONS="$(echo "$RESTRICTIONS" | sed 's/\<derive_opportunity\>[[:space:]]*//')"
 
-EXAMPLES_AS_FLAGS="$(echo "$EXAMPLES" | sed 's/\<[^[:space:]]\+\>/--lib &/g')"
+EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<missing_doc_comment_openai\>[[:space:]]*//')"
+RESTRICTIONS="$(echo "$RESTRICTIONS" | sed 's/\<missing_doc_comment_openai\>[[:space:]]*//')"
+
+RESTRICTIONS_AS_FLAGS="$(echo "$RESTRICTIONS" | sed 's/\<[^[:space:]]\+\>/--lib &/g')"
+
+DIRS=". driver utils/linting examples/general examples/supplementary examples/testing/clippy $RESTRICTION_DIRS"
 
 force_check() {
     find "$WORKSPACE"/target -name .fingerprint -path '*/dylint/target/nightly-*' -exec rm -r {} \; || true
 }
 
-for FLAGS in "$EXAMPLES_AS_FLAGS" '--lib clippy'; do
+for FLAGS in "--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS" '--lib clippy'; do
     # smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
     # smoelius: The commented command doesn't do anything now that all workspaces in the
     # repository share a top-level target directory. Is the command still necessary?
@@ -66,6 +72,7 @@ for FLAGS in "$EXAMPLES_AS_FLAGS" '--lib clippy'; do
         "
     fi
     export DYLINT_RUSTFLAGS
+    echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
 
     # smoelius: `--all-targets` cannot be used here. It would cause the command to fail on the
     # lint examples.
@@ -82,9 +89,10 @@ for FLAGS in "$EXAMPLES_AS_FLAGS" '--lib clippy'; do
     # smoelius: For `overscoped_allow`.
     DYLINT_RUSTFLAGS="$(echo "$DYLINT_RUSTFLAGS" | sed 's/-D warnings\>//g;s/-W\>/--force-warn/g')"
     if [[ "$FLAGS" != '--lib clippy' ]]; then
-        DYLINT_RUSTFLAGS="$DYLINT_RUSTFLAGS $(echo "$FLAGS" | sed 's/--lib\>/--force-warn/g')"
+        DYLINT_RUSTFLAGS="$DYLINT_RUSTFLAGS $(echo "$EXAMPLES" | sed 's/\<[^[:space:]]\+\>/--force-warn &/g')"
     fi
     export DYLINT_RUSTFLAGS
+    echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
 
     find . -name warnings.json -delete
 
@@ -98,9 +106,10 @@ for FLAGS in "$EXAMPLES_AS_FLAGS" '--lib clippy'; do
 
     DYLINT_RUSTFLAGS='-D warnings'
     export DYLINT_RUSTFLAGS
+    echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
 
     # smoelius: All libraries must be named to enable their respective `cfg_attr`.
-    COMMAND="$CARGO_DYLINT dylint $EXAMPLES_AS_FLAGS --lib overscoped_allow -- --all-features --tests"
+    COMMAND="$CARGO_DYLINT dylint $FLAGS --lib overscoped_allow -- --all-features --tests"
 
     for DIR in $DIRS; do
         pushd "$DIR"

@@ -143,6 +143,9 @@ jobs:
               if [[ ! -d "$X" ]]; then
                 continue
               fi
+              if [[ "$(basename "$X")" = '.cargo' || "$(basename "$X")" = 'src' ]]; then
+                  continue
+              fi
               pushd "$X"
               sed -i.bak 's/"cdylib"/"lib"/g' Cargo.toml
               cargo test --doc

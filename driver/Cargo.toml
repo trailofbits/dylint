@@ -21,5 +21,8 @@ dylint_internal = { version = "=2.1.12", path = "../internal", features = ["rust
 
 [workspace.metadata.dylint]
 libraries = [
-    { path = "../examples/*/*" },
+    { path = "../examples/general" },
+    { path = "../examples/supplementary" },
+    { path = "../examples/testing/clippy" },
+    { path = "../examples/restriction/*" },
 ]

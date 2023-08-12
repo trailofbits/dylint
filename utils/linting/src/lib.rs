@@ -204,21 +204,59 @@ macro_rules! dylint_library {
     };
 }
 
+#[cfg(not(feature = "constituent"))]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __maybe_exclude {
+    ($item:item) => {
+        $item
+    };
+}
+
+#[cfg(feature = "constituent")]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __maybe_exclude {
+    ($item:item) => {};
+}
+
+#[cfg(not(feature = "constituent"))]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __maybe_mangle {
+    ($item:item) => {
+        #[no_mangle]
+        $item
+    };
+}
+
+#[cfg(feature = "constituent")]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __maybe_mangle {
+    ($item:item) => {
+        $item
+    };
+}
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __declare_and_register_lint {
     ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $register_pass_method:ident, $pass:expr) => {
-        $crate::dylint_library!();
+        $crate::__maybe_exclude! {
+            $crate::dylint_library!();
+        }
 
         extern crate rustc_lint;
         extern crate rustc_session;
 
-        #[allow(clippy::no_mangle_with_rust_abi)]
-        #[no_mangle]
-        pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
-            $crate::init_config(sess);
-            lint_store.register_lints(&[$NAME]);
-            lint_store.$register_pass_method($pass);
+        $crate::__maybe_mangle! {
+            #[allow(clippy::no_mangle_with_rust_abi)]
+            pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
+                $crate::init_config(sess);
+                lint_store.register_lints(&[$NAME]);
+                lint_store.$register_pass_method($pass);
+            }
         }
 
         rustc_session::declare_lint!($(#[$attr])* $vis $NAME, $Level, $desc);
