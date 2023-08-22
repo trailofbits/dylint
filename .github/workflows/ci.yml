@@ -21,8 +21,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.dylint_drivers/
+            ~/.rustup/toolchains/
+          key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
+
       - name: Install dylint-link
-        run: cargo install --path ./dylint-link
+        run: cargo install --path ./dylint-link --force
 
       - name: Actionlint
         run: |
@@ -39,9 +50,9 @@ jobs:
           rm -f "$HOME"/.cargo/bin/rustfmt
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
-          cargo install cargo-license
-          cargo install cargo-rdme
-          cargo install cargo-sort
+          cargo install cargo-license || true
+          cargo install cargo-rdme    || true
+          cargo install cargo-sort    || true
 
       - name: Prettier
         run: ./scripts/check_prettier.sh
@@ -95,6 +106,10 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
             ~/.dylint_drivers/
             ~/.rustup/toolchains/
           key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
@@ -103,13 +118,13 @@ jobs:
         run: rustup update
 
       - name: Install dylint-link
-        run: cargo install --path ./dylint-link
+        run: cargo install --path ./dylint-link --force
 
       # smoelius: This list will grow: https://github.com/trailofbits/dylint/issues/636
-      - name: Install dependencies
+      - name: Install tools
         run: |
-          cargo install cargo-hack
-          cargo install cargo-supply-chain
+          cargo install cargo-hack         || true
+          cargo install cargo-supply-chain || true
 
       - name: Free up space on Ubuntu
         if: ${{ matrix.environment == 'ubuntu-latest' }}
