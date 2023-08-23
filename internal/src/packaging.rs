@@ -117,6 +117,10 @@ mod test {
     use std::fs::read_to_string;
     use toml_edit::{Document, Item};
 
+    #[cfg_attr(
+        dylint_lib = "assert_eq_arg_misordering",
+        allow(assert_eq_arg_misordering)
+    )]
     #[test]
     fn template_includes_only_whitelisted_paths() {
         const PATHS: [&str; 8] = [
@@ -154,6 +158,6 @@ mod test {
             .and_then(|table| table.get("version"))
             .and_then(Item::as_str)
             .unwrap();
-        assert_eq!(version, "0.1.0");
+        assert_eq!("0.1.0", version);
     }
 }

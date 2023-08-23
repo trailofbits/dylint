@@ -3,14 +3,14 @@
 use std::env::var;
 
 fn main() {
-    assert_eq!(var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
+    assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
 }
 
 mod module {
     use std::env::var;
 
     fn foo() {
-        assert_eq!(var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
+        assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
     }
 }
 
@@ -18,7 +18,7 @@ mod use_self {
     use std::env::{self, var};
 
     fn foo() {
-        assert_eq!(var("LD_PRELOAD"), Err(env::VarError::NotPresent));
+        assert_eq!(Err(env::VarError::NotPresent), var("LD_PRELOAD"));
     }
 }
 
@@ -26,7 +26,7 @@ mod use_glob {
     use std::env::*;
 
     fn foo() {
-        assert_eq!(var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
+        assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
     }
 }
 
@@ -36,8 +36,8 @@ mod nested_scopes {
     fn foo() {
         use std::env::var_os;
 
-        assert_eq!(var("LD_PRELOAD"), Err(std::env::VarError::NotPresent));
-        assert_eq!(var_os("LD_PRELOAD"), None);
+        assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
+        assert_eq!(None, var_os("LD_PRELOAD"));
     }
 }
 
@@ -45,7 +45,7 @@ mod use_mod {
     use std::env;
 
     fn foo() {
-        assert_eq!(env::var("LD_PRELOAD"), Err(env::VarError::NotPresent));
+        assert_eq!(Err(env::VarError::NotPresent), env::var("LD_PRELOAD"));
     }
 }
 
