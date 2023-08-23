@@ -1,5 +1,5 @@
 #![allow(deprecated)]
-#![cfg_attr(dylint_lib = "crate_wide_allow", allow(crate_wide_allow))]
+#![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![deny(clippy::expect_used)]
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
@@ -577,10 +577,7 @@ mod test {
         NameToolchainMap::new(&OPTS)
     }
 
-    #[cfg_attr(
-        dylint_lib = "non_thread_safe_call_in_test",
-        allow(non_thread_safe_call_in_test)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn multiple_libraries_multiple_toolchains() {
         let _lock = MUTEX.lock().unwrap();
@@ -626,10 +623,7 @@ mod test {
     //
     //   https://bugzilla.redhat.com/show_bug.cgi?id=1722181
     //
-    #[cfg_attr(
-        dylint_lib = "non_thread_safe_call_in_test",
-        allow(non_thread_safe_call_in_test)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn multiple_libraries_one_toolchain() {
         let _lock = MUTEX.lock().unwrap();

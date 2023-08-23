@@ -478,10 +478,7 @@ mod test {
 
     static MUTEX: Mutex<()> = Mutex::new(());
 
-    #[cfg_attr(
-        dylint_lib = "non_thread_safe_call_in_test",
-        allow(non_thread_safe_call_in_test)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn ui_general() {
         let _lock = MUTEX.lock().unwrap();
@@ -514,10 +511,7 @@ mod test {
         );
     }
 
-    #[cfg_attr(
-        dylint_lib = "non_thread_safe_call_in_test",
-        allow(non_thread_safe_call_in_test)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn ui_test() {
         let _lock = MUTEX.lock().unwrap();

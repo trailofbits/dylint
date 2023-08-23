@@ -55,10 +55,7 @@ impl Command {
         self
     }
 
-    #[cfg_attr(
-        dylint_lib = "non_local_effect_before_error_return",
-        allow(non_local_effect_before_error_return)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
     #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
     pub fn output(&mut self) -> Result<Output> {
         log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());
@@ -83,10 +80,7 @@ impl Command {
 
     // smoelius: Why not get the status by calling `self.output()`? Because we don't want stdout and
     // stderr to be captured.
-    #[cfg_attr(
-        dylint_lib = "non_local_effect_before_error_return",
-        allow(non_local_effect_before_error_return)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
     #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
     pub fn success(&mut self) -> Result<()> {
         log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());

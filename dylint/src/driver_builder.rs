@@ -136,7 +136,7 @@ fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<b
     })
 }
 
-#[cfg_attr(dylint_lib = "commented_code", allow(commented_code))]
+#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
 fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
     let package = tempdir.path();
@@ -174,10 +174,7 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         .target_directory
         .join("debug")
         .join(format!("dylint_driver-{toolchain}{}", consts::EXE_SUFFIX));
-    #[cfg_attr(
-        dylint_lib = "non_thread_safe_call_in_test",
-        allow(non_thread_safe_call_in_test)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     copy(&binary, driver).with_context(|| {
         format!(
             "Could not copy `{binary}` to `{}`",
@@ -189,10 +186,7 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
 }
 
 // smoelius: `package` is a temporary directory. So there should be no race here.
-#[cfg_attr(
-    dylint_lib = "non_thread_safe_call_in_test",
-    allow(non_thread_safe_call_in_test)
-)]
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 fn initialize(toolchain: &str, package: &Path) -> Result<()> {
     let version_spec = format!("version = \"={}\"", env!("CARGO_PKG_VERSION"));
 
@@ -229,10 +223,7 @@ mod test {
     use super::*;
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.
-    #[cfg_attr(
-        dylint_lib = "non_thread_safe_call_in_test",
-        allow(non_thread_safe_call_in_test)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn nightly() {
         let tempdir = tempdir().unwrap();
