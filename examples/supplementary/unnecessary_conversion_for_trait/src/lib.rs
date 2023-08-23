@@ -2,7 +2,7 @@
 #![feature(let_chains)]
 #![recursion_limit = "256"]
 #![allow(clippy::items_after_test_module)]
-#![cfg_attr(dylint_lib = "crate_wide_allow", allow(crate_wide_allow))]
+#![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_data_structures;
@@ -368,10 +368,7 @@ mod test {
 
     static MUTEX: Mutex<()> = Mutex::new(());
 
-    #[cfg_attr(
-        dylint_lib = "non_thread_safe_call_in_test",
-        allow(non_thread_safe_call_in_test)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn general() {
         let _lock = MUTEX.lock().unwrap();
@@ -404,10 +401,7 @@ mod test {
         assert_eq!(combined_watchlist.len(), coverage_lines.len());
     }
 
-    #[cfg_attr(
-        dylint_lib = "non_thread_safe_call_in_test",
-        allow(non_thread_safe_call_in_test)
-    )]
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn check_inherents() {
         let _lock = MUTEX.lock().unwrap();

@@ -4,7 +4,7 @@ use dylint_internal::{clone, env};
 use std::{env::set_var, path::Path};
 use tempfile::{tempdir, tempdir_in};
 
-#[cfg_attr(dylint_lib = "commented_code", allow(commented_code))]
+#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
 #[test]
 fn ui() {
     // smoelius: Try to order failures by how informative they are: failure to build the library,

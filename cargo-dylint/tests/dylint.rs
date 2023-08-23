@@ -272,10 +272,7 @@ fn markdown_link_check() {
 }
 
 // smoelius: `supply_chain` is the only test that uses `supply_chain.json`. So there is no race.
-#[cfg_attr(
-    dylint_lib = "non_thread_safe_call_in_test",
-    allow(non_thread_safe_call_in_test)
-)]
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 #[test]
 fn supply_chain() {

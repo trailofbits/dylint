@@ -271,7 +271,7 @@ fn ui() {
     );
 }
 
-#[cfg_attr(dylint_lib = "commented_code", allow(commented_code))]
+#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
 #[test]
 fn ui_no_lifetime_check() {
     // smoelius: For some reason, the diagnostic messages are printed in a different order on Linux

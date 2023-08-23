@@ -1,6 +1,6 @@
 #![feature(rustc_private)]
 #![allow(unused_imports)]
-#![cfg_attr(dylint_lib = "crate_wide_allow", allow(crate_wide_allow))]
+#![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![cfg_attr(
     dylint_lib = "inconsistent_qualification",
     allow(inconsistent_qualification)
