@@ -28,8 +28,8 @@ fn initialize() {
 fn versions_are_equal() {
     for package in &METADATA.packages {
         assert_eq!(
-            package.version.to_string(),
             env!("CARGO_PKG_VERSION"),
+            package.version.to_string(),
             "{}",
             package.name
         );
@@ -45,7 +45,7 @@ fn nightly_crates_have_same_version_as_workspace() {
             .exec()
             .unwrap();
         let package = metadata.root_package().unwrap();
-        assert_eq!(package.version.to_string(), env!("CARGO_PKG_VERSION"));
+        assert_eq!(env!("CARGO_PKG_VERSION"), package.version.to_string());
     }
 }
 
