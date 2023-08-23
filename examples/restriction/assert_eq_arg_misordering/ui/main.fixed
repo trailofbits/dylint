@@ -1,0 +1,29 @@
+// run-rustfix
+#![allow(dead_code)]
+
+fn main() {}
+
+const CONST_WITH_A_REALLY_LONG_NAME: u32 = 0;
+
+fn non_const_const(x: u32) {
+    assert_eq!(0, x);
+}
+
+fn non_const_const_multiline(variable_with_a_really_long_name: u32) {
+    assert_eq!(
+        CONST_WITH_A_REALLY_LONG_NAME,
+        variable_with_a_really_long_name
+    );
+}
+
+fn non_const_const_with_message(x: u32) {
+    assert_eq!(0, x, "this is a message (with parens)");
+}
+
+fn const_const() {
+    assert_eq!(0, 0);
+}
+
+fn non_const_non_const(x: u32, y: u32) {
+    assert_eq!(x, y);
+}
