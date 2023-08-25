@@ -225,7 +225,10 @@ fn library_package(
         .into_iter()
         .map(|path| {
             if path.is_dir() {
-                let package = package_with_root(&path)?;
+                // smoelius: Ignore subdirectories that do not contain packages.
+                let Ok(package) = package_with_root(&path) else {
+                    return Ok(None);
+                };
                 let package_id = package_id(&package, dep.source_id())?;
                 let lib_name = package_library_name(&package)?;
                 let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
