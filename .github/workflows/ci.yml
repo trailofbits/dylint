@@ -1,10 +1,8 @@
 name: CI
 
 on:
+  merge_group:
   pull_request:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 concurrency:
@@ -19,6 +17,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Log github refs
+        run: |
+          {
+            echo '```'
+            echo 'github.sha: ${{ github.sha }}'
+            echo 'github.ref: ${{ github.ref }}'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - uses: actions/checkout@v3
 
       - uses: actions/cache@v3
