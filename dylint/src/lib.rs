@@ -83,6 +83,8 @@ pub struct Dylint {
 
     pub no_build: bool,
 
+    pub no_deps: bool,
+
     pub no_metadata: bool,
 
     pub packages: Vec<String>,
@@ -499,6 +501,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
                     clippy_disable_docs_links.as_str(),
                 ),
                 (env::DYLINT_LIBS, &dylint_libs),
+                (env::DYLINT_NO_DEPS, if opts.no_deps { "1" } else { "0" }),
                 (env::RUSTC_WORKSPACE_WRAPPER, &*driver.to_string_lossy()),
                 (env::RUSTUP_TOOLCHAIN, toolchain),
             ])
