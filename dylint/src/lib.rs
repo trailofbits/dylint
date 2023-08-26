@@ -18,6 +18,8 @@ use std::{
     path::{Path, PathBuf, MAIN_SEPARATOR},
 };
 
+type Object = serde_json::Map<String, serde_json::Value>;
+
 #[cfg(feature = "metadata")]
 pub(crate) use cargo::{core, sources, util};
 
@@ -467,6 +469,14 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         let target_dir_str = target_dir.to_string_lossy();
         let driver = driver_builder::get(opts, toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
+        #[cfg(not(feature = "metadata"))]
+        let dylint_metadata = None;
+        #[cfg(feature = "metadata")]
+        let dylint_metadata = metadata::dylint_metadata(opts)?;
+        let dylint_metadata_str = dylint_metadata
+            .map(|object: &Object| serde_json::Value::from(object.clone()))
+            .unwrap_or_default()
+            .to_string();
         let description = format!("with toolchain `{toolchain}`");
         let mut command = if opts.fix {
             dylint_internal::cargo::fix(&description)
@@ -501,6 +511,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
                     clippy_disable_docs_links.as_str(),
                 ),
                 (env::DYLINT_LIBS, &dylint_libs),
+                (env::DYLINT_METADATA, &dylint_metadata_str),
                 (env::DYLINT_NO_DEPS, if opts.no_deps { "1" } else { "0" }),
                 (env::RUSTC_WORKSPACE_WRAPPER, &*driver.to_string_lossy()),
                 (env::RUSTUP_TOOLCHAIN, toolchain),
