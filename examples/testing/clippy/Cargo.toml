@@ -22,7 +22,7 @@ anyhow = "1.0"
 cargo_metadata = "0.17"
 env_logger = "0.10"
 log = "0.4"
-tempfile = "3.7"
+tempfile = "3.8"
 
 dylint = { path = "../../../dylint", default-features = false }
 dylint_internal = { path = "../../../internal", features = ["git"] }

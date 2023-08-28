@@ -21,7 +21,7 @@ dylint_internal = { version = "=2.1.12", path = "../internal" }
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "3.0"
-tempfile = "3.7"
+tempfile = "3.8"
 
 dylint_internal = { version = "=2.1.12", path = "../internal", features = ["packaging"] }
 
