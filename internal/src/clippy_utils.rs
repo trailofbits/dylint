@@ -42,11 +42,23 @@ pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()
         )
     })?;
     let mut document = contents.parse::<Document>()?;
-    document
+    // smoelius: First check `dependencies` for `clippy_utils`.
+    let mut clippy_utils = document
         .as_table_mut()
         .get_mut("dependencies")
         .and_then(Item::as_table_mut)
-        .and_then(|table| table.get_mut("clippy_utils"))
+        .and_then(|table| table.get_mut("clippy_utils"));
+    // smoelius: It it's not found there, check `workspace.dependencies`.
+    if clippy_utils.is_none() {
+        clippy_utils = document
+            .as_table_mut()
+            .get_mut("workspace")
+            .and_then(Item::as_table_mut)
+            .and_then(|table| table.get_mut("dependencies"))
+            .and_then(Item::as_table_mut)
+            .and_then(|table| table.get_mut("clippy_utils"));
+    };
+    clippy_utils
         .and_then(Item::as_inline_table_mut)
         .and_then(|table| table.get_mut("rev"))
         .map(|value| *value = Value::from(rev))

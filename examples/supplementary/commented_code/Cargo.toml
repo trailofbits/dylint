@@ -10,7 +10,7 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1d334696587ac22b3a9e651e7ac684ac9e0697b2" }
+clippy_utils = { workspace = true }
 if_chain = "1.0"
 once_cell = "1.18"
 regex = "1.9"
