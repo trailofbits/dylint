@@ -18,7 +18,7 @@ name = "ref_aware"
 path = "ui/ref_aware.rs"
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1d334696587ac22b3a9e651e7ac684ac9e0697b2" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "080b587854a73f2a8cbaecff1884860a78e2ff37" }
 if_chain = "1.0"
 
 dylint_internal = { path = "../../../internal" }
