@@ -1,6 +1,6 @@
 [package]
 name = "const_path_join"
-version = "2.1.12"
+version = "2.2.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for joining of constant path components"
 edition = "2021"
