@@ -120,14 +120,14 @@ struct Dylint {
     #[clap(
         long,
         value_name = "path",
-        help = "path to file to which to pipe stderr"
+        help = "Path to file to which to pipe stderr"
     )]
     pipe_stderr: Option<String>,
 
     #[clap(
         long,
         value_name = "path",
-        help = "path to file to which to pipe stdout"
+        help = "Path to file to which to pipe stdout"
     )]
     pipe_stdout: Option<String>,
 }
