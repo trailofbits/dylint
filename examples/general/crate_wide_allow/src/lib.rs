@@ -35,7 +35,7 @@ dylint_linting::declare_early_lint! {
 impl EarlyLintPass for CrateWideAllow {
     fn check_crate(&mut self, cx: &EarlyContext, krate: &Crate) {
         for attr in &krate.attrs {
-            assert_eq!(attr.style, AttrStyle::Inner);
+            assert_eq!(AttrStyle::Inner, attr.style);
             if_chain! {
                 if attr.has_name(sym::allow);
                 if let Some([arg]) = attr.meta_item_list().as_deref();

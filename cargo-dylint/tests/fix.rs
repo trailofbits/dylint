@@ -68,7 +68,7 @@ fn fix() {
 
     let main_actual = read_to_string(tempdir.path().join("src/main.rs")).unwrap();
 
-    assert_eq!(main_actual, MAIN_FIXED);
+    assert_eq!(MAIN_FIXED, main_actual);
 }
 
 fn append_workspace_metadata(path: &Path) -> Result<()> {

@@ -12,6 +12,7 @@ configurable libraries.
 - [`dylint_library!`]
 - [`declare_late_lint!`, `declare_early_lint!`, `declare_pre_expansion_lint!`]
 - [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]
+- [`constituent` feature]
 - [Configurable libraries]
 
 ## `dylint_library!`
@@ -85,6 +86,27 @@ That is, `impl_late_lint!`'s additional argument is what goes here:
 An example use of `impl_pre_expansion_lint!` can be found in [`env_cargo_path`] in this
 repository.
 
+## `constituent` feature
+
+Enabling the package-level `constituent` feature changes the way the above macros work.
+Specifically, it causes them to _exclude_:
+
+- the call to `dylint_library!`
+- the use of `#[no_mangle]` just prior to the declaration of `register_lints`
+
+Such changes facilitate inclusion of a lint declared with one of the above macros into a larger
+library. That is:
+
+- With the feature turned off, the lint can be built as a library by itself.
+- With the feature turned on, the lint can be built as part of a larger library, alongside other
+  lints.
+
+The [general-purpose] and [supplementary] lints in this repository employ this technique.
+That is, each general-purpose lint can be built as a library by itself, or as part of the
+[`general` library]. An analogous statement applies to the supplementary lints and the
+[`supplementary` library]. The `constituent` feature is the underlying mechanism that makes this
+work.
+
 ## Configurable libraries
 
 Libraries can be configured by including a `dylint.toml` file in the target workspace's root
@@ -154,23 +176,28 @@ Additional documentation on `config_or_default`, etc. can be found on [docs.rs].
 [`config_or_default`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_or_default.html
 [`config_toml`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_toml.html
 [`config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config.html
+[`constituent` feature]: #constituent-feature
 [`declare_late_lint!`, `declare_early_lint!`, `declare_pre_expansion_lint!`]: #declare_late_lint-etc
 [`declare_lint!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint.html
 [`declare_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint_pass.html
 [`dylint-link`]: ../../dylint-link
 [`dylint_library!`]: #dylint_library
 [`env_cargo_path`]: ../../examples/general/env_cargo_path/src/lib.rs
+[`general` library]: ../../examples/general/src/lib.rs
 [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]: #impl_late_lint-etc
 [`impl_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html
 [`init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.init_config.html
 [`lintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
 [`non_local_effect_before_error_return`]: ../../examples/general/non_local_effect_before_error_return/src/lib.rs
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
+[`supplementary` library]: ../../examples/supplementary/src/lib.rs
 [`try_init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.try_init_config.html
 [configurable libraries]: #configurable-libraries
 [docs.rs documentation]: https://docs.rs/dylint_linting/latest/dylint_linting/
 [docs.rs]: https://docs.rs/dylint_linting/latest/dylint_linting/
 [dylint]: ../..
 [examples]: ../../examples
+[general-purpose]: ../../examples/general
+[supplementary]: ../../examples/supplementary
 
 <!-- cargo-rdme end -->

@@ -77,6 +77,9 @@ struct Dylint {
     #[clap(long = "new", hide = true)]
     new_path: Option<String>,
 
+    #[clap(long, help = "Do not check other packages within the workspace")]
+    no_deps: bool,
+
     #[clap(
         action = ArgAction::Append,
         number_of_values = 1,
@@ -241,6 +244,7 @@ impl From<Dylint> for dylint::Dylint {
             list,
             manifest_path,
             new_path,
+            no_deps,
             packages,
             quiet,
             rust_version,
@@ -265,6 +269,7 @@ impl From<Dylint> for dylint::Dylint {
             manifest_path,
             new_path,
             no_build,
+            no_deps,
             no_metadata,
             packages,
             paths,

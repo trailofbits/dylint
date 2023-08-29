@@ -1,0 +1,32 @@
+[package]
+name = "assert_eq_arg_misordering"
+version = "2.2.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for `assert_eq!(actual, expected)`"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1d334696587ac22b3a9e651e7ac684ac9e0697b2" }
+if_chain = "1.0"
+
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../general" },
+    { path = "../../supplementary" },
+    { path = "../../testing/clippy" },
+    { path = "../../restriction/*" },
+]

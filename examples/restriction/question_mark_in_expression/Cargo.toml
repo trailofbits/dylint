@@ -1,6 +1,6 @@
 [package]
 name = "question_mark_in_expression"
-version = "2.1.12"
+version = "2.2.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for the `?` operator in expressions"
 edition = "2021"
@@ -33,7 +33,7 @@ dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
 git2 = "0.17"
-tempfile = "3.7"
+tempfile = "3.8"
 
 dylint_testing = { path = "../../../utils/testing" }
 

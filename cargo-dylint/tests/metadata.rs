@@ -1,11 +1,16 @@
 use assert_cmd::prelude::*;
 use dylint_internal::{env, packaging::isolate};
 use predicates::prelude::*;
-use std::{fs::OpenOptions, io::Write};
+use std::{env::set_var, fs::OpenOptions, io::Write};
 use tempfile::{tempdir, tempdir_in};
 
 // smoelius: "Separate lints into categories" commit
 const REV: &str = "402fc24351c60a3c474e786fd76aa66aa8638d55";
+
+#[ctor::ctor]
+fn initialize() {
+    set_var(env::CARGO_TERM_COLOR, "never");
+}
 
 #[test]
 fn invalid_pattern() {
@@ -88,6 +93,68 @@ pattern = "examples/general/crate_wide_allow"
         .assert()
         .success()
         .stdout(predicate::str::contains("<unbuilt>"));
+}
+
+/// Verify that changes to workspace metadata cause the lints to be rerun.
+#[test]
+fn metadata_change() {
+    let tempdir = tempdir_in(".").unwrap();
+
+    dylint_internal::cargo::init("package `metadata_change_test`", false)
+        .current_dir(&tempdir)
+        .args(["--name", "metadata_change_test"])
+        .success()
+        .unwrap();
+
+    isolate(tempdir.path()).unwrap();
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(tempdir.path().join("Cargo.toml"))
+        .unwrap();
+
+    write!(
+        file,
+        r#"
+    [[workspace.metadata.dylint.libraries]]
+    path = "../../examples/general/crate_wide_allow"
+    "#
+    )
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .args(["dylint", "--all"])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("Checking metadata_change_test"));
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .args(["dylint", "--all"])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("Checking metadata_change_test").not());
+
+    write!(
+        file,
+        r#"
+        [[workspace.metadata.dylint.libraries]]
+        path = "../../examples/restriction/question_mark_in_expression"
+        "#
+    )
+    .unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir(&tempdir)
+        .args(["dylint", "--all"])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("Checking metadata_change_test"));
 }
 
 #[test]

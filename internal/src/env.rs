@@ -9,6 +9,7 @@ macro_rules! declare_const {
 declare_const!(CARGO_HOME);
 declare_const!(CARGO_MANIFEST_DIR);
 declare_const!(CARGO_PKG_NAME);
+declare_const!(CARGO_PRIMARY_PACKAGE);
 declare_const!(CARGO_TARGET_DIR);
 declare_const!(CARGO_TERM_COLOR);
 declare_const!(CLIPPY_DISABLE_DOCS_LINKS);
@@ -18,6 +19,8 @@ declare_const!(DYLINT_DRIVER_PATH);
 declare_const!(DYLINT_LIBRARY_PATH);
 declare_const!(DYLINT_LIBS);
 declare_const!(DYLINT_LIST);
+declare_const!(DYLINT_METADATA);
+declare_const!(DYLINT_NO_DEPS);
 declare_const!(DYLINT_RUSTFLAGS);
 declare_const!(DYLINT_TOML);
 declare_const!(OUT_DIR);

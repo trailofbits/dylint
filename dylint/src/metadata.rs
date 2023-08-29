@@ -14,15 +14,15 @@ use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackag
 use dylint_internal::{env, library_filename, rustup::SanitizeEnvironment};
 use glob::glob;
 use if_chain::if_chain;
+use once_cell::sync::OnceCell;
 use serde::Deserialize;
-use std::{
-    path::{Path, PathBuf},
-    rc::Rc,
-};
+use std::path::{Path, PathBuf};
+
+type Object = serde_json::Map<String, serde_json::Value>;
 
 #[derive(Clone, Debug)]
 pub struct Package {
-    metadata: Rc<Metadata>,
+    metadata: &'static Metadata,
     pub root: PathBuf,
     pub id: PackageId,
     pub lib_name: String,
@@ -79,72 +79,98 @@ struct Library {
 }
 
 pub fn workspace_metadata_packages(opts: &crate::Dylint) -> Result<Vec<Package>> {
-    if opts.no_metadata {
-        return Ok(vec![]);
-    }
-
-    let mut command = MetadataCommand::new();
-
-    if let Some(path) = &opts.manifest_path {
-        command.manifest_path(path);
-    }
-
-    match command.exec() {
-        Ok(metadata) => {
-            if let serde_json::Value::Object(object) = &metadata.workspace_metadata {
-                dylint_metadata_packages(opts, &Rc::new(metadata.clone()), object)
-            } else {
-                Ok(vec![])
-            }
+    if_chain! {
+        if let Some(metadata) = cargo_metadata(opts)?;
+        if let Some(object) = dylint_metadata(opts)?;
+        then {
+            dylint_metadata_packages(opts, metadata, object)
+        } else {
+            Ok(vec![])
         }
-        Err(err) => {
-            if opts.manifest_path.is_none() {
-                if_chain! {
-                    if let Error::CargoMetadata { stderr } = err;
-                    if let Some(line) = stderr.lines().next();
-                    if !line.starts_with("error: could not find `Cargo.toml`");
-                    then {
-                        warn(opts, line.strip_prefix("error: ").unwrap_or(line));
+    }
+}
+
+#[allow(clippy::module_name_repetitions)]
+pub fn dylint_metadata(opts: &crate::Dylint) -> Result<Option<&'static Object>> {
+    if_chain! {
+        if let Some(metadata) = cargo_metadata(opts)?;
+        if let serde_json::Value::Object(object) = &metadata.workspace_metadata;
+        if let Some(value) = object.get("dylint");
+        then {
+            if let serde_json::Value::Object(subobject) = value {
+                Ok(Some(subobject))
+            } else {
+                bail!("`dylint` value must be a map")
+            }
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+static CARGO_METADATA: OnceCell<Option<Metadata>> = OnceCell::new();
+
+fn cargo_metadata(opts: &crate::Dylint) -> Result<Option<&'static Metadata>> {
+    CARGO_METADATA
+        .get_or_try_init(|| {
+            if opts.no_metadata {
+                return Ok(None);
+            }
+
+            let mut command = MetadataCommand::new();
+
+            if let Some(path) = &opts.manifest_path {
+                command.manifest_path(path);
+            }
+
+            if let Some(path) = &opts.manifest_path {
+                command.manifest_path(path);
+            }
+
+            match command.exec() {
+                Ok(metadata) => Ok(Some(metadata)),
+                Err(err) => {
+                    if opts.manifest_path.is_none() {
+                        if_chain! {
+                            if let Error::CargoMetadata { stderr } = err;
+                            if let Some(line) = stderr.lines().next();
+                            if !line.starts_with("error: could not find `Cargo.toml`");
+                            then {
+                                warn(opts, line.strip_prefix("error: ").unwrap_or(line));
+                            }
+                        }
+                        Ok(None)
+                    } else {
+                        Err(err.into())
                     }
                 }
-                Ok(vec![])
-            } else {
-                Err(err.into())
             }
-        }
-    }
+        })
+        .map(Option::as_ref)
 }
 
 fn dylint_metadata_packages(
     opts: &crate::Dylint,
-    metadata: &Rc<Metadata>,
-    object: &serde_json::Map<String, serde_json::Value>,
+    metadata: &'static Metadata,
+    object: &Object,
 ) -> Result<Vec<Package>> {
-    if let Some(value) = object.get("dylint") {
-        if let serde_json::Value::Object(object) = value {
-            let libraries = object
-                .iter()
-                .map(|(key, value)| {
-                    if key == "libraries" {
-                        let libraries = serde_json::from_value::<Vec<Library>>(value.clone())?;
-                        library_packages(opts, metadata, &libraries)
-                    } else {
-                        bail!("Unknown key `{}`", key)
-                    }
-                })
-                .collect::<Result<Vec<_>>>()?;
-            Ok(libraries.into_iter().flatten().collect())
-        } else {
-            bail!("`dylint` value must be a map")
-        }
-    } else {
-        Ok(vec![])
-    }
+    let libraries = object
+        .iter()
+        .map(|(key, value)| {
+            if key == "libraries" {
+                let libraries = serde_json::from_value::<Vec<Library>>(value.clone())?;
+                library_packages(opts, metadata, &libraries)
+            } else {
+                bail!("Unknown key `{}`", key)
+            }
+        })
+        .collect::<Result<Vec<_>>>()?;
+    Ok(libraries.into_iter().flatten().collect())
 }
 
 fn library_packages(
     opts: &crate::Dylint,
-    metadata: &Rc<Metadata>,
+    metadata: &'static Metadata,
     libraries: &[Library],
 ) -> Result<Vec<Package>> {
     let config = Config::default()?;
@@ -160,7 +186,7 @@ fn library_packages(
 
 fn library_package(
     opts: &crate::Dylint,
-    metadata: &Rc<Metadata>,
+    metadata: &'static Metadata,
     config: &Config,
     library: &Library,
 ) -> Result<Vec<Package>> {
@@ -225,12 +251,15 @@ fn library_package(
         .into_iter()
         .map(|path| {
             if path.is_dir() {
-                let package = package_with_root(&path)?;
+                // smoelius: Ignore subdirectories that do not contain packages.
+                let Ok(package) = package_with_root(&path) else {
+                    return Ok(None);
+                };
                 let package_id = package_id(&package, dep.source_id())?;
                 let lib_name = package_library_name(&package)?;
                 let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
                 Ok(Some(Package {
-                    metadata: metadata.clone(),
+                    metadata,
                     root: path,
                     id: package_id,
                     lib_name,
