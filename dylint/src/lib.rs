@@ -533,13 +533,21 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
 
         if let Some(stderr_path) = &opts.pipe_stderr {
             let path = Path::new(&stderr_path);
-            let file = OpenOptions::new().append(true).create(true).open(&path).context("Failed to open file for stderr usage")?;
+            let file = OpenOptions::new()
+                .append(true)
+                .create(true)
+                .open(&path)
+                .context("Failed to open file for stderr usage")?;
             result = result.stderr(file);
         }
 
         if let Some(stdout_path) = &opts.pipe_stdout {
             let path = Path::new(&stdout_path);
-            let file = OpenOptions::new().append(true).create(true).open(&path)?;
+            let file = OpenOptions::new()
+                .append(true)
+                .create(true)
+                .open(&path)
+                .context("Failed to open file for stdout usage")?;
             result = result.stdout(file);
         }
 
