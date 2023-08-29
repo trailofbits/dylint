@@ -116,6 +116,20 @@ struct Dylint {
 
     #[clap(last = true, help = "Arguments for `cargo check`")]
     args: Vec<String>,
+
+    #[clap(
+        long,
+        value_name = "path",
+        help = "path to file to which to pipe stderr"
+    )]
+    pipe_stderr: Option<String>,
+
+    #[clap(
+        long,
+        value_name = "path",
+        help = "path to file to which to pipe stdout"
+    )]
+    pipe_stdout: Option<String>,
 }
 
 #[derive(Debug, Parser)]
@@ -239,6 +253,8 @@ impl From<Dylint> for dylint::Dylint {
             subcmd: _,
             names,
             args,
+            pipe_stderr,
+            pipe_stdout,
         } = opts;
         Self {
             all,
@@ -263,6 +279,8 @@ impl From<Dylint> for dylint::Dylint {
             workspace,
             names,
             args,
+            pipe_stderr,
+            pipe_stdout,
         }
     }
 }

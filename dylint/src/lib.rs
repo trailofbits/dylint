@@ -10,6 +10,7 @@ use dylint_internal::{
     driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment,
 };
 use once_cell::sync::Lazy;
+use std::fs::OpenOptions;
 use std::{
     collections::BTreeMap,
     env::{consts, current_dir},
@@ -107,6 +108,10 @@ pub struct Dylint {
     pub names: Vec<String>,
 
     pub args: Vec<String>,
+
+    pub pipe_stderr: Option<String>,
+
+    pub pipe_stdout: Option<String>,
 }
 
 pub fn run(opts: &Dylint) -> Result<()> {
@@ -123,6 +128,14 @@ pub fn run(opts: &Dylint) -> Result<()> {
             ..opts.clone()
         }
     };
+
+    if opts.pipe_stderr.is_some() {
+        warn(&opts, "`--pipe-stderr` is experimental");
+    }
+
+    if opts.pipe_stdout.is_some() {
+        warn(&opts, "`--pipe-stdout` is experimental");
+    }
 
     if opts.allow_downgrade && opts.upgrade_path.is_none() {
         bail!("`--allow-downgrade` can be used only with `--upgrade`");
@@ -503,7 +516,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         // https://github.com/rust-lang/rust-clippy/commit/1a206fc4abae0b57a3f393481367cf3efca23586
         // But I am going to continue to set CLIPPY_DISABLE_DOCS_LINKS because it doesn't seem to
         // hurt and it provides a small amount of backward compatibility.
-        let result = command
+        let mut result = command
             .sanitize_environment()
             .envs([
                 (
@@ -516,8 +529,21 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
                 (env::RUSTC_WORKSPACE_WRAPPER, &*driver.to_string_lossy()),
                 (env::RUSTUP_TOOLCHAIN, toolchain),
             ])
-            .args(args)
-            .success();
+            .args(args);
+
+        if let Some(stderr_path) = &opts.pipe_stderr {
+            let path = Path::new(&stderr_path);
+            let file = OpenOptions::new().append(true).create(true).open(&path).context("Failed to open file for stderr usage")?;
+            result = result.stderr(file);
+        }
+
+        if let Some(stdout_path) = &opts.pipe_stdout {
+            let path = Path::new(&stdout_path);
+            let file = OpenOptions::new().append(true).create(true).open(&path)?;
+            result = result.stdout(file);
+        }
+
+        let result = result.success();
         if result.is_err() {
             if !opts.keep_going {
                 return result
