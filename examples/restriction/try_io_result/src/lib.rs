@@ -10,7 +10,7 @@ use clippy_utils::{diagnostics::span_lint_and_help, match_def_path};
 use if_chain::if_chain;
 use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{subst::GenericArgKind, Ty, TyKind};
+use rustc_middle::ty::{GenericArgKind, Ty, TyKind};
 use rustc_span::sym;
 
 dylint_linting::declare_late_lint! {
@@ -53,7 +53,7 @@ dylint_linting::declare_late_lint! {
 impl<'tcx> LateLintPass<'tcx> for TryIoResult {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'_>) {
         if_chain! {
-            if let ExprKind::Match(scrutinee, _, MatchSource::TryDesugar) = expr.kind;
+            if let ExprKind::Match(scrutinee, _, MatchSource::TryDesugar(_)) = expr.kind;
             if let ExprKind::Call(callee, [arg]) = scrutinee.kind;
             if let ExprKind::Path(path) = &callee.kind;
             if matches!(path, QPath::LangItem(LangItem::TryTraitBranch, _, _));

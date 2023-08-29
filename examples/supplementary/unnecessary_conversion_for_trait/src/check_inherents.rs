@@ -195,7 +195,7 @@ fn strip_as_ref<'tcx>(
                 if let ty::ClauseKind::Trait(ty::TraitPredicate { trait_ref, .. }) =
                     predicate.kind().skip_binder();
                 if cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id);
-                if let [self_arg, subst_arg] = trait_ref.substs.as_slice();
+                if let [self_arg, subst_arg] = trait_ref.args.as_slice();
                 if self_arg.unpack() == ty::GenericArgKind::Type(ty);
                 if let ty::GenericArgKind::Type(subst_ty) = subst_arg.unpack();
                 then {

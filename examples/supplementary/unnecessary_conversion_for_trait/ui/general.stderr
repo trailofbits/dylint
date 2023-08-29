@@ -12,11 +12,11 @@ error: the receiver implements the required traits
 LL |     let _ = std::fs::write("x", "".to_string());
    |                                   ^^^^^^^^^^^^ help: remove this
 
-error: the receiver implements the required traits
-  --> $DIR/general.rs:33:35
+error: the inner argument implements the required traits
+  --> $DIR/general.rs:33:33
    |
-LL |     let _ = std::fs::write("x", "".borrow());
-   |                                   ^^^^^^^^^ help: remove this
+LL |     let _ = std::fs::write("x", <_ as Borrow<str>>::borrow(&s));
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `&s`
 
 error: the inner argument implements the required traits
   --> $DIR/general.rs:35:10
@@ -49,10 +49,10 @@ LL |     let _ = std::fs::write("x", <_ as AsRef<str>>::as_ref(""));
    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `""`
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:43:35
+  --> $DIR/general.rs:43:33
    |
-LL |     let _ = std::fs::write("x", "".deref());
-   |                                   ^^^^^^^^ help: remove this
+LL |     let _ = std::fs::write("x", s.deref());
+   |                                 ^^^^^^^^^ help: use: `&s`
 
 error: the receiver implements the required traits
   --> $DIR/general.rs:45:10
@@ -187,70 +187,76 @@ LL |     let _ = is_empty_os(osstring.clone().into_boxed_os_str());
    |                                         ^^^^^^^^^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:78:32
+  --> $DIR/general.rs:77:48
+   |
+LL |     let _ = os_string_or_bytes(osstring.clone().into_os_str_bytes());
+   |                                                ^^^^^^^^^^^^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:79:32
    |
 LL |     let _ = std::fs::write(path.as_os_str(), "");
    |                                ^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:79:46
+  --> $DIR/general.rs:80:46
    |
 LL |     let _ = std::fs::write(PathBuf::from("x").as_mut_os_str(), "");
    |                                              ^^^^^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:80:46
+  --> $DIR/general.rs:81:46
    |
 LL |     let _ = std::fs::write(PathBuf::from("x").into_boxed_path().into_path_buf(), "");
    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:81:41
+  --> $DIR/general.rs:82:41
    |
 LL |     let _ = Command::new("ls").args(path.iter());
    |                                         ^^^^^^^ help: remove this
 
 error: the inner argument implements the required traits
-  --> $DIR/general.rs:82:28
+  --> $DIR/general.rs:83:28
    |
 LL |     let _ = std::fs::write(Path::new("x"), "");
    |                            ^^^^^^^^^^^^^^ help: use: `"x"`
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:83:32
+  --> $DIR/general.rs:84:32
    |
 LL |     let _ = std::fs::write(path.to_path_buf(), "");
    |                                ^^^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:85:28
+  --> $DIR/general.rs:86:28
    |
 LL |     let _ = std::fs::write(path_buf.as_mut_os_string(), "");
    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `&mut path_buf`
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:86:28
+  --> $DIR/general.rs:87:28
    |
 LL |     let _ = std::fs::write(path_buf.as_path(), "");
    |                            ^^^^^^^^^^^^^^^^^^ help: use: `&path_buf`
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:87:44
+  --> $DIR/general.rs:88:44
    |
 LL |     let _ = std::fs::write(path_buf.clone().into_os_string(), "");
    |                                            ^^^^^^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:89:28
+  --> $DIR/general.rs:90:28
    |
 LL |     let _ = std::fs::write(tempdir.path(), "");
    |                            ^^^^^^^^^^^^^^ help: use: `&tempdir`
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:90:28
+  --> $DIR/general.rs:91:28
    |
 LL |     let _ = std::fs::write(tempfile.path(), "");
    |                            ^^^^^^^^^^^^^^^ help: use: `&tempfile`
 
-error: aborting due to 42 previous errors
+error: aborting due to 43 previous errors
 
