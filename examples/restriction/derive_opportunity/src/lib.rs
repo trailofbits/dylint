@@ -21,7 +21,7 @@ use if_chain::if_chain;
 use once_cell::sync::OnceCell;
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_errors::Applicability;
-use rustc_hir::{def_id::DefId, Constness, Item, ItemKind};
+use rustc_hir::{def_id::DefId, Item, ItemKind};
 use rustc_lint::{LateContext, LateLintPass, LintStore};
 use rustc_middle::{
     traits::Reveal,
@@ -350,11 +350,17 @@ fn implements_trait_with_bounds<'tcx>(
     ty: ty::Ty<'tcx>,
     trait_id: DefId,
 ) -> bool {
+    let generics = cx.tcx.generics_of(trait_id);
+    // smoelius: `all_params_are_lifetimes` should have already been checked.
+    let args = vec![
+        ty::Region::new_from_kind(cx.tcx, ty::ReStatic).into();
+        generics.params.len().saturating_sub(1)
+    ];
     if let ty::Adt(adt_def, _) = ty.kind() {
         let param_env = param_env_with_bounds(cx.tcx, adt_def.did(), trait_id);
-        implements_trait_with_env(cx.tcx, param_env, ty, trait_id, [])
+        implements_trait_with_env(cx.tcx, param_env, ty, trait_id, &args)
     } else {
-        implements_trait(cx, ty, trait_id, &[])
+        implements_trait(cx, ty, trait_id, &args)
     }
 }
 
@@ -377,7 +383,6 @@ fn param_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty
         if let ty::ClauseKind::Trait(p) = p.kind().skip_binder()
             && p.trait_ref.def_id == trait_id
             && let ty::Param(self_ty) = p.trait_ref.self_ty().kind()
-            && p.constness == ty::BoundConstness::NotConst
         {
             // Flag types which already have a bound.
             params[self_ty.index as usize].1 = false;
@@ -397,7 +402,6 @@ fn param_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty
                                 trait_id,
                                 [tcx.mk_param_from_def(param)],
                             ),
-                            constness: ty::BoundConstness::NotConst,
                             polarity: ty::ImplPolarity::Positive,
                         })
                         .to_predicate(tcx)
@@ -405,7 +409,6 @@ fn param_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty
             ),
         ),
         Reveal::UserFacing,
-        Constness::NotConst,
     )
 }
 

@@ -13,7 +13,7 @@ use heck::ToSnakeCase;
 use if_chain::if_chain;
 use rustc_hir::{
     def::{DefKind, Res},
-    def_id::DefId,
+    def_id::{DefId, ModDefId},
     Expr, ExprKind, LangItem, Local, MatchSource, Pat, PatKind, QPath, Stmt, StmtKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
@@ -156,7 +156,7 @@ fn peel_try_unwrap_and_similar<'tcx>(
 ) -> &'tcx Expr<'tcx> {
     loop {
         match expr.kind {
-            ExprKind::Match(scrutinee, _, MatchSource::TryDesugar) => {
+            ExprKind::Match(scrutinee, _, MatchSource::TryDesugar(_)) => {
                 if let ExprKind::Call(
                     Expr {
                         kind: ExprKind::Path(QPath::LangItem(LangItem::TryTraitBranch, _, _)),
@@ -227,7 +227,7 @@ fn module_public_child_types(
     for (child_name, child_def_id) in module_public_children(tcx, module_def_id) {
         if matches!(
             tcx.def_kind(child_def_id),
-            DefKind::Struct | DefKind::Union | DefKind::Enum | DefKind::TyAlias,
+            DefKind::Struct | DefKind::Union | DefKind::Enum,
         ) {
             child_types.insert(
                 child_name.as_str().to_snake_case(),
@@ -242,7 +242,7 @@ fn module_public_child_types(
 }
 
 fn module_public_children(tcx: ty::TyCtxt<'_>, module_def_id: DefId) -> Vec<(Symbol, DefId)> {
-    if let Some(module_local_def_id) = module_def_id.as_local() {
+    if let Some(module_local_def_id) = ModDefId::new_unchecked(module_def_id).as_local() {
         tcx.hir()
             .module_items(module_local_def_id)
             .filter_map(|item_id| {

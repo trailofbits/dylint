@@ -34,8 +34,8 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
     self,
     adjustment::{Adjust, Adjustment, AutoBorrow},
-    subst::SubstsRef,
-    ClauseKind, EarlyBinder, FnDef, FnSig, Param, ParamTy, ProjectionPredicate, Ty, TypeAndMut,
+    ClauseKind, EarlyBinder, FnDef, FnSig, GenericArgsRef, Param, ParamTy, ProjectionPredicate, Ty,
+    TypeAndMut,
 };
 use rustc_span::symbol::{sym, Symbol};
 use rustc_trait_selection::traits::{
@@ -116,6 +116,7 @@ const WATCHED_INHERENTS: &[&[&str]] = &[
     &["std", "ffi", "os_str", "OsStr", "to_os_string"],
     &["std", "ffi", "os_str", "OsString", "as_os_str"],
     &["std", "ffi", "os_str", "OsString", "into_boxed_os_str"],
+    &["std", "ffi", "os_str", "OsString", "into_os_str_bytes"],
     &["std", "path", "Path", "as_os_str"],
     &["std", "path", "Path", "into_path_buf"],
     &["std", "path", "Path", "as_mut_os_str"],
@@ -173,7 +174,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
             if let Some((maybe_call, maybe_arg, ancestor_mutabilities)) =
                 ancestor_addr_of_mutabilities(cx, expr);
             if let Some((outer_callee_def_id, outer_substs, outer_receiver, outer_args)) =
-                get_callee_substs_and_args(cx, maybe_call);
+                get_callee_generic_args_and_args(cx, maybe_call);
             let outer_args = std::iter::once(outer_receiver)
                 .flatten()
                 .chain(outer_args)
@@ -196,7 +197,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                     loop {
                         if_chain! {
                             if let Some((inner_callee_def_id, _, inner_receiver, inner_args)) =
-                                get_callee_substs_and_args(cx, expr);
+                                get_callee_generic_args_and_args(cx, expr);
                             let inner_args = std::iter::once(inner_receiver)
                                 .flatten()
                                 .chain(inner_args)
@@ -465,21 +466,21 @@ mod test {
     }
 }
 
-// smoelius: `get_callee_substs_and_args` was copied from:
-// https://github.com/rust-lang/rust-clippy/blob/98bf99e2f8cf8b357d63a67ce67d5fc5ceef8b3c/clippy_lints/src/methods/unnecessary_to_owned.rs#L306-L330
+// smoelius: `get_callee_generic_args_and_args` was copied from:
+// https://github.com/rust-lang/rust-clippy/blob/d6d530fd0b92ccec4a22e69cdebe6c4c942c8166/clippy_lints/src/methods/unnecessary_to_owned.rs#L321-L350
 
 #[cfg_attr(
     dylint_lib = "inconsistent_qualification",
     allow(inconsistent_qualification)
 )]
 /// Checks whether an expression is a function or method call and, if so, returns its `DefId`,
-/// `Substs`, and arguments.
-fn get_callee_substs_and_args<'tcx>(
+/// `GenericArgs`, and arguments.
+fn get_callee_generic_args_and_args<'tcx>(
     cx: &LateContext<'tcx>,
     expr: &'tcx Expr<'tcx>,
 ) -> Option<(
     DefId,
-    SubstsRef<'tcx>,
+    GenericArgsRef<'tcx>,
     Option<&'tcx Expr<'tcx>>,
     &'tcx [Expr<'tcx>],
 )> {
@@ -488,16 +489,16 @@ fn get_callee_substs_and_args<'tcx>(
         let callee_ty = cx.typeck_results().expr_ty(callee);
         if let ty::FnDef(callee_def_id, _) = callee_ty.kind();
         then {
-            let substs = cx.typeck_results().node_substs(callee.hir_id);
-            return Some((*callee_def_id, substs, None, args));
+            let generic_args = cx.typeck_results().node_args(callee.hir_id);
+            return Some((*callee_def_id, generic_args, None, args));
         }
     }
     if_chain! {
         if let ExprKind::MethodCall(_, recv, args, _) = expr.kind;
         if let Some(method_def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id);
         then {
-            let substs = cx.typeck_results().node_substs(expr.hir_id);
-            return Some((method_def_id, substs, Some(recv), args));
+            let generic_args = cx.typeck_results().node_args(expr.hir_id);
+            return Some((method_def_id, generic_args, Some(recv), args));
         }
     }
     None
@@ -509,7 +510,7 @@ fn inner_arg_implements_traits<'tcx>(
     cx: &LateContext<'tcx>,
     callee_def_id: DefId,
     fn_sig: FnSig<'tcx>,
-    substs_with_expr_ty: SubstsRef<'tcx>,
+    generic_args_with_expr_ty: GenericArgsRef<'tcx>,
     arg_index: usize,
     param_ty: ParamTy,
     new_ty: Ty<'tcx>,
@@ -550,7 +551,7 @@ fn inner_arg_implements_traits<'tcx>(
         return false;
     }
 
-    let mut substs_with_new_ty = substs_with_expr_ty.to_vec();
+    let mut substs_with_new_ty = generic_args_with_expr_ty.to_vec();
 
     if !replace_types(
         cx,
@@ -565,7 +566,7 @@ fn inner_arg_implements_traits<'tcx>(
     }
 
     predicates.iter().all(|predicate| {
-        let predicate = EarlyBinder::bind(predicate).subst(cx.tcx, &substs_with_new_ty);
+        let predicate = EarlyBinder::bind(predicate).instantiate(cx.tcx, &substs_with_new_ty);
         let obligation = Obligation::new(cx.tcx, ObligationCause::dummy(), cx.param_env, predicate);
         cx.tcx
             .infer_ctxt()

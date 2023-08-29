@@ -30,7 +30,7 @@ fn main() {
 
     let _ = std::fs::write("x", "");
 
-    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", &s);
 
     read(&mut readable);
     read(&mut readable);
@@ -40,7 +40,7 @@ fn main() {
     let _ = std::fs::write("x", "");
     let _ = std::fs::write("x", "");
 
-    let _ = std::fs::write("x", "");
+    let _ = std::fs::write("x", &s);
 
     read(&mut readable);
 
@@ -74,6 +74,7 @@ fn main() {
 
     let _ = std::fs::write(&osstring, "");
     let _ = is_empty_os(osstring.clone());
+    let _ = os_string_or_bytes(osstring.clone());
 
     let _ = std::fs::write(path, "");
     let _ = std::fs::write(PathBuf::from("x"), "");
@@ -108,3 +109,10 @@ trait OsStrOrBytes {}
 impl OsStrOrBytes for &OsStr {}
 impl OsStrOrBytes for &[u8] {}
 fn os_str_or_bytes(_: impl OsStrOrBytes) {}
+
+// smoelius: Similar hack for `OsString` and `Vec<u8>`.
+// Reference: https://github.com/rust-lang/rust/issues/111544
+trait OsStringOrBytes {}
+impl OsStringOrBytes for OsString {}
+impl OsStringOrBytes for Vec<u8> {}
+fn os_string_or_bytes(_: impl OsStringOrBytes) {}
