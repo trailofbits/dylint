@@ -1,12 +1,5 @@
 # Changelog
 
-## 2.2.0
-
-- Add `constituent` feature to facilitate building a lint by itself, or as part of a larger library ([#790](https://github.com/trailofbits/dylint/pull/790) and [#812](https://github.com/trailofbits/dylint/pull/812))
-- When building metadata entries, ignore subdirectories that do not contain packages rather than generate errors ([#809](https://github.com/trailofbits/dylint/pull/809))
-- Add `--no-deps` option ([#808](https://github.com/trailofbits/dylint/pull/808))&mdash;thanks [@EFanZh](https://github.com/EFanZh) for the [suggestion](https://github.com/trailofbits/dylint/issues/804)
-- Rerun lints when workspace metadata changes ([#813](https://github.com/trailofbits/dylint/pull/813))&mdash;thanks [@maxammann](https://github.com/maxammann) for the [bug report](https://github.com/trailofbits/dylint/issues/650)
-
 ## 2.1.12
 
 - Update `cargo` to version 0.72.1 ([#786](https://github.com/trailofbits/dylint/pull/786))
