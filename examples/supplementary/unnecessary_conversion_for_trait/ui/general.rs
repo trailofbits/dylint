@@ -30,7 +30,7 @@ fn main() {
 
     let _ = std::fs::write("x", "".to_string());
 
-    let _ = std::fs::write("x", "".borrow());
+    let _ = std::fs::write("x", <_ as Borrow<str>>::borrow(&s));
 
     read(<_ as BorrowMut<&[u8]>>::borrow_mut(&mut readable));
     read(<_ as BorrowMut<Box<_>>>::borrow_mut(&mut readable));
@@ -40,7 +40,7 @@ fn main() {
     let _ = std::fs::write("x", <_ as AsRef<[u8]>>::as_ref(""));
     let _ = std::fs::write("x", <_ as AsRef<str>>::as_ref(""));
 
-    let _ = std::fs::write("x", "".deref());
+    let _ = std::fs::write("x", s.deref());
 
     read(readable.deref_mut());
 
@@ -74,6 +74,7 @@ fn main() {
 
     let _ = std::fs::write(osstring.as_os_str(), "");
     let _ = is_empty_os(osstring.clone().into_boxed_os_str());
+    let _ = os_string_or_bytes(osstring.clone().into_os_str_bytes());
 
     let _ = std::fs::write(path.as_os_str(), "");
     let _ = std::fs::write(PathBuf::from("x").as_mut_os_str(), "");
@@ -108,3 +109,10 @@ trait OsStrOrBytes {}
 impl OsStrOrBytes for &OsStr {}
 impl OsStrOrBytes for &[u8] {}
 fn os_str_or_bytes(_: impl OsStrOrBytes) {}
+
+// smoelius: Similar hack for `OsString` and `Vec<u8>`.
+// Reference: https://github.com/rust-lang/rust/issues/111544
+trait OsStringOrBytes {}
+impl OsStringOrBytes for OsString {}
+impl OsStringOrBytes for Vec<u8> {}
+fn os_string_or_bytes(_: impl OsStringOrBytes) {}

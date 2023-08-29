@@ -8,7 +8,10 @@ extern crate rustc_hir;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_sugg, is_expr_path_def_path, match_any_def_paths};
+use clippy_utils::{
+    diagnostics::span_lint_and_sugg, is_expr_path_def_path, match_any_def_paths,
+    source::snippet_opt,
+};
 use dylint_internal::paths;
 use if_chain::if_chain;
 use rustc_ast::LitKind;
@@ -92,7 +95,7 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
                 &[&paths::CAMINO_UTF8_PATH_JOIN, &paths::PATH_JOIN],
             )
             .is_some();
-            if let Some(s) = is_lit_string(arg);
+            if let Some(s) = is_lit_string(cx, arg);
             then {
                 expr = receiver;
                 components_reversed.push(s);
@@ -110,7 +113,7 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
         if is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW)
             || is_expr_path_def_path(cx, callee, &paths::PATH_NEW)
             || ty.is_some();
-        if let Some(s) = is_lit_string(arg);
+        if let Some(s) = is_lit_string(cx, arg);
         then {
             components_reversed.push(s);
             TyOrPartialSpan::Ty(ty.unwrap_or_else(|| {
@@ -153,11 +156,15 @@ fn is_path_buf_from(
     }
 }
 
-fn is_lit_string(expr: &Expr<'_>) -> Option<String> {
+fn is_lit_string(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<String> {
     if_chain! {
         if !expr.span.from_expansion();
         if let ExprKind::Lit(lit) = &expr.kind;
         if let LitKind::Str(symbol, _) = lit.node;
+        // smoelius: I don't think the next line should be necessary. But following the upgrade to
+        // nightly-2023-08-24, `expr.span.from_expansion()` above started returning false for
+        // `env!(...)`.
+        if snippet_opt(cx, expr.span) == Some(format!(r#""{}""#, symbol.as_str()));
         then {
             Some(symbol.to_ident_string())
         } else {

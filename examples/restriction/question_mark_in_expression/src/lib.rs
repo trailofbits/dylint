@@ -45,7 +45,7 @@ impl<'tcx> LateLintPass<'tcx> for QuestionMarkInExpression {
                 .hir()
                 .parent_iter(expr.hir_id)
                 .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion());
-            if let ExprKind::Match(_, _, MatchSource::TryDesugar) = expr.kind;
+            if let ExprKind::Match(_, _, MatchSource::TryDesugar(_)) = expr.kind;
             if let Some((Node::Expr(ancestor), child_hir_id)) =
                 get_filtered_ancestor(cx, expr.hir_id);
             // smoelius: `AssignOp`, `If`, `Let`, and `Match` expressions get a pass.
