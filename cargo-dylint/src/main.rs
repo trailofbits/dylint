@@ -117,18 +117,10 @@ struct Dylint {
     #[clap(last = true, help = "Arguments for `cargo check`")]
     args: Vec<String>,
 
-    #[clap(
-        long,
-        value_name = "path",
-        help = "Path to file to which to pipe stderr"
-    )]
+    #[clap(long, value_name = "path", help = "Path to file to pipe stderr to.")]
     pipe_stderr: Option<String>,
 
-    #[clap(
-        long,
-        value_name = "path",
-        help = "Path to file to which to pipe stdout"
-    )]
+    #[clap(long, value_name = "path", help = "Path to file to pipe stdout to.")]
     pipe_stdout: Option<String>,
 }
 
