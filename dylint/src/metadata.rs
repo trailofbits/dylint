@@ -281,6 +281,7 @@ fn dependency(
     library: &Library,
 ) -> Result<Dependency> {
     let mut unused_keys = library.details.unused_keys();
+    #[allow(clippy::format_collect)]
     if !unused_keys.is_empty() {
         unused_keys.sort_unstable();
         bail!(

@@ -288,7 +288,7 @@ fn is_from_residual_or_try_implementor_method_call<'tcx>(
         if let Some((def_id, _)) = func.const_fn_def();
         if let [arg, ..] = args.as_slice();
         if let Some(arg_place) = arg.place();
-        let _ = if Some(def_id) == cx.tcx.lang_items().from_residual_fn() {
+        let () = if Some(def_id) == cx.tcx.lang_items().from_residual_fn() {
             return Some(arg_place);
         };
         if let Some(assoc_item) = cx.tcx.opt_associated_item(def_id);

@@ -57,9 +57,9 @@ impl<'opts> Lazy<'opts> {
                         let (name, toolchain, path) = entry?;
                         name_toolchain_map
                             .entry(name)
-                            .or_insert_with(Default::default)
+                            .or_default()
                             .entry(toolchain)
-                            .or_insert_with(Default::default)
+                            .or_default()
                             .insert(MaybeLibrary::from(path));
                     }
                 }
@@ -68,9 +68,9 @@ impl<'opts> Lazy<'opts> {
                 for package in workspace_metadata_packages {
                     name_toolchain_map
                         .entry(package.lib_name.clone())
-                        .or_insert_with(Default::default)
+                        .or_default()
                         .entry(package.toolchain.clone())
-                        .or_insert_with(Default::default)
+                        .or_default()
                         .insert(MaybeLibrary::from(package));
                 }
 
