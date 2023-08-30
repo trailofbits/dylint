@@ -1223,6 +1223,13 @@
         "kind": "user",
         "login": "lambda-fairy",
         "name": "Chris Wong"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/4503403?v=4",
+        "id": 6825,
+        "kind": "user",
+        "login": "sunfishcode",
+        "name": "Dan Gohman"
       }
     ],
     "errno-dragonfly": [
