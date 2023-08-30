@@ -134,10 +134,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
             let parent_ty = cx.typeck_results().expr_ty(parent);
             if is_copy(cx, parent_ty);
             then {
-                let field_use = self
-                    .field_uses
-                    .entry((local_def_id, field))
-                    .or_insert_with(Default::default);
+                let field_use = self.field_uses.entry((local_def_id, field)).or_default();
                 if let ExprKind::Field(_, subfield) = parent.kind {
                     let subfield_access = field_use
                         .subfield_accesses

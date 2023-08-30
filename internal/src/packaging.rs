@@ -47,7 +47,7 @@ pub fn isolate(path: &Path) -> Result<()> {
         .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
 
     writeln!(file)
-        .and_then(|_| writeln!(file, "[workspace]"))
+        .and_then(|()| writeln!(file, "[workspace]"))
         .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
 
     Ok(())
@@ -71,8 +71,8 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
     // smoelius: `use_local_packages` broke when `dylint_linting` was removed from the workspace.
     // For now, add `dylint_linting` manually.
     writeln!(file)
-        .and_then(|_| writeln!(file, "[patch.crates-io]"))
-        .and_then(|_| {
+        .and_then(|()| writeln!(file, "[patch.crates-io]"))
+        .and_then(|()| {
             writeln!(
                 file,
                 r#"dylint_linting = {{ path = "{}" }}"#,
