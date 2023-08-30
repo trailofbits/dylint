@@ -252,7 +252,7 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
                     .collect::<Result<Vec<_>>>()?;
                 toolchain_map
                     .entry(toolchain.clone())
-                    .or_insert_with(Default::default)
+                    .or_default()
                     .extend(paths);
             }
         }
@@ -263,18 +263,12 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
         let (toolchain, maybe_library) =
             name_as_lib(name_toolchain_map, name, true)?.unwrap_or_else(|| unreachable!());
         let path = maybe_library.build(opts)?;
-        toolchain_map
-            .entry(toolchain)
-            .or_insert_with(Default::default)
-            .insert(path);
+        toolchain_map.entry(toolchain).or_default().insert(path);
     }
 
     for name in &opts.paths {
         let (toolchain, path) = name_as_path(name, true)?.unwrap_or_else(|| unreachable!());
-        toolchain_map
-            .entry(toolchain)
-            .or_insert_with(Default::default)
-            .insert(path);
+        toolchain_map.entry(toolchain).or_default().insert(path);
     }
 
     let mut not_found = Vec::new();
@@ -289,20 +283,15 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
                 name
             );
             let path = maybe_library.build(opts)?;
-            toolchain_map
-                .entry(toolchain)
-                .or_insert_with(Default::default)
-                .insert(path);
+            toolchain_map.entry(toolchain).or_default().insert(path);
         } else if let Some((toolchain, path)) = name_as_path(name, false)? {
-            toolchain_map
-                .entry(toolchain)
-                .or_insert_with(Default::default)
-                .insert(path);
+            toolchain_map.entry(toolchain).or_default().insert(path);
         } else {
             not_found.push(name);
         }
     }
 
+    #[allow(clippy::format_collect)]
     if !not_found.is_empty() {
         not_found.sort_unstable();
         bail!(
