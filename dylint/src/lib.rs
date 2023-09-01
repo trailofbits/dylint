@@ -576,7 +576,18 @@ mod test {
             metadata.target_directory.join("straggler/debug"),
         ])
         .unwrap();
+
+        #[rustfmt::skip]
+        // smoelius: Following the upgrade nightly-2023-08-24, I started seeing he following error:
+        //
+        //   error: internal compiler error: encountered incremental compilation error with shallow_lint_levels_on(dylint_internal[...]::cargo::{use#15})
+        //     |
+        //     = help: This is a known issue with the compiler. Run `cargo clean -p dylint_internal` or `cargo clean` to allow your project to compile
+        //     = note: Please follow the instructions below to create a bug report with the provided information
+        //     = note: See <https://github.com/rust-lang/rust/issues/84970> for more information
+        set_var(env::CARGO_INCREMENTAL, "0");
         set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
+
         NameToolchainMap::new(&OPTS)
     }
 

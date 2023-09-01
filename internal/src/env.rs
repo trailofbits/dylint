@@ -7,6 +7,7 @@ macro_rules! declare_const {
 }
 
 declare_const!(CARGO_HOME);
+declare_const!(CARGO_INCREMENTAL);
 declare_const!(CARGO_MANIFEST_DIR);
 declare_const!(CARGO_PKG_NAME);
 declare_const!(CARGO_PRIMARY_PACKAGE);
