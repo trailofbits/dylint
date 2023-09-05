@@ -535,7 +535,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
             let file = OpenOptions::new()
                 .append(true)
                 .create(true)
-                .open(&stderr_path)
+                .open(stderr_path)
                 .with_context(|| format!("Failed to open `{}` for stderr usage", stderr_path))?;
             command = command.stderr(file);
         }
@@ -544,7 +544,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
             let file = OpenOptions::new()
                 .append(true)
                 .create(true)
-                .open(&stdout_path)
+                .open(stdout_path)
                 .with_context(|| format!("Failed to open `{}` for stdout usage", stdout_path))?;
             command = command.stdout(file);
         }
