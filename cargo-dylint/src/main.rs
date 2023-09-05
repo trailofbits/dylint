@@ -90,6 +90,12 @@ struct Dylint {
     )]
     packages: Vec<String>,
 
+    #[clap(long, value_name = "path", help = "Path to file to pipe stderr to")]
+    pipe_stderr: Option<String>,
+
+    #[clap(long, value_name = "path", help = "Path to file to pipe stdout to")]
+    pipe_stdout: Option<String>,
+
     #[clap(
         global = true,
         short,
@@ -116,12 +122,6 @@ struct Dylint {
 
     #[clap(last = true, help = "Arguments for `cargo check`")]
     args: Vec<String>,
-
-    #[clap(long, value_name = "path", help = "Path to file to pipe stderr to.")]
-    pipe_stderr: Option<String>,
-
-    #[clap(long, value_name = "path", help = "Path to file to pipe stdout to.")]
-    pipe_stdout: Option<String>,
 }
 
 #[derive(Debug, Parser)]
@@ -238,6 +238,8 @@ impl From<Dylint> for dylint::Dylint {
             new_path,
             no_deps,
             packages,
+            pipe_stderr,
+            pipe_stdout,
             quiet,
             rust_version,
             upgrade_path,
@@ -245,8 +247,6 @@ impl From<Dylint> for dylint::Dylint {
             subcmd: _,
             names,
             args,
-            pipe_stderr,
-            pipe_stdout,
         } = opts;
         Self {
             all,
@@ -264,6 +264,8 @@ impl From<Dylint> for dylint::Dylint {
             no_deps,
             no_metadata,
             packages,
+            pipe_stderr,
+            pipe_stdout,
             paths,
             quiet,
             rust_version,
@@ -271,8 +273,6 @@ impl From<Dylint> for dylint::Dylint {
             workspace,
             names,
             args,
-            pipe_stderr,
-            pipe_stdout,
         }
     }
 }
