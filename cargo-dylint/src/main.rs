@@ -92,10 +92,10 @@ struct Dylint {
     )]
     packages: Vec<String>,
 
-    #[clap(long, value_name = "path", help = "Path to file to pipe stderr to")]
+    #[clap(long, value_name = "path", help = "Path to pipe stderr to")]
     pipe_stderr: Option<String>,
 
-    #[clap(long, value_name = "path", help = "Path to file to pipe stdout to")]
+    #[clap(long, value_name = "path", help = "Path to pipe stdout to")]
     pipe_stdout: Option<String>,
 
     #[clap(
