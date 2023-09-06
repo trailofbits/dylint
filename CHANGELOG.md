@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.0
+
+- Add `--pipe-stderr` and `--pipe-stdout` options ([#822](https://github.com/trailofbits/dylint/pull/822))
+
 ## 2.2.0
 
 - Add `constituent` feature to facilitate building a lint by itself, or as part of a larger library ([#790](https://github.com/trailofbits/dylint/pull/790) and [#812](https://github.com/trailofbits/dylint/pull/812))
