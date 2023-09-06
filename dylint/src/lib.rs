@@ -55,6 +55,7 @@ static REQUIRED_FORM: Lazy<String> = Lazy::new(|| {
 
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Default)]
+// smoelius: Please keep the fields `names` and `args` last. Please keep all other fields sorted.
 pub struct Dylint {
     pub all: bool,
 
