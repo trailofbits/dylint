@@ -1,6 +1,6 @@
 [package]
 name = "general"
-version = "2.2.0"
+version = "2.3.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "General-purpose lints"
 edition = "2021"

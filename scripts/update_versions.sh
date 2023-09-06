@@ -21,6 +21,7 @@ if ! scripts/check_CHANGELOG.sh refs/tags/v"$1"; then
 fi
 
 find . -name Cargo.toml |
+grep -vw fixtures |
 grep -vw template |
 xargs -n 1 sed -i "{
 s/^version = \"[^\"]*\"$/$VERSION/
