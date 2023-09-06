@@ -130,14 +130,6 @@ pub fn run(opts: &Dylint) -> Result<()> {
         }
     };
 
-    if opts.pipe_stderr.is_some() {
-        warn(&opts, "`--pipe-stderr` is experimental");
-    }
-
-    if opts.pipe_stdout.is_some() {
-        warn(&opts, "`--pipe-stdout` is experimental");
-    }
-
     if opts.allow_downgrade && opts.upgrade_path.is_none() {
         bail!("`--allow-downgrade` can be used only with `--upgrade`");
     }
@@ -156,6 +148,14 @@ pub fn run(opts: &Dylint) -> Result<()> {
 
     if opts.isolate && opts.new_path.is_none() {
         bail!("`--isolate` can be used only with `--new`");
+    }
+
+    if opts.pipe_stderr.is_some() {
+        warn(&opts, "`--pipe-stderr` is experimental");
+    }
+
+    if opts.pipe_stdout.is_some() {
+        warn(&opts, "`--pipe-stdout` is experimental");
     }
 
     if opts.rust_version.is_some() && opts.upgrade_path.is_none() {
