@@ -41,6 +41,8 @@ METADATA EXAMPLE:
     ]
 "#,
 )]
+// smoelius: Please keep the field `name_opts` first, and the fields `subcmd`, `names`, and `args`
+// last. Please keep all other fields sorted.
 struct Dylint {
     #[clap(flatten)]
     name_opts: NameOpts,
