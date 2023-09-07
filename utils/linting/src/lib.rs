@@ -205,7 +205,12 @@ extern crate rustc_span;
 
 use dylint_internal::env;
 use rustc_span::Symbol;
-use std::{any::type_name, fs::read_to_string, path::PathBuf, sync::Mutex};
+use std::{
+    any::type_name,
+    fs::read_to_string,
+    path::{Path, PathBuf},
+    sync::Mutex,
+};
 use thiserror::Error;
 
 pub const DYLINT_VERSION: &str = "0.1.0";
@@ -537,6 +542,7 @@ pub fn try_init_config(sess: &rustc_session::Session) -> ConfigResult<()> {
         return Ok(());
     }
 
+    #[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
     let value = if let Ok(value) = std::env::var(env::DYLINT_TOML) {
         sess.parse_sess.env_depinfo.lock().insert((
             Symbol::intern(env::DYLINT_TOML),
@@ -550,16 +556,42 @@ pub fn try_init_config(sess: &rustc_session::Session) -> ConfigResult<()> {
             Some(path)
         }
     }) {
-        let local_crate_source_file = local_crate_source_file.canonicalize().map_err(|error| {
+        #[rustfmt::skip]
+        // smoelius: Canonicalizing `local_crate_source_file` causes errors like the following on
+        // Windows:
+        //
+        //   error: could not read configuration file: cargo metadata error: `cargo metadata` exited with an error: error: failed to load manifest for dependency `await_holding_span_guard`
+        //
+        //          Caused by:
+        //            failed to parse manifest at `D:\a\dylint\dylint\examples\general\await_holding_span_guard\Cargo.toml`
+        //
+        //          Caused by:
+        //            error inheriting `clippy_utils` from workspace root manifest's `workspace.dependencies.clippy_utils`
+        //
+        //          Caused by:
+        //            `workspace.dependencies` was not defined
+        //
+        // The issue is that `canonicalize` prepends `\\?\` to the path, and such "verbatim" paths
+        // cause problems for Cargo. See the following GitHub issue for more information:
+        // https://github.com/rust-lang/cargo/issues/9770#issuecomment-993069234
+        //
+        // For reasons that I don't understand, fixing this problem in Cargo would be difficult.
+
+        /* let local_crate_source_file = local_crate_source_file.canonicalize().map_err(|error| {
             ConfigErrorInner::Io(
                 format!("Could not canonicalize {local_crate_source_file:?}"),
                 error,
             )
-        })?;
+        })?; */
 
-        let parent = local_crate_source_file
+        let mut parent = local_crate_source_file
             .parent()
             .ok_or_else(|| ConfigErrorInner::Other("Could not get parent directory".into()))?;
+
+        // smoelius: https://users.rust-lang.org/t/pathbuf-equivalent-to-string-is-empty/24823
+        if parent.as_os_str().is_empty() {
+            parent = Path::new(".");
+        };
 
         let result = cargo_metadata::MetadataCommand::new()
             .current_dir(parent)
