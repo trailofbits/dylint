@@ -517,7 +517,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         // https://github.com/rust-lang/rust-clippy/commit/1a206fc4abae0b57a3f393481367cf3efca23586
         // But I am going to continue to set CLIPPY_DISABLE_DOCS_LINKS because it doesn't seem to
         // hurt and it provides a small amount of backward compatibility.
-        let mut command = command
+        command
             .sanitize_environment()
             .envs([
                 (
@@ -538,7 +538,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
                 .create(true)
                 .open(stderr_path)
                 .with_context(|| format!("Failed to open `{}` for stderr usage", stderr_path))?;
-            command = command.stderr(file);
+            command.stderr(file);
         }
 
         if let Some(stdout_path) = &opts.pipe_stdout {
@@ -547,7 +547,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
                 .create(true)
                 .open(stdout_path)
                 .with_context(|| format!("Failed to open `{}` for stdout usage", stdout_path))?;
-            command = command.stdout(file);
+            command.stdout(file);
         }
 
         let result = command.success();
