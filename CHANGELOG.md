@@ -2,7 +2,7 @@
 
 ## 2.3.0
 
-- Add `--pipe-stderr` and `--pipe-stdout` options ([#822](https://github.com/trailofbits/dylint/pull/822))
+- Add `--pipe-stderr` and `--pipe-stdout` options ([#822](https://github.com/trailofbits/dylint/pull/822))&mdash;thanks [@faculerena](https://github.com/faculerena)
 
 ## 2.2.0
 
