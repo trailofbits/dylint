@@ -26,7 +26,7 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/cache@v3
         with:
@@ -107,7 +107,7 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # smoelius: The `nightly_toolchain` test makes sense only if the nightly driver is cached.
       - uses: actions/cache@v3
@@ -192,7 +192,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dylint-link
         run: cargo install --path ./dylint-link
