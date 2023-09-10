@@ -457,11 +457,8 @@ fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
 
 fn display_location(path: &Path) -> Result<String> {
     let current_dir = current_dir().with_context(|| "Could not get current directory")?;
-    let path_buf = match path.canonicalize() {
-        Ok(path_buf) => path_buf,
-        Err(_) => {
-            return Ok("<unbuilt>".to_owned());
-        }
+    let Ok(path_buf) = path.canonicalize() else {
+        return Ok("<unbuilt>".to_owned());
     };
     let parent = path_buf
         .parent()
