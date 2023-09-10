@@ -271,6 +271,28 @@ fn markdown_link_check() {
     }
 }
 
+#[test]
+fn msrv() {
+    for package in &METADATA.packages {
+        if package.rust_version.is_none() {
+            continue;
+        }
+        let manifest_dir = package.manifest_path.parent().unwrap();
+        Command::new("cargo")
+            .args([
+                "msrv",
+                "verify",
+                "--",
+                "cargo",
+                "check",
+                "--no-default-features",
+            ])
+            .current_dir(manifest_dir)
+            .assert()
+            .success();
+    }
+}
+
 // smoelius: `supply_chain` is the only test that uses `supply_chain.json`. So there is no race.
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]

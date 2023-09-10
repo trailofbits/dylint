@@ -131,6 +131,7 @@ jobs:
       - name: Install tools
         run: |
           cargo install cargo-hack         || true
+          cargo install cargo-msrv         || true
           cargo install cargo-supply-chain || true
 
       - name: Free up space on Ubuntu
