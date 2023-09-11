@@ -28,7 +28,7 @@ Note: Earlier versions of Dylint searched the current package's `target/debug` a
 
 ## Library requirements
 
-A Dylint library must satisfy four requirements. **Note:** Before trying to satisfy these explicitly, see [Utilities] below.
+A Dylint library must satisfy four requirements. **Note:** Before trying to satisfy these explicitly, see [Utilities] in the repository's main [README.md].
 
 1. Have a filename of the form:
 
@@ -77,6 +77,7 @@ To run a library's lints on a package, Dylint tries to build the package with th
 
 One way this problem can manifest itself is if you try to run one library's lints on the source code of another library. That is, if two libraries use different toolchains, they may not be applicable to each other.
 
+[README.md]: ../README.md
 [`dylint-link`]: ../dylint-link
 [`dylint_library!`]: ../utils/linting
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
