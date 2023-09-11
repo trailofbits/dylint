@@ -10,7 +10,8 @@ use tempfile::tempdir;
 
 // smoelius: I expected `git2-0.17.2` to build with nightly-2022-06-30, which corresponds to
 // `--rust-version 1.64.0`. I'm not sure why it doesn't.
-const RUST_VERSION: &str = "1.65.0";
+// smoelius: Dylint's MSRV was recently bumped to 1.68.
+const RUST_VERSION: &str = "1.68.0";
 
 #[test]
 fn new_package() {
