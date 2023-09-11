@@ -20,6 +20,7 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
   - [VS Code integration]
 - [Utilities]
 - [Resources]
+- [MSRV policy]
 
 Documentation is also available on [how Dylint works].
 
@@ -179,6 +180,12 @@ Helpful resources for writing lints include the following:
   - [Field `tcx`]
     - [Method `hir`]
 
+## MSRV policy
+
+A bump of Dylint's MSRV will be accompanied by a bump of at least Dylint's minor version.
+
+Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, and to change it only when releasing new features.
+
 [`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ./dylint-link
@@ -210,6 +217,7 @@ Helpful resources for writing lints include the following:
 [library requirements]: ./docs/how_dylint_works.md#library-requirements
 [method `hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.hir
 [method `typeck_results`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#method.typeck_results
+[msrv policy]: #msrv-policy
 [quick start]: #quick-start
 [resources]: #resources
 [running dylint]: #running-dylint
