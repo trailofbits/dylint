@@ -37,11 +37,14 @@ fn ui() {
     // https://github.com/rust-lang/rust-clippy/blob/master/tests/compile-test.rs). This can happen
     // as a result of using a shared target directory. The workaround I have adopted is to use a
     // temporary target directory.
-    let target_dir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let target_dir = tempdir_in(".").unwrap();
+
+    // smoelius: A non-canonical temporary current directory seems to cause problems for `ui_test`.
+    let tempdir_path = tempdir.path().canonicalize().unwrap();
 
     let mut command = dylint_internal::cargo::test("clippy", false);
     command
-        .current_dir(&tempdir)
+        .current_dir(tempdir_path)
         .envs([
             (env::CARGO_TARGET_DIR, &*target_dir.path().to_string_lossy()),
             (env::DYLINT_LIBS, &dylint_libs),
