@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.0
+
+- Update `cargo-dylint` and `dylint` MSRVs ([d42a7a0](https://github.com/trailofbits/dylint/commit/d42a7a076b5f4118fc9dffc9b932f228d4a79bc9))
+- Specify MSRV policy ([#835](https://github.com/trailofbits/dylint/pull/835))
+- Make `cargo dylint update` work when `clippy_utils` is a workspace dependency, as opposed to just when it is a package dependency (bugfix) ([36d94ed](https://github.com/trailofbits/dylint/commit/36d94ed9f8a6f190e7f90d064846585b2a69c8fc))
+- Don't canonicalize paths passed to Cargo in `dylint_linting` (bugfix) ([d6b0356](https://github.com/trailofbits/dylint/commit/d6b0356f2457c41eb15207af08e8e80b5d29f525))
+
 ## 2.3.0
 
 - Add `--pipe-stderr` and `--pipe-stdout` options ([#822](https://github.com/trailofbits/dylint/pull/822))&mdash;thanks [@faculerena](https://github.com/faculerena)

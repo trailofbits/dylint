@@ -1,6 +1,6 @@
 [package]
 name = "derive_opportunity"
-version = "2.3.0"
+version = "2.4.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for traits that could be derived"
 edition = "2021"
