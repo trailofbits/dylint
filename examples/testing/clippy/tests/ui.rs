@@ -22,6 +22,17 @@ fn ui() {
     // let src_base = tempdir.path().join("tests/ui");
     // adjust_macro_use_imports_test(&src_base).unwrap();
 
+    // smoelius: The `5041_allow_dev_build` test is flaky on Windows. See:
+    // https://github.com/rust-lang/rust-clippy/issues/11489
+    // Disable the test for now.
+    #[cfg(windows)]
+    std::fs::remove_dir_all(
+        tempdir
+            .path()
+            .join("tests/ui-cargo/multiple_crate_versions/5041_allow_dev_build"),
+    )
+    .unwrap();
+
     // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
     // smoelius: This is no longer true. See comment in `dylint_testing::initialize`.
     let metadata = dylint_internal::cargo::current_metadata().unwrap();
