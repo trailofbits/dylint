@@ -10,7 +10,7 @@ rust-version = "1.70"
 
 [dependencies]
 anyhow = { version = "1.0", features = ["backtrace"] }
-clap = { version = "4.3", features = ["cargo", "derive", "wrap_help"] }
+clap = { version = "4.4", features = ["cargo", "derive", "wrap_help"] }
 env_logger = "0.10"
 
 dylint = { version = "=2.4.0", path = "../dylint", features = ["package_options"] }
