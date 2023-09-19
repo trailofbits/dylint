@@ -1584,6 +1584,15 @@
         "name": "Sebastian Thiel"
       }
     ],
+    "gix-commitgraph": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
     "gix-config": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
@@ -1719,6 +1728,15 @@
         "name": "Sebastian Thiel"
       }
     ],
+    "gix-negotiate": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
     "gix-object": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
@@ -1810,6 +1828,15 @@
       }
     ],
     "gix-revision": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
+    "gix-revwalk": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
         "id": 980,
@@ -2994,6 +3021,29 @@
         "name": "Sebastian Thiel"
       }
     ],
+    "pulldown-cmark": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1255413?v=4",
+        "id": 822,
+        "kind": "user",
+        "login": "marcusklaas",
+        "name": "Marcus Klaas de Vries"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/242367?v=4",
+        "id": 1968,
+        "kind": "user",
+        "login": "raphlinus",
+        "name": "Raph Levien"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/4211771?v=4",
+        "id": 27114,
+        "kind": "user",
+        "login": "Martin1887",
+        "name": "Martín Pozo"
+      }
+    ],
     "quote": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1940490?v=4",
@@ -3934,6 +3984,15 @@
         "kind": "user",
         "login": "paholg",
         "name": "Paho Lurie-Gregg"
+      }
+    ],
+    "unicase": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/51479?v=4",
+        "id": 359,
+        "kind": "user",
+        "login": "seanmonstar",
+        "name": "Sean McArthur"
       }
     ],
     "unicode-bidi": [
