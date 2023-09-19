@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.1
+
+- Update dependencies, including `cargo` to version 0.73.1 ([#847](https://github.com/trailofbits/dylint/pull/847))
+
 ## 2.4.0
 
 - Update `cargo-dylint` and `dylint` MSRVs ([d42a7a0](https://github.com/trailofbits/dylint/commit/d42a7a076b5f4118fc9dffc9b932f228d4a79bc9))
