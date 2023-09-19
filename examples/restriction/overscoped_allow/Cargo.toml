@@ -1,6 +1,6 @@
 [package]
 name = "overscoped_allow"
-version = "2.4.0"
+version = "2.4.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for `allow` attributes whose scope could be reduced"
 edition = "2021"
