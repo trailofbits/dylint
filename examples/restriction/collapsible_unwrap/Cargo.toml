@@ -21,7 +21,7 @@ if_chain = "1.0"
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-toml = "0.7"
+toml = "0.8"
 
 dylint_testing = { path = "../../../utils/testing" }
 

@@ -12,10 +12,10 @@ rust-version = "1.68"
 ansi_term = "0.12"
 anyhow = "1.0"
 # smoelius: The `cargo` dependency should be kept in sync with dylint/src/toml.rs.
-cargo = { version = "0.72", optional = true }
+cargo = { version = "0.73", optional = true }
 cargo-platform = { version = "0.1", optional = true }
 cargo-util = { version = "0.2", optional = true }
-cargo_metadata = "0.17"
+cargo_metadata = "0.18"
 dirs = "5.0"
 glob = { version = "0.3", optional = true }
 heck = "0.4"
@@ -27,7 +27,7 @@ semver = "1.0"
 serde = "1.0"
 serde_json = "1.0"
 tempfile = "3.8"
-toml = { version = "0.7", optional = true }
+toml = { version = "0.8", optional = true }
 walkdir = "2.4"
 
 dylint_internal = { version = "=2.4.0", path = "../internal", features = ["git", "packaging", "rustup", "sed"] }

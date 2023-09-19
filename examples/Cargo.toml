@@ -8,8 +8,8 @@ publish = false
 
 [dev-dependencies]
 cargo-util = "0.2"
-cargo_metadata = "0.17"
-toml_edit = "0.19"
+cargo_metadata = "0.18"
+toml_edit = "0.20"
 walkdir = "2.4"
 
 dylint_internal = { version = "=2.4.0", path = "../internal", features = ["clippy_utils", "examples"] }
