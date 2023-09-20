@@ -442,6 +442,7 @@ dependencies = [
  "env_cargo_path",
  "non_local_effect_before_error_return",
  "non_thread_safe_call_in_test",
+ "wrong_serialize_struct_arg",
 ]
 
 [[package]]
@@ -1372,4 +1373,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c2e3184b9c4e92ad5167ca73039d0c42476302ab603e2fec4487511f38ccefc"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "wrong_serialize_struct_arg"
+version = "2.4.1"
+dependencies = [
+ "clippy_utils",
+ "dylint_internal",
+ "dylint_linting",
+ "dylint_testing",
+ "if_chain",
+ "serde",
+ "serde_json",
 ]

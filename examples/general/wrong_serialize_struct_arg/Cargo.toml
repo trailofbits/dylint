@@ -1,0 +1,33 @@
+[package]
+name = "wrong_serialize_struct_arg"
+version = "2.4.1"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for calls to `serialize_struct` with incorrect `len` arguments"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[example]]
+name = "ui"
+path = "ui/main.rs"
+
+[dependencies]
+clippy_utils = { workspace = true }
+if_chain = "1.0"
+
+dylint_internal = { path = "../../../internal" }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+serde = "1.0"
+serde_json = "1.0"
+
+dylint_testing = { path = "../../../utils/testing" }
+
+[features]
+rlib = ["dylint_linting/constituent"]
+
+[package.metadata.rust-analyzer]
+rustc_private = true
