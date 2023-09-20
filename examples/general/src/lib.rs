@@ -14,4 +14,5 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint
     env_cargo_path::register_lints(sess, lint_store);
     non_local_effect_before_error_return::register_lints(sess, lint_store);
     non_thread_safe_call_in_test::register_lints(sess, lint_store);
+    wrong_serialize_struct_arg::register_lints(sess, lint_store);
 }

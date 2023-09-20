@@ -10,11 +10,20 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-await_holding_span_guard = { path = "await_holding_span_guard", features = ["rlib"] }
+await_holding_span_guard = { path = "await_holding_span_guard", features = [
+    "rlib",
+] }
 crate_wide_allow = { path = "crate_wide_allow", features = ["rlib"] }
 env_cargo_path = { path = "env_cargo_path", features = ["rlib"] }
-non_local_effect_before_error_return = { path = "non_local_effect_before_error_return", features = ["rlib"] }
-non_thread_safe_call_in_test = { path = "non_thread_safe_call_in_test", features = ["rlib"] }
+non_local_effect_before_error_return = { path = "non_local_effect_before_error_return", features = [
+    "rlib",
+] }
+non_thread_safe_call_in_test = { path = "non_thread_safe_call_in_test", features = [
+    "rlib",
+] }
+wrong_serialize_struct_arg = { path = "wrong_serialize_struct_arg", features = [
+    "rlib",
+] }
 
 dylint_linting = { path = "../../utils/linting" }
 

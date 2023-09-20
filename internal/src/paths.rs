@@ -27,4 +27,7 @@ pub const PATH_BUF: [&str; 3] = ["std", "path", "PathBuf"];
 
 pub const REFCELL_BORROW_MUT: [&str; 4] = ["core", "cell", "RefCell", "borrow_mut"];
 
+pub const SERDE_SERIALIZE_STRUCT: [&str; 4] = ["serde", "ser", "Serializer", "serialize_struct"];
+pub const SERDE_SERIALIZE_FIELD: [&str; 4] = ["serde", "ser", "SerializeStruct", "serialize_field"];
+
 pub const TEST_DESC_AND_FN: [&str; 3] = ["test", "types", "TestDescAndFn"];
