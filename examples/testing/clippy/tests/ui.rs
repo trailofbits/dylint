@@ -91,15 +91,15 @@ fn clippy_lints_dependency() -> Result<Dependency> {
     let metadata = dylint_internal::cargo::current_metadata()?;
     let package = metadata
         .packages
-        .iter()
+        .into_iter()
         .find(|package| package.name == env!("CARGO_PKG_NAME"))
         .ok_or_else(|| anyhow!("Could not find package"))?;
     let dependency = package
         .dependencies
-        .iter()
+        .into_iter()
         .find(|dependency| dependency.name == "clippy_lints")
         .ok_or_else(|| anyhow!("Could not find dependency"))?;
-    Ok(dependency.clone())
+    Ok(dependency)
 }
 
 #[cfg(any())]
