@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use cargo_metadata::Dependency;
 use dylint_internal::{clone, env};
-use std::{env::set_var, path::Path};
+use std::path::Path;
 use tempfile::{tempdir, tempdir_in};
 
 #[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
@@ -32,12 +32,6 @@ fn ui() {
             .join("tests/ui-cargo/multiple_crate_versions/5041_allow_dev_build"),
     )
     .unwrap();
-
-    // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-    // smoelius: This is no longer true. See comment in `dylint_testing::initialize`.
-    let metadata = dylint_internal::cargo::current_metadata().unwrap();
-    let dylint_library_path = metadata.target_directory.join("debug");
-    set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
 
     let dylint_libs = dylint_testing::dylint_libs("clippy").unwrap();
     let driver =
