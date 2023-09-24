@@ -426,7 +426,14 @@ fn run_tests(driver: &Path, src_base: &Path, config: &ui::Config) {
         rustc_path: driver.to_path_buf(),
         src_base: src_base.to_path_buf(),
         target_rustcflags: Some(
-            config.rustc_flags.clone().join(" ") + " --emit=metadata -Dwarnings -Zui-testing",
+            config.rustc_flags.clone().join(" ")
+                + " --emit=metadata"
+                + if cfg!(feature = "deny_warnings") {
+                    " -Dwarnings"
+                } else {
+                    ""
+                }
+                + " -Zui-testing",
         ),
         ..compiletest::Config::default()
     };
