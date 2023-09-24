@@ -30,6 +30,11 @@ pub fn init(description: &str, quiet: bool) -> crate::Command {
 }
 
 #[must_use]
+pub fn run(description: &str, quiet: bool) -> crate::Command {
+    cargo("run", "Running", description, quiet)
+}
+
+#[must_use]
 pub fn test(description: &str, quiet: bool) -> crate::Command {
     cargo("test", "Testing", description, quiet)
 }
