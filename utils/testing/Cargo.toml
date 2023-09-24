@@ -19,3 +19,8 @@ tempfile = "3.8"
 
 dylint = { version = "=2.5.0", path = "../../dylint", default-features = false }
 dylint_internal = { version = "=2.5.0", path = "../../internal" }
+
+[features]
+# smoelius: Make `deny_warnings` not a default with the next major version bump.
+default = ["deny_warnings"]
+deny_warnings = []
