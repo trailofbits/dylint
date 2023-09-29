@@ -30,17 +30,30 @@ tempfile = "3.8"
 toml = { version = "0.8", optional = true }
 walkdir = "2.4"
 
-dylint_internal = { version = "=2.4.1", path = "../internal", features = ["git", "packaging", "rustup", "sed"] }
+dylint_internal = { version = "=2.4.1", path = "../internal", features = [
+    "git",
+    "packaging",
+    "rustup",
+    "sed",
+] }
 
 [build-dependencies]
-dylint_internal = { version = "=2.4.1", path = "../internal", features = ["cargo"] }
+dylint_internal = { version = "=2.4.1", path = "../internal", features = [
+    "cargo",
+] }
 
 [dev-dependencies]
 env_logger = "0.10"
 
-dylint_internal = { version = "=2.4.1", path = "../internal", features = ["examples"] }
+dylint_internal = { version = "=2.4.1", path = "../internal", features = [
+    "examples",
+] }
 
 [features]
 default = ["metadata"]
 metadata = ["cargo", "cargo-platform", "cargo-util", "glob", "if_chain", "toml"]
-package_options = ["if_chain", "dylint_internal/clippy_utils", "dylint_internal/git"]
+package_options = [
+    "if_chain",
+    "dylint_internal/clippy_utils",
+    "dylint_internal/git",
+]
