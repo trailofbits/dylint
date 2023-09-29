@@ -746,6 +746,7 @@ dependencies = [
  "cargo-platform",
  "cargo-util",
  "cargo_metadata",
+ "curl-sys",
  "dirs",
  "dylint_internal",
  "env_logger",
