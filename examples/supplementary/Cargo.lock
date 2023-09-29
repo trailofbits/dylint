@@ -124,7 +124,7 @@ dependencies = [
 
 [[package]]
 name = "commented_code"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -251,7 +251,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -272,7 +272,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -288,7 +288,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -301,7 +301,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -732,7 +732,7 @@ dependencies = [
 
 [[package]]
 name = "redundant_reference"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -928,7 +928,7 @@ dependencies = [
 
 [[package]]
 name = "supplementary"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "commented_code",
  "dylint_linting",
@@ -1099,7 +1099,7 @@ checksum = "e51733f11c9c4f72aa0c160008246859e340b00807569a0da0e7a1079b27ba85"
 
 [[package]]
 name = "unnamed_constant"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -1110,7 +1110,7 @@ dependencies = [
 
 [[package]]
 name = "unnecessary_borrow_mut"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -1121,7 +1121,7 @@ dependencies = [
 
 [[package]]
 name = "unnecessary_conversion_for_trait"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
