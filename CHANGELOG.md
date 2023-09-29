@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.2
+
+- Work around [curl/curl#11893](https://github.com/curl/curl/issues/11893) ([#858](https://github.com/trailofbits/dylint/pull/858))
+
 ## 2.4.1
 
 - Update dependencies, including `cargo` to version 0.73.1 ([#847](https://github.com/trailofbits/dylint/pull/847))

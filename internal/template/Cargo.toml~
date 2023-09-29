@@ -11,11 +11,11 @@ crate-type = ["cdylib"]
 
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "acdffd791b31d96cdeb15368132e8ca91f2089af" }
-dylint_linting = "2.4.1"
+dylint_linting = "2.4.2"
 if_chain = "1.0.2"
 
 [dev-dependencies]
-dylint_testing = "2.4.1"
+dylint_testing = "2.4.2"
 
 [workspace]
 
