@@ -219,21 +219,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "curl-sys"
-version = "0.4.66+curl-8.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70c44a72e830f0e40ad90dda8a6ab6ed6314d39776599a58a2e5e37fbc6db5b9"
-dependencies = [
- "cc",
- "libc",
- "libz-sys",
- "openssl-sys",
- "pkg-config",
- "vcpkg",
- "windows-sys",
-]
-
-[[package]]
 name = "declare_clippy_lint"
 version = "0.1.74"
 source = "git+https://github.com/rust-lang/rust-clippy?rev=acdffd791b31d96cdeb15368132e8ca91f2089af#acdffd791b31d96cdeb15368132e8ca91f2089af"
@@ -308,7 +293,6 @@ dependencies = [
  "ansi_term",
  "anyhow",
  "cargo_metadata 0.18.0",
- "curl-sys",
  "dirs",
  "dylint_internal",
  "heck",
