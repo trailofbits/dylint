@@ -195,12 +195,17 @@ impl rustc_driver::Callbacks for Callbacks {
                 previous(sess, lint_store);
             }
 
+            let dylint_libs = env::var(env::DYLINT_LIBS).ok();
             let dylint_metadata = env::var(env::DYLINT_METADATA).ok();
             let dylint_no_deps = env::var(env::DYLINT_NO_DEPS).ok();
             let dylint_no_deps_enabled =
                 dylint_no_deps.as_ref().map_or(false, |value| value != "0");
             let cargo_primary_package_is_set = env::var(env::CARGO_PRIMARY_PACKAGE).is_ok();
 
+            sess.parse_sess.env_depinfo.lock().insert((
+                rustc_span::Symbol::intern(env::DYLINT_LIBS),
+                dylint_libs.as_deref().map(rustc_span::Symbol::intern),
+            ));
             sess.parse_sess.env_depinfo.lock().insert((
                 rustc_span::Symbol::intern(env::DYLINT_METADATA),
                 dylint_metadata.as_deref().map(rustc_span::Symbol::intern),
