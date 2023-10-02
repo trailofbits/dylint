@@ -32,7 +32,9 @@ walkdir = "2.4"
 
 # smoelius: Work around: https://github.com/curl/curl/issues/11893
 # See: https://github.com/alexcrichton/curl-rust/issues/524#issuecomment-1703325064
-curl-sys = { version = "0.4", features = ["force-system-lib-on-osx"] }
+curl-sys = { version = "0.4", features = [
+    "force-system-lib-on-osx",
+], optional = true }
 
 dylint_internal = { version = "=2.4.2", path = "../internal", features = [
     "git",
@@ -55,7 +57,15 @@ dylint_internal = { version = "=2.4.2", path = "../internal", features = [
 
 [features]
 default = ["metadata"]
-metadata = ["cargo", "cargo-platform", "cargo-util", "glob", "if_chain", "toml"]
+metadata = [
+    "cargo",
+    "cargo-platform",
+    "cargo-util",
+    "curl-sys",
+    "glob",
+    "if_chain",
+    "toml",
+]
 package_options = [
     "if_chain",
     "dylint_internal/clippy_utils",
