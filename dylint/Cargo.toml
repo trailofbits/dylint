@@ -1,6 +1,6 @@
 [package]
 name = "dylint"
-version = "2.4.2"
+version = "2.4.3"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
 edition = "2021"
@@ -36,7 +36,7 @@ curl-sys = { version = "0.4", features = [
     "force-system-lib-on-osx",
 ], optional = true }
 
-dylint_internal = { version = "=2.4.2", path = "../internal", features = [
+dylint_internal = { version = "=2.4.3", path = "../internal", features = [
     "git",
     "packaging",
     "rustup",
@@ -44,14 +44,14 @@ dylint_internal = { version = "=2.4.2", path = "../internal", features = [
 ] }
 
 [build-dependencies]
-dylint_internal = { version = "=2.4.2", path = "../internal", features = [
+dylint_internal = { version = "=2.4.3", path = "../internal", features = [
     "cargo",
 ] }
 
 [dev-dependencies]
 env_logger = "0.10"
 
-dylint_internal = { version = "=2.4.2", path = "../internal", features = [
+dylint_internal = { version = "=2.4.3", path = "../internal", features = [
     "examples",
 ] }
 
