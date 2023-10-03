@@ -7,7 +7,7 @@
 
 ## 2.4.2
 
-- Work around [curl/curl#11893](https://github.com/curl/curl/issues/11893) ([#858](https://github.com/trailofbits/dylint/pull/858))
+- Work around [curl/curl#11893](https://github.com/curl/curl/issues/11893) ([#858](https://github.com/trailofbits/dylint/pull/858))&mdash;thanks [@tjade273](https://github.com/tjade273) for the [bug report](https://github.com/trailofbits/dylint/issues/857)
 
 ## 2.4.1
 
