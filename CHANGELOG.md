@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.3
+
+- [#858](https://github.com/trailofbits/dylint/pull/858) made `curl-sys` a non-optional dependency of the `dylint` package. This had unintended side effects, e.g., causing all of the example lints to transitively depend on `curl-sys`. [#867](https://github.com/trailofbits/dylint/pull/867) corrects the situation. ([#867](https://github.com/trailofbits/dylint/pull/867))
+- Ensure that consecutive uses of `--lib` produce the correct output, i.e., are not improperly cached ([#866](https://github.com/trailofbits/dylint/pull/866))&mdash;thanks [@EFanZh](https://github.com/EFanZh) for the [bug report](https://github.com/trailofbits/dylint/issues/856)
+
 ## 2.4.2
 
 - Work around [curl/curl#11893](https://github.com/curl/curl/issues/11893) ([#858](https://github.com/trailofbits/dylint/pull/858))
