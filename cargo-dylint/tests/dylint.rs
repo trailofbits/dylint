@@ -125,6 +125,7 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
 #[test]
 fn hack_feature_powerset() {
     Command::new("cargo")
+        .env(env::RUSTFLAGS, "-D warnings")
         .args(["hack", "--feature-powerset", "check"])
         .assert()
         .success();
