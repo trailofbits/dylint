@@ -7,7 +7,6 @@ use dylint_internal::{
     },
     find_and_replace,
     packaging::new_template,
-    rustup::SanitizeEnvironment,
 };
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
@@ -18,6 +17,9 @@ use std::{
 };
 use tempfile::tempdir;
 use walkdir::WalkDir;
+
+#[cfg(unix)]
+use dylint_internal::rustup::SanitizeEnvironment;
 
 #[cfg(unix)]
 mod bisect;
