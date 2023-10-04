@@ -11,8 +11,9 @@ crate-type = ["cdylib"]
 
 [dependencies]
 bumpalo = "3.12"
-marker_adapter = "0.2"
-marker_api = "0.2"
+camino = "1.1"
+marker_adapter = { git = "https://github.com/smoelius/marker", rev = "c81acea9c1bedd678d00f2db66209f9258f1d50a" }
+marker_rustc_driver = { git = "https://github.com/smoelius/marker", rev = "c81acea9c1bedd678d00f2db66209f9258f1d50a" }
 serde = "1.0"
 
 dylint_linting = { path = "../../../utils/linting" }
