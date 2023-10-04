@@ -6,27 +6,11 @@
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
 
-extern crate rustc_ast;
-extern crate rustc_errors;
-extern crate rustc_hash;
-extern crate rustc_hir;
-extern crate rustc_lint_defs;
-extern crate rustc_middle;
-extern crate rustc_span;
-extern crate rustc_target;
-
+use camino::Utf8PathBuf;
 use marker_adapter::{Adapter, LintCrateInfo};
+use marker_rustc_driver::lint_pass;
 use rustc_lint::{LateContext, LateLintPass};
 use serde::Deserialize;
-use std::path::PathBuf;
-
-mod context;
-
-#[allow(dead_code)]
-mod conversion;
-
-#[allow(dead_code)]
-mod lint_pass;
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
@@ -49,7 +33,7 @@ dylint_linting::impl_late_lint! {
 #[derive(Clone, Deserialize)]
 struct DeserializableLintCrateInfo {
     pub name: String,
-    pub path: PathBuf,
+    pub path: Utf8PathBuf,
 }
 
 impl From<DeserializableLintCrateInfo> for LintCrateInfo {

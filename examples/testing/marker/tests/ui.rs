@@ -43,11 +43,16 @@ fn ui() {
         .unwrap();
 }
 
-const URL: &str = "https://github.com/rust-marker/marker";
+// smoelius: Temporary workaround until `marker_rustc_driver` is librarified.
+// const URL: &str = "https://github.com/rust-marker/marker";
+const URL: &str = "https://github.com/smoelius/marker";
 
 fn clone_rust_marker(path: &Path) -> Result<()> {
-    let marker_lints = marker_adapter_package()?;
-    clone(URL, &format!("v{}", marker_lints.version), path, false)?;
+    let _marker_lints = marker_adapter_package()?;
+    // smoelius: `REV` is a temporary workaround until `marker_rustc_driver` is librarified
+    const REV: &str = "c81acea9c1bedd678d00f2db66209f9258f1d50a";
+    // clone(URL, &format!("v{}", marker_lints.version), path, false)?;
+    clone(URL, REV, path, false)?;
     Ok(())
 }
 
@@ -168,7 +173,7 @@ fn parse_marker_lint_crates(marker_lint_crates: &str) -> Result<Vec<LintCrateInf
 
     remove_var(marker_adapter::LINT_CRATES_ENV);
 
-    Ok(lint_crates)
+    Ok(lint_crates.unwrap_or_default())
 }
 
 fn remove_marker_lint_stderr_line_numbers(path: &Path) -> Result<()> {
