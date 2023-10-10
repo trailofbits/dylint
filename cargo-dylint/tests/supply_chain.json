@@ -972,6 +972,13 @@
         "kind": "user",
         "login": "sagebind",
         "name": "Stephen M. Coakley"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
+        "id": 6202,
+        "kind": "user",
+        "login": "ehuss",
+        "name": "Eric Huss"
       }
     ],
     "curl-sys": [
@@ -988,6 +995,13 @@
         "kind": "user",
         "login": "sagebind",
         "name": "Stephen M. Coakley"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
+        "id": 6202,
+        "kind": "user",
+        "login": "ehuss",
+        "name": "Eric Huss"
       }
     ],
     "der": [
