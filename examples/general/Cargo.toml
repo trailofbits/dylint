@@ -25,6 +25,10 @@ wrong_serialize_struct_arg = { path = "wrong_serialize_struct_arg", features = [
     "rlib",
 ] }
 
+incorrect_matches_operation = { path = "incorrect_matches_operation", features = [
+    "rlib",
+] }
+
 dylint_linting = { path = "../../utils/linting" }
 
 [package.metadata.rust-analyzer]
@@ -37,6 +41,7 @@ members = [
     "env_cargo_path",
     "non_local_effect_before_error_return",
     "non_thread_safe_call_in_test",
+    "incorrect_matches_operation",
 ]
 
 [workspace.dependencies]
