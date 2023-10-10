@@ -17,6 +17,7 @@ The example libraries are separated into the following three categories:
 | [`non_local_effect_before_error_return`](./general/non_local_effect_before_error_return) | Non-local effects before return of an error                    |
 | [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test)                 | Non-thread-safe function calls in tests                        |
 | [`wrong_serialize_struct_arg`](./general/wrong_serialize_struct_arg)                     | Calls to `serialize_struct` with incorrect `len` arguments     |
+| [`incorrect_matches_operation`](./general/incorrect_matches_operation)                   | Incorrect operator used with matches!(obj, case1) macros       |
 
 ## Supplementary
 

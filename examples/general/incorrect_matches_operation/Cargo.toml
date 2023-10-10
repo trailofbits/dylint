@@ -1,0 +1,28 @@
+[package]
+name = "incorrect_matches_operation"
+version = "2.4.3"
+authors = ["Dominik Czarnota <dominik.b.czarnota+dylint@gmail.com>"]
+description = "A lint to check for incorrect operators used with matches! macros"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[example]]
+name = "ui"
+path = "ui/main.rs"
+
+[dependencies]
+clippy_utils = { workspace = true }
+dylint_linting = { path = "../../../utils/linting" }
+if_chain = "1.0.2"
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[features]
+rlib = ["dylint_linting/constituent"]
+
+[package.metadata.rust-analyzer]
+rustc_private = true
