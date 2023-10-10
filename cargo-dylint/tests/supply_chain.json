@@ -1246,15 +1246,6 @@
         "name": "Dan Gohman"
       }
     ],
-    "errno-dragonfly": [
-      {
-        "avatar": "https://avatars0.githubusercontent.com/u/34112?v=4",
-        "id": 747,
-        "kind": "user",
-        "login": "mneumann",
-        "name": "Michael Neumann"
-      }
-    ],
     "faster-hex": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/3198439?v=4",
@@ -2273,6 +2264,13 @@
         "name": "Alex Crichton"
       },
       {
+        "avatar": "https://avatars.githubusercontent.com/u/5751617?v=4",
+        "id": 1094,
+        "kind": "user",
+        "login": "petrochenkov",
+        "name": "Vadim Petrochenkov"
+      },
+      {
         "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
         "id": 55123,
         "kind": "user",
@@ -2928,6 +2926,15 @@
         "kind": "team",
         "login": "github:servo:rust-url",
         "name": "rust-url"
+      }
+    ],
+    "pin-project-lite": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43724913?v=4",
+        "id": 33035,
+        "kind": "user",
+        "login": "taiki-e",
+        "name": "Taiki Endo"
       }
     ],
     "pkcs8": [
@@ -3980,6 +3987,47 @@
         "kind": "user",
         "login": "ordian",
         "name": null
+      }
+    ],
+    "tracing": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/6180?v=4",
+        "id": 10,
+        "kind": "user",
+        "login": "carllerche",
+        "name": "Carl Lerche"
+      },
+      {
+        "avatar": "https://avatars2.githubusercontent.com/u/20248544?v=4",
+        "id": 1294,
+        "kind": "team",
+        "login": "github:tokio-rs:publish-tracing",
+        "name": "Publish tracing"
+      }
+    ],
+    "tracing-attributes": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2796466?v=4",
+        "id": 1249,
+        "kind": "user",
+        "login": "hawkw",
+        "name": "Eliza Weisman"
+      }
+    ],
+    "tracing-core": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2796466?v=4",
+        "id": 1249,
+        "kind": "user",
+        "login": "hawkw",
+        "name": "Eliza Weisman"
+      },
+      {
+        "avatar": "https://avatars2.githubusercontent.com/u/20248544?v=4",
+        "id": 1294,
+        "kind": "team",
+        "login": "github:tokio-rs:publish-tracing",
+        "name": "Publish tracing"
       }
     ],
     "typenum": [
