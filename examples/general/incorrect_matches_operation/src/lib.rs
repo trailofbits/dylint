@@ -28,8 +28,8 @@ dylint_linting::declare_pre_expansion_lint! {
     /// ### Known problems
     /// Since we use a pre-expansion-lint we match the `matches!` argument tokens.
     /// This is not ideal since we don't know if the argument is a variable name or, e.g.,
-    /// a call. If it is a call, this lint may result in a false positive, though I bet
-    /// there won't be many of those.
+    /// a call. If it is a call, this lint may result in a false positive, though I bet there won't
+    /// be many of those.
     ///
     ///
     /// ### Example
