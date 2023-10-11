@@ -7,14 +7,10 @@ extern crate rustc_span;
 use clippy_utils::{diagnostics::span_lint, sym};
 use if_chain::if_chain;
 use rustc_ast::{
-    token::Token,
-    token::TokenKind,
-    tokenstream::TokenTree,
-    Expr, ExprKind, BinOpKind, MacCall, ptr::P,
-
+    ptr::P, token::Token, token::TokenKind, tokenstream::TokenTree, BinOpKind, Expr, ExprKind,
+    MacCall,
 };
 use rustc_lint::{EarlyContext, EarlyLintPass};
-
 
 dylint_linting::declare_pre_expansion_lint! {
     /// ### What it does
@@ -59,7 +55,6 @@ dylint_linting::declare_pre_expansion_lint! {
     "inefficient `matches!` macro use"
 }
 
-
 fn is_matches_macro(expr: &P<Expr>) -> Option<&P<MacCall>> {
     if_chain! {
         if let ExprKind::MacCall(mac) = &expr.kind;     // must be a macro call
@@ -90,7 +85,7 @@ fn macro_call_first_arg_equals(m1: &MacCall, m2: &MacCall) -> bool {
         }
         // If neither token is a comma, make sure they match: if they don't return false!
         else if !t1.eq_unspanned(t2) {
-            return false
+            return false;
         }
     }
     unreachable!("This should never happen: matches! macro did not have a comma token?");
@@ -98,7 +93,16 @@ fn macro_call_first_arg_equals(m1: &MacCall, m2: &MacCall) -> bool {
 
 /// Returns whether a given token is a comma
 fn is_comma_token(tree: &TokenTree) -> bool {
-    matches!(tree, TokenTree::Token(Token { kind: TokenKind::Comma, .. }, _))
+    matches!(
+        tree,
+        TokenTree::Token(
+            Token {
+                kind: TokenKind::Comma,
+                ..
+            },
+            _
+        )
+    )
 }
 
 impl EarlyLintPass for IncorrectMatchesOperation {
