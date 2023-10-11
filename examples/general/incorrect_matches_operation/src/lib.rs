@@ -7,6 +7,7 @@ extern crate rustc_span;
 use clippy_utils::{diagnostics::span_lint, sym};
 use if_chain::if_chain;
 use rustc_ast::{
+    token::Token,
     token::TokenKind,
     tokenstream::TokenTree,
     Expr, ExprKind, BinOpKind, MacCall, ptr::P,
@@ -97,13 +98,7 @@ fn macro_call_first_arg_equals(m1: &MacCall, m2: &MacCall) -> bool {
 
 /// Returns whether a given token is a comma
 fn is_comma_token(tree: &TokenTree) -> bool {
-    // TODO/FIXME: This can probably be written with some kind of matches! macro, but I don't know how...
-    if let TokenTree::Token(t, _) = tree {
-        if let TokenKind::Comma = t.kind {
-            return true;
-        };
-    };
-    false
+    matches!(tree, TokenTree::Token(Token { kind: TokenKind::Comma, .. }, _))
 }
 
 impl EarlyLintPass for IncorrectMatchesOperation {
