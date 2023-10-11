@@ -15,9 +15,9 @@ use rustc_ast::{
 use rustc_lint::{EarlyContext, EarlyLintPass};
 
 
-dylint_linting::impl_pre_expansion_lint! {
+dylint_linting::declare_pre_expansion_lint! {
     /// ### What it does
-    /// Checks for inefficient or incorrect use of matches! macro.
+    /// Checks for inefficient or incorrect use of the `matches!` macro.
     /// Examples of inefficient or boiler plate uses:
     /// - `matches!(obj, case1) | matches!(obj, case2)`
     /// - `matches!(obj, case1) || matches!(obj, case2)`
@@ -55,15 +55,9 @@ dylint_linting::impl_pre_expansion_lint! {
     /// ```
     pub INCORRECT_MATCHES_OPERATION,
     Warn,
-    "inefficient `matches!` macro use",
-    IncorrectMatchesOperation::default()
+    "inefficient `matches!` macro use"
 }
 
-
-#[derive(Default)]
-pub struct IncorrectMatchesOperation {
-    // We don't need to store any state for this lint
-}
 
 fn is_matches_macro(expr: &P<Expr>) -> Option<&P<MacCall>> {
     if_chain! {

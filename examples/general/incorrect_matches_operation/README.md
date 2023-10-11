@@ -1,5 +1,5 @@
 ### What it does
-Checks for inefficient or incorrect use of matches! macro.
+Checks for inefficient or incorrect use of the `matches!` macro.
 
 Examples of inefficient or boiler plate uses:
 - `matches!(obj, case1) | matches!(obj, case2)`

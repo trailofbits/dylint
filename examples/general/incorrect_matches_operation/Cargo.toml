@@ -9,10 +9,6 @@ publish = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
-[[example]]
-name = "ui"
-path = "ui/main.rs"
-
 [dependencies]
 clippy_utils = { workspace = true }
 dylint_linting = { path = "../../../utils/linting" }

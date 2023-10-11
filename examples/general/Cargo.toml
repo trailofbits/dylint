@@ -38,9 +38,9 @@ members = [
     "await_holding_span_guard",
     "crate_wide_allow",
     "env_cargo_path",
+    "incorrect_matches_operation",
     "non_local_effect_before_error_return",
     "non_thread_safe_call_in_test",
-    "incorrect_matches_operation",
 ]
 
 [workspace.dependencies]
