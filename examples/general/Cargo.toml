@@ -24,7 +24,6 @@ non_thread_safe_call_in_test = { path = "non_thread_safe_call_in_test", features
 wrong_serialize_struct_arg = { path = "wrong_serialize_struct_arg", features = [
     "rlib",
 ] }
-
 incorrect_matches_operation = { path = "incorrect_matches_operation", features = [
     "rlib",
 ] }
