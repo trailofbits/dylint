@@ -14,7 +14,12 @@ await_holding_span_guard = { path = "await_holding_span_guard", features = [
     "rlib",
 ] }
 crate_wide_allow = { path = "crate_wide_allow", features = ["rlib"] }
+
+dylint_linting = { path = "../../utils/linting" }
 env_cargo_path = { path = "env_cargo_path", features = ["rlib"] }
+incorrect_matches_operation = { path = "incorrect_matches_operation", features = [
+    "rlib",
+] }
 non_local_effect_before_error_return = { path = "non_local_effect_before_error_return", features = [
     "rlib",
 ] }
@@ -24,11 +29,6 @@ non_thread_safe_call_in_test = { path = "non_thread_safe_call_in_test", features
 wrong_serialize_struct_arg = { path = "wrong_serialize_struct_arg", features = [
     "rlib",
 ] }
-incorrect_matches_operation = { path = "incorrect_matches_operation", features = [
-    "rlib",
-] }
-
-dylint_linting = { path = "../../utils/linting" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true
