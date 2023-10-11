@@ -1,4 +1,4 @@
-name: Update Dependencies
+name: Update dependencies
 
 # smoelius: Every Monday at 3:00 UTC (Sunday at 22:00 EST), create a PR to update dependencies to
 # their latest patch versions.
@@ -51,5 +51,6 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           title: Update dependencies
+          commit-message: Update dependencies
           token: ${{ secrets.PR_GITHUB_TOKEN }}
           branch-suffix: random
