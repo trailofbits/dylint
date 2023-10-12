@@ -66,10 +66,9 @@ fn is_matches_macro(expr: &P<Expr>) -> Option<&P<MacCall>> {
     None
 }
 
-/// Finds out if first arguments of two macro calls matches
-/// This is done by finding all tokens that belong to first argument,
-/// and comparing them without considering the span information
-/// (since span info would always differ for the two different macro calls arguments)
+/// Finds out if first arguments of two macro calls matches This is done by finding all tokens that
+/// belong to first argument, and comparing them without considering the span information (since
+/// span info would always differ for the two different macro calls arguments)
 fn macro_call_first_arg_equals(m1: &MacCall, m2: &MacCall) -> bool {
     let t1 = m1.args.tokens.trees();
     let t2 = m2.args.tokens.trees();
