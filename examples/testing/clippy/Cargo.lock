@@ -145,8 +145,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_lints"
-version = "0.1.74"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=acdffd791b31d96cdeb15368132e8ca91f2089af#acdffd791b31d96cdeb15368132e8ca91f2089af"
+version = "0.1.75"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=b105fb4c39bc1a010807a6c076193cef8d93c109#b105fb4c39bc1a010807a6c076193cef8d93c109"
 dependencies = [
  "arrayvec",
  "cargo_metadata 0.15.4",
@@ -154,7 +154,6 @@ dependencies = [
  "declare_clippy_lint",
  "if_chain",
  "itertools",
- "pulldown-cmark",
  "quine-mc_cluskey",
  "regex-syntax",
  "rustc-semver",
@@ -168,8 +167,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.74"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=acdffd791b31d96cdeb15368132e8ca91f2089af#acdffd791b31d96cdeb15368132e8ca91f2089af"
+version = "0.1.75"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=b105fb4c39bc1a010807a6c076193cef8d93c109#b105fb4c39bc1a010807a6c076193cef8d93c109"
 dependencies = [
  "arrayvec",
  "if_chain",
@@ -220,8 +219,8 @@ dependencies = [
 
 [[package]]
 name = "declare_clippy_lint"
-version = "0.1.74"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=acdffd791b31d96cdeb15368132e8ca91f2089af#acdffd791b31d96cdeb15368132e8ca91f2089af"
+version = "0.1.75"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=b105fb4c39bc1a010807a6c076193cef8d93c109#b105fb4c39bc1a010807a6c076193cef8d93c109"
 dependencies = [
  "itertools",
  "quote",
@@ -718,17 +717,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pulldown-cmark"
-version = "0.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77a1a2f1f0a7ecff9c31abbe177637be0e97a0aef46cf8738ece09327985d998"
-dependencies = [
- "bitflags 1.3.2",
- "memchr",
- "unicase",
-]
-
-[[package]]
 name = "quine-mc_cluskey"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1113,15 +1101,6 @@ name = "typenum"
 version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
-
-[[package]]
-name = "unicase"
-version = "2.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7d2d4dafb69621809a81864c9c1b864479e1235c0dd4e199924b9742439ed89"
-dependencies = [
- "version_check",
-]
 
 [[package]]
 name = "unicode-bidi"
