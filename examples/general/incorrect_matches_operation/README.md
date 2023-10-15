@@ -5,6 +5,7 @@ Checks for inefficient or incorrect use of the `matches!` macro.
 Examples of inefficient or boiler plate uses:
 - `matches!(obj, case1) | matches!(obj, case2)`
 - `matches!(obj, case1) || matches!(obj, case2)`
+
 Examples of incorrect uses (the condition is probably always false):
 - `matches!(obj, case1) & matches!(obj, case2)`
 - `matches!(obj, case1) && matches!(obj, case2)`
