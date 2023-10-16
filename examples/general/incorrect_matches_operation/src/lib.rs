@@ -92,7 +92,7 @@ fn macro_call_first_arg_equals(m1: &MacCall, m2: &MacCall) -> bool {
 }
 
 /// Returns whether a given token is a comma
-fn is_comma_token(tree: &TokenTree) -> bool {
+const fn is_comma_token(tree: &TokenTree) -> bool {
     matches!(
         tree,
         TokenTree::Token(
