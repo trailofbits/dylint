@@ -11,8 +11,10 @@ use std::{
     env::{set_current_dir, set_var},
     ffi::OsStr,
     fs::{read_to_string, write},
+    io::{stderr, Write},
     path::Path,
     str::FromStr,
+    sync::Mutex,
 };
 use tempfile::tempdir;
 
@@ -294,6 +296,30 @@ fn msrv() {
     }
 }
 
+#[test]
+fn prettier_all_but_examples_and_template() {
+    Command::new("prettier")
+        .args([
+            "--check",
+            "--ignore-path",
+            "cargo-dylint/tests/prettier_ignore.txt",
+            "**/*.md",
+            "**/*.yml",
+        ])
+        .assert()
+        .success();
+}
+
+#[test]
+fn prettier_examples_and_template() {
+    preserves_cleanliness("prettier", true, || {
+        Command::new("prettier")
+            .args(["--write", "examples/**/*.md", "internal/template/**/*.md"])
+            .assert()
+            .success();
+    });
+}
+
 // smoelius: `supply_chain` is the only test that uses `supply_chain.json`. So there is no race.
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
@@ -350,4 +376,52 @@ fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkd
             entry.path().file_name() != Some(OsStr::new("target"))
                 && (include_examples || entry.path().file_name() != Some(OsStr::new("examples")))
         })
+}
+
+static MUTEX: Mutex<()> = Mutex::new(());
+
+fn preserves_cleanliness(test_name: &str, ignore_blank_lines: bool, f: impl FnOnce()) {
+    let _lock = MUTEX.lock().unwrap();
+
+    if cfg!(not(feature = "strict")) && dirty(false).is_some() {
+        #[allow(clippy::explicit_write)]
+        writeln!(
+            stderr(),
+            "Skipping `{test_name}` test as repository is dirty"
+        )
+        .unwrap();
+        return;
+    }
+
+    f();
+
+    if let Some(stdout) = dirty(ignore_blank_lines) {
+        panic!("{}", stdout);
+    }
+
+    // smoelius: If the repository is not dirty with `ignore_blank_lines` set to true, but would be
+    // dirty otherwise, then restore the repository's contents.
+    if ignore_blank_lines && dirty(false).is_some() {
+        Command::new("git")
+            .args(["checkout", "."])
+            .assert()
+            .success();
+    }
+}
+
+fn dirty(ignore_blank_lines: bool) -> Option<String> {
+    let mut command = Command::new("git");
+    command.arg("diff");
+    if ignore_blank_lines {
+        command.arg("--ignore-blank-lines");
+    }
+    let output = command.output().unwrap();
+
+    // smoelius: `--ignore-blank-lines` does not work with `--exit-code`. So instead check whether
+    // stdout is empty.
+    if output.stdout.is_empty() {
+        None
+    } else {
+        Some(String::from_utf8(output.stdout).unwrap())
+    }
 }
