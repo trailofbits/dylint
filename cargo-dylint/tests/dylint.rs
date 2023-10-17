@@ -296,6 +296,7 @@ fn msrv() {
     }
 }
 
+#[cfg(not(windows))]
 #[test]
 fn prettier_all_but_examples_and_template() {
     Command::new("prettier")
@@ -310,6 +311,7 @@ fn prettier_all_but_examples_and_template() {
         .success();
 }
 
+#[cfg(not(windows))]
 #[test]
 fn prettier_examples_and_template() {
     preserves_cleanliness("prettier", true, || {
