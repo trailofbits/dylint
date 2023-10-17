@@ -52,6 +52,7 @@ jobs:
 
       - name: Install tools
         run: |
+          # smoelius: Prettier is still needed for scripts/update_example_READMEs.sh.
           npm install -g prettier
           rm -f "$HOME"/.cargo/bin/cargo-fmt
           rm -f "$HOME"/.cargo/bin/rustfmt
@@ -60,9 +61,6 @@ jobs:
           cargo install cargo-license || true
           cargo install cargo-rdme    || true
           cargo install cargo-sort    || true
-
-      - name: Prettier
-        run: ./scripts/check_prettier.sh
 
       - name: Cargo sort
         run: find . -name Cargo.toml -print0 | xargs -0 -n 1 dirname | xargs -n 1 cargo sort --check --grouped
@@ -130,6 +128,7 @@ jobs:
       # smoelius: This list will grow: https://github.com/trailofbits/dylint/issues/636
       - name: Install tools
         run: |
+          npm install -g prettier
           cargo install cargo-hack         || true
           cargo install cargo-msrv         || true
           cargo install cargo-supply-chain || true
