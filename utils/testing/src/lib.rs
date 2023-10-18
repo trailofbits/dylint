@@ -97,8 +97,8 @@
 //! Additional documentation on `compiletest_rs` can be found in [its repository].
 //!
 //! [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
-//! [`non_thread_safe_call_in_test`]: ../../examples/general/non_thread_safe_call_in_test/src/lib.rs
-//! [`question_mark_in_expression`]: ../../examples/restriction/question_mark_in_expression/Cargo.toml
+//! [`non_thread_safe_call_in_test`]: https://github.com/trailofbits/dylint/tree/master/examples/general/non_thread_safe_call_in_test/src/lib.rs
+//! [`question_mark_in_expression`]: https://github.com/trailofbits/dylint/tree/master/examples/restriction/question_mark_in_expression/Cargo.toml
 //! [`ui::test::example`]: crate::ui::Test::example
 //! [`ui::test::examples`]: crate::ui::Test::examples
 //! [`ui::test::src_base`]: crate::ui::Test::src_base
@@ -106,10 +106,10 @@
 //! [`ui_test_example`]: crate::ui_test_example
 //! [`ui_test_examples`]: crate::ui_test_examples
 //! [`ui_test`]: crate::ui_test
-//! [configurable libraries]: ../..#configurable-libraries
+//! [configurable libraries]: https://github.com/trailofbits/dylint/tree/master#configurable-libraries
 //! [docs.rs documentation]: https://docs.rs/dylint_testing/latest/dylint_testing/
-//! [dylint]: ../..
-//! [examples]: ../../examples
+//! [dylint]: https://github.com/trailofbits/dylint/tree/master
+//! [examples]: https://github.com/trailofbits/dylint/tree/master/examples
 //! [its repository]: https://github.com/Manishearth/compiletest-rs
 
 use anyhow::{anyhow, ensure, Context, Result};

@@ -180,24 +180,24 @@ Additional documentation on `config_or_default`, etc. can be found on [docs.rs].
 [`declare_late_lint!`, `declare_early_lint!`, `declare_pre_expansion_lint!`]: #declare_late_lint-etc
 [`declare_lint!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint.html
 [`declare_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint_pass.html
-[`dylint-link`]: ../../dylint-link
+[`dylint-link`]: https://github.com/trailofbits/dylint/tree/master/dylint-link
 [`dylint_library!`]: #dylint_library
-[`env_cargo_path`]: ../../examples/general/env_cargo_path/src/lib.rs
-[`general` library]: ../../examples/general/src/lib.rs
+[`env_cargo_path`]: https://github.com/trailofbits/dylint/tree/master/examples/general/env_cargo_path/src/lib.rs
+[`general` library]: https://github.com/trailofbits/dylint/tree/master/examples/general/src/lib.rs
 [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]: #impl_late_lint-etc
 [`impl_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html
 [`init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.init_config.html
 [`lintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
-[`non_local_effect_before_error_return`]: ../../examples/general/non_local_effect_before_error_return/src/lib.rs
+[`non_local_effect_before_error_return`]: https://github.com/trailofbits/dylint/tree/master/examples/general/non_local_effect_before_error_return/src/lib.rs
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
-[`supplementary` library]: ../../examples/supplementary/src/lib.rs
+[`supplementary` library]: https://github.com/trailofbits/dylint/tree/master/examples/supplementary/src/lib.rs
 [`try_init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.try_init_config.html
 [configurable libraries]: #configurable-libraries
 [docs.rs documentation]: https://docs.rs/dylint_linting/latest/dylint_linting/
 [docs.rs]: https://docs.rs/dylint_linting/latest/dylint_linting/
-[dylint]: ../..
-[examples]: ../../examples
-[general-purpose]: ../../examples/general
-[supplementary]: ../../examples/supplementary
+[dylint]: https://github.com/trailofbits/dylint/tree/master
+[examples]: https://github.com/trailofbits/dylint/tree/master/examples
+[general-purpose]: https://github.com/trailofbits/dylint/tree/master/examples/general
+[supplementary]: https://github.com/trailofbits/dylint/tree/master/examples/supplementary
 
 <!-- cargo-rdme end -->
