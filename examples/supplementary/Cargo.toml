@@ -11,10 +11,15 @@ crate-type = ["cdylib"]
 
 [dependencies]
 commented_code = { path = "commented_code", features = ["rlib"] }
+escaping_doc_link = { path = "escaping_doc_link", features = ["rlib"] }
 redundant_reference = { path = "redundant_reference", features = ["rlib"] }
 unnamed_constant = { path = "unnamed_constant", features = ["rlib"] }
-unnecessary_borrow_mut = { path = "unnecessary_borrow_mut", features = ["rlib"] }
-unnecessary_conversion_for_trait = { path = "unnecessary_conversion_for_trait", features = ["rlib"] }
+unnecessary_borrow_mut = { path = "unnecessary_borrow_mut", features = [
+    "rlib",
+] }
+unnecessary_conversion_for_trait = { path = "unnecessary_conversion_for_trait", features = [
+    "rlib",
+] }
 
 dylint_linting = { path = "../../utils/linting" }
 
