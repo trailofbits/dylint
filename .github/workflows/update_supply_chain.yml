@@ -16,6 +16,9 @@ jobs:
 
       # smoelius: The next use of `actions/cache` should match what is in ci.yml.
       - uses: actions/cache@v3
+        # smoelius: Do not use the cache. I think using it may be preventing PRs being created,
+        # because supply_chain.json appears current relative to what's in the cache.
+        if: ${{ false }}
         with:
           path: |
             ~/.cargo/bin/
