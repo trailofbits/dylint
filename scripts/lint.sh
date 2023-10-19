@@ -20,32 +20,30 @@ CARGO_DYLINT="$PWD/target/debug/cargo-dylint"
 
 EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d ! -name .cargo ! -name src)"
 
+# smoelius: Remove `experimental` examples.
+EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/experimental/[^/]*\>[[:space:]]*,,')"
+
+# smoelius: `clippy` must be run separately because, for any lint not loaded alongside of it, rustc
+# complains about the clippy-specific flags.
+EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/clippy\>[[:space:]]*,,')"
+
 # smoelius: Remove `straggler`, as it uses a different toolchain than the other examples.
 EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:space:]]*,,')"
 
 EXAMPLES="$(echo "$EXAMPLE_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 
-# smoelius: `clippy` must be run separately because, for any lint not loaded alongside of it, rustc
-# complains about the clippy-specific flags.
-EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<clippy\>[[:space:]]*//')"
-
 RESTRICTION_DIRS="$(echo examples/restriction/*)"
 RESTRICTIONS="$(echo "$RESTRICTION_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
+
+EXPERIMENTAL_DIRS="$(echo examples/experimental/*)"
 
 # smoelius: `overscoped_allow` must be run after other lints have been run. (See its documentation.)
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<overscoped_allow\>[[:space:]]*//')"
 RESTRICTIONS="$(echo "$RESTRICTIONS" | sed 's/\<overscoped_allow\>[[:space:]]*//')"
 
-# smoelius: `derive_opportunity` and `missing_doc_comment_openai` aren't ready for primetime yet.
-EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<derive_opportunity\>[[:space:]]*//')"
-RESTRICTIONS="$(echo "$RESTRICTIONS" | sed 's/\<derive_opportunity\>[[:space:]]*//')"
-
-EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<missing_doc_comment_openai\>[[:space:]]*//')"
-RESTRICTIONS="$(echo "$RESTRICTIONS" | sed 's/\<missing_doc_comment_openai\>[[:space:]]*//')"
-
 RESTRICTIONS_AS_FLAGS="$(echo "$RESTRICTIONS" | sed 's/\<[^[:space:]]\+\>/--lib &/g')"
 
-DIRS=". driver utils/linting examples/general examples/supplementary examples/testing/clippy $RESTRICTION_DIRS"
+DIRS=". driver utils/linting examples/general examples/supplementary examples/testing/clippy $RESTRICTION_DIRS $EXPERIMENTAL_DIRS"
 
 force_check() {
     find "$WORKSPACE"/target -name .fingerprint -path '*/dylint/target/nightly-*' -exec rm -r {} \; || true
