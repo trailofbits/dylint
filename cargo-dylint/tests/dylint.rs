@@ -12,7 +12,7 @@ use std::{
     ffi::OsStr,
     fs::{read_to_string, write},
     io::{stderr, Write},
-    path::Path,
+    path::{Component, Path},
     str::FromStr,
     sync::Mutex,
 };
@@ -193,7 +193,9 @@ fn markdown_reference_links_are_valid_and_used() {
         if path.extension() != Some(OsStr::new("md"))
             || path.file_name() == Some(OsStr::new("CHANGELOG.md"))
             || path.ends_with("examples/README.md")
-            || path.ends_with("examples/restriction/missing_doc_comment_openai/README.md")
+            || path
+                .components()
+                .any(|c| c == Component::Normal(OsStr::new("missing_doc_comment_openai")))
         {
             continue;
         }
