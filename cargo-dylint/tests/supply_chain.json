@@ -3331,6 +3331,20 @@
         "kind": "user",
         "login": "oli-obk",
         "name": "Oli Scherer"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
+        "id": 6202,
+        "kind": "user",
+        "login": "ehuss",
+        "name": "Eric Huss"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
       }
     ],
     "rustix": [
