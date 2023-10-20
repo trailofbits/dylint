@@ -6,6 +6,7 @@ LL | |         .try_exists()
    | |_____________________^ help: use: `.and_then(|path_buf| path_buf.try_exists())`
    |
    = note: `-D collapsible-unwrap` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(collapsible_unwrap)]`
 
 error: `unwrap` that could be combined with an `expect`
   --> $DIR/main.rs:17:9

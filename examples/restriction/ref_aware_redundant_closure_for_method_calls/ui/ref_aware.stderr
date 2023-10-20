@@ -5,6 +5,7 @@ LL |         .and_then(|mut entries| entries.next())
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: replace the closure with the method itself: `.as_mut().and_then(std::iter::Iterator::next)`
    |
    = note: `-D ref-aware-redundant-closure-for-method-calls` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(ref_aware_redundant_closure_for_method_calls)]`
 
 error: redundant closure
   --> $DIR/ref_aware.rs:32:36

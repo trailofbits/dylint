@@ -354,7 +354,7 @@ fn include_trailing_semicolons(cx: &LateContext<'_>, mut span: Span) -> Span {
     let Ok(FileLines { file, .. }) = cx.sess().source_map().span_to_lines(span) else {
         return span;
     };
-    while span.hi() < file.end_pos {
+    while span.hi() < file.end_position() {
         let next = span.with_hi(span.hi() + BytePos(1));
         if !snippet_opt(cx, next).map_or(false, |snip| snip.ends_with(';')) {
             break;

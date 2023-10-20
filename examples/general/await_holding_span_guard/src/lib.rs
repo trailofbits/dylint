@@ -3,15 +3,14 @@
 
 extern crate rustc_hir;
 extern crate rustc_middle;
-extern crate rustc_span;
 
-use clippy_utils::diagnostics::span_lint_and_note;
+use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::match_def_path;
 use rustc_hir::def_id::DefId;
-use rustc_hir::{AsyncGeneratorKind, Body, BodyId, GeneratorKind};
+use rustc_hir::{AsyncGeneratorKind, Body, GeneratorKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Adt, GeneratorInteriorTypeCause};
-use rustc_span::Span;
+use rustc_middle::mir::GeneratorLayout;
+use rustc_middle::ty::Adt;
 
 dylint_linting::declare_late_lint! {
     /// This lint is due to David Barsky (@davidbarsky).
@@ -89,38 +88,44 @@ impl LateLintPass<'_> for AwaitHoldingSpanGuard {
     fn check_body(&mut self, cx: &LateContext<'_>, body: &'_ Body<'_>) {
         use AsyncGeneratorKind::{Block, Closure, Fn};
         if let Some(GeneratorKind::Async(Block | Closure | Fn)) = body.generator_kind {
-            let body_id = BodyId {
-                hir_id: body.value.hir_id,
-            };
-            let typeck_results = cx.tcx.typeck_body(body_id);
-            check_interior_types(
-                cx,
-                typeck_results
-                    .generator_interior_types
-                    .as_ref()
-                    .skip_binder(),
-                body.value.span,
-            );
+            let def_id = cx.tcx.hir().body_owner_def_id(body.id());
+            if let Some(generator_layout) = cx.tcx.mir_generator_witnesses(def_id) {
+                check_interior_types(cx, generator_layout);
+            }
         }
     }
 }
 
-fn check_interior_types(
-    cx: &LateContext<'_>,
-    ty_causes: &[GeneratorInteriorTypeCause<'_>],
-    span: Span,
-) {
-    for ty_cause in ty_causes {
+// smoelius: As part of the upgrade to nightly-2023-10-06, `check_interior_types` was updated based
+// on: https://github.com/rust-lang/rust-clippy/commit/0a2d39de2e0b87361432ae695cc84ad74d09972a
+fn check_interior_types(cx: &LateContext<'_>, generator: &GeneratorLayout<'_>) {
+    for (ty_index, ty_cause) in generator.field_tys.iter_enumerated() {
         if let Adt(adt, _) = ty_cause.ty.kind() {
+            let await_points = || {
+                generator
+                    .variant_source_info
+                    .iter_enumerated()
+                    .filter_map(|(variant, source_info)| {
+                        generator.variant_fields[variant]
+                            .raw
+                            .contains(&ty_index)
+                            .then_some(source_info.span)
+                    })
+                    .collect::<Vec<_>>()
+            };
             if is_tracing_span_guard(cx, adt.did()) {
-                span_lint_and_note(
+                span_lint_and_then(
                     cx,
                     AWAIT_HOLDING_SPAN_GUARD,
-                    ty_cause.span,
+                    ty_cause.source_info.span,
                     "this Span guard is held across an 'await' point. Consider using the \
                      `.instrument()` combinator or the `.in_scope()` method instead",
-                    ty_cause.scope_span.or(Some(span)),
-                    "these are all the await points this ref is held through",
+                    |diag| {
+                        diag.span_note(
+                            await_points(),
+                            "these are all the await points this ref is held through",
+                        );
+                    },
                 );
             }
         }

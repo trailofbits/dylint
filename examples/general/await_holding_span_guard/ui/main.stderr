@@ -5,13 +5,12 @@ LL |     let _guard = span.enter();
    |         ^^^^^^
    |
 note: these are all the await points this ref is held through
-  --> $DIR/main.rs:20:5
+  --> $DIR/main.rs:21:11
    |
-LL | /     let _guard = span.enter();
-LL | |     bar().await;
-LL | | }
-   | |_^
+LL |     bar().await;
+   |           ^^^^^
    = note: `-D await-holding-span-guard` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(await_holding_span_guard)]`
 
 error: this Span guard is held across an 'await' point. Consider using the `.instrument()` combinator or the `.in_scope()` method instead
   --> $DIR/main.rs:27:9
@@ -20,12 +19,10 @@ LL |     let _guard = span.entered();
    |         ^^^^^^
    |
 note: these are all the await points this ref is held through
-  --> $DIR/main.rs:27:5
+  --> $DIR/main.rs:28:11
    |
-LL | /     let _guard = span.entered();
-LL | |     bar().await;
-LL | | }
-   | |_^
+LL |     bar().await;
+   |           ^^^^^
 
 error: this Span guard is held across an 'await' point. Consider using the `.instrument()` combinator or the `.in_scope()` method instead
   --> $DIR/main.rs:35:13
@@ -34,12 +31,10 @@ LL |         let _guard = span.enter();
    |             ^^^^^^
    |
 note: these are all the await points this ref is held through
-  --> $DIR/main.rs:35:9
+  --> $DIR/main.rs:36:15
    |
-LL | /         let _guard = span.enter();
-LL | |         bar().await
-LL | |     }
-   | |_____^
+LL |         bar().await
+   |               ^^^^^
 
 error: aborting due to 3 previous errors
 

@@ -6,6 +6,7 @@ LL | #![allow(clippy::assertions_on_constants)]
    |
    = help: pass `--allow clippy::assertions-on-constants` on the command line
    = note: `-D crate-wide-allow` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(crate_wide_allow)]`
 
 error: aborting due to previous error
 

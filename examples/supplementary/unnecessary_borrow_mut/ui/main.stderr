@@ -5,6 +5,7 @@ LL |     x = *cell.borrow_mut();
    |               ^^^^^^^^^^^^ help: use: `borrow()`
    |
    = note: `-D unnecessary-borrow-mut` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(unnecessary_borrow_mut)]`
 
 error: borrowed reference is used only immutably
   --> $DIR/main.rs:11:24

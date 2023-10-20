@@ -10,6 +10,7 @@ note: the call is reachable from at least this test
 LL |     fn foo() {
    |        ^^^
    = note: `-D non-thread-safe-call-in-test` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(non_thread_safe_call_in_test)]`
 
 error: aborting due to previous error
 

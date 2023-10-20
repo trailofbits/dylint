@@ -1,7 +1,7 @@
 // run-rustfix
 
 #![allow(unused_imports, unused_parens)]
-#![feature(os_str_bytes)]
+// #![feature(os_str_bytes)]
 
 use std::{
     borrow::{Borrow, BorrowMut},
@@ -67,14 +67,14 @@ fn main() {
 
     let _ = std::fs::write("x", "".as_bytes());
 
-    let _ = os_str_or_bytes(osstr.as_os_str_bytes());
+    let _ = os_str_or_bytes(osstr.as_encoded_bytes());
     let _ = is_empty_os(osstring.clone().into_boxed_os_str().into_os_string());
     let _ = std::fs::write(OsStr::new("x"), "");
     let _ = std::fs::write(osstr.to_os_string(), "");
 
     let _ = std::fs::write(osstring.as_os_str(), "");
     let _ = is_empty_os(osstring.clone().into_boxed_os_str());
-    let _ = os_string_or_bytes(osstring.clone().into_os_str_bytes());
+    let _ = os_string_or_bytes(osstring.clone().into_encoded_bytes());
 
     let _ = std::fs::write(path.as_os_str(), "");
     let _ = std::fs::write(PathBuf::from("x").as_mut_os_str(), "");

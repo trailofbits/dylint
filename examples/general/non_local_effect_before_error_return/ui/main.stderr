@@ -10,6 +10,7 @@ note: error is determined here
 LL |     Err(VarError::NotPresent)
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: `-D non-local-effect-before-error-return` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(non_local_effect_before_error_return)]`
 
 error: call with mutable reference before error return
   --> $DIR/main.rs:28:8

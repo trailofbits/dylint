@@ -17,7 +17,7 @@ use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
-        pretty::write_mir_fn, BasicBlock, Body, Constant, Local, Location, Mutability, Operand,
+        pretty::write_mir_fn, BasicBlock, Body, ConstOperand, Local, Location, Mutability, Operand,
         Place, ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind,
     },
     ty,
@@ -264,7 +264,7 @@ fn collect_locals_and_constants<'tcx>(
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
     args: &[Operand<'tcx>],
-) -> (BitSet<Local>, Vec<&'tcx Constant<'tcx>>) {
+) -> (BitSet<Local>, Vec<&'tcx ConstOperand<'tcx>>) {
     let mut locals_narrowly = BitSet::new_empty(mir.local_decls.len());
     let mut locals_widely = BitSet::new_empty(mir.local_decls.len());
     let mut constants = Vec::new();
@@ -374,7 +374,7 @@ fn is_mut_ref_arg<'tcx>(mir: &'tcx Body<'tcx>, local: Local) -> bool {
     (1..=mir.arg_count).contains(&local.into()) && is_mut_ref(mir.local_decls[local].ty)
 }
 
-fn is_const_ref(constant: &Constant<'_>) -> bool {
+fn is_const_ref(constant: &ConstOperand<'_>) -> bool {
     constant.ty().is_ref()
 }
 

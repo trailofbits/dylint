@@ -6,6 +6,7 @@ LL |     Ok(std::path::PathBuf::from(&std::env::var("PWD")?))
    |
    = help: consider breaking this up into multiple expressions
    = note: `-D question-mark-in-expression` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(question_mark_in_expression)]`
 
 error: aborting due to previous error
 
