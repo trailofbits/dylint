@@ -523,7 +523,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
                 .append(true)
                 .create(true)
                 .open(stderr_path)
-                .with_context(|| format!("Failed to open `{}` for stderr usage", stderr_path))?;
+                .with_context(|| format!("Failed to open `{stderr_path}` for stderr usage"))?;
             command.stderr(file);
         }
 
@@ -532,7 +532,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
                 .append(true)
                 .create(true)
                 .open(stdout_path)
-                .with_context(|| format!("Failed to open `{}` for stdout usage", stdout_path))?;
+                .with_context(|| format!("Failed to open `{stdout_path}` for stdout usage"))?;
             command.stdout(file);
         }
 

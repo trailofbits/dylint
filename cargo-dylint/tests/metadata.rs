@@ -53,7 +53,7 @@ libraries = [
                 predicate::str::is_match(r#"Could not canonicalize "[^"]*""#)
                     .unwrap()
                     .or(predicate::str::is_match(
-                        r#"Pattern `[^`]*` could refer to `[^`]*`, which is outside of `[^`]*`"#,
+                        r"Pattern `[^`]*` could refer to `[^`]*`, which is outside of `[^`]*`",
                     )
                     .unwrap()),
             );
