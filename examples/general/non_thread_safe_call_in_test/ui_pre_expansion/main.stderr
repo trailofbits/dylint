@@ -7,6 +7,7 @@ LL |     std::env::set_var("KEY", "VALUE");
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: `-D non-thread-safe-call-in-test-pre-expansion` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(non_thread_safe_call_in_test_pre_expansion)]`
 
 error: calling `std::env::set_var` in a test could affect the outcome of other tests
   --> $DIR/main.rs:26:9

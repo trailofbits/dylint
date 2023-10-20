@@ -5,6 +5,7 @@ LL |     let _ = ws.iter().map(|w| *w == "").collect::<Vec<_>>();
    |                            ^ help: use: `&w`
    |
    = note: `-D suboptimal-pattern` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(suboptimal_pattern)]`
 
 error: could destructure references
   --> $DIR/main.rs:28:28

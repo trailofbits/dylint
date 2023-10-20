@@ -10,6 +10,7 @@ note: items from `std::env` were imported here
 LL | use std::env::var;
    | ^^^^^^^^^^^^^^^^^^
    = note: `-D inconsistent-qualification` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(inconsistent_qualification)]`
 
 error: inconsistent qualification
   --> $DIR/main.rs:13:24

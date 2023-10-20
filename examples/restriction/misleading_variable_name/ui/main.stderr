@@ -6,6 +6,7 @@ LL |     let file = read_to_string(path)?;
    |
    = help: use a name that is not `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, or `read_dir`
    = note: `-D misleading-variable-name` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(misleading_variable_name)]`
 
 error: `std::fs` exports a type `File`, which is not the type of `file`
   --> $DIR/main.rs:55:9

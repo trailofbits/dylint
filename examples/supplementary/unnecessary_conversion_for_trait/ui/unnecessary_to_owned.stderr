@@ -5,6 +5,7 @@ LL |     require_deref_c_str(c_str.to_owned());
    |                              ^^^^^^^^^^^ help: remove this
    |
    = note: `-D unnecessary-conversion-for-trait` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(unnecessary_conversion_for_trait)]`
 
 error: the receiver implements the required traits
   --> $DIR/unnecessary_to_owned.rs:86:32

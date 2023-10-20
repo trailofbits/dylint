@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(io_error_other)]
 #![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
@@ -12,7 +11,7 @@ use clippy_utils::{attrs::is_doc_hidden, diagnostics::span_lint_and_then, source
 use rustc_ast::AttrKind;
 use rustc_hir::{FnSig, Item, ItemKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
-use rustc_span::{BytePos, Span};
+use rustc_span::{BytePos, SourceFileAndLine, Span};
 use serde::Deserialize;
 use std::{
     fmt::Write,
@@ -370,14 +369,13 @@ fn earliest_attr_span(cx: &LateContext<'_>, item: &Item<'_>) -> Span {
 
 fn skip_preceding_line_comments(cx: &LateContext<'_>, mut span: Span) -> Span {
     while span.lo() >= BytePos(1) {
-        let source_file_and_line = cx
+        let SourceFileAndLine { sf, line } = cx
             .sess()
             .source_map()
             .lookup_line(span.lo() - BytePos(1))
             .unwrap();
-        let lo_prev = source_file_and_line
-            .sf
-            .lines(|lines| lines[source_file_and_line.line]);
+        let lo_prev_relative = sf.lines()[line];
+        let lo_prev = sf.absolute_position(lo_prev_relative);
         let span_prev = span.with_lo(lo_prev);
         if snippet_opt(cx, span_prev).map_or(false, |snippet| snippet.starts_with("//")) {
             span = span_prev;

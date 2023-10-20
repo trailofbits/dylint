@@ -6,6 +6,7 @@ LL |     let _ = std::env::var("RUSTFLAGS");
    |
    = help: define a constant `RUSTFLAGS` and use that instead
    = note: `-D env-literal` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(env_literal)]`
 
 error: referring to an environment variable with a string literal is error prone
   --> $DIR/main.rs:3:26

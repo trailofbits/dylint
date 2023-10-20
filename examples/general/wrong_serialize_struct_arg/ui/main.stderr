@@ -20,6 +20,7 @@ note: `serialize_field` call 3 of 3
 LL |         state.serialize_field("b", &self.b)?;
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: `-D wrong-serialize-struct-arg` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(wrong_serialize_struct_arg)]`
 
 error: `serialize_struct` call's `len` argument is 0, but number of `serialize_field` calls is 1
   --> $DIR/main.rs:58:33

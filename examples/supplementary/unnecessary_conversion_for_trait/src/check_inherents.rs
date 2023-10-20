@@ -78,6 +78,7 @@ pub fn check_inherents<I: Iterator<Item = DefId>>(cx: &LateContext<'_>, inherent
         let def_id = def_path_res(cx, path)
             .into_iter()
             .find_map(|res| res.opt_def_id())
+            .ok_or_else(|| format!("`def_path_res` failed for {path:?}"))
             .unwrap();
 
         assert!(

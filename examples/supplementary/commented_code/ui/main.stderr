@@ -6,6 +6,7 @@ LL |     // dbg!(x);
    |
    = help: uncomment or remove
    = note: `-D commented-code` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(commented_code)]`
 
 error: commented out code
   --> $DIR/main.rs:10:5

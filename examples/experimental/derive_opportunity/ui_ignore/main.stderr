@@ -5,6 +5,7 @@ LL | struct Derived;
    | ^
    |
    = note: `-D derive-opportunity` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(derive_opportunity)]`
 help: precede with
    |
 LL + #[derive(Clone, Copy, Hash)]

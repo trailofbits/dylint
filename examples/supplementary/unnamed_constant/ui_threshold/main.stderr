@@ -6,6 +6,7 @@ LL |     x *= -1000;
    |
    = help: give the constant a name and use that instead
    = note: `-D unnamed-constant` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(unnamed_constant)]`
 
 error: unnamed constant
   --> $DIR/main.rs:5:10

@@ -11,6 +11,7 @@ LL |             self.bar.qux
    |                 ^^^^^^^^
    = help: consider storing a copy of `.bar.qux` instead
    = note: `-D redundant-reference` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(redundant_reference)]`
 
 error: aborting due to previous error
 

@@ -5,6 +5,7 @@ LL |     assert_eq!(x, 0);
    |                ^^^^ help: prefer "expected, actual": `0, x`
    |
    = note: `-D assert-eq-arg-misordering` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(assert_eq_arg_misordering)]`
 
 error: arguments are "non-const, const", which looks like "actual, expected"
   --> $DIR/main.rs:14:9

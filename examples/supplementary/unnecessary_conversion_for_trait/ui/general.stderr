@@ -5,6 +5,7 @@ LL |     let _ = std::fs::write("x", "".to_owned());
    |                                   ^^^^^^^^^^^ help: remove this
    |
    = note: `-D unnecessary-conversion-for-trait` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(unnecessary_conversion_for_trait)]`
 
 error: the receiver implements the required traits
   --> $DIR/general.rs:31:35
@@ -153,8 +154,8 @@ LL |     let _ = std::fs::write("x", "".as_bytes());
 error: the receiver implements the required traits
   --> $DIR/general.rs:70:34
    |
-LL |     let _ = os_str_or_bytes(osstr.as_os_str_bytes());
-   |                                  ^^^^^^^^^^^^^^^^^^ help: remove this
+LL |     let _ = os_str_or_bytes(osstr.as_encoded_bytes());
+   |                                  ^^^^^^^^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
   --> $DIR/general.rs:71:41
@@ -189,8 +190,8 @@ LL |     let _ = is_empty_os(osstring.clone().into_boxed_os_str());
 error: the receiver implements the required traits
   --> $DIR/general.rs:77:48
    |
-LL |     let _ = os_string_or_bytes(osstring.clone().into_os_str_bytes());
-   |                                                ^^^^^^^^^^^^^^^^^^^^ help: remove this
+LL |     let _ = os_string_or_bytes(osstring.clone().into_encoded_bytes());
+   |                                                ^^^^^^^^^^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
   --> $DIR/general.rs:79:32

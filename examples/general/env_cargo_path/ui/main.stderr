@@ -5,6 +5,7 @@ LL |     let _ = env!("CARGO");
    |             ^^^^^^^^^^^^^
    |
    = note: `-D env-cargo-path` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(env_cargo_path)]`
 
 error: this path might not exist in production
   --> $DIR/main.rs:3:13

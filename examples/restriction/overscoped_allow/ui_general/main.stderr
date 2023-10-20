@@ -10,6 +10,7 @@ help: `allow` could be moved here
 LL |     pub struct ItemStruct;
    |     ^
    = note: `-D overscoped-allow` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(overscoped_allow)]`
 
 error: `allow` could be moved closer to diagnostic source
   --> $DIR/main.rs:10:9

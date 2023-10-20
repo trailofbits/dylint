@@ -11,6 +11,7 @@ LL |             self.cx.tcx.hir()
    |                 ^^^^^^^
    = help: consider storing a copy of `.cx.tcx` to eliminate the need for `'cx`
    = note: `-D redundant-reference` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(redundant_reference)]`
 
 error: aborting due to previous error
 
