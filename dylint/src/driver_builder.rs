@@ -15,13 +15,13 @@ use tempfile::tempdir;
 
 include!(concat!(env!("OUT_DIR"), "/dylint_driver_manifest_dir.rs"));
 
-const README_TXT: &str = r#"
+const README_TXT: &str = "
 This directory contains Rust compiler drivers used by Dylint
 (https://github.com/trailofbits/dylint).
 
 Deleting this directory will cause Dylint to rebuild the drivers
 the next time it needs them, but will have no ill effects.
-"#;
+";
 
 fn cargo_toml(toolchain: &str, dylint_driver_spec: &str) -> String {
     format!(
@@ -49,7 +49,7 @@ components = ["llvm-tools-preview", "rustc-dev"]
     )
 }
 
-const MAIN_RS: &str = r#"
+const MAIN_RS: &str = r"
 use anyhow::Result;
 use std::env;
 use std::ffi::OsString;
@@ -61,7 +61,7 @@ pub fn main() -> Result<()> {
 
     dylint_driver::dylint_driver(&args)
 }
-"#;
+";
 
 #[cfg_attr(
     dylint_lib = "question_mark_in_expression",
