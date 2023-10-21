@@ -194,16 +194,16 @@ LL |     let _ = os_string_or_bytes(osstring.clone().into_encoded_bytes());
    |                                                ^^^^^^^^^^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
-  --> $DIR/general.rs:79:32
-   |
-LL |     let _ = std::fs::write(path.as_os_str(), "");
-   |                                ^^^^^^^^^^^^ help: remove this
-
-error: the receiver implements the required traits
-  --> $DIR/general.rs:80:46
+  --> $DIR/general.rs:79:46
    |
 LL |     let _ = std::fs::write(PathBuf::from("x").as_mut_os_str(), "");
    |                                              ^^^^^^^^^^^^^^^^ help: remove this
+
+error: the receiver implements the required traits
+  --> $DIR/general.rs:80:32
+   |
+LL |     let _ = std::fs::write(path.as_os_str(), "");
+   |                                ^^^^^^^^^^^^ help: remove this
 
 error: the receiver implements the required traits
   --> $DIR/general.rs:81:46
