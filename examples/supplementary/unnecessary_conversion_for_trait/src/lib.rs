@@ -114,9 +114,9 @@ const WATCHED_INHERENTS: &[&[&str]] = &[
     &["std", "ffi", "os_str", "OsString", "as_os_str"],
     &["std", "ffi", "os_str", "OsString", "into_boxed_os_str"],
     &["std", "ffi", "os_str", "OsString", "into_encoded_bytes"],
+    &["std", "path", "Path", "as_mut_os_str"],
     &["std", "path", "Path", "as_os_str"],
     &["std", "path", "Path", "into_path_buf"],
-    &["std", "path", "Path", "as_mut_os_str"],
     &["std", "path", "Path", "iter"],
     &["std", "path", "Path", "new"],
     &["std", "path", "Path", "to_path_buf"],
@@ -135,17 +135,17 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["alloc", "str", "<impl str>", "to_uppercase"],
     &["alloc", "string", "String", "from_utf16_lossy"],
     &["alloc", "string", "String", "leak"],
+    &["alloc", "vec", "Vec", "into_flattened"],
     &["alloc", "vec", "Vec", "leak"],
     &["alloc", "vec", "Vec", "spare_capacity_mut"],
-    &["alloc", "vec", "Vec", "into_flattened"],
     &["core", "slice", "<impl [T]>", "as_chunks_unchecked"],
     &["core", "slice", "<impl [T]>", "as_chunks_unchecked_mut"],
     &["core", "str", "<impl str>", "as_bytes_mut"],
     &["core", "str", "<impl str>", "trim"],
-    &["core", "str", "<impl str>", "trim_start"],
     &["core", "str", "<impl str>", "trim_end"],
     &["core", "str", "<impl str>", "trim_left"],
     &["core", "str", "<impl str>", "trim_right"],
+    &["core", "str", "<impl str>", "trim_start"],
     &["std", "ffi", "os_str", "OsStr", "to_ascii_lowercase"],
     &["std", "ffi", "os_str", "OsStr", "to_ascii_uppercase"],
 ];
@@ -311,7 +311,45 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
 }
 
 #[cfg(test)]
-mod test {
+mod sort {
+    use super::*;
+
+    #[cfg_attr(
+        dylint_lib = "assert_eq_arg_misordering",
+        allow(assert_eq_arg_misordering)
+    )]
+    #[test]
+    fn watched_traits_are_sorted() {
+        assert_eq!(&sort(WATCHED_TRAITS), &WATCHED_TRAITS);
+    }
+
+    #[cfg_attr(
+        dylint_lib = "assert_eq_arg_misordering",
+        allow(assert_eq_arg_misordering)
+    )]
+    #[test]
+    fn watched_inherents_are_sorted() {
+        assert_eq!(&sort(WATCHED_INHERENTS), &WATCHED_INHERENTS);
+    }
+
+    #[cfg_attr(
+        dylint_lib = "assert_eq_arg_misordering",
+        allow(assert_eq_arg_misordering)
+    )]
+    #[test]
+    fn ignored_inherents_are_sorted() {
+        assert_eq!(&sort(IGNORED_INHERENTS), &IGNORED_INHERENTS);
+    }
+
+    fn sort<'a, 'b, 'c>(items: &'a [&'b [&'c str]]) -> Vec<&'b [&'c str]> {
+        let mut items = items.to_vec();
+        items.sort_unstable();
+        items
+    }
+}
+
+#[cfg(test)]
+mod ui {
     use super::*;
     use std::{
         env::{remove_var, set_var, var_os},
