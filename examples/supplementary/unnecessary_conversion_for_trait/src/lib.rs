@@ -5,7 +5,6 @@
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![warn(unused_extern_crates)]
 
-extern crate rustc_data_structures;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
@@ -22,7 +21,6 @@ use clippy_utils::{
 };
 use dylint_internal::cargo::current_metadata;
 use if_chain::if_chain;
-use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
 use rustc_hir::{
     def_id::{DefId, LOCAL_CRATE},
@@ -80,7 +78,6 @@ dylint_linting::impl_late_lint! {
 #[derive(Default)]
 struct UnnecessaryConversionForTrait {
     callee_paths: BTreeSet<Vec<String>>,
-    inherents_def_ids: FxHashSet<DefId>,
 }
 
 const WATCHED_TRAITS: &[&[&str]] = &[
@@ -152,20 +149,6 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["std", "ffi", "os_str", "OsStr", "to_ascii_lowercase"],
     &["std", "ffi", "os_str", "OsStr", "to_ascii_uppercase"],
 ];
-
-// smoelius: See the comment preceding `check_expr_post` below.
-const INHERENT_SEEDS: &[&[&str]] = &[
-    &["alloc", "slice", "<impl [T]>", "to_vec"],
-    &["alloc", "str", "<impl str>", "into_string"],
-    &["core", "str", "<impl str>", "len"],
-];
-
-#[cfg(test)]
-const MAIN_RS: &str = "fn main() {
-    <[u8]>::to_vec;
-    str::into_string;
-    str::len;
-}";
 
 impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
     #[allow(clippy::too_many_lines)]
@@ -322,36 +305,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
         }
 
         if enabled("CHECK_INHERENTS") {
-            assert_eq!(INHERENT_SEEDS.len(), self.inherents_def_ids.len());
-            check_inherents(
-                cx,
-                std::iter::once(cx.tcx.lang_items().slice_len_fn().unwrap())
-                    .chain(self.inherents_def_ids.iter().copied()),
-            );
-        }
-    }
-
-    // smoelius: This is a hack. In `check_inherents`, we need to iterate over the items in the
-    // following impls:
-    // - `alloc::slice::<impl [T]>`
-    // - `alloc::str::<impl str>`
-    // - `core::str::<impl str>`
-    // But for unknown reasons, at least some of those impls are not listed by `module_children`.
-    //
-    // On the other hand, the impl is returned by `parent` if one has the `DefId` of an item within
-    // the impl.
-    //
-    // The easiest way I have found to obtain such a `DefId` is to refer to one of the impl's
-    // items (e.g., `str::len`) and let the compiler perform resolution.
-    //
-    // Note that a similar hack is not needed to obtain a `DefId` within `core::slice::<impl [T]>`
-    // because one can use `LanguageItems::slice_len_fn`.
-    fn check_expr_post(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
-        if enabled("CHECK_INHERENTS")
-            && let Some(def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id)
-            && INHERENT_SEEDS.iter().any(|path| match_def_path(cx, def_id, path))
-        {
-            self.inherents_def_ids.insert(def_id);
+            check_inherents(cx);
         }
     }
 }
@@ -412,8 +366,7 @@ mod test {
 
         let tempdir = tempdir().unwrap();
 
-        // smoelius: Regarding `str::len`, etc., see the comment preceding `check_expr_post` above.
-        write(tempdir.path().join("main.rs"), MAIN_RS).unwrap();
+        write(tempdir.path().join("main.rs"), "fn main() {}").unwrap();
 
         dylint_testing::ui_test(env!("CARGO_PKG_NAME"), tempdir.path());
     }

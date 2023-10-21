@@ -5,27 +5,19 @@ use rustc_hir::{def_id::DefId, Unsafety};
 use rustc_lint::LateContext;
 use rustc_middle::ty::{
     self,
+    fast_reject::SimplifiedType,
     fold::{BottomUpFolder, TypeFolder},
 };
-use rustc_span::symbol::sym;
+use rustc_span::{symbol::sym, Symbol};
 
-pub fn check_inherents<I: Iterator<Item = DefId>>(cx: &LateContext<'_>, inherent_def_ids: I) {
+#[allow(clippy::too_many_lines)]
+pub fn check_inherents(cx: &LateContext<'_>) {
     let into_iterator_def_id =
         get_trait_def_id(cx, &["core", "iter", "traits", "collect", "IntoIterator"]).unwrap();
     let iterator_def_id =
         get_trait_def_id(cx, &["core", "iter", "traits", "iterator", "Iterator"]).unwrap();
 
-    let mut type_paths = WATCHED_INHERENTS
-        .iter()
-        .filter_map(|path| {
-            if is_primitive_impl(path) || path.first() == Some(&"tempfile") {
-                return None;
-            }
-            Some(path.split_last().unwrap().1)
-        })
-        .collect::<Vec<_>>();
-
-    type_paths.dedup();
+    let type_paths = type_paths();
 
     let of_interest = |def_id| -> bool {
         if cx.tcx.visibility(def_id) != ty::Visibility::Public {
@@ -69,6 +61,32 @@ pub fn check_inherents<I: Iterator<Item = DefId>>(cx: &LateContext<'_>, inherent
         })
     };
 
+    let type_path_impl_def_ids = type_paths
+        .iter()
+        .flat_map(|type_path| def_path_res(cx, type_path))
+        .filter_map(|res| res.opt_def_id())
+        .flat_map(|def_id| cx.tcx.inherent_impls(def_id));
+
+    let slice_incoherent_impl_def_ids = cx
+        .tcx
+        .incoherent_impls(SimplifiedType::Slice)
+        .iter()
+        .filter(|&impl_def_id| {
+            // smoelius: Filter out cases like `core::slice::ascii::<impl [u8]>::trim_ascii`.
+            let ty::Slice(ty) = cx.tcx.type_of(impl_def_id).skip_binder().kind() else {
+                panic!("impl is not for a slice");
+            };
+            matches!(ty.kind(), ty::Param(_))
+        });
+
+    let str_incoherent_impl_def_ids = cx.tcx.incoherent_impls(SimplifiedType::Str);
+
+    let impl_def_ids = type_path_impl_def_ids
+        .chain(slice_incoherent_impl_def_ids)
+        .chain(str_incoherent_impl_def_ids)
+        .copied()
+        .collect::<Vec<_>>();
+
     // smoelius: Watched and ignored inherents are "of interest."
     for path in WATCHED_INHERENTS.iter().chain(IGNORED_INHERENTS.iter()) {
         if is_primitive_impl(path) || path.first() == Some(&"tempfile") {
@@ -89,14 +107,7 @@ pub fn check_inherents<I: Iterator<Item = DefId>>(cx: &LateContext<'_>, inherent
     }
 
     // smoelius: Watched inherents are complete(ish).
-    for impl_def_id in type_paths
-        .iter()
-        .flat_map(|type_path| def_path_res(cx, type_path))
-        .filter_map(|res| res.opt_def_id())
-        .flat_map(|def_id| cx.tcx.inherent_impls(def_id))
-        .copied()
-        .chain(inherent_def_ids.map(|def_id| cx.tcx.parent(def_id)))
-    {
+    for &impl_def_id in &impl_def_ids {
         for &assoc_item_def_id in cx.tcx.associated_item_def_ids(impl_def_id) {
             if of_interest(assoc_item_def_id) {
                 assert!(
@@ -110,6 +121,48 @@ pub fn check_inherents<I: Iterator<Item = DefId>>(cx: &LateContext<'_>, inherent
             }
         }
     }
+
+    // smoelius: Every watched inherent satisfies one of the following three conditions:
+    // - It is associated with one of the `type_paths` impls.
+    // - It is associated with an incoherent impl.
+    // - It is from the `tempfile` crate.
+    let mut watched_inherents = WATCHED_INHERENTS.to_vec();
+    for &impl_def_id in &impl_def_ids {
+        for &assoc_item_def_id in cx.tcx.associated_item_def_ids(impl_def_id) {
+            if let Some(i) = watched_inherents.iter().position(|&path| {
+                path == cx
+                    .get_def_path(assoc_item_def_id)
+                    .iter()
+                    .map(Symbol::as_str)
+                    .collect::<Vec<_>>()
+            }) {
+                watched_inherents.remove(i);
+            }
+        }
+    }
+    assert!(
+        watched_inherents
+            .iter()
+            .all(|path| path.first() == Some(&"tempfile")),
+        "{watched_inherents:?}",
+    );
+}
+
+fn type_paths() -> Vec<&'static [&'static str]> {
+    let mut type_paths = WATCHED_INHERENTS
+        .iter()
+        .filter_map(|path| {
+            // smoelius: `tempfile` must be filtered out because `def_path_res` does not handle it.
+            if is_primitive_impl(path) || path.first() == Some(&"tempfile") {
+                return None;
+            }
+            Some(path.split_last().unwrap().1)
+        })
+        .collect::<Vec<_>>();
+
+    type_paths.dedup();
+
+    type_paths
 }
 
 fn is_primitive_impl(path: &[&str]) -> bool {
