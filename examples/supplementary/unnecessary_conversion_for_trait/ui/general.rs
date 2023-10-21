@@ -76,8 +76,8 @@ fn main() {
     let _ = is_empty_os(osstring.clone().into_boxed_os_str());
     let _ = os_string_or_bytes(osstring.clone().into_encoded_bytes());
 
-    let _ = std::fs::write(path.as_os_str(), "");
     let _ = std::fs::write(PathBuf::from("x").as_mut_os_str(), "");
+    let _ = std::fs::write(path.as_os_str(), "");
     let _ = std::fs::write(PathBuf::from("x").into_boxed_path().into_path_buf(), "");
     let _ = Command::new("ls").args(path.iter());
     let _ = std::fs::write(Path::new("x"), "");
