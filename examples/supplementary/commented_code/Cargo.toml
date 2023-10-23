@@ -13,7 +13,7 @@ crate-type = ["cdylib", "rlib"]
 clippy_utils = { workspace = true }
 if_chain = "1.0"
 once_cell = "1.18"
-regex = "1.9"
+regex = "1.10"
 syn = { version = "2.0", features = ["full"] }
 
 dylint_linting = { path = "../../../utils/linting" }
