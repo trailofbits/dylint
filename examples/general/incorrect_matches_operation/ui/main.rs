@@ -23,4 +23,3 @@ fn main() {
     // This one will not error out
     let _c = matches!(x, 2) | matches!(_b, true);
 }
-

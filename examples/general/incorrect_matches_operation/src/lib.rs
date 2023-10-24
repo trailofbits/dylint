@@ -58,8 +58,8 @@ dylint_linting::declare_pre_expansion_lint! {
 
 fn is_matches_macro(expr: &P<Expr>) -> Option<&P<MacCall>> {
     if_chain! {
-        if let ExprKind::MacCall(mac) = &expr.kind;     // must be a macro call
-        if mac.path == sym!(matches);                   // must be a matches! symbol
+        if let ExprKind::MacCall(mac) = &expr.kind; // must be a macro call
+        if mac.path == sym!(matches); // must be a matches! symbol
         then {
             return Some(mac);
         }
@@ -111,7 +111,10 @@ impl EarlyLintPass for IncorrectMatchesOperation {
             // Look for binary operators
             if let ExprKind::Binary(op, left, right) = &expr.kind;
             // Ensure the binary operator is |, ||, &&, &
-            if matches!(op.node, BinOpKind::BitOr | BinOpKind::Or | BinOpKind::And | BinOpKind::BitAnd);
+            if matches!(
+                op.node,
+                BinOpKind::BitOr | BinOpKind::Or | BinOpKind::And | BinOpKind::BitAnd
+            );
             // The left side needs to be a matches! macro call
             if let Some(matches1) = is_matches_macro(left);
             // The right side needs to be a matches! macro call
@@ -133,14 +136,13 @@ impl EarlyLintPass for IncorrectMatchesOperation {
                     }
                     // For & and && operators, this is likely a bug
                     BinOpKind::BitAnd | BinOpKind::And => {
-                        let op = if op.node == BinOpKind::BitAnd { "&" } else { "&&" };
+                        let op = if op.node == BinOpKind::BitAnd {
+                            "&"
+                        } else {
+                            "&&"
+                        };
                         let msg = format!("Is this a bug? matches!(obj, A) {op} matches!(obj, B) is (almost) always false");
-                        span_lint(
-                            cx,
-                            INCORRECT_MATCHES_OPERATION,
-                            expr.span,
-                            &msg,
-                        );
+                        span_lint(cx, INCORRECT_MATCHES_OPERATION, expr.span, &msg);
                     }
                     _ => {
                         unreachable!("This should never happen - op.node can't be other operator");
