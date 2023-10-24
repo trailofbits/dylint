@@ -336,7 +336,9 @@ fn is_derived(cx: &LateContext<'_>, def_id: DefId) -> Option<Macro> {
             // smoelius: I'm not sure whether `SyntaxExtension::builtin_name` would be the right
             // thing to use here; regardless, I can't figure out how to retrieve that data:
             // https://github.com/rust-lang/rust/blob/d651fa78cefecefa87fa3d7dc1e1389d275afb63/compiler/rustc_expand/src/base.rs#L729-L731
-            Some(Macro::Builtin(*cx.get_def_path(macro_def_id).last().unwrap()))
+            Some(Macro::Builtin(
+                *cx.get_def_path(macro_def_id).last().unwrap(),
+            ))
         } else {
             Some(Macro::External(macro_def_id))
         }

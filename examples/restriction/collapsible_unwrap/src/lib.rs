@@ -83,39 +83,38 @@ impl CollapsibleUnwrap {
                 if let Some((method, mut recv, _, _, span)) = method_call(expr);
                 let snip_span = trim_span(cx.sess().source_map(), span.with_lo(recv.span.hi()));
                 if let Some(snip) = snippet_opt(cx, snip_span);
-                if let Some((span_sugg, prefix)) =
-                    if method == "and_then" {
-                        Some((&mut and_then_span_sugg, snip))
-                    } else if let Some((inner_method, inner_recv, _, _, _)) = method_call(recv)
-                        && inner_method == "unwrap"
-                    {
-                        if and_then_span_sugg.is_none() {
-                            and_then_span_sugg = Some(SpanSugg {
-                                span: expr.span.with_lo(expr.span.hi()),
-                                sugg: String::new(),
-                            });
-                        }
-                        unwrap_span_sugg = and_then_span_sugg.clone();
-                        let needs_mut = cx
-                            .typeck_results()
-                            .type_dependent_def_id(expr.hir_id)
-                            .map_or(false, |def_id| has_ref_mut_self(cx, def_id));
-                        let recv_ty = cx.typeck_results().expr_ty(recv);
-                        let name = suggest_name_from_type(cx, recv_ty);
-                        recv = inner_recv;
-                        Some((
-                            &mut unwrap_span_sugg,
-                            format!(
-                                ".and_then(|{}{}| {}{})",
-                                if needs_mut { "mut "} else { "" },
-                                name,
-                                name,
-                                snip
-                            )
-                        ))
-                    } else {
-                        None
-                    };
+                if let Some((span_sugg, prefix)) = if method == "and_then" {
+                    Some((&mut and_then_span_sugg, snip))
+                } else if let Some((inner_method, inner_recv, _, _, _)) = method_call(recv)
+                    && inner_method == "unwrap"
+                {
+                    if and_then_span_sugg.is_none() {
+                        and_then_span_sugg = Some(SpanSugg {
+                            span: expr.span.with_lo(expr.span.hi()),
+                            sugg: String::new(),
+                        });
+                    }
+                    unwrap_span_sugg = and_then_span_sugg.clone();
+                    let needs_mut = cx
+                        .typeck_results()
+                        .type_dependent_def_id(expr.hir_id)
+                        .map_or(false, |def_id| has_ref_mut_self(cx, def_id));
+                    let recv_ty = cx.typeck_results().expr_ty(recv);
+                    let name = suggest_name_from_type(cx, recv_ty);
+                    recv = inner_recv;
+                    Some((
+                        &mut unwrap_span_sugg,
+                        format!(
+                            ".and_then(|{}{}| {}{})",
+                            if needs_mut { "mut " } else { "" },
+                            name,
+                            name,
+                            snip
+                        ),
+                    ))
+                } else {
+                    None
+                };
                 let expr_ty = cx.typeck_results().expr_ty(expr);
                 let expr_err_ty = result_err_ty(cx, expr_ty);
                 let recv_ty = cx.typeck_results().expr_ty(recv);
@@ -154,7 +153,9 @@ impl CollapsibleUnwrap {
             }
         }
 
-        if let Some(SpanSugg { span, sugg }) = unwrap_span_sugg && !span.is_empty() {
+        if let Some(SpanSugg { span, sugg }) = unwrap_span_sugg
+            && !span.is_empty()
+        {
             span_lint_and_sugg(
                 cx,
                 COLLAPSIBLE_UNWRAP,

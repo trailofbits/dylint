@@ -143,7 +143,9 @@ fn read_diagnostics() -> Result<Vec<Diagnostic>> {
     let mut diagnostics = Vec::new();
     for result in serde_json::Deserializer::from_reader(file).into_iter::<Message>() {
         let message = result?;
-        if message.reason == "compiler-message" && let Some(diagnostic) = message.message {
+        if message.reason == "compiler-message"
+            && let Some(diagnostic) = message.message
+        {
             diagnostics.push(diagnostic);
         }
     }

@@ -250,7 +250,10 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             (false, "inner argument")
                         };
                     let msg = format!("the {subject} implements the required traits");
-                    if is_bare_method_call && refs_prefix.is_empty() && !maybe_arg.span.from_expansion() {
+                    if is_bare_method_call
+                        && refs_prefix.is_empty()
+                        && !maybe_arg.span.from_expansion()
+                    {
                         span_lint_and_sugg(
                             cx,
                             UNNECESSARY_CONVERSION_FOR_TRAIT,
@@ -260,7 +263,9 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             String::new(),
                             Applicability::MachineApplicable,
                         );
-                    } else if maybe_arg.span.from_expansion() && let Some(span) = maybe_arg.span.parent_callsite() {
+                    } else if maybe_arg.span.from_expansion()
+                        && let Some(span) = maybe_arg.span.parent_callsite()
+                    {
                         // smoelius: This message could be more informative.
                         span_lint_and_help(
                             cx,
@@ -610,11 +615,16 @@ fn replace_types<'tcx>(
                 {
                     let projection = cx.tcx.mk_ty_from_kind(ty::Alias(
                         ty::Projection,
-                        projection_predicate.projection_ty.with_self_ty(cx.tcx, new_ty),
+                        projection_predicate
+                            .projection_ty
+                            .with_self_ty(cx.tcx, new_ty),
                     ));
 
-                    if let Ok(projected_ty) = cx.tcx.try_normalize_erasing_regions(cx.param_env, projection)
-                        && substs[term_param_ty.index as usize] != ty::GenericArg::from(projected_ty)
+                    if let Ok(projected_ty) = cx
+                        .tcx
+                        .try_normalize_erasing_regions(cx.param_env, projection)
+                        && substs[term_param_ty.index as usize]
+                            != ty::GenericArg::from(projected_ty)
                     {
                         deque.push_back((*term_param_ty, projected_ty));
                     }
