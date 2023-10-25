@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.4
+
+- Fix [broken links](https://github.com/trailofbits/dylint/issues/691) in docs.rs documentation ([0f04fcb](https://github.com/trailofbits/dylint/commit/0f04fcb4f955639711ba3fe12c4994246c96dadb))
+
 ## 2.4.3
 
 - [#858](https://github.com/trailofbits/dylint/pull/858) made `curl-sys` a non-optional dependency of the `dylint` package. This had unintended side effects, e.g., causing all of the example lints to transitively depend on `curl-sys`. [#867](https://github.com/trailofbits/dylint/pull/867) corrects the situation. ([#867](https://github.com/trailofbits/dylint/pull/867))
