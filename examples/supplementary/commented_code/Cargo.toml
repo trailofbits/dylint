@@ -1,6 +1,6 @@
 [package]
 name = "commented_code"
-version = "2.4.3"
+version = "2.4.4"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for code that has been commented out"
 edition = "2021"
