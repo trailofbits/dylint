@@ -22,4 +22,18 @@ fn main() {
 
     // This one will not error out
     let _c = matches!(x, 2) | matches!(_b, true);
+
+    false_negative();
+    false_positive();
+}
+
+fn false_negative() {
+    let x = 2;
+    assert!(matches!(x, 1) | matches!(x, 2));
+}
+
+fn false_positive() {
+    let x = 2;
+    let a = matches!(x, 1) | matches!(x, 2 if false);
+    assert!(!a);
 }

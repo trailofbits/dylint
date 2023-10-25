@@ -31,5 +31,11 @@ error: This matches! macro use can be rewritten to matches!(obj, A | B)
 LL |     let _b = matches!(x, 1) | matches!(x, 2);
    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 5 previous errors
+error: This matches! macro use can be rewritten to matches!(obj, A | B)
+  --> $DIR/main.rs:37:13
+   |
+LL |     let a = matches!(x, 1) | matches!(x, 2 if false);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 6 previous errors
 
