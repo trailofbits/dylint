@@ -21,7 +21,8 @@ use std::{
 
 type Object = serde_json::Map<String, serde_json::Value>;
 
-#[cfg(feature = "metadata")]
+// smoelius: See note in dylint/src/metadata/mod.rs.
+#[cfg(all(feature = "__metadata_cargo", not(feature = "__metadata_cli")))]
 pub(crate) use cargo::{core, sources, util};
 
 pub mod driver_builder;
@@ -36,11 +37,8 @@ mod name_toolchain_map;
 pub use name_toolchain_map::{Lazy as NameToolchainMap, ToolchainMap};
 use name_toolchain_map::{LazyToolchainMap, MaybeLibrary};
 
-#[cfg(feature = "metadata")]
+#[cfg(__metadata)]
 pub(crate) mod metadata;
-
-#[cfg(feature = "metadata")]
-mod toml;
 
 #[cfg(feature = "package_options")]
 mod package_options;
@@ -469,9 +467,9 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         let target_dir_str = target_dir.to_string_lossy();
         let driver = driver_builder::get(opts, toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
-        #[cfg(not(feature = "metadata"))]
+        #[cfg(not(__metadata))]
         let dylint_metadata = None;
-        #[cfg(feature = "metadata")]
+        #[cfg(__metadata)]
         let dylint_metadata = metadata::dylint_metadata(opts)?;
         let dylint_metadata_str = dylint_metadata
             .map(|object: &Object| serde_json::Value::from(object.clone()))

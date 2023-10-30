@@ -2,6 +2,21 @@ use dylint_internal::{cargo::cargo_home, env};
 use std::{fs::OpenOptions, io::Write, path::Path};
 
 fn main() {
+    write_dylint_driver_manifest_dir();
+
+    #[cfg(all(feature = "__metadata_cargo", feature = "__metadata_cli"))]
+    {
+        println!("cargo:warning=Both `__metadata_cargo` and `__metadata_cli` are enabled.");
+        println!("cargo:warning=Perhaps you forgot to build with `--no-default-features`?");
+    }
+
+    #[cfg(any(feature = "__metadata_cargo", feature = "__metadata_cli"))]
+    println!("cargo:rustc-cfg=__metadata");
+
+    println!("cargo:rerun-if-changed=build.rs");
+}
+
+fn write_dylint_driver_manifest_dir() {
     let cargo_home = cargo_home().unwrap();
     let out_dir = env::var(env::OUT_DIR).unwrap();
 
@@ -38,6 +53,4 @@ fn main() {
         "const DYLINT_DRIVER_MANIFEST_DIR: Option<&str> = {dylint_driver_manifest_dir};"
     )
     .unwrap();
-
-    println!("cargo:rerun-if-changed=build.rs");
 }

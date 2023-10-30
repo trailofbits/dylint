@@ -19,7 +19,7 @@ pub(crate) type NameToolchainMap = BTreeMap<String, LazyToolchainMap>;
 #[allow(clippy::redundant_pub_crate)]
 pub(crate) type LazyToolchainMap = BTreeMap<String, BTreeSet<MaybeLibrary>>;
 
-#[cfg_attr(not(feature = "metadata"), allow(dead_code))]
+#[cfg_attr(not(__metadata), allow(dead_code))]
 struct Inner<'opts> {
     opts: &'opts crate::Dylint,
     name_toolchain_map: OnceCell<NameToolchainMap>,
@@ -48,7 +48,7 @@ impl<'opts> Lazy<'opts> {
 
                 let dylint_library_paths = dylint_library_paths()?;
 
-                #[cfg(feature = "metadata")]
+                #[cfg(__metadata)]
                 let workspace_metadata_packages =
                     crate::metadata::workspace_metadata_packages(self.inner.opts)?;
 
@@ -64,7 +64,7 @@ impl<'opts> Lazy<'opts> {
                     }
                 }
 
-                #[cfg(feature = "metadata")]
+                #[cfg(__metadata)]
                 for package in workspace_metadata_packages {
                     name_toolchain_map
                         .entry(package.lib_name.clone())
