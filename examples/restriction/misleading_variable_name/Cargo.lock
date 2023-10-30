@@ -230,7 +230,6 @@ dependencies = [
  "cargo_metadata",
  "dirs",
  "dylint_internal",
- "heck",
  "is-terminal",
  "log",
  "once_cell",

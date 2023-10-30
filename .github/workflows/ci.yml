@@ -83,14 +83,6 @@ jobs:
       - name: Lint
         run: ./scripts/lint.sh
 
-      # smoelius: Disable udeps. It doesn't appear it was working.
-      # - name: Udeps
-      #   run: |
-      #     rustup toolchain install nightly
-      #     cargo install cargo-udeps
-      #     cargo clean && cargo +nightly udeps --all-targets --no-default-features
-      #     cargo clean && cargo +nightly udeps --all-targets
-
   test:
     strategy:
       fail-fast: false
@@ -129,9 +121,11 @@ jobs:
       - name: Install tools
         run: |
           npm install -g prettier
+          rustup install nightly
           cargo install cargo-hack         || true
           cargo install cargo-msrv         || true
           cargo install cargo-supply-chain || true
+          cargo install cargo-udeps        || true
 
       - name: Free up space on Ubuntu
         if: ${{ matrix.environment == 'ubuntu-latest' }}
