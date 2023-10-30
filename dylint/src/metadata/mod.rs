@@ -8,7 +8,14 @@ use once_cell::sync::OnceCell;
 use serde::Deserialize;
 use std::path::{Path, PathBuf};
 
+// smoelius: If both `__metadata_cargo` and `__metadata_cli` are enabled, assume the user built with
+// `--features=metadata-cli` and forgot `--no-default-features`.
+#[cfg(all(feature = "__metadata_cargo", not(feature = "__metadata_cli")))]
 #[path = "cargo/mod.rs"]
+mod impl_;
+
+#[cfg(feature = "__metadata_cli")]
+#[path = "cli/mod.rs"]
 mod impl_;
 
 use impl_::{dependency_source_id_and_root, Config, DetailedTomlDependency, PackageId, SourceId};
@@ -200,15 +207,16 @@ fn library_package(
     let paths = entries
         .map(|entry| {
             entry.map_err(Into::into).and_then(|path| {
+                // smoelius: Because `dependency_root` might not be absolute, `path` might not be
+                // absolute. So `path` must be normalized.
+                let path_buf = cargo_util::paths::normalize_path(&path);
                 if let Some(pattern) = &library.pattern {
-                    let path_buf = path
-                        .canonicalize()
-                        .with_context(|| format!("Could not canonicalize {path:?}"))?;
-                    // smoelius: On Windows, the dependency root must be canonicalized to ensure it
-                    // has a path prefix.
-                    let dependency_root = dependency_root
-                        .canonicalize()
-                        .with_context(|| format!("Could not canonicalize {dependency_root:?}"))?;
+                    // smoelius: Use `cargo_util::paths::normalize_path` instead of `canonicalize`
+                    // so as not to "taint" the path with a path prefix on Windows.
+                    //
+                    // This problem keeps coming up. For example, it recently came up in:
+                    // https://github.com/trailofbits/dylint/pull/944
+                    let dependency_root = cargo_util::paths::normalize_path(&dependency_root);
                     ensure!(
                         path_buf.starts_with(&dependency_root),
                         "Pattern `{pattern}` could refer to `{}`, which is outside of `{}`",
@@ -216,7 +224,7 @@ fn library_package(
                         dependency_root.to_string_lossy()
                     );
                 }
-                Ok(path)
+                Ok(path_buf)
             })
         })
         .collect::<std::result::Result<Vec<_>, _>>()?;
@@ -247,7 +255,9 @@ fn library_package(
                 let Ok(package) = package_with_root(&path) else {
                     return Ok(None);
                 };
-                let package_id = package_id(&package, source_id)?;
+                // smoelius: When `__metadata_cli` is enabled, `source_id`'s type is `String`.
+                #[allow(clippy::clone_on_copy)]
+                let package_id = package_id(&package, source_id.clone())?;
                 let lib_name = package_library_name(&package)?;
                 let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
                 Ok(Some(Package {
@@ -295,7 +305,7 @@ fn package_with_root(package_root: &Path) -> Result<MetadataPackage> {
 }
 
 fn package_id(package: &MetadataPackage, source_id: SourceId) -> Result<PackageId> {
-    PackageId::new(&package.name, &package.version, source_id)
+    PackageId::new(package.name.clone(), package.version.clone(), source_id)
 }
 
 pub fn package_library_name(package: &MetadataPackage) -> Result<String> {

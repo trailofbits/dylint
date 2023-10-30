@@ -348,10 +348,16 @@ fn supply_chain() {
         .success();
 
     for target in TARGETS {
-        let assert = Command::new("cargo")
-            .args(["supply-chain", "json", "--no-dev", "--target", target])
-            .assert()
-            .success();
+        let mut command = Command::new("cargo");
+        command.args(["supply-chain", "json", "--no-dev", "--target", target]);
+        let subdir = if cfg!(feature = "metadata-cargo") {
+            "cargo"
+        } else {
+            assert!(cfg!(feature = "metadata-cli"));
+            command.args(["--no-default-features", "--features=metadata-cli"]);
+            "cli"
+        };
+        let assert = command.assert().success();
 
         let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
         // smoelius: Sanity. (I have nothing against Redox OS.)
@@ -359,7 +365,9 @@ fn supply_chain() {
         let value = serde_json::Value::from_str(stdout_actual).unwrap();
         let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
 
-        let path = PathBuf::from(format!("cargo-dylint/tests/supply_chain/{target}.json"));
+        let path = PathBuf::from(format!(
+            "cargo-dylint/tests/supply_chain/{subdir}/{target}.json"
+        ));
 
         let stdout_expected = read_to_string(&path).unwrap();
 
