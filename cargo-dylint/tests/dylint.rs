@@ -124,10 +124,17 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
 }
 
 #[test]
-fn hack_feature_powerset() {
-    Command::new("cargo")
+fn hack_feature_powerset_udeps() {
+    Command::new("rustup")
         .env(env::RUSTFLAGS, "-D warnings")
-        .args(["hack", "--feature-powerset", "check"])
+        .args([
+            "run",
+            "nightly",
+            "cargo",
+            "hack",
+            "--feature-powerset",
+            "udeps",
+        ])
         .assert()
         .success();
 }
