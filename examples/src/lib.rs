@@ -51,7 +51,7 @@ mod test {
             let mut document = contents.parse::<Document>().unwrap();
             // smoelius: Hack. `build.target-dir` is expected to be a relative path. Replace it with
             // an absolute one. However, the directory might not exist when this test is run. So use
-            // `cargo_util::cargo_util::paths::normalize_path` rather than `Path::canonicalize`.
+            // `cargo_util::paths::normalize_path` rather than `Path::canonicalize`.
             document
                 .as_table_mut()
                 .get_mut("build")
