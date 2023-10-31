@@ -241,7 +241,7 @@ fn markdown_reference_links_are_valid_and_used() {
 // smoelius: Disable `markdown_link_check` test until the following issue is resolved:
 // https://github.com/rust-lang/rust/issues/117430
 #[cfg(any())]
-#[cfg(not(target_os = "windows"))]
+#[cfg_attr(target_os = "windows", ignore)]
 #[test]
 fn markdown_link_check() {
     let tempdir = tempfile::tempdir().unwrap();
@@ -300,7 +300,7 @@ fn msrv() {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg_attr(target_os = "windows", ignore)]
 #[test]
 fn prettier_all_but_examples_and_template() {
     Command::new("prettier")
@@ -315,7 +315,7 @@ fn prettier_all_but_examples_and_template() {
         .success();
 }
 
-#[cfg(not(windows))]
+#[cfg_attr(target_os = "windows", ignore)]
 #[test]
 fn prettier_examples_and_template() {
     preserves_cleanliness("prettier", true, || {
