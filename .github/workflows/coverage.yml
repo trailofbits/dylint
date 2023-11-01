@@ -1,0 +1,58 @@
+name: Coverage
+
+on:
+  schedule:
+    - cron: "0 3 * * 2" # 2 = Tuesday
+  workflow_dispatch:
+
+concurrency:
+  group: coverage-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.PR_SSH_KEY }}
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.dylint_drivers/
+            ~/.rustup/toolchains/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install dylint-link
+        run: cargo install --path ./dylint-link
+
+      - name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov
+
+      - name: Coverage
+        run: |
+          for X in . driver utils/linting; do
+            pushd "$X"
+            cargo llvm-cov --failure-mode all --lcov --output-path coverage.lcov
+            popd
+          done
+
+      - name: Install lcov
+        run: sudo apt install lcov
+
+      - name: Generate html
+        run: find . -name coverage.lcov -print0 | xargs -0 genhtml --output-directory coverage coverage.lcov
+
+      - name: Push to gh-pages branch
+        run: |
+          git commit coverage -m Coverage
+          git push origin ${{ github.ref }}:gh-pages --force
