@@ -16,7 +16,6 @@ use std::{
     str::FromStr,
     sync::Mutex,
 };
-use tempfile::tempdir;
 
 static METADATA: Lazy<Metadata> = Lazy::new(|| current_metadata().unwrap());
 
@@ -239,10 +238,13 @@ fn markdown_reference_links_are_valid_and_used() {
 
 // smoelius: `markdown_link_check` must use absolute paths because `npx markdown-link-check` is run
 // from a temporary directory.
+// smoelius: Disable `markdown_link_check` test until the following issue is resolved:
+// https://github.com/rust-lang/rust/issues/117430
+#[cfg(any())]
 #[cfg(not(target_os = "windows"))]
 #[test]
 fn markdown_link_check() {
-    let tempdir = tempdir().unwrap();
+    let tempdir = tempfile::tempdir().unwrap();
 
     Command::new("npm")
         .args(["install", "markdown-link-check"])
