@@ -38,6 +38,7 @@ jobs:
       - name: Install tools
         run: |
           npm install -g prettier
+          rustup install nightly
           cargo install cargo-hack         || true
           cargo install cargo-msrv         || true
           cargo install cargo-supply-chain || true
