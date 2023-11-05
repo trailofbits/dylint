@@ -42,7 +42,7 @@ jobs:
           cargo install cargo-hack         || true
           cargo install cargo-msrv         || true
           cargo install cargo-supply-chain || true
-          cargo install udeps              || true
+          cargo install cargo-udeps        || true
 
       - name: Install cargo-llvm-cov
         run: cargo install cargo-llvm-cov
