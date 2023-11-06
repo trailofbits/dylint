@@ -245,9 +245,6 @@ fn markdown_reference_links_are_valid_and_used() {
 
 // smoelius: `markdown_link_check` must use absolute paths because `npx markdown-link-check` is run
 // from a temporary directory.
-// smoelius: Disable `markdown_link_check` test until the following issue is resolved:
-// https://github.com/rust-lang/rust/issues/117430
-#[cfg(any())]
 #[cfg_attr(target_os = "windows", ignore)]
 #[test]
 fn markdown_link_check() {
