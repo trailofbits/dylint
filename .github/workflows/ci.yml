@@ -21,8 +21,8 @@ jobs:
         run: |
           {
             echo '```'
-            echo 'github.sha: ${{ github.sha }}'
             echo 'github.ref: ${{ github.ref }}'
+            echo 'github.sha: ${{ github.sha }}'
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
