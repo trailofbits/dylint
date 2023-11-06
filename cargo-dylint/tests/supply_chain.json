@@ -2439,6 +2439,22 @@
         "name": "Alex Crichton"
       }
     ],
+    "libredox": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/7741236?v=4",
+        "id": 2668,
+        "kind": "user",
+        "login": "jackpot51",
+        "name": "Jeremy Soller"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/47702593?v=4",
+        "id": 42742,
+        "kind": "user",
+        "login": "4lDO2",
+        "name": "4lDO2"
+      }
+    ],
     "libssh2-sys": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
