@@ -26,7 +26,7 @@ name = "non-empty"
 path = "ui/non-empty.rs"
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "b105fb4c39bc1a010807a6c076193cef8d93c109" }
+clippy_utils = { workspace = true }
 if_chain = "1.0"
 
 dylint_linting = { path = "../../../utils/linting" }
@@ -39,13 +39,3 @@ dylint_testing = { path = "../../../utils/testing" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true
-
-[workspace]
-
-[workspace.metadata.dylint]
-libraries = [
-    { path = "../../general" },
-    { path = "../../supplementary" },
-    { path = "../../testing/clippy" },
-    { path = "../../restriction/*" },
-]

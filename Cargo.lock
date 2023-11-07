@@ -788,6 +788,7 @@ version = "2.4.4"
 dependencies = [
  "ansi_term",
  "anyhow",
+ "cargo-util",
  "cargo_metadata",
  "ctor",
  "env_logger",
