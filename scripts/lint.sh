@@ -32,7 +32,7 @@ EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:s
 
 EXAMPLES="$(echo "$EXAMPLE_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 
-RESTRICTION_DIRS="$(echo examples/restriction/*)"
+RESTRICTION_DIRS="$(find examples/restriction -mindepth 1 -maxdepth 1 -type d ! -name .cargo)"
 RESTRICTIONS="$(echo "$RESTRICTION_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 
 EXPERIMENTAL_DIRS="$(echo examples/experimental/*)"
@@ -43,7 +43,7 @@ RESTRICTIONS="$(echo "$RESTRICTIONS" | sed 's/\<overscoped_allow\>[[:space:]]*//
 
 RESTRICTIONS_AS_FLAGS="$(echo "$RESTRICTIONS" | sed 's/\<[^[:space:]]\+\>/--lib &/g')"
 
-DIRS=". driver utils/linting examples/general examples/supplementary examples/testing/clippy $RESTRICTION_DIRS $EXPERIMENTAL_DIRS"
+DIRS=". driver utils/linting examples/general examples/supplementary examples/restriction examples/testing/clippy $EXPERIMENTAL_DIRS"
 
 force_check() {
     find "$WORKSPACE"/target -name .fingerprint -path '*/dylint/target/nightly-*' -exec rm -r {} \; || true

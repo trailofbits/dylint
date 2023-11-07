@@ -11,6 +11,7 @@ repository = "https://github.com/trailofbits/dylint"
 anyhow = "1.0"
 
 ansi_term = { version = "0.12", optional = true }
+cargo-util = { version = "0.2", optional = true }
 cargo_metadata = { version = "0.18", optional = true }
 ctor = { version = "0.2", optional = true }
 env_logger = { version = "0.10", optional = true }
@@ -34,7 +35,7 @@ toml_edit = "0.20"
 cargo = ["ansi_term", "cargo_metadata", "command", "home", "is-terminal"]
 clippy_utils = ["semver", "toml_edit"]
 command = ["log"]
-examples = ["cargo", "rustup", "walkdir"]
+examples = ["cargo", "cargo-util", "rustup", "walkdir"]
 git = ["command", "git2", "if_chain"]
 packaging = ["cargo", "rust-embed"]
 rustup = ["command"]

@@ -27,7 +27,10 @@ pub fn build() -> Result<()> {
 
 pub fn iter(workspace: bool) -> Result<impl Iterator<Item = Result<PathBuf>>> {
     #[allow(unknown_lints, env_cargo_path)]
-    let examples = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
+    let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
+    // smoelius: Using `cargo_util::paths::normalize_path` instead of `canonicalize` so as not to
+    // "taint" the path with a path prefix on Windows.
+    let examples = cargo_util::paths::normalize_path(&path_buf);
     let iter = WalkDir::new(examples)
         .into_iter()
         .filter_entry(|entry| entry.depth() <= 2);

@@ -28,12 +28,15 @@ mod test {
     fn examples_have_same_version_as_workspace() {
         for path in iter(false).unwrap() {
             let path = path.unwrap();
+            if path.file_name() == Some(OsStr::new("restriction")) {
+                continue;
+            }
             let metadata = MetadataCommand::new()
-                .current_dir(path)
+                .current_dir(&path)
                 .no_deps()
                 .exec()
                 .unwrap();
-            let package = metadata.root_package().unwrap();
+            let package = dylint_internal::cargo::package_with_root(&metadata, &path).unwrap();
             assert_eq!(env!("CARGO_PKG_VERSION"), package.version.to_string());
         }
     }
