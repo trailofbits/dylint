@@ -71,6 +71,7 @@ The example libraries are separated into the following three categories:
    ```
 
 [clippy]: https://github.com/rust-lang/rust-clippy#clippy
+[experimental]: #experimental
 [general]: #general
 [restriction]: #restriction
 [supplementary]: #supplementary
