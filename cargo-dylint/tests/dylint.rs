@@ -12,7 +12,7 @@ use std::{
     ffi::OsStr,
     fs::{read_to_string, write},
     io::{stderr, Write},
-    path::{Component, Path},
+    path::{Component, Path, PathBuf},
     str::FromStr,
     sync::Mutex,
 };
@@ -330,6 +330,13 @@ fn prettier_examples_and_template() {
     });
 }
 
+const TARGETS: [&str; 4] = [
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+    "x86_64-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc",
+];
+
 // smoelius: `supply_chain` is the only test that uses `supply_chain.json`. So there is no race.
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
@@ -340,27 +347,31 @@ fn supply_chain() {
         .assert()
         .success();
 
-    let assert = Command::new("cargo")
-        .args(["supply-chain", "json", "--no-dev"])
-        .assert()
-        .success();
+    for target in TARGETS {
+        let assert = Command::new("cargo")
+            .args(["supply-chain", "json", "--no-dev", "--target", target])
+            .assert()
+            .success();
 
-    let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
-    let value = serde_json::Value::from_str(stdout_actual).unwrap();
-    let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
+        let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
+        // smoelius: Sanity. (I have nothing against Redox OS.)
+        assert!(!stdout_actual.contains("redox"));
+        let value = serde_json::Value::from_str(stdout_actual).unwrap();
+        let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
 
-    let path = Path::new("cargo-dylint/tests/supply_chain.json");
+        let path = PathBuf::from(format!("cargo-dylint/tests/supply_chain/{target}.json"));
 
-    let stdout_expected = read_to_string(path).unwrap();
+        let stdout_expected = read_to_string(&path).unwrap();
 
-    if env::enabled("BLESS") {
-        write(path, stdout_normalized).unwrap();
-    } else {
-        assert!(
-            stdout_expected == stdout_normalized,
-            "{}",
-            SimpleDiff::from_str(&stdout_expected, &stdout_normalized, "left", "right")
-        );
+        if env::enabled("BLESS") {
+            write(path, stdout_normalized).unwrap();
+        } else {
+            assert!(
+                stdout_expected == stdout_normalized,
+                "{}",
+                SimpleDiff::from_str(&stdout_expected, &stdout_normalized, "left", "right")
+            );
+        }
     }
 }
 
