@@ -773,11 +773,13 @@ version = "2.4.4"
 dependencies = [
  "anyhow",
  "assert_cmd",
+ "cargo_metadata",
  "clippy_utils",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
  "if_chain",
+ "once_cell",
  "rustfix",
  "serde",
  "serde_json",
