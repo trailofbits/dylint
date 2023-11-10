@@ -104,7 +104,7 @@ impl<'tcx> LateLintPass<'tcx> for EscapingDocLink {
 }
 
 impl EscapingDocLink {
-    fn metadata(&mut self, source_dir: &Path) -> &Metadata {
+    fn metadata(&self, source_dir: &Path) -> &Metadata {
         self.metadata.get_or_init(|| {
             MetadataCommand::new()
                 .current_dir(source_dir)

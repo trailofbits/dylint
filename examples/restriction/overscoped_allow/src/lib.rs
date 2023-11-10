@@ -12,9 +12,11 @@ extern crate rustc_session;
 extern crate rustc_span;
 
 use anyhow::{Context, Result};
+use cargo_metadata::{Metadata, MetadataCommand};
 use clippy_utils::{diagnostics::span_lint_and_help, source::snippet_opt};
 use dylint_internal::env::var;
 use if_chain::if_chain;
+use once_cell::sync::OnceCell;
 use rustc_ast::ast::{Attribute, MetaItem, NestedMetaItem};
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
@@ -101,6 +103,7 @@ declare_lint! {
 
 #[derive(Default)]
 struct OverscopedAllow {
+    metadata: OnceCell<Metadata>,
     diagnostics: Vec<Diagnostic>,
     ancestor_meta_item_span_map: FxHashMap<HirId, FxHashMap<Span, FxHashSet<Option<Span>>>>,
     canonical_paths_cache: RefCell<FxHashMap<PathBuf, PathBuf>>,
@@ -155,10 +158,27 @@ fn read_diagnostics() -> Result<Vec<Diagnostic>> {
 impl OverscopedAllow {
     fn new(diagnostics: Vec<Diagnostic>) -> Self {
         Self {
+            metadata: OnceCell::new(),
             diagnostics,
             ancestor_meta_item_span_map: FxHashMap::default(),
             canonical_paths_cache: RefCell::new(FxHashMap::default()),
         }
+    }
+
+    fn metadata(&self, source_path_sample: &Path) -> &Metadata {
+        self.metadata.get_or_init(|| {
+            let parent = source_path_sample.parent().unwrap();
+            let source_dir = if parent.as_os_str().is_empty() {
+                Path::new(".")
+            } else {
+                parent
+            };
+            MetadataCommand::new()
+                .current_dir(source_dir)
+                .no_deps()
+                .exec()
+                .unwrap()
+        })
     }
 }
 
@@ -315,12 +335,17 @@ impl OverscopedAllow {
         let Some(span_local_path) = local_path_from_span(cx, span) else {
             return false;
         };
+        let metadata = self.metadata(&span_local_path);
         let lhs = &span_local_path;
         let rhs = Path::new(&diagnostic_span.file_name);
         for path in [lhs, rhs] {
             if_chain! {
                 if self.canonical_paths_cache.borrow().get(path).is_none();
-                if let Ok(canonical_path) = path.canonicalize();
+                if let Ok(canonical_path) = if path.is_absolute() {
+                    path.canonicalize()
+                } else {
+                    metadata.workspace_root.as_std_path().join(path).canonicalize()
+                };
                 then {
                     self.canonical_paths_cache
                         .borrow_mut()
