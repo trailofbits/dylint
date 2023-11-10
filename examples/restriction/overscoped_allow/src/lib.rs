@@ -485,6 +485,8 @@ mod test {
     fn ui_general() {
         let _lock = MUTEX.lock().unwrap();
 
+        install_clippy();
+
         let (file, temp_path) = NamedTempFile::new().unwrap().into_parts();
         Command::new("cargo")
             .args([
@@ -518,6 +520,8 @@ mod test {
     fn ui_test() {
         let _lock = MUTEX.lock().unwrap();
 
+        install_clippy();
+
         let (file, temp_path) = NamedTempFile::new().unwrap().into_parts();
         Command::new("cargo")
             .args([
@@ -540,5 +544,14 @@ mod test {
         )
         .rustc_flags(["--test"])
         .run();
+    }
+
+    // smoelius: I am not sure why, but I started seeing `error: 'cargo-clippy' is not installed for
+    // the toolchain...` after consolidating all of the restriction lints under one workspace.
+    fn install_clippy() {
+        Command::new("rustup")
+            .args(["component", "add", "clippy"])
+            .assert()
+            .success();
     }
 }
