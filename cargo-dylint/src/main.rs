@@ -8,11 +8,11 @@ use std::{
 #[clap(bin_name = "cargo", display_name = "cargo")]
 struct Opts {
     #[clap(subcommand)]
-    subcmd: CargoSubCommand,
+    subcmd: CargoSubcommand,
 }
 
 #[derive(Debug, Parser)]
-enum CargoSubCommand {
+enum CargoSubcommand {
     Dylint(Dylint),
 }
 
@@ -117,7 +117,7 @@ struct Dylint {
     workspace: bool,
 
     #[clap(subcommand)]
-    subcmd: Option<DylintSubCommand>,
+    subcmd: Option<DylintSubcommand>,
 
     #[clap(hide = true)]
     names: Vec<String>,
@@ -127,7 +127,7 @@ struct Dylint {
 }
 
 #[derive(Debug, Parser)]
-enum DylintSubCommand {
+enum DylintSubcommand {
     #[clap(
         about = "List libraries or lints",
         long_about = "If no libraries are named, list the name, toolchain, and location of all \
@@ -306,15 +306,15 @@ fn process_deprecated_options(mut opts: Dylint) -> Dylint {
     }
     if let Some(subcmd) = opts.subcmd.take() {
         match subcmd {
-            DylintSubCommand::List { name_opts } => {
+            DylintSubcommand::List { name_opts } => {
                 opts.name_opts.absorb(name_opts);
                 opts.list = true;
             }
-            DylintSubCommand::New { isolate, path } => {
+            DylintSubcommand::New { isolate, path } => {
                 opts.isolate |= isolate;
                 opts.new_path = Some(path);
             }
-            DylintSubCommand::Upgrade {
+            DylintSubcommand::Upgrade {
                 allow_downgrade,
                 bisect,
                 rust_version,
@@ -355,7 +355,7 @@ fn main() -> dylint::ColorizedResult<()> {
 
 fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> dylint::ColorizedResult<()> {
     match Opts::parse_from(args).subcmd {
-        CargoSubCommand::Dylint(opts) => dylint::run(&dylint::Dylint::from(opts)),
+        CargoSubcommand::Dylint(opts) => dylint::run(&dylint::Dylint::from(opts)),
     }
     .map_err(dylint::ColorizedError::new)
 }
