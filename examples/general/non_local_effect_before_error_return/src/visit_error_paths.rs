@@ -23,11 +23,13 @@ use rustc_span::Span;
 // calls" complicate this. That is, a block may contain a call with a non-local effect, but the call
 // might not produce a warning because it "contributes" to the error path (e.g., the call returns
 // the error that is ultimately returned).
-//   This difficulty might be overcome by recording contributing calls at each block, and
-// re-exploring a block only if: for each previous exploration of the block, there was at least one
-// contributing call not in the current set of contributing calls.
-//   However, given how complicated this idea is, and given how complicated the analysis already is,
-// I am leaving this to future work. Furthermore, the idea involves recording multiple sets of
+//
+// This difficulty might be overcome by recording contributing calls at each block, and re-exploring
+// a block only if: for each previous exploration of the block, there was at least one contributing
+// call not in the current set of contributing calls.
+//
+// However, given how complicated this idea is, and given how complicated the analysis already is, I
+// am leaving this to future work. Furthermore, the idea involves recording multiple sets of
 // contributing calls at each block, which appears exponential in the number of blocks. Thus, it is
 // not clear that this idea would be more efficient than simply considering all error paths.
 

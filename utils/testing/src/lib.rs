@@ -412,7 +412,8 @@ fn run_tests(driver: &Path, src_base: &Path, config: &ui::Config) {
     // [`Config`](https://docs.rs/compiletest_rs/0.7.1/compiletest_rs/common/struct.Config.html)
     // struct. For comparison, where Clippy uses `compiletest`, it sets environment variables
     // directly (see: https://github.com/rust-lang/rust-clippy/blob/master/tests/compile-test.rs).
-    //   Of course, even if `compiletest` had such support, it would need to be incorporated into
+    //
+    // Of course, even if `compiletest` had such support, it would need to be incorporated into
     // `dylint_testing`.
 
     let _var = config
