@@ -68,14 +68,6 @@ struct Dylint {
     #[clap(long, hide = true)]
     list: bool,
 
-    #[clap(
-        long,
-        value_name = "path",
-        help = "Path to Cargo.toml. Note: if the manifest uses metadata, then `--manifest-path \
-                <path>` must appear before `--`, not after."
-    )]
-    manifest_path: Option<String>,
-
     #[clap(long = "new", hide = true)]
     new_path: Option<String>,
 
@@ -200,6 +192,14 @@ struct NameOpts {
     )]
     libs: Vec<String>,
 
+    #[clap(
+        long,
+        value_name = "path",
+        help = "Path to Cargo.toml. Note: if the manifest uses metadata, then `--manifest-path \
+                <path>` must appear before `--`, not after."
+    )]
+    manifest_path: Option<String>,
+
     #[clap(long, help = "Do not build metadata entries")]
     no_build: bool,
 
@@ -225,6 +225,7 @@ impl From<Dylint> for dylint::Dylint {
                 NameOpts {
                     all,
                     libs,
+                    manifest_path,
                     no_build,
                     no_metadata,
                     paths,
@@ -236,7 +237,6 @@ impl From<Dylint> for dylint::Dylint {
             isolate,
             keep_going,
             list,
-            manifest_path,
             new_path,
             no_deps,
             packages,
@@ -334,6 +334,13 @@ impl NameOpts {
     pub fn absorb(&mut self, other: Self) {
         self.all |= other.all;
         self.libs.extend(other.libs);
+        if other.manifest_path.is_some() {
+            assert!(
+                self.manifest_path.is_none(),
+                "`--manifest-path` used multiple times"
+            );
+            self.manifest_path = other.manifest_path;
+        }
         self.no_build |= other.no_build;
         self.no_metadata |= other.no_metadata;
         self.paths.extend(other.paths);

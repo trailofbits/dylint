@@ -123,10 +123,6 @@ fn cargo_metadata(opts: &crate::Dylint) -> Result<Option<&'static Metadata>> {
                 command.manifest_path(path);
             }
 
-            if let Some(path) = &opts.manifest_path {
-                command.manifest_path(path);
-            }
-
             match command.exec() {
                 Ok(metadata) => Ok(Some(metadata)),
                 Err(err) => {
