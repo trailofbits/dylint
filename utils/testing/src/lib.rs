@@ -162,7 +162,7 @@ pub fn ui_test_examples(name: &str) {
 fn initialize(name: &str) -> Result<&Path> {
     DRIVER
         .get_or_try_init(|| {
-            let _ = env_logger::builder().try_init();
+            let _ = env_logger::try_init();
 
             // smoelius: Try to order failures by how informative they are: failure to build the
             // library, failure to find the library, failure to build/find the driver.
