@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.0
+
+- Allow the `list` subcommand to accept `--manifest-path` options ([#951](https://github.com/trailofbits/dylint/pull/951))
+
 ## 2.4.4
 
 - Fix [broken links](https://github.com/trailofbits/dylint/issues/691) in docs.rs documentation ([0f04fcb](https://github.com/trailofbits/dylint/commit/0f04fcb4f955639711ba3fe12c4994246c96dadb))

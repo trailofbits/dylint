@@ -145,7 +145,7 @@ dependencies = [
 
 [[package]]
 name = "commented_code"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -273,7 +273,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -292,7 +292,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -308,7 +308,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -321,7 +321,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -372,7 +372,7 @@ dependencies = [
 
 [[package]]
 name = "escaping_doc_link"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "cargo-util",
  "cargo_metadata",
@@ -792,7 +792,7 @@ dependencies = [
 
 [[package]]
 name = "redundant_reference"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -994,7 +994,7 @@ checksum = "45bb67a18fa91266cc7807181f62f9178a6873bfad7dc788c42e6430db40184f"
 
 [[package]]
 name = "supplementary"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "commented_code",
  "dylint_linting",
@@ -1206,7 +1206,7 @@ checksum = "e51733f11c9c4f72aa0c160008246859e340b00807569a0da0e7a1079b27ba85"
 
 [[package]]
 name = "unnamed_constant"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -1217,7 +1217,7 @@ dependencies = [
 
 [[package]]
 name = "unnecessary_borrow_mut"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -1228,7 +1228,7 @@ dependencies = [
 
 [[package]]
 name = "unnecessary_conversion_for_trait"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
