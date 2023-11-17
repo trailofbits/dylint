@@ -86,14 +86,14 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
 name = "dylint_internal"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "anyhow",
 ]
 
 [[package]]
 name = "dylint_linting"
-version = "2.4.4"
+version = "2.5.0"
 dependencies = [
  "assert_cmd",
  "cargo_metadata",

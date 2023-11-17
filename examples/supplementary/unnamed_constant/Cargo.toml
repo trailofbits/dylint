@@ -1,6 +1,6 @@
 [package]
 name = "unnamed_constant"
-version = "2.4.4"
+version = "2.5.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for unnamed constants, aka magic numbers"
 edition = "2021"
