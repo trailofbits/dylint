@@ -144,15 +144,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "clippy_config"
+version = "0.1.76"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=edb720b199083f4107b858a8761648065bf38d86#edb720b199083f4107b858a8761648065bf38d86"
+dependencies = [
+ "rustc-semver",
+ "serde",
+ "toml 0.7.8",
+]
+
+[[package]]
 name = "clippy_lints"
-version = "0.1.75"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=b105fb4c39bc1a010807a6c076193cef8d93c109#b105fb4c39bc1a010807a6c076193cef8d93c109"
+version = "0.1.76"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=edb720b199083f4107b858a8761648065bf38d86#edb720b199083f4107b858a8761648065bf38d86"
 dependencies = [
  "arrayvec",
  "cargo_metadata 0.15.4",
+ "clippy_config",
  "clippy_utils",
  "declare_clippy_lint",
- "if_chain",
  "itertools",
  "quine-mc_cluskey",
  "regex-syntax 0.7.5",
@@ -167,11 +177,11 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.75"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=b105fb4c39bc1a010807a6c076193cef8d93c109#b105fb4c39bc1a010807a6c076193cef8d93c109"
+version = "0.1.76"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=edb720b199083f4107b858a8761648065bf38d86#edb720b199083f4107b858a8761648065bf38d86"
 dependencies = [
  "arrayvec",
- "if_chain",
+ "clippy_config",
  "itertools",
  "rustc-semver",
 ]
@@ -219,8 +229,8 @@ dependencies = [
 
 [[package]]
 name = "declare_clippy_lint"
-version = "0.1.75"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=b105fb4c39bc1a010807a6c076193cef8d93c109#b105fb4c39bc1a010807a6c076193cef8d93c109"
+version = "0.1.76"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=edb720b199083f4107b858a8761648065bf38d86#edb720b199083f4107b858a8761648065bf38d86"
 dependencies = [
  "itertools",
  "quote",
