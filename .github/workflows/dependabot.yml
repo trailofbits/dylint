@@ -42,7 +42,7 @@ jobs:
             git push
           fi
 
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PR_GITHUB_TOKEN }}
           script: |
