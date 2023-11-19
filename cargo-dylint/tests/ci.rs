@@ -1,3 +1,5 @@
+#![cfg(not(coverage))]
+
 use anyhow::Result;
 use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};

@@ -21,37 +21,25 @@ jobs:
         with:
           ssh-key: ${{ secrets.PR_SSH_KEY }}
 
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.dylint_drivers/
-            ~/.rustup/toolchains/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
       - name: Install dylint-link
         run: cargo install --path ./dylint-link
 
-      - name: Install tools
-        run: |
-          npm install -g prettier
-          rustup install nightly
-          cargo install cargo-hack         || true
-          cargo install cargo-msrv         || true
-          cargo install cargo-supply-chain || true
-          cargo install cargo-udeps        || true
-
       - name: Install cargo-llvm-cov
         run: cargo install cargo-llvm-cov
+
+      - name: Free up space on Ubuntu
+        run: |
+          # https://github.com/actions/runner-images/issues/2606#issuecomment-772683150
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/share/swift
+          # du -sh /usr/*/* 2>/dev/null | sort -h || true
 
       - name: Coverage
         run: |
           for X in . driver utils/linting; do
             pushd "$X"
-            cargo llvm-cov --failure-mode all --lcov --output-path coverage.lcov
+            cargo llvm-cov --workspace --exclude examples --failure-mode all --lcov --output-path coverage.lcov
             popd
           done
 
