@@ -6,7 +6,7 @@ description = "A tool for running Rust lints from dynamic libraries"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
-rust-version = "1.70"
+rust-version = "1.72"
 
 [dependencies]
 anyhow = { version = "1.0", features = ["backtrace"] }
