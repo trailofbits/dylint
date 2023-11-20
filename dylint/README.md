@@ -182,7 +182,7 @@ Helpful resources for writing lints include the following:
 
 ## MSRV policy
 
-A bump of Dylint's MSRV will be accompanied by a bump of at least Dylint's minor version.
+A bump of the Dylint library's MSRV will be accompanied by a bump of at least Dylint's minor version.
 
 Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, and to change it only when releasing new features.
 
