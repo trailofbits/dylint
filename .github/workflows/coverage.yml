@@ -30,10 +30,10 @@ jobs:
             ~/.cargo/git/db/
             ~/.dylint_drivers/
             ~/.rustup/toolchains/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
 
       - name: Install dylint-link
-        run: cargo install --path ./dylint-link
+        run: cargo install --path ./dylint-link --force
 
       - name: Install tools
         run: |
