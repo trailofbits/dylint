@@ -71,5 +71,6 @@ jobs:
 
       - name: Push to gh-pages branch
         run: |
-          git commit coverage -m Coverage
+          git add coverage
+          git commit -m Coverage
           git push origin ${{ github.ref }}:gh-pages --force
