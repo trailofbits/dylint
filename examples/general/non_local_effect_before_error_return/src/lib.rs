@@ -2,14 +2,14 @@
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
 
-extern crate rustc_abi;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
 extern crate rustc_middle;
 extern crate rustc_span;
+extern crate rustc_target;
 
-use clippy_utils::{diagnostics::span_lint_and_then, match_def_path, paths};
+use clippy_utils::{diagnostics::span_lint_and_then, match_def_path};
 use if_chain::if_chain;
 use rustc_errors::Diagnostic;
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind};
@@ -217,7 +217,7 @@ fn is_call_with_mut_ref<'tcx>(
         } = &terminator.kind;
         // smoelius: `deref_mut` generates too much noise.
         if func.const_fn_def().map_or(true, |(def_id, _)| {
-            !match_def_path(cx, def_id, &paths::DEREF_MUT_TRAIT_METHOD)
+            !cx.tcx.is_diagnostic_item(sym::deref_mut_method, def_id)
         });
         let (locals, constants) = collect_locals_and_constants(cx, mir, path, args);
         if locals.iter().any(|local| is_mut_ref_arg(mir, local))
