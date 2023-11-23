@@ -36,23 +36,20 @@ fn ui() {
         .success()
         .unwrap();
 
+    // smoelius: It appears that `CARGO_CRATE_NAME` can be set to anything. But it must be set.
     dylint_internal::cargo::test("marker", false)
         .current_dir(tempdir.path().join("marker_lints"))
+        .envs([(env::CARGO_CRATE_NAME, "_")])
         .args(["--test", "dylint"])
         .success()
         .unwrap();
 }
 
-// smoelius: Temporary workaround until `marker_rustc_driver` is librarified.
-// const URL: &str = "https://github.com/rust-marker/marker";
-const URL: &str = "https://github.com/smoelius/marker";
+const URL: &str = "https://github.com/rust-marker/marker";
 
 fn clone_rust_marker(path: &Path) -> Result<()> {
-    let _marker_lints = marker_adapter_package()?;
-    // smoelius: `REV` is a temporary workaround until `marker_rustc_driver` is librarified
-    const REV: &str = "c81acea9c1bedd678d00f2db66209f9258f1d50a";
-    // clone(URL, &format!("v{}", marker_lints.version), path, false)?;
-    clone(URL, REV, path, false)?;
+    let marker_lints = marker_adapter_package()?;
+    clone(URL, &format!("v{}", marker_lints.version), path, false)?;
     Ok(())
 }
 
@@ -87,7 +84,9 @@ fn marker_lint_crates(path: &Path) -> Result<String> {
 }
 
 fn patch_marker(path: &Path, marker_lint_crates: &str) -> Result<()> {
-    add_marker_lint_example(path)?;
+    add_marker_lint_dependency(path)?;
+
+    add_marker_lint_examples(path)?;
 
     add_marker_lint_test(path, marker_lint_crates)?;
 
@@ -96,10 +95,7 @@ fn patch_marker(path: &Path, marker_lint_crates: &str) -> Result<()> {
     Ok(())
 }
 
-// smoelius: Hack. Add the `diag_msg_uppercase_start` uitest as an example to the `marker_lints`
-// package. That uitest has dependencies, and adding it as an example appears to be the easiest way
-// to make it work with `dylint_testing`.
-fn add_marker_lint_example(path: &Path) -> Result<()> {
+fn add_marker_lint_dependency(path: &Path) -> Result<()> {
     let mut cargo_toml = OpenOptions::new()
         .append(true)
         .open(path.join("marker_lints/Cargo.toml"))?;
@@ -110,16 +106,50 @@ fn add_marker_lint_example(path: &Path) -> Result<()> {
 [dev-dependencies.dylint_testing]
 path = "{}"
 default-features = false
-
-[[example]]
-name = "diag_msg_uppercase_start"
-path = "tests/ui/diag_msg_uppercase_start.rs"
 "#,
         Path::new("../../../utils/testing")
             .canonicalize()
             .unwrap()
             .to_string_lossy(),
     )?;
+
+    Ok(())
+}
+
+static ATTR_WARN_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"#!?\[[^]]*\bwarn\b[^]]*\]").unwrap());
+
+// smoelius: Hack. Add the uitests as examples to the `marker_lints` package. The uitests have
+// dependencies, and adding them as examples appears to be the easiest way to make them work with
+// `dylint_testing`.
+fn add_marker_lint_examples(path: &Path) -> Result<()> {
+    let mut cargo_toml = OpenOptions::new()
+        .append(true)
+        .open(path.join("marker_lints/Cargo.toml"))?;
+
+    for entry in read_dir(path.join("marker_lints/tests/ui")).unwrap() {
+        let entry = entry?;
+        let path = entry.path();
+        if path.extension() != Some(OsStr::new("rs")) {
+            continue;
+        }
+        let contents = read_to_string(&path)?;
+        // smoelius: Adjusting lint levels is not currently supported.
+        if ATTR_WARN_RE.is_match(&contents) {
+            continue;
+        }
+        let file_stem = path
+            .file_stem()
+            .ok_or_else(|| anyhow!("Could not get file stem"))?;
+        write!(
+            cargo_toml,
+            r#"
+[[example]]
+name = "{}"
+path = "tests/ui/{0}.rs"
+"#,
+            file_stem.to_string_lossy(),
+        )?;
+    }
 
     Ok(())
 }
@@ -188,14 +218,14 @@ fn remove_marker_lint_stderr_line_numbers(path: &Path) -> Result<()> {
     Ok(())
 }
 
-static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s*([0-9]+)\s*\|").unwrap());
+static LINE_NUMBER_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s*([0-9]+)\s*\|").unwrap());
 
 fn remove_line_numbers(path: &Path) -> Result<()> {
     let input = read_to_string(path)?;
     let mut output = String::new();
 
     for line in input.lines() {
-        if let Some(captures) = RE.captures(line) {
+        if let Some(captures) = LINE_NUMBER_RE.captures(line) {
             assert_eq!(2, captures.len());
             let capture = captures.get(1).unwrap();
             writeln!(
