@@ -156,8 +156,8 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
             let parent_receiver_ty = cx.typeck_results().expr_ty(parent_receiver);
             if is_type_diagnostic_item(cx, parent_receiver_ty, sym::Option);
             let method_def_id = cx.typeck_results().type_dependent_def_id(body.value.hir_id).unwrap();
-            let generic_args = cx.typeck_results().node_args(body.value.hir_id);
-            let call_ty = cx.tcx.type_of(method_def_id).instantiate(cx.tcx, generic_args);
+            let args = cx.typeck_results().node_args(body.value.hir_id);
+            let call_ty = cx.tcx.type_of(method_def_id).instantiate(cx.tcx, args);
             if check_sig(cx, closure_ty, call_ty);
             then {
                 let parent_method_call_span = trim_span(
@@ -165,7 +165,7 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
                     span.with_lo(parent_receiver.span.hi()),
                 );
                 span_lint_and_then(cx, REF_AWARE_REDUNDANT_CLOSURE_FOR_METHOD_CALLS, parent_method_call_span, "redundant closure", |diag| {
-                let name = get_ufcs_type_name(cx, method_def_id, generic_args);
+                    let name = get_ufcs_type_name(cx, method_def_id, args);
                     diag.span_suggestion(
                         parent_method_call_span,
                         "replace the closure with the method itself",
