@@ -1,6 +1,6 @@
 [package]
 name = "marker"
-version = "2.4.1"
+version = "2.5.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Marker lints run from a Dylint library"
 edition = "2021"
@@ -12,8 +12,8 @@ crate-type = ["cdylib"]
 [dependencies]
 bumpalo = "3.12"
 camino = "1.1"
-marker_adapter = { git = "https://github.com/smoelius/marker", rev = "c81acea9c1bedd678d00f2db66209f9258f1d50a" }
-marker_rustc_driver = { git = "https://github.com/smoelius/marker", rev = "c81acea9c1bedd678d00f2db66209f9258f1d50a" }
+marker_adapter = "0.4.0"
+marker_rustc_driver = "0.4.0"
 serde = "1.0"
 
 dylint_linting = { path = "../../../utils/linting" }

@@ -133,7 +133,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "dylint_internal"
-version = "2.4.1"
+version = "2.5.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -147,7 +147,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.4.1"
+version = "2.5.0"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -157,6 +157,12 @@ dependencies = [
  "thiserror",
  "toml",
 ]
+
+[[package]]
+name = "either"
+version = "1.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
 name = "equivalent"
@@ -286,6 +292,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "616cde7c720bb2bb5824a224687d8f77bfd38922027f01d825cd7453be5099fb"
 
 [[package]]
+name = "itertools"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -376,7 +391,7 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 
 [[package]]
 name = "marker"
-version = "2.4.1"
+version = "2.5.0"
 dependencies = [
  "anyhow",
  "bumpalo",
@@ -394,10 +409,12 @@ dependencies = [
 
 [[package]]
 name = "marker_adapter"
-version = "0.3.0-dev"
-source = "git+https://github.com/smoelius/marker?rev=c81acea9c1bedd678d00f2db66209f9258f1d50a#c81acea9c1bedd678d00f2db66209f9258f1d50a"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e43b16ad121e3bd56509bdc7708cc442f4d273b75c572354dce0afceeb6d0de"
 dependencies = [
  "camino",
+ "itertools",
  "libloading",
  "marker_api",
  "marker_error",
@@ -408,8 +425,9 @@ dependencies = [
 
 [[package]]
 name = "marker_api"
-version = "0.3.0-dev"
-source = "git+https://github.com/smoelius/marker?rev=c81acea9c1bedd678d00f2db66209f9258f1d50a#c81acea9c1bedd678d00f2db66209f9258f1d50a"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "656e2a5a54cf9d95991aba9eafee1c1cdeb2af572fb6523066d00a07ed27ba6f"
 dependencies = [
  "typed-builder",
  "visibility",
@@ -417,8 +435,9 @@ dependencies = [
 
 [[package]]
 name = "marker_error"
-version = "0.3.0-dev"
-source = "git+https://github.com/smoelius/marker?rev=c81acea9c1bedd678d00f2db66209f9258f1d50a#c81acea9c1bedd678d00f2db66209f9258f1d50a"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "62308e6a446a614505279b6c78506def7e8b12114557322b532c4a12c157d27f"
 dependencies = [
  "miette",
  "thiserror",
@@ -428,8 +447,9 @@ dependencies = [
 
 [[package]]
 name = "marker_rustc_driver"
-version = "0.3.0-dev"
-source = "git+https://github.com/smoelius/marker?rev=c81acea9c1bedd678d00f2db66209f9258f1d50a#c81acea9c1bedd678d00f2db66209f9258f1d50a"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "945e3039cbc49d441a5abc50f3951e7a8529a12a6948ecb64c02537edc1cb3b8"
 dependencies = [
  "bumpalo",
  "camino",
@@ -441,8 +461,9 @@ dependencies = [
 
 [[package]]
 name = "marker_utils"
-version = "0.3.0-dev"
-source = "git+https://github.com/smoelius/marker?rev=c81acea9c1bedd678d00f2db66209f9258f1d50a#c81acea9c1bedd678d00f2db66209f9258f1d50a"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1043919c96379a491de8f5e99a91b44e1e89f8c1cf68b10f1e46630117daa5ae"
 dependencies = [
  "marker_api",
 ]
