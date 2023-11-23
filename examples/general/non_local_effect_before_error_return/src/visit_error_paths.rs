@@ -1,6 +1,5 @@
 use clippy_utils::ty::implements_trait;
 use if_chain::if_chain;
-use rustc_abi::VariantIdx;
 use rustc_hir::intravisit::FnKind;
 use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LintContext};
@@ -12,6 +11,7 @@ use rustc_middle::{
     ty::{AdtDef, TyCtxt},
 };
 use rustc_span::Span;
+use rustc_target::abi::VariantIdx;
 
 // smoelius: I originally tried to write this analysis using the dataflow framework. But because
 // individual paths must be considered, and because of how complicated the state is, this analysis

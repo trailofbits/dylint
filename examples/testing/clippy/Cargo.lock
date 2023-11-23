@@ -131,6 +131,7 @@ version = "2.5.0"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.18.1",
+ "clippy_config",
  "clippy_lints",
  "clippy_utils",
  "dylint",

@@ -247,7 +247,7 @@ fn check_sig<'tcx>(cx: &LateContext<'tcx>, closure_ty: Ty<'tcx>, call_ty: Ty<'tc
     if call_sig.unsafety() == Unsafety::Unsafe {
         return false;
     }
-    if !closure_ty.has_late_bound_regions() {
+    if !closure_ty.has_bound_regions() {
         return true;
     }
     let ty::Closure(_, generic_args) = closure_ty.kind() else {
