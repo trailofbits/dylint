@@ -33,6 +33,8 @@ fn main() {
     let _ = Some(String::from("a")).map(|s| s.to_uppercase());
     let _ = Some(DerefMutExample { value: 'a' }).map(|mut x| x.make_ascii_uppercase());
 
+    let _ = "a".chars().peekable().peek().map(|c| c.is_uppercase());
+
     // negative test: `Iterator`
     let _ = [String::from("a")].into_iter().map(|s| s.is_empty());
 
