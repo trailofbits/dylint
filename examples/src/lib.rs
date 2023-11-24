@@ -84,6 +84,9 @@ mod test {
         let mut prev = None;
         for path in iter(true).unwrap() {
             let path = path.unwrap();
+            if path.file_name() == Some(OsStr::new("marker")) {
+                continue;
+            }
             if path.file_name() == Some(OsStr::new("straggler")) {
                 continue;
             }
