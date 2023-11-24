@@ -38,7 +38,11 @@ use rustc_span::symbol::sym;
 use rustc_target::spec::abi::Abi;
 use rustc_trait_selection::traits::error_reporting::InferCtxtExt as _;
 
-use clippy_utils::{get_parent_expr, source::trim_span, ty::is_type_diagnostic_item};
+use clippy_utils::{
+    get_parent_expr,
+    source::trim_span,
+    ty::{is_copy, is_type_diagnostic_item},
+};
 use rustc_lint::LintContext;
 use rustc_middle::ty::adjustment::{
     Adjust, Adjustment, AutoBorrow, AutoBorrowMutability, OverloadedDeref,
@@ -187,7 +191,7 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
                 }
             }, */
             ExprKind::MethodCall(path, self_, args, _) => {
-                if let Some(method_name) = check_inputs(typeck, body.params, Some(self_), args)
+                if let Some(method_name) = check_inputs(cx, body.params, Some(self_), args)
                     && let Some(parent_expr) = get_parent_expr(cx, expr)
                     && let ExprKind::MethodCall(parent_path, parent_receiver, _, span) =
                         parent_expr.kind
@@ -231,7 +235,7 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
 }
 
 fn check_inputs(
-    typeck: &TypeckResults<'_>,
+    cx: &LateContext<'_>,
     params: &[Param<'_>],
     self_arg: Option<&Expr<'_>>,
     args: &[Expr<'_>],
@@ -246,7 +250,7 @@ fn check_inputs(
                     PatKind::Binding(BindingAnnotation::NONE | BindingAnnotation::MUT, id, _, None)
                     if path_to_local_id(arg, id)
                 ) {
-                    method_name_from_adjustments(typeck.expr_adjustments(arg))
+                    method_name_from_adjustments(cx, cx.typeck_results().expr_adjustments(arg))
                 } else {
                     None
                 }
@@ -262,8 +266,15 @@ fn check_inputs(
     }
 }
 
-const fn method_name_from_adjustments(adjustments: &[Adjustment]) -> Option<&'static str> {
+fn method_name_from_adjustments<'tcx>(
+    cx: &LateContext<'tcx>,
+    adjustments: &[Adjustment<'tcx>],
+) -> Option<&'static str> {
     match adjustments {
+        [Adjustment {
+            kind: Adjust::Deref(None),
+            target,
+        }] if is_copy(cx, *target) => Some("copied"),
         [Adjustment {
             kind: Adjust::Borrow(AutoBorrow::Ref(_, mutability)),
             ..
