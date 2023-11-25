@@ -110,7 +110,8 @@ default-features = false
         Path::new("../../../utils/testing")
             .canonicalize()
             .unwrap()
-            .to_string_lossy(),
+            .to_string_lossy()
+            .replace('\\', "\\\\"),
     )?;
 
     Ok(())
