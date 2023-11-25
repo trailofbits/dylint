@@ -67,6 +67,7 @@ for FLAGS in "--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS" '--lib c
             -A clippy::missing-errors-doc
             -A clippy::missing-panics-doc
             -A clippy::significant-drop-tightening
+            -A clippy::struct-field-names
         "
     fi
     export DYLINT_RUSTFLAGS
