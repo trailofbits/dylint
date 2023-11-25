@@ -1226,6 +1226,13 @@
         "kind": "user",
         "login": "quake",
         "name": "Quake Wang"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/46400566?v=4",
+        "id": 230478,
+        "kind": "user",
+        "login": "eval-exec",
+        "name": "EVAL EXEC"
       }
     ],
     "fastrand": [
