@@ -134,6 +134,8 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["alloc", "str", "<impl str>", "to_lowercase"],
     &["alloc", "str", "<impl str>", "to_uppercase"],
     &["alloc", "string", "String", "from_utf16_lossy"],
+    &["alloc", "string", "String", "from_utf16be_lossy"],
+    &["alloc", "string", "String", "from_utf16le_lossy"],
     &["alloc", "string", "String", "leak"],
     &["alloc", "vec", "Vec", "into_flattened"],
     &["alloc", "vec", "Vec", "leak"],
