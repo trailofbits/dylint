@@ -12,8 +12,8 @@ crate-type = ["cdylib"]
 [dependencies]
 bumpalo = "3.12"
 camino = "1.1"
-marker_adapter = "0.4.0"
-marker_rustc_driver = "0.4.0"
+marker_adapter = "=0.4.0"
+marker_rustc_driver = "=0.4.0"
 serde = "1.0"
 
 dylint_linting = { path = "../../../utils/linting" }
