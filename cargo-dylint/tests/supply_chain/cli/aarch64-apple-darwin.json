@@ -728,22 +728,6 @@
         "name": "Alex Crichton"
       }
     ],
-    "fnv": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/2566135?v=4",
-        "id": 5,
-        "kind": "team",
-        "login": "github:servo:cargo-publish",
-        "name": "cargo publish"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/291359?v=4",
-        "id": 7,
-        "kind": "user",
-        "login": "SimonSapin",
-        "name": "Simon Sapin"
-      }
-    ],
     "form_urlencoded": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/2566135?v=4",
