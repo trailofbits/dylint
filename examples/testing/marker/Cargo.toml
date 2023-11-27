@@ -10,7 +10,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-bumpalo = "3.12"
+bumpalo = "3.14"
 camino = "1.1"
 marker_adapter = "=0.4.0"
 marker_rustc_driver = "=0.4.0"
@@ -22,7 +22,7 @@ dylint_linting = { path = "../../../utils/linting" }
 anyhow = "1.0"
 cargo_metadata = "0.18"
 once_cell = "1.18"
-regex = "1.9"
+regex = "1.10"
 tempfile = "3.8"
 
 dylint_internal = { path = "../../../internal", features = ["cargo", "git"] }
