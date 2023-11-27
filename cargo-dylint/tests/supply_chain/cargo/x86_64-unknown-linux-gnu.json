@@ -793,6 +793,66 @@
         "name": "Taiki Endo"
       }
     ],
+    "crossbeam-deque": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1201316?v=4",
+        "id": 2347,
+        "kind": "user",
+        "login": "jeehoonkang",
+        "name": "Jeehoon Kang"
+      },
+      {
+        "avatar": "https://avatars0.githubusercontent.com/u/26314159?v=4",
+        "id": 2356,
+        "kind": "team",
+        "login": "github:crossbeam-rs:admins",
+        "name": "admins"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/278509?v=4",
+        "id": 2915,
+        "kind": "user",
+        "login": "Amanieu",
+        "name": "Amanieu d'Antras"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43724913?v=4",
+        "id": 33035,
+        "kind": "user",
+        "login": "taiki-e",
+        "name": "Taiki Endo"
+      }
+    ],
+    "crossbeam-epoch": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1201316?v=4",
+        "id": 2347,
+        "kind": "user",
+        "login": "jeehoonkang",
+        "name": "Jeehoon Kang"
+      },
+      {
+        "avatar": "https://avatars0.githubusercontent.com/u/26314159?v=4",
+        "id": 2356,
+        "kind": "team",
+        "login": "github:crossbeam-rs:admins",
+        "name": "admins"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/278509?v=4",
+        "id": 2915,
+        "kind": "user",
+        "login": "Amanieu",
+        "name": "Amanieu d'Antras"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43724913?v=4",
+        "id": 33035,
+        "kind": "user",
+        "login": "taiki-e",
+        "name": "Taiki Endo"
+      }
+    ],
     "crossbeam-utils": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1201316?v=4",
@@ -1260,22 +1320,6 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
-      }
-    ],
-    "fnv": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/2566135?v=4",
-        "id": 5,
-        "kind": "team",
-        "login": "github:servo:cargo-publish",
-        "name": "cargo publish"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/291359?v=4",
-        "id": 7,
-        "kind": "user",
-        "login": "SimonSapin",
-        "name": "Simon Sapin"
       }
     ],
     "form_urlencoded": [
@@ -2465,6 +2509,22 @@
         "kind": "user",
         "login": "RazrFalcon",
         "name": "Yevhenii Reizner"
+      }
+    ],
+    "memoffset": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1339859?v=4",
+        "id": 10122,
+        "kind": "user",
+        "login": "Gilnaa",
+        "name": "Gilad Naaman"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/330628?v=4",
+        "id": 56986,
+        "kind": "user",
+        "login": "RalfJung",
+        "name": "Ralf Jung"
       }
     ],
     "minimal-lexical": [
@@ -3665,15 +3725,6 @@
         "kind": "user",
         "login": "dtolnay",
         "name": "David Tolnay"
-      }
-    ],
-    "thread_local": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/278509?v=4",
-        "id": 2915,
-        "kind": "user",
-        "login": "Amanieu",
-        "name": "Amanieu d'Antras"
       }
     ],
     "time": [
