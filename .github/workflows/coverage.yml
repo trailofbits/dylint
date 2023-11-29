@@ -21,28 +21,8 @@ jobs:
         with:
           ssh-key: ${{ secrets.PR_SSH_KEY }}
 
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.dylint_drivers/
-            ~/.rustup/toolchains/
-          key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
-
       - name: Install dylint-link
-        run: cargo install --path ./dylint-link --force
-
-      - name: Install tools
-        run: |
-          npm install -g prettier
-          rustup install nightly
-          cargo install cargo-hack         || true
-          cargo install cargo-msrv         || true
-          cargo install cargo-supply-chain || true
-          cargo install cargo-udeps        || true
+        run: cargo install --path ./dylint-link
 
       - name: Install cargo-llvm-cov
         run: cargo install cargo-llvm-cov
@@ -67,7 +47,7 @@ jobs:
         run: sudo apt install lcov
 
       - name: Generate html
-        run: find . -name coverage.lcov -print0 | xargs -0 genhtml --output-directory coverage coverage.lcov
+        run: find . -name coverage.lcov -print0 | xargs -0 genhtml --output-directory coverage
 
       - name: Push to gh-pages branch
         run: |
