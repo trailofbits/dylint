@@ -1,3 +1,5 @@
+#![cfg(not(coverage))]
+
 use dylint_internal::{
     clippy_utils::set_toolchain_channel, find_and_replace, rustup::SanitizeEnvironment,
     testing::new_template,
