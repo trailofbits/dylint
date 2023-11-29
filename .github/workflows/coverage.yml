@@ -52,5 +52,7 @@ jobs:
       - name: Push to gh-pages branch
         run: |
           git add coverage
+          git config --global user.email "coverage@users.noreply.github.com"
+          git config --global user.name "coverage"
           git commit -m Coverage
           git push origin ${{ github.ref }}:gh-pages --force
