@@ -39,7 +39,7 @@ jobs:
         run: |
           for X in . driver utils/linting; do
             pushd "$X"
-            cargo llvm-cov --failure-mode all --lcov --output-path coverage.lcov
+            cargo llvm-cov --workspace --exclude examples --failure-mode all --lcov --output-path coverage.lcov
             popd
           done
 
