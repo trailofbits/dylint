@@ -186,6 +186,8 @@ A bump of the Dylint library's MSRV will be accompanied by a bump of at least Dy
 
 Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, and to change it only when releasing new features.
 
+[Test coverage]
+
 [`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ../dylint-link
@@ -223,6 +225,7 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 [running dylint]: #running-dylint
 [rust-analyzer]: https://github.com/rust-analyzer/rust-analyzer
 [struct `rustc_lint::latecontext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html
+[test coverage]: https://trailofbits.github.io/dylint/coverage/index.html
 [toml table]: https://toml.io/en/v1.0.0#table
 [utilities]: #utilities
 [vs code integration]: #vs-code-integration
