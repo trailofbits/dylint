@@ -7,24 +7,27 @@
 //! a lint library's package name. But the above idea, as applied in Marker, requires the package
 //! name.
 //!
-//! To work around this problem, this module calls `cargo fetch` expecting it to fail, but to still
-//! download the package. The relevant checkout directory in Cargo's cache is then walked to see
-//! which subdirectory was accessed, as that should be the one containing the package.
+//! To work around this problem, this module creates a "dummy" dependency with a random name and
+//! "injects" it into each subdirectory of the relevant checkouts directory. If Cargo finds the
+//! dummy dependency in one of those subdirectories, then it must have been updated by `cargo
+//! fetch`. On the other hand, if Cargo finds the dummy dependency in a completely new subdirectory,
+//! then it must have been created as a consequence of running `cargo fetch`.
 //!
 //! [Marker]: https://github.com/rust-marker/marker
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use cargo_metadata::Metadata;
+use cargo_metadata::{Metadata, MetadataCommand};
+use dylint_internal::packaging::isolate;
 use home::cargo_home;
 use semver::Version;
 use std::{
+    borrow::Cow,
     ffi::{OsStr, OsString},
-    fs::{create_dir_all, metadata, read_dir, read_to_string, write},
+    fs::{create_dir_all, read_dir, remove_dir_all, write},
     path::{Path, PathBuf},
     process::Command,
-    time::SystemTime,
 };
-use tempfile::{tempdir, TempDir};
+use tempfile::{tempdir, Builder, TempDir};
 use url::Url;
 
 mod string_or_vec;
@@ -32,6 +35,14 @@ use string_or_vec::StringOrVec;
 
 mod util;
 use util::{short_hash, CanonicalUrl};
+
+struct NamedTempDir(PathBuf);
+
+impl Drop for NamedTempDir {
+    fn drop(&mut self) {
+        remove_dir_all(&self.0).unwrap_or_default();
+    }
+}
 
 // smoelius: Use `include!` so that `DetailedTomlDependency`'s fields are visible without having to
 // make them all `pub`.
@@ -115,30 +126,70 @@ fn git_source_id(url: &str, details: &DetailedTomlDependency) -> Result<String> 
 }
 
 fn git_dependency_root(url: &str, details: &DetailedTomlDependency) -> Result<PathBuf> {
-    let tempdir = create_dummy_package(details)?;
+    let dependency = create_dummy_dependency()?;
+    let filename = dependency
+        .path()
+        .file_name()
+        .ok_or_else(|| anyhow!("Could not get file name"))?;
+    let dep_name = filename.to_string_lossy();
 
     let cargo_home = cargo_home().with_context(|| "Could not determine `CARGO_HOME`")?;
     let ident = ident(url)?;
     let checkout_path = cargo_home.join("git/checkouts").join(ident);
 
-    // smoelius: Under some circumstances, a file must be modified before its access time is
-    // updated. See the following StackExchange answer for some discussion:
-    // https://unix.stackexchange.com/a/581253
-    let atimes = touch_subdirs(&checkout_path)?;
+    let injected_dependencies =
+        inject_dummy_dependencies(dependency.path(), &dep_name, &checkout_path)?;
 
-    cargo_fetch(tempdir.path())?;
+    let package = create_dummy_package(&dep_name, details)?;
 
-    let subdir = find_accessed_subdir(&checkout_path, &atimes)?;
+    cargo_fetch(package.path())?;
 
-    Ok(checkout_path.join(subdir))
+    let metadata = cargo_metadata(package.path())?;
+
+    let path = find_accessed_subdir(&dep_name, &checkout_path, &injected_dependencies, &metadata)?;
+
+    Ok(path.to_path_buf())
+}
+
+/// Creates a dummy dependency package in a temporary directory, and returns the temporary directory
+/// if everything was successful.
+fn create_dummy_dependency() -> Result<TempDir> {
+    let tempdir = Builder::new()
+        .prefix("tmp")
+        .tempdir()
+        .with_context(|| "Could not create temporary directory")?;
+
+    dylint_internal::cargo::init("dummy dependency", true)
+        .current_dir(&tempdir)
+        .args(["--lib", "--vcs=none"])
+        .success()?;
+
+    isolate(tempdir.path())?;
+
+    Ok(tempdir)
+}
+
+fn inject_dummy_dependencies(
+    dep_path: &Path,
+    dep_name: &str,
+    checkout_path: &Path,
+) -> Result<BTreeMap<OsString, NamedTempDir>> {
+    let mut injected_dependencies = BTreeMap::new();
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
+    for_each_subdir(checkout_path, |subdir, path| {
+        injected_dependencies.insert(subdir.to_owned(), NamedTempDir(path.join(dep_name)));
+        fs_extra::dir::copy(dep_path, path, &fs_extra::dir::CopyOptions::default())?;
+        Ok(())
+    })?;
+    Ok(injected_dependencies)
 }
 
 /// Creates a dummy package in a temporary directory, and returns the temporary directory if
 /// everything was successful.
-fn create_dummy_package(details: &DetailedTomlDependency) -> Result<TempDir> {
+fn create_dummy_package(dep_name: &str, details: &DetailedTomlDependency) -> Result<TempDir> {
     let tempdir = tempdir().with_context(|| "Could not create temporary directory")?;
 
-    let manifest_contents = manifest_contents(details)?;
+    let manifest_contents = manifest_contents(dep_name, details)?;
     let manifest_path = tempdir.path().join("Cargo.toml");
     write(&manifest_path, manifest_contents)
         .with_context(|| format!("Could not write to {manifest_path:?}"))?;
@@ -155,7 +206,7 @@ fn create_dummy_package(details: &DetailedTomlDependency) -> Result<TempDir> {
     Ok(tempdir)
 }
 
-fn manifest_contents(details: &DetailedTomlDependency) -> Result<String> {
+fn manifest_contents(dep_name: &str, details: &DetailedTomlDependency) -> Result<String> {
     let details = toml::to_string(details)?;
 
     Ok(format!(
@@ -166,14 +217,15 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 
-[dependencies.dummy-dependency]
+[dependencies.{dep_name}]
 {details}
 "#
     ))
 }
 
 fn cargo_fetch(path: &Path) -> Result<()> {
-    // smoelius: We expect `cargo fetch` to fail, but the command should still be executed.
+    // smoelius: `cargo fetch` could fail, e.g., if a new checkouts subdirectory had to be created.
+    // But the command should still be executed.
     let mut command = Command::new("cargo");
     command.args([
         "fetch",
@@ -184,6 +236,13 @@ fn cargo_fetch(path: &Path) -> Result<()> {
         .output()
         .with_context(|| format!("Could not get output of `{command:?}`"))?;
     Ok(())
+}
+
+fn cargo_metadata(path: &Path) -> Result<Metadata> {
+    MetadataCommand::new()
+        .current_dir(path)
+        .exec()
+        .map_err(Into::into)
 }
 
 // smoelius: `ident` is based on the function of the same name at:
@@ -206,37 +265,56 @@ fn ident(url: &str) -> Result<String> {
     Ok(format!("{}-{}", ident, short_hash(&canonical_url)))
 }
 
-fn touch_subdirs(checkout_path: &Path) -> Result<BTreeMap<OsString, SystemTime>> {
-    let mut map = BTreeMap::new();
-    for_each_head(checkout_path, |subdir, head| {
-        touch(head)?;
-        let atime = atime(head)?;
-        map.insert(subdir.to_owned(), atime);
-        Ok(())
-    })?;
-    Ok(map)
-}
-
-fn find_accessed_subdir(
+fn find_accessed_subdir<'a>(
+    dep_name: &str,
     checkout_path: &Path,
-    atimes: &BTreeMap<OsString, SystemTime>,
-) -> Result<OsString> {
-    let mut accessed = Vec::new();
-    for_each_head(checkout_path, |subdir, head| {
-        let atime = atime(head)?;
-        if atimes.get(subdir) != Some(&atime) {
-            accessed.push(subdir.to_owned());
-        }
-        Ok(())
-    })?;
-    ensure!(accessed.len() <= 1, "Multiple subdirectories were accessed");
+    injected_dependencies: &BTreeMap<OsString, NamedTempDir>,
+    metadata: &'a Metadata,
+) -> Result<Cow<'a, Path>> {
+    let mut accessed = metadata
+        .packages
+        .iter()
+        .map(|package| {
+            if package.name == dep_name {
+                let parent = package
+                    .manifest_path
+                    .parent()
+                    .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+                let grandparent = parent
+                    .parent()
+                    .ok_or_else(|| anyhow!("Could not get grandparent directory"))?;
+                Ok(Some(Cow::Borrowed(grandparent.as_std_path())))
+            } else {
+                Ok(None)
+            }
+        })
+        .filter_map(Result::transpose)
+        .collect::<Result<Vec<_>>>()?;
+
+    // smoelius: If no subdirectories were accessed, then some checkouts subdirectory should have
+    // been created.
+    if accessed.is_empty() {
+        for_each_subdir(checkout_path, |subdir, path| {
+            if injected_dependencies.get(subdir).is_none() {
+                accessed.push(Cow::Owned(path.to_path_buf()));
+            }
+            Ok(())
+        })?;
+    }
+
+    ensure!(
+        accessed.len() <= 1,
+        "Multiple subdirectories were accessed: {:#?}",
+        accessed
+    );
+
     accessed
         .into_iter()
         .next()
         .ok_or_else(|| anyhow!("Could not determined accessed subdirectory"))
 }
 
-fn for_each_head(
+fn for_each_subdir(
     checkout_path: &Path,
     mut f: impl FnMut(&OsStr, &Path) -> Result<()>,
 ) -> Result<()> {
@@ -248,23 +326,10 @@ fn for_each_head(
         let file_name = path
             .file_name()
             .ok_or_else(|| anyhow!("Could not get file name"))?;
-        let head = path.join(".git/HEAD");
-        f(file_name, &head)?;
+        if !path.is_dir() {
+            continue;
+        }
+        f(file_name, &path)?;
     }
     Ok(())
-}
-
-/// Update a file's modification time by reading and writing its contents.
-fn touch(path: &Path) -> Result<()> {
-    let contents = read_to_string(path).with_context(|| format!("Could not read from {path:?}"))?;
-    write(path, contents).with_context(|| format!("Could not write to {path:?}"))?;
-    Ok(())
-}
-
-fn atime(path: &Path) -> Result<SystemTime> {
-    let metadata = metadata(path).with_context(|| format!("Could not get metadata of {path:?}"))?;
-    let atime = metadata
-        .accessed()
-        .with_context(|| format!("Could not get access time of {path:?}"))?;
-    Ok(atime)
 }
