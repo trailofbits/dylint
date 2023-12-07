@@ -751,6 +751,15 @@
         "name": "rust-url"
       }
     ],
+    "fs_extra": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/3442315?v=4",
+        "id": 5882,
+        "kind": "user",
+        "login": "webdesus",
+        "name": "Denis Kurilenko"
+      }
+    ],
     "generic-array": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/3586757?v=4",
