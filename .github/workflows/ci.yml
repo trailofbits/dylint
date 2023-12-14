@@ -178,5 +178,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # smoelius: From "Defining prerequisite jobs"
+    # (https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs):
+    # > If you would like a job to run even if a job it is dependent on did not succeed, use the
+    # > `always()` conditional expression in `jobs.<job_id>.if`.
+    if: ${{ always() }}
+
     steps:
-      - run: true
+      - name: Check results
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        run: exit 1
