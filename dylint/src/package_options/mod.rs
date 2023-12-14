@@ -178,12 +178,16 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
             .ok_or_else(|| anyhow!("Could not get file name"))?;
         let description = format!("`{}`", file_name.to_string_lossy());
 
-        dylint_internal::cargo::update(&description, opts.quiet)
+        dylint_internal::cargo::update(&description)
+            .quiet(opts.quiet)
+            .build()
             .sanitize_environment()
             .current_dir(path)
             .success()?;
 
-        if dylint_internal::cargo::build(&description, opts.quiet)
+        if dylint_internal::cargo::build(&description)
+            .quiet(opts.quiet)
+            .build()
             .sanitize_environment()
             .current_dir(path)
             .args(["--all-targets"])

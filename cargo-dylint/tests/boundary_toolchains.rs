@@ -51,7 +51,8 @@ fn boundary_toolchains() {
 
             set_toolchain_channel(tempdir.path(), &channel).unwrap();
 
-            dylint_internal::cargo::test(&format!("with channel `{channel}`"), false)
+            dylint_internal::cargo::test(&format!("with channel `{channel}`"))
+                .build()
                 .sanitize_environment()
                 .current_dir(&tempdir)
                 .success()

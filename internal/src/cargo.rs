@@ -2,82 +2,145 @@ use ansi_term::Style;
 use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
 use is_terminal::IsTerminal;
-use std::{io::Write, path::Path, process::Stdio};
+use once_cell::sync::Lazy;
+use std::{
+    io::Write,
+    path::{Path, PathBuf},
+    process::{Command, Stdio},
+};
 
 #[allow(clippy::module_name_repetitions)]
 pub use home::cargo_home;
 
-#[must_use]
-pub fn build(description: &str, quiet: bool) -> crate::Command {
-    cargo("build", "Building", description, quiet)
-}
+static STABLE_CARGO: Lazy<PathBuf> = Lazy::new(|| {
+    let mut command = Command::new("rustup");
+    command.args(["+stable", "which", "cargo"]);
+    let output = command.output().unwrap();
+    assert!(output.status.success());
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    PathBuf::from(stdout.trim_end())
+});
 
-// smoelius: `cargo check` and `cargo fix` are never silenced.
-#[must_use]
-pub fn check(description: &str) -> crate::Command {
-    cargo("check", "Checking", description, false)
-}
-
-// smoelius: `cargo check` and `cargo fix` are never silenced.
-#[must_use]
-pub fn fix(description: &str) -> crate::Command {
-    cargo("fix", "Fixing", description, false)
-}
-
-#[must_use]
-pub fn init(description: &str, quiet: bool) -> crate::Command {
-    cargo("init", "Initializing", description, quiet)
-}
-
-#[must_use]
-pub fn run(description: &str, quiet: bool) -> crate::Command {
-    cargo("run", "Running", description, quiet)
+/// A `cargo` command builder
+///
+/// Note that [`crate::Command`] is a wrapper around [`std::process::Command`], which is itself a
+/// builder. So technically that makes this a "builder builder".
+pub struct Builder {
+    subcommand: String,
+    verb: String,
+    description: String,
+    stable: bool,
+    quiet: bool,
 }
 
 #[must_use]
-pub fn test(description: &str, quiet: bool) -> crate::Command {
-    cargo("test", "Testing", description, quiet)
+pub fn build(description: &str) -> Builder {
+    Builder::new("build", "Building", description)
 }
 
 #[must_use]
-pub fn update(description: &str, quiet: bool) -> crate::Command {
-    cargo("update", "Updating", description, quiet)
+pub fn check(description: &str) -> Builder {
+    Builder::new("check", "Checking", description)
 }
 
-fn cargo(subcommand: &str, verb: &str, description: &str, quiet: bool) -> crate::Command {
-    if !quiet {
-        // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
-        let message = format!("{verb} {description}");
-        std::io::stderr()
-            .write_fmt(format_args!(
-                "{}\n",
-                if std::io::stderr().is_terminal() {
-                    Style::new().bold()
-                } else {
-                    Style::new()
-                }
-                .paint(message)
-            ))
-            .expect("Could not write to stderr");
+#[must_use]
+pub fn fetch(description: &str) -> Builder {
+    Builder::new("fetch", "Fetching", description)
+}
+
+#[must_use]
+pub fn fix(description: &str) -> Builder {
+    Builder::new("fix", "Fixing", description)
+}
+
+#[must_use]
+pub fn init(description: &str) -> Builder {
+    Builder::new("init", "Initializing", description)
+}
+
+#[must_use]
+pub fn run(description: &str) -> Builder {
+    Builder::new("run", "Running", description)
+}
+
+#[must_use]
+pub fn test(description: &str) -> Builder {
+    Builder::new("test", "Testing", description)
+}
+
+#[must_use]
+pub fn update(description: &str) -> Builder {
+    Builder::new("update", "Updating", description)
+}
+
+impl Builder {
+    fn new(subcommand: &str, verb: &str, description: &str) -> Self {
+        Self {
+            subcommand: subcommand.to_owned(),
+            verb: verb.to_owned(),
+            description: description.to_owned(),
+            quiet: false,
+            stable: false,
+        }
     }
-    let mut command = crate::Command::new("cargo");
-    #[cfg(windows)]
-    {
-        // smoelius: Work around: https://github.com/rust-lang/rustup/pull/2978
-        let cargo_home = cargo_home().unwrap();
-        let old_path = crate::env::var(crate::env::PATH).unwrap();
-        let new_path = std::env::join_paths(
-            std::iter::once(Path::new(&cargo_home).join("bin"))
-                .chain(std::env::split_paths(&old_path)),
-        )
-        .unwrap();
-        command.envs(vec![(crate::env::PATH, new_path)]);
+
+    /// Whether to allow the command to write to standard error.
+    pub fn quiet(&mut self, value: bool) -> &mut Self {
+        // smoelius: `cargo check` and `cargo fix` are never silenced.
+        if value {
+            assert!(!matches!(self.subcommand.as_str(), "check" | "fix"));
+        }
+        self.quiet = value;
+        self
     }
-    command.args([subcommand]);
-    if quiet {
-        command.stderr(Stdio::null());
+
+    /// Whether to use a cached path to stable `cargo`. Using the cached path avoids repeated calls
+    /// to `rustup`.
+    pub fn stable(&mut self, value: bool) -> &mut Self {
+        self.stable = value;
+        self
     }
-    command
+
+    /// Consumes the builder and returns a [`crate::Command`].
+    pub fn build(&mut self) -> crate::Command {
+        if !self.quiet {
+            // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
+            let message = format!("{} {}", self.verb, self.description);
+            std::io::stderr()
+                .write_fmt(format_args!(
+                    "{}\n",
+                    if std::io::stderr().is_terminal() {
+                        Style::new().bold()
+                    } else {
+                        Style::new()
+                    }
+                    .paint(message)
+                ))
+                .expect("Could not write to stderr");
+        }
+        let mut command = if self.stable {
+            crate::Command::new(&*STABLE_CARGO)
+        } else {
+            crate::Command::new("cargo")
+        };
+        #[cfg(windows)]
+        {
+            // smoelius: Work around: https://github.com/rust-lang/rustup/pull/2978
+            let cargo_home = cargo_home().unwrap();
+            let old_path = crate::env::var(crate::env::PATH).unwrap();
+            let new_path = std::env::join_paths(
+                std::iter::once(Path::new(&cargo_home).join("bin"))
+                    .chain(std::env::split_paths(&old_path)),
+            )
+            .unwrap();
+            command.envs(vec![(crate::env::PATH, new_path)]);
+        }
+        command.args([&self.subcommand]);
+        if self.quiet {
+            command.stderr(Stdio::null());
+        }
+        command
+    }
 }
 
 /// Get metadata based on the current directory.

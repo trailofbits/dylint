@@ -164,7 +164,9 @@ fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         warn(opts, "In debug mode building driver from `crates.io`");
     }
 
-    dylint_internal::cargo::build(&format!("driver for toolchain `{toolchain}`"), opts.quiet)
+    dylint_internal::cargo::build(&format!("driver for toolchain `{toolchain}`"))
+        .quiet(opts.quiet)
+        .build()
         .sanitize_environment()
         .envs([(env::RUSTFLAGS, rustflags)])
         .current_dir(package)

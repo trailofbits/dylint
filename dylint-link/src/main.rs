@@ -316,12 +316,14 @@ mod test {
         let cargo_home = tempdir().unwrap();
         let package = tempdir_in(".").unwrap();
 
-        dylint_internal::cargo::build("dylint-link", false)
+        dylint_internal::cargo::build("dylint-link")
+            .build()
             .current_dir(env!("CARGO_MANIFEST_DIR"))
             .success()
             .unwrap();
 
-        dylint_internal::cargo::init("package `global_config_test`", false)
+        dylint_internal::cargo::init("package `global_config_test`")
+            .build()
             .current_dir(&package)
             .args(["--name", "global_config_test"])
             .success()

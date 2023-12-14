@@ -327,6 +327,7 @@ dependencies = [
  "if_chain",
  "is-terminal",
  "log",
+ "once_cell",
  "rust-embed",
  "sedregex",
 ]
