@@ -10,7 +10,8 @@ fn ui() {
     // smoelius: Try to order failures by how informative they are: failure to build the library,
     // failure to find the library, failure to build/find the driver.
 
-    dylint_internal::cargo::build("clippy", false)
+    dylint_internal::cargo::build("clippy")
+        .build()
         .success()
         .unwrap();
 
@@ -47,7 +48,7 @@ fn ui() {
     // smoelius: A non-canonical temporary current directory seems to cause problems for `ui_test`.
     let tempdir_path = tempdir.path().canonicalize().unwrap();
 
-    let mut command = dylint_internal::cargo::test("clippy", false);
+    let mut command = dylint_internal::cargo::test("clippy").build();
     command
         .current_dir(tempdir_path)
         .envs([

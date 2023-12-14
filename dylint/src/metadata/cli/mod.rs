@@ -25,7 +25,6 @@ use std::{
     ffi::{OsStr, OsString},
     fs::{create_dir_all, read_dir, remove_dir_all, write},
     path::{Path, PathBuf},
-    process::Command,
 };
 use tempfile::{tempdir, Builder, TempDir};
 use url::Url;
@@ -173,7 +172,10 @@ fn create_dummy_dependency() -> Result<TempDir> {
         .tempdir()
         .with_context(|| "Could not create temporary directory")?;
 
-    dylint_internal::cargo::init("dummy dependency", true)
+    dylint_internal::cargo::init("dummy dependency")
+        .quiet(true)
+        .stable(true)
+        .build()
         .current_dir(&tempdir)
         .args(["--lib", "--vcs=none"])
         .success()?;
@@ -240,15 +242,15 @@ fn inject_dummy_dependencies(
 fn cargo_fetch(path: &Path) -> Result<()> {
     // smoelius: `cargo fetch` could fail, e.g., if a new checkouts subdirectory had to be created.
     // But the command should still be executed.
-    let mut command = Command::new("cargo");
-    command.args([
-        "fetch",
-        "--manifest-path",
-        &path.join("Cargo.toml").to_string_lossy(),
-    ]);
-    let _output = command
-        .output()
-        .with_context(|| format!("Could not get output of `{command:?}`"))?;
+    let _output = dylint_internal::cargo::fetch("dummy package")
+        .quiet(true)
+        .stable(true)
+        .build()
+        .args([
+            "--manifest-path",
+            &path.join("Cargo.toml").to_string_lossy(),
+        ])
+        .output()?;
     Ok(())
 }
 

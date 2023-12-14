@@ -28,7 +28,8 @@ fn ui() {
     // smoelius: Hack. Build the marker Dylint library using the marker repository's target
     // directory. This allows the library to be found when `dylint_testing` is run from within the
     // repository.
-    dylint_internal::cargo::build("marker", false)
+    dylint_internal::cargo::build("marker")
+        .build()
         .envs([(
             env::CARGO_TARGET_DIR,
             &*tempdir.path().join("target").to_string_lossy(),
@@ -37,7 +38,8 @@ fn ui() {
         .unwrap();
 
     // smoelius: It appears that `CARGO_CRATE_NAME` can be set to anything. But it must be set.
-    dylint_internal::cargo::test("marker", false)
+    dylint_internal::cargo::test("marker")
+        .build()
         .current_dir(tempdir.path().join("marker_lints"))
         .envs([(env::CARGO_CRATE_NAME, "_")])
         .args(["--test", "dylint"])
@@ -63,7 +65,7 @@ fn marker_adapter_package() -> Result<Package> {
 }
 
 fn marker_lint_crates(path: &Path) -> Result<String> {
-    let mut command = dylint_internal::cargo::run("marker test-setup", false);
+    let mut command = dylint_internal::cargo::run("marker test-setup").build();
     command
         .current_dir(path)
         .args(["--bin", "cargo-marker", "--", "marker", "test-setup"]);

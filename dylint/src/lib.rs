@@ -480,7 +480,8 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
             dylint_internal::cargo::fix(&description)
         } else {
             dylint_internal::cargo::check(&description)
-        };
+        }
+        .build();
         let mut args = vec!["--target-dir", &target_dir_str];
         if let Some(path) = &opts.manifest_path {
             args.extend(["--manifest-path", path]);

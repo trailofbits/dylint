@@ -20,6 +20,7 @@ home = { version = "0.5", optional = true }
 if_chain = { version = "1.0", optional = true }
 is-terminal = { version = "0.4", optional = true }
 log = { version = "0.4", optional = true }
+once_cell = { version = "1.19", optional = true }
 rust-embed = { version = "8.1", features = [
     "include-exclude",
 ], optional = true }
@@ -32,7 +33,14 @@ walkdir = { version = "2.4", optional = true }
 toml_edit = "0.20"
 
 [features]
-cargo = ["ansi_term", "cargo_metadata", "command", "home", "is-terminal"]
+cargo = [
+    "ansi_term",
+    "cargo_metadata",
+    "command",
+    "home",
+    "is-terminal",
+    "once_cell",
+]
 clippy_utils = ["semver", "toml_edit"]
 command = ["log"]
 examples = ["cargo", "cargo-util", "rustup", "walkdir"]

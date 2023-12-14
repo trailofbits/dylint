@@ -17,7 +17,8 @@ fn invalid_pattern() {
     for pattern in ["/*", "../*"] {
         let tempdir = tempdir().unwrap();
 
-        dylint_internal::cargo::init("package `invalid_pattern_test`", false)
+        dylint_internal::cargo::init("package `invalid_pattern_test`")
+            .build()
             .current_dir(&tempdir)
             .args(["--name", "invalid_pattern_test"])
             .success()
@@ -64,7 +65,8 @@ libraries = [
 fn list() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `list_test`", false)
+    dylint_internal::cargo::init("package `list_test`")
+        .build()
         .current_dir(&tempdir)
         .args(["--name", "list_test"])
         .success()
@@ -100,7 +102,8 @@ pattern = "examples/general/crate_wide_allow"
 fn metadata_change() {
     let tempdir = tempdir_in(".").unwrap();
 
-    dylint_internal::cargo::init("package `metadata_change_test`", false)
+    dylint_internal::cargo::init("package `metadata_change_test`")
+        .build()
         .current_dir(&tempdir)
         .args(["--name", "metadata_change_test"])
         .success()
@@ -161,7 +164,8 @@ fn metadata_change() {
 fn nonexistent_git_library() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `nonexistent_git_library_test`", false)
+    dylint_internal::cargo::init("package `nonexistent_git_library_test`")
+        .build()
         .current_dir(&tempdir)
         .args(["--name", "nonexistent_git_library_test"])
         .success()
@@ -213,7 +217,8 @@ pattern = "examples/general/nonexistent_library"
 fn nonexistent_path_library() {
     let tempdir = tempdir_in(".").unwrap();
 
-    dylint_internal::cargo::init("package `nonexistent_path_library_test`", false)
+    dylint_internal::cargo::init("package `nonexistent_path_library_test`")
+        .build()
         .current_dir(&tempdir)
         .args(["--name", "nonexistent_path_library_test"])
         .success()
@@ -266,7 +271,8 @@ path = "../../examples/general/nonexistent_library"
 fn rustflags_change() {
     let tempdir = tempdir_in(".").unwrap();
 
-    dylint_internal::cargo::init("package `rustflags_change_test`", false)
+    dylint_internal::cargo::init("package `rustflags_change_test`")
+        .build()
         .current_dir(&tempdir)
         .args(["--name", "rustflags_change_test"])
         .success()
@@ -311,7 +317,8 @@ path = "../../examples/general/crate_wide_allow"
 fn unknown_keys() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `unknown_keys_test`", false)
+    dylint_internal::cargo::init("package `unknown_keys_test`")
+        .build()
         .current_dir(&tempdir)
         .args(["--name", "unknown_keys_test"])
         .success()

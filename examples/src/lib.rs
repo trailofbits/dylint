@@ -15,15 +15,13 @@ mod test {
             let file_name = path.file_name().unwrap();
             // smoelius: Pass `--lib` to `cargo test` to avoid the potential filename collision
             // associated with building the examples.
-            dylint_internal::cargo::test(
-                &format!("example `{}`", file_name.to_string_lossy()),
-                false,
-            )
-            .sanitize_environment()
-            .current_dir(path)
-            .args(["--lib"])
-            .success()
-            .unwrap();
+            dylint_internal::cargo::test(&format!("example `{}`", file_name.to_string_lossy()))
+                .build()
+                .sanitize_environment()
+                .current_dir(path)
+                .args(["--lib"])
+                .success()
+                .unwrap();
         }
     }
 

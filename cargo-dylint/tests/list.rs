@@ -32,24 +32,20 @@ fn one_name_multiple_toolchains() {
     new_template(tempdir.path()).unwrap();
 
     patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_REV_A).unwrap();
-    dylint_internal::cargo::build(
-        &format!("dylint-template with channel `{CHANNEL_A}`"),
-        false,
-    )
-    .sanitize_environment()
-    .current_dir(&tempdir)
-    .success()
-    .unwrap();
+    dylint_internal::cargo::build(&format!("dylint-template with channel `{CHANNEL_A}`"))
+        .build()
+        .sanitize_environment()
+        .current_dir(&tempdir)
+        .success()
+        .unwrap();
 
     patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_REV_B).unwrap();
-    dylint_internal::cargo::build(
-        &format!("dylint-template with channel `{CHANNEL_B}`"),
-        false,
-    )
-    .sanitize_environment()
-    .current_dir(&tempdir)
-    .success()
-    .unwrap();
+    dylint_internal::cargo::build(&format!("dylint-template with channel `{CHANNEL_B}`"))
+        .build()
+        .sanitize_environment()
+        .current_dir(&tempdir)
+        .success()
+        .unwrap();
 
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
@@ -79,23 +75,19 @@ fn one_name_multiple_paths() {
     new_template(tempdirs.0.path()).unwrap();
     new_template(tempdirs.1.path()).unwrap();
 
-    dylint_internal::cargo::build(
-        &format!("dylint-template in {:?}", tempdirs.0.path()),
-        false,
-    )
-    .sanitize_environment()
-    .current_dir(&tempdirs.0)
-    .success()
-    .unwrap();
+    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdirs.0.path()))
+        .build()
+        .sanitize_environment()
+        .current_dir(&tempdirs.0)
+        .success()
+        .unwrap();
 
-    dylint_internal::cargo::build(
-        &format!("dylint-template in {:?}", tempdirs.1.path()),
-        false,
-    )
-    .sanitize_environment()
-    .current_dir(&tempdirs.1)
-    .success()
-    .unwrap();
+    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdirs.1.path()))
+        .build()
+        .sanitize_environment()
+        .current_dir(&tempdirs.1)
+        .success()
+        .unwrap();
 
     let paths = join_paths([
         &target_debug(tempdirs.0.path()).unwrap(),
@@ -127,7 +119,8 @@ fn relative_path() {
 
     new_template(tempdir.path()).unwrap();
 
-    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()), false)
+    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
+        .build()
         .sanitize_environment()
         .current_dir(&tempdir)
         .success()
@@ -164,7 +157,8 @@ fn list_by_path() {
 
     new_template(tempdir.path()).unwrap();
 
-    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()), false)
+    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
+        .build()
         .sanitize_environment()
         .current_dir(&tempdir)
         .success()

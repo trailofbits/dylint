@@ -167,7 +167,9 @@ fn initialize(name: &str) -> Result<&Path> {
             // smoelius: Try to order failures by how informative they are: failure to build the
             // library, failure to find the library, failure to build/find the driver.
 
-            dylint_internal::cargo::build(&format!("library `{name}`"), false).success()?;
+            dylint_internal::cargo::build(&format!("library `{name}`"))
+                .build()
+                .success()?;
 
             // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
             // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is
@@ -313,7 +315,8 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
         // smoelius: Because of lazy initialization, `cargo build` is run only once. Seeing
         // "Building example `target`" for one example but not for others is confusing. So instead
         // say "Building `package` examples".
-        dylint_internal::cargo::build(&format!("`{}` examples", package.name), false)
+        dylint_internal::cargo::build(&format!("`{}` examples", package.name))
+            .build()
             .envs([(env::CARGO_TERM_COLOR, "never")])
             .args([
                 "--manifest-path",

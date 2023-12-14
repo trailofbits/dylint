@@ -6,7 +6,8 @@ use walkdir::WalkDir;
 pub fn build() -> Result<()> {
     // smoelius: The examples use `dylint-link` as the linker, so it must be built first.
     #[allow(unknown_lints, env_cargo_path)]
-    crate::cargo::build("dylint-link", false)
+    crate::cargo::build("dylint-link")
+        .build()
         .sanitize_environment()
         .current_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("../dylint-link"))
         .success()?;
@@ -16,7 +17,8 @@ pub fn build() -> Result<()> {
         let file_name = example
             .file_name()
             .ok_or_else(|| anyhow!("Could not get file name"))?;
-        crate::cargo::build(&format!("example `{}`", file_name.to_string_lossy()), false)
+        crate::cargo::build(&format!("example `{}`", file_name.to_string_lossy()))
+            .build()
             .sanitize_environment()
             .current_dir(&example)
             .success()?;
