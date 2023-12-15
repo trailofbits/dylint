@@ -1,8 +1,11 @@
-use crate::Command;
+use crate::CommandExt;
 use anyhow::{Context, Result};
 use git2::Repository;
 use if_chain::if_chain;
-use std::{path::Path, process::Stdio};
+use std::{
+    path::Path,
+    process::{Command, Stdio},
+};
 
 // smoelius: I think this imitates Cargo's default behavior:
 // https://doc.rust-lang.org/cargo/reference/config.html#netretry

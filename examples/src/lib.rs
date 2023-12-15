@@ -2,7 +2,7 @@
 mod test {
     use cargo_metadata::MetadataCommand;
     use dylint_internal::{
-        clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment,
+        clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment, CommandExt,
     };
     use std::{ffi::OsStr, fs::read_to_string};
     use toml_edit::{Document, Item, Value};

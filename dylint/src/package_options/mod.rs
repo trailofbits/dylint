@@ -19,7 +19,7 @@ use tempfile::tempdir;
 use walkdir::WalkDir;
 
 #[cfg(unix)]
-use dylint_internal::rustup::SanitizeEnvironment;
+use dylint_internal::{rustup::SanitizeEnvironment, CommandExt};
 
 #[cfg(unix)]
 mod bisect;

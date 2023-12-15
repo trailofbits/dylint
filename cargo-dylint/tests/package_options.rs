@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use assert_cmd::prelude::*;
 use cargo_metadata::{Dependency, MetadataCommand};
-use dylint_internal::rustup::SanitizeEnvironment;
+use dylint_internal::{rustup::SanitizeEnvironment, CommandExt};
 use predicates::prelude::*;
 use regex::Regex;
 use semver::Version;

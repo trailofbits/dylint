@@ -1,7 +1,7 @@
 use crate::error::warn;
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage};
-use dylint_internal::{env, library_filename, rustup::SanitizeEnvironment};
+use dylint_internal::{env, library_filename, rustup::SanitizeEnvironment, CommandExt};
 use glob::glob;
 use if_chain::if_chain;
 use once_cell::sync::OnceCell;

@@ -7,7 +7,7 @@
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment,
+    driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment, CommandExt,
 };
 use once_cell::sync::Lazy;
 use std::{

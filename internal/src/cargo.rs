@@ -1,3 +1,4 @@
+use crate::CommandExt;
 use ansi_term::Style;
 use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
@@ -15,7 +16,7 @@ pub use home::cargo_home;
 static STABLE_CARGO: Lazy<PathBuf> = Lazy::new(|| {
     let mut command = Command::new("rustup");
     command.args(["+stable", "which", "cargo"]);
-    let output = command.output().unwrap();
+    let output = command.logged_output().unwrap();
     assert!(output.status.success());
     let stdout = String::from_utf8(output.stdout).unwrap();
     PathBuf::from(stdout.trim_end())
@@ -102,7 +103,7 @@ impl Builder {
     }
 
     /// Consumes the builder and returns a [`crate::Command`].
-    pub fn build(&mut self) -> crate::Command {
+    pub fn build(&mut self) -> Command {
         if !self.quiet {
             // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
             let message = format!("{} {}", self.verb, self.description);
@@ -119,9 +120,9 @@ impl Builder {
                 .expect("Could not write to stderr");
         }
         let mut command = if self.stable {
-            crate::Command::new(&*STABLE_CARGO)
+            Command::new(&*STABLE_CARGO)
         } else {
-            crate::Command::new("cargo")
+            Command::new("cargo")
         };
         #[cfg(windows)]
         {
