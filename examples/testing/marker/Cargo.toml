@@ -13,6 +13,9 @@ crate-type = ["cdylib"]
 bumpalo = "3.14"
 camino = "1.1"
 marker_adapter = "=0.4.0"
+# smoelius: `marker_api` isn't actually used. But the tests fail if `marker_lints`' version doesn't
+# exactly match `marker_api`'s version.
+marker_api = "=0.4.0"
 marker_rustc_driver = "=0.4.0"
 serde = "1.0"
 
