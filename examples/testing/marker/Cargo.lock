@@ -390,6 +390,7 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "marker_adapter",
+ "marker_api",
  "marker_rustc_driver",
  "once_cell",
  "regex",
@@ -415,9 +416,9 @@ dependencies = [
 
 [[package]]
 name = "marker_api"
-version = "0.4.3"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a29cc2b38f57f3265f814d6627f8f1e34e3340f9878f1f32b4f59378bd947cf3"
+checksum = "656e2a5a54cf9d95991aba9eafee1c1cdeb2af572fb6523066d00a07ed27ba6f"
 dependencies = [
  "typed-builder",
  "visibility",
@@ -451,9 +452,9 @@ dependencies = [
 
 [[package]]
 name = "marker_utils"
-version = "0.4.3"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76727ef3f564834b1b027d89f6435f52db612ffe503193064114478109de03cc"
+checksum = "1043919c96379a491de8f5e99a91b44e1e89f8c1cf68b10f1e46630117daa5ae"
 dependencies = [
  "marker_api",
 ]
