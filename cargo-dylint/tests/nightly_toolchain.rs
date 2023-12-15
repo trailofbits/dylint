@@ -3,7 +3,8 @@
 #![cfg(not(target_os = "windows"))]
 
 use anyhow::Result;
-use dylint_internal::Command;
+use dylint_internal::CommandExt;
+use std::process::Command;
 
 #[test]
 fn nightly_toolchain() {

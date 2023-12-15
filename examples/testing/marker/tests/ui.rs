@@ -1,6 +1,6 @@
 use anyhow::{anyhow, ensure, Result};
 use cargo_metadata::{MetadataCommand, Package};
-use dylint_internal::{clone, env};
+use dylint_internal::{clone, env, CommandExt};
 use marker_adapter::LintCrateInfo;
 use once_cell::sync::Lazy;
 use regex::Regex;

@@ -1,13 +1,13 @@
 use crate::Dylint;
 use anyhow::{anyhow, Context, Result};
-use dylint_internal::{rustup::SanitizeEnvironment, Command};
+use dylint_internal::{rustup::SanitizeEnvironment, CommandExt};
 use is_terminal::IsTerminal;
 use std::os::unix::fs::PermissionsExt;
 use std::{
     fs::{remove_file, rename},
     io::Write,
     path::Path,
-    process::Stdio,
+    process::{Command, Stdio},
 };
 use tempfile::NamedTempFile;
 

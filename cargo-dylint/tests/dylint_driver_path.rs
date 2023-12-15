@@ -2,6 +2,7 @@ use dylint_internal::{
     driver as dylint_driver, env,
     rustup::{toolchain_path, SanitizeEnvironment},
     testing::new_template,
+    CommandExt,
 };
 use std::fs::create_dir_all;
 use tempfile::tempdir_in;

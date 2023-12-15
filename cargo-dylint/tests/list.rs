@@ -10,6 +10,7 @@ use dylint_internal::{
     env, library_filename,
     rustup::SanitizeEnvironment,
     testing::new_template,
+    CommandExt,
 };
 use glob::glob;
 use predicates::prelude::*;

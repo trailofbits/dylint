@@ -7,9 +7,9 @@ use dylint_internal::{
     clippy_utils::set_toolchain_channel,
     rustup::{toolchain_path, SanitizeEnvironment},
     testing::new_template,
-    Command,
+    CommandExt,
 };
-use std::path::Path;
+use std::{path::Path, process::Command};
 use tempfile::{tempdir, NamedTempFile};
 
 #[test]

@@ -115,7 +115,7 @@
 use anyhow::{anyhow, ensure, Context, Result};
 use cargo_metadata::{Metadata, Package, Target};
 use compiletest_rs as compiletest;
-use dylint_internal::{env, library_filename, rustup::is_rustc};
+use dylint_internal::{env, library_filename, rustup::is_rustc, CommandExt};
 use once_cell::sync::{Lazy, OnceCell};
 use regex::Regex;
 use std::{
@@ -123,8 +123,7 @@ use std::{
     ffi::{OsStr, OsString},
     fs::{copy, read_dir, remove_file},
     io::BufRead,
-    path::Path,
-    path::PathBuf,
+    path::{Path, PathBuf},
     sync::Mutex,
 };
 
@@ -325,7 +324,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
                 &target.name,
                 "--verbose",
             ])
-            .output()?
+            .logged_output()?
     };
 
     let matches = output

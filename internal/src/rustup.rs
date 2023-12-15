@@ -1,15 +1,17 @@
-use crate::{env, Command};
+use crate::{env, CommandExt};
 use anyhow::{anyhow, Result};
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},
+    process::Command,
 };
 
+// smoelius: Should this be merged into `CommandExt`?
 pub trait SanitizeEnvironment {
     fn sanitize_environment(&mut self) -> &mut Self;
 }
 
-impl SanitizeEnvironment for crate::Command {
+impl SanitizeEnvironment for Command {
     fn sanitize_environment(&mut self) -> &mut Self {
         self.env_remove(env::RUSTC);
         self.env_remove(env::RUSTUP_TOOLCHAIN);
@@ -24,7 +26,7 @@ pub fn active_toolchain(path: &Path) -> Result<String> {
         .sanitize_environment()
         .current_dir(path)
         .args(["show", "active-toolchain"])
-        .output()?;
+        .logged_output()?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     stdout
         .split_once(' ')
@@ -37,7 +39,7 @@ pub fn toolchain_path(path: &Path) -> Result<PathBuf> {
         .sanitize_environment()
         .current_dir(path)
         .args(["which", "rustc"])
-        .output()?;
+        .logged_output()?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     let path = PathBuf::from(stdout);
     // smoelius: `path` should end with `/bin/rustc`.

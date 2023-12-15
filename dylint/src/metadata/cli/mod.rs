@@ -17,7 +17,7 @@
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::{Metadata, MetadataCommand};
-use dylint_internal::packaging::isolate;
+use dylint_internal::{packaging::isolate, CommandExt};
 use home::cargo_home;
 use semver::Version;
 use std::{
@@ -250,7 +250,7 @@ fn cargo_fetch(path: &Path) -> Result<()> {
             "--manifest-path",
             &path.join("Cargo.toml").to_string_lossy(),
         ])
-        .output()?;
+        .logged_output()?;
     Ok(())
 }
 

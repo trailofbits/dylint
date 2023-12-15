@@ -1,76 +1,32 @@
 use anyhow::{ensure, Context, Result};
 use std::{
-    ffi::OsStr,
     path::Path,
-    process::{Command as StdCommand, Output, Stdio},
+    process::{Command, Output},
 };
 
-pub struct Command {
-    command: StdCommand,
+#[allow(clippy::module_name_repetitions)]
+pub trait CommandExt {
+    fn logged_output(&mut self) -> Result<Output>;
+    fn success(&mut self) -> Result<()>;
 }
 
-impl Command {
-    pub fn new<S: AsRef<OsStr>>(program: S) -> Self {
-        Self {
-            command: StdCommand::new(program),
-        }
-    }
-
-    pub fn args<I, S>(&mut self, args: I) -> &mut Self
-    where
-        I: IntoIterator<Item = S>,
-        S: AsRef<OsStr>,
-    {
-        self.command.args(args);
-        self
-    }
-
-    pub fn envs<I, K, V>(&mut self, vars: I) -> &mut Self
-    where
-        I: IntoIterator<Item = (K, V)>,
-        K: AsRef<OsStr>,
-        V: AsRef<OsStr>,
-    {
-        self.command.envs(vars);
-        self
-    }
-
-    pub fn env_remove<K: AsRef<OsStr>>(&mut self, key: K) -> &mut Self {
-        self.command.env_remove(key);
-        self
-    }
-
-    pub fn current_dir<P: AsRef<Path>>(&mut self, dir: P) -> &mut Self {
-        self.command.current_dir(dir);
-        self
-    }
-
-    pub fn stdout<T: Into<Stdio>>(&mut self, cfg: T) -> &mut Self {
-        self.command.stdout(cfg);
-        self
-    }
-
-    pub fn stderr<T: Into<Stdio>>(&mut self, cfg: T) -> &mut Self {
-        self.command.stderr(cfg);
-        self
-    }
-
+impl CommandExt for Command {
     #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
     #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
-    pub fn output(&mut self) -> Result<Output> {
-        log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());
-        log::debug!("{:?}", self.command.get_current_dir());
-        log::debug!("{:?}", self.command);
+    fn logged_output(&mut self) -> Result<Output> {
+        log::debug!("{:?}", self.get_envs().collect::<Vec<_>>());
+        log::debug!("{:?}", self.get_current_dir());
+        log::debug!("{:?}", self);
 
+        #[allow(clippy::disallowed_methods)]
         let output = self
-            .command
             .output()
-            .with_context(|| format!("Could not get output of `{:?}`", self.command))?;
+            .with_context(|| format!("Could not get output of `{self:?}`"))?;
 
         ensure!(
             output.status.success(),
             "command failed: {:?}\nstdout: {:?}\nstderr: {:?}",
-            self.command,
+            self,
             std::str::from_utf8(&output.stdout).unwrap_or_default(),
             std::str::from_utf8(&output.stderr).unwrap_or_default()
         );
@@ -82,17 +38,16 @@ impl Command {
     // stderr to be captured.
     #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
     #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
-    pub fn success(&mut self) -> Result<()> {
-        log::debug!("{:?}", self.command.get_envs().collect::<Vec<_>>());
-        log::debug!("{:?}", self.command.get_current_dir());
-        log::debug!("{:?}", self.command);
+    fn success(&mut self) -> Result<()> {
+        log::debug!("{:?}", self.get_envs().collect::<Vec<_>>());
+        log::debug!("{:?}", self.get_current_dir());
+        log::debug!("{:?}", self);
 
         let status = self
-            .command
             .status()
-            .with_context(|| format!("Could not get status of `{:?}`", self.command))?;
+            .with_context(|| format!("Could not get status of `{self:?}`"))?;
 
-        ensure!(status.success(), "command failed: {:?}", self.command);
+        ensure!(status.success(), "command failed: {:?}", self);
 
         Ok(())
     }
