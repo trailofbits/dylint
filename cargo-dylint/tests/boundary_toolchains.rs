@@ -21,7 +21,8 @@ const BOUNDARIES: &[(&str, &str)] = &[
     ("2023-05-18", "2023-05-19"),
     // https://github.com/rust-lang/rust/pull/106810
     // https://github.com/rust-lang/rust/commit/65d2f2a5f9c323c88d1068e8e90d0b47a20d491c
-    ("2023-01-19", "2023-01-20"),
+    // smoelius: `home v0.5.9` requires rustc 1.70.0 or newer
+    // ("2023-01-19", "2023-01-20"),
     // smoelius: `toml v0.7.8` requires rustc 1.66.0 or newer.
     // https://github.com/rust-lang/rust/pull/101501
     // https://github.com/rust-lang/rust/commit/87788097b776f8e3662f76627944230684b671bd
