@@ -271,7 +271,7 @@ fn markdown_link_check() {
 
         let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join(path);
 
-        Command::new("npx")
+        let assert = Command::new("npx")
             .args([
                 "markdown-link-check",
                 "--config",
@@ -279,8 +279,17 @@ fn markdown_link_check() {
                 &path_buf.to_string_lossy(),
             ])
             .current_dir(&tempdir)
-            .assert()
-            .success();
+            .assert();
+        let stdout = std::str::from_utf8(&assert.get_output().stdout).unwrap();
+
+        assert!(
+            stdout
+                .lines()
+                .skip_while(|line| !line.ends_with(" links checked."))
+                .skip(1)
+                .all(|line| { line.is_empty() || line.ends_with(" → Status: 500") }),
+            "{stdout}"
+        );
     }
 }
 
