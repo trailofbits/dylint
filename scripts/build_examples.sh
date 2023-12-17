@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# smoelius: This script is currently unused.
+# smoelius: This script is no longer used in CI.
 
 # set -x
 set -euo pipefail
@@ -20,7 +20,7 @@ for EXAMPLE in */*; do
         continue
     fi
 
-    pushd "$EXAMPLE" >/dev/null
-    cargo build
-    popd >/dev/null
+    pushd "$EXAMPLE"
+    cargo build --all-targets
+    popd
 done
