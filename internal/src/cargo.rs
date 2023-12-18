@@ -24,8 +24,8 @@ static STABLE_CARGO: Lazy<PathBuf> = Lazy::new(|| {
 
 /// A `cargo` command builder
 ///
-/// Note that [`crate::Command`] is a wrapper around [`std::process::Command`], which is itself a
-/// builder. So technically that makes this a "builder builder".
+/// Note that [`std::process::Command`]is itself a builder. So technically that makes this a
+/// "builder builder".
 pub struct Builder {
     subcommand: String,
     verb: String,
@@ -102,7 +102,7 @@ impl Builder {
         self
     }
 
-    /// Consumes the builder and returns a [`crate::Command`].
+    /// Consumes the builder and returns a [`std::process::Command`].
     pub fn build(&mut self) -> Command {
         if !self.quiet {
             // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
