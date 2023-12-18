@@ -12,7 +12,8 @@ use tempfile::tempdir;
 // `--rust-version 1.64.0`. I'm not sure why it doesn't.
 // smoelius: Dylint's MSRV was recently bumped to 1.68.
 // smoelius: `home v0.5.9` (2013-12-15) requires rustc 1.70.0 or newer.
-const RUST_VERSION: &str = "1.70.0";
+// smoelius: `cargo-util v0.2.7` requires rustc 1.72.0 or newer.
+const RUST_VERSION: &str = "1.72.0";
 
 #[test]
 fn new_package() {
