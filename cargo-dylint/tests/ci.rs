@@ -394,6 +394,14 @@ fn supply_chain() {
     }
 }
 
+#[test]
+fn unmaintained() {
+    Command::new("cargo")
+        .args(["unmaintained", "--color=never", "--fail-fast"])
+        .assert()
+        .success();
+}
+
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
     #[allow(unknown_lints, env_cargo_path)]
     read_to_string(dir.as_ref().join("README.md")).map_err(Into::into)
