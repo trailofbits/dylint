@@ -21,3 +21,6 @@ libraries = [
     { path = "examples/testing/clippy" },
     { path = "examples/restriction/*" },
 ]
+
+[workspace.metadata.unmaintained]
+ignore = ["im-rc", "serde-value", "sized-chunks"]
