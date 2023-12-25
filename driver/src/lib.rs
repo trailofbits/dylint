@@ -148,11 +148,25 @@ fn early_error(msg: String) -> ! {
 #[rustversion::since(2023-06-28)]
 extern crate rustc_errors;
 
-#[rustversion::since(2023-06-28)]
+#[rustversion::all(since(2023-06-28), before(2023-12-18))]
 fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
     let handler =
         rustc_session::EarlyErrorHandler::new(rustc_session::config::ErrorOutputType::default());
     handler.early_error(msg)
+}
+
+#[rustversion::all(since(2023-12-18), before(2023-12-23))]
+fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
+    let handler =
+        rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
+    handler.early_error(msg)
+}
+
+#[rustversion::since(2023-12-23)]
+fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
+    let handler =
+        rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
+    handler.early_fatal(msg)
 }
 
 #[rustversion::before(2022-07-14)]
