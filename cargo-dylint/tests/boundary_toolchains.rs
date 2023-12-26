@@ -68,7 +68,7 @@ fn boundary_toolchains() {
                 .sanitize_environment()
                 .current_dir(&tempdir)
                 .success()
-                .unwrap();
+                .unwrap_or_else(|_| panic!("failed with channel `{channel}`"));
         }
     }
 }
