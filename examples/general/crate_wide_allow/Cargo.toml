@@ -1,6 +1,6 @@
 [package]
 name = "crate_wide_allow"
-version = "2.5.0"
+version = "2.6.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for `#![allow(...)]` used at the crate level"
 edition = "2021"

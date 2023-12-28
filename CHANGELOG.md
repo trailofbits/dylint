@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0
+
+- Add experimental `metadata-cli` feature ([#926](https://github.com/trailofbits/dylint/pull/926) and [#976](https://github.com/trailofbits/dylint/pull/976))
+
 ## 2.5.0
 
 - Allow the `list` subcommand to accept `--manifest-path` options ([#951](https://github.com/trailofbits/dylint/pull/951))
