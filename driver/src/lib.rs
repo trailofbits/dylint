@@ -81,9 +81,24 @@ impl LoadedLibrary {
             Ok(())
         })()
         .unwrap_or_else(|err| {
-            sess.err(err.to_string());
+            session_err(sess, &err);
         });
     }
+}
+
+#[rustversion::before(2023-12-18)]
+fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span::ErrorGuaranteed {
+    sess.diagnostic().err(err.to_string())
+}
+
+#[rustversion::all(since(2023-12-18), before(2023-12-26))]
+fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span::ErrorGuaranteed {
+    sess.dcx().err(err.to_string())
+}
+
+#[rustversion::since(2023-12-26)]
+fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span::ErrorGuaranteed {
+    sess.parse_sess.dcx.err(err.to_string())
 }
 
 struct Callbacks {
