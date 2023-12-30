@@ -44,7 +44,7 @@ members = [
 ]
 
 [workspace.dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "edb720b199083f4107b858a8761648065bf38d86" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "ac4c2094a6030530661bee3876e0228ddfeb6b8b" }
 
 [workspace.metadata.dylint]
 libraries = [
