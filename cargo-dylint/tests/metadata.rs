@@ -2,7 +2,7 @@ use assert_cmd::prelude::*;
 use dylint_internal::{env, packaging::isolate, CommandExt};
 use predicates::prelude::*;
 use std::{env::set_var, fs::OpenOptions, io::Write};
-use tempfile::{tempdir, tempdir_in};
+use tempfile::tempdir;
 
 // smoelius: "Separate lints into categories" commit
 const REV: &str = "402fc24351c60a3c474e786fd76aa66aa8638d55";
@@ -100,7 +100,7 @@ pattern = "examples/general/crate_wide_allow"
 /// Verify that changes to workspace metadata cause the lints to be rerun.
 #[test]
 fn metadata_change() {
-    let tempdir = tempdir_in(".").unwrap();
+    let tempdir = tempdir().unwrap();
 
     dylint_internal::cargo::init("package `metadata_change_test`")
         .build()
@@ -121,8 +121,9 @@ fn metadata_change() {
         file,
         r#"
     [[workspace.metadata.dylint.libraries]]
-    path = "../../examples/general/crate_wide_allow"
-    "#
+    path = "{}/../examples/general/crate_wide_allow"
+    "#,
+        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
     )
     .unwrap();
 
@@ -146,8 +147,9 @@ fn metadata_change() {
         file,
         r#"
         [[workspace.metadata.dylint.libraries]]
-        path = "../../examples/restriction/question_mark_in_expression"
-        "#
+        path = "{}/../examples/restriction/question_mark_in_expression"
+        "#,
+        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
     )
     .unwrap();
 
@@ -215,7 +217,7 @@ pattern = "examples/general/nonexistent_library"
 
 #[test]
 fn nonexistent_path_library() {
-    let tempdir = tempdir_in(".").unwrap();
+    let tempdir = tempdir().unwrap();
 
     dylint_internal::cargo::init("package `nonexistent_path_library_test`")
         .build()
@@ -236,8 +238,9 @@ fn nonexistent_path_library() {
         file,
         r#"
 [[workspace.metadata.dylint.libraries]]
-path = "../../examples/general/crate_wide_allow"
-"#
+path = "{}/../examples/general/crate_wide_allow"
+"#,
+        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
     )
     .unwrap();
 
@@ -252,8 +255,9 @@ path = "../../examples/general/crate_wide_allow"
         file,
         r#"
 [[workspace.metadata.dylint.libraries]]
-path = "../../examples/general/nonexistent_library"
-"#
+path = "{}/../examples/general/nonexistent_library"
+"#,
+        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
     )
     .unwrap();
 
@@ -269,7 +273,7 @@ path = "../../examples/general/nonexistent_library"
 /// Verify that changes to `RUSTFLAGS` do not cause workspace metadata entries to be rebuilt.
 #[test]
 fn rustflags_change() {
-    let tempdir = tempdir_in(".").unwrap();
+    let tempdir = tempdir().unwrap();
 
     dylint_internal::cargo::init("package `rustflags_change_test`")
         .build()
@@ -290,8 +294,9 @@ fn rustflags_change() {
         file,
         r#"
 [[workspace.metadata.dylint.libraries]]
-path = "../../examples/general/crate_wide_allow"
-"#
+path = "{}/../examples/general/crate_wide_allow"
+"#,
+        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
     )
     .unwrap();
 
