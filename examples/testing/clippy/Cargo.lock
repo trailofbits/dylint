@@ -131,7 +131,7 @@ version = "2.5.0"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.18.1",
- "clippy_config",
+ "clippy_config 0.1.76",
  "clippy_lints",
  "clippy_utils",
  "dylint",
@@ -155,18 +155,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "clippy_config"
+version = "0.1.77"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661bee3876e0228ddfeb6b8b#ac4c2094a6030530661bee3876e0228ddfeb6b8b"
+dependencies = [
+ "rustc-semver",
+ "serde",
+ "toml 0.7.8",
+]
+
+[[package]]
 name = "clippy_lints"
-version = "0.1.76"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=edb720b199083f4107b858a8761648065bf38d86#edb720b199083f4107b858a8761648065bf38d86"
+version = "0.1.77"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661bee3876e0228ddfeb6b8b#ac4c2094a6030530661bee3876e0228ddfeb6b8b"
 dependencies = [
  "arrayvec",
  "cargo_metadata 0.15.4",
- "clippy_config",
+ "clippy_config 0.1.77",
  "clippy_utils",
  "declare_clippy_lint",
  "itertools",
  "quine-mc_cluskey",
- "regex-syntax 0.7.5",
+ "regex-syntax",
  "rustc-semver",
  "semver",
  "serde",
@@ -178,11 +188,11 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.76"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=edb720b199083f4107b858a8761648065bf38d86#edb720b199083f4107b858a8761648065bf38d86"
+version = "0.1.77"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661bee3876e0228ddfeb6b8b#ac4c2094a6030530661bee3876e0228ddfeb6b8b"
 dependencies = [
  "arrayvec",
- "clippy_config",
+ "clippy_config 0.1.77",
  "itertools",
  "rustc-semver",
 ]
@@ -230,8 +240,8 @@ dependencies = [
 
 [[package]]
 name = "declare_clippy_lint"
-version = "0.1.76"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=edb720b199083f4107b858a8761648065bf38d86#edb720b199083f4107b858a8761648065bf38d86"
+version = "0.1.77"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661bee3876e0228ddfeb6b8b#ac4c2094a6030530661bee3876e0228ddfeb6b8b"
 dependencies = [
  "itertools",
  "quote",
@@ -478,7 +488,7 @@ dependencies = [
  "bstr",
  "log",
  "regex-automata",
- "regex-syntax 0.8.2",
+ "regex-syntax",
 ]
 
 [[package]]
@@ -547,9 +557,9 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.10.5"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
+checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
 dependencies = [
  "either",
 ]
@@ -770,7 +780,7 @@ dependencies = [
  "aho-corasick",
  "memchr",
  "regex-automata",
- "regex-syntax 0.8.2",
+ "regex-syntax",
 ]
 
 [[package]]
@@ -781,14 +791,8 @@ checksum = "5f804c7828047e88b2d32e2d7fe5a105da8ee3264f01902f796c8e067dc2483f"
 dependencies = [
  "aho-corasick",
  "memchr",
- "regex-syntax 0.8.2",
+ "regex-syntax",
 ]
-
-[[package]]
-name = "regex-syntax"
-version = "0.7.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da"
 
 [[package]]
 name = "regex-syntax"
