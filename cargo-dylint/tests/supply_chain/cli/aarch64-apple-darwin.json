@@ -1766,6 +1766,13 @@
         "kind": "user",
         "login": "dguo",
         "name": "Danny Guo"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/44199644?v=4",
+        "id": 79123,
+        "kind": "user",
+        "login": "maxbachmann",
+        "name": "Max Bachmann"
       }
     ],
     "syn": [
