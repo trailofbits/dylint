@@ -242,8 +242,8 @@ fn inject_dummy_dependencies(
 fn cargo_fetch(path: &Path) -> Result<()> {
     // smoelius: `cargo fetch` could fail, e.g., if a new checkouts subdirectory had to be created.
     // But the command should still be executed.
+    // smoelius: Since stdout and stderr are captured, there is no need to use `.quiet(true)`.
     let _output = dylint_internal::cargo::fetch("dummy package")
-        .quiet(true)
         .stable(true)
         .build()
         .args([
