@@ -2488,22 +2488,6 @@
         "name": "Yevhenii Reizner"
       }
     ],
-    "memoffset": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/1339859?v=4",
-        "id": 10122,
-        "kind": "user",
-        "login": "Gilnaa",
-        "name": "Gilad Naaman"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/330628?v=4",
-        "id": 56986,
-        "kind": "user",
-        "login": "RalfJung",
-        "name": "Ralf Jung"
-      }
-    ],
     "minimal-lexical": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/9440903?v=4",
@@ -3559,6 +3543,13 @@
         "kind": "user",
         "login": "dguo",
         "name": "Danny Guo"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/44199644?v=4",
+        "id": 79123,
+        "kind": "user",
+        "login": "maxbachmann",
+        "name": "Max Bachmann"
       }
     ],
     "subtle": [
