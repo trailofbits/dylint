@@ -26,7 +26,7 @@ pub fn active_toolchain(path: &Path) -> Result<String> {
         .sanitize_environment()
         .current_dir(path)
         .args(["show", "active-toolchain"])
-        .logged_output()?;
+        .logged_output(true)?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     stdout
         .split_once(' ')
@@ -39,7 +39,7 @@ pub fn toolchain_path(path: &Path) -> Result<PathBuf> {
         .sanitize_environment()
         .current_dir(path)
         .args(["which", "rustc"])
-        .logged_output()?;
+        .logged_output(true)?;
     let stdout = std::str::from_utf8(&output.stdout)?;
     let path = PathBuf::from(stdout);
     // smoelius: `path` should end with `/bin/rustc`.

@@ -116,7 +116,7 @@ fn dylint_drivers() -> Result<PathBuf> {
 fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<bool> {
     (|| -> Result<bool> {
         let mut command = dylint_driver(toolchain, driver)?;
-        let output = command.args(["-V"]).logged_output()?;
+        let output = command.args(["-V"]).logged_output(true)?;
         let stdout = std::str::from_utf8(&output.stdout)?;
         let theirs = stdout
             .trim_end()

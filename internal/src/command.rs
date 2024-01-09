@@ -6,14 +6,14 @@ use std::{
 
 #[allow(clippy::module_name_repetitions)]
 pub trait CommandExt {
-    fn logged_output(&mut self) -> Result<Output>;
+    fn logged_output(&mut self, require_success: bool) -> Result<Output>;
     fn success(&mut self) -> Result<()>;
 }
 
 impl CommandExt for Command {
     #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
     #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
-    fn logged_output(&mut self) -> Result<Output> {
+    fn logged_output(&mut self, require_success: bool) -> Result<Output> {
         log::debug!("{:?}", self.get_envs().collect::<Vec<_>>());
         log::debug!("{:?}", self.get_current_dir());
         log::debug!("{:?}", self);
@@ -24,7 +24,7 @@ impl CommandExt for Command {
             .with_context(|| format!("Could not get output of `{self:?}`"))?;
 
         ensure!(
-            output.status.success(),
+            !require_success || output.status.success(),
             "command failed: {:?}\nstdout: {:?}\nstderr: {:?}",
             self,
             std::str::from_utf8(&output.stdout).unwrap_or_default(),
