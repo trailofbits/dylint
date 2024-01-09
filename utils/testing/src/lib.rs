@@ -324,7 +324,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
                 &target.name,
                 "--verbose",
             ])
-            .logged_output()?
+            .logged_output(true)?
     };
 
     let matches = output

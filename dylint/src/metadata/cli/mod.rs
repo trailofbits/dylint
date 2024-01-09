@@ -250,7 +250,7 @@ fn cargo_fetch(path: &Path) -> Result<()> {
             "--manifest-path",
             &path.join("Cargo.toml").to_string_lossy(),
         ])
-        .logged_output()?;
+        .logged_output(false)?;
     Ok(())
 }
 

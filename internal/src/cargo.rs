@@ -16,7 +16,7 @@ pub use home::cargo_home;
 static STABLE_CARGO: Lazy<PathBuf> = Lazy::new(|| {
     let mut command = Command::new("rustup");
     command.args(["+stable", "which", "cargo"]);
-    let output = command.logged_output().unwrap();
+    let output = command.logged_output(true).unwrap();
     assert!(output.status.success());
     let stdout = String::from_utf8(output.stdout).unwrap();
     PathBuf::from(stdout.trim_end())
