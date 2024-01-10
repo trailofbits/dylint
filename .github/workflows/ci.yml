@@ -85,7 +85,7 @@ jobs:
 
   test:
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name == 'merge_group' }}
       matrix:
         environment: [ubuntu-latest, macos-latest, windows-latest]
         package: [cargo-dylint, cargo-dylint-cli, examples, other]
