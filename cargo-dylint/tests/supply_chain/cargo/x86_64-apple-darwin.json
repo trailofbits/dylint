@@ -25,15 +25,6 @@
         "name": "Jonas Schievink"
       }
     ],
-    "ahash": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/4756752?v=4",
-        "id": 25353,
-        "kind": "user",
-        "login": "tkaitchuck",
-        "name": "Tom Kaitchuck"
-      }
-    ],
     "aho-corasick": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/456674?v=4",
@@ -146,22 +137,6 @@
         "kind": "user",
         "login": "vorner",
         "name": "Michal 'vorner' Vaner"
-      }
-    ],
-    "arrayvec": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/3209739?v=4",
-        "id": 356,
-        "kind": "user",
-        "login": "bluss",
-        "name": "bluss"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/38887296?v=4",
-        "id": 362,
-        "kind": "team",
-        "login": "github:rust-bus:maintainers",
-        "name": "maintainers"
       }
     ],
     "autocfg": [
@@ -363,6 +338,15 @@
         "name": "Hyunsik Choi"
       }
     ],
+    "byteyarn": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2711945?v=4",
+        "id": 13363,
+        "kind": "user",
+        "login": "mcy",
+        "name": "Miguel Young"
+      }
+    ],
     "camino": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
@@ -421,6 +405,84 @@
         "kind": "user",
         "login": "Eh2406",
         "name": "Jacob Finkelman"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
+        "id": 6202,
+        "kind": "user",
+        "login": "ehuss",
+        "name": "Eric Huss"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
+      }
+    ],
+    "cargo-credential": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
+        "id": 6202,
+        "kind": "user",
+        "login": "ehuss",
+        "name": "Eric Huss"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
+      }
+    ],
+    "cargo-credential-libsecret": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
+        "id": 4282,
+        "kind": "team",
+        "login": "github:rust-lang:release-publishers",
+        "name": "release-publishers"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
+      }
+    ],
+    "cargo-credential-macos-keychain": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
+        "id": 4282,
+        "kind": "team",
+        "login": "github:rust-lang:release-publishers",
+        "name": "release-publishers"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
+        "id": 6202,
+        "kind": "user",
+        "login": "ehuss",
+        "name": "Eric Huss"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
+      }
+    ],
+    "cargo-credential-wincred": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
+        "id": 4282,
+        "kind": "team",
+        "login": "github:rust-lang:release-publishers",
+        "name": "release-publishers"
       },
       {
         "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
@@ -637,6 +699,24 @@
         "kind": "user",
         "login": "marmeladema",
         "name": "Élie ROUDNINSKI"
+      }
+    ],
+    "color-print": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/24353810?v=4",
+        "id": 130866,
+        "kind": "user",
+        "login": "dajoha",
+        "name": null
+      }
+    ],
+    "color-print-proc-macro": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/24353810?v=4",
+        "id": 130866,
+        "kind": "user",
+        "login": "dajoha",
+        "name": null
       }
     ],
     "colorchoice": [
@@ -1189,6 +1269,15 @@
         "name": "elliptic-curves"
       }
     ],
+    "encoding_rs": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/478856?v=4",
+        "id": 4484,
+        "kind": "user",
+        "login": "hsivonen",
+        "name": "Henri Sivonen"
+      }
+    ],
     "env_logger": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
@@ -1247,6 +1336,15 @@
         "kind": "user",
         "login": "cuviper",
         "name": "Josh Stone"
+      }
+    ],
+    "erased-serde": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1940490?v=4",
+        "id": 3618,
+        "kind": "user",
+        "login": "dtolnay",
+        "name": "David Tolnay"
       }
     ],
     "errno": [
@@ -1662,6 +1760,15 @@
         "name": "Sebastian Thiel"
       }
     ],
+    "gix-filter": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
     "gix-fs": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
@@ -1725,7 +1832,7 @@
         "name": "Sebastian Thiel"
       }
     ],
-    "gix-mailmap": [
+    "gix-macros": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
         "id": 980,
@@ -1779,7 +1886,25 @@
         "name": "Sebastian Thiel"
       }
     ],
+    "gix-packetline-blocking": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
     "gix-path": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
+    "gix-pathspec": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
         "id": 980,
@@ -1852,6 +1977,15 @@
       }
     ],
     "gix-sec": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
+    "gix-submodule": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
         "id": 980,
@@ -2172,15 +2306,6 @@
         "name": "Bodil Stokke"
       }
     ],
-    "imara-diff": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/61850714?v=4",
-        "id": 91593,
-        "kind": "user",
-        "login": "pascalkuthe",
-        "name": "Pascal Kuthe"
-      }
-    ],
     "indexmap": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/3209739?v=4",
@@ -2195,15 +2320,6 @@
         "kind": "user",
         "login": "cuviper",
         "name": "Josh Stone"
-      }
-    ],
-    "io-close": [
-      {
-        "avatar": "https://avatars1.githubusercontent.com/u/34943028?v=4",
-        "id": 58881,
-        "kind": "user",
-        "login": "wufz",
-        "name": null
       }
     ],
     "is-terminal": [
@@ -2261,15 +2377,6 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
-      }
-    ],
-    "kstring": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/60961?v=4",
-        "id": 6743,
-        "kind": "user",
-        "login": "epage",
-        "name": "Ed Page"
       }
     ],
     "lazy_static": [
@@ -2390,6 +2497,15 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
+      }
+    ],
+    "libloading": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/679122?v=4",
+        "id": 726,
+        "kind": "user",
+        "login": "nagisa",
+        "name": "Simonas Kazlauskas"
       }
     ],
     "libnghttp2-sys": [
@@ -2528,6 +2644,15 @@
         "name": null
       }
     ],
+    "matchers": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2796466?v=4",
+        "id": 1249,
+        "kind": "user",
+        "login": "hawkw",
+        "name": "Eliza Weisman"
+      }
+    ],
     "maybe-async": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/16273287?v=4",
@@ -2587,6 +2712,29 @@
         "kind": "user",
         "login": "Geal",
         "name": "Geoffroy Couprie"
+      }
+    ],
+    "nu-ansi-term": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/547158?v=4",
+        "id": 3532,
+        "kind": "user",
+        "login": "sophiajt",
+        "name": "Sophia June Turner"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/50749515?v=4",
+        "id": 6805,
+        "kind": "team",
+        "login": "github:nushell:publishing",
+        "name": "publishing"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/15833959?v=4",
+        "id": 96109,
+        "kind": "user",
+        "login": "sholderbach",
+        "name": "Stefan Holderbach"
       }
     ],
     "num-traits": [
@@ -2742,6 +2890,15 @@
         "kind": "user",
         "login": "stanislav-tkach",
         "name": "Stanislav Tkach"
+      }
+    ],
+    "overload": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/5261448?v=4",
+        "id": 56541,
+        "kind": "user",
+        "login": "danaugrs",
+        "name": "Daniel Salvadori"
       }
     ],
     "p384": [
@@ -3304,6 +3461,52 @@
         "name": "elliptic-curves"
       }
     ],
+    "security-framework": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1455697?v=4",
+        "id": 5,
+        "kind": "user",
+        "login": "sfackler",
+        "name": "Steven Fackler"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/72159?v=4",
+        "id": 988,
+        "kind": "user",
+        "login": "kornelski",
+        "name": "Kornel"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/158471?v=4",
+        "id": 4556,
+        "kind": "user",
+        "login": "djc",
+        "name": "Dirkjan Ochtman"
+      }
+    ],
+    "security-framework-sys": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1455697?v=4",
+        "id": 5,
+        "kind": "user",
+        "login": "sfackler",
+        "name": "Steven Fackler"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/72159?v=4",
+        "id": 988,
+        "kind": "user",
+        "login": "kornelski",
+        "name": "Kornel"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/158471?v=4",
+        "id": 4556,
+        "kind": "user",
+        "login": "djc",
+        "name": "Dirkjan Ochtman"
+      }
+    ],
     "sedregex": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/3609357?v=4",
@@ -3336,6 +3539,15 @@
         "kind": "team",
         "login": "github:serde-rs:publish",
         "name": "publish"
+      }
+    ],
+    "serde-untagged": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1940490?v=4",
+        "id": 3618,
+        "kind": "user",
+        "login": "dtolnay",
+        "name": "David Tolnay"
       }
     ],
     "serde-value": [
@@ -3459,6 +3671,15 @@
         "name": "Artyom Pavlov"
       }
     ],
+    "sharded-slab": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2796466?v=4",
+        "id": 1249,
+        "kind": "user",
+        "login": "hawkw",
+        "name": "Eliza Weisman"
+      }
+    ],
     "shell-escape": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1455697?v=4",
@@ -3466,38 +3687,6 @@
         "kind": "user",
         "login": "sfackler",
         "name": "Steven Fackler"
-      }
-    ],
-    "signal-hook": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/38887296?v=4",
-        "id": 362,
-        "kind": "team",
-        "login": "github:rust-bus:maintainers",
-        "name": "maintainers"
-      },
-      {
-        "avatar": "https://avatars2.githubusercontent.com/u/11783500?v=4",
-        "id": 5906,
-        "kind": "user",
-        "login": "vorner",
-        "name": "Michal 'vorner' Vaner"
-      }
-    ],
-    "signal-hook-registry": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/38887296?v=4",
-        "id": 362,
-        "kind": "team",
-        "login": "github:rust-bus:maintainers",
-        "name": "maintainers"
-      },
-      {
-        "avatar": "https://avatars2.githubusercontent.com/u/11783500?v=4",
-        "id": 5906,
-        "kind": "user",
-        "login": "vorner",
-        "name": "Michal 'vorner' Vaner"
       }
     ],
     "signature": [
@@ -3599,24 +3788,6 @@
         "kind": "team",
         "login": "github:rustcrypto:formats",
         "name": "formats"
-      }
-    ],
-    "static_assertions": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/10367662?v=4",
-        "id": 3832,
-        "kind": "user",
-        "login": "nvzqz",
-        "name": "Nikolai Vazquez"
-      }
-    ],
-    "strip-ansi-escapes": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/286001?v=4",
-        "id": 2774,
-        "kind": "user",
-        "login": "luser",
-        "name": "Ted Mielczarek"
       }
     ],
     "strsim": [
@@ -3751,6 +3922,15 @@
         "kind": "user",
         "login": "dtolnay",
         "name": "David Tolnay"
+      }
+    ],
+    "thread_local": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/278509?v=4",
+        "id": 2915,
+        "kind": "user",
+        "login": "Amanieu",
+        "name": "Amanieu d'Antras"
       }
     ],
     "time": [
@@ -3913,6 +4093,45 @@
         "kind": "team",
         "login": "github:tokio-rs:publish-tracing",
         "name": "Publish tracing"
+      }
+    ],
+    "tracing-log": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2796466?v=4",
+        "id": 1249,
+        "kind": "user",
+        "login": "hawkw",
+        "name": "Eliza Weisman"
+      },
+      {
+        "avatar": "https://avatars2.githubusercontent.com/u/20248544?v=4",
+        "id": 1294,
+        "kind": "team",
+        "login": "github:tokio-rs:publish-tracing",
+        "name": "Publish tracing"
+      }
+    ],
+    "tracing-subscriber": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2796466?v=4",
+        "id": 1249,
+        "kind": "user",
+        "login": "hawkw",
+        "name": "Eliza Weisman"
+      },
+      {
+        "avatar": "https://avatars2.githubusercontent.com/u/20248544?v=4",
+        "id": 1294,
+        "kind": "team",
+        "login": "github:tokio-rs:publish-tracing",
+        "name": "Publish tracing"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2067774?v=4",
+        "id": 5671,
+        "kind": "user",
+        "login": "davidbarsky",
+        "name": "David Barsky"
       }
     ],
     "typenum": [
@@ -4277,45 +4496,6 @@
         "name": "Sergio Benitez"
       }
     ],
-    "vte": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/4285147?v=4",
-        "id": 1317,
-        "kind": "user",
-        "login": "jwilm",
-        "name": "Joe Wilm"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/29714349?v=4",
-        "id": 1911,
-        "kind": "team",
-        "login": "github:alacritty:publishers",
-        "name": "Publishers"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/8886672?v=4",
-        "id": 8732,
-        "kind": "user",
-        "login": "chrisduerr",
-        "name": "Christian Duerr"
-      }
-    ],
-    "vte_generate_state_changes": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/29714349?v=4",
-        "id": 1911,
-        "kind": "team",
-        "login": "github:alacritty:publishers",
-        "name": "Publishers"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/8886672?v=4",
-        "id": 8732,
-        "kind": "user",
-        "login": "chrisduerr",
-        "name": "Christian Duerr"
-      }
-    ],
     "walkdir": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/456674?v=4",
@@ -4332,15 +4512,6 @@
         "kind": "user",
         "login": "epage",
         "name": "Ed Page"
-      }
-    ],
-    "zerocopy": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/1046063?v=4",
-        "id": 7178,
-        "kind": "user",
-        "login": "joshlf",
-        "name": "Joshua Liebow-Feeser"
       }
     ],
     "zeroize": [
