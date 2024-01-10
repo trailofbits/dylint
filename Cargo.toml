@@ -23,4 +23,4 @@ libraries = [
 ]
 
 [workspace.metadata.unmaintained]
-ignore = ["arc-swap", "im-rc", "serde-value", "sized-chunks"]
+ignore = ["arc-swap", "im-rc", "matchers", "serde-value", "sized-chunks"]
