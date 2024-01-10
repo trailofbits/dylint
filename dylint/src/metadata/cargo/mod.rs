@@ -1,7 +1,8 @@
 use crate::error::warn;
 use anyhow::{anyhow, bail, ensure, Result};
-use cargo::core::{
-    source::MaybePackage, Dependency, Features, Package as CargoPackage, QueryKind, Source,
+use cargo::{
+    core::{Dependency, Features, Package as CargoPackage},
+    sources::source::{MaybePackage, QueryKind, Source},
 };
 pub use cargo::{
     core::{PackageId, SourceId},

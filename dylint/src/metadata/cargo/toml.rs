@@ -1,6 +1,6 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/master/src/cargo/util/toml/mod.rs (version 0.73.1) with
-// adjustments to make some things public.
+// https://github.com/rust-lang/cargo/blob/0.75.0/src/cargo/util/toml/mod.rs with adjustments to
+// make some things public.
 // smoelius: I experimented with creating a reduced Cargo crate that included just this module and
 // the things it depends upon. Such a crate could reduce build times and incur less of a maintenance
 // burden than this file. However, Cargo's modules appear to be highly interdependent, as can be
@@ -64,7 +64,6 @@ impl<'a, 'b> Context<'a, 'b> {
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::ffi::OsStr;
 use std::fmt::{self, Display, Write};
-use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::str::{self, FromStr};
@@ -74,12 +73,11 @@ use cargo_platform::Platform;
 use cargo_util::paths;
 // use itertools::Itertools;
 // use lazycell::LazyCell;
-use log::{debug, trace};
-use semver::{self, VersionReq};
-use serde::de::IntoDeserializer as _;
-use serde::de::{self, Unexpected};
+use serde::de::{self, IntoDeserializer as _, Unexpected};
 use serde::ser;
 use serde::{Deserialize, Serialize};
+use serde_untagged::UntaggedEnumVisitor;
+// use tracing::{debug, trace};
 // use url::Url;
 
 use crate::core::compiler::{CompileKind, CompileTarget};
@@ -94,7 +92,8 @@ use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
 use crate::util::errors::{CargoResult, ManifestError};
 use crate::util::interning::InternedString;
 use crate::util::{
-    self, config::ConfigRelativePath, validate_package_name, Config, IntoUrl, VersionReqExt,
+    self, config::ConfigRelativePath, validate_package_name, Config, IntoUrl, OptVersionReq,
+    RustVersion,
 };
 
 /// Warn about paths that have been deprecated and may conflict.
@@ -191,32 +190,11 @@ impl<'de> de::Deserialize<'de> for StringOrVec {
     where
         D: de::Deserializer<'de>,
     {
-        struct Visitor;
-
-        impl<'de> de::Visitor<'de> for Visitor {
-            type Value = StringOrVec;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-                formatter.write_str("string or list of strings")
-            }
-
-            fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(StringOrVec(vec![s.to_string()]))
-            }
-
-            fn visit_seq<V>(self, v: V) -> Result<Self::Value, V::Error>
-            where
-                V: de::SeqAccess<'de>,
-            {
-                let seq = de::value::SeqAccessDeserializer::new(v);
-                Vec::deserialize(seq).map(StringOrVec)
-            }
-        }
-
-        deserializer.deserialize_any(Visitor)
+        UntaggedEnumVisitor::new()
+            .expecting("string or list of strings")
+            .string(|value| Ok(StringOrVec(vec![value.to_owned()])))
+            .seq(|value| value.deserialize().map(StringOrVec))
+            .deserialize(deserializer)
     }
 }
 
@@ -446,7 +424,7 @@ impl<P: ResolveToPath + Clone> DetailedTomlDependency<P> {
             self.target.as_deref(),
         ) {
             if cx.config.cli_unstable().bindeps {
-                let artifact = Artifact::parse(artifact, is_lib, target)?;
+                let artifact = Artifact::parse(&artifact.0, is_lib, target)?;
                 if dep.kind() != DepKind::Build
                     && artifact.target() == Some(ArtifactTarget::BuildDependencyAssumeTarget)
                 {
