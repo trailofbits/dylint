@@ -77,13 +77,14 @@ To run a library's lints on a package, Dylint tries to build the package with th
 
 One way this problem can manifest itself is if you try to run one library's lints on the source code of another library. That is, if two libraries use different toolchains, they may not be applicable to each other.
 
+[How libraries are found]: #how-libraries-are-found
+[Library requirements]: #library-requirements
+[Limitations]: #limitations
 [README.md]: ../README.md
+[Utilities]: ../README.md#utilities
+[Workspace metadata]: ../README.md#workspace-metadata
 [`dylint-link`]: ../dylint-link
 [`dylint_library!`]: ../utils/linting
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 [here]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
-[how libraries are found]: #how-libraries-are-found
-[library requirements]: #library-requirements
-[limitations]: #limitations
 [utilities]: ../README.md#utilities
-[workspace metadata]: ../README.md#workspace-metadata

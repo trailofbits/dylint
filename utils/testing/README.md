@@ -102,19 +102,19 @@ report should contain a line of the form `Actual stderr saved to PATH`. Copying 
 
 Additional documentation on `compiletest_rs` can be found in [its repository].
 
+[Dylint]: https://github.com/trailofbits/dylint/tree/master
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`non_thread_safe_call_in_test`]: https://github.com/trailofbits/dylint/tree/master/examples/general/non_thread_safe_call_in_test/src/lib.rs
 [`question_mark_in_expression`]: https://github.com/trailofbits/dylint/tree/master/examples/restriction/question_mark_in_expression/Cargo.toml
-[`ui::test::example`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.example
-[`ui::test::examples`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.examples
-[`ui::test::src_base`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.src_base
-[`ui::test`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html
+[`ui::Test::example`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.example
+[`ui::Test::examples`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.examples
+[`ui::Test::src_base`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.src_base
+[`ui::Test`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html
 [`ui_test_example`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_example.html
 [`ui_test_examples`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_examples.html
 [`ui_test`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test.html
 [configurable libraries]: https://github.com/trailofbits/dylint/tree/master#configurable-libraries
 [docs.rs documentation]: https://docs.rs/dylint_testing/latest/dylint_testing/
-[dylint]: https://github.com/trailofbits/dylint/tree/master
 [examples]: https://github.com/trailofbits/dylint/tree/master/examples
 [its repository]: https://github.com/Manishearth/compiletest-rs
 

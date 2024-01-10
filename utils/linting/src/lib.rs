@@ -167,9 +167,12 @@
 //!
 //! Additional documentation on `config_or_default`, etc. can be found on [docs.rs].
 //!
-//! [`config_or_default`]: crate::config_or_default
-//! [`config_toml`]: crate::config_toml
-//! [`config`]: crate::config
+//! [Configurable libraries]: #configurable-libraries
+//! [Dylint]: https://github.com/trailofbits/dylint/tree/master
+//! [`LintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
+//! [`config_or_default`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_or_default.html
+//! [`config_toml`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_toml.html
+//! [`config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config.html
 //! [`constituent` feature]: #constituent-feature
 //! [`declare_late_lint!`, `declare_early_lint!`, `declare_pre_expansion_lint!`]: #declare_late_lint-etc
 //! [`declare_lint!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint.html
@@ -180,16 +183,13 @@
 //! [`general` library]: https://github.com/trailofbits/dylint/tree/master/examples/general/src/lib.rs
 //! [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]: #impl_late_lint-etc
 //! [`impl_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html
-//! [`init_config`]: crate::init_config
-//! [`lintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
+//! [`init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.init_config.html
 //! [`non_local_effect_before_error_return`]: https://github.com/trailofbits/dylint/tree/master/examples/general/non_local_effect_before_error_return/src/lib.rs
 //! [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 //! [`supplementary` library]: https://github.com/trailofbits/dylint/tree/master/examples/supplementary/src/lib.rs
-//! [`try_init_config`]: crate::try_init_config
-//! [configurable libraries]: #configurable-libraries
+//! [`try_init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.try_init_config.html
 //! [docs.rs documentation]: https://docs.rs/dylint_linting/latest/dylint_linting/
 //! [docs.rs]: https://docs.rs/dylint_linting/latest/dylint_linting/
-//! [dylint]: https://github.com/trailofbits/dylint/tree/master
 //! [examples]: https://github.com/trailofbits/dylint/tree/master/examples
 //! [general-purpose]: https://github.com/trailofbits/dylint/tree/master/examples/general
 //! [supplementary]: https://github.com/trailofbits/dylint/tree/master/examples/supplementary
