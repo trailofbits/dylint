@@ -32,7 +32,7 @@ if_chain = "1.0"
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-git2 = "0.17"
+git2 = "0.18"
 tempfile = "3.9"
 
 dylint_testing = { path = "../../../utils/testing" }
