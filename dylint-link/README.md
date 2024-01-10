@@ -23,7 +23,7 @@ linker = "dylint-link"
 
 If your library uses `dylint-link` and the [`dylint_library!`] macro, then all you should have to do is implement the [`register_lints`] function. See the [examples] in this repository.
 
+[Dylint]: ..
 [`dylint_library!`]: ../utils/linting
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
-[dylint]: ..
 [examples]: ../examples

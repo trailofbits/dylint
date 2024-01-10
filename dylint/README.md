@@ -188,46 +188,49 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 
 [Test coverage]
 
+[Adding a new lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md
+[Author lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md#author-lint
+[Common tools for writing lints]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/common_tools_writing_lints.md
+[Conditional compilation]: #conditional-compilation
+[Configurable libraries]: #configurable-libraries
+[Crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
+[Crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
+[Features]: #features
+[Field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
+[Guide to Rustc Development]: https://rustc-dev-guide.rust-lang.org/
+[How Dylint works]: ../docs/how_dylint_works.md
+[Library requirements]: ../docs/how_dylint_works.md#library-requirements
+[MSRV policy]: #msrv-policy
+[Method `hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.hir
+[Method `typeck_results`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#method.typeck_results
+[Quick start]: #quick-start
+[Resources]: #resources
+[Running Dylint]: #running-dylint
+[Struct `rustc_lint::LateContext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html
+[Test coverage]: https://trailofbits.github.io/dylint/coverage/index.html
+[Utilities]: #utilities
+[VS Code integration]: #vs-code-integration
+[Workspace metadata]: #workspace-metadata
+[Writing lints]: #writing-lints
+[`LateLintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
 [`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ../dylint-link
 [`dylint_library!`]: ../utils/linting
 [`dylint_linting`]: ../utils/linting
 [`env_cargo_path`]: ../examples/general/env_cargo_path
-[`latelintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
 [`non_local_effect_before_error_return`]: ../examples/general/non_local_effect_before_error_return
 [`non_thread_safe_call_in_test`]: ../examples/general/non_thread_safe_call_in_test
 [`try_io_result`]: ../examples/restriction/try_io_result
 [`ui_test`]: ../utils/testing
 [`unknown_lints`]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#unknown-lints
-[adding a new lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md
-[author lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md#author-lint
-[common tools for writing lints]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/common_tools_writing_lints.md
-[conditional compilation]: #conditional-compilation
-[configurable libraries]: #configurable-libraries
-[crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
-[crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
 [dylint/src/lib.rs]: ../dylint/src/lib.rs
 [example general-purpose lints]: ../examples/general
-[features]: #features
-[field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
 [general-purpose, example lints]: ../examples/README.md#general
 [glob]: https://docs.rs/glob/0.3.0/glob/struct.Pattern.html
-[guide to rustc development]: https://rustc-dev-guide.rust-lang.org/
-[how dylint works]: ../docs/how_dylint_works.md
+[how Dylint works]: ../docs/how_dylint_works.md
 [internal/src/examples.rs]: ../internal/src/examples.rs
-[library requirements]: ../docs/how_dylint_works.md#library-requirements
-[method `hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.hir
-[method `typeck_results`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#method.typeck_results
-[msrv policy]: #msrv-policy
-[quick start]: #quick-start
 [resources]: #resources
-[running dylint]: #running-dylint
 [rust-analyzer]: https://github.com/rust-analyzer/rust-analyzer
-[struct `rustc_lint::latecontext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html
-[test coverage]: https://trailofbits.github.io/dylint/coverage/index.html
 [toml table]: https://toml.io/en/v1.0.0#table
-[utilities]: #utilities
-[vs code integration]: #vs-code-integration
 [workspace metadata]: #workspace-metadata
-[writing lints]: #writing-lints

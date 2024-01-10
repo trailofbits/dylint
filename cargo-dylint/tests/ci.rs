@@ -212,12 +212,9 @@ fn markdown_reference_links_are_valid_and_used() {
             .captures_iter(&markdown)
             .filter_map(|captures| {
                 // smoelius: 2 because 1 is the parenthesized expression in `CODE_BLOCK`.
-                captures.get(2).map(|m| {
-                    m.as_str()
-                        .replace('\r', "")
-                        .replace('\n', " ")
-                        .to_lowercase()
-                })
+                captures
+                    .get(2)
+                    .map(|m| m.as_str().replace('\r', "").replace('\n', " "))
             })
             .collect::<Vec<_>>();
 
@@ -225,14 +222,17 @@ fn markdown_reference_links_are_valid_and_used() {
         // eventually be removed. `prettier` 2.8.2 stopped lowercasing link labels. But as of this
         // writing, the latest version of the Prettier VS Code extension (9.10.4) still appears to
         // use `prettier` 2.8.0.
+        // smoelius: The Prettier VS Code extension was updated. The use of `to_lowercase` is no
+        // longer necessary.
         //
         // References:
         // - https://github.com/prettier/prettier/pull/13155
         // - https://github.com/prettier/prettier/blob/main/CHANGELOG.md#282
         // - https://github.com/prettier/prettier-vscode/blob/main/CHANGELOG.md#9103
+        // - https://github.com/prettier/prettier-vscode/blob/main/CHANGELOG.md#9110
         let mut links = link_re
             .captures_iter(&markdown)
-            .map(|captures| captures.get(1).unwrap().as_str().to_lowercase())
+            .map(|captures| captures.get(1).unwrap().as_str())
             .collect::<Vec<_>>();
 
         refs.sort_unstable();

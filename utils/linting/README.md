@@ -173,6 +173,9 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint
 
 Additional documentation on `config_or_default`, etc. can be found on [docs.rs].
 
+[Configurable libraries]: #configurable-libraries
+[Dylint]: https://github.com/trailofbits/dylint/tree/master
+[`LintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
 [`config_or_default`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_or_default.html
 [`config_toml`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_toml.html
 [`config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config.html
@@ -187,15 +190,12 @@ Additional documentation on `config_or_default`, etc. can be found on [docs.rs].
 [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]: #impl_late_lint-etc
 [`impl_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html
 [`init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.init_config.html
-[`lintpass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
 [`non_local_effect_before_error_return`]: https://github.com/trailofbits/dylint/tree/master/examples/general/non_local_effect_before_error_return/src/lib.rs
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
 [`supplementary` library]: https://github.com/trailofbits/dylint/tree/master/examples/supplementary/src/lib.rs
 [`try_init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.try_init_config.html
-[configurable libraries]: #configurable-libraries
 [docs.rs documentation]: https://docs.rs/dylint_linting/latest/dylint_linting/
 [docs.rs]: https://docs.rs/dylint_linting/latest/dylint_linting/
-[dylint]: https://github.com/trailofbits/dylint/tree/master
 [examples]: https://github.com/trailofbits/dylint/tree/master/examples
 [general-purpose]: https://github.com/trailofbits/dylint/tree/master/examples/general
 [supplementary]: https://github.com/trailofbits/dylint/tree/master/examples/supplementary

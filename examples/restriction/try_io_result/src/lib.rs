@@ -44,7 +44,7 @@ dylint_linting::declare_late_lint! {
     /// }
     /// ```
     ///
-    /// [error handling survey]: https://blog.yoshuawuyts.com/error-handling-survey/
+    /// [Error Handling Survey]: https://blog.yoshuawuyts.com/error-handling-survey/
     pub TRY_IO_RESULT,
     Warn,
     "`?` operators applied to `std::io::Result`"
