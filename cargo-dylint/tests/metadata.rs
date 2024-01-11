@@ -25,7 +25,6 @@ fn invalid_pattern() {
             .unwrap();
 
         let mut file = OpenOptions::new()
-            .write(true)
             .append(true)
             .open(tempdir.path().join("Cargo.toml"))
             .unwrap();
@@ -73,7 +72,6 @@ fn list() {
         .unwrap();
 
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();
@@ -112,7 +110,6 @@ fn metadata_change() {
     isolate(tempdir.path()).unwrap();
 
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();
@@ -174,7 +171,6 @@ fn nonexistent_git_library() {
         .unwrap();
 
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();
@@ -229,7 +225,6 @@ fn nonexistent_path_library() {
     isolate(tempdir.path()).unwrap();
 
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();
@@ -285,7 +280,6 @@ fn rustflags_change() {
     isolate(tempdir.path()).unwrap();
 
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();
@@ -330,7 +324,6 @@ fn unknown_keys() {
         .unwrap();
 
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();

@@ -41,7 +41,6 @@ pub fn new_template(to: &Path) -> Result<()> {
 pub fn isolate(path: &Path) -> Result<()> {
     let manifest = path.join("Cargo.toml");
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .open(&manifest)
         .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
@@ -63,7 +62,6 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
     let manifest = path.join("Cargo.toml");
 
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .open(&manifest)
         .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
