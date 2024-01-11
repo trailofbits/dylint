@@ -131,7 +131,7 @@ version = "2.5.0"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.18.1",
- "clippy_config 0.1.76",
+ "clippy_config",
  "clippy_lints",
  "clippy_utils",
  "dylint",
@@ -142,16 +142,6 @@ dependencies = [
  "log",
  "serde_json",
  "tempfile",
-]
-
-[[package]]
-name = "clippy_config"
-version = "0.1.76"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=edb720b199083f4107b858a8761648065bf38d86#edb720b199083f4107b858a8761648065bf38d86"
-dependencies = [
- "rustc-semver",
- "serde",
- "toml 0.7.8",
 ]
 
 [[package]]
@@ -171,7 +161,7 @@ source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661be
 dependencies = [
  "arrayvec",
  "cargo_metadata 0.15.4",
- "clippy_config 0.1.77",
+ "clippy_config",
  "clippy_utils",
  "declare_clippy_lint",
  "itertools",
@@ -192,7 +182,7 @@ version = "0.1.77"
 source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661bee3876e0228ddfeb6b8b#ac4c2094a6030530661bee3876e0228ddfeb6b8b"
 dependencies = [
  "arrayvec",
- "clippy_config 0.1.77",
+ "clippy_config",
  "itertools",
  "rustc-semver",
 ]
