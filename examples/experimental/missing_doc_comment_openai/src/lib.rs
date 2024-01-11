@@ -181,9 +181,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
         }
 
         let doc_comment = std::env::var(OPENAI_API_KEY).ok().and_then(|api_key| {
-            let Some(snippet) = snippet_opt(cx, item.span) else {
-                return None;
-            };
+            let snippet = snippet_opt(cx, item.span)?;
 
             let request = self.request_from_snippet(&snippet);
 

@@ -74,7 +74,6 @@ fn fix() {
 fn append_workspace_metadata(path: &Path) -> Result<()> {
     let manifest = path.join("Cargo.toml");
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .open(&manifest)
         .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
