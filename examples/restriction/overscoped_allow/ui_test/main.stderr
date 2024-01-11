@@ -15,5 +15,5 @@ LL |     fn panic() {
    = help: to override `-D warnings` add `#[allow(overscoped_allow)]`
    = note: this error originates in the attribute macro `test` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: aborting due to previous error
+error: aborting due to 1 previous error
 

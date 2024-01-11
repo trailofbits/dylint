@@ -8,5 +8,5 @@ LL |     if !std::fs::read_to_string("Cargo.toml")?.is_empty() {
    = note: `-D question-mark-in-expression` implied by `-D warnings`
    = help: to override `-D warnings` add `#[allow(question_mark_in_expression)]`
 
-error: aborting due to previous error
+error: aborting due to 1 previous error
 

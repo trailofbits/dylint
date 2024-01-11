@@ -122,7 +122,8 @@ pub fn register_lints(sess: &Session, lint_store: &mut LintStore) {
     let diagnostics = match read_diagnostics() {
         Ok(diagnostics) => diagnostics,
         Err(error) => {
-            sess.warn(format!("`overscoped_allow` is disabled: {error:?}"));
+            sess.dcx()
+                .warn(format!("`overscoped_allow` is disabled: {error:?}"));
             Vec::new()
         }
     };
@@ -393,7 +394,7 @@ fn local_path_from_span(cx: &LateContext<'_>, span: Span) -> Option<PathBuf> {
 }
 
 fn is_extern_crate_test(cx: &LateContext<'_>, hir_id: HirId) -> bool {
-    let node = cx.tcx.hir().get(hir_id);
+    let node = cx.tcx.hir_node(hir_id);
     if let Node::Item(Item {
         kind: ItemKind::ExternCrate(None),
         ident,
@@ -408,7 +409,7 @@ fn is_extern_crate_test(cx: &LateContext<'_>, hir_id: HirId) -> bool {
 
 // smoelius: `can_have_attrs` is not complete.
 fn can_have_attrs(cx: &LateContext<'_>, hir_id: HirId) -> bool {
-    let node = cx.tcx.hir().get(hir_id);
+    let node = cx.tcx.hir_node(hir_id);
 
     if matches!(node, Node::Item(_) | Node::TraitItem(_) | Node::ImplItem(_)) {
         return true;
