@@ -30,6 +30,7 @@ for EXAMPLE in examples/general examples/supplementary examples/restriction exam
         $CARGO_DYLINT upgrade "$EXAMPLE" 2>/dev/null || true
 
         REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
+        sed -i "s/^\(clippy_config\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
         sed -i "s/^\(clippy_lints\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
 
         # smoelius: If `clippy`'s `rust-toolchain` file changed, upgrade `straggler` to the Rust
