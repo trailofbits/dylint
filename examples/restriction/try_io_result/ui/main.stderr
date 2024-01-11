@@ -8,5 +8,5 @@ LL |     let _ = File::open("/dev/null")?;
    = note: `-D try-io-result` implied by `-D warnings`
    = help: to override `-D warnings` add `#[allow(try_io_result)]`
 
-error: aborting due to previous error
+error: aborting due to 1 previous error
 

@@ -68,7 +68,7 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
                 .hir()
                 .parent_iter(hir_id)
                 .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion());
-            let node = cx.tcx.hir().get(hir_id);
+            let node = cx.tcx.hir_node(hir_id);
             if !matches!(
                 node,
                 Node::Item(Item {
@@ -94,7 +94,7 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
                         syms_mod: &syms_mod,
                     };
                     if let Some(enclosing_scope_hir_id) = enclosing_scope_hir_id {
-                        let node = cx.tcx.hir().find(enclosing_scope_hir_id).unwrap();
+                        let node = cx.tcx.hir_node(enclosing_scope_hir_id);
                         visitor.visit_scope(node);
                         current_hir_id = enclosing_scope_hir_id;
                     } else {
@@ -235,7 +235,7 @@ fn is_local(res: Res) -> bool {
 }
 
 fn get_owner(tcx: TyCtxt<'_>, hir_id: HirId) -> Option<OwnerNode<'_>> {
-    std::iter::once(tcx.hir().get(hir_id))
+    std::iter::once(tcx.hir_node(hir_id))
         .chain(tcx.hir().parent_iter(hir_id).map(|(_, node)| node))
         .find_map(Node::as_owner)
 }

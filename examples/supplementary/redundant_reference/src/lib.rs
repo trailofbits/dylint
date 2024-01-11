@@ -162,8 +162,8 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
         {
             let item = cx.tcx.hir().expect_item(*local_def_id);
             if_chain! {
-                if let ItemKind::Struct(VariantData::Struct(field_defs, _), _) = &item.kind;
-                if let Some(field_def) = field_defs
+                if let ItemKind::Struct(VariantData::Struct{fields, ..}, _) = &item.kind;
+                if let Some(field_def) = fields
                     .iter()
                     .find(|field_def| field_def.ident == *field);
                 let field_def_local_def_id = field_def.def_id;
@@ -217,7 +217,6 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                             diag.help(format!(
                                 "consider storing a copy of `.{field}.{subfield}`{lifetime_help}"
                             ));
-                            diag
                         },
                     );
                 }

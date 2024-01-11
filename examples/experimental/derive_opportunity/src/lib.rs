@@ -360,7 +360,11 @@ fn implements_trait_with_bounds<'tcx>(
     ];
     if let ty::Adt(adt_def, _) = ty.kind() {
         let param_env = param_env_with_bounds(cx.tcx, adt_def.did(), trait_id);
-        implements_trait_with_env(cx.tcx, param_env, ty, trait_id, &args)
+        // smoelius: The decision to pass `adt_def.did()` as the `callee_id` argument is based on
+        // the following, but I am not sure it is the correct choice:
+        // https://github.com/rust-lang/rust-clippy/blob/782520088f9c5a0274459060a6fdcd41301f35e2/clippy_lints/src/derive.rs#L453
+        // See also: https://github.com/rust-lang/rust/pull/118661#discussion_r1449013176
+        implements_trait_with_env(cx.tcx, param_env, ty, trait_id, adt_def.did(), &args)
     } else {
         implements_trait(cx, ty, trait_id, &args)
     }

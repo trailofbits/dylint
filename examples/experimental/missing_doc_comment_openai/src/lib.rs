@@ -131,7 +131,7 @@ impl MissingDocCommentOpenai {
 impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         if std::env::var(OPENAI_API_KEY).is_err() {
-            cx.sess().warn(format!(
+            cx.sess().dcx().warn(format!(
                 "`missing_doc_comment_openai` suggestions are disabled because environment \
                  variable `{OPENAI_API_KEY}` is not set"
             ));
@@ -190,7 +190,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
             let response = match send_request(&api_key, &request) {
                 Ok(response) => response,
                 Err(error) => {
-                    cx.sess().span_warn(fn_sig_span, error.to_string());
+                    cx.sess().dcx().span_warn(fn_sig_span, error.to_string());
                     return None;
                 }
             };
@@ -200,7 +200,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
                 .first()
                 .and_then(|choice| extract_doc_comment(&choice.text))
                 .or_else(|| {
-                    cx.sess().span_warn(
+                    cx.sess().dcx().span_warn(
                         fn_sig_span,
                         format!("Could not extract doc comment from response: {response:#?}",),
                     );

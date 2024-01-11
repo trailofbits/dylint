@@ -8,5 +8,5 @@ LL |     let _ = std::fs::write("x", vec![0]);
    = note: `-D unnecessary-conversion-for-trait` implied by `-D warnings`
    = help: to override `-D warnings` add `#[allow(unnecessary_conversion_for_trait)]`
 
-error: aborting due to previous error
+error: aborting due to 1 previous error
 

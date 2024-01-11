@@ -13,5 +13,5 @@ LL |             self.bar.qux
    = note: `-D redundant-reference` implied by `-D warnings`
    = help: to override `-D warnings` add `#[allow(redundant_reference)]`
 
-error: aborting due to previous error
+error: aborting due to 1 previous error
 

@@ -34,8 +34,8 @@ pub fn check_inherents(cx: &LateContext<'_>) {
             return false;
         }
 
-        let input_ty = cx.tcx.erase_late_bound_regions(fn_sig.input(0));
-        let output_ty = cx.tcx.erase_late_bound_regions(fn_sig.output());
+        let input_ty = fn_sig.input(0).skip_binder();
+        let output_ty = fn_sig.output().skip_binder();
 
         if let Some(input_item_ty) = implements_trait_with_item(cx, input_ty, into_iterator_def_id)
         {

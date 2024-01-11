@@ -159,7 +159,7 @@ fn peel_try_unwrap_and_similar<'tcx>(
             ExprKind::Match(scrutinee, _, MatchSource::TryDesugar(_)) => {
                 if let ExprKind::Call(
                     Expr {
-                        kind: ExprKind::Path(QPath::LangItem(LangItem::TryTraitBranch, _, _)),
+                        kind: ExprKind::Path(QPath::LangItem(LangItem::TryTraitBranch, _)),
                         ..
                     },
                     [arg],

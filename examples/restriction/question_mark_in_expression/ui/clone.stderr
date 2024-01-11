@@ -8,5 +8,5 @@ LL |     let _ = git2::Repository::clone(DYLINT_URL, tempfile::tempdir()?.path()
    = note: `-D question-mark-in-expression` implied by `-D warnings`
    = help: to override `-D warnings` add `#[allow(question_mark_in_expression)]`
 
-error: aborting due to previous error
+error: aborting due to 1 previous error
 

@@ -88,7 +88,7 @@ fn get_filtered_ancestor<'hir>(
             if_chain! {
                 if let ExprKind::Call(callee, _) = expr.kind;
                 if let ExprKind::Path(path) = &callee.kind;
-                if let QPath::LangItem(LangItem::IntoIterIntoIter, _, _) = path;
+                if let QPath::LangItem(LangItem::IntoIterIntoIter, _) = path;
                 then {
                     child_hir_id = hir_id;
                     continue;
