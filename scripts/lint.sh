@@ -78,9 +78,11 @@ for FLAGS in "--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS" '--lib c
     COMMAND="$CARGO_DYLINT dylint $FLAGS -- --all-features --tests"
 
     for DIR in $DIRS; do
+        echo "::group::$DIR"
         pushd "$DIR"
         bash -c "$COMMAND"
         popd
+        echo '::endgroup::'
     done
 
     force_check
@@ -96,9 +98,11 @@ for FLAGS in "--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS" '--lib c
     find . -name warnings.json -delete
 
     for DIR in $DIRS; do
+        echo "::group::$DIR"
         pushd "$DIR"
         bash -c "$COMMAND --message-format=json" >> warnings.json
         popd
+        echo '::endgroup::'
     done
 
     force_check
@@ -111,8 +115,10 @@ for FLAGS in "--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS" '--lib c
     COMMAND="$CARGO_DYLINT dylint $FLAGS --lib overscoped_allow -- --all-features --tests"
 
     for DIR in $DIRS; do
+        echo "::group::$DIR"
         pushd "$DIR"
         bash -c "$COMMAND"
         popd
+        echo '::endgroup::'
     done
 done
