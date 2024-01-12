@@ -2,7 +2,7 @@
 
 ## 2.6.0
 
-- Add experimental `metadata-cli` feature ([#926](https://github.com/trailofbits/dylint/pull/926) and [#976](https://github.com/trailofbits/dylint/pull/976))
+- Add experimental `metadata-cli` feature ([#926](https://github.com/trailofbits/dylint/pull/926), [#976](https://github.com/trailofbits/dylint/pull/976), and [#1008](https://github.com/trailofbits/dylint/pull/1008))
 
 ## 2.5.0
 
