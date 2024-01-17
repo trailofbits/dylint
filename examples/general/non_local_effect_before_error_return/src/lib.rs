@@ -150,22 +150,21 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             |path, contributing_calls, span| {
                 // smoelius: The path is from a return to the start block.
                 for (i, &index) in path.iter().enumerate() {
-                    let basic_block = &mir.basic_blocks[index];
-
                     if_chain! {
                         if !contributing_calls.contains(index);
-                        if let Some(call_span) = is_call_with_mut_ref(cx, mir, &path[i..]);
+                        if let Some(func_and_span) = is_call_with_mut_ref(cx, mir, &path[i..]);
                         then {
                             span_lint_and_then(
                                 cx,
                                 NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                                call_span,
-                                "call with mutable reference before error return",
+                                func_and_span.1,
+                                format!("call to {} with mutable reference before error return", func_and_span.0).as_str(),
                                 error_note(span),
                             );
                         }
                     }
 
+                    let basic_block = &mir.basic_blocks[index];
                     for statement in basic_block.statements.iter().rev() {
                         if let Some(assign_span) = is_deref_assign(statement) {
                             span_lint_and_then(
@@ -200,11 +199,13 @@ fn is_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
     }
 }
 
+struct FunctionStringAndSpan(String, Span);
+
 fn is_call_with_mut_ref<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
-) -> Option<Span> {
+) -> Option<FunctionStringAndSpan> {
     let index = path[0];
     let basic_block = &mir[index];
     let terminator = basic_block.terminator();
@@ -223,7 +224,8 @@ fn is_call_with_mut_ref<'tcx>(
         if locals.iter().any(|local| is_mut_ref_arg(mir, local))
             || constants.iter().any(|constant| is_const_ref(constant));
         then {
-            Some(*fn_span)
+            let func_string = format!("{:#?}", func);
+            Some(FunctionStringAndSpan(func_string, *fn_span))
         } else {
             None
         }

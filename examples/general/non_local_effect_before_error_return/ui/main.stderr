@@ -12,7 +12,7 @@ LL |     Err(VarError::NotPresent)
    = note: `-D non-local-effect-before-error-return` implied by `-D warnings`
    = help: to override `-D warnings` add `#[allow(non_local_effect_before_error_return)]`
 
-error: call with mutable reference before error return
+error: call to std::vec::Vec::<u32>::push with mutable reference before error return
   --> $DIR/main.rs:28:8
    |
 LL |     xs.push(0);
@@ -36,7 +36,7 @@ note: error is determined here
 LL |     let _ = var("X")?;
    |             ^^^^^^^^^
 
-error: call with mutable reference before error return
+error: call to std::vec::Vec::<u32>::push with mutable reference before error return
   --> $DIR/main.rs:39:8
    |
 LL |     xs.push(0);
@@ -60,7 +60,7 @@ note: error is determined here
 LL |     let result = Err(VarError::NotPresent);
    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: call with mutable reference before error return
+error: call to std::vec::Vec::<u32>::push with mutable reference before error return
   --> $DIR/main.rs:64:8
    |
 LL |     xs.push(0);
@@ -84,7 +84,7 @@ note: error is determined here
 LL |     match result {
    |     ^^^^^^^^^^^^
 
-error: call with mutable reference before error return
+error: call to std::vec::Vec::<u32>::push with mutable reference before error return
   --> $DIR/main.rs:106:16
    |
 LL |             xs.push(0);
@@ -120,7 +120,7 @@ note: error is determined here
 LL |         Err(Error::Two)
    |         ^^^^^^^^^^^^^^^
 
-error: call with mutable reference before error return
+error: call to bitflags::_::<impl bitflags::Flags>::insert with mutable reference before error return
   --> $DIR/main.rs:185:15
    |
 LL |         flags.insert(flag);
@@ -132,7 +132,7 @@ note: error is determined here
 LL |             return Err(());
    |                    ^^^^^^^
 
-error: call with mutable reference before error return
+error: call to std::string::String::push with mutable reference before error return
   --> $DIR/main.rs:202:11
    |
 LL |         s.push('x');
@@ -144,7 +144,7 @@ note: error is determined here
 LL |         Err(())
    |         ^^^^^^^
 
-error: call with mutable reference before error return
+error: call to std::process::Command::env::<&str, &str> with mutable reference before error return
   --> $DIR/main.rs:212:10
    |
 LL |         .env("RUST_LOG", "debug")
