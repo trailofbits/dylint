@@ -224,7 +224,7 @@ fn is_call_with_mut_ref<'tcx>(
         if locals.iter().any(|local| is_mut_ref_arg(mir, local))
             || constants.iter().any(|constant| is_const_ref(constant));
         then {
-            let func_string = format!("{:#?}", func);
+            let func_string = format!("{func:#?}");
             Some(FunctionStringAndSpan(func_string, *fn_span))
         } else {
             None
