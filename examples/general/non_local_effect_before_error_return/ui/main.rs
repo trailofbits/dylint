@@ -253,3 +253,13 @@ mod downcast {
         Ok(())
     }
 }
+
+use derivative::Derivative;
+
+#[derive(Derivative)]
+#[derivative(Debug)]
+struct Foo {
+    foo: u8,
+    #[derivative(Debug = "ignore")]
+    bar: u8,
+}

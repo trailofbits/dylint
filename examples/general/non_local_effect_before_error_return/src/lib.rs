@@ -152,13 +152,13 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
                 for (i, &index) in path.iter().enumerate() {
                     if_chain! {
                         if !contributing_calls.contains(index);
-                        if let Some(func_and_span) = is_call_with_mut_ref(cx, mir, &path[i..]);
+                        if let Some((func, func_span)) = is_call_with_mut_ref(cx, mir, &path[i..]);
                         then {
                             span_lint_and_then(
                                 cx,
                                 NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                                func_and_span.1,
-                                format!("call to {} with mutable reference before error return", func_and_span.0).as_str(),
+                                func_span,
+                                &format!("call to `{:?}` with mutable reference before error return", func),
                                 error_note(span),
                             );
                         }
@@ -199,13 +199,11 @@ fn is_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
     }
 }
 
-struct FunctionStringAndSpan(String, Span);
-
 fn is_call_with_mut_ref<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
-) -> Option<FunctionStringAndSpan> {
+) -> Option<(&'tcx Operand<'tcx>, Span)> {
     let index = path[0];
     let basic_block = &mir[index];
     let terminator = basic_block.terminator();
@@ -224,8 +222,7 @@ fn is_call_with_mut_ref<'tcx>(
         if locals.iter().any(|local| is_mut_ref_arg(mir, local))
             || constants.iter().any(|constant| is_const_ref(constant));
         then {
-            let func_string = format!("{func:#?}");
-            Some(FunctionStringAndSpan(func_string, *fn_span))
+            Some((func, *fn_span))
         } else {
             None
         }
