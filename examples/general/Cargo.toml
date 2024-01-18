@@ -24,6 +24,9 @@ non_local_effect_before_error_return = { path = "non_local_effect_before_error_r
 non_thread_safe_call_in_test = { path = "non_thread_safe_call_in_test", features = [
     "rlib",
 ] }
+suspicious_saturating_op = { path = "suspicious_saturating_op", features = [
+    "rlib",
+] }
 wrong_serialize_struct_arg = { path = "wrong_serialize_struct_arg", features = [
     "rlib",
 ] }
