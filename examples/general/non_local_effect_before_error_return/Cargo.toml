@@ -25,6 +25,7 @@ bitflags = "2.4"
 once_cell = "1.19"
 
 dylint_testing = { path = "../../../utils/testing" }
+derivative = "2.2.0"
 
 [features]
 rlib = ["dylint_linting/constituent"]
