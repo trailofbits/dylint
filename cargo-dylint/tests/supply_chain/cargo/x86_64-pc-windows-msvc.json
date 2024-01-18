@@ -1207,6 +1207,13 @@
         "kind": "user",
         "login": "cuviper",
         "name": "Josh Stone"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/3820879?v=4",
+        "id": 1442,
+        "kind": "user",
+        "login": "jswrenn",
+        "name": "Jack Wrenn"
       }
     ],
     "elliptic-curve": [
