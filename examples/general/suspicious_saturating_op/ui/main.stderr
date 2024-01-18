@@ -1,0 +1,10 @@
+warning: suspicious use of `saturating_add` followed by `saturating_sub`
+  --> $DIR/main.rs:5:9
+   |
+LL |     x = x.saturating_add(y).saturating_sub(z);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(suspicious_saturating_op)]` on by default
+
+warning: 1 warning emitted
+
