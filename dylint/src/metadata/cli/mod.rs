@@ -25,6 +25,7 @@ use std::{
     ffi::{OsStr, OsString},
     fs::{create_dir_all, read_dir, remove_dir_all, write},
     path::{Path, PathBuf},
+    process::{Output, Stdio},
 };
 use tempfile::{tempdir, Builder, TempDir};
 use url::Url;
@@ -148,18 +149,34 @@ fn git_dependency_root(url: &str, details: &DetailedTomlDependency) -> Result<Pa
         BTreeMap::new()
     };
 
-    cargo_fetch(package.path())?;
+    let output = cargo_fetch(package.path())?;
 
     // smoelius: `cargo metadata` will fail if `cargo fetch` had to create a new checkouts
     // subdirectory.
     let metadata = cargo_metadata(package.path()).ok();
 
-    let path = find_accessed_subdir(
-        &dep_name,
-        &checkout_path,
-        &injected_dependencies,
-        metadata.as_ref(),
-    )?;
+    let path = match (
+        find_accessed_subdir(
+            &dep_name,
+            &checkout_path,
+            &injected_dependencies,
+            metadata.as_ref(),
+        ),
+        output.status.success(),
+    ) {
+        (Ok(path), _) => Ok(path),
+        (Err(err), true) => Err(err),
+        (Err(err), false) => Err(err).with_context(|| {
+            format!(
+                "fetching packages failed\nstdout: {:?}\nstderr: {:?}",
+                String::from_utf8(output.stdout).unwrap_or_default(),
+                dummy_dependency_free_suffix(
+                    &dep_name,
+                    &String::from_utf8(output.stderr).unwrap_or_default()
+                )
+            )
+        }),
+    }?;
 
     Ok(path.to_path_buf())
 }
@@ -239,19 +256,22 @@ fn inject_dummy_dependencies(
     Ok(injected_dependencies)
 }
 
-fn cargo_fetch(path: &Path) -> Result<()> {
+fn cargo_fetch(path: &Path) -> Result<Output> {
     // smoelius: `cargo fetch` could fail, e.g., if a new checkouts subdirectory had to be created.
     // But the command should still be executed.
     // smoelius: Since stdout and stderr are captured, there is no need to use `.quiet(true)`.
-    let _output = dylint_internal::cargo::fetch("dummy package")
+    // smoelius: We still want to hide the "Fetching ..." message, though.
+    dylint_internal::cargo::fetch("dummy package")
+        .quiet(dylint_internal::cargo::Quiet::MESSAGE)
         .stable(true)
         .build()
         .args([
             "--manifest-path",
             &path.join("Cargo.toml").to_string_lossy(),
         ])
-        .logged_output(false)?;
-    Ok(())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .logged_output(false)
 }
 
 fn cargo_metadata(path: &Path) -> Result<Metadata> {
@@ -348,4 +368,15 @@ fn for_each_subdir(
         f(file_name, &path)?;
     }
     Ok(())
+}
+
+fn dummy_dependency_free_suffix(dep_name: &str, s: &str) -> String {
+    // smoelius: The `{..}` are a hack to prevent triggering `misleading_variable_name`.
+    let lines = { s.split_inclusive('\n') };
+    if let Some(i) = lines.clone().rev().position(|line| line.contains(dep_name)) {
+        let n = lines.clone().count();
+        lines.skip(n - i).collect()
+    } else {
+        s.to_owned()
+    }
 }
