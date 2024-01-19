@@ -158,7 +158,7 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
                                 cx,
                                 NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
                                 func_span,
-                                &format!("call to `{:?}` with mutable reference before error return", func),
+                                &format!("call to `{func:?}` with mutable reference before error return"),
                                 error_note(span),
                             );
                         }
