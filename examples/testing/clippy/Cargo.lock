@@ -321,6 +321,7 @@ version = "2.6.0"
 dependencies = [
  "ansi_term",
  "anyhow",
+ "bitflags 2.4.1",
  "cargo_metadata 0.18.1",
  "git2",
  "home",

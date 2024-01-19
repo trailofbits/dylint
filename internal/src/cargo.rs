@@ -1,6 +1,7 @@
 use crate::CommandExt;
 use ansi_term::Style;
 use anyhow::{anyhow, ensure, Result};
+use bitflags::bitflags;
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
 use is_terminal::IsTerminal;
 use once_cell::sync::Lazy;
@@ -22,6 +23,23 @@ static STABLE_CARGO: Lazy<PathBuf> = Lazy::new(|| {
     PathBuf::from(stdout.trim_end())
 });
 
+bitflags! {
+    pub struct Quiet: u8 {
+        const MESSAGE = 1 << 0;
+        const STDERR = 1 << 1;
+    }
+}
+
+impl From<bool> for Quiet {
+    fn from(value: bool) -> Self {
+        if value {
+            Self::all()
+        } else {
+            Self::empty()
+        }
+    }
+}
+
 /// A `cargo` command builder
 ///
 /// Note that [`std::process::Command`]is itself a builder. So technically that makes this a
@@ -30,8 +48,8 @@ pub struct Builder {
     subcommand: String,
     verb: String,
     description: String,
+    quiet: Quiet,
     stable: bool,
-    quiet: bool,
 }
 
 #[must_use]
@@ -80,15 +98,16 @@ impl Builder {
             subcommand: subcommand.to_owned(),
             verb: verb.to_owned(),
             description: description.to_owned(),
-            quiet: false,
+            quiet: Quiet::empty(),
             stable: false,
         }
     }
 
     /// Whether to allow the command to write to standard error.
-    pub fn quiet(&mut self, value: bool) -> &mut Self {
+    pub fn quiet(&mut self, value: impl Into<Quiet>) -> &mut Self {
+        let value = value.into();
         // smoelius: `cargo check` and `cargo fix` are never silenced.
-        if value {
+        if !value.is_empty() {
             assert!(!matches!(self.subcommand.as_str(), "check" | "fix"));
         }
         self.quiet = value;
@@ -104,7 +123,7 @@ impl Builder {
 
     /// Consumes the builder and returns a [`std::process::Command`].
     pub fn build(&mut self) -> Command {
-        if !self.quiet {
+        if !self.quiet.contains(Quiet::MESSAGE) {
             // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
             let message = format!("{} {}", self.verb, self.description);
             std::io::stderr()
@@ -137,7 +156,7 @@ impl Builder {
             command.envs(vec![(crate::env::PATH, new_path)]);
         }
         command.args([&self.subcommand]);
-        if self.quiet {
+        if self.quiet.contains(Quiet::STDERR) {
             command.stderr(Stdio::null());
         }
         command
