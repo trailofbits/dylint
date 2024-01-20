@@ -1,6 +1,6 @@
 {
   "httpHeaders": [
-    { "urls": ["https://crates.io"], "headers": { "Accept": "text/html" } }
+    { "urls": ["https://crates.io"], "headers": { "Accept": "application/vnd.github+json, text/html" } }
   ],
   "ignorePatterns": [
     {
