@@ -1,6 +1,7 @@
 {
   "httpHeaders": [
-    { "urls": ["https://crates.io"], "headers": { "Accept": "text/html" } }
+    { "urls": ["https://crates.io"], "headers": { "Accept": "text/html" } },
+    { "urls": ["https://github.com"], "headers": { "Accept": "text/html" } }
   ],
   "ignorePatterns": [
     {
