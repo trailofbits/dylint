@@ -127,6 +127,7 @@ jobs:
           cargo install cargo-supply-chain   || true
           cargo install cargo-udeps --locked || true
           cargo install cargo-unmaintained   || true
+          cargo install group-runner  || true
 
       - name: Free up space on Ubuntu
         if: ${{ matrix.environment == 'ubuntu-latest' }}
@@ -144,19 +145,19 @@ jobs:
           fi
           if [[ '${{ matrix.package }}' != 'other' ]]; then
             if [[ '${{ matrix.package }}' == 'cargo-dylint-cli' ]]; then
-              cargo test -p cargo-dylint --no-default-features --features=metadata-cli -- --nocapture
+              cargo test -p cargo-dylint --no-default-features --features=metadata-cli --config "$GROUP_RUNNER" -- --nocapture
             else
-              cargo test -p '${{ matrix.package }}' --all-features -- --nocapture
+              cargo test -p '${{ matrix.package }}' --all-features --config "$GROUP_RUNNER" -- --nocapture
             fi
           else
-            cargo test --workspace --exclude cargo-dylint --exclude examples --all-features -- --nocapture
+            cargo test --workspace --exclude cargo-dylint --exclude examples --all-features --config "$GROUP_RUNNER" -- --nocapture
 
             pushd driver
-            cargo test --all-features -- --nocapture
+            cargo test --all-features --config "$GROUP_RUNNER" -- --nocapture
             popd
 
             pushd utils/linting
-            cargo test --all-features -- --nocapture
+            cargo test --all-features --config "$GROUP_RUNNER" -- --nocapture
             popd
 
             # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
@@ -169,10 +170,12 @@ jobs:
               fi
               pushd "$X"
               sed -i.bak 's/"cdylib"/"lib"/g' Cargo.toml
-              cargo test --doc
+              cargo test --doc --config "$GROUP_RUNNER"
               popd
             done
           fi
+        env:
+          GROUP_RUNNER: target.'cfg(all())'.runner = 'group-runner'
 
   all-checks:
     needs: [lint, test]
