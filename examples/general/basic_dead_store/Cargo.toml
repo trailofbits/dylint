@@ -1,0 +1,20 @@
+[package]
+name = "basic_dead_store"
+version = "0.1.0"
+authors = ["Filipe Casal <fcasal@users.noreply.github.com>"]
+description = "A lint to find simple instances of dead stores in arrays."
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { workspace = true }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true

@@ -41,6 +41,7 @@ members = [
     "incorrect_matches_operation",
     "non_local_effect_before_error_return",
     "non_thread_safe_call_in_test",
+    "basic_dead_store",
 ]
 
 [workspace.dependencies]
