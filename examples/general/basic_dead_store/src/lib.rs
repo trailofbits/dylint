@@ -13,7 +13,8 @@ use rustc_span::Span;
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
-    /// Finds instances of dead stores in arrays: array positions that are assigned twice without a use or read in between.
+    /// Finds instances of dead stores in arrays: array positions that are assigned twice without a
+    ///  use or read in between.
     ///
     /// ### Why is this bad?
     /// A dead store might indicate a logic error in the program or an unnecessary assignment.
@@ -43,8 +44,7 @@ dylint_linting::impl_late_lint! {
 
 #[derive(Default)]
 pub struct BasicDeadStore {
-    /// Stores instances of array-indexing with literal
-    /// (array name, index, span)
+    /// Stores instances of array-indexing with literal (array name, index, span)
     arr_and_idx_vec: Vec<(String, u128, Span)>,
 }
 
@@ -68,7 +68,7 @@ impl BasicDeadStore {
     }
 }
 
-/// Checks if the given expression is an assignment to an array indexed by a literal
+/// Checks if the given expression is an assignment to an array indexed by a literal.
 /// Returns the tuple (array name, indexed position, span)
 fn is_assignment_to_array_indexed_by_literal(
     expr: &Expr,
@@ -94,7 +94,6 @@ fn is_assignment_to_array_indexed_by_literal(
 }
 
 impl<'tcx> LateLintPass<'tcx> for BasicDeadStore {
-
     // Given an Expression:
     //  - If we are looking at an array being indexed by a literal:
     //      - if we have seen this array being indexed at this literal before
