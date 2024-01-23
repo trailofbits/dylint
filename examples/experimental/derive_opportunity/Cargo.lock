@@ -175,7 +175,7 @@ dependencies = [
 
 [[package]]
 name = "derive_opportunity"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "bitflags 2.4.2",
  "clippy_utils",
@@ -248,7 +248,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -267,7 +267,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -285,7 +285,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -298,7 +298,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
