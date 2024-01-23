@@ -1,6 +1,6 @@
 [package]
 name = "unnecessary_conversion_for_trait"
-version = "2.6.0"
+version = "2.6.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for unnecessary trait-behavior-preserving calls"
 edition = "2021"

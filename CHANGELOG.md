@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.1
+
+- Fix two bugs ([#1014](https://github.com/trailofbits/dylint/issues/1014) and [#1021](https://github.com/trailofbits/dylint/issues/1021)) related to how warnings are displayed ([#1025](https://github.com/trailofbits/dylint/pull/1025))
+
 ## 2.6.0
 
 - Add experimental `metadata-cli` feature ([#926](https://github.com/trailofbits/dylint/pull/926), [#976](https://github.com/trailofbits/dylint/pull/976), and [#1008](https://github.com/trailofbits/dylint/pull/1008))
