@@ -39,7 +39,6 @@ dylint_linting::impl_late_lint! {
     Warn,
     "An array element is assigned twice without a use or read in between",
     BasicDeadStore::default()
-
 }
 
 #[derive(Default)]
