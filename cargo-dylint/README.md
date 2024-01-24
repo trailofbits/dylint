@@ -12,7 +12,7 @@ The original README follows.
 
 ---
 
-A tool for running Rust lints from dynamic libraries
+Run Rust lints from dynamic libraries
 
 ```sh
 cargo install cargo-dylint dylint-link
