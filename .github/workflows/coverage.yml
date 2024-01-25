@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ssh-key: ${{ secrets.PR_SSH_KEY }}
+          ssh-key: ${{ secrets.SSH_KEY }}
 
       - name: Install dylint-link
         run: cargo install --path ./dylint-link

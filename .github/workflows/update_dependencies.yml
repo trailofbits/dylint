@@ -22,7 +22,7 @@ jobs:
         with:
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
-          ssh-key: ${{ secrets.PR_SSH_KEY }}
+          ssh-key: ${{ secrets.SSH_KEY }}
 
       - name: Install cargo-edit
         run: cargo install cargo-edit
@@ -52,5 +52,5 @@ jobs:
         with:
           title: Update dependencies
           commit-message: Update dependencies
-          token: ${{ secrets.PR_GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_TOKEN }}
           branch-suffix: random

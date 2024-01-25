@@ -12,7 +12,7 @@ jobs:
         with:
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
-          ssh-key: ${{ secrets.PR_SSH_KEY }}
+          ssh-key: ${{ secrets.SSH_KEY }}
 
       # smoelius: The next use of `actions/cache` should match what is in ci.yml.
       - uses: actions/cache@v4
@@ -41,5 +41,5 @@ jobs:
         with:
           title: Update supply chain files
           commit-message: Update supply chain files
-          token: ${{ secrets.PR_GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_TOKEN }}
           branch-suffix: random
