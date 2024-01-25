@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
-          ssh-key: ${{ secrets.PR_SSH_KEY }}
+          ssh-key: ${{ secrets.SSH_KEY }}
 
       - name: Check updated files
         # smoelius: Dependabot should update only manifest and/or lockfiles. Hard error otherwise.
@@ -44,7 +44,7 @@ jobs:
 
       - uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.PR_GITHUB_TOKEN }}
+          github-token: ${{ secrets.REPO_TOKEN }}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,

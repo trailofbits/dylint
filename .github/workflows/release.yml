@@ -37,4 +37,4 @@ jobs:
           body_path: body.md
           draft: false
           prerelease: ${{ contains(github.ref, 'pre') || contains(github.ref, 'rc') }}
-          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_TOKEN }}
