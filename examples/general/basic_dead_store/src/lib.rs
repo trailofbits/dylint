@@ -68,7 +68,16 @@ impl BasicDeadStore {
 }
 
 /// Checks if the given expression is an assignment to an array indexed by a literal.
-/// Returns the tuple (array name, indexed position, span)
+/// This consists in starting with `expr` and checking that the other nodes in the tree are of the
+/// correct kind:
+///
+///                 assign_expr is ExprKind::Assign
+///                      |
+///                   index_expr is ExprKind::Index
+///                  /         \
+///      |start|-> expr        lit is ExprKind::Lit && LitKind::Int
+///
+/// Returns the tuple (indexed position, span)
 fn is_assignment_to_array_indexed_by_literal(
     expr: &Expr,
     tcx: &LateContext<'_>,
