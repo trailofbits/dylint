@@ -1,4 +1,4 @@
-# literal-indexed-dead-store
+# basic_dead_store
 
 ### What it does
 Finds instances of dead stores in arrays: array positions that are assigned twice without a use or read in between.
