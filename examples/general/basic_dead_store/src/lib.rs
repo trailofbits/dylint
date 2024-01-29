@@ -1,4 +1,4 @@
-#![feature(rustc_private)]
+#![feature(rustc_private, let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_ast;
@@ -75,19 +75,15 @@ fn is_assignment_to_array_indexed_by_literal(
     tcx: &LateContext<'_>,
 ) -> Option<(String, u128, Span)> {
     let index_expr = get_parent_expr(tcx, expr)?;
-    if let ExprKind::Index(array, index, _span) = index_expr.kind {
-        if array.hir_id == expr.hir_id {
-            let assign_expr = get_parent_expr(tcx, index_expr)?;
-            if let ExprKind::Assign(target, _value, assignment_span) = assign_expr.kind {
-                if target.hir_id == index_expr.hir_id {
-                    if let ExprKind::Lit(lit) = index.kind {
-                        if let LitKind::Int(index, _type) = lit.node {
-                            return Some((arr_string.to_string(), index, assignment_span));
-                        }
-                    }
-                }
-            }
-        }
+    if let ExprKind::Index(array, index, _span) = index_expr.kind
+        && array.hir_id == expr.hir_id
+        && let assign_expr = get_parent_expr(tcx, index_expr)?
+        && let ExprKind::Assign(target, _value, assignment_span) = assign_expr.kind
+        && target.hir_id == index_expr.hir_id
+        && let ExprKind::Lit(lit) = index.kind
+        && let LitKind::Int(index, _type) = lit.node
+    {
+        return Some((arr_string.to_string(), index, assignment_span));
     }
     None
 }
