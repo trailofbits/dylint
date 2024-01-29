@@ -71,9 +71,8 @@ impl BasicDeadStore {
 /// Returns the tuple (array name, indexed position, span)
 fn is_assignment_to_array_indexed_by_literal(
     expr: &Expr,
-    arr_string: &String,
     tcx: &LateContext<'_>,
-) -> Option<(String, u128, Span)> {
+) -> Option<(u128, Span)> {
     let index_expr = get_parent_expr(tcx, expr)?;
     if let ExprKind::Index(array, index, _span) = index_expr.kind
         && array.hir_id == expr.hir_id
@@ -83,7 +82,7 @@ fn is_assignment_to_array_indexed_by_literal(
         && let ExprKind::Lit(lit) = index.kind
         && let LitKind::Int(index, _type) = lit.node
     {
-        return Some((arr_string.to_string(), index, assignment_span));
+        return Some((index, assignment_span));
     }
     None
 }
@@ -102,16 +101,14 @@ impl<'tcx> LateLintPass<'tcx> for BasicDeadStore {
     ) {
         if let ExprKind::Path(ref qpath) = expr.kind {
             let array_resolution = ctx.qpath_res(qpath, expr.hir_id);
-            let arr_string = format!("{array_resolution:?}");
+            let array_name = format!("{array_resolution:?}");
 
-            if let Some((array_string, v, span)) =
-                is_assignment_to_array_indexed_by_literal(expr, &arr_string, ctx)
-            {
-                let in_common = self.get_pairs_with_same_name_idx(&array_string, &v);
+            if let Some((v, span)) = is_assignment_to_array_indexed_by_literal(expr, ctx) {
+                let in_common = self.get_pairs_with_same_name_idx(&array_name, &v);
                 if in_common.is_empty() {
                     // If there are no saved instances of this array being assigned indexed at the
                     // same index, save this instance
-                    self.arr_and_idx_vec.push((array_string, v, span));
+                    self.arr_and_idx_vec.push((array_name, v, span));
                 } else {
                     // Otherwise, we are storing again into the same index
                     // unwrap: `in_common` is guaranteed to have at least one element
@@ -128,7 +125,7 @@ impl<'tcx> LateLintPass<'tcx> for BasicDeadStore {
                 // If we are using the array in a way that is not an assignment to a certain
                 // position, then it is being used. Therefore, we need to clear all
                 // stored instances of this array
-                self.clear_stores_of(&arr_string);
+                self.clear_stores_of(&array_name);
             }
         }
     }
