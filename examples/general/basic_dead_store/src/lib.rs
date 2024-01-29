@@ -4,8 +4,8 @@
 extern crate rustc_ast;
 extern crate rustc_hir;
 extern crate rustc_span;
-use clippy_utils::{diagnostics::span_lint_and_help, get_parent_expr};
 
+use clippy_utils::{diagnostics::span_lint_and_help, get_parent_expr};
 use rustc_ast::LitKind;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
