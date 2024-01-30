@@ -49,7 +49,7 @@ pub struct BasicDeadStore {
 
 impl BasicDeadStore {
     /// Removes all stored values of the given array
-    fn clear_stores_of(&mut self, string: &String) {
+    fn clear_stores_of(&mut self, string: &str) {
         self.arr_and_idx_vec
             .retain(|(arr_string, _idx, _span)| arr_string != string);
     }
