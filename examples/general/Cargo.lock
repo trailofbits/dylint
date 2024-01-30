@@ -65,7 +65,7 @@ dependencies = [
 
 [[package]]
 name = "basic_dead_store"
-version = "0.1.0"
+version = "2.6.1"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
