@@ -71,11 +71,13 @@ impl BasicDeadStore {
 /// This consists in starting with `expr` and checking that the other nodes in the tree are of the
 /// correct kind:
 ///
+/// ```ignore
 ///                 assign_expr is ExprKind::Assign
 ///                      |
 ///                   index_expr is ExprKind::Index
 ///                  /         \
 ///      |start|-> expr        lit is ExprKind::Lit && LitKind::Int
+/// ```
 ///
 /// Returns the tuple (indexed position, span)
 fn is_assignment_to_array_indexed_by_literal(
