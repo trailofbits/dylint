@@ -13,7 +13,10 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  lint:
+  maybe-expedite:
+    outputs:
+      value: ${{ steps.expedite.outputs.value }}
+
     runs-on: ubuntu-latest
 
     steps:
@@ -26,6 +29,30 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if merging an up-to-date branch
+        if: ${{ github.event_name == 'merge_group' }}
+        id: expedite
+        run: |
+          N="$(expr "${{ github.ref }}" : '.*-\([0-9]\+\)-[^-]*$')"
+          HEAD_SHA="$(gh api /repos/${{ github.repository }}/pulls/"$N" | jq -r '.head.sha')"
+          if git merge-base --is-ancestor origin/master "$HEAD_SHA"; then
+            echo "value=1" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  lint:
+    needs: [maybe-expedite]
+
+    if: ${{ ! needs.maybe-expedite.outputs.value }}
+
+    runs-on: ubuntu-latest
+
+    steps:
       - uses: actions/checkout@v4
 
       - uses: actions/cache@v4
@@ -84,6 +111,10 @@ jobs:
         run: ./scripts/lint.sh
 
   test:
+    needs: [maybe-expedite]
+
+    if: ${{ ! needs.maybe-expedite.outputs.value }}
+
     strategy:
       fail-fast: ${{ github.event_name == 'merge_group' }}
       matrix:
@@ -177,13 +208,13 @@ jobs:
   all-checks:
     needs: [lint, test]
 
-    runs-on: ubuntu-latest
-
     # smoelius: From "Defining prerequisite jobs"
     # (https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs):
     # > If you would like a job to run even if a job it is dependent on did not succeed, use the
     # > `always()` conditional expression in `jobs.<job_id>.if`.
     if: ${{ always() }}
+
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check results
