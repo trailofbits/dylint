@@ -105,11 +105,7 @@ impl<'tcx> LateLintPass<'tcx> for BasicDeadStore {
     //          - then we found a dead store
     //      - otherwise, we save this instance in a vec V
     //  - Otherwise, clear all stored instances of this expression in the vec V
-    fn check_expr(
-        &mut self,
-        ctx: &rustc_lint::LateContext<'tcx>,
-        expr: &'tcx rustc_hir::Expr<'tcx>,
-    ) {
+    fn check_expr(&mut self, ctx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         if let ExprKind::Path(ref qpath) = expr.kind {
             let array_resolution = ctx.qpath_res(qpath, expr.hir_id);
             let array_name = format!("{array_resolution:?}");
