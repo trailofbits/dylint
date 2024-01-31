@@ -16,5 +16,8 @@ dylint_linting = { path = "../../../utils/linting" }
 [dev-dependencies]
 dylint_testing = { path = "../../../utils/testing" }
 
+[features]
+rlib = ["dylint_linting/constituent"]
+
 [package.metadata.rust-analyzer]
 rustc_private = true
