@@ -13,6 +13,7 @@ crate-type = ["cdylib"]
 await_holding_span_guard = { path = "await_holding_span_guard", features = [
     "rlib",
 ] }
+basic_dead_store = { path = "basic_dead_store", features = ["rlib"] }
 crate_wide_allow = { path = "crate_wide_allow", features = ["rlib"] }
 env_cargo_path = { path = "env_cargo_path", features = ["rlib"] }
 incorrect_matches_operation = { path = "incorrect_matches_operation", features = [

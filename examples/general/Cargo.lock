@@ -451,6 +451,7 @@ name = "general"
 version = "2.6.1"
 dependencies = [
  "await_holding_span_guard",
+ "basic_dead_store",
  "crate_wide_allow",
  "dylint_linting",
  "env_cargo_path",
