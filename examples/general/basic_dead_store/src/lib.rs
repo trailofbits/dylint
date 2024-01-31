@@ -14,7 +14,7 @@ use rustc_span::Span;
 dylint_linting::impl_late_lint! {
     /// ### What it does
     /// Finds instances of dead stores in arrays: array positions that are assigned twice without a
-    ///  use or read in between.
+    /// use or read in between.
     ///
     /// ### Why is this bad?
     /// A dead store might indicate a logic error in the program or an unnecessary assignment.
