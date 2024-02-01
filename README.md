@@ -59,7 +59,7 @@ The next three steps install Dylint and run all of this repository's [general-pu
 
 3. Run `cargo-dylint`:
    ```sh
-   cargo dylint --all --workspace
+   cargo dylint --all
    ```
 
 In the above example, the libraries are found via [workspace metadata], which is the recommended way. For additional ways of finding libraries, see [How Dylint works].
@@ -91,7 +91,7 @@ A workspace can name the libraries it should be linted with in its `Cargo.toml` 
 
 Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements] under [How Dylint works]).
 
-As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all --workspace`, Dylint will run on your workspace all of this repository's [example general-purpose lints], as well as the example restriction lint [`try_io_result`].
+As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all`, Dylint will run all of this repository's [example general-purpose lints], as well as the example restriction lint [`try_io_result`].
 
 ```toml
 [workspace.metadata.dylint]
@@ -148,7 +148,6 @@ Dylint results can be viewed in VS Code using [rust-analyzer]. To do so, add the
         "cargo",
         "dylint",
         "--all",
-        "--workspace",
         "--",
         "--all-targets",
         "--message-format=json"

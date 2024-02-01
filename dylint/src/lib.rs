@@ -105,6 +105,7 @@ pub struct Dylint {
     #[deprecated]
     pub upgrade_path: Option<String>,
 
+    #[deprecated]
     pub workspace: bool,
 
     #[deprecated]
@@ -120,6 +121,13 @@ pub fn run(opts: &Dylint) -> Result<()> {
                 opts,
                 "`--force` is deprecated and its meaning may change in the future. Use \
                  `--allow-downgrade`.",
+            );
+        }
+        if opts.workspace {
+            warn(
+                opts,
+                "`cargo dylint` option `--workspace` is deprecated. To pass this option to `cargo \
+                 check`, use `-- --workspace`.",
             );
         }
         Dylint {

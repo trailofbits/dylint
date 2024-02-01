@@ -105,7 +105,7 @@ struct Dylint {
     #[clap(long = "upgrade", hide = true)]
     upgrade_path: Option<String>,
 
-    #[clap(long, help = "Check all packages in the workspace")]
+    #[clap(long, hide = true)]
     workspace: bool,
 
     #[clap(subcommand)]
