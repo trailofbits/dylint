@@ -1,4 +1,5 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_data_structures;
@@ -10,7 +11,6 @@ use clippy_utils::{
     get_parent_expr,
     ty::{is_copy, peel_mid_ty_refs},
 };
-use if_chain::if_chain;
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
     def_id::LocalDefId,
@@ -123,29 +123,27 @@ impl RedundantReference {
 
 impl<'tcx> LateLintPass<'tcx> for RedundantReference {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
-        if_chain! {
-            if let ExprKind::Field(operand, field) = expr.kind;
-            let (operand_ty, _) = peel_mid_ty_refs(cx.typeck_results().expr_ty(operand));
-            if let ty::Adt(adt_def, _) = operand_ty.kind();
-            if let Some(local_def_id) = adt_def.did().as_local();
-            if let Some(parent) = get_parent_expr(cx, expr);
+        if let ExprKind::Field(operand, field) = expr.kind
+            && let (operand_ty, _) = peel_mid_ty_refs(cx.typeck_results().expr_ty(operand))
+            && let ty::Adt(adt_def, _) = operand_ty.kind()
+            && let Some(local_def_id) = adt_def.did().as_local()
+            && let Some(parent) = get_parent_expr(cx, expr)
             // smoelius: `typeck_results` cannot be called outside of the body. So the subfield's
             // type is checked here.
-            let parent_ty = cx.typeck_results().expr_ty(parent);
-            if is_copy(cx, parent_ty);
-            then {
-                let field_use = self.field_uses.entry((local_def_id, field)).or_default();
-                if let ExprKind::Field(_, subfield) = parent.kind {
-                    let subfield_access = field_use
-                        .subfield_accesses
-                        .entry(subfield)
-                        .or_insert((parent_ty.to_string(), HashSet::default()));
-                    subfield_access
-                        .1
-                        .insert(subfield.span.with_lo(operand.span.hi()));
-                } else {
-                    field_use.other_use = true;
-                }
+            && let parent_ty = cx.typeck_results().expr_ty(parent)
+            && is_copy(cx, parent_ty)
+        {
+            let field_use = self.field_uses.entry((local_def_id, field)).or_default();
+            if let ExprKind::Field(_, subfield) = parent.kind {
+                let subfield_access = field_use
+                    .subfield_accesses
+                    .entry(subfield)
+                    .or_insert((parent_ty.to_string(), HashSet::default()));
+                subfield_access
+                    .1
+                    .insert(subfield.span.with_lo(operand.span.hi()));
+            } else {
+                field_use.other_use = true;
             }
         }
     }
@@ -161,23 +159,20 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
         ) in &self.field_uses
         {
             let item = cx.tcx.hir().expect_item(*local_def_id);
-            if_chain! {
-                if let ItemKind::Struct(VariantData::Struct{fields, ..}, _) = &item.kind;
-                if let Some(field_def) = fields
-                    .iter()
-                    .find(|field_def| field_def.ident == *field);
-                let field_def_local_def_id = field_def.def_id;
-                if !cx.tcx.visibility(*local_def_id).is_public()
-                    || !cx.tcx.visibility(field_def_local_def_id).is_public();
-                if let TyKind::Ref(
+            if let ItemKind::Struct(VariantData::Struct { fields, .. }, _) = &item.kind
+                && let Some(field_def) = fields.iter().find(|field_def| field_def.ident == *field)
+                && let field_def_local_def_id = field_def.def_id
+                && (!cx.tcx.visibility(*local_def_id).is_public()
+                    || !cx.tcx.visibility(field_def_local_def_id).is_public())
+                && let TyKind::Ref(
                     lifetime,
                     MutTy {
                         ty: _,
                         mutbl: Mutability::Not,
                     },
-                ) = field_def.ty.kind;
-                if let LifetimeName::Param(local_def_id) = lifetime.res;
-                if !self.config.lifetime_check || {
+                ) = field_def.ty.kind
+                && let LifetimeName::Param(local_def_id) = lifetime.res
+                && (!self.config.lifetime_check || {
                     let lifetime_uses = lifetime_uses(local_def_id, item);
                     lifetime_uses.len() == 1 && {
                         assert_eq!(
@@ -186,40 +181,39 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                         );
                         true
                     }
-                };
-                if subfield_accesses.keys().len() == 1;
-                if !other_use;
-                then {
-                    let (lifetime_msg, lifetime_help) = if self.config.lifetime_check {
-                        (
-                            format!(
-                                " is the only field of `{}` that uses lifetime `{}`, and",
-                                item.ident, lifetime
-                            ),
-                            format!(" to eliminate the need for `{lifetime}`"),
-                        )
-                    } else {
-                        (String::new(), " instead".to_owned())
-                    };
-                    let (subfield, (subfield_ty, access_spans)) =
-                        subfield_accesses.iter().next().unwrap();
-                    cx.struct_span_lint(
-                        REDUNDANT_REFERENCE,
-                        field_def.span,
+                })
+                && subfield_accesses.keys().len() == 1
+                && !other_use
+            {
+                let (lifetime_msg, lifetime_help) = if self.config.lifetime_check {
+                    (
                         format!(
-                            "`.{field}`{lifetime_msg} is used only to read `.{field}.{subfield}`, \
-                            whose type `{subfield_ty}` implements `Copy`"
+                            " is the only field of `{}` that uses lifetime `{}`, and",
+                            item.ident, lifetime
                         ),
-                        |diag| {
-                            for access_span in access_spans {
-                                diag.span_note(*access_span, "read here");
-                            }
-                            diag.help(format!(
-                                "consider storing a copy of `.{field}.{subfield}`{lifetime_help}"
-                            ));
-                        },
-                    );
-                }
+                        format!(" to eliminate the need for `{lifetime}`"),
+                    )
+                } else {
+                    (String::new(), " instead".to_owned())
+                };
+                let (subfield, (subfield_ty, access_spans)) =
+                    subfield_accesses.iter().next().unwrap();
+                cx.struct_span_lint(
+                    REDUNDANT_REFERENCE,
+                    field_def.span,
+                    format!(
+                        "`.{field}`{lifetime_msg} is used only to read `.{field}.{subfield}`, \
+                        whose type `{subfield_ty}` implements `Copy`"
+                    ),
+                    |diag| {
+                        for access_span in access_spans {
+                            diag.span_note(*access_span, "read here");
+                        }
+                        diag.help(format!(
+                            "consider storing a copy of `.{field}.{subfield}`{lifetime_help}"
+                        ));
+                    },
+                );
             }
         }
     }
@@ -241,12 +235,10 @@ struct LifetimeUses {
 
 impl<'tcx> Visitor<'tcx> for LifetimeUses {
     fn visit_lifetime(&mut self, lifetime: &'tcx Lifetime) {
-        if_chain! {
-            if let LifetimeName::Param(local_def_id) = lifetime.res;
-            if self.local_def_id == local_def_id;
-            then {
-                self.uses.insert(lifetime.hir_id);
-            }
+        if let LifetimeName::Param(local_def_id) = lifetime.res
+            && self.local_def_id == local_def_id
+        {
+            self.uses.insert(lifetime.hir_id);
         }
         walk_lifetime(self, lifetime);
     }
