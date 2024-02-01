@@ -181,6 +181,21 @@ struct NameOpts {
     all: bool,
 
     #[clap(
+        long,
+        requires("git"),
+        help = "Branch to use when downloading library packages"
+    )]
+    branch: Option<String>,
+
+    #[clap(
+        long,
+        value_name = "url",
+        conflicts_with("paths"),
+        help = "Git url containing library packages"
+    )]
+    git: Option<String>,
+
+    #[clap(
         action = ArgAction::Append,
         number_of_values = 1,
         long = "lib-path",
@@ -219,9 +234,31 @@ struct NameOpts {
         action = ArgAction::Append,
         number_of_values = 1,
         long = "path",
-        hide = true,
+        value_name = "path",
+        conflicts_with("git"),
+        help = "Path containing library packages"
     )]
     paths: Vec<String>,
+
+    #[clap(
+        long,
+        help = "Subdirectories of the `--git` or `--path` argument containing library packages"
+    )]
+    pattern: Option<String>,
+
+    #[clap(
+        long,
+        requires("git"),
+        help = "Specific commit to use when downloading library packages"
+    )]
+    rev: Option<String>,
+
+    #[clap(
+        long,
+        requires("git"),
+        help = "Tag to use when downloading library packages"
+    )]
+    tag: Option<String>,
 }
 
 #[allow(deprecated)]
@@ -232,12 +269,17 @@ impl From<Dylint> for dylint::Dylint {
             name_opts:
                 NameOpts {
                     all,
-                    libs,
+                    branch,
+                    git,
                     lib_paths,
+                    libs,
                     manifest_path,
                     no_build,
                     no_metadata,
-                    paths: _,
+                    paths,
+                    pattern,
+                    rev,
+                    tag,
                 },
             allow_downgrade,
             bisect,
@@ -263,8 +305,10 @@ impl From<Dylint> for dylint::Dylint {
             all,
             allow_downgrade,
             bisect,
+            branch,
             fix,
             force,
+            git,
             isolate,
             keep_going,
             lib_paths,
@@ -276,11 +320,14 @@ impl From<Dylint> for dylint::Dylint {
             no_deps,
             no_metadata,
             packages,
-            // paths,
+            paths,
+            pattern,
             pipe_stderr,
             pipe_stdout,
             quiet,
+            rev,
             rust_version,
+            tag,
             upgrade_path,
             workspace,
             names,
@@ -340,20 +387,47 @@ fn process_deprecated_options(mut opts: Dylint) -> Dylint {
     opts
 }
 
+macro_rules! option_absorb {
+    ($this:expr, $other:expr) => {
+        if $other.is_some() {
+            assert!(
+                $this.is_none(),
+                "`--{}` used multiple times",
+                stringify!($other).replace("_", "-")
+            );
+            *$this = $other;
+        }
+    };
+}
+
 impl NameOpts {
     pub fn absorb(&mut self, other: Self) {
-        self.all |= other.all;
-        self.libs.extend(other.libs);
-        if other.manifest_path.is_some() {
-            assert!(
-                self.manifest_path.is_none(),
-                "`--manifest-path` used multiple times"
-            );
-            self.manifest_path = other.manifest_path;
-        }
-        self.no_build |= other.no_build;
-        self.no_metadata |= other.no_metadata;
-        self.paths.extend(other.paths);
+        let Self {
+            all,
+            branch,
+            git,
+            lib_paths,
+            libs,
+            manifest_path,
+            no_build,
+            no_metadata,
+            paths,
+            pattern,
+            rev,
+            tag,
+        } = other;
+        self.all |= all;
+        option_absorb!(&mut self.branch, branch);
+        option_absorb!(&mut self.git, git);
+        self.lib_paths.extend(lib_paths);
+        self.libs.extend(libs);
+        option_absorb!(&mut self.manifest_path, manifest_path);
+        self.no_build |= no_build;
+        self.no_metadata |= no_metadata;
+        self.paths.extend(paths);
+        option_absorb!(&mut self.pattern, pattern);
+        option_absorb!(&mut self.rev, rev);
+        option_absorb!(&mut self.tag, tag);
     }
 }
 

@@ -185,7 +185,10 @@ fn list_by_path() {
         .success()
         .stdout(
             predicate::str::contains("fill_me_in").and(predicate::str::contains("Building").not()),
-        );
+        )
+        .stderr(predicate::str::contains(
+            "Referring to libraries with `--path` is deprecated. Use `--lib-path`.",
+        ));
 }
 
 // smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is

@@ -5,8 +5,11 @@ use dylint_internal::{env, library_filename, rustup::SanitizeEnvironment, Comman
 use glob::glob;
 use if_chain::if_chain;
 use once_cell::sync::OnceCell;
-use serde::Deserialize;
-use std::path::{Path, PathBuf};
+use serde::{de::IntoDeserializer, Deserialize};
+use std::{
+    fs::canonicalize,
+    path::{Path, PathBuf},
+};
 
 // smoelius: If both `__metadata_cargo` and `__metadata_cli` are enabled, assume the user built with
 // `--features=metadata-cli` and forgot `--no-default-features`.
@@ -78,6 +81,51 @@ struct Library {
     pattern: Option<String>,
     #[serde(flatten)]
     details: DetailedTomlDependency,
+}
+
+pub fn opts_library_packages(opts: &crate::Dylint) -> Result<Vec<Package>> {
+    let maybe_metadata = cargo_metadata(opts)?;
+
+    let metadata = maybe_metadata.ok_or_else(|| anyhow!("Could not read cargo metadata"))?;
+
+    ensure!(
+        opts.paths.len() <= 1,
+        "At most one library package can be named with `--path`"
+    );
+
+    let path = if let Some(path) = opts.paths.first() {
+        let canonical_path =
+            canonicalize(path).with_context(|| format!("Could not canonicalize {path:?}"))?;
+        Some(canonical_path.to_string_lossy().to_string())
+    } else {
+        None
+    };
+
+    let toml: toml::map::Map<_, _> = vec![
+        to_map_entry("path", path.as_ref()),
+        to_map_entry("git", opts.git.as_ref()),
+        to_map_entry("branch", opts.branch.as_ref()),
+        to_map_entry("tag", opts.tag.as_ref()),
+        to_map_entry("rev", opts.rev.as_ref()),
+    ]
+    .into_iter()
+    .flatten()
+    .collect();
+
+    let details = DetailedTomlDependency::deserialize(toml.into_deserializer())?;
+
+    let library = Library {
+        details,
+        pattern: opts.pattern.clone(),
+    };
+
+    library_packages(opts, metadata, &[library])
+}
+
+fn to_map_entry(key: &str, value: Option<&String>) -> Option<(String, toml::Value)> {
+    value
+        .cloned()
+        .map(|s| (String::from(key), toml::Value::from(s)))
 }
 
 pub fn workspace_metadata_packages(opts: &crate::Dylint) -> Result<Vec<Package>> {

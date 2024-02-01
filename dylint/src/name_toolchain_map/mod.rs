@@ -48,10 +48,13 @@ impl<'opts> Lazy<'opts> {
 
                 #[cfg(__metadata)]
                 {
-                    let workspace_metadata_packages =
-                        crate::metadata::workspace_metadata_packages(self.inner.opts)?;
+                    let library_packages = if self.inner.opts.git_or_path() {
+                        crate::metadata::opts_library_packages(self.inner.opts)?
+                    } else {
+                        crate::metadata::workspace_metadata_packages(self.inner.opts)?
+                    };
 
-                    for package in workspace_metadata_packages {
+                    for package in library_packages {
                         name_toolchain_map
                             .entry(package.lib_name.clone())
                             .or_default()
@@ -61,17 +64,21 @@ impl<'opts> Lazy<'opts> {
                     }
                 }
 
-                let dylint_library_paths = dylint_library_paths()?;
+                // smoelius: If `--git` or `--path` was passed, then do not look for libraries by
+                // other means.
+                if !self.inner.opts.git_or_path() {
+                    let dylint_library_paths = dylint_library_paths()?;
 
-                for path in dylint_library_paths {
-                    for entry in dylint_libraries_in(&path)? {
-                        let (name, toolchain, path) = entry?;
-                        name_toolchain_map
-                            .entry(name)
-                            .or_default()
-                            .entry(toolchain)
-                            .or_default()
-                            .insert(MaybeLibrary::from(path));
+                    for path in dylint_library_paths {
+                        for entry in dylint_libraries_in(&path)? {
+                            let (name, toolchain, path) = entry?;
+                            name_toolchain_map
+                                .entry(name)
+                                .or_default()
+                                .entry(toolchain)
+                                .or_default()
+                                .insert(MaybeLibrary::from(path));
+                        }
                     }
                 }
 
