@@ -15,7 +15,7 @@ use std::{
     env::{consts, current_dir},
     ffi::OsStr,
     fmt::Debug,
-    fs::OpenOptions,
+    fs::{metadata, OpenOptions},
     path::{Path, PathBuf, MAIN_SEPARATOR},
 };
 
@@ -63,10 +63,14 @@ pub struct Dylint {
     #[deprecated]
     pub bisect: bool,
 
+    pub branch: Option<String>,
+
     pub fix: bool,
 
     #[deprecated]
     pub force: bool,
+
+    pub git: Option<String>,
 
     #[deprecated]
     pub isolate: bool,
@@ -93,8 +97,9 @@ pub struct Dylint {
 
     pub packages: Vec<String>,
 
-    // smoelius: Temporarily removed to ensure all uses are gone.
-    // pub paths: Vec<String>,
+    pub paths: Vec<String>,
+
+    pub pattern: Option<String>,
 
     pub pipe_stderr: Option<String>,
 
@@ -102,8 +107,12 @@ pub struct Dylint {
 
     pub quiet: bool,
 
+    pub rev: Option<String>,
+
     #[deprecated]
     pub rust_version: Option<String>,
+
+    pub tag: Option<String>,
 
     #[deprecated]
     pub upgrade_path: Option<String>,
@@ -116,19 +125,47 @@ pub struct Dylint {
     pub args: Vec<String>,
 }
 
+impl Dylint {
+    fn git_or_path(&self) -> bool {
+        self.git.is_some() || !self.paths.is_empty()
+    }
+}
+
 pub fn run(opts: &Dylint) -> Result<()> {
     let opts = {
+        let mut opts = opts.clone();
+
         if opts.force {
             warn(
-                opts,
+                &opts,
                 "`--force` is deprecated and its meaning may change in the future. Use \
                  `--allow-downgrade`.",
             );
+            opts.allow_downgrade = true;
+            opts.force = false;
         }
-        Dylint {
-            allow_downgrade: opts.allow_downgrade || opts.force,
-            ..opts.clone()
-        }
+
+        let path_refers_to_libraries =
+            opts.paths
+                .iter()
+                .try_fold(false, |is_file, path| -> Result<_> {
+                    let metadata =
+                        metadata(path).with_context(|| "Could not read file metadata")?;
+                    Ok(is_file || metadata.is_file())
+                })?;
+
+        if path_refers_to_libraries {
+            warn(
+                &opts,
+                "Referring to libraries with `--path` is deprecated. Use `--lib-path`.",
+            );
+            opts.lib_paths.extend(opts.paths.split_off(0));
+        };
+
+        // smoelius: Use of `--git` or `--path` implies `--all`.
+        opts.all |= opts.git_or_path();
+
+        opts
     };
 
     if opts.allow_downgrade && opts.upgrade_path.is_none() {
@@ -149,6 +186,10 @@ pub fn run(opts: &Dylint) -> Result<()> {
 
     if opts.isolate && opts.new_path.is_none() {
         bail!("`--isolate` can be used only with `--new`");
+    }
+
+    if opts.pattern.is_some() && !opts.git_or_path() {
+        bail!("`--pattern` can be used only with `--git` or `--path`");
     }
 
     if opts.pipe_stderr.is_some() {
