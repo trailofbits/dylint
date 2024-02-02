@@ -46,11 +46,22 @@ impl<'opts> Lazy<'opts> {
             .get_or_try_init(|| -> Result<_> {
                 let mut name_toolchain_map = NameToolchainMap::new();
 
-                let dylint_library_paths = dylint_library_paths()?;
-
                 #[cfg(__metadata)]
-                let workspace_metadata_packages =
-                    crate::metadata::workspace_metadata_packages(self.inner.opts)?;
+                {
+                    let workspace_metadata_packages =
+                        crate::metadata::workspace_metadata_packages(self.inner.opts)?;
+
+                    for package in workspace_metadata_packages {
+                        name_toolchain_map
+                            .entry(package.lib_name.clone())
+                            .or_default()
+                            .entry(package.toolchain.clone())
+                            .or_default()
+                            .insert(MaybeLibrary::from(package));
+                    }
+                }
+
+                let dylint_library_paths = dylint_library_paths()?;
 
                 for path in dylint_library_paths {
                     for entry in dylint_libraries_in(&path)? {
@@ -62,16 +73,6 @@ impl<'opts> Lazy<'opts> {
                             .or_default()
                             .insert(MaybeLibrary::from(path));
                     }
-                }
-
-                #[cfg(__metadata)]
-                for package in workspace_metadata_packages {
-                    name_toolchain_map
-                        .entry(package.lib_name.clone())
-                        .or_default()
-                        .entry(package.toolchain.clone())
-                        .or_default()
-                        .insert(MaybeLibrary::from(package));
                 }
 
                 Ok(name_toolchain_map)
