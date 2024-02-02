@@ -40,7 +40,7 @@ Documentation is also available on [how Dylint works].
 
 ### Running Dylint
 
-The next three steps install Dylint and run all of this repository's [general-purpose, example lints] on a workspace:
+The next two steps install Dylint and run all of this repository's [general-purpose, example lints] on a workspace:
 
 1. Install `cargo-dylint` and `dylint-link`:
 
@@ -48,21 +48,12 @@ The next three steps install Dylint and run all of this repository's [general-pu
    cargo install cargo-dylint dylint-link
    ```
 
-2. Add the following to the workspace's `Cargo.toml` file:
-
-   ```toml
-   [workspace.metadata.dylint]
-   libraries = [
-       { git = "https://github.com/trailofbits/dylint", pattern = "examples/general/*" },
-   ]
-   ```
-
-3. Run `cargo-dylint`:
+2. Run `cargo-dylint`:
    ```sh
-   cargo dylint --all
+   cargo dylint --git https://github.com/trailofbits/dylint --pattern examples/general
    ```
 
-In the above example, the libraries are found via [workspace metadata], which is the recommended way. For additional ways of finding libraries, see [How Dylint works].
+In the above example, the libraries are found via the command line. If you plan to run Dylint regularly, then consider using [workspace metadata]. For additional ways of finding libraries, see [How Dylint works].
 
 ### Writing lints
 
@@ -72,7 +63,7 @@ You can start writing your own Dylint library by running `cargo dylint new new_l
 cargo dylint new new_lint_name
 cd new_lint_name
 cargo build
-DYLINT_LIBRARY_PATH=$PWD/target/debug cargo dylint list --lib new_lint_name
+cargo dylint list --path .
 ```
 
 All you have to do is implement the [`LateLintPass`] trait and accommodate the symbols asking to be filled in.
@@ -96,7 +87,7 @@ As an example, if you include the following in your workspace's `Cargo.toml` fil
 ```toml
 [workspace.metadata.dylint]
 libraries = [
-    { git = "https://github.com/trailofbits/dylint", pattern = "examples/general/*" },
+    { git = "https://github.com/trailofbits/dylint", pattern = "examples/general" },
     { git = "https://github.com/trailofbits/dylint", pattern = "examples/restriction/try_io_result" },
 ]
 ```
