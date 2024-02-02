@@ -38,8 +38,8 @@ jobs:
         id: expedite
         run: |
           N="$(expr "${{ github.ref }}" : '.*-\([0-9]\+\)-[^-]*$')"
-          HEAD_SHA="$(gh api /repos/${{ github.repository }}/pulls/"$N" | jq -r '.head.sha')"
-          if git merge-base --is-ancestor origin/master "$HEAD_SHA"; then
+          BASE_SHA="$(gh api /repos/${{ github.repository }}/pulls/"$N" | jq -r '.base.sha')"
+          if git diff --quiet ${{ github.event.merge_group.base_sha }} "$BASE_SHA"; then
             echo "value=1" >> "$GITHUB_OUTPUT"
           fi
         env:
