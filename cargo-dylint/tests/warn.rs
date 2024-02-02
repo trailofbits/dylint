@@ -55,6 +55,39 @@ fn nothing_to_do() {
         ));
 }
 
+/// `--all` should not be required when `--git` or `--path` is used on the command line.
+#[test]
+fn opts_library_package_no_warn() {
+    let tempdir = tempdir().unwrap();
+
+    std::process::Command::new("cargo")
+        .current_dir(&tempdir)
+        .args([
+            "init",
+            "--name",
+            tempdir
+                .path()
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .trim_start_matches('.'),
+        ])
+        .assert()
+        .success();
+
+    cargo_dylint()
+        .args([
+            "dylint",
+            "--manifest-path",
+            &tempdir.path().join("Cargo.toml").to_string_lossy(),
+            "--path",
+            "../examples/general/crate_wide_allow",
+        ])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("Warning").not());
+}
+
 // smoelius: If you build `cargo-dylint` directly (e.g., with `cargo run`), it gets built without
 // the feature `dylint_internal/testing`, as you would expect. But if you build the integration
 // tests (e.g., with `cargo test`), `cargo-dylint` gets built with that feature enabled. I don't

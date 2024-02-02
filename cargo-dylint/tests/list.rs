@@ -115,6 +115,48 @@ fn one_name_multiple_paths() {
 }
 
 #[test]
+fn opts_library_package() {
+    let tempdir = tempdir().unwrap();
+
+    new_template(tempdir.path()).unwrap();
+
+    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
+        .build()
+        .sanitize_environment()
+        .current_dir(&tempdir)
+        .success()
+        .unwrap();
+
+    let paths = join_paths([&target_debug(tempdir.path()).unwrap()]).unwrap();
+
+    // smoelius: Sanity.
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .envs([(env::DYLINT_LIBRARY_PATH, &paths)])
+        .args(["dylint", "list", "--all", "--no-metadata"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("fill_me_in"));
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .envs([(env::DYLINT_LIBRARY_PATH, paths)])
+        .args([
+            "dylint",
+            "list",
+            "--path",
+            "../examples/general/crate_wide_allow",
+        ])
+        .assert()
+        .success()
+        .stdout(
+            predicate::str::contains("fill_me_in")
+                .not()
+                .and(predicate::str::contains("crate_wide_allow")),
+        );
+}
+
+#[test]
 fn relative_path() {
     let tempdir = tempdir().unwrap();
 
