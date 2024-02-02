@@ -73,6 +73,8 @@ pub struct Dylint {
 
     pub keep_going: bool,
 
+    pub lib_paths: Vec<String>,
+
     pub libs: Vec<String>,
 
     #[deprecated]
@@ -91,7 +93,8 @@ pub struct Dylint {
 
     pub packages: Vec<String>,
 
-    pub paths: Vec<String>,
+    // smoelius: Temporarily removed to ensure all uses are gone.
+    // pub paths: Vec<String>,
 
     pub pipe_stderr: Option<String>,
 
@@ -176,7 +179,7 @@ pub fn run(opts: &Dylint) -> Result<()> {
 }
 
 fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<()> {
-    if opts.libs.is_empty() && opts.paths.is_empty() && opts.names.is_empty() && !opts.all {
+    if opts.libs.is_empty() && opts.lib_paths.is_empty() && opts.names.is_empty() && !opts.all {
         if opts.list {
             warn_if_empty(opts, name_toolchain_map)?;
             return list_libs(name_toolchain_map);
@@ -190,7 +193,7 @@ fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchain
 
     if resolved.is_empty() {
         assert!(opts.libs.is_empty());
-        assert!(opts.paths.is_empty());
+        assert!(opts.lib_paths.is_empty());
         assert!(opts.names.is_empty());
 
         let name_toolchain_map_is_empty = warn_if_empty(opts, name_toolchain_map)?;
@@ -278,7 +281,7 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
         toolchain_map.entry(toolchain).or_default().insert(path);
     }
 
-    for name in &opts.paths {
+    for name in &opts.lib_paths {
         let (toolchain, path) = name_as_path(name, true)?.unwrap_or_else(|| unreachable!());
         toolchain_map.entry(toolchain).or_default().insert(path);
     }
@@ -290,7 +293,7 @@ fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<Toolc
             ensure!(
                 !opts.all,
                 "`{}` is a library name and cannot be used with `--all`; if a path was meant, use \
-                 `--path {}`",
+                 `--lib-path {}`",
                 name,
                 name
             );
@@ -380,7 +383,7 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
 
         ensure!(
             !as_path_only,
-            "`--path {}` was used, but the filename does not have the required form: {}",
+            "`--lib-path {}` was used, but the filename does not have the required form: {}",
             name,
             *REQUIRED_FORM
         );
@@ -396,7 +399,7 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
 
         ensure!(
             !as_path_only,
-            "`--path {}` was used, but it is invalid",
+            "`--lib-path {}` was used, but it is invalid",
             name
         );
     }

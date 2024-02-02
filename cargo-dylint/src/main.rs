@@ -183,6 +183,15 @@ struct NameOpts {
     #[clap(
         action = ArgAction::Append,
         number_of_values = 1,
+        long = "lib-path",
+        value_name = "path",
+        help = "Library path to load lints from"
+    )]
+    lib_paths: Vec<String>,
+
+    #[clap(
+        action = ArgAction::Append,
+        number_of_values = 1,
         long = "lib",
         value_name = "name",
         help = "Library name to load lints from. A file with a name of the form \"DLL_PREFIX \
@@ -210,8 +219,7 @@ struct NameOpts {
         action = ArgAction::Append,
         number_of_values = 1,
         long = "path",
-        value_name = "path",
-        help = "Library path to load lints from"
+        hide = true,
     )]
     paths: Vec<String>,
 }
@@ -225,10 +233,11 @@ impl From<Dylint> for dylint::Dylint {
                 NameOpts {
                     all,
                     libs,
+                    lib_paths,
                     manifest_path,
                     no_build,
                     no_metadata,
-                    paths,
+                    paths: _,
                 },
             allow_downgrade,
             bisect,
@@ -258,6 +267,7 @@ impl From<Dylint> for dylint::Dylint {
             force,
             isolate,
             keep_going,
+            lib_paths,
             libs,
             list,
             manifest_path,
@@ -266,7 +276,7 @@ impl From<Dylint> for dylint::Dylint {
             no_deps,
             no_metadata,
             packages,
-            paths,
+            // paths,
             pipe_stderr,
             pipe_stdout,
             quiet,
@@ -301,7 +311,7 @@ fn process_deprecated_options(mut opts: Dylint) -> Dylint {
     if !opts.names.is_empty() {
         dylint::__warn(
             &dylint::Dylint::default(),
-            "Referring to libraries by bare name is deprecated. Use `--lib` or `--path`.",
+            "Referring to libraries by bare name is deprecated. Use `--lib` or `--lib-path`.",
         );
     }
     if let Some(subcmd) = opts.subcmd.take() {
