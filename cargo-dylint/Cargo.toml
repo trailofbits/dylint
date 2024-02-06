@@ -15,7 +15,7 @@ env_logger = "0.10"
 
 dylint = { version = "=2.6.1", path = "../dylint", features = [
     "package_options",
-], default-features = false }
+] }
 dylint_internal = { version = "=2.6.1", path = "../internal" }
 
 [dev-dependencies]

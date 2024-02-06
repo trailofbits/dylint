@@ -25,7 +25,7 @@ env_logger = "0.10"
 log = "0.4"
 tempfile = "3.9"
 
-dylint = { path = "../../../dylint", default-features = false }
+dylint = { path = "../../../dylint" }
 dylint_internal = { path = "../../../internal", features = ["git"] }
 dylint_testing = { path = "../../../utils/testing" }
 

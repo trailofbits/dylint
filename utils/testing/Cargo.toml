@@ -17,7 +17,7 @@ regex = "1.10"
 serde_json = "1.0"
 tempfile = "3.9"
 
-dylint = { version = "=2.6.1", path = "../../dylint", default-features = false }
+dylint = { version = "=2.6.1", path = "../../dylint" }
 dylint_internal = { version = "=2.6.1", path = "../../internal" }
 
 [features]
