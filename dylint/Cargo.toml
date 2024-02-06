@@ -61,10 +61,7 @@ dylint_internal = { version = "=2.6.1", path = "../internal", features = [
 ] }
 
 [features]
-# smoelius: Remove `metadata` as a default feature during the next incompatible upgrade. Instead,
-# enable the feature by default in `cargo-dylint` (the only dependent package in the repository that
-# needs the feature), and remove the other dependent package's uses of `default-features = false`.
-default = ["metadata"]
+default = []
 metadata = ["__metadata_cargo"]
 package_options = [
     "heck",
