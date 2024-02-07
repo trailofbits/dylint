@@ -32,7 +32,6 @@ jobs:
       - name: Update supply_chain.json
         run: |
           cargo test -p cargo-dylint --test ci supply_chain
-          cargo test -p cargo-dylint --test ci supply_chain --no-default-features --features=metadata-cli
         env:
           BLESS: 1
 

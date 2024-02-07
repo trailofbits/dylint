@@ -358,38 +358,42 @@ fn supply_chain() {
         .assert()
         .success();
 
-    for target in TARGETS {
-        let mut command = Command::new("cargo");
-        command.args(["supply-chain", "json", "--no-dev", "--target", target]);
-        let subdir = if cfg!(feature = "cargo-lib") {
-            "cargo_lib"
-        } else {
-            assert!(cfg!(feature = "cargo-cli"));
-            command.args(["--no-default-features", "--features=cargo-cli"]);
-            "cargo_cli"
-        };
-        let assert = command.assert().success();
+    for feature in ["cargo-lib", "cargo-cli"] {
+        for target in TARGETS {
+            let mut command = Command::new("cargo");
+            command.args([
+                "supply-chain",
+                "json",
+                "--no-dev",
+                "--no-default-features",
+                &format!("--features={feature}"),
+                "--target",
+                target,
+            ]);
+            let assert = command.assert().success();
 
-        let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
-        // smoelius: Sanity. (I have nothing against Redox OS.)
-        assert!(!stdout_actual.contains("redox"));
-        let value = serde_json::Value::from_str(stdout_actual).unwrap();
-        let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
+            let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
+            // smoelius: Sanity. (I have nothing against Redox OS.)
+            assert!(!stdout_actual.contains("redox"));
+            let value = serde_json::Value::from_str(stdout_actual).unwrap();
+            let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
 
-        let path = PathBuf::from(format!(
-            "cargo-dylint/tests/supply_chain/{subdir}/{target}.json"
-        ));
+            let subdir = feature.replace('-', "_");
+            let path = PathBuf::from(format!(
+                "cargo-dylint/tests/supply_chain/{subdir}/{target}.json"
+            ));
 
-        let stdout_expected = read_to_string(&path).unwrap();
+            let stdout_expected = read_to_string(&path).unwrap();
 
-        if env::enabled("BLESS") {
-            write(path, stdout_normalized).unwrap();
-        } else {
-            assert!(
-                stdout_expected == stdout_normalized,
-                "{}",
-                SimpleDiff::from_str(&stdout_expected, &stdout_normalized, "left", "right")
-            );
+            if env::enabled("BLESS") {
+                write(path, stdout_normalized).unwrap();
+            } else {
+                assert!(
+                    stdout_expected == stdout_normalized,
+                    "{}",
+                    SimpleDiff::from_str(&stdout_expected, &stdout_normalized, "left", "right")
+                );
+            }
         }
     }
 }
