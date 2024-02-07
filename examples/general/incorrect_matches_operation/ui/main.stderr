@@ -1,41 +1,40 @@
-error: This matches! macro use can be rewritten to matches!(obj, A | B)
+warning: This matches! macro use can be rewritten to matches!(obj, A | B)
   --> $DIR/main.rs:4:8
    |
 LL |     if matches!(x, 123) | matches!(x, 256) {
    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: `-D incorrect-matches-operation` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(incorrect_matches_operation)]`
+   = note: `#[warn(incorrect_matches_operation)]` on by default
 
-error: This matches! macro use can be rewritten to matches!(obj, A | B)
+warning: This matches! macro use can be rewritten to matches!(obj, A | B)
   --> $DIR/main.rs:8:8
    |
 LL |     if matches!(x, 123) || matches!(x, 256) {
    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: Is this a bug? matches!(obj, A) && matches!(obj, B) is (almost) always false
+warning: Is this a bug? matches!(obj, A) && matches!(obj, B) is (almost) always false
   --> $DIR/main.rs:12:8
    |
 LL |     if matches!(x, 123) && matches!(x, 256) {
    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: Is this a bug? matches!(obj, A) & matches!(obj, B) is (almost) always false
+warning: Is this a bug? matches!(obj, A) & matches!(obj, B) is (almost) always false
   --> $DIR/main.rs:16:8
    |
 LL |     if matches!(x, 123) & matches!(x, 256) {
    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: This matches! macro use can be rewritten to matches!(obj, A | B)
+warning: This matches! macro use can be rewritten to matches!(obj, A | B)
   --> $DIR/main.rs:21:14
    |
 LL |     let _b = matches!(x, 1) | matches!(x, 2);
    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: This matches! macro use can be rewritten to matches!(obj, A | B)
+warning: This matches! macro use can be rewritten to matches!(obj, A | B)
   --> $DIR/main.rs:37:13
    |
 LL |     let a = matches!(x, 1) | matches!(x, 2 if false);
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 6 previous errors
+warning: 6 warnings emitted
 

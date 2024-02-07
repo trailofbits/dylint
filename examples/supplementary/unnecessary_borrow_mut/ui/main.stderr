@@ -1,17 +1,16 @@
-error: borrowed reference is used only immutably
+warning: borrowed reference is used only immutably
   --> $DIR/main.rs:9:15
    |
 LL |     x = *cell.borrow_mut();
    |               ^^^^^^^^^^^^ help: use: `borrow()`
    |
-   = note: `-D unnecessary-borrow-mut` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(unnecessary_borrow_mut)]`
+   = note: `#[warn(unnecessary_borrow_mut)]` on by default
 
-error: borrowed reference is used only immutably
+warning: borrowed reference is used only immutably
   --> $DIR/main.rs:11:24
    |
 LL |     let ref_mut = cell.borrow_mut();
    |                        ^^^^^^^^^^^^ help: use: `borrow()`
 
-error: aborting due to 2 previous errors
+warning: 2 warnings emitted
 

@@ -1,12 +1,11 @@
-error: using the `?` operator within an expression
+warning: using the `?` operator within an expression
   --> $DIR/non-empty.rs:2:9
    |
 LL |     if !std::fs::read_to_string("Cargo.toml")?.is_empty() {
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: consider breaking this up into multiple expressions
-   = note: `-D question-mark-in-expression` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(question_mark_in_expression)]`
+   = note: `#[warn(question_mark_in_expression)]` on by default
 
-error: aborting due to 1 previous error
+warning: 1 warning emitted
 

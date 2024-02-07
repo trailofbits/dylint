@@ -1,14 +1,13 @@
-error: commented out code
+warning: commented out code
   --> $DIR/main.rs:6:5
    |
 LL |     // dbg!(x);
    |     ^^^^^^^^^^^
    |
    = help: uncomment or remove
-   = note: `-D commented-code` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(commented_code)]`
+   = note: `#[warn(commented_code)]` on by default
 
-error: commented out code
+warning: commented out code
   --> $DIR/main.rs:10:5
    |
 LL |     /* dbg!(x); */
@@ -16,7 +15,7 @@ LL |     /* dbg!(x); */
    |
    = help: uncomment or remove
 
-error: commented out code
+warning: commented out code
   --> $DIR/main.rs:14:5
    |
 LL |     // dbg!(x);
@@ -24,7 +23,7 @@ LL |     // dbg!(x);
    |
    = help: uncomment or remove
 
-error: commented out code
+warning: commented out code
   --> $DIR/main.rs:18:5
    |
 LL |     /* dbg!(y); */
@@ -32,7 +31,7 @@ LL |     /* dbg!(y); */
    |
    = help: uncomment or remove
 
-error: commented out code
+warning: commented out code
   --> $DIR/main.rs:22:5
    |
 LL | /     /*
@@ -43,5 +42,5 @@ LL | |     */
    |
    = help: uncomment or remove
 
-error: aborting due to 5 previous errors
+warning: 5 warnings emitted
 

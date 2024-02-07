@@ -1,4 +1,4 @@
-error: reassigning the same array position without using it
+warning: reassigning the same array position without using it
   --> $DIR/main.rs:12:12
    |
 LL |     arr[0] = v;
@@ -9,10 +9,9 @@ help: original assignment was here
    |
 LL |     arr[0] = v;
    |            ^
-   = note: `-D basic-dead-store` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(basic_dead_store)]`
+   = note: `#[warn(basic_dead_store)]` on by default
 
-error: reassigning the same array position without using it
+warning: reassigning the same array position without using it
   --> $DIR/main.rs:37:12
    |
 LL |     arr[0] = v;
@@ -24,7 +23,7 @@ help: original assignment was here
 LL |     arr[0] = v;
    |            ^
 
-error: reassigning the same array position without using it
+warning: reassigning the same array position without using it
   --> $DIR/main.rs:45:12
    |
 LL |     arr[0] = 3;
@@ -36,5 +35,5 @@ help: original assignment was here
 LL |     arr[0] = 1;
    |            ^
 
-error: aborting due to 3 previous errors
+warning: 3 warnings emitted
 

@@ -1,14 +1,13 @@
-error: `std::fs` exports a type `File`, which is not the type of `file`
+warning: `std::fs` exports a type `File`, which is not the type of `file`
   --> $DIR/main.rs:54:9
    |
 LL |     let file = read_to_string(path)?;
    |         ^^^^
    |
    = help: use a name that is not `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, or `read_dir`
-   = note: `-D misleading-variable-name` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(misleading_variable_name)]`
+   = note: `#[warn(misleading_variable_name)]` on by default
 
-error: `std::fs` exports a type `File`, which is not the type of `file`
+warning: `std::fs` exports a type `File`, which is not the type of `file`
   --> $DIR/main.rs:55:9
    |
 LL |     let file = read_to_string(path).with_context(|| "read")?;
@@ -16,7 +15,7 @@ LL |     let file = read_to_string(path).with_context(|| "read")?;
    |
    = help: use a name that is not `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, or `read_dir`
 
-error: `std::fs` exports a type `File`, which is not the type of `file`
+warning: `std::fs` exports a type `File`, which is not the type of `file`
   --> $DIR/main.rs:56:9
    |
 LL |     let file = read_to_string(path).unwrap();
@@ -24,7 +23,7 @@ LL |     let file = read_to_string(path).unwrap();
    |
    = help: use a name that is not `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, or `read_dir`
 
-error: `std::io` exports a type `BufReader`, which is not the type of `buf_reader`
+warning: `std::io` exports a type `BufReader`, which is not the type of `buf_reader`
   --> $DIR/main.rs:58:9
    |
 LL |     let buf_reader = Cursor::new([]).lines();
@@ -32,7 +31,7 @@ LL |     let buf_reader = Cursor::new([]).lines();
    |
    = help: use `lines` or something similar
 
-error: `one_type` exports a type `Bar`, which is not the type of `bar`
+warning: `one_type` exports a type `Bar`, which is not the type of `bar`
   --> $DIR/main.rs:60:9
    |
 LL |     let bar = one_type::foo();
@@ -40,7 +39,7 @@ LL |     let bar = one_type::foo();
    |
    = help: use a name other than `bar`
 
-error: `two_types` exports a type `Bar`, which is not the type of `bar`
+warning: `two_types` exports a type `Bar`, which is not the type of `bar`
   --> $DIR/main.rs:62:9
    |
 LL |     let bar = two_types::foo();
@@ -48,5 +47,5 @@ LL |     let bar = two_types::foo();
    |
    = help: use a name that is not `bar` or `baz`
 
-error: aborting due to 6 previous errors
+warning: 6 warnings emitted
 

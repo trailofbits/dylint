@@ -1,4 +1,4 @@
-error: `.cx` is the only field of `V` that uses lifetime `'cx`, and is used only to read `.cx.tcx`, whose type `rustc_middle::ty::TyCtxt<'_>` implements `Copy`
+warning: `.cx` is the only field of `V` that uses lifetime `'cx`, and is used only to read `.cx.tcx`, whose type `rustc_middle::ty::TyCtxt<'_>` implements `Copy`
   --> $DIR/main.rs:38:9
    |
 LL |         cx: &'cx LateContext<'tcx>,
@@ -10,8 +10,7 @@ note: read here
 LL |             self.cx.tcx.hir()
    |                 ^^^^^^^
    = help: consider storing a copy of `.cx.tcx` to eliminate the need for `'cx`
-   = note: `-D redundant-reference` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(redundant_reference)]`
+   = note: `#[warn(redundant_reference)]` on by default
 
-error: aborting due to 1 previous error
+warning: 1 warning emitted
 

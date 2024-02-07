@@ -21,6 +21,5 @@ dylint = { version = "=2.6.1", path = "../../dylint" }
 dylint_internal = { version = "=2.6.1", path = "../../internal" }
 
 [features]
-# smoelius: Make `deny_warnings` not a default with the next major version bump.
-default = ["deny_warnings"]
+default = []
 deny_warnings = []

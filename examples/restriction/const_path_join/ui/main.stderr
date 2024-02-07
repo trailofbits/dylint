@@ -1,25 +1,24 @@
-error: path could be constructed from a string literal
+warning: path could be constructed from a string literal
   --> $DIR/main.rs:4:13
    |
 LL |     let _ = std::path::Path::new("..").join("target");
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `std::path::PathBuf::from("../target")`
    |
-   = note: `-D const-path-join` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(const_path_join)]`
+   = note: `#[warn(const_path_join)]` on by default
 
-error: path could be constructed from a string literal
+warning: path could be constructed from a string literal
   --> $DIR/main.rs:5:13
    |
 LL |     let _ = std::path::PathBuf::from("..").join("target");
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `std::path::PathBuf::from("../target")`
 
-error: path could be constructed from a string literal
+warning: path could be constructed from a string literal
   --> $DIR/main.rs:6:13
    |
 LL |     let _ = std::path::PathBuf::from("..").join("target").as_path();
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `std::path::PathBuf::from("../target")`
 
-error: path could be constructed from a string literal
+warning: path could be constructed from a string literal
   --> $DIR/main.rs:7:65
    |
 LL |       let _ = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -28,25 +27,25 @@ LL | |         .join("..")
 LL | |         .join("target");
    | |_______________________^ help: use: `.join("../target")`
 
-error: path could be constructed from a string literal
+warning: path could be constructed from a string literal
   --> $DIR/main.rs:11:13
    |
 LL |     let _ = camino::Utf8Path::new("..").join("target");
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `camino::Utf8PathBuf::from("../target")`
 
-error: path could be constructed from a string literal
+warning: path could be constructed from a string literal
   --> $DIR/main.rs:12:13
    |
 LL |     let _ = camino::Utf8PathBuf::from("..").join("target");
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `camino::Utf8PathBuf::from("../target")`
 
-error: path could be constructed from a string literal
+warning: path could be constructed from a string literal
   --> $DIR/main.rs:13:13
    |
 LL |     let _ = camino::Utf8PathBuf::from("..").join("target").as_path();
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `camino::Utf8PathBuf::from("../target")`
 
-error: path could be constructed from a string literal
+warning: path could be constructed from a string literal
   --> $DIR/main.rs:14:66
    |
 LL |       let _ = camino::Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -55,5 +54,5 @@ LL | |         .join("..")
 LL | |         .join("target");
    | |_______________________^ help: use: `.join("../target")`
 
-error: aborting due to 8 previous errors
+warning: 8 warnings emitted
 

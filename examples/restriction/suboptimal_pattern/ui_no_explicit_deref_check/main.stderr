@@ -1,143 +1,142 @@
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:27:28
    |
 LL |     let _ = ws.iter().map(|w| *w == "").collect::<Vec<_>>();
    |                            ^ help: use: `&w`
    |
-   = note: `-D suboptimal-pattern` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(suboptimal_pattern)]`
+   = note: `#[warn(suboptimal_pattern)]` on by default
 
-error: could destructure references
+warning: could destructure references
   --> $DIR/main.rs:28:28
    |
 LL |     let _ = xs.iter().map(|x| **x == "").collect::<Vec<_>>();
    |                            ^ help: use: `&&x`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:29:28
    |
 LL |     let _ = ys.iter().map(|y| y.0 == "").collect::<Vec<_>>();
    |                            ^ help: use something like: `&(y_0,)`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:32:29
    |
 LL |     let _ = wxs.iter().map(|wx| wx.0 == *wx.1).collect::<Vec<_>>();
    |                             ^^ help: use something like: `&(wx_0, wx_1)`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:33:29
    |
 LL |     let _ = xys.iter().map(|xy| *xy.0 == xy.1 .0).collect::<Vec<_>>();
    |                             ^^ help: use something like: `&(xy_0, xy_1)`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:34:29
    |
 LL |     let _ = yzs.iter().map(|yz| yz.0 .0 == yz.1).collect::<Vec<_>>();
    |                             ^^ help: use something like: `(yz_0, yz_1)`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:36:33
    |
 LL |     let _ = wxs.iter().map(|(w, x)| w == *x).collect::<Vec<_>>();
    |                                 ^ help: use: `&x`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:37:29
    |
 LL |     let _ = xys.iter().map(|(x, y)| **x == y.0).collect::<Vec<_>>();
    |                             ^^^^^^ help: use: `&(x, y)`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:38:30
    |
 LL |     let _ = yzs.iter().map(|(y, z)| y.0 == z).collect::<Vec<_>>();
    |                              ^ help: use something like: `&(y_0,)`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:41:41
    |
 LL |     let _ = xs.clone().into_iter().map(|x| *x == "").collect::<Vec<_>>();
    |                                         ^ help: use: `&x`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:45:15
    |
 LL |         .map(|y| y.0 == "")
    |               ^ help: use something like: `(y_0,)`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:52:15
    |
 LL |         .map(|wx| wx.0 == *wx.1)
    |               ^^ help: use something like: `(wx_0, wx_1)`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:57:15
    |
 LL |         .map(|xy| *xy.0 == xy.1 .0)
    |               ^^ help: use something like: `(xy_0, xy_1)`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:62:15
    |
 LL |         .map(|yz| yz.0 .0 == yz.1)
    |               ^^ help: use something like: `(yz_0, yz_1)`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:68:19
    |
 LL |         .map(|(w, x)| w == *x)
    |                   ^ help: use: `&x`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:73:16
    |
 LL |         .map(|(x, y)| *x == y.0)
    |                ^ help: use: `&x`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:73:19
    |
 LL |         .map(|(x, y)| *x == y.0)
    |                   ^ help: use something like: `(y_0,)`
 
-error: could destructure tuple
+warning: could destructure tuple
   --> $DIR/main.rs:78:16
    |
 LL |         .map(|(y, z)| y.0 == z)
    |                ^ help: use something like: `(y_0,)`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:82:28
    |
 LL |     let _ = xs.iter().map(|&x| *x == "").collect::<Vec<_>>();
    |                            ^^ help: use: `&&x`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:93:34
    |
 LL |         let _ = [&X].iter().map(|x| foo(x)).collect::<Vec<_>>();
    |                                  ^ help: use: `&x`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:115:36
    |
 LL |         let _ = [X(Y)].iter().map(|x| *x).collect::<Vec<_>>();
    |                                    ^ help: use: `&x`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:116:36
    |
 LL |         let _ = [X(Y)].iter().map(|x| **x).collect::<Vec<_>>();
    |                                    ^ help: use: `&x`
 
-error: could destructure reference
+warning: could destructure reference
   --> $DIR/main.rs:124:35
    |
 LL |     let _ = ws.split_last().map(|(w, _)| *w);
    |                                   ^ help: use: `&w`
 
-error: aborting due to 23 previous errors
+warning: 23 warnings emitted
 
