@@ -1,4 +1,3 @@
-#![allow(deprecated)]
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![deny(clippy::expect_used)]
 #![deny(clippy::unwrap_used)]
@@ -52,64 +51,46 @@ static REQUIRED_FORM: Lazy<String> = Lazy::new(|| {
     )
 });
 
+#[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
+#[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 pub fn run(opts: &opts::Dylint) -> Result<()> {
     let opts = {
+        let opts_orig = opts;
+
         let mut opts = opts.clone();
 
-        if opts.force {
-            warn(
-                &opts,
-                "`--force` is deprecated and its meaning may change in the future. Use \
-                 `--allow-downgrade`.",
-            );
-            opts.allow_downgrade = true;
-            opts.force = false;
+        if matches!(
+            opts.operation,
+            opts::Operation::Check(_) | opts::Operation::List(_)
+        ) {
+            let lib_sel = opts.library_selection_mut();
+
+            let path_refers_to_libraries =
+                lib_sel
+                    .paths
+                    .iter()
+                    .try_fold(false, |is_file, path| -> Result<_> {
+                        let metadata =
+                            metadata(path).with_context(|| "Could not read file metadata")?;
+                        Ok(is_file || metadata.is_file())
+                    })?;
+
+            if path_refers_to_libraries {
+                warn(
+                    opts_orig,
+                    "Referring to libraries with `--path` is deprecated. Use `--lib-path`.",
+                );
+                lib_sel.lib_paths.extend(lib_sel.paths.split_off(0));
+            };
+
+            // smoelius: Use of `--git` or `--path` implies `--all`.
+            lib_sel.all |= lib_sel.git_or_path();
         }
-
-        let path_refers_to_libraries =
-            opts.paths
-                .iter()
-                .try_fold(false, |is_file, path| -> Result<_> {
-                    let metadata =
-                        metadata(path).with_context(|| "Could not read file metadata")?;
-                    Ok(is_file || metadata.is_file())
-                })?;
-
-        if path_refers_to_libraries {
-            warn(
-                &opts,
-                "Referring to libraries with `--path` is deprecated. Use `--lib-path`.",
-            );
-            opts.lib_paths.extend(opts.paths.split_off(0));
-        };
-
-        // smoelius: Use of `--git` or `--path` implies `--all`.
-        opts.all |= opts.git_or_path();
 
         opts
     };
 
-    if opts.allow_downgrade && opts.upgrade_path.is_none() {
-        bail!("`--allow-downgrade` can be used only with `--upgrade`");
-    }
-
-    if opts.bisect {
-        #[cfg(not(unix))]
-        bail!("`--bisect` is supported only on Unix platforms");
-
-        #[cfg(unix)]
-        warn(&opts, "`--bisect` is experimental");
-    }
-
-    if opts.bisect && opts.upgrade_path.is_none() {
-        bail!("`--bisect` can be used only with `--upgrade`");
-    }
-
-    if opts.isolate && opts.new_path.is_none() {
-        bail!("`--isolate` can be used only with `--new`");
-    }
-
-    if opts.pattern.is_some() && !opts.git_or_path() {
+    if opts.library_selection().pattern.is_some() && !opts.git_or_path() {
         bail!("`--pattern` can be used only with `--git` or `--path`");
     }
 
@@ -121,31 +102,28 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
         warn(&opts, "`--pipe-stdout` is experimental");
     }
 
-    if opts.rust_version.is_some() && opts.upgrade_path.is_none() {
-        bail!("`--rust-version` can be used only with `--upgrade`");
+    match &opts.operation {
+        opts::Operation::Check(_) | opts::Operation::List(_) => {
+            let name_toolchain_map = NameToolchainMap::new(&opts);
+            run_with_name_toolchain_map(&opts, &name_toolchain_map)
+        }
+        #[cfg(feature = "package_options")]
+        opts::Operation::New(new_opts) => package_options::new_package(&opts, new_opts),
+        #[cfg(feature = "package_options")]
+        opts::Operation::Upgrade(upgrade_opts) => {
+            package_options::upgrade_package(&opts, upgrade_opts)
+        }
     }
-
-    #[cfg(feature = "package_options")]
-    if let Some(path) = &opts.new_path {
-        return package_options::new_package(&opts, Path::new(path));
-    }
-
-    #[cfg(feature = "package_options")]
-    if let Some(path) = &opts.upgrade_path {
-        return package_options::upgrade_package(&opts, Path::new(path));
-    }
-
-    let name_toolchain_map = NameToolchainMap::new(&opts);
-
-    run_with_name_toolchain_map(&opts, &name_toolchain_map)
 }
 
 fn run_with_name_toolchain_map(
     opts: &opts::Dylint,
     name_toolchain_map: &NameToolchainMap,
 ) -> Result<()> {
-    if opts.libs.is_empty() && opts.lib_paths.is_empty() && opts.names.is_empty() && !opts.all {
-        if opts.list {
+    let lib_sel = opts.library_selection();
+
+    if lib_sel.libs.is_empty() && lib_sel.lib_paths.is_empty() && !lib_sel.all {
+        if matches!(opts.operation, opts::Operation::List(_)) {
             warn_if_empty(opts, name_toolchain_map)?;
             return list_libs(name_toolchain_map);
         }
@@ -157,21 +135,21 @@ fn run_with_name_toolchain_map(
     let resolved = resolve(opts, name_toolchain_map)?;
 
     if resolved.is_empty() {
-        assert!(opts.libs.is_empty());
-        assert!(opts.lib_paths.is_empty());
-        assert!(opts.names.is_empty());
+        assert!(lib_sel.libs.is_empty());
+        assert!(lib_sel.lib_paths.is_empty());
 
         let name_toolchain_map_is_empty = warn_if_empty(opts, name_toolchain_map)?;
 
         // smoelius: If `name_toolchain_map` is NOT empty, then it had better be the case that
         // `--all` was not passed.
-        assert!(name_toolchain_map_is_empty || !opts.all);
+        assert!(name_toolchain_map_is_empty || !lib_sel.all);
     }
 
-    if opts.list {
-        list_lints(opts, &resolved)
-    } else {
-        check_or_fix(opts, &resolved)
+    match &opts.operation {
+        opts::Operation::Check(check_opts) => check_or_fix(opts, check_opts, &resolved),
+        opts::Operation::List(_) => list_lints(opts, &resolved),
+        #[allow(unreachable_patterns)]
+        _ => unreachable!(),
     }
 }
 
@@ -219,9 +197,11 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
     allow(question_mark_in_expression)
 )]
 fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result<ToolchainMap> {
+    let lib_sel = opts.library_selection();
+
     let mut toolchain_map = ToolchainMap::new();
 
-    if opts.all {
+    if lib_sel.all {
         let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
 
         for other in name_toolchain_map.values() {
@@ -238,49 +218,17 @@ fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result
         }
     }
 
-    for name in &opts.libs {
-        ensure!(!opts.all, "`--lib` cannot be used with `--all`");
+    for name in &lib_sel.libs {
+        ensure!(!lib_sel.all, "`--lib` cannot be used with `--all`");
         let (toolchain, maybe_library) =
             name_as_lib(name_toolchain_map, name, true)?.unwrap_or_else(|| unreachable!());
         let path = maybe_library.build(opts)?;
         toolchain_map.entry(toolchain).or_default().insert(path);
     }
 
-    for name in &opts.lib_paths {
+    for name in &lib_sel.lib_paths {
         let (toolchain, path) = name_as_path(name, true)?.unwrap_or_else(|| unreachable!());
         toolchain_map.entry(toolchain).or_default().insert(path);
-    }
-
-    let mut not_found = Vec::new();
-
-    for name in &opts.names {
-        if let Some((toolchain, maybe_library)) = name_as_lib(name_toolchain_map, name, false)? {
-            ensure!(
-                !opts.all,
-                "`{}` is a library name and cannot be used with `--all`; if a path was meant, use \
-                 `--lib-path {}`",
-                name,
-                name
-            );
-            let path = maybe_library.build(opts)?;
-            toolchain_map.entry(toolchain).or_default().insert(path);
-        } else if let Some((toolchain, path)) = name_as_path(name, false)? {
-            toolchain_map.entry(toolchain).or_default().insert(path);
-        } else {
-            not_found.push(name);
-        }
-    }
-
-    #[allow(clippy::format_collect)]
-    if !not_found.is_empty() {
-        not_found.sort_unstable();
-        bail!(
-            "Could not find the following libraries:{}",
-            not_found
-                .iter()
-                .map(|name| format!("\n    {name}"))
-                .collect::<String>()
-        );
     }
 
     Ok(toolchain_map)
@@ -425,7 +373,11 @@ fn display_location(path: &Path) -> Result<String> {
         .to_string())
 }
 
-fn check_or_fix(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
+fn check_or_fix(
+    opts: &opts::Dylint,
+    check_opts: &opts::Check,
+    resolved: &ToolchainMap,
+) -> Result<()> {
     let clippy_disable_docs_links = clippy_disable_docs_links()?;
 
     let mut failures = Vec::new();
@@ -444,23 +396,23 @@ fn check_or_fix(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
             .unwrap_or_default()
             .to_string();
         let description = format!("with toolchain `{toolchain}`");
-        let mut command = if opts.fix {
+        let mut command = if check_opts.fix {
             dylint_internal::cargo::fix(&description)
         } else {
             dylint_internal::cargo::check(&description)
         }
         .build();
         let mut args = vec!["--target-dir", &target_dir_str];
-        if let Some(path) = &opts.manifest_path {
+        if let Some(path) = &check_opts.lib_sel.manifest_path {
             args.extend(["--manifest-path", path]);
         }
-        for spec in &opts.packages {
+        for spec in &check_opts.packages {
             args.extend(["-p", spec]);
         }
-        if opts.workspace {
+        if check_opts.workspace {
             args.extend(["--workspace"]);
         }
-        args.extend(opts.args.iter().map(String::as_str));
+        args.extend(check_opts.args.iter().map(String::as_str));
 
         // smoelius: Set CLIPPY_DISABLE_DOCS_LINKS to prevent lints from accidentally linking to the
         // Clippy repository. But set it to the JSON-encoded original value so that the Clippy
@@ -479,7 +431,10 @@ fn check_or_fix(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
                 ),
                 (env::DYLINT_LIBS, &dylint_libs),
                 (env::DYLINT_METADATA, &dylint_metadata_str),
-                (env::DYLINT_NO_DEPS, if opts.no_deps { "1" } else { "0" }),
+                (
+                    env::DYLINT_NO_DEPS,
+                    if check_opts.no_deps { "1" } else { "0" },
+                ),
                 (env::RUSTC_WORKSPACE_WRAPPER, &*driver.to_string_lossy()),
                 (env::RUSTUP_TOOLCHAIN, toolchain),
             ])
@@ -505,7 +460,7 @@ fn check_or_fix(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
 
         let result = command.success();
         if result.is_err() {
-            if !opts.keep_going {
+            if !check_opts.keep_going {
                 return result
                     .with_context(|| format!("Compilation failed with toolchain `{toolchain}`"));
             };
@@ -525,7 +480,7 @@ fn check_or_fix(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
 
 fn target_dir(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     let mut command = MetadataCommand::new();
-    if let Some(path) = &opts.manifest_path {
+    if let Some(path) = &opts.library_selection().manifest_path {
         command.manifest_path(path);
     }
     let metadata = command.no_deps().exec()?;
@@ -559,8 +514,14 @@ mod test {
     static MUTEX: Mutex<()> = Mutex::new(());
 
     static OPTS: Lazy<opts::Dylint> = Lazy::new(|| opts::Dylint {
-        no_metadata: true,
-        ..opts::Dylint::default()
+        operation: opts::Operation::Check(opts::Check {
+            lib_sel: opts::LibrarySelection {
+                no_metadata: true,
+                ..Default::default()
+            },
+            ..Default::default()
+        }),
+        ..Default::default()
     });
 
     fn name_toolchain_map() -> NameToolchainMap<'static> {
@@ -606,11 +567,17 @@ mod test {
         );
 
         let opts = opts::Dylint {
-            libs: vec![
-                "question_mark_in_expression".to_owned(),
-                "straggler".to_owned(),
-            ],
-            ..opts::Dylint::default()
+            operation: opts::Operation::Check(opts::Check {
+                lib_sel: opts::LibrarySelection {
+                    libs: vec![
+                        "question_mark_in_expression".to_owned(),
+                        "straggler".to_owned(),
+                    ],
+                    ..Default::default()
+                },
+                ..Default::default()
+            }),
+            ..Default::default()
         };
 
         run_with_name_toolchain_map(&opts, &name_toolchain_map).unwrap();
@@ -652,11 +619,17 @@ mod test {
         );
 
         let opts = opts::Dylint {
-            libs: vec![
-                "clippy".to_owned(),
-                "question_mark_in_expression".to_owned(),
-            ],
-            ..opts::Dylint::default()
+            operation: opts::Operation::Check(opts::Check {
+                lib_sel: opts::LibrarySelection {
+                    libs: vec![
+                        "clippy".to_owned(),
+                        "question_mark_in_expression".to_owned(),
+                    ],
+                    ..Default::default()
+                },
+                ..Default::default()
+            }),
+            ..Default::default()
         };
 
         run_with_name_toolchain_map(&opts, &name_toolchain_map).unwrap();

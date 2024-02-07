@@ -1,6 +1,7 @@
 // smoelius: This file is a slight modification of:
 // https://github.com/rust-lang/cargo/blob/aab416f6e68d555e8c9a0f02098a24946e0725fb/src/cargo/util/hex.rs
 
+#![allow(deprecated)]
 #![allow(clippy::module_name_repetitions)]
 #![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 #![cfg_attr(dylint_lib = "supplementary", allow(unnamed_constant))]

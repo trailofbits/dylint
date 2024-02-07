@@ -84,16 +84,18 @@ struct Library {
 }
 
 pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
+    let lib_sel = opts.library_selection();
+
     let maybe_metadata = cargo_metadata(opts)?;
 
     let metadata = maybe_metadata.ok_or_else(|| anyhow!("Could not read cargo metadata"))?;
 
     ensure!(
-        opts.paths.len() <= 1,
+        lib_sel.paths.len() <= 1,
         "At most one library package can be named with `--path`"
     );
 
-    let path = if let Some(path) = opts.paths.first() {
+    let path = if let Some(path) = lib_sel.paths.first() {
         let canonical_path =
             canonicalize(path).with_context(|| format!("Could not canonicalize {path:?}"))?;
         Some(canonical_path.to_string_lossy().to_string())
@@ -103,10 +105,10 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
 
     let toml: toml::map::Map<_, _> = vec![
         to_map_entry("path", path.as_ref()),
-        to_map_entry("git", opts.git.as_ref()),
-        to_map_entry("branch", opts.branch.as_ref()),
-        to_map_entry("tag", opts.tag.as_ref()),
-        to_map_entry("rev", opts.rev.as_ref()),
+        to_map_entry("git", lib_sel.git.as_ref()),
+        to_map_entry("branch", lib_sel.branch.as_ref()),
+        to_map_entry("tag", lib_sel.tag.as_ref()),
+        to_map_entry("rev", lib_sel.rev.as_ref()),
     ]
     .into_iter()
     .flatten()
@@ -116,7 +118,7 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
 
     let library = Library {
         details,
-        pattern: opts.pattern.clone(),
+        pattern: lib_sel.pattern.clone(),
     };
 
     library_packages(opts, metadata, &[library])
@@ -163,20 +165,22 @@ static CARGO_METADATA: OnceCell<Option<Metadata>> = OnceCell::new();
 fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
     CARGO_METADATA
         .get_or_try_init(|| {
-            if opts.no_metadata {
+            let lib_sel = opts.library_selection();
+
+            if lib_sel.no_metadata {
                 return Ok(None);
             }
 
             let mut command = MetadataCommand::new();
 
-            if let Some(path) = &opts.manifest_path {
+            if let Some(path) = &lib_sel.manifest_path {
                 command.manifest_path(path);
             }
 
             match command.exec() {
                 Ok(metadata) => Ok(Some(metadata)),
                 Err(err) => {
-                    if opts.manifest_path.is_none() {
+                    if lib_sel.manifest_path.is_none() {
                         if_chain! {
                             if let Error::CargoMetadata { stderr } = err;
                             if let Some(line) = stderr.lines().next();
@@ -380,7 +384,7 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
 
     let path = package.path();
 
-    if !opts.no_build {
+    if !opts.library_selection().no_build {
         // smoelius: Clear `RUSTFLAGS` so that changes to it do not cause workspace metadata entries
         // to be rebuilt.
         dylint_internal::cargo::build(&format!("workspace metadata entry `{}`", package.id.name()))

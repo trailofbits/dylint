@@ -41,35 +41,14 @@ METADATA EXAMPLE:
     ]
 "#,
 )]
-// smoelius: Please keep the field `name_opts` first, and the fields `subcmd`, `names`, and `args`
-// last. Please keep all other fields sorted.
+// smoelius: Please keep the last four fields `args`, `operation`, `lib_sel`, and `output`, in that
+// order. Please keep all other fields sorted.
 struct Dylint {
-    #[clap(flatten)]
-    name_opts: NameOpts,
-
-    #[clap(long, hide = true)]
-    allow_downgrade: bool,
-
-    #[clap(long, hide = true)]
-    bisect: bool,
-
     #[clap(long, help = "Automatically apply lint suggestions")]
     fix: bool,
 
-    #[clap(long, hide = true)]
-    force: bool,
-
-    #[clap(long, hide = true)]
-    isolate: bool,
-
     #[clap(long, help = "Continue if `cargo check` fails")]
     keep_going: bool,
-
-    #[clap(long, hide = true)]
-    list: bool,
-
-    #[clap(long = "new", hide = true)]
-    new_path: Option<String>,
 
     #[clap(long, help = "Do not check other packages within the workspace")]
     no_deps: bool,
@@ -84,42 +63,24 @@ struct Dylint {
     )]
     packages: Vec<String>,
 
-    #[clap(long, value_name = "path", help = "Path to pipe stderr to")]
-    pipe_stderr: Option<String>,
-
-    #[clap(long, value_name = "path", help = "Path to pipe stdout to")]
-    pipe_stdout: Option<String>,
-
-    #[clap(
-        global = true,
-        short,
-        long,
-        help = "Do not show warnings or progress running commands besides `cargo check` and \
-                `cargo fix`"
-    )]
-    quiet: bool,
-
-    #[clap(long, hide = true)]
-    rust_version: Option<String>,
-
-    #[clap(long = "upgrade", hide = true)]
-    upgrade_path: Option<String>,
-
     #[clap(long, help = "Check all packages in the workspace")]
     workspace: bool,
 
-    #[clap(subcommand)]
-    subcmd: Option<DylintSubcommand>,
-
-    #[clap(hide = true)]
-    names: Vec<String>,
-
     #[clap(last = true, help = "Arguments for `cargo check`")]
     args: Vec<String>,
+
+    #[clap(subcommand)]
+    operation: Option<Operation>,
+
+    #[clap(flatten)]
+    lib_sel: LibrarySelection,
+
+    #[clap(flatten)]
+    output: OutputOptions,
 }
 
 #[derive(Debug, Parser)]
-enum DylintSubcommand {
+enum Operation {
     #[clap(
         about = "List libraries or lints",
         long_about = "If no libraries are named, list the name, toolchain, and location of all \
@@ -132,7 +93,7 @@ Combine with `--all` to list all lints in all discovered libraries."
     )]
     List {
         #[clap(flatten)]
-        name_opts: NameOpts,
+        lib_sel: LibrarySelection,
     },
 
     #[clap(
@@ -158,13 +119,6 @@ Combine with `--all` to list all lints in all discovered libraries."
 
         #[clap(
             long,
-            help = "Unix only/experimental: Update dependencies and search for the most recent \
-                    applicable toolchain"
-        )]
-        bisect: bool,
-
-        #[clap(
-            long,
             value_name = "version",
             help = "Upgrade to the version of `clippy_utils` with tag `rust-<version>`"
         )]
@@ -176,7 +130,8 @@ Combine with `--all` to list all lints in all discovered libraries."
 }
 
 #[derive(Debug, Parser)]
-struct NameOpts {
+#[cfg_attr(feature = "__clap_headings", clap(next_help_heading = Some("Library Selection")))]
+struct LibrarySelection {
     #[clap(long, help = "Load all discovered libraries")]
     all: bool,
 
@@ -261,130 +216,81 @@ struct NameOpts {
     tag: Option<String>,
 }
 
-#[allow(deprecated)]
-impl From<Dylint> for dylint::opts::Dylint {
-    fn from(opts: Dylint) -> Self {
-        let opts = process_deprecated_options(opts);
-        let Dylint {
-            name_opts:
-                NameOpts {
-                    all,
-                    branch,
-                    git,
-                    lib_paths,
-                    libs,
-                    manifest_path,
-                    no_build,
-                    no_metadata,
-                    paths,
-                    pattern,
-                    rev,
-                    tag,
-                },
-            allow_downgrade,
-            bisect,
-            fix,
-            force,
-            isolate,
-            keep_going,
-            list,
-            new_path,
-            no_deps,
-            packages,
-            pipe_stderr,
-            pipe_stdout,
-            quiet,
-            rust_version,
-            upgrade_path,
-            workspace,
-            subcmd: _,
-            names,
-            args,
-        } = opts;
-        Self {
-            all,
-            allow_downgrade,
-            bisect,
-            branch,
-            fix,
-            force,
-            git,
-            isolate,
-            keep_going,
-            lib_paths,
-            libs,
-            list,
-            manifest_path,
-            new_path,
-            no_build,
-            no_deps,
-            no_metadata,
-            packages,
-            paths,
-            pattern,
-            pipe_stderr,
-            pipe_stdout,
-            quiet,
-            rev,
-            rust_version,
-            tag,
-            upgrade_path,
-            workspace,
-            names,
-            args,
-        }
-    }
+#[derive(Debug, Parser)]
+#[cfg_attr(feature = "__clap_headings", clap(next_help_heading = Some("Output Options")))]
+struct OutputOptions {
+    #[clap(long, value_name = "path", help = "Path to pipe stderr to")]
+    pipe_stderr: Option<String>,
+
+    #[clap(long, value_name = "path", help = "Path to pipe stdout to")]
+    pipe_stdout: Option<String>,
+
+    #[clap(
+        global = true,
+        short,
+        long,
+        help = "Do not show warnings or progress running commands besides `cargo check` and \
+                `cargo fix`"
+    )]
+    quiet: bool,
 }
 
-fn process_deprecated_options(mut opts: Dylint) -> Dylint {
-    if opts.list {
-        dylint::__warn(
-            &dylint::opts::Dylint::default(),
-            "`--list` is deprecated. Use subcommand `list`.",
-        );
-    }
-    if opts.new_path.is_some() {
-        dylint::__warn(
-            &dylint::opts::Dylint::default(),
-            "`--new` is deprecated. Use subcommand `new`.",
-        );
-    }
-    if opts.upgrade_path.is_some() {
-        dylint::__warn(
-            &dylint::opts::Dylint::default(),
-            "`--upgrade` is deprecated. Use subcommand `upgrade`.",
-        );
-    }
-    if !opts.names.is_empty() {
-        dylint::__warn(
-            &dylint::opts::Dylint::default(),
-            "Referring to libraries by bare name is deprecated. Use `--lib` or `--lib-path`.",
-        );
-    }
-    if let Some(subcmd) = opts.subcmd.take() {
-        match subcmd {
-            DylintSubcommand::List { name_opts } => {
-                opts.name_opts.absorb(name_opts);
-                opts.list = true;
+impl From<Dylint> for dylint::opts::Dylint {
+    fn from(opts: Dylint) -> Self {
+        let Dylint {
+            fix,
+            keep_going,
+            no_deps,
+            packages,
+            workspace,
+            args,
+            operation,
+            mut lib_sel,
+            output:
+                OutputOptions {
+                    pipe_stderr,
+                    pipe_stdout,
+                    quiet,
+                },
+        } = opts;
+        let operation = match operation {
+            None => dylint::opts::Operation::Check({
+                dylint::opts::Check {
+                    lib_sel: lib_sel.into(),
+                    fix,
+                    keep_going,
+                    no_deps,
+                    packages,
+                    workspace,
+                    args,
+                }
+            }),
+            Some(Operation::List { lib_sel: other }) => {
+                lib_sel.absorb(other);
+                dylint::opts::Operation::List(dylint::opts::List {
+                    lib_sel: lib_sel.into(),
+                })
             }
-            DylintSubcommand::New { isolate, path } => {
-                opts.isolate |= isolate;
-                opts.new_path = Some(path);
+            Some(Operation::New { isolate, path }) => {
+                dylint::opts::Operation::New(dylint::opts::New { isolate, path })
             }
-            DylintSubcommand::Upgrade {
+            Some(Operation::Upgrade {
                 allow_downgrade,
-                bisect,
                 rust_version,
                 path,
-            } => {
-                opts.allow_downgrade |= allow_downgrade;
-                opts.bisect |= bisect;
-                opts.rust_version = rust_version;
-                opts.upgrade_path = Some(path);
-            }
+            }) => dylint::opts::Operation::Upgrade(dylint::opts::Upgrade {
+                allow_downgrade,
+                rust_version,
+                path,
+            }),
+        };
+        Self {
+            pipe_stderr,
+            pipe_stdout,
+            quiet,
+            operation,
         }
     }
-    opts
 }
 
 macro_rules! option_absorb {
@@ -400,7 +306,7 @@ macro_rules! option_absorb {
     };
 }
 
-impl NameOpts {
+impl LibrarySelection {
     pub fn absorb(&mut self, other: Self) {
         let Self {
             all,
@@ -428,6 +334,39 @@ impl NameOpts {
         option_absorb!(&mut self.pattern, pattern);
         option_absorb!(&mut self.rev, rev);
         option_absorb!(&mut self.tag, tag);
+    }
+}
+
+impl From<LibrarySelection> for dylint::opts::LibrarySelection {
+    fn from(lib_sel: LibrarySelection) -> Self {
+        let LibrarySelection {
+            all,
+            branch,
+            git,
+            lib_paths,
+            libs,
+            manifest_path,
+            no_build,
+            no_metadata,
+            paths,
+            pattern,
+            rev,
+            tag,
+        } = lib_sel;
+        Self {
+            all,
+            branch,
+            git,
+            lib_paths,
+            libs,
+            manifest_path,
+            no_build,
+            no_metadata,
+            paths,
+            pattern,
+            rev,
+            tag,
+        }
     }
 }
 

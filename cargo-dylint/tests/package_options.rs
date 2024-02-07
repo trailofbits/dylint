@@ -105,38 +105,25 @@ fn downgrade_upgrade_package() {
         .success()
         .unwrap();
 
-    if cfg!(not(unix)) {
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
-            .args(["dylint", "upgrade", &tempdir.path().to_string_lossy()])
-            .assert()
-            .success();
-    } else {
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
-            .args([
-                "dylint",
-                "upgrade",
-                &tempdir.path().to_string_lossy(),
-                "--bisect",
-            ])
-            .assert()
-            .success();
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .args(["dylint", "upgrade", &tempdir.path().to_string_lossy()])
+        .assert()
+        .success();
 
-        dylint_internal::cargo::build("upgraded dylint-template")
-            .build()
-            .sanitize_environment()
-            .current_dir(&tempdir)
-            .success()
-            .unwrap();
+    dylint_internal::cargo::build("upgraded dylint-template")
+        .build()
+        .sanitize_environment()
+        .current_dir(&tempdir)
+        .success()
+        .unwrap();
 
-        dylint_internal::cargo::test("upgraded dylint-template")
-            .build()
-            .sanitize_environment()
-            .current_dir(&tempdir)
-            .success()
-            .unwrap();
-    }
+    dylint_internal::cargo::test("upgraded dylint-template")
+        .build()
+        .sanitize_environment()
+        .current_dir(&tempdir)
+        .success()
+        .unwrap();
 }
 
 #[allow(dead_code)]
