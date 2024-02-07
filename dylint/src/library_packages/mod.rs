@@ -1,4 +1,4 @@
-use crate::error::warn;
+use crate::{error::warn, opts};
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage};
 use dylint_internal::{env, library_filename, rustup::SanitizeEnvironment, CommandExt};
@@ -83,7 +83,7 @@ struct Library {
     details: DetailedTomlDependency,
 }
 
-pub fn from_opts(opts: &crate::Dylint) -> Result<Vec<Package>> {
+pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
     let maybe_metadata = cargo_metadata(opts)?;
 
     let metadata = maybe_metadata.ok_or_else(|| anyhow!("Could not read cargo metadata"))?;
@@ -128,7 +128,7 @@ fn to_map_entry(key: &str, value: Option<&String>) -> Option<(String, toml::Valu
         .map(|s| (String::from(key), toml::Value::from(s)))
 }
 
-pub fn from_workspace_metadata(opts: &crate::Dylint) -> Result<Vec<Package>> {
+pub fn from_workspace_metadata(opts: &opts::Dylint) -> Result<Vec<Package>> {
     if_chain! {
         if let Some(metadata) = cargo_metadata(opts)?;
         if let Some(object) = dylint_metadata(opts)?;
@@ -141,7 +141,7 @@ pub fn from_workspace_metadata(opts: &crate::Dylint) -> Result<Vec<Package>> {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub fn dylint_metadata(opts: &crate::Dylint) -> Result<Option<&'static Object>> {
+pub fn dylint_metadata(opts: &opts::Dylint) -> Result<Option<&'static Object>> {
     if_chain! {
         if let Some(metadata) = cargo_metadata(opts)?;
         if let serde_json::Value::Object(object) = &metadata.workspace_metadata;
@@ -160,7 +160,7 @@ pub fn dylint_metadata(opts: &crate::Dylint) -> Result<Option<&'static Object>> 
 
 static CARGO_METADATA: OnceCell<Option<Metadata>> = OnceCell::new();
 
-fn cargo_metadata(opts: &crate::Dylint) -> Result<Option<&'static Metadata>> {
+fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
     CARGO_METADATA
         .get_or_try_init(|| {
             if opts.no_metadata {
@@ -196,7 +196,7 @@ fn cargo_metadata(opts: &crate::Dylint) -> Result<Option<&'static Metadata>> {
 }
 
 fn library_packages_from_dylint_metadata(
-    opts: &crate::Dylint,
+    opts: &opts::Dylint,
     metadata: &'static Metadata,
     object: &Object,
 ) -> Result<Vec<Package>> {
@@ -215,7 +215,7 @@ fn library_packages_from_dylint_metadata(
 }
 
 fn library_packages(
-    opts: &crate::Dylint,
+    opts: &opts::Dylint,
     metadata: &'static Metadata,
     libraries: &[Library],
 ) -> Result<Vec<Package>> {
@@ -231,7 +231,7 @@ fn library_packages(
 }
 
 fn library_package(
-    opts: &crate::Dylint,
+    opts: &opts::Dylint,
     metadata: &'static Metadata,
     config: &Config,
     library: &Library,
@@ -375,7 +375,7 @@ pub fn package_library_name(package: &MetadataPackage) -> Result<String> {
         })
 }
 
-pub fn build_library(opts: &crate::Dylint, package: &Package) -> Result<PathBuf> {
+pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> {
     let target_dir = package.target_directory();
 
     let path = package.path();

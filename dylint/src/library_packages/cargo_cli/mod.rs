@@ -15,6 +15,7 @@
 //!
 //! [Marker]: https://github.com/rust-marker/marker
 
+use crate::opts;
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::{Metadata, MetadataCommand};
 use dylint_internal::{packaging::isolate, CommandExt};
@@ -82,7 +83,7 @@ impl PackageId {
 }
 
 pub fn dependency_source_id_and_root(
-    _opts: &crate::Dylint,
+    _opts: &opts::Dylint,
     metadata: &Metadata,
     _config: &Config,
     details: &DetailedTomlDependency,

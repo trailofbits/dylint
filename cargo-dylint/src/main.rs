@@ -262,7 +262,7 @@ struct NameOpts {
 }
 
 #[allow(deprecated)]
-impl From<Dylint> for dylint::Dylint {
+impl From<Dylint> for dylint::opts::Dylint {
     fn from(opts: Dylint) -> Self {
         let opts = process_deprecated_options(opts);
         let Dylint {
@@ -339,25 +339,25 @@ impl From<Dylint> for dylint::Dylint {
 fn process_deprecated_options(mut opts: Dylint) -> Dylint {
     if opts.list {
         dylint::__warn(
-            &dylint::Dylint::default(),
+            &dylint::opts::Dylint::default(),
             "`--list` is deprecated. Use subcommand `list`.",
         );
     }
     if opts.new_path.is_some() {
         dylint::__warn(
-            &dylint::Dylint::default(),
+            &dylint::opts::Dylint::default(),
             "`--new` is deprecated. Use subcommand `new`.",
         );
     }
     if opts.upgrade_path.is_some() {
         dylint::__warn(
-            &dylint::Dylint::default(),
+            &dylint::opts::Dylint::default(),
             "`--upgrade` is deprecated. Use subcommand `upgrade`.",
         );
     }
     if !opts.names.is_empty() {
         dylint::__warn(
-            &dylint::Dylint::default(),
+            &dylint::opts::Dylint::default(),
             "Referring to libraries by bare name is deprecated. Use `--lib` or `--lib-path`.",
         );
     }
@@ -434,7 +434,7 @@ impl NameOpts {
 fn main() -> dylint::ColorizedResult<()> {
     env_logger::try_init().unwrap_or_else(|error| {
         dylint::__warn(
-            &dylint::Dylint::default(),
+            &dylint::opts::Dylint::default(),
             &format!("`env_logger` already initialized: {error}"),
         );
     });
@@ -446,7 +446,7 @@ fn main() -> dylint::ColorizedResult<()> {
 
 fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> dylint::ColorizedResult<()> {
     match Opts::parse_from(args).subcmd {
-        CargoSubcommand::Dylint(opts) => dylint::run(&dylint::Dylint::from(opts)),
+        CargoSubcommand::Dylint(opts) => dylint::run(&dylint::opts::Dylint::from(opts)),
     }
     .map_err(dylint::ColorizedError::new)
 }

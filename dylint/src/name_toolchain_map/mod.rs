@@ -21,7 +21,7 @@ pub(crate) type LazyToolchainMap = BTreeMap<String, BTreeSet<MaybeLibrary>>;
 
 #[cfg_attr(not(__library_packages), allow(dead_code))]
 struct Inner<'opts> {
-    opts: &'opts crate::Dylint,
+    opts: &'opts crate::opts::Dylint,
     name_toolchain_map: OnceCell<NameToolchainMap>,
 }
 
@@ -31,7 +31,7 @@ pub struct Lazy<'opts> {
 
 impl<'opts> Lazy<'opts> {
     #[must_use]
-    pub const fn new(opts: &'opts crate::Dylint) -> Self {
+    pub const fn new(opts: &'opts crate::opts::Dylint) -> Self {
         Self {
             inner: Inner {
                 opts,

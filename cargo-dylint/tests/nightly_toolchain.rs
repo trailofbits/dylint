@@ -11,7 +11,7 @@ fn nightly_toolchain() {
     update_nightly().unwrap();
 
     #[allow(let_underscore_drop)]
-    let _ = dylint::driver_builder::get(&dylint::Dylint::default(), "nightly").unwrap();
+    let _ = dylint::driver_builder::get(&dylint::opts::Dylint::default(), "nightly").unwrap();
 }
 
 fn update_nightly() -> Result<()> {
