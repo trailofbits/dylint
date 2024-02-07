@@ -22,7 +22,7 @@ use std::{
 type Object = serde_json::Map<String, serde_json::Value>;
 
 // smoelius: See note in dylint/src/metadata/mod.rs.
-#[cfg(all(feature = "__metadata_cargo", not(feature = "__metadata_cli")))]
+#[cfg(all(feature = "__cargo_lib", not(feature = "__cargo_cli")))]
 pub(crate) use cargo::{core, sources, util};
 
 pub mod driver_builder;
@@ -37,8 +37,8 @@ mod name_toolchain_map;
 pub use name_toolchain_map::{Lazy as NameToolchainMap, ToolchainMap};
 use name_toolchain_map::{LazyToolchainMap, MaybeLibrary};
 
-#[cfg(__metadata)]
-pub(crate) mod metadata;
+#[cfg(__library_packages)]
+pub(crate) mod library_packages;
 
 #[cfg(feature = "package_options")]
 mod package_options;
@@ -511,10 +511,10 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
         let target_dir_str = target_dir.to_string_lossy();
         let driver = driver_builder::get(opts, toolchain)?;
         let dylint_libs = serde_json::to_string(&paths)?;
-        #[cfg(not(__metadata))]
+        #[cfg(not(__library_packages))]
         let dylint_metadata = None;
-        #[cfg(__metadata)]
-        let dylint_metadata = metadata::dylint_metadata(opts)?;
+        #[cfg(__library_packages)]
+        let dylint_metadata = library_packages::dylint_metadata(opts)?;
         let dylint_metadata_str = dylint_metadata
             .map(|object: &Object| serde_json::Value::from(object.clone()))
             .unwrap_or_default()

@@ -11,14 +11,14 @@ use std::{
     path::{Path, PathBuf},
 };
 
-// smoelius: If both `__metadata_cargo` and `__metadata_cli` are enabled, assume the user built with
-// `--features=metadata-cli` and forgot `--no-default-features`.
-#[cfg(all(feature = "__metadata_cargo", not(feature = "__metadata_cli")))]
-#[path = "cargo/mod.rs"]
+// smoelius: If both `__cargo_lib` and `__cargo_cli` are enabled, assume the user built with
+// `--features=cargo-cli` and forgot `--no-default-features`.
+#[cfg(all(feature = "__cargo_lib", not(feature = "__cargo_cli")))]
+#[path = "cargo_lib/mod.rs"]
 mod impl_;
 
-#[cfg(feature = "__metadata_cli")]
-#[path = "cli/mod.rs"]
+#[cfg(feature = "__cargo_cli")]
+#[path = "cargo_cli/mod.rs"]
 mod impl_;
 
 use impl_::{dependency_source_id_and_root, Config, DetailedTomlDependency, PackageId, SourceId};
@@ -83,7 +83,7 @@ struct Library {
     details: DetailedTomlDependency,
 }
 
-pub fn opts_library_packages(opts: &crate::Dylint) -> Result<Vec<Package>> {
+pub fn from_opts(opts: &crate::Dylint) -> Result<Vec<Package>> {
     let maybe_metadata = cargo_metadata(opts)?;
 
     let metadata = maybe_metadata.ok_or_else(|| anyhow!("Could not read cargo metadata"))?;
@@ -128,12 +128,12 @@ fn to_map_entry(key: &str, value: Option<&String>) -> Option<(String, toml::Valu
         .map(|s| (String::from(key), toml::Value::from(s)))
 }
 
-pub fn workspace_metadata_packages(opts: &crate::Dylint) -> Result<Vec<Package>> {
+pub fn from_workspace_metadata(opts: &crate::Dylint) -> Result<Vec<Package>> {
     if_chain! {
         if let Some(metadata) = cargo_metadata(opts)?;
         if let Some(object) = dylint_metadata(opts)?;
         then {
-            dylint_metadata_packages(opts, metadata, object)
+            library_packages_from_dylint_metadata(opts, metadata, object)
         } else {
             Ok(vec![])
         }
@@ -195,7 +195,7 @@ fn cargo_metadata(opts: &crate::Dylint) -> Result<Option<&'static Metadata>> {
         .map(Option::as_ref)
 }
 
-fn dylint_metadata_packages(
+fn library_packages_from_dylint_metadata(
     opts: &crate::Dylint,
     metadata: &'static Metadata,
     object: &Object,
@@ -303,7 +303,7 @@ fn library_package(
                 let Ok(package) = package_with_root(&path) else {
                     return Ok(None);
                 };
-                // smoelius: When `__metadata_cli` is enabled, `source_id`'s type is `String`.
+                // smoelius: When `__cargo_cli` is enabled, `source_id`'s type is `String`.
                 #[allow(clippy::clone_on_copy)]
                 let package_id = package_id(&package, source_id.clone())?;
                 let lib_name = package_library_name(&package)?;

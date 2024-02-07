@@ -361,12 +361,12 @@ fn supply_chain() {
     for target in TARGETS {
         let mut command = Command::new("cargo");
         command.args(["supply-chain", "json", "--no-dev", "--target", target]);
-        let subdir = if cfg!(feature = "metadata-cargo") {
-            "cargo"
+        let subdir = if cfg!(feature = "cargo-lib") {
+            "cargo_lib"
         } else {
-            assert!(cfg!(feature = "metadata-cli"));
-            command.args(["--no-default-features", "--features=metadata-cli"]);
-            "cli"
+            assert!(cfg!(feature = "cargo-cli"));
+            command.args(["--no-default-features", "--features=cargo-cli"]);
+            "cargo_cli"
         };
         let assert = command.assert().success();
 

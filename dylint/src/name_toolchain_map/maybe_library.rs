@@ -24,9 +24,9 @@ impl From<PathBuf> for MaybeLibrary {
     }
 }
 
-#[cfg(__metadata)]
-impl From<crate::metadata::Package> for MaybeLibrary {
-    fn from(package: crate::metadata::Package) -> Self {
+#[cfg(__library_packages)]
+impl From<crate::library_packages::Package> for MaybeLibrary {
+    fn from(package: crate::library_packages::Package) -> Self {
         Self {
             inner: Inner::Package(package),
         }
@@ -37,8 +37,8 @@ impl From<crate::metadata::Package> for MaybeLibrary {
 pub enum Inner {
     Path(PathBuf),
 
-    #[cfg(__metadata)]
-    Package(crate::metadata::Package),
+    #[cfg(__library_packages)]
+    Package(crate::library_packages::Package),
 }
 
 impl Inner {
@@ -46,18 +46,18 @@ impl Inner {
         match self {
             Self::Path(path) => path.clone(),
 
-            #[cfg(__metadata)]
+            #[cfg(__library_packages)]
             Self::Package(package) => package.path(),
         }
     }
 
-    #[cfg_attr(not(__metadata), allow(unused_variables))]
+    #[cfg_attr(not(__library_packages), allow(unused_variables))]
     fn build(&self, opts: &crate::Dylint) -> Result<PathBuf> {
         match self {
             Self::Path(path) => Ok(path.clone()),
 
-            #[cfg(__metadata)]
-            Self::Package(package) => crate::metadata::build_library(opts, package),
+            #[cfg(__library_packages)]
+            Self::Package(package) => crate::library_packages::build_library(opts, package),
         }
     }
 }
