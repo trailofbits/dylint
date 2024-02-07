@@ -14,7 +14,6 @@ use std::{
     collections::BTreeMap,
     env::{consts, current_dir},
     ffi::OsStr,
-    fmt::Debug,
     fs::{metadata, OpenOptions},
     path::{Path, PathBuf, MAIN_SEPARATOR},
 };
@@ -40,6 +39,8 @@ use name_toolchain_map::{LazyToolchainMap, MaybeLibrary};
 #[cfg(__library_packages)]
 pub(crate) mod library_packages;
 
+pub mod opts;
+
 #[cfg(feature = "package_options")]
 mod package_options;
 
@@ -51,87 +52,7 @@ static REQUIRED_FORM: Lazy<String> = Lazy::new(|| {
     )
 });
 
-#[allow(clippy::struct_excessive_bools)]
-#[derive(Clone, Debug, Default)]
-// smoelius: Please keep the fields `names` and `args` last. Please keep all other fields sorted.
-pub struct Dylint {
-    pub all: bool,
-
-    #[deprecated]
-    pub allow_downgrade: bool,
-
-    #[deprecated]
-    pub bisect: bool,
-
-    pub branch: Option<String>,
-
-    pub fix: bool,
-
-    #[deprecated]
-    pub force: bool,
-
-    pub git: Option<String>,
-
-    #[deprecated]
-    pub isolate: bool,
-
-    pub keep_going: bool,
-
-    pub lib_paths: Vec<String>,
-
-    pub libs: Vec<String>,
-
-    #[deprecated]
-    pub list: bool,
-
-    pub manifest_path: Option<String>,
-
-    #[deprecated]
-    pub new_path: Option<String>,
-
-    pub no_build: bool,
-
-    pub no_deps: bool,
-
-    pub no_metadata: bool,
-
-    pub packages: Vec<String>,
-
-    pub paths: Vec<String>,
-
-    pub pattern: Option<String>,
-
-    pub pipe_stderr: Option<String>,
-
-    pub pipe_stdout: Option<String>,
-
-    pub quiet: bool,
-
-    pub rev: Option<String>,
-
-    #[deprecated]
-    pub rust_version: Option<String>,
-
-    pub tag: Option<String>,
-
-    #[deprecated]
-    pub upgrade_path: Option<String>,
-
-    pub workspace: bool,
-
-    #[deprecated]
-    pub names: Vec<String>,
-
-    pub args: Vec<String>,
-}
-
-impl Dylint {
-    fn git_or_path(&self) -> bool {
-        self.git.is_some() || !self.paths.is_empty()
-    }
-}
-
-pub fn run(opts: &Dylint) -> Result<()> {
+pub fn run(opts: &opts::Dylint) -> Result<()> {
     let opts = {
         let mut opts = opts.clone();
 
@@ -219,7 +140,10 @@ pub fn run(opts: &Dylint) -> Result<()> {
     run_with_name_toolchain_map(&opts, &name_toolchain_map)
 }
 
-fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<()> {
+fn run_with_name_toolchain_map(
+    opts: &opts::Dylint,
+    name_toolchain_map: &NameToolchainMap,
+) -> Result<()> {
     if opts.libs.is_empty() && opts.lib_paths.is_empty() && opts.names.is_empty() && !opts.all {
         if opts.list {
             warn_if_empty(opts, name_toolchain_map)?;
@@ -251,7 +175,7 @@ fn run_with_name_toolchain_map(opts: &Dylint, name_toolchain_map: &NameToolchain
     }
 }
 
-fn warn_if_empty(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<bool> {
+fn warn_if_empty(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result<bool> {
     let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
 
     Ok(if name_toolchain_map.is_empty() {
@@ -294,7 +218,7 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
     dylint_lib = "question_mark_in_expression",
     allow(question_mark_in_expression)
 )]
-fn resolve(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result<ToolchainMap> {
+fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result<ToolchainMap> {
     let mut toolchain_map = ToolchainMap::new();
 
     if opts.all {
@@ -450,7 +374,7 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
     Ok(None)
 }
 
-fn list_lints(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
+fn list_lints(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
     for (toolchain, paths) in resolved {
         for path in paths {
             let driver = driver_builder::get(opts, toolchain)?;
@@ -501,7 +425,7 @@ fn display_location(path: &Path) -> Result<String> {
         .to_string())
 }
 
-fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
+fn check_or_fix(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
     let clippy_disable_docs_links = clippy_disable_docs_links()?;
 
     let mut failures = Vec::new();
@@ -599,7 +523,7 @@ fn check_or_fix(opts: &Dylint, resolved: &ToolchainMap) -> Result<()> {
     }
 }
 
-fn target_dir(opts: &Dylint, toolchain: &str) -> Result<PathBuf> {
+fn target_dir(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     let mut command = MetadataCommand::new();
     if let Some(path) = &opts.manifest_path {
         command.manifest_path(path);
@@ -634,9 +558,9 @@ mod test {
     // The easiest solution is to just not run the tests concurrently.
     static MUTEX: Mutex<()> = Mutex::new(());
 
-    static OPTS: Lazy<Dylint> = Lazy::new(|| Dylint {
+    static OPTS: Lazy<opts::Dylint> = Lazy::new(|| opts::Dylint {
         no_metadata: true,
-        ..Dylint::default()
+        ..opts::Dylint::default()
     });
 
     fn name_toolchain_map() -> NameToolchainMap<'static> {
@@ -681,12 +605,12 @@ mod test {
             straggler.keys().collect::<Vec<_>>()
         );
 
-        let opts = Dylint {
+        let opts = opts::Dylint {
             libs: vec![
                 "question_mark_in_expression".to_owned(),
                 "straggler".to_owned(),
             ],
-            ..Dylint::default()
+            ..opts::Dylint::default()
         };
 
         run_with_name_toolchain_map(&opts, &name_toolchain_map).unwrap();
@@ -727,12 +651,12 @@ mod test {
             question_mark_in_expression.keys().collect::<Vec<_>>()
         );
 
-        let opts = Dylint {
+        let opts = opts::Dylint {
             libs: vec![
                 "clippy".to_owned(),
                 "question_mark_in_expression".to_owned(),
             ],
-            ..Dylint::default()
+            ..opts::Dylint::default()
         };
 
         run_with_name_toolchain_map(&opts, &name_toolchain_map).unwrap();

@@ -1,4 +1,4 @@
-use crate::Dylint;
+use crate::opts::Dylint;
 use anyhow::{anyhow, bail, Context, Result};
 use dylint_internal::{
     clippy_utils::{

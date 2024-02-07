@@ -1,4 +1,4 @@
-use crate::Dylint;
+use crate::opts::Dylint;
 use anyhow::{anyhow, Context, Result};
 use dylint_internal::{rustup::SanitizeEnvironment, CommandExt};
 use is_terminal::IsTerminal;

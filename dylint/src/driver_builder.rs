@@ -1,4 +1,4 @@
-use crate::error::warn;
+use crate::{error::warn, opts};
 use anyhow::{anyhow, ensure, Context, Result};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
@@ -68,7 +68,7 @@ pub fn main() -> Result<()> {
     dylint_lib = "question_mark_in_expression",
     allow(question_mark_in_expression)
 )]
-pub fn get(opts: &crate::Dylint, toolchain: &str) -> Result<PathBuf> {
+pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     let dylint_drivers = dylint_drivers()?;
 
     let driver_dir = dylint_drivers.join(toolchain);
@@ -113,7 +113,7 @@ fn dylint_drivers() -> Result<PathBuf> {
     }
 }
 
-fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<bool> {
+fn is_outdated(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<bool> {
     (|| -> Result<bool> {
         let mut command = dylint_driver(toolchain, driver)?;
         let output = command.args(["-V"]).logged_output(true)?;
@@ -138,7 +138,7 @@ fn is_outdated(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<b
 }
 
 #[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
-fn build(opts: &crate::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
+fn build(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
     let package = tempdir.path();
 
@@ -231,7 +231,7 @@ mod test {
     fn nightly() {
         let tempdir = tempdir().unwrap();
         build(
-            &crate::Dylint::default(),
+            &opts::Dylint::default(),
             "nightly",
             &tempdir.path().join("dylint-driver"),
         )

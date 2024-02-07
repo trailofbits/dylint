@@ -1,4 +1,4 @@
-use crate::error::warn;
+use crate::{error::warn, opts};
 use anyhow::{anyhow, bail, ensure, Result};
 use cargo::{
     core::{Dependency, Features, Package as CargoPackage},
@@ -15,7 +15,7 @@ mod toml;
 pub use self::toml::DetailedTomlDependency;
 
 pub fn dependency_source_id_and_root(
-    opts: &crate::Dylint,
+    opts: &opts::Dylint,
     metadata: &Metadata,
     config: &Config,
     details: &DetailedTomlDependency,

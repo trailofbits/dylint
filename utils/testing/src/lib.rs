@@ -179,8 +179,10 @@ fn initialize(name: &str) -> Result<&Path> {
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
 
             let dylint_libs = dylint_libs(name)?;
-            let driver =
-                dylint::driver_builder::get(&dylint::Dylint::default(), env!("RUSTUP_TOOLCHAIN"))?;
+            let driver = dylint::driver_builder::get(
+                &dylint::opts::Dylint::default(),
+                env!("RUSTUP_TOOLCHAIN"),
+            )?;
 
             set_var(env::CLIPPY_DISABLE_DOCS_LINKS, "true");
             set_var(env::DYLINT_LIBS, dylint_libs);
