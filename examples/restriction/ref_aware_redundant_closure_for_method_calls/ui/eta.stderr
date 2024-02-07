@@ -1,11 +1,10 @@
-error: redundant closure
+warning: redundant closure
   --> $DIR/eta.rs:89:46
    |
 LL |     let e = Some(TestStruct { some_ref: &i }).map(|a| a.trait_foo_ref());
    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: replace the closure with the method itself: `.as_ref().map(TestTrait::trait_foo_ref)`
    |
-   = note: `-D ref-aware-redundant-closure-for-method-calls` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(ref_aware_redundant_closure_for_method_calls)]`
+   = note: `#[warn(ref_aware_redundant_closure_for_method_calls)]` on by default
 
-error: aborting due to 1 previous error
+warning: 1 warning emitted
 

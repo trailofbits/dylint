@@ -1,4 +1,4 @@
-error: `.bar` is used only to read `.bar.qux`, whose type `bool` implements `Copy`
+warning: `.bar` is used only to read `.bar.qux`, whose type `bool` implements `Copy`
   --> $DIR/main.rs:22:9
    |
 LL |         bar: &'a super::Bar,
@@ -10,8 +10,7 @@ note: read here
 LL |             self.bar.qux
    |                 ^^^^^^^^
    = help: consider storing a copy of `.bar.qux` instead
-   = note: `-D redundant-reference` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(redundant_reference)]`
+   = note: `#[warn(redundant_reference)]` on by default
 
-error: aborting due to 1 previous error
+warning: 1 warning emitted
 

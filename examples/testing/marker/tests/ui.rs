@@ -107,7 +107,6 @@ fn add_marker_lint_dependency(path: &Path) -> Result<()> {
         r#"
 [dev-dependencies.dylint_testing]
 path = "{}"
-default-features = false
 "#,
         Path::new("../../../utils/testing")
             .canonicalize()

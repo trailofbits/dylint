@@ -1,12 +1,11 @@
-error: silently overrides `--warn clippy::assertions-on-constants` and `--deny clippy::assertions-on-constants`
+warning: silently overrides `--warn clippy::assertions-on-constants` and `--deny clippy::assertions-on-constants`
   --> $DIR/main.rs:1:1
    |
 LL | #![allow(clippy::assertions_on_constants)]
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: pass `--allow clippy::assertions-on-constants` on the command line
-   = note: `-D crate-wide-allow` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(crate_wide_allow)]`
+   = note: `#[warn(crate_wide_allow)]` on by default
 
-error: aborting due to 1 previous error
+warning: 1 warning emitted
 

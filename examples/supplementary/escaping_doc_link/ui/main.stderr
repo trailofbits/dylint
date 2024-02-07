@@ -1,23 +1,22 @@
-error: link refers to files outside of the package directory
+warning: link refers to files outside of the package directory
   --> $DIR/main.rs:1:1
    |
 LL | //! [parent]: ..
    | ^^^^^^^^^^^^^^^^
    |
-   = note: `-D escaping-doc-link` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(escaping_doc_link)]`
+   = note: `#[warn(escaping_doc_link)]` on by default
 
-error: link refers to files outside of the package directory
+warning: link refers to files outside of the package directory
   --> $DIR/main.rs:3:1
    |
 LL | //! [sibling]: ../redundant_reference
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: broken link
+warning: broken link
   --> $DIR/main.rs:13:1
    |
 LL | //! [broken link]: ../nonexistent_library
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 3 previous errors
+warning: 3 warnings emitted
 

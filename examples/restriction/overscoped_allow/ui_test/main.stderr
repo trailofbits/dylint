@@ -1,4 +1,4 @@
-error: `allow` could be moved closer to diagnostic source
+warning: `allow` could be moved closer to diagnostic source
   --> $DIR/main.rs:7:9
    |
 LL | #[allow(clippy::panic)]
@@ -11,9 +11,8 @@ LL |     #[test]
    |     ------- in this procedural macro expansion
 LL |     fn panic() {
    |     ^
-   = note: `-D overscoped-allow` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(overscoped_allow)]`
-   = note: this error originates in the attribute macro `test` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: `#[warn(overscoped_allow)]` on by default
+   = note: this warning originates in the attribute macro `test` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: aborting due to 1 previous error
+warning: 1 warning emitted
 

@@ -1,4 +1,4 @@
-error: inconsistent qualification
+warning: inconsistent qualification
   --> $DIR/main.rs:6:20
    |
 LL |     assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
@@ -9,10 +9,9 @@ note: items from `std::env` were imported here
    |
 LL | use std::env::var;
    | ^^^^^^^^^^^^^^^^^^
-   = note: `-D inconsistent-qualification` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(inconsistent_qualification)]`
+   = note: `#[warn(inconsistent_qualification)]` on by default
 
-error: inconsistent qualification
+warning: inconsistent qualification
   --> $DIR/main.rs:13:24
    |
 LL |         assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
@@ -24,7 +23,7 @@ note: items from `std::env` were imported here
 LL |     use std::env::var;
    |     ^^^^^^^^^^^^^^^^^^
 
-error: inconsistent qualification
+warning: inconsistent qualification
   --> $DIR/main.rs:21:24
    |
 LL |         assert_eq!(Err(env::VarError::NotPresent), var("LD_PRELOAD"));
@@ -36,7 +35,7 @@ note: items from `std::env` were imported here
 LL |     use std::env::{self, var};
    |                          ^^^
 
-error: inconsistent qualification
+warning: inconsistent qualification
   --> $DIR/main.rs:29:24
    |
 LL |         assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
@@ -48,7 +47,7 @@ note: items from `std::env` were imported here
 LL |     use std::env::*;
    |     ^^^^^^^^^^^^^^^^
 
-error: inconsistent qualification
+warning: inconsistent qualification
   --> $DIR/main.rs:39:24
    |
 LL |         assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
@@ -60,7 +59,7 @@ note: items from `std::env` were imported here
 LL |         use std::env::var_os;
    |         ^^^^^^^^^^^^^^^^^^^^^
 
-error: inconsistent qualification
+warning: inconsistent qualification
   --> $DIR/main.rs:80:9
    |
 LL |         bar::Baz::new()
@@ -72,7 +71,7 @@ note: `bar::Baz` was imported here
 LL |     use bar::Baz;
    |     ^^^^^^^^^^^^^
 
-error: inconsistent qualification
+warning: inconsistent qualification
   --> $DIR/main.rs:98:15
    |
 LL |         <_ as std::borrow::Borrow<T>>::borrow(x)
@@ -84,7 +83,7 @@ note: `std::borrow::Borrow` was imported here
 LL |     use std::borrow::Borrow;
    |     ^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: inconsistent qualification
+warning: inconsistent qualification
   --> $DIR/main.rs:107:9
    |
 LL |         bar::baz::qux()
@@ -96,5 +95,5 @@ note: `bar::baz` was imported here
 LL |     use bar::baz;
    |     ^^^^^^^^^^^^^
 
-error: aborting due to 8 previous errors
+warning: 8 warnings emitted
 

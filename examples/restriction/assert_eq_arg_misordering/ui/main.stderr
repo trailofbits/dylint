@@ -1,13 +1,12 @@
-error: arguments are "non-const, const", which looks like "actual, expected"
+warning: arguments are "non-const, const", which looks like "actual, expected"
   --> $DIR/main.rs:9:16
    |
 LL |     assert_eq!(x, 0);
    |                ^^^^ help: prefer "expected, actual": `0, x`
    |
-   = note: `-D assert-eq-arg-misordering` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(assert_eq_arg_misordering)]`
+   = note: `#[warn(assert_eq_arg_misordering)]` on by default
 
-error: arguments are "non-const, const", which looks like "actual, expected"
+warning: arguments are "non-const, const", which looks like "actual, expected"
   --> $DIR/main.rs:14:9
    |
 LL | /         variable_with_a_really_long_name,
@@ -20,11 +19,11 @@ LL ~         CONST_WITH_A_REALLY_LONG_NAME,
 LL +         variable_with_a_really_long_name
    |
 
-error: arguments are "non-const, const", which looks like "actual, expected"
+warning: arguments are "non-const, const", which looks like "actual, expected"
   --> $DIR/main.rs:20:16
    |
 LL |     assert_eq!(x, 0, "this is a message (with parens)");
    |                ^^^^ help: prefer "expected, actual": `0, x`
 
-error: aborting due to 3 previous errors
+warning: 3 warnings emitted
 
