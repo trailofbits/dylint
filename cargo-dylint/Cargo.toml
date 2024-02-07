@@ -39,6 +39,6 @@ dylint_internal = { version = "=2.6.1", path = "../internal", features = [
 ] }
 
 [features]
-default = ["metadata-cargo"]
-metadata-cargo = ["dylint/__metadata_cargo"]
-metadata-cli = ["dylint/__metadata_cli"]
+default = ["cargo-lib"]
+cargo-lib = ["dylint/__cargo_lib"]
+cargo-cli = ["dylint/__cargo_cli"]

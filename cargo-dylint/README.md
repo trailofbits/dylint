@@ -3,7 +3,7 @@
 **News:** Dylint has a new, experimental method for downloading packages. Please consider trying it by installing `cargo-dylint` with the following command:
 
 ```sh
-cargo install cargo-dylint --no-default-features --features=metadata-cli
+cargo install cargo-dylint --no-default-features --features=cargo-cli
 ```
 
 The new method requires fewer dependencies, which will make Dylint easier to maintain. Plus, it should install faster.

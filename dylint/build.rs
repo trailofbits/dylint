@@ -4,14 +4,14 @@ use std::{fs::OpenOptions, io::Write, path::Path};
 fn main() {
     write_dylint_driver_manifest_dir();
 
-    #[cfg(all(feature = "__metadata_cargo", feature = "__metadata_cli"))]
+    #[cfg(all(feature = "__cargo_lib", feature = "__cargo_cli"))]
     {
-        println!("cargo:warning=Both `__metadata_cargo` and `__metadata_cli` are enabled.");
+        println!("cargo:warning=Both `__cargo_lib` and `__cargo_cli` are enabled.");
         println!("cargo:warning=Perhaps you forgot to build with `--no-default-features`?");
     }
 
-    #[cfg(any(feature = "__metadata_cargo", feature = "__metadata_cli"))]
-    println!("cargo:rustc-cfg=__metadata");
+    #[cfg(any(feature = "__cargo_lib", feature = "__cargo_cli"))]
+    println!("cargo:rustc-cfg=__library_packages");
 
     println!("cargo:rerun-if-changed=build.rs");
 }

@@ -62,14 +62,14 @@ dylint_internal = { version = "=2.6.1", path = "../internal", features = [
 
 [features]
 default = []
-metadata = ["__metadata_cargo"]
+library_packages = ["__cargo_lib"]
 package_options = [
     "heck",
     "if_chain",
     "dylint_internal/clippy_utils",
     "dylint_internal/git",
 ]
-__metadata_cargo = [
+__cargo_lib = [
     "cargo",
     "cargo-platform",
     "cargo-util",
@@ -79,7 +79,7 @@ __metadata_cargo = [
     "serde-untagged",
     "toml",
 ]
-__metadata_cli = [
+__cargo_cli = [
     "cargo-util",
     "fs_extra",
     "glob",
