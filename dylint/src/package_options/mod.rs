@@ -1,4 +1,4 @@
-use crate::opts::Dylint;
+use crate::opts;
 use anyhow::{anyhow, bail, Context, Result};
 use dylint_internal::{
     clippy_utils::{
@@ -18,19 +18,15 @@ use std::{
 use tempfile::tempdir;
 use walkdir::WalkDir;
 
-#[cfg(unix)]
-use dylint_internal::{rustup::SanitizeEnvironment, CommandExt};
-
-#[cfg(unix)]
-mod bisect;
-
 mod backup;
 use backup::Backup;
 
 mod revs;
 use revs::Revs;
 
-pub fn new_package(opts: &Dylint, path: &Path) -> Result<()> {
+pub fn new_package(_opts: &opts::Dylint, new_opts: &opts::New) -> Result<()> {
+    let path = Path::new(&new_opts.path);
+
     let name = path
         .file_name()
         .map(|s| s.to_string_lossy().to_string())
@@ -41,7 +37,7 @@ pub fn new_package(opts: &Dylint, path: &Path) -> Result<()> {
     new_template(tempdir.path())?;
 
     // smoelius: Isolation is now the default.
-    if !opts.isolate {
+    if !new_opts.isolate {
         find_and_replace(
             &tempdir.path().join("Cargo.toml"),
             &[r"s/\r?\n\[workspace\]\r?\n//"],
@@ -111,11 +107,13 @@ fn fill_in(name: &str, from: &Path, to: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
+pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Result<()> {
+    let path = Path::new(&upgrade_opts.path);
+
     let rev = {
         let revs = Revs::new(opts.quiet)?;
         let mut iter = revs.iter()?;
-        match &opts.rust_version {
+        match &upgrade_opts.rust_version {
             Some(rust_version) => {
                 let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
                 iter.find(|result| {
@@ -138,23 +136,18 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
 
     let old_channel = toolchain_channel(path)?;
 
-    let should_find_and_replace = if_chain! {
-        if !opts.allow_downgrade;
+    if_chain! {
+        if !upgrade_opts.allow_downgrade;
         if let Some(new_nightly) = parse_as_nightly(&rev.channel);
         if let Some(old_nightly) = parse_as_nightly(&old_channel);
         if new_nightly < old_nightly;
         then {
-            if !opts.bisect {
-                bail!(
-                    "Refusing to downgrade toolchain from `{}` to `{}`. \
-                    Use `--allow-downgrade` to override.",
-                    old_channel,
-                    rev.channel
-                );
-            }
-            false
-        } else {
-            true
+            bail!(
+                "Refusing to downgrade toolchain from `{}` to `{}`. \
+                Use `--allow-downgrade` to override.",
+                old_channel,
+                rev.channel
+            );
         }
     };
 
@@ -166,46 +159,8 @@ pub fn upgrade_package(opts: &Dylint, path: &Path) -> Result<()> {
     let mut cargo_toml_backup =
         Backup::new(cargo_toml_path).with_context(|| "Could not backup `Cargo.toml`")?;
 
-    if should_find_and_replace {
-        set_toolchain_channel(path, &rev.channel)?;
-        set_clippy_utils_dependency_revision(path, &rev.rev)?;
-    }
-
-    #[cfg(unix)]
-    if opts.bisect {
-        let file_name = path
-            .file_name()
-            .ok_or_else(|| anyhow!("Could not get file name"))?;
-        let description = format!("`{}`", file_name.to_string_lossy());
-
-        dylint_internal::cargo::update(&description)
-            .quiet(opts.quiet)
-            .build()
-            .sanitize_environment()
-            .current_dir(path)
-            .success()?;
-
-        if dylint_internal::cargo::build(&description)
-            .quiet(opts.quiet)
-            .build()
-            .sanitize_environment()
-            .current_dir(path)
-            .args(["--all-targets"])
-            .success()
-            .is_err()
-        {
-            let new_nightly = parse_as_nightly(&rev.channel).ok_or_else(|| {
-                anyhow!("Could not not parse channel `{}` as nightly", rev.channel)
-            })?;
-
-            let start = format!(
-                "{:04}-{:02}-{:02}",
-                new_nightly[0], new_nightly[1], new_nightly[2]
-            );
-
-            bisect::bisect(opts, path, &start)?;
-        }
-    }
+    set_toolchain_channel(path, &rev.channel)?;
+    set_clippy_utils_dependency_revision(path, &rev.rev)?;
 
     cargo_toml_backup
         .disable()
