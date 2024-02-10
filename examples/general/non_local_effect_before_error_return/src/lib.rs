@@ -1,5 +1,6 @@
-#![feature(box_patterns)]
 #![feature(rustc_private)]
+#![feature(box_patterns)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_errors;
@@ -10,7 +11,6 @@ extern crate rustc_span;
 extern crate rustc_target;
 
 use clippy_utils::{diagnostics::span_lint_and_then, match_def_path};
-use if_chain::if_chain;
 use rustc_errors::Diagnostic;
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind};
 use rustc_index::bit_set::BitSet;
@@ -150,18 +150,18 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             |path, contributing_calls, span| {
                 // smoelius: The path is from a return to the start block.
                 for (i, &index) in path.iter().enumerate() {
-                    if_chain! {
-                        if !contributing_calls.contains(index);
-                        if let Some((func, func_span)) = is_call_with_mut_ref(cx, mir, &path[i..]);
-                        then {
-                            span_lint_and_then(
-                                cx,
-                                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                                func_span,
-                                &format!("call to `{func:?}` with mutable reference before error return"),
-                                error_note(span),
-                            );
-                        }
+                    if !contributing_calls.contains(index)
+                        && let Some((func, func_span)) = is_call_with_mut_ref(cx, mir, &path[i..])
+                    {
+                        span_lint_and_then(
+                            cx,
+                            NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
+                            func_span,
+                            &format!(
+                                "call to `{func:?}` with mutable reference before error return"
+                            ),
+                            error_note(span),
+                        );
                     }
 
                     let basic_block = &mir.basic_blocks[index];
@@ -207,25 +207,23 @@ fn is_call_with_mut_ref<'tcx>(
     let index = path[0];
     let basic_block = &mir[index];
     let terminator = basic_block.terminator();
-    if_chain! {
-        if let TerminatorKind::Call {
+    if let TerminatorKind::Call {
             func,
             args,
             fn_span,
             ..
-        } = &terminator.kind;
+        } = &terminator.kind
         // smoelius: `deref_mut` generates too much noise.
-        if func.const_fn_def().map_or(true, |(def_id, _)| {
+        && func.const_fn_def().map_or(true, |(def_id, _)| {
             !cx.tcx.is_diagnostic_item(sym::deref_mut_method, def_id)
-        });
-        let (locals, constants) = collect_locals_and_constants(cx, mir, path, args);
-        if locals.iter().any(|local| is_mut_ref_arg(mir, local))
-            || constants.iter().any(|constant| is_const_ref(constant));
-        then {
-            Some((func, *fn_span))
-        } else {
-            None
-        }
+        })
+        && let (locals, constants) = collect_locals_and_constants(cx, mir, path, args)
+        && (locals.iter().any(|local| is_mut_ref_arg(mir, local))
+            || constants.iter().any(|constant| is_const_ref(constant)))
+    {
+        Some((func, *fn_span))
+    } else {
+        None
     }
 }
 
@@ -283,77 +281,70 @@ fn collect_locals_and_constants<'tcx>(
 
         if i != 0 {
             let terminator = basic_block.terminator();
-            if_chain! {
-                if let TerminatorKind::Call {
-                    func,
-                    destination,
-                    args,
-                    ..
-                } = &terminator.kind;
-                let followed_narrowly = locals_narrowly.remove(destination.local);
-                let followed_widely = locals_widely.remove(destination.local);
-                if followed_narrowly || followed_widely;
-                then {
-                    let width_preserving = func.const_fn_def().map_or(false, |(def_id, _)| {
-                        WIDTH_PRESERVING
-                            .iter()
-                            .any(|path| match_def_path(cx, def_id, path))
-                    });
-                    let widening = func.const_fn_def().map_or(false, |(def_id, _)| {
-                        WIDENING.iter().any(|path| match_def_path(cx, def_id, path))
-                    });
-                    for arg in args {
-                        let mut_ref_operand_place = mut_ref_operand_place(cx, mir, arg);
-                        let arg_place = arg.place();
-                        if_chain! {
-                            if followed_narrowly && !widening;
-                            if let Some(arg_place) = mut_ref_operand_place.or({
-                                if width_preserving {
-                                    arg_place
-                                } else {
-                                    None
-                                }
-                            });
-                            then {
-                                locals_narrowly.insert(arg_place.local);
+            if let TerminatorKind::Call {
+                func,
+                destination,
+                args,
+                ..
+            } = &terminator.kind
+                && let followed_narrowly = locals_narrowly.remove(destination.local)
+                && let followed_widely = locals_widely.remove(destination.local)
+                && (followed_narrowly || followed_widely)
+            {
+                let width_preserving = func.const_fn_def().map_or(false, |(def_id, _)| {
+                    WIDTH_PRESERVING
+                        .iter()
+                        .any(|path| match_def_path(cx, def_id, path))
+                });
+                let widening = func.const_fn_def().map_or(false, |(def_id, _)| {
+                    WIDENING.iter().any(|path| match_def_path(cx, def_id, path))
+                });
+                for arg in args {
+                    let mut_ref_operand_place = mut_ref_operand_place(cx, mir, arg);
+                    let arg_place = arg.place();
+                    if followed_narrowly
+                        && !widening
+                        && let Some(arg_place) = mut_ref_operand_place.or({
+                            if width_preserving {
+                                arg_place
+                            } else {
+                                None
                             }
-                        }
-                        if_chain! {
-                            if followed_widely || widening;
-                            if let Some(arg_place) = arg_place;
-                            then {
-                                locals_widely.insert(arg_place.local);
-                            }
-                        }
+                        })
+                    {
+                        locals_narrowly.insert(arg_place.local);
+                    }
+                    if (followed_widely || widening)
+                        && let Some(arg_place) = arg_place
+                    {
+                        locals_widely.insert(arg_place.local);
                     }
                 }
             }
         }
 
         for (statement_index, statement) in basic_block.statements.iter().enumerate().rev() {
-            if_chain! {
-                if let StatementKind::Assign(box (assign_place, rvalue)) = &statement.kind;
-                let followed_narrowly = locals_narrowly.remove(assign_place.local);
-                let followed_widely = locals_widely.remove(assign_place.local);
-                if followed_narrowly || followed_widely;
-                then {
-                    if let Rvalue::Use(Operand::Constant(constant)) = rvalue {
-                        constants.push(constant);
-                    } else if let [rvalue_place, ..] = rvalue_places(
-                        rvalue,
-                        Location {
-                            block: index,
-                            statement_index,
-                        },
-                    )
-                    .as_slice()
-                    {
-                        if followed_narrowly {
-                            locals_narrowly.insert(rvalue_place.local);
-                        }
-                        if followed_widely {
-                            locals_widely.insert(rvalue_place.local);
-                        }
+            if let StatementKind::Assign(box (assign_place, rvalue)) = &statement.kind
+                && let followed_narrowly = locals_narrowly.remove(assign_place.local)
+                && let followed_widely = locals_widely.remove(assign_place.local)
+                && (followed_narrowly || followed_widely)
+            {
+                if let Rvalue::Use(Operand::Constant(constant)) = rvalue {
+                    constants.push(constant);
+                } else if let [rvalue_place, ..] = rvalue_places(
+                    rvalue,
+                    Location {
+                        block: index,
+                        statement_index,
+                    },
+                )
+                .as_slice()
+                {
+                    if followed_narrowly {
+                        locals_narrowly.insert(rvalue_place.local);
+                    }
+                    if followed_widely {
+                        locals_widely.insert(rvalue_place.local);
                     }
                 }
             }
@@ -382,14 +373,12 @@ fn mut_ref_operand_place<'tcx>(
     mir: &'tcx Body<'tcx>,
     operand: &Operand<'tcx>,
 ) -> Option<Place<'tcx>> {
-    if_chain! {
-        if let Some(operand_place) = operand.place();
-        if is_mut_ref(operand_place.ty(&mir.local_decls, cx.tcx).ty);
-        then {
-            Some(operand_place)
-        } else {
-            None
-        }
+    if let Some(operand_place) = operand.place()
+        && is_mut_ref(operand_place.ty(&mir.local_decls, cx.tcx).ty)
+    {
+        Some(operand_place)
+    } else {
+        None
     }
 }
 
@@ -398,14 +387,12 @@ fn is_mut_ref(ty: ty::Ty<'_>) -> bool {
 }
 
 fn is_deref_assign(statement: &Statement) -> Option<Span> {
-    if_chain! {
-        if let StatementKind::Assign(box (Place { projection, .. }, _)) = &statement.kind;
-        if projection.iter().any(|elem| elem == ProjectionElem::Deref);
-        then {
-            Some(statement.source_info.span)
-        } else {
-            None
-        }
+    if let StatementKind::Assign(box (Place { projection, .. }, _)) = &statement.kind
+        && projection.iter().any(|elem| elem == ProjectionElem::Deref)
+    {
+        Some(statement.source_info.span)
+    } else {
+        None
     }
 }
 

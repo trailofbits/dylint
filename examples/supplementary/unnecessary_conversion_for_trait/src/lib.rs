@@ -1,6 +1,5 @@
 #![feature(rustc_private)]
 #![feature(let_chains)]
-#![recursion_limit = "256"]
 #![allow(clippy::items_after_test_module)]
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![warn(unused_extern_crates)]
@@ -20,7 +19,6 @@ use clippy_utils::{
     ty::is_copy,
 };
 use dylint_internal::cargo::current_metadata;
-use if_chain::if_chain;
 use rustc_errors::Applicability;
 use rustc_hir::{
     def_id::{DefId, LOCAL_CRATE},
@@ -158,139 +156,130 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
 impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
     #[allow(clippy::too_many_lines)]
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
-        if_chain! {
-            if let Some((maybe_call, maybe_arg, ancestor_mutabilities)) =
-                ancestor_addr_of_mutabilities(cx, expr);
-            if let Some((outer_callee_def_id, outer_substs, outer_receiver, outer_args)) =
-                get_callee_generic_args_and_args(cx, maybe_call);
-            let outer_args = std::iter::once(outer_receiver)
+        if let Some((maybe_call, maybe_arg, ancestor_mutabilities)) =
+            ancestor_addr_of_mutabilities(cx, expr)
+            && let Some((outer_callee_def_id, outer_substs, outer_receiver, outer_args)) =
+                get_callee_generic_args_and_args(cx, maybe_call)
+            && let outer_args = std::iter::once(outer_receiver)
                 .flatten()
                 .chain(outer_args)
-                .collect::<Vec<_>>();
-            let outer_fn_sig = cx
+                .collect::<Vec<_>>()
+            && let outer_fn_sig = cx
                 .tcx
                 .fn_sig(outer_callee_def_id)
                 .skip_binder()
-                .skip_binder();
-            if let Some(i) = outer_args
+                .skip_binder()
+            && let Some(i) = outer_args
                 .iter()
-                .position(|arg| arg.hir_id == maybe_arg.hir_id);
-            if let Some(input) = outer_fn_sig.inputs().get(i);
-            if let Param(param_ty) = input.kind();
-            then {
-                let mut strip_unnecessary_conversions = |mut expr, mut mutabilities| {
-                    let mut refs_prefix = None;
+                .position(|arg| arg.hir_id == maybe_arg.hir_id)
+            && let Some(input) = outer_fn_sig.inputs().get(i)
+            && let Param(param_ty) = input.kind()
+        {
+            let mut strip_unnecessary_conversions = |mut expr, mut mutabilities| {
+                let mut refs_prefix = None;
 
-                    #[allow(clippy::while_let_loop)]
-                    loop {
-                        if_chain! {
-                            if let Some((inner_callee_def_id, _, inner_receiver, inner_args)) =
-                                get_callee_generic_args_and_args(cx, expr);
-                            let inner_args = std::iter::once(inner_receiver)
-                                .flatten()
-                                .chain(inner_args)
-                                .collect::<Vec<_>>();
-                            if let &[maybe_boxed_inner_arg] = inner_args.as_slice();
-                            let inner_arg = peel_boxes(cx, maybe_boxed_inner_arg);
-                            let inner_arg_ty = cx.typeck_results().expr_ty(inner_arg);
-                            let adjustment_mutabilities = adjustment_mutabilities(cx, inner_arg);
-                            let new_mutabilities = [adjustment_mutabilities, mutabilities].concat();
-                            let (new_ty, new_refs_prefix) = build_ty_and_refs_prefix(
-                                cx,
-                                inner_arg_ty,
-                                &new_mutabilities,
-                            );
-                            if inner_arg_implements_traits(
-                                cx,
-                                outer_callee_def_id,
-                                outer_fn_sig,
-                                outer_substs,
-                                i,
-                                *param_ty,
-                                new_ty,
-                            );
-                            then {
-                                let inner_callee_path = cx.get_def_path(inner_callee_def_id);
-                                if !WATCHED_TRAITS
-                                    .iter()
-                                    .chain(WATCHED_INHERENTS.iter())
-                                    .any(|path| match_def_path(cx, inner_callee_def_id, path))
-                                {
-                                    if enabled("DEBUG_WATCHLIST") {
-                                        span_lint(
-                                            cx,
-                                            UNNECESSARY_CONVERSION_FOR_TRAIT,
-                                            expr.span,
-                                            &format!("ignoring {inner_callee_path:?}"),
-                                        );
-                                    }
-                                    break;
-                                }
-                                self.callee_paths.insert(
-                                    inner_callee_path
-                                        .into_iter()
-                                        .map(Symbol::to_ident_string)
-                                        .collect(),
+                #[allow(clippy::while_let_loop)]
+                loop {
+                    if let Some((inner_callee_def_id, _, inner_receiver, inner_args)) =
+                        get_callee_generic_args_and_args(cx, expr)
+                        && let inner_args = std::iter::once(inner_receiver)
+                            .flatten()
+                            .chain(inner_args)
+                            .collect::<Vec<_>>()
+                        && let &[maybe_boxed_inner_arg] = inner_args.as_slice()
+                        && let inner_arg = peel_boxes(cx, maybe_boxed_inner_arg)
+                        && let inner_arg_ty = cx.typeck_results().expr_ty(inner_arg)
+                        && let adjustment_mutabilities = adjustment_mutabilities(cx, inner_arg)
+                        && let new_mutabilities = [adjustment_mutabilities, mutabilities].concat()
+                        && let (new_ty, new_refs_prefix) =
+                            build_ty_and_refs_prefix(cx, inner_arg_ty, &new_mutabilities)
+                        && inner_arg_implements_traits(
+                            cx,
+                            outer_callee_def_id,
+                            outer_fn_sig,
+                            outer_substs,
+                            i,
+                            *param_ty,
+                            new_ty,
+                        )
+                    {
+                        let inner_callee_path = cx.get_def_path(inner_callee_def_id);
+                        if !WATCHED_TRAITS
+                            .iter()
+                            .chain(WATCHED_INHERENTS.iter())
+                            .any(|path| match_def_path(cx, inner_callee_def_id, path))
+                        {
+                            if enabled("DEBUG_WATCHLIST") {
+                                span_lint(
+                                    cx,
+                                    UNNECESSARY_CONVERSION_FOR_TRAIT,
+                                    expr.span,
+                                    &format!("ignoring {inner_callee_path:?}"),
                                 );
-                                expr = inner_arg;
-                                mutabilities = new_mutabilities;
-                                refs_prefix = Some(new_refs_prefix);
-                                continue;
-                            } else {
-                                break;
                             }
+                            break;
                         }
+                        self.callee_paths.insert(
+                            inner_callee_path
+                                .into_iter()
+                                .map(Symbol::to_ident_string)
+                                .collect(),
+                        );
+                        expr = inner_arg;
+                        mutabilities = new_mutabilities;
+                        refs_prefix = Some(new_refs_prefix);
+                        continue;
+                    } else {
+                        break;
                     }
+                }
 
-                    Some(expr).zip(refs_prefix)
-                };
+                Some(expr).zip(refs_prefix)
+            };
 
-                if let Some((inner_arg, refs_prefix)) =
-                    strip_unnecessary_conversions(expr, ancestor_mutabilities)
+            if let Some((inner_arg, refs_prefix)) =
+                strip_unnecessary_conversions(expr, ancestor_mutabilities)
+            {
+                let (is_bare_method_call, subject) =
+                    if matches!(expr.kind, ExprKind::MethodCall(..)) {
+                        (maybe_arg.hir_id == expr.hir_id, "receiver")
+                    } else {
+                        (false, "inner argument")
+                    };
+                let msg = format!("the {subject} implements the required traits");
+                if is_bare_method_call && refs_prefix.is_empty() && !maybe_arg.span.from_expansion()
                 {
-                    let (is_bare_method_call, subject) =
-                        if matches!(expr.kind, ExprKind::MethodCall(..)) {
-                            (maybe_arg.hir_id == expr.hir_id, "receiver")
-                        } else {
-                            (false, "inner argument")
-                        };
-                    let msg = format!("the {subject} implements the required traits");
-                    if is_bare_method_call
-                        && refs_prefix.is_empty()
-                        && !maybe_arg.span.from_expansion()
-                    {
-                        span_lint_and_sugg(
-                            cx,
-                            UNNECESSARY_CONVERSION_FOR_TRAIT,
-                            maybe_arg.span.with_lo(inner_arg.span.hi()),
-                            &msg,
-                            "remove this",
-                            String::new(),
-                            Applicability::MachineApplicable,
-                        );
-                    } else if maybe_arg.span.from_expansion()
-                        && let Some(span) = maybe_arg.span.parent_callsite()
-                    {
-                        // smoelius: This message could be more informative.
-                        span_lint_and_help(
-                            cx,
-                            UNNECESSARY_CONVERSION_FOR_TRAIT,
-                            span,
-                            &msg,
-                            None,
-                            "use the macro arguments directly",
-                        );
-                    } else if let Some(snippet) = snippet_opt(cx, inner_arg.span) {
-                        span_lint_and_sugg(
-                            cx,
-                            UNNECESSARY_CONVERSION_FOR_TRAIT,
-                            maybe_arg.span,
-                            &msg,
-                            "use",
-                            format!("{refs_prefix}{snippet}"),
-                            Applicability::MachineApplicable,
-                        );
-                    }
+                    span_lint_and_sugg(
+                        cx,
+                        UNNECESSARY_CONVERSION_FOR_TRAIT,
+                        maybe_arg.span.with_lo(inner_arg.span.hi()),
+                        &msg,
+                        "remove this",
+                        String::new(),
+                        Applicability::MachineApplicable,
+                    );
+                } else if maybe_arg.span.from_expansion()
+                    && let Some(span) = maybe_arg.span.parent_callsite()
+                {
+                    // smoelius: This message could be more informative.
+                    span_lint_and_help(
+                        cx,
+                        UNNECESSARY_CONVERSION_FOR_TRAIT,
+                        span,
+                        &msg,
+                        None,
+                        "use the macro arguments directly",
+                    );
+                } else if let Some(snippet) = snippet_opt(cx, inner_arg.span) {
+                    span_lint_and_sugg(
+                        cx,
+                        UNNECESSARY_CONVERSION_FOR_TRAIT,
+                        maybe_arg.span,
+                        &msg,
+                        "use",
+                        format!("{refs_prefix}{snippet}"),
+                        Applicability::MachineApplicable,
+                    );
                 }
             }
         }
@@ -474,6 +463,7 @@ mod ui {
     dylint_lib = "inconsistent_qualification",
     allow(inconsistent_qualification)
 )]
+#[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 /// Checks whether an expression is a function or method call and, if so, returns its `DefId`,
 /// `GenericArgs`, and arguments.
 fn get_callee_generic_args_and_args<'tcx>(
@@ -485,22 +475,18 @@ fn get_callee_generic_args_and_args<'tcx>(
     Option<&'tcx Expr<'tcx>>,
     &'tcx [Expr<'tcx>],
 )> {
-    if_chain! {
-        if let ExprKind::Call(callee, args) = expr.kind;
-        let callee_ty = cx.typeck_results().expr_ty(callee);
-        if let ty::FnDef(callee_def_id, _) = callee_ty.kind();
-        then {
-            let generic_args = cx.typeck_results().node_args(callee.hir_id);
-            return Some((*callee_def_id, generic_args, None, args));
-        }
+    if let ExprKind::Call(callee, args) = expr.kind
+        && let callee_ty = cx.typeck_results().expr_ty(callee)
+        && let ty::FnDef(callee_def_id, _) = callee_ty.kind()
+    {
+        let generic_args = cx.typeck_results().node_args(callee.hir_id);
+        return Some((*callee_def_id, generic_args, None, args));
     }
-    if_chain! {
-        if let ExprKind::MethodCall(_, recv, args, _) = expr.kind;
-        if let Some(method_def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id);
-        then {
-            let generic_args = cx.typeck_results().node_args(expr.hir_id);
-            return Some((method_def_id, generic_args, Some(recv), args));
-        }
+    if let ExprKind::MethodCall(_, recv, args, _) = expr.kind
+        && let Some(method_def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id)
+    {
+        let generic_args = cx.typeck_results().node_args(expr.hir_id);
+        return Some((method_def_id, generic_args, Some(recv), args));
     }
     None
 }
@@ -660,6 +646,7 @@ fn ancestor_addr_of_mutabilities<'tcx>(
 fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
     const BOX_NEW: [&str; 4] = ["alloc", "boxed", "Box", "new"];
 
+    #[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
     loop {
         // smoelius: No longer necessary since: https://github.com/rust-lang/rust/pull/108471
         /* if let ExprKind::Box(inner_expr) = expr.kind {
@@ -667,16 +654,14 @@ fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx
             continue;
         } */
 
-        if_chain! {
-            if let ExprKind::Call(callee, args) = expr.kind;
-            let callee_ty = cx.typeck_results().expr_ty(callee);
-            if let FnDef(callee_def_id, _) = callee_ty.kind();
-            if match_def_path(cx, *callee_def_id, &BOX_NEW);
-            if let [inner_arg] = args;
-            then {
-                expr = inner_arg;
-                continue;
-            }
+        if let ExprKind::Call(callee, args) = expr.kind
+            && let callee_ty = cx.typeck_results().expr_ty(callee)
+            && let FnDef(callee_def_id, _) = callee_ty.kind()
+            && match_def_path(cx, *callee_def_id, &BOX_NEW)
+            && let [inner_arg] = args
+        {
+            expr = inner_arg;
+            continue;
         }
 
         break;

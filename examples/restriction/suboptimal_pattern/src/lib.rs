@@ -1,4 +1,5 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_data_structures;
@@ -13,7 +14,6 @@ use clippy_utils::{
     source::snippet,
     ty::{is_copy, peel_mid_ty_refs},
 };
-use if_chain::if_chain;
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
 use rustc_hir::{
@@ -120,62 +120,58 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                 let pat_ty = cx.typeck_results().node_type(pat.hir_id);
                 let (referent_ty, n_refs) = peel_mid_ty_refs(pat_ty);
 
-                if_chain! {
-                    if let ty::Tuple(tys) = referent_ty.kind();
-                    if let PatKind::Binding(BindingAnnotation(ByRef::No, _), hir_id, ident, None) =
-                        pat.kind;
-                    if let Some(projections) = exclusively_projected(cx.tcx, hir_id, body.value);
-                    then {
-                        let tuple_pattern =
-                            build_tuple_pattern(ident.name.as_str(), &projections, tys.len());
-                        let pattern = format!(
-                            "{:&>width$}{}",
-                            "",
-                            tuple_pattern,
-                            width = if is_copy(cx, referent_ty) { n_refs } else { 0 }
-                        );
-                        span_lint_and_sugg(
-                            cx,
-                            SUBOPTIMAL_PATTERN,
-                            pat.span,
-                            "could destructure tuple",
-                            "use something like",
-                            pattern,
-                            Applicability::HasPlaceholders,
-                        );
-                        found = true;
-                        return false;
-                    }
+                if let ty::Tuple(tys) = referent_ty.kind()
+                    && let PatKind::Binding(BindingAnnotation(ByRef::No, _), hir_id, ident, None) =
+                        pat.kind
+                    && let Some(projections) = exclusively_projected(cx.tcx, hir_id, body.value)
+                {
+                    let tuple_pattern =
+                        build_tuple_pattern(ident.name.as_str(), &projections, tys.len());
+                    let pattern = format!(
+                        "{:&>width$}{}",
+                        "",
+                        tuple_pattern,
+                        width = if is_copy(cx, referent_ty) { n_refs } else { 0 }
+                    );
+                    span_lint_and_sugg(
+                        cx,
+                        SUBOPTIMAL_PATTERN,
+                        pat.span,
+                        "could destructure tuple",
+                        "use something like",
+                        pattern,
+                        Applicability::HasPlaceholders,
+                    );
+                    found = true;
+                    return false;
                 }
 
-                if_chain! {
-                    if !contains_wild(pat);
-                    if let Some(hir_ids) = collect_non_ref_idents(pat);
-                    if let Some(n_derefs) = exclusively_dereferenced(
+                if !contains_wild(pat)
+                    && let Some(hir_ids) = collect_non_ref_idents(pat)
+                    && let Some(n_derefs) = exclusively_dereferenced(
                         self.config.explicit_deref_check,
                         cx,
                         hir_ids,
                         body.value,
+                    )
+                    && n_derefs > 0
+                {
+                    let snippet = snippet(cx, pat.span, "_");
+                    let pattern = format!("{:&>width$}{}", "", snippet, width = n_derefs);
+                    span_lint_and_sugg(
+                        cx,
+                        SUBOPTIMAL_PATTERN,
+                        pat.span,
+                        &format!(
+                            "could destructure reference{}",
+                            if n_derefs > 1 { "s" } else { "" }
+                        ),
+                        "use",
+                        pattern,
+                        Applicability::HasPlaceholders,
                     );
-                    if n_derefs > 0;
-                    then {
-                        let snippet = snippet(cx, pat.span, "_");
-                        let pattern = format!("{:&>width$}{}", "", snippet, width = n_derefs);
-                        span_lint_and_sugg(
-                            cx,
-                            SUBOPTIMAL_PATTERN,
-                            pat.span,
-                            &format!(
-                                "could destructure reference{}",
-                                if n_derefs > 1 { "s" } else { "" }
-                            ),
-                            "use",
-                            pattern,
-                            Applicability::HasPlaceholders,
-                        );
-                        found = true;
-                        return false;
-                    }
+                    found = true;
+                    return false;
                 }
 
                 true
@@ -208,19 +204,17 @@ impl<'tcx> Visitor<'tcx> for ProjectionVisitor<'tcx> {
     fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
         if path_to_local_id(expr, self.hir_id) {
             let node = self.tcx.hir().get_parent(expr.hir_id);
-            if_chain! {
-                if let Node::Expr(Expr {
-                    kind: ExprKind::Field(_, ident),
-                    ..
-                }) = node;
-                if let Ok(projection) = ident.name.as_str().parse::<usize>();
-                then {
-                    self.projections
-                        .as_mut()
-                        .map(|projections| projections.insert(projection));
-                } else {
-                    self.projections = None;
-                }
+            if let Node::Expr(Expr {
+                kind: ExprKind::Field(_, ident),
+                ..
+            }) = node
+                && let Ok(projection) = ident.name.as_str().parse::<usize>()
+            {
+                self.projections
+                    .as_mut()
+                    .map(|projections| projections.insert(projection));
+            } else {
+                self.projections = None;
             }
         }
         walk_expr(self, expr);
@@ -344,18 +338,16 @@ fn count_derefs<'tcx>(cx: &LateContext<'tcx>, mut expr: &Expr<'tcx>) -> (usize, 
                 }
             }
         }
-        if_chain! {
-            if let Some((_, Node::Expr(parent_expr))) = parent_iter.next();
-            if matches!(parent_expr.kind, ExprKind::Unary(UnOp::Deref, _));
-            let parent_expr_ty = cx.typeck_results().expr_ty(parent_expr);
-            if is_copy(cx, parent_expr_ty);
-            then {
-                n_derefs += 1;
-                explicit_deref = true;
-                expr = parent_expr;
-            } else {
-                return (n_derefs, explicit_deref);
-            }
+        if let Some((_, Node::Expr(parent_expr))) = parent_iter.next()
+            && matches!(parent_expr.kind, ExprKind::Unary(UnOp::Deref, _))
+            && let parent_expr_ty = cx.typeck_results().expr_ty(parent_expr)
+            && is_copy(cx, parent_expr_ty)
+        {
+            n_derefs += 1;
+            explicit_deref = true;
+            expr = parent_expr;
+        } else {
+            return (n_derefs, explicit_deref);
         }
     }
 }

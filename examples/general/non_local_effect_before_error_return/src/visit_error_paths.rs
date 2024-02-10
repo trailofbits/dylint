@@ -1,5 +1,4 @@
 use clippy_utils::ty::implements_trait;
-use if_chain::if_chain;
 use rustc_hir::intravisit::FnKind;
 use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LintContext};
@@ -170,13 +169,11 @@ where
                     }
                 }
                 StatementKind::Assign(box (assign_place, rvalue)) => {
-                    if_chain! {
-                        if state.remove_local(assign_place.local);
-                        if let Rvalue::Use(rvalue_operand) = rvalue;
-                        if let Some(rvalue_place) = rvalue_operand.place();
-                        then {
-                            state.set_local(rvalue_place.local);
-                        }
+                    if state.remove_local(assign_place.local)
+                        && let Rvalue::Use(rvalue_operand) = rvalue
+                        && let Some(rvalue_place) = rvalue_operand.place()
+                    {
+                        state.set_local(rvalue_place.local);
                     }
                 }
                 _ => {}
@@ -210,41 +207,35 @@ where
                     unreachable!();
                 }
                 TerminatorKind::Call { destination, .. } => {
-                    if_chain! {
-                        if state.remove_local(destination.local);
-                        let _ = self.contributing_calls.insert(predecessor);
-                        if let Some(arg_place) = is_from_residual_or_try_implementor_method_call(
+                    if state.remove_local(destination.local)
+                        && let _ = self.contributing_calls.insert(predecessor)
+                        && let Some(arg_place) = is_from_residual_or_try_implementor_method_call(
                             self.cx, self.mir, terminator,
-                        );
-                        then {
-                            state.set_local(arg_place.local);
-                        }
+                        )
+                    {
+                        state.set_local(arg_place.local);
                     }
                 }
                 TerminatorKind::SwitchInt { targets, .. } => {
-                    if_chain! {
-                        if let Some(rvalue_place) =
-                            ends_with_discriminant_switch(self.cx, self.mir, predecessor);
+                    if let Some(rvalue_place) =
+                            ends_with_discriminant_switch(self.cx, self.mir, predecessor)
                         // smoelius: The next list may need to expand beyond just
                         // `ProjectionElem::Downcast`.
-                        if !rvalue_place
+                        && !rvalue_place
                             .projection
                             .iter()
-                            .any(|elem| matches!(elem, ProjectionElem::Downcast(_, _)));
-                        if state.is_local(rvalue_place.local);
-                        then {
-                            let adt_def =
-                                self.mir.local_decls[RETURN_PLACE].ty.ty_adt_def().unwrap();
-                            for (value, target) in targets.iter() {
-                                if target != index {
-                                    let variant_idx =
-                                        variant_for_discriminant(self.cx.tcx, adt_def, value)
-                                            .unwrap();
-                                    state.remove_possible_variant(
-                                        variant_idx,
-                                        terminator.source_info.span,
-                                    );
-                                }
+                            .any(|elem| matches!(elem, ProjectionElem::Downcast(_, _)))
+                        && state.is_local(rvalue_place.local)
+                    {
+                        let adt_def = self.mir.local_decls[RETURN_PLACE].ty.ty_adt_def().unwrap();
+                        for (value, target) in targets.iter() {
+                            if target != index {
+                                let variant_idx =
+                                    variant_for_discriminant(self.cx.tcx, adt_def, value).unwrap();
+                                state.remove_possible_variant(
+                                    variant_idx,
+                                    terminator.source_info.span,
+                                );
                             }
                         }
                     }
@@ -285,26 +276,24 @@ fn is_from_residual_or_try_implementor_method_call<'tcx>(
     mir: &'tcx Body<'tcx>,
     terminator: &Terminator<'tcx>,
 ) -> Option<Place<'tcx>> {
-    if_chain! {
-        if let TerminatorKind::Call { func, args, .. } = &terminator.kind;
-        if let Some((def_id, _)) = func.const_fn_def();
-        if let [arg, ..] = args.as_slice();
-        if let Some(arg_place) = arg.place();
-        let () = if Some(def_id) == cx.tcx.lang_items().from_residual_fn() {
+    if let TerminatorKind::Call { func, args, .. } = &terminator.kind
+        && let Some((def_id, _)) = func.const_fn_def()
+        && let [arg, ..] = args.as_slice()
+        && let Some(arg_place) = arg.place()
+        && let () = if Some(def_id) == cx.tcx.lang_items().from_residual_fn() {
             return Some(arg_place);
-        };
-        if let Some(assoc_item) = cx.tcx.opt_associated_item(def_id);
-        if assoc_item.fn_has_self_parameter;
-        if let Some(try_trait_def_id) = cx.tcx.lang_items().try_trait();
-        let arg_place_ty = arg_place.ty(&mir.local_decls, cx.tcx);
+        }
+        && let Some(assoc_item) = cx.tcx.opt_associated_item(def_id)
+        && assoc_item.fn_has_self_parameter
+        && let Some(try_trait_def_id) = cx.tcx.lang_items().try_trait()
+        && let arg_place_ty = arg_place.ty(&mir.local_decls, cx.tcx)
         // smoelius: It appears that all type parameters must be substituted for, or else
         // `implements_trait` returns false.
-        if implements_trait(cx, arg_place_ty.ty, try_trait_def_id, &[]);
-        then {
-            Some(arg_place)
-        } else {
-            None
-        }
+        && implements_trait(cx, arg_place_ty.ty, try_trait_def_id, &[])
+    {
+        Some(arg_place)
+    } else {
+        None
     }
 }
 
@@ -320,27 +309,21 @@ fn ends_with_discriminant_switch<'tcx>(
 ) -> Option<Place<'tcx>> {
     let basic_block = &mir[index];
     let terminator = basic_block.terminator();
-    if_chain! {
-        if let TerminatorKind::SwitchInt { discr, .. } = &terminator.kind;
-        if let Some(discr_place) = discr.place();
-        then {
-            basic_block.statements.iter().rev().find_map(|statement| {
-                if_chain! {
-                    if let StatementKind::Assign(box (
-                        assign_place,
-                        Rvalue::Discriminant(rvalue_place),
-                    )) = &statement.kind;
-                    if *assign_place == discr_place;
-                    then {
-                        Some(*rvalue_place)
-                    } else {
-                        None
-                    }
-                }
-            })
-        } else {
-            None
-        }
+    if let TerminatorKind::SwitchInt { discr, .. } = &terminator.kind
+        && let Some(discr_place) = discr.place()
+    {
+        basic_block.statements.iter().rev().find_map(|statement| {
+            if let StatementKind::Assign(box (assign_place, Rvalue::Discriminant(rvalue_place))) =
+                &statement.kind
+                && *assign_place == discr_place
+            {
+                Some(*rvalue_place)
+            } else {
+                None
+            }
+        })
+    } else {
+        None
     }
 }
 

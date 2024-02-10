@@ -13,7 +13,6 @@ use clippy_utils::{
     source::{snippet_opt, trim_span},
 };
 use heck::ToSnakeCase;
-use if_chain::if_chain;
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
 use rustc_hir::{def_id::DefId, Expr, ExprKind, HirId, Mutability};
@@ -79,11 +78,10 @@ impl CollapsibleUnwrap {
 
         #[allow(clippy::while_let_loop)]
         loop {
-            if_chain! {
-                if let Some((method, mut recv, _, _, span)) = method_call(expr);
-                let snip_span = trim_span(cx.sess().source_map(), span.with_lo(recv.span.hi()));
-                if let Some(snip) = snippet_opt(cx, snip_span);
-                if let Some((span_sugg, prefix)) = if method == "and_then" {
+            if let Some((method, mut recv, _, _, span)) = method_call(expr)
+                && let snip_span = trim_span(cx.sess().source_map(), span.with_lo(recv.span.hi()))
+                && let Some(snip) = snippet_opt(cx, snip_span)
+                && let Some((span_sugg, prefix)) = if method == "and_then" {
                     Some((&mut and_then_span_sugg, snip))
                 } else if let Some((inner_method, inner_recv, _, _, _)) = method_call(recv)
                     && inner_method == "unwrap"
@@ -114,42 +112,41 @@ impl CollapsibleUnwrap {
                     ))
                 } else {
                     None
-                };
-                let expr_ty = cx.typeck_results().expr_ty(expr);
-                let expr_err_ty = result_err_ty(cx, expr_ty);
-                let recv_ty = cx.typeck_results().expr_ty(recv);
-                let recv_err_ty = result_err_ty(cx, recv_ty);
-                if (is_option(cx, expr_ty) && (is_option(cx, recv_ty) || recv_err_ty.is_some()))
+                }
+                && let expr_ty = cx.typeck_results().expr_ty(expr)
+                && let expr_err_ty = result_err_ty(cx, expr_ty)
+                && let recv_ty = cx.typeck_results().expr_ty(recv)
+                && let recv_err_ty = result_err_ty(cx, recv_ty)
+                && ((is_option(cx, expr_ty) && (is_option(cx, recv_ty) || recv_err_ty.is_some()))
                     || (expr_err_ty.is_some()
                         && recv_err_ty.is_some()
-                        && expr_err_ty == recv_err_ty);
-                then {
-                    if let Some(span_sugg) = span_sugg {
-                        span_sugg.span = trim_span(
-                            cx.sess().source_map(),
-                            span_sugg.span.with_lo(recv.span.hi()),
-                        );
-                        let needs_ok = is_option(cx, expr_ty) && recv_err_ty.is_some();
-                        span_sugg.sugg = (if needs_ok { ".ok()" } else { "" }).to_owned()
-                            + &prefix
-                            + &span_sugg.sugg;
-                    }
-
-                    // smoelius: The `and_then` span and suggestion should always be at least as
-                    // long as the `unwrap` span and suggestion.
-                    if let Some(and_then_span_sugg) = and_then_span_sugg.as_mut()
-                        && let Some(unwrap_span_sugg) = unwrap_span_sugg.as_ref()
-                        && unwrap_span_sugg.span.lo() < and_then_span_sugg.span.lo()
-                    {
-                        *and_then_span_sugg = unwrap_span_sugg.clone();
-                    }
-
-                    self.visited_recvs.insert(recv.hir_id);
-
-                    expr = recv;
-                } else {
-                    break;
+                        && expr_err_ty == recv_err_ty))
+            {
+                if let Some(span_sugg) = span_sugg {
+                    span_sugg.span = trim_span(
+                        cx.sess().source_map(),
+                        span_sugg.span.with_lo(recv.span.hi()),
+                    );
+                    let needs_ok = is_option(cx, expr_ty) && recv_err_ty.is_some();
+                    span_sugg.sugg = (if needs_ok { ".ok()" } else { "" }).to_owned()
+                        + &prefix
+                        + &span_sugg.sugg;
                 }
+
+                // smoelius: The `and_then` span and suggestion should always be at least as
+                // long as the `unwrap` span and suggestion.
+                if let Some(and_then_span_sugg) = and_then_span_sugg.as_mut()
+                    && let Some(unwrap_span_sugg) = unwrap_span_sugg.as_ref()
+                    && unwrap_span_sugg.span.lo() < and_then_span_sugg.span.lo()
+                {
+                    *and_then_span_sugg = unwrap_span_sugg.clone();
+                }
+
+                self.visited_recvs.insert(recv.hir_id);
+
+                expr = recv;
+            } else {
+                break;
             }
         }
 

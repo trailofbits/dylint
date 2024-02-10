@@ -1,4 +1,5 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_errors;
@@ -9,7 +10,6 @@ extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint_and_sugg, match_def_path};
 use dylint_internal::paths;
-use if_chain::if_chain;
 use rustc_errors::Applicability;
 use rustc_hir as hir;
 use rustc_index::bit_set::BitSet;
@@ -88,21 +88,19 @@ fn collect_borrow_mut_locals(cx: &LateContext<'_>, mir: &Body) -> Vec<(Local, Sp
         .iter()
         .filter_map(|basic_block| {
             let terminator = basic_block.terminator();
-            if_chain! {
-                if let TerminatorKind::Call {
-                    func,
-                    destination,
-                    fn_span,
-                    ..
-                } = &terminator.kind;
-                if let Some((def_id, _)) = func.const_fn_def();
-                if match_def_path(cx, def_id, &paths::REFCELL_BORROW_MUT);
-                if let Some(local) = destination.as_local();
-                then {
-                    Some((local, *fn_span))
-                } else {
-                    None
-                }
+            if let TerminatorKind::Call {
+                func,
+                destination,
+                fn_span,
+                ..
+            } = &terminator.kind
+                && let Some((def_id, _)) = func.const_fn_def()
+                && match_def_path(cx, def_id, &paths::REFCELL_BORROW_MUT)
+                && let Some(local) = destination.as_local()
+            {
+                Some((local, *fn_span))
+            } else {
+                None
             }
         })
         .collect()
@@ -163,24 +161,22 @@ struct V<'tcx> {
 
 impl<'tcx> Visitor<'tcx> for V<'tcx> {
     fn visit_terminator(&mut self, terminator: &Terminator<'tcx>, location: Location) {
-        if_chain! {
-            if let TerminatorKind::Call {
-                func,
-                args,
-                destination,
-                ..
-            } = &terminator.kind;
-            let () = if destination.as_local() == Some(self.local) {
-                return;
-            };
-            if let Some((def_id, _)) = func.const_fn_def();
-            if self.tcx.is_diagnostic_item(sym::deref_method, def_id);
-            if let [arg] = args.as_slice();
-            if let Some(arg_place) = arg.place();
-            if arg_place.as_local() == Some(self.local);
-            then {
+        if let TerminatorKind::Call {
+            func,
+            args,
+            destination,
+            ..
+        } = &terminator.kind
+            && let () = if destination.as_local() == Some(self.local) {
                 return;
             }
+            && let Some((def_id, _)) = func.const_fn_def()
+            && self.tcx.is_diagnostic_item(sym::deref_method, def_id)
+            && let [arg] = args.as_slice()
+            && let Some(arg_place) = arg.place()
+            && arg_place.as_local() == Some(self.local)
+        {
+            return;
         }
         self.super_terminator(terminator, location);
     }
@@ -189,18 +185,16 @@ impl<'tcx> Visitor<'tcx> for V<'tcx> {
         if place.as_local() == Some(self.local) {
             return;
         }
-        if_chain! {
-            if let Rvalue::Ref(_, borrow_kind, referent) = rvalue;
-            if borrow_kind.to_mutbl_lossy() == Mutability::Not;
-            if referent.as_local() == Some(self.local);
-            then {
-                match self.outcome {
-                    None => self.outcome = Some(Outcome::TaintedLocals(vec![place.local])),
-                    Some(Outcome::UsedNotForDeref) => {}
-                    Some(Outcome::TaintedLocals(ref mut tainted)) => tainted.push(place.local),
-                }
-                return;
+        if let Rvalue::Ref(_, borrow_kind, referent) = rvalue
+            && borrow_kind.to_mutbl_lossy() == Mutability::Not
+            && referent.as_local() == Some(self.local)
+        {
+            match self.outcome {
+                None => self.outcome = Some(Outcome::TaintedLocals(vec![place.local])),
+                Some(Outcome::UsedNotForDeref) => {}
+                Some(Outcome::TaintedLocals(ref mut tainted)) => tainted.push(place.local),
             }
+            return;
         }
         self.super_assign(place, rvalue, location);
     }

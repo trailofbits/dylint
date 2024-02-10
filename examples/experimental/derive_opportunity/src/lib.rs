@@ -1,5 +1,5 @@
-#![feature(let_chains)]
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 dylint_linting::dylint_library!();
@@ -17,7 +17,6 @@ use clippy_utils::{
     source::snippet_indent,
     ty::{implements_trait, implements_trait_with_env},
 };
-use if_chain::if_chain;
 use once_cell::sync::OnceCell;
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_errors::Applicability;
@@ -158,74 +157,71 @@ impl<'tcx> DeriveOpportunity<'tcx> {
         if let Some(macros) = self.transitively_applicable_macros_map.borrow().get(&ty) {
             return macros.clone();
         }
-        if_chain! {
-            if let ty::Adt(adt_def, substs) = ty.kind();
-            if let Some(span) = cx.tcx.hir().span_if_local(adt_def.did());
-            if !span.from_expansion();
-            then {
-                let mut macros_applicable_to_all_fields = self
+        if let ty::Adt(adt_def, substs) = ty.kind()
+            && let Some(span) = cx.tcx.hir().span_if_local(adt_def.did())
+            && !span.from_expansion()
+        {
+            let mut macros_applicable_to_all_fields = self
+                .derivable_traits(cx)
+                .keys()
+                .copied()
+                .collect::<FxHashSet<_>>();
+            let mut traits_derivable_for_at_least_one_field = FxHashSet::default();
+            for field_def in adt_def.all_fields() {
+                let field_ty = field_def.ty(cx.tcx, substs);
+
+                let field_applied_macros = self
                     .derivable_traits(cx)
                     .keys()
                     .copied()
+                    .filter(|&mac| self.macro_applied(cx, field_ty, mac))
                     .collect::<FxHashSet<_>>();
-                let mut traits_derivable_for_at_least_one_field = FxHashSet::default();
-                for field_def in adt_def.all_fields() {
-                    let field_ty = field_def.ty(cx.tcx, substs);
 
-                    let field_applied_macros = self
-                        .derivable_traits(cx)
-                        .keys()
-                        .copied()
-                        .filter(|&mac| self.macro_applied(cx, field_ty, mac))
-                        .collect::<FxHashSet<_>>();
+                let field_transitively_applicable_macros =
+                    self.transitively_applicable_macros(cx, field_ty);
 
-                    let field_transitively_applicable_macros =
-                        self.transitively_applicable_macros(cx, field_ty);
+                let field_macros = field_applied_macros
+                    .union(&field_transitively_applicable_macros)
+                    .copied()
+                    .collect();
 
-                    let field_macros = field_applied_macros
-                        .union(&field_transitively_applicable_macros)
+                if !matches!(field_ty.kind(), ty::Param(_)) {
+                    macros_applicable_to_all_fields = macros_applicable_to_all_fields
+                        .intersection(&field_macros)
                         .copied()
                         .collect();
-
-                    if !matches!(field_ty.kind(), ty::Param(_)) {
-                        macros_applicable_to_all_fields = macros_applicable_to_all_fields
-                            .intersection(&field_macros)
-                            .copied()
-                            .collect();
-                    }
-
-                    traits_derivable_for_at_least_one_field =
-                        traits_derivable_for_at_least_one_field
-                            .union(&field_macros)
-                            .copied()
-                            .collect();
                 }
 
-                let trait_ids = if self.config.at_least_one_field {
-                    macros_applicable_to_all_fields
-                        .intersection(&traits_derivable_for_at_least_one_field)
-                        .copied()
-                        .collect()
-                } else {
-                    macros_applicable_to_all_fields
-                }
-                .into_iter()
-                // smoelius: Applying `Default` to an `enum` requires special treatment.
-                .filter(|&mac| !ty.is_enum() || mac != Macro::Builtin(sym::Default))
-                .collect();
-
-                self.transitively_applicable_macros_map
-                    .borrow_mut()
-                    .insert(ty, trait_ids);
-
-                self.transitively_applicable_macros_map
-                    .borrow()
-                    .get(&ty)
-                    .unwrap()
-                    .clone()
-            } else {
-                FxHashSet::default()
+                traits_derivable_for_at_least_one_field = traits_derivable_for_at_least_one_field
+                    .union(&field_macros)
+                    .copied()
+                    .collect();
             }
+
+            let trait_ids = if self.config.at_least_one_field {
+                macros_applicable_to_all_fields
+                    .intersection(&traits_derivable_for_at_least_one_field)
+                    .copied()
+                    .collect()
+            } else {
+                macros_applicable_to_all_fields
+            }
+            .into_iter()
+            // smoelius: Applying `Default` to an `enum` requires special treatment.
+            .filter(|&mac| !ty.is_enum() || mac != Macro::Builtin(sym::Default))
+            .collect();
+
+            self.transitively_applicable_macros_map
+                .borrow_mut()
+                .insert(ty, trait_ids);
+
+            self.transitively_applicable_macros_map
+                .borrow()
+                .get(&ty)
+                .unwrap()
+                .clone()
+        } else {
+            FxHashSet::default()
         }
     }
 
@@ -243,15 +239,13 @@ impl<'tcx> DeriveOpportunity<'tcx> {
         self.derivable_traits_map.get_or_init(|| {
             let mut derivable_traits_map = FxHashMap::<_, FxHashSet<_>>::default();
             for trait_id in cx.tcx.all_traits() {
-                if_chain! {
-                    if let Some(mac) = is_derivable(cx, trait_id);
-                    if !self.config.ignore.contains(&mac.path(cx));
-                    then {
-                        derivable_traits_map
-                            .entry(mac)
-                            .or_default()
-                            .insert(trait_id);
-                    }
+                if let Some(mac) = is_derivable(cx, trait_id)
+                    && !self.config.ignore.contains(&mac.path(cx))
+                {
+                    derivable_traits_map
+                        .entry(mac)
+                        .or_default()
+                        .insert(trait_id);
                 }
             }
             let macros = derivable_traits_map.keys().copied().collect::<Vec<_>>();

@@ -1,11 +1,11 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint_and_help, source::get_source_text};
-use if_chain::if_chain;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use rustc_hir::Block;
@@ -114,21 +114,19 @@ fn check_captures(
 ) {
     let range = captures.get(span_index).unwrap().range();
     let text = &captures[text_index];
-    if_chain! {
-        if let Ok(block) = syn::parse_str::<syn::Block>(&format!("{{{text}}}"));
-        if !block.stmts.is_empty();
-        then {
-            #[allow(clippy::cast_possible_truncation)]
-            span_lint_and_help(
-                cx,
-                COMMENTED_CODE,
-                span.with_lo(span.lo() + BytePos(range.start as u32))
-                    .with_hi(span.lo() + BytePos(range.end as u32)),
-                "commented out code",
-                None,
-                "uncomment or remove",
-            );
-        }
+    if let Ok(block) = syn::parse_str::<syn::Block>(&format!("{{{text}}}"))
+        && !block.stmts.is_empty()
+    {
+        #[allow(clippy::cast_possible_truncation)]
+        span_lint_and_help(
+            cx,
+            COMMENTED_CODE,
+            span.with_lo(span.lo() + BytePos(range.start as u32))
+                .with_hi(span.lo() + BytePos(range.end as u32)),
+            "commented out code",
+            None,
+            "uncomment or remove",
+        );
     }
 }
 

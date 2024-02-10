@@ -2,7 +2,6 @@ use clippy_utils::{
     diagnostics::span_lint_and_note, is_expr_path_def_path, match_def_path, path_def_id,
 };
 use dylint_internal::paths;
-use if_chain::if_chain;
 use rustc_hir::{
     def_id::{DefId, LocalDefId},
     intravisit::{walk_body, walk_expr, Visitor},
@@ -90,28 +89,26 @@ impl NonThreadSafeCallInTest {
             let item = cx.tcx.hir().item(item_id);
             // smoelius:
             // https://rustc-dev-guide.rust-lang.org/test-implementation.html?highlight=testdesc#step-3-test-object-generation
-            if_chain! {
-                if let ItemKind::Const(ty, _, const_body_id) = item.kind;
-                if let Some(ty_def_id) = path_def_id(cx, ty);
-                if match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN);
-                let const_body = cx.tcx.hir().body(const_body_id);
-                if let ExprKind::Struct(_, fields, _) = const_body.value.kind;
-                if let Some(testfn) = fields.iter().find(|field| field.ident.as_str() == "testfn");
+            if let ItemKind::Const(ty, _, const_body_id) = item.kind
+                && let Some(ty_def_id) = path_def_id(cx, ty)
+                && match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN)
+                && let const_body = cx.tcx.hir().body(const_body_id)
+                && let ExprKind::Struct(_, fields, _) = const_body.value.kind
+                && let Some(testfn) = fields.iter().find(|field| field.ident.as_str() == "testfn")
                 // smoelius: Callee is `self::test::StaticTestFn`.
-                if let ExprKind::Call(_, [arg]) = testfn.expr.kind;
-                if let ExprKind::Closure(Closure {
+                && let ExprKind::Call(_, [arg]) = testfn.expr.kind
+                && let ExprKind::Closure(Closure {
                     body: closure_body_id,
                     ..
-                }) = arg.kind;
-                let closure_body = cx.tcx.hir().body(*closure_body_id);
+                }) = arg.kind
+                && let closure_body = cx.tcx.hir().body(*closure_body_id)
                 // smoelius: Callee is `self::test::assert_test_result`.
-                if let ExprKind::Call(_, [arg]) = closure_body.value.kind;
+                && let ExprKind::Call(_, [arg]) = closure_body.value.kind
                 // smoelius: Callee is test function.
-                if let ExprKind::Call(callee, _) = arg.kind;
-                if let Some(callee_def_id) = path_def_id(cx, callee);
-                then {
-                    self.test_fns.push(callee_def_id);
-                }
+                && let ExprKind::Call(callee, _) = arg.kind
+                && let Some(callee_def_id) = path_def_id(cx, callee)
+            {
+                self.test_fns.push(callee_def_id);
             }
         }
     }
@@ -153,17 +150,15 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
                 return;
             }
 
-            if_chain! {
-                if let Some(callee_def_id) = path_def_id(self.cx, *callee);
-                if let Some(local_def_id) = callee_def_id.as_local();
-                if !self.visited.contains(&local_def_id);
-                let _ = self.visited.insert(local_def_id);
-                if let Some(body_id) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id);
-                then {
-                    let body = self.cx.tcx.hir().body(body_id);
-                    walk_body(self, body);
-                    return;
-                }
+            if let Some(callee_def_id) = path_def_id(self.cx, *callee)
+                && let Some(local_def_id) = callee_def_id.as_local()
+                && !self.visited.contains(&local_def_id)
+                && let _ = self.visited.insert(local_def_id)
+                && let Some(body_id) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id)
+            {
+                let body = self.cx.tcx.hir().body(body_id);
+                walk_body(self, body);
+                return;
             }
         }
         walk_expr(self, expr);

@@ -1,5 +1,5 @@
 #![feature(rustc_private)]
-#![recursion_limit = "256"]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 #[cfg(not(feature = "rlib"))]

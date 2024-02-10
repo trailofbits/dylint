@@ -1,5 +1,5 @@
 #![feature(rustc_private)]
-#![recursion_limit = "256"]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
@@ -7,7 +7,6 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint_and_help, match_def_path};
-use if_chain::if_chain;
 use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{GenericArgKind, Ty, TyKind};
@@ -52,46 +51,42 @@ dylint_linting::declare_late_lint! {
 
 impl<'tcx> LateLintPass<'tcx> for TryIoResult {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'_>) {
-        if_chain! {
-            if let ExprKind::Match(scrutinee, _, MatchSource::TryDesugar(_)) = expr.kind;
-            if let ExprKind::Call(callee, [arg]) = scrutinee.kind;
-            if let ExprKind::Path(path) = &callee.kind;
-            if matches!(path, QPath::LangItem(LangItem::TryTraitBranch, _));
-            if let arg_ty = cx.typeck_results().node_type(arg.hir_id);
-            if is_io_result(cx, arg_ty);
-            let body_owner_hir_id = cx.tcx.hir().enclosing_body_owner(expr.hir_id);
-            let body_id = cx.tcx.hir().body_owned_by(body_owner_hir_id);
-            let body = cx.tcx.hir().body(body_id);
-            let body_ty = cx.typeck_results().expr_ty(body.value);
-            if !is_io_result(cx, body_ty);
-            then {
-                span_lint_and_help(
-                    cx,
-                    TRY_IO_RESULT,
-                    expr.span,
-                    "returning a `std::io::Result` could discard relevant context (e.g., files or \
-                    paths involved)",
-                    None,
-                    "return a type that includes relevant context",
-                );
-            }
+        if let ExprKind::Match(scrutinee, _, MatchSource::TryDesugar(_)) = expr.kind
+            && let ExprKind::Call(callee, [arg]) = scrutinee.kind
+            && let ExprKind::Path(path) = &callee.kind
+            && matches!(path, QPath::LangItem(LangItem::TryTraitBranch, _))
+            && let arg_ty = cx.typeck_results().node_type(arg.hir_id)
+            && is_io_result(cx, arg_ty)
+            && let body_owner_hir_id = cx.tcx.hir().enclosing_body_owner(expr.hir_id)
+            && let body_id = cx.tcx.hir().body_owned_by(body_owner_hir_id)
+            && let body = cx.tcx.hir().body(body_id)
+            && let body_ty = cx.typeck_results().expr_ty(body.value)
+            && !is_io_result(cx, body_ty)
+        {
+            span_lint_and_help(
+                cx,
+                TRY_IO_RESULT,
+                expr.span,
+                "returning a `std::io::Result` could discard relevant context (e.g., files or \
+                paths involved)",
+                None,
+                "return a type that includes relevant context",
+            );
         }
     }
 }
 
 fn is_io_result(cx: &LateContext<'_>, ty: Ty) -> bool {
-    if_chain! {
-        if let TyKind::Adt(def, substs) = ty.kind();
-        if cx.tcx.is_diagnostic_item(sym::Result, def.did());
-        if let [_, generic_arg] = substs.iter().collect::<Vec<_>>().as_slice();
-        if let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack();
-        if let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind();
-        if match_def_path(cx, generic_arg_def.did(), &dylint_internal::paths::IO_ERROR);
-        then {
-            true
-        } else {
-            false
-        }
+    if let TyKind::Adt(def, substs) = ty.kind()
+        && cx.tcx.is_diagnostic_item(sym::Result, def.did())
+        && let [_, generic_arg] = substs.iter().collect::<Vec<_>>().as_slice()
+        && let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack()
+        && let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind()
+        && match_def_path(cx, generic_arg_def.did(), &dylint_internal::paths::IO_ERROR)
+    {
+        true
+    } else {
+        false
     }
 }
 

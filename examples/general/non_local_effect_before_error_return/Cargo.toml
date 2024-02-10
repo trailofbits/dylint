@@ -15,7 +15,6 @@ path = "ui/main.rs"
 
 [dependencies]
 clippy_utils = { workspace = true }
-if_chain = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 
 dylint_linting = { path = "../../../utils/linting" }

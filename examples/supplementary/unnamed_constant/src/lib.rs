@@ -1,11 +1,11 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_ast;
 extern crate rustc_hir;
 
 use clippy_utils::diagnostics::span_lint_and_help;
-use if_chain::if_chain;
 use rustc_ast::ast::LitKind;
 use rustc_hir::{Expr, ExprKind, ItemKind, Node, OwnerNode};
 use rustc_lint::{LateContext, LateLintPass};
@@ -66,35 +66,33 @@ impl UnnamedConstant {
 
 impl<'tcx> LateLintPass<'tcx> for UnnamedConstant {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
-        if_chain! {
-            if !cx
+        if !cx
                 .tcx
                 .hir()
                 .parent_iter(expr.hir_id)
-                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).from_expansion());
+                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).from_expansion())
 
             // smoelius: Only flag expressions that appear within other expressions (as opposed to,
             // e.g., array bounds).
-            if matches!(cx.tcx.hir().get_parent(expr.hir_id), Node::Expr(_));
+            && matches!(cx.tcx.hir().get_parent(expr.hir_id), Node::Expr(_))
 
             // smoelius: And those other expressions must not appear within a constant declaration.
-            let owner_id = cx.tcx.hir().get_parent_item(expr.hir_id);
-            if let OwnerNode::Item(item) = cx.tcx.hir().owner(owner_id);
-            if !matches!(item.kind, ItemKind::Const(..));
+            && let owner_id = cx.tcx.hir().get_parent_item(expr.hir_id)
+            && let OwnerNode::Item(item) = cx.tcx.hir().owner(owner_id)
+            && !matches!(item.kind, ItemKind::Const(..))
 
-            if let ExprKind::Lit(lit) = expr.kind;
-            if let LitKind::Int(value, _) = lit.node;
-            if value >= u128::from(self.config.threshold);
-            then {
-                span_lint_and_help(
-                    cx,
-                    UNNAMED_CONSTANT,
-                    expr.span,
-                    "unnamed constant",
-                    None,
-                    "give the constant a name and use that instead",
-                );
-            }
+            && let ExprKind::Lit(lit) = expr.kind
+            && let LitKind::Int(value, _) = lit.node
+            && value >= u128::from(self.config.threshold)
+        {
+            span_lint_and_help(
+                cx,
+                UNNAMED_CONSTANT,
+                expr.span,
+                "unnamed constant",
+                None,
+                "give the constant a name and use that instead",
+            );
         }
     }
 }

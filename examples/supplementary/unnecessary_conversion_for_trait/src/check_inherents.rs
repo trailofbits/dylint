@@ -1,6 +1,5 @@
 use super::{IGNORED_INHERENTS, WATCHED_INHERENTS};
 use clippy_utils::{def_path_res, get_trait_def_id, match_def_path};
-use if_chain::if_chain;
 use rustc_hir::{def_id::DefId, Unsafety};
 use rustc_lint::LateContext;
 use rustc_middle::ty::{
@@ -245,18 +244,16 @@ fn strip_as_ref<'tcx>(
         .caller_bounds()
         .iter()
         .find_map(|predicate| {
-            if_chain! {
-                if let ty::ClauseKind::Trait(ty::TraitPredicate { trait_ref, .. }) =
-                    predicate.kind().skip_binder();
-                if cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id);
-                if let [self_arg, subst_arg] = trait_ref.args.as_slice();
-                if self_arg.unpack() == ty::GenericArgKind::Type(ty);
-                if let ty::GenericArgKind::Type(subst_ty) = subst_arg.unpack();
-                then {
-                    Some(subst_ty)
-                } else {
-                    None
-                }
+            if let ty::ClauseKind::Trait(ty::TraitPredicate { trait_ref, .. }) =
+                predicate.kind().skip_binder()
+                && cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id)
+                && let [self_arg, subst_arg] = trait_ref.args.as_slice()
+                && self_arg.unpack() == ty::GenericArgKind::Type(ty)
+                && let ty::GenericArgKind::Type(subst_ty) = subst_arg.unpack()
+            {
+                Some(subst_ty)
+            } else {
+                None
             }
         })
 }

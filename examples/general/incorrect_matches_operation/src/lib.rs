@@ -1,11 +1,11 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_ast;
 extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint, sym};
-use if_chain::if_chain;
 use rustc_ast::{
     ptr::P, token::Token, token::TokenKind, tokenstream::TokenTree, BinOpKind, Expr, ExprKind,
     MacCall,
@@ -57,12 +57,11 @@ dylint_linting::declare_pre_expansion_lint! {
 }
 
 fn is_matches_macro(expr: &P<Expr>) -> Option<&P<MacCall>> {
-    if_chain! {
-        if let ExprKind::MacCall(mac) = &expr.kind; // must be a macro call
-        if mac.path == sym!(matches); // must be a matches! symbol
-        then {
-            return Some(mac);
-        }
+    if let ExprKind::MacCall(mac) = &expr.kind // must be a macro call
+        && mac.path == sym!(matches)
+    // must be a matches! symbol
+    {
+        return Some(mac);
     }
     None
 }
@@ -107,46 +106,44 @@ const fn is_comma_token(tree: &TokenTree) -> bool {
 
 impl EarlyLintPass for IncorrectMatchesOperation {
     fn check_expr(&mut self, cx: &EarlyContext, expr: &Expr) {
-        if_chain! {
+        if let ExprKind::Binary(op, left, right) = &expr.kind
             // Look for binary operators
-            if let ExprKind::Binary(op, left, right) = &expr.kind;
             // Ensure the binary operator is |, ||, &&, &
-            if matches!(
+            && matches!(
                 op.node,
                 BinOpKind::BitOr | BinOpKind::Or | BinOpKind::And | BinOpKind::BitAnd
-            );
+            )
             // The left side needs to be a matches! macro call
-            if let Some(matches1) = is_matches_macro(left);
+            && let Some(matches1) = is_matches_macro(left)
             // The right side needs to be a matches! macro call
-            if let Some(matches2) = is_matches_macro(right);
-            if macro_call_first_arg_equals(matches1, matches2);
-            // a MacCall structure has path and arguments, the arguments are tokens
-            // the tokens are e.g. an Ident with variable name or a comma
-            // so we need to fetch the first argument of the macro call by processing those tokens
-            then {
-                match op.node {
-                    // For | and || operator, just say it can be rewritten
-                    BinOpKind::BitOr | BinOpKind::Or => {
-                        span_lint(
-                            cx,
-                            INCORRECT_MATCHES_OPERATION,
-                            expr.span,
-                            "This matches! macro use can be rewritten to matches!(obj, A | B)",
-                        );
-                    }
-                    // For & and && operators, this is likely a bug
-                    BinOpKind::BitAnd | BinOpKind::And => {
-                        let op = if op.node == BinOpKind::BitAnd {
-                            "&"
-                        } else {
-                            "&&"
-                        };
-                        let msg = format!("Is this a bug? matches!(obj, A) {op} matches!(obj, B) is (almost) always false");
-                        span_lint(cx, INCORRECT_MATCHES_OPERATION, expr.span, &msg);
-                    }
-                    _ => {
-                        unreachable!("This should never happen - op.node can't be other operator");
-                    }
+            && let Some(matches2) = is_matches_macro(right)
+            && macro_call_first_arg_equals(matches1, matches2)
+        // a MacCall structure has path and arguments, the arguments are tokens
+        // the tokens are e.g. an Ident with variable name or a comma
+        // so we need to fetch the first argument of the macro call by processing those tokens
+        {
+            match op.node {
+                // For | and || operator, just say it can be rewritten
+                BinOpKind::BitOr | BinOpKind::Or => {
+                    span_lint(
+                        cx,
+                        INCORRECT_MATCHES_OPERATION,
+                        expr.span,
+                        "This matches! macro use can be rewritten to matches!(obj, A | B)",
+                    );
+                }
+                // For & and && operators, this is likely a bug
+                BinOpKind::BitAnd | BinOpKind::And => {
+                    let op = if op.node == BinOpKind::BitAnd {
+                        "&"
+                    } else {
+                        "&&"
+                    };
+                    let msg = format!("Is this a bug? matches!(obj, A) {op} matches!(obj, B) is (almost) always false");
+                    span_lint(cx, INCORRECT_MATCHES_OPERATION, expr.span, &msg);
+                }
+                _ => {
+                    unreachable!("This should never happen - op.node can't be other operator");
                 }
             }
         }
