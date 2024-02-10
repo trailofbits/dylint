@@ -60,7 +60,6 @@ dependencies = [
  "clippy_utils",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
 ]
 
 [[package]]
@@ -172,7 +171,6 @@ dependencies = [
  "dylint_linting",
  "dylint_testing",
  "heck",
- "if_chain",
  "toml 0.8.9",
 ]
 
@@ -207,7 +205,6 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
 ]
 
 [[package]]
@@ -409,7 +406,6 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
 ]
 
 [[package]]
@@ -583,7 +579,6 @@ dependencies = [
  "diesel",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
 ]
 
 [[package]]
@@ -731,7 +726,6 @@ dependencies = [
  "dylint_linting",
  "dylint_testing",
  "heck",
- "if_chain",
 ]
 
 [[package]]
@@ -785,7 +779,6 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
  "once_cell",
  "rustfix",
  "serde",
@@ -855,7 +848,6 @@ dependencies = [
  "dylint_linting",
  "dylint_testing",
  "git2",
- "if_chain",
  "tempfile",
 ]
 
@@ -896,7 +888,6 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
 ]
 
 [[package]]
@@ -1091,7 +1082,6 @@ dependencies = [
  "clippy_utils",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
  "serde",
 ]
 
@@ -1261,7 +1251,6 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
 ]
 
 [[package]]

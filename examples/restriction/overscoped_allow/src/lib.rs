@@ -15,7 +15,6 @@ use anyhow::{Context, Result};
 use cargo_metadata::{Metadata, MetadataCommand};
 use clippy_utils::{diagnostics::span_lint_and_help, source::snippet_opt};
 use dylint_internal::env::var;
-use if_chain::if_chain;
 use once_cell::sync::OnceCell;
 use rustc_ast::ast::{Attribute, MetaItem, NestedMetaItem};
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
@@ -337,23 +336,19 @@ impl OverscopedAllow {
         let metadata = self.metadata(&span_local_path);
         let lhs = &absolutize(metadata, &span_local_path);
         let rhs = &absolutize(metadata, Path::new(&diagnostic_span.file_name));
-        if_chain! {
-            if lhs == rhs;
-            if let Ok(FileLines { lines, .. }) = cx.sess().source_map().span_to_lines(span);
-            if let Some(first_line) = lines.first();
-            if let Some(last_line) = lines.last();
-            then {
-                (first_line.line_index + 1 < diagnostic_span.line_start
-                    || (first_line.line_index + 1 == diagnostic_span.line_start
-                        && first_line.start_col + CharPos(1)
-                            <= CharPos(diagnostic_span.column_start)))
-                    && (diagnostic_span.line_end < last_line.line_index + 1
-                        || (diagnostic_span.line_end == last_line.line_index + 1
-                            && CharPos(diagnostic_span.column_end)
-                                <= last_line.end_col + CharPos(1)))
-            } else {
-                false
-            }
+        if lhs == rhs
+            && let Ok(FileLines { lines, .. }) = cx.sess().source_map().span_to_lines(span)
+            && let Some(first_line) = lines.first()
+            && let Some(last_line) = lines.last()
+        {
+            (first_line.line_index + 1 < diagnostic_span.line_start
+                || (first_line.line_index + 1 == diagnostic_span.line_start
+                    && first_line.start_col + CharPos(1) <= CharPos(diagnostic_span.column_start)))
+                && (diagnostic_span.line_end < last_line.line_index + 1
+                    || (diagnostic_span.line_end == last_line.line_index + 1
+                        && CharPos(diagnostic_span.column_end) <= last_line.end_col + CharPos(1)))
+        } else {
+            false
         }
     }
 }
@@ -464,27 +459,25 @@ fn is_lint_level(symbol: Symbol) -> bool {
 }
 
 fn meta_item_for_diagnostic(attr: &Attribute, diagnostic: &Diagnostic) -> Option<MetaItem> {
-    if_chain! {
-        if let Some(items) = attr.meta_item_list();
-        if let Some(code) = &diagnostic.code;
-        then {
-            items
-                .iter()
-                .filter_map(NestedMetaItem::meta_item)
-                .find(|meta_item| {
-                    meta_item
-                        .path
-                        .segments
-                        .iter()
-                        .map(|path_segment| path_segment.ident.as_str())
-                        .collect::<Vec<_>>()
-                        .join("::")
-                        == code.code
-                })
-                .cloned()
-        } else {
-            None
-        }
+    if let Some(items) = attr.meta_item_list()
+        && let Some(code) = &diagnostic.code
+    {
+        items
+            .iter()
+            .filter_map(NestedMetaItem::meta_item)
+            .find(|meta_item| {
+                meta_item
+                    .path
+                    .segments
+                    .iter()
+                    .map(|path_segment| path_segment.ident.as_str())
+                    .collect::<Vec<_>>()
+                    .join("::")
+                    == code.code
+            })
+            .cloned()
+    } else {
+        None
     }
 }
 

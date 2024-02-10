@@ -1,5 +1,5 @@
 #![feature(rustc_private)]
-#![recursion_limit = "256"]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_ast;
@@ -13,7 +13,6 @@ use clippy_utils::{
     source::snippet_opt,
 };
 use dylint_internal::paths;
-use if_chain::if_chain;
 use rustc_ast::LitKind;
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
@@ -86,46 +85,42 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
 
     #[allow(clippy::while_let_loop)]
     loop {
-        if_chain! {
-            if let ExprKind::MethodCall(_, receiver, [arg], _) = expr.kind;
-            if let Some(method_def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id);
-            if match_any_def_paths(
+        if let ExprKind::MethodCall(_, receiver, [arg], _) = expr.kind
+            && let Some(method_def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id)
+            && match_any_def_paths(
                 cx,
                 method_def_id,
                 &[&paths::CAMINO_UTF8_PATH_JOIN, &paths::PATH_JOIN],
             )
-            .is_some();
-            if let Some(s) = is_lit_string(cx, arg);
-            then {
-                expr = receiver;
-                components_reversed.push(s);
-                partial_span = partial_span.with_lo(receiver.span.hi());
-                continue;
-            } else {
-                break;
-            }
+            .is_some()
+            && let Some(s) = is_lit_string(cx, arg)
+        {
+            expr = receiver;
+            components_reversed.push(s);
+            partial_span = partial_span.with_lo(receiver.span.hi());
+            continue;
+        } else {
+            break;
         }
     }
 
-    let ty_or_partial_span = if_chain! {
-        if let ExprKind::Call(callee, [arg]) = expr.kind;
-        let ty = is_path_buf_from(cx, callee, expr);
-        if is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW)
+    let ty_or_partial_span = if let ExprKind::Call(callee, [arg]) = expr.kind
+        && let ty = is_path_buf_from(cx, callee, expr)
+        && (is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW)
             || is_expr_path_def_path(cx, callee, &paths::PATH_NEW)
-            || ty.is_some();
-        if let Some(s) = is_lit_string(cx, arg);
-        then {
-            components_reversed.push(s);
-            TyOrPartialSpan::Ty(ty.unwrap_or_else(|| {
-                if is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW) {
-                    &paths::CAMINO_UTF8_PATH_BUF
-                } else {
-                    &paths::PATH_BUF
-                }
-            }))
-        } else {
-            TyOrPartialSpan::PartialSpan(partial_span)
-        }
+            || ty.is_some())
+        && let Some(s) = is_lit_string(cx, arg)
+    {
+        components_reversed.push(s);
+        TyOrPartialSpan::Ty(ty.unwrap_or_else(|| {
+            if is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW) {
+                &paths::CAMINO_UTF8_PATH_BUF
+            } else {
+                &paths::PATH_BUF
+            }
+        }))
+    } else {
+        TyOrPartialSpan::PartialSpan(partial_span)
     };
 
     components_reversed.reverse();
@@ -137,39 +132,35 @@ fn is_path_buf_from(
     callee: &Expr<'_>,
     expr: &Expr<'_>,
 ) -> Option<&'static [&'static str]> {
-    if_chain! {
-        if let Some(callee_def_id) = cx.typeck_results().type_dependent_def_id(callee.hir_id);
-        if cx.tcx.is_diagnostic_item(sym::from_fn, callee_def_id);
-        let ty = cx.typeck_results().expr_ty(expr);
-        if let ty::Adt(adt_def, _) = ty.kind();
-        then {
-            let paths: &[&[&str]] = &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_BUF];
-            match_any_def_paths(
-                cx,
-                adt_def.did(),
-                &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_BUF],
-            )
-            .map(|i| paths[i])
-        } else {
-            None
-        }
+    if let Some(callee_def_id) = cx.typeck_results().type_dependent_def_id(callee.hir_id)
+        && cx.tcx.is_diagnostic_item(sym::from_fn, callee_def_id)
+        && let ty = cx.typeck_results().expr_ty(expr)
+        && let ty::Adt(adt_def, _) = ty.kind()
+    {
+        let paths: &[&[&str]] = &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_BUF];
+        match_any_def_paths(
+            cx,
+            adt_def.did(),
+            &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_BUF],
+        )
+        .map(|i| paths[i])
+    } else {
+        None
     }
 }
 
 fn is_lit_string(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<String> {
-    if_chain! {
-        if !expr.span.from_expansion();
-        if let ExprKind::Lit(lit) = &expr.kind;
-        if let LitKind::Str(symbol, _) = lit.node;
+    if !expr.span.from_expansion()
+        && let ExprKind::Lit(lit) = &expr.kind
+        && let LitKind::Str(symbol, _) = lit.node
         // smoelius: I don't think the next line should be necessary. But following the upgrade to
         // nightly-2023-08-24, `expr.span.from_expansion()` above started returning false for
         // `env!(...)`.
-        if snippet_opt(cx, expr.span) == Some(format!(r#""{}""#, symbol.as_str()));
-        then {
-            Some(symbol.to_ident_string())
-        } else {
-            None
-        }
+        && snippet_opt(cx, expr.span) == Some(format!(r#""{}""#, symbol.as_str()))
+    {
+        Some(symbol.to_ident_string())
+    } else {
+        None
     }
 }
 

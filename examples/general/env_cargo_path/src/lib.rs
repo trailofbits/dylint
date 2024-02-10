@@ -1,11 +1,11 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_ast;
 extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint, sym};
-use if_chain::if_chain;
 use rustc_ast::{
     token::{LitKind, TokenKind},
     tokenstream::TokenTree,
@@ -64,23 +64,21 @@ impl EarlyLintPass for EnvCargoPath {
     }
 
     fn check_expr(&mut self, cx: &EarlyContext, expr: &Expr) {
-        if_chain! {
-            if !self.in_test_item();
-            if let ExprKind::MacCall(mac) = &expr.kind;
-            if mac.path == sym!(env) || mac.path == sym!(option_env);
-            if let [TokenTree::Token(token, _)] =
-                mac.args.tokens.trees().collect::<Vec<_>>().as_slice();
-            if let TokenKind::Literal(lit) = token.kind;
-            if lit.kind == LitKind::Str;
-            if is_blacklisted_variable(lit.symbol.as_str());
-            then {
-                span_lint(
-                    cx,
-                    ENV_CARGO_PATH,
-                    expr.span,
-                    "this path might not exist in production",
-                );
-            }
+        if !self.in_test_item()
+            && let ExprKind::MacCall(mac) = &expr.kind
+            && (mac.path == sym!(env) || mac.path == sym!(option_env))
+            && let [TokenTree::Token(token, _)] =
+                mac.args.tokens.trees().collect::<Vec<_>>().as_slice()
+            && let TokenKind::Literal(lit) = token.kind
+            && lit.kind == LitKind::Str
+            && is_blacklisted_variable(lit.symbol.as_str())
+        {
+            span_lint(
+                cx,
+                ENV_CARGO_PATH,
+                expr.span,
+                "this path might not exist in production",
+            );
         }
     }
 }
@@ -96,17 +94,15 @@ fn is_test_item(item: &Item) -> bool {
         if attr.has_name(sym::test) {
             true
         } else {
-            if_chain! {
-                if attr.has_name(sym::cfg);
-                if let Some(items) = attr.meta_item_list();
-                if let [item] = items.as_slice();
-                if let Some(feature_item) = item.meta_item();
-                if feature_item.has_name(sym::test);
-                then {
-                    true
-                } else {
-                    false
-                }
+            if attr.has_name(sym::cfg)
+                && let Some(items) = attr.meta_item_list()
+                && let [item] = items.as_slice()
+                && let Some(feature_item) = item.meta_item()
+                && feature_item.has_name(sym::test)
+            {
+                true
+            } else {
+                false
             }
         }
     })

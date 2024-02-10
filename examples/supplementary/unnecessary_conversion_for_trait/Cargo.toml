@@ -23,7 +23,6 @@ path = "ui/vec.rs"
 
 [dependencies]
 clippy_utils = { workspace = true }
-if_chain = "1.0"
 
 dylint_internal = { path = "../../../internal", features = ["cargo"] }
 dylint_linting = { path = "../../../utils/linting" }

@@ -1,11 +1,11 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_ast;
 extern crate rustc_span;
 
 use clippy_utils::diagnostics::span_lint_and_help;
-use if_chain::if_chain;
 use rustc_ast::{AttrStyle, Crate, MetaItem, MetaItemKind};
 use rustc_lint::{EarlyContext, EarlyLintPass};
 use rustc_span::sym;
@@ -36,31 +36,29 @@ impl EarlyLintPass for CrateWideAllow {
     fn check_crate(&mut self, cx: &EarlyContext, krate: &Crate) {
         for attr in &krate.attrs {
             assert_eq!(AttrStyle::Inner, attr.style);
-            if_chain! {
-                if attr.has_name(sym::allow);
-                if let Some([arg]) = attr.meta_item_list().as_deref();
-                if let Some(MetaItem {
+            if attr.has_name(sym::allow)
+                && let Some([arg]) = attr.meta_item_list().as_deref()
+                && let Some(MetaItem {
                     path,
                     kind: MetaItemKind::Word,
                     ..
-                }) = arg.meta_item();
-                then {
-                    let path = path
-                        .segments
-                        .iter()
-                        .map(|segment| segment.ident.as_str())
-                        .collect::<Vec<_>>()
-                        .join("::")
-                        .replace('_', "-");
-                    span_lint_and_help(
-                        cx,
-                        CRATE_WIDE_ALLOW,
-                        attr.span,
-                        &format!("silently overrides `--warn {path}` and `--deny {path}`"),
-                        None,
-                        &format!("pass `--allow {path}` on the command line"),
-                    );
-                }
+                }) = arg.meta_item()
+            {
+                let path = path
+                    .segments
+                    .iter()
+                    .map(|segment| segment.ident.as_str())
+                    .collect::<Vec<_>>()
+                    .join("::")
+                    .replace('_', "-");
+                span_lint_and_help(
+                    cx,
+                    CRATE_WIDE_ALLOW,
+                    attr.span,
+                    &format!("silently overrides `--warn {path}` and `--deny {path}`"),
+                    None,
+                    &format!("pass `--allow {path}` on the command line"),
+                );
             }
         }
     }

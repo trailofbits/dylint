@@ -1,10 +1,10 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
 
 use clippy_utils::diagnostics::span_lint_and_help;
-use if_chain::if_chain;
 use rustc_hir::{Expr, ExprKind, HirId, LangItem, MatchSource, Node, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 
@@ -39,33 +39,31 @@ dylint_linting::declare_late_lint! {
 #[allow(clippy::collapsible_match)]
 impl<'tcx> LateLintPass<'tcx> for QuestionMarkInExpression {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
-        if_chain! {
-            if !cx
+        if !cx
                 .tcx
                 .hir()
                 .parent_iter(expr.hir_id)
-                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion());
-            if let ExprKind::Match(_, _, MatchSource::TryDesugar(_)) = expr.kind;
-            if let Some((Node::Expr(ancestor), child_hir_id)) =
-                get_filtered_ancestor(cx, expr.hir_id);
+                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion())
+            && let ExprKind::Match(_, _, MatchSource::TryDesugar(_)) = expr.kind
+            && let Some((Node::Expr(ancestor), child_hir_id)) =
+                get_filtered_ancestor(cx, expr.hir_id)
             // smoelius: `AssignOp`, `If`, `Let`, and `Match` expressions get a pass.
-            if !match ancestor.kind {
+            && !match ancestor.kind {
                 ExprKind::Let(..) => true,
                 ExprKind::If(condition, _, _) => condition.hir_id == child_hir_id,
                 ExprKind::Match(scrutinee, _, _) => scrutinee.hir_id == child_hir_id,
                 ExprKind::AssignOp(_, _, expr) => expr.hir_id == child_hir_id,
                 _ => false,
-            };
-            then {
-                span_lint_and_help(
-                    cx,
-                    QUESTION_MARK_IN_EXPRESSION,
-                    expr.span,
-                    "using the `?` operator within an expression",
-                    None,
-                    "consider breaking this up into multiple expressions",
-                );
             }
+        {
+            span_lint_and_help(
+                cx,
+                QUESTION_MARK_IN_EXPRESSION,
+                expr.span,
+                "using the `?` operator within an expression",
+                None,
+                "consider breaking this up into multiple expressions",
+            );
         }
     }
 }
@@ -85,14 +83,12 @@ fn get_filtered_ancestor<'hir>(
                 continue;
             }
 
-            if_chain! {
-                if let ExprKind::Call(callee, _) = expr.kind;
-                if let ExprKind::Path(path) = &callee.kind;
-                if let QPath::LangItem(LangItem::IntoIterIntoIter, _) = path;
-                then {
-                    child_hir_id = hir_id;
-                    continue;
-                }
+            if let ExprKind::Call(callee, _) = expr.kind
+                && let ExprKind::Path(path) = &callee.kind
+                && let QPath::LangItem(LangItem::IntoIterIntoIter, _) = path
+            {
+                child_hir_id = hir_id;
+                continue;
             }
         }
 

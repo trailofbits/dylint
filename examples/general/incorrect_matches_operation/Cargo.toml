@@ -12,7 +12,6 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 clippy_utils = { workspace = true }
 dylint_linting = { path = "../../../utils/linting" }
-if_chain = "1.0.2"
 
 [dev-dependencies]
 dylint_testing = { path = "../../../utils/testing" }

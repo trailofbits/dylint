@@ -161,7 +161,6 @@ dependencies = [
  "clippy_utils",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
  "once_cell",
  "regex",
  "syn",
@@ -1233,7 +1232,6 @@ dependencies = [
  "clippy_utils",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
  "serde",
 ]
 
@@ -1245,7 +1243,6 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
 ]
 
 [[package]]
@@ -1256,7 +1253,6 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
- "if_chain",
  "tempfile",
 ]
 

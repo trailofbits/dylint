@@ -1,5 +1,5 @@
 #![feature(rustc_private)]
-#![recursion_limit = "256"]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
@@ -7,7 +7,6 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::diagnostics::span_lint_and_note;
-use if_chain::if_chain;
 use rustc_hir::{
     def::{DefKind, Res},
     def_id::{DefId, CRATE_DEF_ID},
@@ -60,49 +59,47 @@ dylint_linting::declare_late_lint! {
 
 impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
     fn check_path(&mut self, cx: &LateContext<'tcx>, path: &Path<'tcx>, hir_id: HirId) {
-        if_chain! {
-            // smoelius: On the Dylint source code itself, simply checking
-            // `path.span.in_derive_expansion()` isn't sufficient to prevent false positives.
-            if !cx
-                .tcx
-                .hir()
-                .parent_iter(hir_id)
-                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion());
-            let node = cx.tcx.hir_node(hir_id);
-            if !matches!(
+        // smoelius: On the Dylint source code itself, simply checking
+        // `path.span.in_derive_expansion()` isn't sufficient to prevent false positives.
+        if !cx
+            .tcx
+            .hir()
+            .parent_iter(hir_id)
+            .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion())
+            && let node = cx.tcx.hir_node(hir_id)
+            && !matches!(
                 node,
                 Node::Item(Item {
                     kind: ItemKind::Use(..),
                     ..
                 })
-            );
-            if let Some(mod_def_id) = path
+            )
+            && let Some(mod_def_id) = path
                 .segments
                 .iter()
                 .rev()
-                .find_map(|segment| segment.res.mod_def_id());
-            then {
-                let syms_mod = cx.get_def_path(mod_def_id);
-                // smoelius: Iterate over all enclosing scopes.
-                let mut current_hir_id = hir_id;
-                loop {
-                    let enclosing_scope_hir_id = cx.tcx.hir().get_enclosing_scope(current_hir_id);
-                    let mut visitor = UseVisitor {
-                        cx,
-                        enclosing_scope_hir_id,
-                        path,
-                        syms_mod: &syms_mod,
-                    };
-                    if let Some(enclosing_scope_hir_id) = enclosing_scope_hir_id {
-                        let node = cx.tcx.hir_node(enclosing_scope_hir_id);
-                        visitor.visit_scope(node);
-                        current_hir_id = enclosing_scope_hir_id;
-                    } else {
-                        let parent_module_local_def_id = cx.tcx.parent_module(hir_id);
-                        let parent_module = cx.tcx.hir().get_module(parent_module_local_def_id);
-                        visitor.visit_mod(parent_module.0, parent_module.1, parent_module.2);
-                        break;
-                    }
+                .find_map(|segment| segment.res.mod_def_id())
+        {
+            let syms_mod = cx.get_def_path(mod_def_id);
+            // smoelius: Iterate over all enclosing scopes.
+            let mut current_hir_id = hir_id;
+            loop {
+                let enclosing_scope_hir_id = cx.tcx.hir().get_enclosing_scope(current_hir_id);
+                let mut visitor = UseVisitor {
+                    cx,
+                    enclosing_scope_hir_id,
+                    path,
+                    syms_mod: &syms_mod,
+                };
+                if let Some(enclosing_scope_hir_id) = enclosing_scope_hir_id {
+                    let node = cx.tcx.hir_node(enclosing_scope_hir_id);
+                    visitor.visit_scope(node);
+                    current_hir_id = enclosing_scope_hir_id;
+                } else {
+                    let parent_module_local_def_id = cx.tcx.parent_module(hir_id);
+                    let parent_module = cx.tcx.hir().get_module(parent_module_local_def_id);
+                    visitor.visit_mod(parent_module.0, parent_module.1, parent_module.2);
+                    break;
                 }
             }
         }
@@ -147,13 +144,12 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
     }
 
     fn visit_item(&mut self, item: &'tcx Item) {
-        if_chain! {
-            if !item.span.from_expansion();
+        if !item.span.from_expansion()
             // smoelius: Ignore underscore imports.
-            if item.ident.name.as_str() != "_";
-            if self.cx.tcx.hir().get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id;
-            if let ItemKind::Use(use_path, use_kind) = item.kind;
-            let local_owner_path = if use_path.res.iter().copied().any(is_local) {
+            && item.ident.name.as_str() != "_"
+            && self.cx.tcx.hir().get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id
+            && let ItemKind::Use(use_path, use_kind) = item.kind
+            && let local_owner_path = if use_path.res.iter().copied().any(is_local) {
                 let local_def_id = self
                     .enclosing_scope_hir_id
                     .and_then(|hir_id| get_owner(self.cx.tcx, hir_id))
@@ -161,12 +157,12 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
                 self.cx.get_def_path(local_def_id.into())
             } else {
                 Vec::new()
-            };
-            let syms = local_owner_path
+            }
+            && let syms = local_owner_path
                 .into_iter()
                 .chain(use_path.segments.iter().map(|segment| segment.ident.name))
-                .collect::<Vec<_>>();
-            if let Some(path_match) = {
+                .collect::<Vec<_>>()
+            && let Some(path_match) = {
                 match use_kind {
                     UseKind::Single => {
                         if let Some(matched_prefix) = match_path_prefix(use_path, self.path) {
@@ -186,45 +182,43 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
                     }
                     UseKind::ListStem => None,
                 }
-            };
-            let use_path_is_trait = use_path
+            }
+            && let use_path_is_trait = use_path
                 .res
                 .iter()
-                .any(|res| matches!(res, Res::Def(DefKind::Trait, _)));
+                .any(|res| matches!(res, Res::Def(DefKind::Trait, _)))
             // smoelius: If `use_path` corresponds to a trait, then it must match some prefix of
             // `self.path` exactly for a warning to be emitted.
-            if !use_path_is_trait || matches!(path_match, PathMatch::Prefix(_));
-            then {
-                let (span, msg) = match path_match {
-                    PathMatch::Prefix(matched_prefix) => {
-                        let span = matched_prefix
-                            .first()
-                            .unwrap()
-                            .ident
-                            .span
-                            .with_hi(matched_prefix.last().unwrap().ident.span.hi());
-                        let path = path_to_string(
-                            matched_prefix.iter().map(|segment| &segment.ident.name),
-                        );
-                        (span, format!("`{path}` was imported here"))
-                    }
-                    PathMatch::Mod => {
-                        let path = path_to_string(self.syms_mod);
-                        (
-                            self.path.span,
-                            format!("items from `{path}` were imported here"),
-                        )
-                    }
-                };
-                span_lint_and_note(
-                    self.cx,
-                    INCONSISTENT_QUALIFICATION,
-                    span,
-                    "inconsistent qualification",
-                    Some(item.span),
-                    &msg,
-                );
-            }
+            && (!use_path_is_trait || matches!(path_match, PathMatch::Prefix(_)))
+        {
+            let (span, msg) = match path_match {
+                PathMatch::Prefix(matched_prefix) => {
+                    let span = matched_prefix
+                        .first()
+                        .unwrap()
+                        .ident
+                        .span
+                        .with_hi(matched_prefix.last().unwrap().ident.span.hi());
+                    let path =
+                        path_to_string(matched_prefix.iter().map(|segment| &segment.ident.name));
+                    (span, format!("`{path}` was imported here"))
+                }
+                PathMatch::Mod => {
+                    let path = path_to_string(self.syms_mod);
+                    (
+                        self.path.span,
+                        format!("items from `{path}` were imported here"),
+                    )
+                }
+            };
+            span_lint_and_note(
+                self.cx,
+                INCONSISTENT_QUALIFICATION,
+                span,
+                "inconsistent qualification",
+                Some(item.span),
+                &msg,
+            );
         }
         walk_item(self, item);
     }

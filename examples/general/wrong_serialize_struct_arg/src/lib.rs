@@ -1,4 +1,5 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
@@ -10,7 +11,6 @@ use clippy_utils::{
     match_def_path,
 };
 use dylint_internal::paths;
-use if_chain::if_chain;
 use rustc_hir::{Block, Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Span;
@@ -122,26 +122,22 @@ impl<'tcx> LateLintPass<'tcx> for WrongSerializeStructArg {
             return;
         };
 
-        if_chain! {
-            if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_STRUCT);
-            if let [_, arg] = args;
-            if let Some(Constant::Int(len)) = constant(cx, cx.typeck_results(), arg);
-            then {
-                self.stack.last_mut().unwrap().push(SerializeStruct {
-                    serialize_struct_span: expr.span,
-                    len,
-                    serialize_field_spans: Vec::new(),
-                });
-                return;
-            }
+        if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_STRUCT)
+            && let [_, arg] = args
+            && let Some(Constant::Int(len)) = constant(cx, cx.typeck_results(), arg)
+        {
+            self.stack.last_mut().unwrap().push(SerializeStruct {
+                serialize_struct_span: expr.span,
+                len,
+                serialize_field_spans: Vec::new(),
+            });
+            return;
         }
 
-        if_chain! {
-            if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_FIELD);
-            if let Some(serialize_struct) = self.stack.last_mut().unwrap().last_mut();
-            then {
-                serialize_struct.serialize_field_spans.push(expr.span);
-            }
+        if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_FIELD)
+            && let Some(serialize_struct) = self.stack.last_mut().unwrap().last_mut()
+        {
+            serialize_struct.serialize_field_spans.push(expr.span);
         }
     }
 }

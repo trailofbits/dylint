@@ -1,5 +1,4 @@
 use clippy_utils::diagnostics::span_lint;
-use if_chain::if_chain;
 use rustc_ast::{Crate, Expr, ExprKind, Item, NodeId};
 use rustc_lint::{EarlyContext, EarlyLintPass, LintContext};
 use rustc_session::{declare_lint, impl_lint_pass};
@@ -80,21 +79,19 @@ impl EarlyLintPass for NonThreadSafeCallInTest {
     }
 
     fn check_expr(&mut self, cx: &EarlyContext, expr: &Expr) {
-        if_chain! {
-            if self.in_test_item();
-            if let ExprKind::Call(callee, _) = &expr.kind;
-            if let Some(path) = is_blacklisted_function(callee);
-            then {
-                span_lint(
-                    cx,
-                    NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXPANSION,
-                    expr.span,
-                    &(format!(
-                        "calling `{}` in a test could affect the outcome of other tests",
-                        path.join("::")
-                    )),
-                );
-            }
+        if self.in_test_item()
+            && let ExprKind::Call(callee, _) = &expr.kind
+            && let Some(path) = is_blacklisted_function(callee)
+        {
+            span_lint(
+                cx,
+                NON_THREAD_SAFE_CALL_IN_TEST_PRE_EXPANSION,
+                expr.span,
+                &(format!(
+                    "calling `{}` in a test could affect the outcome of other tests",
+                    path.join("::")
+                )),
+            );
         }
     }
 }
@@ -110,17 +107,15 @@ fn is_test_item(item: &Item) -> bool {
         if attr.has_name(sym::test) {
             true
         } else {
-            if_chain! {
-                if attr.has_name(sym::cfg);
-                if let Some(items) = attr.meta_item_list();
-                if let [item] = items.as_slice();
-                if let Some(feature_item) = item.meta_item();
-                if feature_item.has_name(sym::test);
-                then {
-                    true
-                } else {
-                    false
-                }
+            if attr.has_name(sym::cfg)
+                && let Some(items) = attr.meta_item_list()
+                && let [item] = items.as_slice()
+                && let Some(feature_item) = item.meta_item()
+                && feature_item.has_name(sym::test)
+            {
+                true
+            } else {
+                false
             }
         }
     })

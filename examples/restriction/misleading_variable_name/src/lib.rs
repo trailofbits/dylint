@@ -1,4 +1,5 @@
 #![feature(rustc_private)]
+#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
@@ -10,7 +11,6 @@ use clippy_utils::{
     ty::{implements_trait, is_type_diagnostic_item},
 };
 use heck::ToSnakeCase;
-use if_chain::if_chain;
 use rustc_hir::{
     def::{DefKind, Res},
     def_id::{DefId, ModDefId},
@@ -52,8 +52,7 @@ dylint_linting::declare_late_lint! {
 
 impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
     fn check_stmt(&mut self, cx: &LateContext<'tcx>, stmt: &'tcx Stmt<'tcx>) {
-        if_chain! {
-            if let StmtKind::Local(Local {
+        if let StmtKind::Local(Local {
                 pat:
                     Pat {
                         kind: PatKind::Binding(_, _, ident, _),
@@ -61,63 +60,62 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
                     },
                 init: Some(init),
                 ..
-            }) = stmt.kind;
-            let expr = peel_try_unwrap_and_similar(cx, init);
-            if let Some(callee_def_id) = callee_def_id(cx, expr);
-            let module_def_id = parent_module(cx.tcx, callee_def_id);
+            }) = stmt.kind
+            && let expr = peel_try_unwrap_and_similar(cx, init)
+            && let Some(callee_def_id) = callee_def_id(cx, expr)
+            && let module_def_id = parent_module(cx.tcx, callee_def_id)
             // smoelius: Don't flag functions/types defined in the same module as the call.
-            if module_def_id != cx.tcx.parent_module(stmt.hir_id).to_def_id();
-            let child_types = module_public_child_types(cx.tcx, module_def_id);
-            if let Some((child_ty_name, child_ty)) = child_types.get(ident.name.as_str());
-            let init_ty = erase_substs(
+            && module_def_id != cx.tcx.parent_module(stmt.hir_id).to_def_id()
+            && let child_types = module_public_child_types(cx.tcx, module_def_id)
+            && let Some((child_ty_name, child_ty)) = child_types.get(ident.name.as_str())
+            && let init_ty = erase_substs(
                 cx.tcx,
                 peel_refs_and_rcs(cx, module_def_id, cx.typeck_results().expr_ty(init)),
-            );
-            if init_ty != *child_ty;
-            then {
-                let help_msg = child_types
-                    .iter()
-                    .find_map(|(name, &(_, child_ty))| {
-                        if init_ty == child_ty {
-                            Some(format!("use `{name}` or something similar"))
-                        } else {
-                            None
-                        }
-                    })
-                    .unwrap_or_else(|| {
-                        if child_types.len() == 1 {
-                            format!(
-                                "use a name other than `{}`",
-                                child_types.keys().next().unwrap()
-                            )
-                        } else {
-                            let mut names = child_types
-                                .keys()
-                                .map(|s| format!("`{s}`"))
-                                .collect::<Vec<_>>();
-                            let last = names.pop().unwrap();
-                            format!(
-                                "use a name that is not {}{} or {}",
-                                names.join(", "),
-                                if names.len() >= 2 { "," } else { "" },
-                                last
-                            )
-                        }
-                    });
-                span_lint_and_help(
-                    cx,
-                    MISLEADING_VARIABLE_NAME,
-                    ident.span,
-                    &format!(
-                        "`{}` exports a type `{}`, which is not the type of `{}`",
-                        cx.tcx.def_path_str(module_def_id),
-                        child_ty_name,
-                        ident.name
-                    ),
-                    None,
-                    &help_msg,
-                )
-            }
+            )
+            && init_ty != *child_ty
+        {
+            let help_msg = child_types
+                .iter()
+                .find_map(|(name, &(_, child_ty))| {
+                    if init_ty == child_ty {
+                        Some(format!("use `{name}` or something similar"))
+                    } else {
+                        None
+                    }
+                })
+                .unwrap_or_else(|| {
+                    if child_types.len() == 1 {
+                        format!(
+                            "use a name other than `{}`",
+                            child_types.keys().next().unwrap()
+                        )
+                    } else {
+                        let mut names = child_types
+                            .keys()
+                            .map(|s| format!("`{s}`"))
+                            .collect::<Vec<_>>();
+                        let last = names.pop().unwrap();
+                        format!(
+                            "use a name that is not {}{} or {}",
+                            names.join(", "),
+                            if names.len() >= 2 { "," } else { "" },
+                            last
+                        )
+                    }
+                });
+            span_lint_and_help(
+                cx,
+                MISLEADING_VARIABLE_NAME,
+                ident.span,
+                &format!(
+                    "`{}` exports a type `{}`, which is not the type of `{}`",
+                    cx.tcx.def_path_str(module_def_id),
+                    child_ty_name,
+                    ident.name
+                ),
+                None,
+                &help_msg,
+            )
         }
     }
 }
@@ -186,14 +184,12 @@ fn peel_try_unwrap_and_similar<'tcx>(
 
 fn is_try_implementor(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
     let expr_ty = cx.typeck_results().expr_ty(expr);
-    if_chain! {
-        if let Some(try_trait_def_id) = cx.tcx.lang_items().try_trait();
-        if implements_trait(cx, expr_ty, try_trait_def_id, &[]);
-        then {
-            true
-        } else {
-            false
-        }
+    if let Some(try_trait_def_id) = cx.tcx.lang_items().try_trait()
+        && implements_trait(cx, expr_ty, try_trait_def_id, &[])
+    {
+        true
+    } else {
+        false
     }
 }
 
@@ -259,14 +255,12 @@ fn module_public_children(tcx: ty::TyCtxt<'_>, module_def_id: DefId) -> Vec<(Sym
         tcx.module_children(module_def_id)
             .iter()
             .filter_map(|child| {
-                if_chain! {
-                    if child.vis == ty::Visibility::Public;
-                    if let Res::Def(_, child_def_id) = child.res;
-                    then {
-                        Some((child.ident.name, child_def_id))
-                    } else {
-                        None
-                    }
+                if child.vis == ty::Visibility::Public
+                    && let Res::Def(_, child_def_id) = child.res
+                {
+                    Some((child.ident.name, child_def_id))
+                } else {
+                    None
                 }
             })
             .collect()
