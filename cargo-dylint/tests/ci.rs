@@ -142,13 +142,44 @@ fn hack_feature_powerset_udeps() {
 }
 
 #[test]
-fn markdown_does_not_use_inline_links() {
-    for entry in walkdir(false) {
+fn license() {
+    let re = Regex::new(r"^[^:]*\b(Apache|BSD-3-Clause|ISC|MIT|N/A)\b").unwrap();
+
+    for entry in walkdir(false).with_file_name("Cargo.toml") {
         let entry = entry.unwrap();
         let path = entry.path();
-        if path.extension() != Some(OsStr::new("md"))
-            || path.file_name() == Some(OsStr::new("CHANGELOG.md"))
+        for line in std::str::from_utf8(
+            &Command::new("cargo")
+                .args(["license", "--manifest-path", &path.to_string_lossy()])
+                .assert()
+                .success()
+                .get_output()
+                .stdout,
+        )
+        .unwrap()
+        .lines()
         {
+            // smoelius: Exception for `dirs` dependencies.
+            if line == "MPL-2.0 (1): option-ext" {
+                continue;
+            }
+            // smoelius: Exception for Cargo dependencies.
+            if line == "MPL-2.0+ (3): bitmaps, im-rc, sized-chunks" {
+                continue;
+            }
+            // smoelius: Good explanation of the differences between the BSD-3-Clause and MIT
+            // licenses: https://opensource.stackexchange.com/a/582
+            assert!(re.is_match(line), "{line:?} does not match");
+        }
+    }
+}
+
+#[test]
+fn markdown_does_not_use_inline_links() {
+    for entry in walkdir(false).with_extension("md") {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) {
             continue;
         }
         let markdown = read_to_string(path).unwrap();
@@ -163,12 +194,10 @@ fn markdown_does_not_use_inline_links() {
 #[test]
 fn markdown_reference_links_are_sorted() {
     let re = Regex::new(r"^\[[^\]]*\]:").unwrap();
-    for entry in walkdir(true) {
+    for entry in walkdir(true).with_extension("md") {
         let entry = entry.unwrap();
         let path = entry.path();
-        if path.extension() != Some(OsStr::new("md"))
-            || path.file_name() == Some(OsStr::new("CHANGELOG.md"))
-        {
+        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) {
             continue;
         }
         let markdown = read_to_string(path).unwrap();
@@ -193,13 +222,12 @@ fn markdown_reference_links_are_valid_and_used() {
     const CODE_BLOCK: &str = "```([^`]|`[^`]|``[^`])*```";
     let ref_re = Regex::new(&format!(r#"(?m){CODE}|{CODE_BLOCK}|\[([^\]]*)\]([^:]|$)"#)).unwrap();
     let link_re = Regex::new(r"(?m)^\[([^\]]*)\]:").unwrap();
-    for entry in walkdir(true) {
+    for entry in walkdir(true).with_extension("md") {
         let entry = entry.unwrap();
         let path = entry.path();
         // smoelius: The ` ["\n```"] ` in `missing_doc_comment_openai`'s readme causes problems, and
         // I haven't found a good solution/workaround.
-        if path.extension() != Some(OsStr::new("md"))
-            || path.file_name() == Some(OsStr::new("CHANGELOG.md"))
+        if path.file_name() == Some(OsStr::new("CHANGELOG.md"))
             || path.ends_with("examples/README.md")
             || path
                 .components()
@@ -261,13 +289,9 @@ fn markdown_link_check() {
     // smoelius: https://github.com/rust-lang/crates.io/issues/788
     let config = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/markdown_link_check.json");
 
-    for entry in walkdir(true) {
+    for entry in walkdir(true).with_extension("md") {
         let entry = entry.unwrap();
         let path = entry.path();
-
-        if path.extension() != Some(OsStr::new("md")) {
-            continue;
-        }
 
         let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join(path);
 
@@ -341,6 +365,20 @@ fn prettier_examples_and_template() {
     });
 }
 
+#[test]
+fn sort() {
+    for entry in walkdir(false).with_file_name("Cargo.toml") {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        let parent = path.parent().unwrap();
+        Command::new("cargo")
+            .current_dir(parent)
+            .args(["sort", "--check", "--grouped"])
+            .assert()
+            .success();
+    }
+}
+
 const TARGETS: [&str; 4] = [
     "aarch64-apple-darwin",
     "x86_64-apple-darwin",
@@ -399,6 +437,26 @@ fn supply_chain() {
 }
 
 #[test]
+fn update() {
+    for entry in walkdir(false).with_file_name("Cargo.lock") {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        let manifest_path = path.with_file_name("Cargo.toml");
+        preserves_cleanliness("update", false, || {
+            Command::new("cargo")
+                .args([
+                    "update",
+                    "--workspace",
+                    "--manifest-path",
+                    &manifest_path.to_string_lossy(),
+                ])
+                .assert()
+                .success();
+        });
+    }
+}
+
+#[test]
 fn unmaintained() {
     Command::new("cargo")
         .args(["unmaintained", "--color=never", "--fail-fast"])
@@ -428,6 +486,40 @@ fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkd
             entry.path().file_name() != Some(OsStr::new("target"))
                 && (include_examples || entry.path().file_name() != Some(OsStr::new("examples")))
         })
+}
+
+trait IntoIterExt {
+    fn with_extension(
+        self,
+        extension: impl AsRef<OsStr> + 'static,
+    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>>;
+    fn with_file_name(
+        self,
+        file_name: impl AsRef<OsStr> + 'static,
+    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>>;
+}
+
+impl<T: Iterator<Item = walkdir::Result<walkdir::DirEntry>>> IntoIterExt for T {
+    fn with_extension(
+        self,
+        extension: impl AsRef<OsStr> + 'static,
+    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
+        self.filter(move |entry| {
+            entry.as_ref().map_or(true, |entry| {
+                entry.path().extension() == Some(extension.as_ref())
+            })
+        })
+    }
+    fn with_file_name(
+        self,
+        file_name: impl AsRef<OsStr> + 'static,
+    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
+        self.filter(move |entry| {
+            entry.as_ref().map_or(true, |entry| {
+                entry.path().file_name() == Some(file_name.as_ref())
+            })
+        })
+    }
 }
 
 static MUTEX: Mutex<()> = Mutex::new(());
