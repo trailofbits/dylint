@@ -26,7 +26,7 @@ anyhow = "1.0"
 cargo_metadata = "0.18"
 once_cell = "1.19"
 regex = "1.10"
-tempfile = "3.9"
+tempfile = "3.10"
 
 dylint_internal = { path = "../../../internal", features = ["cargo", "git"] }
 
