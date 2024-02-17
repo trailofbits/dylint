@@ -83,20 +83,6 @@ dependencies = [
 
 [[package]]
 name = "cargo_metadata"
-version = "0.15.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eee4243f1f26fc7a42710e7439c149e2b10b05472f88090acce52632f231a73a"
-dependencies = [
- "camino",
- "cargo-platform",
- "semver",
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "cargo_metadata"
 version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2d886547e41f740c616ae73108f6eb70afe6d940c7bc697cb30f13daec073037"
@@ -130,7 +116,7 @@ name = "clippy"
 version = "2.6.1"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.18.1",
+ "cargo_metadata",
  "clippy_config",
  "clippy_lints",
  "clippy_utils",
@@ -146,8 +132,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_config"
-version = "0.1.77"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661bee3876e0228ddfeb6b8b#ac4c2094a6030530661bee3876e0228ddfeb6b8b"
+version = "0.1.78"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=60cb29c5e4f9772685c9873752196725c946a849#60cb29c5e4f9772685c9873752196725c946a849"
 dependencies = [
  "rustc-semver",
  "serde",
@@ -156,11 +142,11 @@ dependencies = [
 
 [[package]]
 name = "clippy_lints"
-version = "0.1.77"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661bee3876e0228ddfeb6b8b#ac4c2094a6030530661bee3876e0228ddfeb6b8b"
+version = "0.1.78"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=60cb29c5e4f9772685c9873752196725c946a849#60cb29c5e4f9772685c9873752196725c946a849"
 dependencies = [
  "arrayvec",
- "cargo_metadata 0.15.4",
+ "cargo_metadata",
  "clippy_config",
  "clippy_utils",
  "declare_clippy_lint",
@@ -178,8 +164,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.77"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661bee3876e0228ddfeb6b8b#ac4c2094a6030530661bee3876e0228ddfeb6b8b"
+version = "0.1.78"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=60cb29c5e4f9772685c9873752196725c946a849#60cb29c5e4f9772685c9873752196725c946a849"
 dependencies = [
  "arrayvec",
  "clippy_config",
@@ -230,8 +216,8 @@ dependencies = [
 
 [[package]]
 name = "declare_clippy_lint"
-version = "0.1.77"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=ac4c2094a6030530661bee3876e0228ddfeb6b8b#ac4c2094a6030530661bee3876e0228ddfeb6b8b"
+version = "0.1.78"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=60cb29c5e4f9772685c9873752196725c946a849#60cb29c5e4f9772685c9873752196725c946a849"
 dependencies = [
  "itertools",
  "quote",
@@ -302,7 +288,7 @@ version = "2.6.1"
 dependencies = [
  "ansi_term",
  "anyhow",
- "cargo_metadata 0.18.1",
+ "cargo_metadata",
  "dirs",
  "dylint_internal",
  "is-terminal",
@@ -322,7 +308,7 @@ dependencies = [
  "ansi_term",
  "anyhow",
  "bitflags 2.4.2",
- "cargo_metadata 0.18.1",
+ "cargo_metadata",
  "git2",
  "home",
  "if_chain",
@@ -337,7 +323,7 @@ dependencies = [
 name = "dylint_linting"
 version = "2.6.1"
 dependencies = [
- "cargo_metadata 0.18.1",
+ "cargo_metadata",
  "dylint_internal",
  "paste",
  "rustversion",
@@ -351,7 +337,7 @@ name = "dylint_testing"
 version = "2.6.1"
 dependencies = [
  "anyhow",
- "cargo_metadata 0.18.1",
+ "cargo_metadata",
  "compiletest_rs",
  "dylint",
  "dylint_internal",
