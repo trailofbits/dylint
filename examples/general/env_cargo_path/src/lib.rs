@@ -93,17 +93,15 @@ fn is_test_item(item: &Item) -> bool {
     item.attrs.iter().any(|attr| {
         if attr.has_name(sym::test) {
             true
+        } else if attr.has_name(sym::cfg)
+            && let Some(items) = attr.meta_item_list()
+            && let [item] = items.as_slice()
+            && let Some(feature_item) = item.meta_item()
+            && feature_item.has_name(sym::test)
+        {
+            true
         } else {
-            if attr.has_name(sym::cfg)
-                && let Some(items) = attr.meta_item_list()
-                && let [item] = items.as_slice()
-                && let Some(feature_item) = item.meta_item()
-                && feature_item.has_name(sym::test)
-            {
-                true
-            } else {
-                false
-            }
+            false
         }
     })
 }

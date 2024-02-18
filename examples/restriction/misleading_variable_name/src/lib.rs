@@ -115,7 +115,7 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
                 ),
                 None,
                 &help_msg,
-            )
+            );
         }
     }
 }

@@ -99,9 +99,8 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
             components_reversed.push(s);
             partial_span = partial_span.with_lo(receiver.span.hi());
             continue;
-        } else {
-            break;
         }
+        break;
     }
 
     let ty_or_partial_span = if let ExprKind::Call(callee, [arg]) = expr.kind
