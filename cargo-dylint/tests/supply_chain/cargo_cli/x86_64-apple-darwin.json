@@ -518,6 +518,96 @@
         "name": "utils"
       }
     ],
+    "crossbeam-deque": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1201316?v=4",
+        "id": 2347,
+        "kind": "user",
+        "login": "jeehoonkang",
+        "name": "Jeehoon Kang"
+      },
+      {
+        "avatar": "https://avatars0.githubusercontent.com/u/26314159?v=4",
+        "id": 2356,
+        "kind": "team",
+        "login": "github:crossbeam-rs:admins",
+        "name": "admins"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/278509?v=4",
+        "id": 2915,
+        "kind": "user",
+        "login": "Amanieu",
+        "name": "Amanieu d'Antras"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43724913?v=4",
+        "id": 33035,
+        "kind": "user",
+        "login": "taiki-e",
+        "name": "Taiki Endo"
+      }
+    ],
+    "crossbeam-epoch": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1201316?v=4",
+        "id": 2347,
+        "kind": "user",
+        "login": "jeehoonkang",
+        "name": "Jeehoon Kang"
+      },
+      {
+        "avatar": "https://avatars0.githubusercontent.com/u/26314159?v=4",
+        "id": 2356,
+        "kind": "team",
+        "login": "github:crossbeam-rs:admins",
+        "name": "admins"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/278509?v=4",
+        "id": 2915,
+        "kind": "user",
+        "login": "Amanieu",
+        "name": "Amanieu d'Antras"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43724913?v=4",
+        "id": 33035,
+        "kind": "user",
+        "login": "taiki-e",
+        "name": "Taiki Endo"
+      }
+    ],
+    "crossbeam-utils": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1201316?v=4",
+        "id": 2347,
+        "kind": "user",
+        "login": "jeehoonkang",
+        "name": "Jeehoon Kang"
+      },
+      {
+        "avatar": "https://avatars0.githubusercontent.com/u/26314159?v=4",
+        "id": 2356,
+        "kind": "team",
+        "login": "github:crossbeam-rs:admins",
+        "name": "admins"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/278509?v=4",
+        "id": 2915,
+        "kind": "user",
+        "login": "Amanieu",
+        "name": "Amanieu d'Antras"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43724913?v=4",
+        "id": 33035,
+        "kind": "user",
+        "login": "taiki-e",
+        "name": "Taiki Endo"
+      }
+    ],
     "crypto-common": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/22351541?v=4",
@@ -1001,6 +1091,15 @@
         "kind": "user",
         "login": "lambda-fairy",
         "name": "Chris Wong"
+      }
+    ],
+    "ignore": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/456674?v=4",
+        "id": 189,
+        "kind": "user",
+        "login": "BurntSushi",
+        "name": "Andrew Gallant"
       }
     ],
     "indexmap": [
