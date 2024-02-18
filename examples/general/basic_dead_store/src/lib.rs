@@ -93,7 +93,7 @@ fn is_assignment_to_array_indexed_by_literal(
         && let ExprKind::Lit(lit) = index.kind
         && let LitKind::Int(index, _type) = lit.node
     {
-        return Some((index, assignment_span));
+        return Some((index.get(), assignment_span));
     }
     None
 }

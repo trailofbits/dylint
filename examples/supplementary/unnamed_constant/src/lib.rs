@@ -78,7 +78,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnamedConstant {
 
             // smoelius: And those other expressions must not appear within a constant declaration.
             && let owner_id = cx.tcx.hir().get_parent_item(expr.hir_id)
-            && let OwnerNode::Item(item) = cx.tcx.hir().owner(owner_id)
+            && let OwnerNode::Item(item) = cx.tcx.hir_owner_node(owner_id)
             && !matches!(item.kind, ItemKind::Const(..))
 
             && let ExprKind::Lit(lit) = expr.kind

@@ -198,7 +198,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                 };
                 let (subfield, (subfield_ty, access_spans)) =
                     subfield_accesses.iter().next().unwrap();
-                cx.struct_span_lint(
+                cx.span_lint(
                     REDUNDANT_REFERENCE,
                     field_def.span,
                     format!(

@@ -90,11 +90,15 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
                     enclosing_scope_hir_id,
                     path,
                     syms_mod: &syms_mod,
+                    diagnostic_emitted: false,
                 };
                 if let Some(enclosing_scope_hir_id) = enclosing_scope_hir_id {
                     let node = cx.tcx.hir_node(enclosing_scope_hir_id);
                     visitor.visit_scope(node);
                     current_hir_id = enclosing_scope_hir_id;
+                    if visitor.diagnostic_emitted {
+                        break;
+                    }
                 } else {
                     let parent_module_local_def_id = cx.tcx.parent_module(hir_id);
                     let parent_module = cx.tcx.hir().get_module(parent_module_local_def_id);
@@ -111,6 +115,7 @@ struct UseVisitor<'cx, 'tcx, 'syms> {
     enclosing_scope_hir_id: Option<HirId>,
     path: &'cx Path<'tcx>,
     syms_mod: &'syms [Symbol],
+    diagnostic_emitted: bool,
 }
 
 // smoelius: `visit_scope` is based on the source of:
@@ -219,6 +224,7 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
                 Some(item.span),
                 &msg,
             );
+            self.diagnostic_emitted = true;
         }
         walk_item(self, item);
     }
