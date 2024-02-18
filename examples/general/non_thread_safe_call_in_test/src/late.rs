@@ -3,9 +3,9 @@ use clippy_utils::{
 };
 use dylint_internal::paths;
 use rustc_hir::{
-    def_id::{DefId, LocalDefId},
+    def_id::DefId,
     intravisit::{walk_body, walk_expr, Visitor},
-    Closure, Expr, ExprKind, Item, ItemKind,
+    Closure, Expr, ExprKind, HirId, Item, ItemKind,
 };
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_middle::hir::nested_filter;
@@ -53,6 +53,7 @@ declare_lint! {
 #[derive(Default)]
 pub struct NonThreadSafeCallInTest {
     test_fns: Vec<DefId>,
+    visited_calls: HashSet<HirId>,
 }
 
 impl_lint_pass!(NonThreadSafeCallInTest => [NON_THREAD_SAFE_CALL_IN_TEST]);
@@ -74,9 +75,9 @@ impl<'tcx> LateLintPass<'tcx> for NonThreadSafeCallInTest {
         // threads are needed for a race.
         if self.test_fns.len() >= 2 && self.is_test_item(item) {
             Checker {
+                lint: self,
                 cx,
                 item,
-                visited: HashSet::new(),
             }
             .visit_item(item);
         }
@@ -121,9 +122,9 @@ impl NonThreadSafeCallInTest {
 }
 
 pub struct Checker<'cx, 'tcx> {
+    lint: &'cx mut NonThreadSafeCallInTest,
     cx: &'cx LateContext<'tcx>,
     item: &'tcx Item<'tcx>,
-    visited: HashSet<LocalDefId>,
 }
 
 impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
@@ -135,6 +136,12 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
 
     fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
         if let ExprKind::Call(callee, _) = &expr.kind {
+            if self.lint.visited_calls.contains(&expr.hir_id) {
+                return;
+            }
+
+            let _ = self.lint.visited_calls.insert(expr.hir_id);
+
             if let Some(path) = is_blacklisted_function(self.cx, callee) {
                 span_lint_and_note(
                     self.cx,
@@ -152,8 +159,6 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
 
             if let Some(callee_def_id) = path_def_id(self.cx, *callee)
                 && let Some(local_def_id) = callee_def_id.as_local()
-                && !self.visited.contains(&local_def_id)
-                && let _ = self.visited.insert(local_def_id)
                 && let Some(body_id) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id)
             {
                 let body = self.cx.tcx.hir().body(body_id);

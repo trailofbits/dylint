@@ -358,7 +358,9 @@ fn implements_trait_with_bounds<'tcx>(
         // the following, but I am not sure it is the correct choice:
         // https://github.com/rust-lang/rust-clippy/blob/782520088f9c5a0274459060a6fdcd41301f35e2/clippy_lints/src/derive.rs#L453
         // See also: https://github.com/rust-lang/rust/pull/118661#discussion_r1449013176
-        implements_trait_with_env(cx.tcx, param_env, ty, trait_id, adt_def.did(), &args)
+        // smoelius: `Some(adt_def.did())` was changed to `None`. See:
+        // https://github.com/rust-lang/rust/pull/120000
+        implements_trait_with_env(cx.tcx, param_env, ty, trait_id, None, &args)
     } else {
         implements_trait(cx, ty, trait_id, &args)
     }
