@@ -167,16 +167,18 @@ impl<'tcx> Visitor<'tcx> for V<'tcx> {
             destination,
             ..
         } = &terminator.kind
-            && let () = if destination.as_local() == Some(self.local) {
+        {
+            if destination.as_local() == Some(self.local) {
                 return;
             }
-            && let Some((def_id, _)) = func.const_fn_def()
-            && self.tcx.is_diagnostic_item(sym::deref_method, def_id)
-            && let [arg] = args.as_slice()
-            && let Some(arg_place) = arg.place()
-            && arg_place.as_local() == Some(self.local)
-        {
-            return;
+            if let Some((def_id, _)) = func.const_fn_def()
+                && self.tcx.is_diagnostic_item(sym::deref_method, def_id)
+                && let [arg] = args.as_slice()
+                && let Some(arg_place) = arg.place()
+                && arg_place.as_local() == Some(self.local)
+            {
+                return;
+            }
         }
         self.super_terminator(terminator, location);
     }

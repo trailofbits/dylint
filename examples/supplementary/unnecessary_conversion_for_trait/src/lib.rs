@@ -229,9 +229,8 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                         mutabilities = new_mutabilities;
                         refs_prefix = Some(new_refs_prefix);
                         continue;
-                    } else {
-                        break;
                     }
+                    break;
                 }
 
                 Some(expr).zip(refs_prefix)
