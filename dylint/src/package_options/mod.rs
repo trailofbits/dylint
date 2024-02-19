@@ -11,7 +11,6 @@ use dylint_internal::{
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
 use std::{
-    convert::TryFrom,
     fs::{copy, create_dir_all},
     path::Path,
 };
