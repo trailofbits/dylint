@@ -26,6 +26,7 @@ pub fn new_template(to: &Path) -> Result<()> {
         })?;
         let mut file = OpenOptions::new()
             .create(true)
+            .truncate(true)
             .write(true)
             .open(&to_path)
             .with_context(|| format!("Could not open `{}`", to_path.to_string_lossy()))?;
