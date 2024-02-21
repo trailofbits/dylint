@@ -156,7 +156,8 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
     // behavior causes the driver to have absolute rpaths.
     // let rustflags = "-C rpath=yes";
     let rustflags = format!(
-        "-C link-args=-Wl,-rpath,{}/lib",
+        "{} -C link-args=-Wl,-rpath,{}/lib ",
+        env::var("RUSTFLAGS").unwrap_or_default(),
         toolchain_path.to_string_lossy()
     );
 
