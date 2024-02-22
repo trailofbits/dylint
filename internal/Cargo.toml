@@ -22,10 +22,10 @@ if_chain = { version = "1.0", optional = true }
 is-terminal = { version = "0.4", optional = true }
 log = { version = "0.4", optional = true }
 once_cell = { version = "1.19", optional = true }
+regex = { version = "1.10", optional = true }
 rust-embed = { version = "8.2", features = [
     "include-exclude",
 ], optional = true }
-sedregex = { version = "0.2", optional = true }
 semver = { version = "1.0", optional = true }
 toml_edit = { version = "0.21", optional = true }
 walkdir = { version = "2.4", optional = true }
@@ -49,5 +49,5 @@ examples = ["cargo", "cargo-util", "rustup", "walkdir"]
 git = ["command", "git2", "if_chain"]
 packaging = ["cargo", "rust-embed"]
 rustup = ["command"]
-sed = ["sedregex"]
+sed = ["regex"]
 testing = ["ctor", "env_logger", "packaging"]

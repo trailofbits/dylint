@@ -294,8 +294,8 @@ dependencies = [
  "is-terminal",
  "log",
  "once_cell",
+ "regex",
  "rust-embed",
- "sedregex",
 ]
 
 [[package]]
@@ -856,15 +856,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fbc91545643bcf3a0bbb6569265615222618bdf33ce4ffbbd13c4bbd4c093534"
 dependencies = [
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "sedregex"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19411e23596093f03bbd11dc45603b6329bb4bfec77b9fd13e2b9fc9b02efe3e"
-dependencies = [
- "regex",
 ]
 
 [[package]]
