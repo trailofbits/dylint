@@ -412,7 +412,7 @@ fn supply_chain() {
         .assert()
         .success();
 
-    for feature in ["cargo-lib", "cargo-cli"] {
+    for feature in ["cargo-cli", "cargo-lib"] {
         for target in TARGETS {
             let mut command = Command::new("cargo");
             command.args([

@@ -8,9 +8,9 @@ use once_cell::sync::OnceCell;
 use serde::{de::IntoDeserializer, Deserialize};
 use std::path::{Path, PathBuf};
 
-// smoelius: If both `__cargo_lib` and `__cargo_cli` are enabled, assume the user built with
+// smoelius: If both `__cargo_cli` and `__cargo_lib` are enabled, assume the user built with
 // `--features=cargo-cli` and forgot `--no-default-features`.
-#[cfg(all(feature = "__cargo_lib", not(feature = "__cargo_cli")))]
+#[cfg(all(not(feature = "__cargo_cli"), feature = "__cargo_lib"))]
 #[path = "cargo_lib/mod.rs"]
 mod impl_;
 
