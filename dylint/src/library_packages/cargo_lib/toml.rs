@@ -17,6 +17,7 @@
 #![allow(clippy::single_char_pattern)]
 #![allow(clippy::too_many_lines)]
 #![allow(clippy::uninlined_format_args)]
+#![allow(clippy::use_self)]
 #![cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
 #![cfg_attr(
     dylint_lib = "inconsistent_qualification",
