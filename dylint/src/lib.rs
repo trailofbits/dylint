@@ -20,7 +20,7 @@ use std::{
 type Object = serde_json::Map<String, serde_json::Value>;
 
 // smoelius: See note in dylint/src/metadata/mod.rs.
-#[cfg(all(feature = "__cargo_lib", not(feature = "__cargo_cli")))]
+#[cfg(all(not(feature = "__cargo_cli"), feature = "__cargo_lib"))]
 pub(crate) use cargo::{core, sources, util};
 
 pub mod driver_builder;

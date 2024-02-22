@@ -40,6 +40,6 @@ dylint_internal = { version = "=2.6.1", path = "../internal", features = [
 
 [features]
 default = ["cargo-lib"]
-cargo-lib = ["dylint/__cargo_lib"]
 cargo-cli = ["dylint/__cargo_cli"]
+cargo-lib = ["dylint/__cargo_lib"]
 __clap_headings = []

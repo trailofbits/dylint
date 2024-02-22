@@ -70,17 +70,6 @@ package_options = [
     "dylint_internal/clippy_utils",
     "dylint_internal/git",
 ]
-__cargo_lib = [
-    "cargo",
-    "cargo-platform",
-    "cargo-util",
-    "curl-sys",
-    "dunce",
-    "glob",
-    "if_chain",
-    "serde-untagged",
-    "toml",
-]
 __cargo_cli = [
     "cargo-util",
     "dunce",
@@ -92,6 +81,17 @@ __cargo_cli = [
     "serde-untagged",
     "toml",
     "url",
+]
+__cargo_lib = [
+    "cargo",
+    "cargo-platform",
+    "cargo-util",
+    "curl-sys",
+    "dunce",
+    "glob",
+    "if_chain",
+    "serde-untagged",
+    "toml",
 ]
 
 [package.metadata.cargo-udeps.ignore]
