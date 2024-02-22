@@ -39,14 +39,16 @@ pub fn new_package(_opts: &opts::Dylint, new_opts: &opts::New) -> Result<()> {
     if !new_opts.isolate {
         find_and_replace(
             &tempdir.path().join("Cargo.toml"),
-            &[r"s/\r?\n\[workspace\]\r?\n//"],
+            r"\r?\n\[workspace\]\r?\n",
+            "",
         )?;
     }
 
     // smoelius: So is allowing unused extern crates.
     find_and_replace(
         &tempdir.path().join("src/lib.rs"),
-        &[r"s/(?m)^.. (#!\[warn\(unused_extern_crates\)\])$/${1}/"],
+        r"(?m)^.. (#!\[warn\(unused_extern_crates\)\])$",
+        "${1}",
     )?;
 
     fill_in(&name, tempdir.path(), path)?;
@@ -69,22 +71,10 @@ fn fill_in(name: &str, from: &Path, to: &Path) -> Result<()> {
             continue;
         }
 
-        find_and_replace(
-            &from.join(rel_path),
-            &[&format!(r#"s/\bfill_me_in\b/{lower_snake_case}/g"#)],
-        )?;
-        find_and_replace(
-            &from.join(rel_path),
-            &[&format!(r#"s/\bFILL_ME_IN\b/{upper_snake_case}/g"#)],
-        )?;
-        find_and_replace(
-            &from.join(rel_path),
-            &[&format!(r#"s/\bfill-me-in\b/{kebab_case}/g"#)],
-        )?;
-        find_and_replace(
-            &from.join(rel_path),
-            &[&format!(r#"s/\bFillMeIn\b/{camel_case}/g"#)],
-        )?;
+        find_and_replace(&from.join(rel_path), r"\bfill_me_in\b", &lower_snake_case)?;
+        find_and_replace(&from.join(rel_path), r"\bFILL_ME_IN\b", &upper_snake_case)?;
+        find_and_replace(&from.join(rel_path), r"\bfill-me-in\b", &kebab_case)?;
+        find_and_replace(&from.join(rel_path), r"\bFillMeIn\b", &camel_case)?;
 
         let from_path = from.join(rel_path);
         let to_path = to.join(rel_path);

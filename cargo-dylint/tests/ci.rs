@@ -6,7 +6,6 @@ use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::{cargo::current_metadata, env};
 use once_cell::sync::Lazy;
 use regex::Regex;
-use sedregex::find_and_replace;
 use semver::Version;
 use similar_asserts::SimpleDiff;
 use std::{
@@ -103,15 +102,13 @@ fn requirements_do_not_include_patch_versions() {
 
 #[test]
 fn workspace_and_cargo_dylint_readmes_are_equivalent() {
+    let re = Regex::new(r"(?m)^(\[[^\]]*\]: *\.)\.").unwrap();
+
     let workspace_readme = readme_contents(".").unwrap();
 
     let cargo_dylint_readme = readme_contents("cargo-dylint").unwrap();
 
-    let lifted_cargo_dylint_readme = find_and_replace(
-        &cargo_dylint_readme,
-        &[r"s/(?m)^(\[[^\]]*\]: *\.)\./${1}/g"],
-    )
-    .unwrap();
+    let lifted_cargo_dylint_readme = re.replace_all(&cargo_dylint_readme, "${1}");
 
     compare_lines(&workspace_readme, &lifted_cargo_dylint_readme);
 }

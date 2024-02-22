@@ -60,7 +60,8 @@ fn boundary_toolchains() {
 
             find_and_replace(
                 &tempdir.path().join("Cargo.toml"),
-                &[r"s/\r?\nclippy_utils = [^\r\n]*//"],
+                "\r?\nclippy_utils = [^\r\n]*",
+                "",
             )
             .unwrap();
 
