@@ -112,6 +112,9 @@ jobs:
             dylint_examples,
             other,
           ]
+        include:
+          - environment: ubuntu-latest
+            package: alpine
 
     runs-on: ${{ matrix.environment }}
 
@@ -187,7 +190,7 @@ jobs:
           elif [[ '${{ matrix.package }}' != 'other' ]]; then
             cargo test -p '${{ matrix.package }}' -- --nocapture
           else
-            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples -- --nocapture
+            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude alpine -- --nocapture
 
             pushd driver
             cargo test --all-features -- --nocapture
