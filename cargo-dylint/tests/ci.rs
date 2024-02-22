@@ -11,7 +11,7 @@ use similar_asserts::SimpleDiff;
 use std::{
     env::{set_current_dir, set_var},
     ffi::OsStr,
-    fs::{read_to_string, write},
+    fs::{read_dir, read_to_string, write},
     io::{stderr, Write},
     path::{Component, Path, PathBuf},
     str::FromStr,
@@ -120,6 +120,21 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
     let dylint_readme = readme_contents("dylint").unwrap();
 
     compare_lines(&cargo_dylint_readme, &dylint_readme);
+}
+
+#[test]
+fn format_util_readmes() {
+    preserves_cleanliness("format_util_readmes", false, || {
+        for entry in read_dir("utils").unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            Command::new("cargo")
+                .arg("rdme")
+                .current_dir(path)
+                .assert()
+                .success();
+        }
+    });
 }
 
 #[test]

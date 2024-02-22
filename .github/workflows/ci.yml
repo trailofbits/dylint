@@ -85,16 +85,12 @@ jobs:
           rm -f "$HOME"/.cargo/bin/rustfmt
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
-          cargo install cargo-rdme    || true
 
       - name: Format
         run: ./scripts/format.sh && git diff --exit-code
 
       - name: Format example READMEs
         run: ./scripts/update_example_READMEs.sh && git diff --exit-code
-
-      - name: Format util READMEs
-        run: ./scripts/update_util_READMEs.sh && git diff --exit-code
 
       - name: Lint
         run: ./scripts/lint.sh
@@ -145,6 +141,7 @@ jobs:
           cargo install cargo-hack           || true
           cargo install cargo-license        || true
           cargo install cargo-msrv           || true
+          cargo install cargo-rdme           || true
           cargo install cargo-sort           || true
           cargo install cargo-supply-chain   || true
           cargo install cargo-udeps --locked || true
