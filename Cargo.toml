@@ -4,10 +4,13 @@
 [workspace]
 members = [
     "cargo-dylint",
+    # "driver",
     "dylint",
     "dylint-link",
     "examples",
     "internal",
+    "tests/alpine",
+    # "utils/linting",
     "utils/testing",
 ]
 resolver = "2"
