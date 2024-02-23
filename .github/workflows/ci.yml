@@ -172,6 +172,9 @@ jobs:
                 cargo test -p cargo-dylint --no-default-features --features=cargo-cli -- --nocapture
                 ;;
               cargo-dylint-cargo-lib)
+                # smoelius: The next line is useful for debugging.
+                # sed -i 's/^.*\<fs_extra\>/# &/' dylint/Cargo.toml
+                git diff
                 cargo test -p cargo-dylint --no-default-features --features=cargo-lib -- --nocapture
                 ;;
               cargo-dylint-ci)
