@@ -8,6 +8,10 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 rust-version = "1.74"
 
+[[test]]
+name = "ci"
+required-features = ["__ci"]
+
 [dependencies]
 anyhow = { version = "1.0", features = ["backtrace"] }
 clap = { version = "4.5", features = ["cargo", "derive", "wrap_help"] }
@@ -39,7 +43,8 @@ dylint_internal = { version = "=2.6.1", path = "../internal", features = [
 ] }
 
 [features]
-default = ["cargo-cli"]
+default = ["cargo-cli", "__ci"]
 cargo-cli = ["dylint/__cargo_cli"]
 cargo-lib = ["dylint/__cargo_lib"]
+__ci = []
 __clap_headings = []
