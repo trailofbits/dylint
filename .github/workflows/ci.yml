@@ -104,7 +104,14 @@ jobs:
       fail-fast: ${{ github.event_name == 'merge_group' }}
       matrix:
         environment: [ubuntu-latest, macos-latest, windows-latest]
-        package: [cargo-dylint, cargo-dylint-cargo-lib, examples, other]
+        package:
+          [
+            cargo-dylint,
+            cargo-dylint-cargo-lib,
+            cargo-dylint-ci,
+            examples,
+            other,
+          ]
 
     runs-on: ${{ matrix.environment }}
 
@@ -157,13 +164,25 @@ jobs:
           # du -sh /usr/*/* 2>/dev/null | sort -h || true
 
       - name: Test
+        if: ${{ matrix.environment == 'ubuntu-latest' || matrix.package != 'cargo-dylint-ci' }}
         run: |
-          if [[ '${{ matrix.package }}' != 'other' ]]; then
-            if [[ '${{ matrix.package }}' == 'cargo-dylint-cargo-lib' ]]; then
-              cargo test -p cargo-dylint --no-default-features --features=cargo-lib -- --nocapture
-            else
-              cargo test -p '${{ matrix.package }}' -- --nocapture
-            fi
+          if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
+            case '${{ matrix.package }}' in
+              cargo-dylint)
+                cargo test -p cargo-dylint --no-default-features --features=cargo-cli -- --nocapture
+                ;;
+              cargo-dylint-cargo-lib)
+                cargo test -p cargo-dylint --no-default-features --features=cargo-lib -- --nocapture
+                ;;
+              cargo-dylint-ci)
+                cargo test -p cargo-dylint --test ci
+                ;;
+              *)
+                exit 1
+                ;;
+            esac
+          elif [[ '${{ matrix.package }}' != 'other' ]]; then
+            cargo test -p '${{ matrix.package }}' -- --nocapture
           else
             cargo test --all-features --workspace --exclude cargo-dylint --exclude examples -- --nocapture
 
