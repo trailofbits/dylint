@@ -1,7 +1,7 @@
 use assert_cmd::prelude::*;
 use dylint_internal::{env, packaging::isolate, CommandExt};
 use predicates::prelude::*;
-use std::{env::set_var, fs::OpenOptions, io::Write};
+use std::{env::set_var, fs::OpenOptions, io::Write, sync::Mutex};
 use tempfile::tempdir;
 
 // smoelius: "Separate lints into categories" commit
@@ -12,8 +12,16 @@ fn initialize() {
     set_var(env::CARGO_TERM_COLOR, "never");
 }
 
+// smoelius: The use of multiple revisions by the tests in this file causes problems. Specifically,
+// multiple "checkouts" directories are created causing it to appear as though multiple directories
+// were accessed. In this regard, `MUTEX` is merely a band-aid. A proper solution would address the
+// underlying problem, rather than try to fix the tests themselves.
+static MUTEX: Mutex<()> = Mutex::new(());
+
 #[test]
 fn invalid_pattern() {
+    let _lock = MUTEX.lock().unwrap();
+
     for pattern in ["/*", "../*"] {
         let tempdir = tempdir().unwrap();
 
@@ -62,6 +70,8 @@ libraries = [
 
 #[test]
 fn list() {
+    let _lock = MUTEX.lock().unwrap();
+
     let tempdir = tempdir().unwrap();
 
     dylint_internal::cargo::init("package `list_test`")
@@ -98,6 +108,8 @@ pattern = "examples/general/crate_wide_allow"
 /// Verify that changes to workspace metadata cause the lints to be rerun.
 #[test]
 fn metadata_change() {
+    let _lock = MUTEX.lock().unwrap();
+
     let tempdir = tempdir().unwrap();
 
     dylint_internal::cargo::init("package `metadata_change_test`")
@@ -161,6 +173,8 @@ fn metadata_change() {
 
 #[test]
 fn nonexistent_git_library() {
+    let _lock = MUTEX.lock().unwrap();
+
     let tempdir = tempdir().unwrap();
 
     dylint_internal::cargo::init("package `nonexistent_git_library_test`")
@@ -213,6 +227,8 @@ pattern = "examples/general/nonexistent_library"
 
 #[test]
 fn nonexistent_path_library() {
+    let _lock = MUTEX.lock().unwrap();
+
     let tempdir = tempdir().unwrap();
 
     dylint_internal::cargo::init("package `nonexistent_path_library_test`")
@@ -268,6 +284,8 @@ path = "{}/../examples/general/nonexistent_library"
 /// Verify that changes to `RUSTFLAGS` do not cause workspace metadata entries to be rebuilt.
 #[test]
 fn rustflags_change() {
+    let _lock = MUTEX.lock().unwrap();
+
     let tempdir = tempdir().unwrap();
 
     dylint_internal::cargo::init("package `rustflags_change_test`")
@@ -314,6 +332,8 @@ path = "{}/../examples/general/crate_wide_allow"
 
 #[test]
 fn unknown_keys() {
+    let _lock = MUTEX.lock().unwrap();
+
     let tempdir = tempdir().unwrap();
 
     dylint_internal::cargo::init("package `unknown_keys_test`")
