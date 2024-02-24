@@ -157,6 +157,7 @@ fn hack_feature_powerset_udeps() {
 fn license() {
     let re = Regex::new(r"^[^:]*\b(Apache|BSD-3-Clause|ISC|MIT|N/A)\b").unwrap();
 
+    // smoelius: Skip examples directory for now.
     for entry in walkdir(false).with_file_name("Cargo.toml") {
         let entry = entry.unwrap();
         let path = entry.path();
@@ -188,6 +189,7 @@ fn license() {
 
 #[test]
 fn markdown_does_not_use_inline_links() {
+    // smoelius: Skip examples directory for now.
     for entry in walkdir(false).with_extension("md") {
         let entry = entry.unwrap();
         let path = entry.path();
@@ -379,7 +381,7 @@ fn prettier_examples_and_template() {
 
 #[test]
 fn sort() {
-    for entry in walkdir(false).with_file_name("Cargo.toml") {
+    for entry in walkdir(true).with_file_name("Cargo.toml") {
         let entry = entry.unwrap();
         let path = entry.path();
         let parent = path.parent().unwrap();
@@ -450,11 +452,11 @@ fn supply_chain() {
 
 #[test]
 fn update() {
-    for entry in walkdir(false).with_file_name("Cargo.lock") {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        let manifest_path = path.with_file_name("Cargo.toml");
-        preserves_cleanliness("update", false, || {
+    preserves_cleanliness("update", false, || {
+        for entry in walkdir(true).with_file_name("Cargo.lock") {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            let manifest_path = path.with_file_name("Cargo.toml");
             Command::new("cargo")
                 .args([
                     "update",
@@ -464,8 +466,8 @@ fn update() {
                 ])
                 .assert()
                 .success();
-        });
-    }
+        }
+    });
 }
 
 #[test]
@@ -489,7 +491,6 @@ fn compare_lines(left: &str, right: &str) {
     }
 }
 
-// smoelius: Skip examples directory for now.
 fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
     #[allow(unknown_lints, env_cargo_path)]
     walkdir::WalkDir::new(".")
