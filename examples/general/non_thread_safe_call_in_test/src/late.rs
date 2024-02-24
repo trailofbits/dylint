@@ -2,10 +2,11 @@ use clippy_utils::{
     diagnostics::span_lint_and_note, is_expr_path_def_path, match_def_path, path_def_id,
 };
 use dylint_internal::paths;
+use rustc_ast::ast::LitKind;
 use rustc_hir::{
     def_id::DefId,
     intravisit::{walk_body, walk_expr, Visitor},
-    Closure, Expr, ExprKind, HirId, Item, ItemKind,
+    Closure, Expr, ExprKind, HirId, Item, ItemKind, Node,
 };
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_middle::hir::nested_filter;
@@ -23,7 +24,10 @@ declare_lint! {
     /// outcome of another.
     ///
     /// ### Known problems
-    /// Synchronization is not considered, so false positives could result.
+    /// - Synchronization is not considered, so false positives could result.
+    /// - Tries to flag uses of `std::process::Command::new("cargo").arg("run")`, but does not track
+    ///   values. So false negatives will result if the `Command::new("cargo")` is not
+    ///   `Command::arg("run")`'s receiver.
     ///
     /// ### Example
     /// ```rust
@@ -135,14 +139,14 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
     }
 
     fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
-        if let ExprKind::Call(callee, _) = &expr.kind {
+        if let ExprKind::Call(callee, args) = expr.kind {
             if self.lint.visited_calls.contains(&expr.hir_id) {
                 return;
             }
 
             let _ = self.lint.visited_calls.insert(expr.hir_id);
 
-            if let Some(path) = is_blacklisted_function(self.cx, callee) {
+            if let Some(path) = is_blacklisted_function(self.cx, callee, args) {
                 span_lint_and_note(
                     self.cx,
                     NON_THREAD_SAFE_CALL_IN_TEST,
@@ -157,7 +161,7 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
                 return;
             }
 
-            if let Some(callee_def_id) = path_def_id(self.cx, *callee)
+            if let Some(callee_def_id) = path_def_id(self.cx, callee)
                 && let Some(local_def_id) = callee_def_id.as_local()
                 && let Some(body_id) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id)
             {
@@ -170,9 +174,64 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
     }
 }
 
-fn is_blacklisted_function(cx: &LateContext<'_>, callee: &Expr) -> Option<&'static [&'static str]> {
-    crate::blacklist::BLACKLIST
+fn is_blacklisted_function(
+    cx: &LateContext<'_>,
+    callee: &Expr,
+    args: &[Expr],
+) -> Option<&'static [&'static str]> {
+    let path = crate::blacklist::BLACKLIST
         .iter()
         .copied()
-        .find(|path| is_expr_path_def_path(cx, callee, path))
+        .find(|path| is_expr_path_def_path(cx, callee, path));
+
+    // smoelius: Hack, until we can come up with a more general solution.
+    if path == Some(&paths::PROCESS_COMMAND_NEW) && !command_new_additional_checks(cx, callee, args)
+    {
+        return None;
+    }
+
+    path
+}
+
+#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
+#[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
+fn command_new_additional_checks(cx: &LateContext<'_>, callee: &Expr, args: &[Expr]) -> bool {
+    if let [arg] = args
+        && let ExprKind::Lit(lit) = arg.kind
+        && let LitKind::Str(symbol, _) = lit.node
+        && symbol.as_str() == "cargo"
+    {
+        for (_, node) in cx.tcx.hir().parent_iter(callee.hir_id) {
+            if let Node::Expr(expr) = node
+                && let ExprKind::MethodCall(method, _, args, _) = expr.kind
+                // smoelius: We cannot call `LateContext::typeck_results` here because we might be
+                // outside of a function body.
+                // && let Some(method_def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id)
+                && (method.ident.as_str() == "arg" || method.ident.as_str() == "args")
+                && let [arg] = args
+            {
+                if method.ident.as_str() == "arg" {
+                    return is_lit_str_run(arg);
+                } else if let ExprKind::Array(elts) = arg.kind
+                    && let [elt, ..] = elts
+                {
+                    return is_lit_str_run(elt);
+                }
+                return false;
+            }
+        }
+    }
+
+    false
+}
+
+fn is_lit_str_run(expr: &Expr) -> bool {
+    if let ExprKind::Lit(lit) = expr.kind
+        && let LitKind::Str(symbol, _) = lit.node
+        && symbol.as_str() == "run"
+    {
+        true
+    } else {
+        false
+    }
 }

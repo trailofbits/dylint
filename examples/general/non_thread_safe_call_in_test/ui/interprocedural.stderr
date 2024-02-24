@@ -11,5 +11,29 @@ LL |     fn foo() {
    |        ^^^
    = note: `#[warn(non_thread_safe_call_in_test)]` on by default
 
-warning: 1 warning emitted
+warning: calling `std::process::Command::new` in a test could affect the outcome of other tests
+  --> $DIR/interprocedural.rs:27:9
+   |
+LL |         std::process::Command::new("cargo")
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the call is reachable from at least this test
+  --> $DIR/interprocedural.rs:21:8
+   |
+LL |     fn baz() {
+   |        ^^^
+
+warning: calling `std::process::Command::new` in a test could affect the outcome of other tests
+  --> $DIR/interprocedural.rs:34:9
+   |
+LL |         std::process::Command::new("cargo")
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the call is reachable from at least this test
+  --> $DIR/interprocedural.rs:21:8
+   |
+LL |     fn baz() {
+   |        ^^^
+
+warning: 3 warnings emitted
 

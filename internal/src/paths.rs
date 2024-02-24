@@ -25,6 +25,10 @@ pub const PATH_JOIN: [&str; 4] = ["std", "path", "Path", "join"];
 pub const PATH_NEW: [&str; 4] = ["std", "path", "Path", "new"];
 pub const PATH_BUF: [&str; 3] = ["std", "path", "PathBuf"];
 
+pub const PROCESS_COMMAND_NEW: [&str; 4] = ["std", "process", "Command", "new"];
+pub const PROCESS_COMMAND_ARG: [&str; 4] = ["std", "process", "Command", "arg"];
+pub const PROCESS_COMMAND_ARGS: [&str; 4] = ["std", "process", "Command", "args"];
+
 pub const REFCELL_BORROW_MUT: [&str; 4] = ["core", "cell", "RefCell", "borrow_mut"];
 
 pub const SERDE_SERIALIZE_STRUCT: [&str; 4] = ["serde", "ser", "Serializer", "serialize_struct"];
