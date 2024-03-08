@@ -828,6 +828,7 @@ dependencies = [
  "cargo_metadata",
  "curl-sys",
  "dirs",
+ "dunce",
  "dylint_internal",
  "env_logger",
  "fs_extra",

@@ -6,10 +6,7 @@ use glob::glob;
 use if_chain::if_chain;
 use once_cell::sync::OnceCell;
 use serde::{de::IntoDeserializer, Deserialize};
-use std::{
-    fs::canonicalize,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 // smoelius: If both `__cargo_lib` and `__cargo_cli` are enabled, assume the user built with
 // `--features=cargo-cli` and forgot `--no-default-features`.
@@ -96,8 +93,8 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
     );
 
     let path = if let Some(path) = lib_sel.paths.first() {
-        let canonical_path =
-            canonicalize(path).with_context(|| format!("Could not canonicalize {path:?}"))?;
+        let canonical_path = dunce::canonicalize(path)
+            .with_context(|| format!("Could not canonicalize {path:?}"))?;
         Some(canonical_path.to_string_lossy().to_string())
     } else {
         None
