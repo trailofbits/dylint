@@ -91,14 +91,9 @@ fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span
     sess.diagnostic().err(err.to_string())
 }
 
-#[rustversion::all(since(2023-12-18), before(2023-12-26))]
+#[rustversion::since(2023-12-18)]
 fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span::ErrorGuaranteed {
     sess.dcx().err(err.to_string())
-}
-
-#[rustversion::since(2023-12-26)]
-fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span::ErrorGuaranteed {
-    sess.parse_sess.dcx.err(err.to_string())
 }
 
 struct Callbacks {
@@ -177,11 +172,34 @@ fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
     handler.early_error(msg)
 }
 
-#[rustversion::since(2023-12-23)]
+#[rustversion::all(since(2023-12-23), before(2024-03-05))]
 fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
     let handler =
         rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
     handler.early_fatal(msg)
+}
+
+#[rustversion::since(2024-03-05)]
+fn early_error(msg: impl Into<rustc_errors::DiagMessage>) -> ! {
+    let handler =
+        rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
+    handler.early_fatal(msg)
+}
+
+trait ParseSess {
+    fn parse_sess(&self) -> &rustc_session::parse::ParseSess;
+}
+
+impl ParseSess for rustc_session::Session {
+    #[rustversion::before(2024-03-05)]
+    fn parse_sess(&self) -> &rustc_session::parse::ParseSess {
+        &self.parse_sess
+    }
+
+    #[rustversion::since(2024-03-05)]
+    fn parse_sess(&self) -> &rustc_session::parse::ParseSess {
+        &self.psess
+    }
 }
 
 #[rustversion::before(2022-07-14)]
@@ -231,15 +249,15 @@ impl rustc_driver::Callbacks for Callbacks {
                 dylint_no_deps.as_ref().map_or(false, |value| value != "0");
             let cargo_primary_package_is_set = env::var(env::CARGO_PRIMARY_PACKAGE).is_ok();
 
-            sess.parse_sess.env_depinfo.lock().insert((
+            sess.parse_sess().env_depinfo.lock().insert((
                 rustc_span::Symbol::intern(env::DYLINT_LIBS),
                 dylint_libs.as_deref().map(rustc_span::Symbol::intern),
             ));
-            sess.parse_sess.env_depinfo.lock().insert((
+            sess.parse_sess().env_depinfo.lock().insert((
                 rustc_span::Symbol::intern(env::DYLINT_METADATA),
                 dylint_metadata.as_deref().map(rustc_span::Symbol::intern),
             ));
-            sess.parse_sess.env_depinfo.lock().insert((
+            sess.parse_sess().env_depinfo.lock().insert((
                 rustc_span::Symbol::intern(env::DYLINT_NO_DEPS),
                 dylint_no_deps.as_deref().map(rustc_span::Symbol::intern),
             ));
@@ -256,7 +274,7 @@ impl rustc_driver::Callbacks for Callbacks {
             }
             for loaded_lib in &loaded_libs {
                 if let Some(path) = loaded_lib.path.to_str() {
-                    sess.parse_sess
+                    sess.parse_sess()
                         .file_depinfo
                         .lock()
                         .insert(rustc_span::Symbol::intern(path));

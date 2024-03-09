@@ -530,6 +530,22 @@ pub fn init_config(sess: &rustc_session::Session) {
     });
 }
 
+trait ParseSess {
+    fn parse_sess(&self) -> &rustc_session::parse::ParseSess;
+}
+
+impl ParseSess for rustc_session::Session {
+    #[rustversion::before(2024-03-05)]
+    fn parse_sess(&self) -> &rustc_session::parse::ParseSess {
+        &self.parse_sess
+    }
+
+    #[rustversion::since(2024-03-05)]
+    fn parse_sess(&self) -> &rustc_session::parse::ParseSess {
+        &self.psess
+    }
+}
+
 /// Reads the target workspace's `dylint.toml` file and parses it as a `toml::value::Table`.
 ///
 /// Note: `init_config` or `try_init_config` must be called before `config_or_default`, `config`, or
@@ -544,7 +560,7 @@ pub fn try_init_config(sess: &rustc_session::Session) -> ConfigResult<()> {
 
     #[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
     let value = if let Ok(value) = std::env::var(env::DYLINT_TOML) {
-        sess.parse_sess.env_depinfo.lock().insert((
+        sess.parse_sess().env_depinfo.lock().insert((
             Symbol::intern(env::DYLINT_TOML),
             Some(Symbol::intern(&value)),
         ));
@@ -618,7 +634,7 @@ pub fn try_init_config(sess: &rustc_session::Session) -> ConfigResult<()> {
                             error,
                         )
                     })?;
-                    sess.parse_sess
+                    sess.parse_sess()
                         .file_depinfo
                         .lock()
                         .insert(Symbol::intern(dylint_toml.as_str()));
@@ -685,8 +701,15 @@ fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
     handler.early_error(msg)
 }
 
-#[rustversion::since(2023-12-23)]
+#[rustversion::all(since(2023-12-23), before(2024-03-05))]
 fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
+    let handler =
+        rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
+    handler.early_fatal(msg)
+}
+
+#[rustversion::since(2024-03-05)]
+fn early_error(msg: impl Into<rustc_errors::DiagMessage>) -> ! {
     let handler =
         rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
     handler.early_fatal(msg)
