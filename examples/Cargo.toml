@@ -10,7 +10,7 @@ publish = false
 cargo-util = "0.2"
 cargo_metadata = "0.18"
 toml_edit = "0.21"
-walkdir = "2.4"
+walkdir = "2.5"
 
 dylint_internal = { version = "=2.6.1", path = "../internal", features = [
     "clippy_utils",
