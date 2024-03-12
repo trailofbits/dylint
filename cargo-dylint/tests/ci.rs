@@ -294,8 +294,10 @@ fn markdown_reference_links_are_valid_and_used() {
 fn markdown_link_check() {
     let tempdir = tempfile::tempdir().unwrap();
 
+    // smoelius: Pin `markdown-link-check` to version 3.11 until the following issue is resolved:
+    // https://github.com/tcort/markdown-link-check/issues/304
     Command::new("npm")
-        .args(["install", "markdown-link-check"])
+        .args(["install", "markdown-link-check@3.11"])
         .current_dir(&tempdir)
         .assert()
         .success();
