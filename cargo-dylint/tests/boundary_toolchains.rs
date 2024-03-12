@@ -1,7 +1,7 @@
 #![cfg(not(coverage))]
 
 use dylint_internal::{
-    clippy_utils::set_toolchain_channel, find_and_replace, rustup::SanitizeEnvironment,
+    clippy_utils::set_toolchain_channel, env, find_and_replace, rustup::SanitizeEnvironment,
     testing::new_template, CommandExt,
 };
 use tempfile::tempdir;
@@ -80,6 +80,14 @@ fn boundary_toolchains() {
                 .current_dir(&tempdir)
                 .success()
                 .unwrap_or_else(|_| panic!("failed with channel `{channel}`"));
+
+            if std::env::var(env::CI).is_ok() {
+                assert!(std::process::Command::new("rustup")
+                    .args(["uninstall", &channel])
+                    .status()
+                    .unwrap()
+                    .success());
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ declare_const!(CARGO_PKG_NAME);
 declare_const!(CARGO_PRIMARY_PACKAGE);
 declare_const!(CARGO_TARGET_DIR);
 declare_const!(CARGO_TERM_COLOR);
+declare_const!(CI);
 declare_const!(CLIPPY_DISABLE_DOCS_LINKS);
 declare_const!(CLIPPY_DRIVER_PATH);
 declare_const!(DOCS_RS);
