@@ -52,6 +52,8 @@ mod cargo {
     pub fn semi_clean() -> Result<()> {
         let compiler_artifacts = compiler_artifacts()?;
 
+        dbg!(&compiler_artifacts);
+
         let metadata = current_metadata()?;
 
         for entry in WalkDir::new(metadata.target_directory) {
