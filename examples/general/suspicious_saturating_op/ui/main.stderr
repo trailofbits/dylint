@@ -1,0 +1,11 @@
+error: suspicious use of `saturating_add` followed by `saturating_sub`
+  --> $DIR/main.rs:5:9
+   |
+LL |     x = x.saturating_add(y).saturating_sub(z);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `-D suspicious-saturating-op` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(suspicious_saturating_op)]`
+
+error: aborting due to 1 previous error
+

@@ -456,6 +456,7 @@ dependencies = [
  "incorrect_matches_operation",
  "non_local_effect_before_error_return",
  "non_thread_safe_call_in_test",
+ "suspicious_saturating_op",
  "wrong_serialize_struct_arg",
 ]
 
@@ -1030,6 +1031,16 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
+]
+
+[[package]]
+name = "suspicious_saturating_op"
+version = "2.6.0"
+dependencies = [
+ "clippy_utils",
+ "dylint_linting",
+ "dylint_testing",
+ "if_chain",
 ]
 
 [[package]]
