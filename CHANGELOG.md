@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.0.0
+
+- Rename option `--path` to `--lib-path`. For the time being, `--path` will continue to work as before when used to refer to a file as opposed to a directory. ([e52da02](https://github.com/trailofbits/dylint/commit/e52da024fada4ff4b353ca2de86ed12499076972))
+- FEATURE: Add options `--git` and `--path` to allow naming library packages on the command line ([883e521](https://github.com/trailofbits/dylint/commit/883e5218734819d120c332e025aa726ab30dbd40))
+- BREAKING CHANGE: Make `metadata` no longer a default `dylint` package feature ([#1052](https://github.com/trailofbits/dylint/issues/1052)) (see also renaming of `metadata` below)
+- BREAKING CHANGE: No longer pass `-D warnings` to rustc by default in `dylint_testing`. To retain the previous behavior, enable the `deny_warnings` feature. ([#1053](https://github.com/trailofbits/dylint/issues/1053))
+- BREAKING CHANGE: Rename the following package features ([42cb7a2](https://github.com/trailofbits/dylint/commit/42cb7a2d48b398f90bc5975c69f976f5fedd6c65)):
+  - `cargo-dylint` package: `metadata-cargo` -> `cargo-lib` (build library packages using `cargo` as a library)
+  - `cargo-dylint` package: `metadata-cli` -> `cargo-cli` (build library packages using the `cargo` executable)
+  - `dylint` package: `metadata` -> `library_packages` (enable library-package-related functionality, e.g., building them)
+- BREAKING CHANGE: Remove the following deprecated options and their associated `Dylint` struct fields ([7fd2c4d](https://github.com/trailofbits/dylint/commit/7fd2c4d410eb0b7744f26c224e1eb3c23083e551)):
+  - `--allow-downgrade` (now part of the `upgrade` subcommand)
+  - `--bisect` (experimental and no longer deemed necessary)
+  - `--force` (renamed to `--allow-downgrade`)
+  - `--isolate` (now part of the `new` subcommand)
+  - `--list` (replaced with the `list` subcommand)
+  - `--new` (replaced with the `new` subcommand)
+  - `--rust-version` (now part of the `upgrade` subcommand)
+  - `--upgrade` (replaced with the `upgrade` subcommand)
+- Update `cargo-dylint` MSRV to 1.74 ([965ebf5](https://github.com/trailofbits/dylint/commit/965ebf58d280db22a8143cbfbe88c17dea4f5617))
+- Eliminate reliance on `sedregex` ([#1079](https://github.com/trailofbits/dylint/issues/1079))
+- Make `cargo-cli` the default method for building library packages ([01aa9ba](https://github.com/trailofbits/dylint/commit/01aa9ba790ff15c3f3e20a71a455bee5424aff09))
+
 ## 2.6.1
 
 - Fix two bugs ([#1014](https://github.com/trailofbits/dylint/issues/1014) and [#1021](https://github.com/trailofbits/dylint/issues/1021)) related to how warnings are displayed ([#1025](https://github.com/trailofbits/dylint/pull/1025))
