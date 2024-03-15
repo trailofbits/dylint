@@ -7,8 +7,8 @@
 - BREAKING CHANGE: Make `metadata` no longer a default `dylint` package feature ([#1052](https://github.com/trailofbits/dylint/issues/1052)) (see also renaming of `metadata` below)
 - BREAKING CHANGE: No longer pass `-D warnings` to rustc by default in `dylint_testing`. To retain the previous behavior, enable the `deny_warnings` feature. ([#1053](https://github.com/trailofbits/dylint/issues/1053))
 - BREAKING CHANGE: Rename the following package features ([42cb7a2](https://github.com/trailofbits/dylint/commit/42cb7a2d48b398f90bc5975c69f976f5fedd6c65)):
-  - `cargo-dylint` package: `metadata-cargo` -> `cargo-lib` (build library packages using `cargo` as a library)
-  - `cargo-dylint` package: `metadata-cli` -> `cargo-cli` (build library packages using the `cargo` executable)
+  - `cargo-dylint` package: `metadata-cargo` -> `cargo-lib` (download library packages using `cargo` as a library)
+  - `cargo-dylint` package: `metadata-cli` -> `cargo-cli` (download library packages using the `cargo` executable)
   - `dylint` package: `metadata` -> `library_packages` (enable library-package-related functionality, e.g., building them)
 - BREAKING CHANGE: Remove the following deprecated options and their associated `Dylint` struct fields ([7fd2c4d](https://github.com/trailofbits/dylint/commit/7fd2c4d410eb0b7744f26c224e1eb3c23083e551)):
   - `--allow-downgrade` (now part of the `upgrade` subcommand)
