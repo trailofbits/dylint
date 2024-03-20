@@ -111,7 +111,6 @@
 
 use anyhow::{anyhow, ensure, Context, Result};
 use cargo_metadata::{Metadata, Package, Target};
-use compiletest_rs as compiletest;
 use dylint_internal::{env, library_filename, rustup::is_rustc, CommandExt};
 use once_cell::sync::{Lazy, OnceCell};
 use regex::Regex;
@@ -266,9 +265,7 @@ fn linking_flags(
 
             let mut iter = rustc_flags.into_iter();
             while let Some(flag) = iter.next() {
-                if flag.starts_with("--edition=") {
-                    linking_flags.push(flag);
-                } else if flag == "--extern" || flag == "-L" {
+                if flag == "--extern" || flag == "-L" {
                     let arg = next(&flag, &mut iter)?;
                     linking_flags.extend([flag, arg.trim_matches('\'').to_owned()]);
                 }
@@ -422,24 +419,23 @@ fn run_tests(driver: &Path, src_base: &Path, config: &ui::Config) {
         .as_ref()
         .map(|value| VarGuard::set(env::DYLINT_TOML, value));
 
-    let config = compiletest::Config {
-        mode: compiletest::common::Mode::Ui,
-        rustc_path: driver.to_path_buf(),
-        src_base: src_base.to_path_buf(),
-        target_rustcflags: Some(
-            config.rustc_flags.clone().join(" ")
-                + " --emit=metadata"
-                + if cfg!(feature = "deny_warnings") {
-                    " -Dwarnings"
-                } else {
-                    ""
-                }
-                + " -Zui-testing",
-        ),
-        ..compiletest::Config::default()
-    };
+    let mut rustc_flags: Vec<OsString> = config.rustc_flags.iter().map(OsString::from).collect();
+    rustc_flags.push(OsString::from("--emit=metadata"));
+    if cfg!(feature = "deny_warnings") {
+        rustc_flags.push(OsString::from("-Dwarnings"));
+    }
+    rustc_flags.push(OsString::from("-Zui-testing"));
 
-    compiletest::run_tests(&config);
+    let program = ui_test::CommandBuilder {
+        args: rustc_flags,
+        ..ui_test::CommandBuilder::cmd(driver.to_path_buf())
+    };
+    let config = ui_test::Config {
+        program,
+        output_conflict_handling: ui_test::OutputConflictHandling::Error,
+        ..ui_test::Config::rustc(src_base.to_path_buf())
+    };
+    ui_test::run_tests(config).unwrap();
 }
 
 // smoelius: `VarGuard` was copied from:

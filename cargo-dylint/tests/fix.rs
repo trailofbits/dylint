@@ -43,7 +43,6 @@ fn fix() {
         .current_dir(&tempdir)
         .args([
             "init",
-            "--edition=2018",
             "--name",
             tempdir
                 .path()
