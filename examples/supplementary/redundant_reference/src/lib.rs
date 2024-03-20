@@ -253,10 +253,7 @@ impl<'tcx> Visitor<'tcx> for LifetimeUses {
 
 #[test]
 fn ui() {
-    dylint_testing::ui_test(
-        env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-    );
+    dylint_testing::ui_test(env!("CARGO_PKG_NAME"), &std::path::Path("ui"));
 }
 
 #[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
@@ -271,7 +268,7 @@ fn ui_no_lifetime_check() {
 
     dylint_testing::ui::Test::src_base(
         env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_no_lifetime_check"),
+        &std::path::Path("ui_no_lifetime_check"),
     )
     .dylint_toml("redundant_reference.lifetime_check = false")
     .run();
@@ -279,13 +276,8 @@ fn ui_no_lifetime_check() {
 
 #[test]
 fn ui_main_rs_starts_with() {
-    let ui_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui/main.rs"),
-    )
-    .unwrap();
-    let ui_no_lifetime_check_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_no_lifetime_check/main.rs"),
-    )
-    .unwrap();
+    let ui_main_rs = std::fs::read_to_string(std::path::Path("ui/main.rs")).unwrap();
+    let ui_no_lifetime_check_main_rs =
+        std::fs::read_to_string(std::path::Path("ui_no_lifetime_check/main.rs")).unwrap();
     assert!(ui_main_rs.starts_with(&ui_no_lifetime_check_main_rs));
 }

@@ -1,3 +1,4 @@
 rust.git/
 target*/
 warnings.json
+*.rmeta
