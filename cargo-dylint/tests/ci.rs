@@ -18,6 +18,13 @@ use std::{
     sync::Mutex,
 };
 
+const TARGETS: [&str; 4] = [
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+    "x86_64-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc",
+];
+
 static METADATA: Lazy<Metadata> = Lazy::new(|| current_metadata().unwrap());
 
 #[ctor::ctor]
@@ -135,6 +142,81 @@ fn format_util_readmes() {
                 .success();
         }
     });
+}
+
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+#[test]
+fn duplicate_dependencies() {
+    for feature in ["cargo-cli", "cargo-lib"] {
+        for target in TARGETS {
+            let mut command = Command::new("cargo");
+            command.args([
+                "tree",
+                "--duplicates",
+                "--no-default-features",
+                &format!("--features={feature}"),
+                "--target",
+                target,
+            ]);
+            let assert = command.assert().success();
+
+            let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
+            let package_versions = stdout_actual
+                .lines()
+                .filter(|line| line.chars().next().map_or(false, char::is_alphabetic))
+                .map(|line| {
+                    <[_; 2]>::try_from(line.split_ascii_whitespace().take(2).collect::<Vec<_>>())
+                        .unwrap()
+                })
+                .collect::<Vec<_>>();
+            #[allow(clippy::format_collect)]
+            let stdout_filtered = {
+                const PACKAGE: usize = 0;
+                const VERSION: usize = 1;
+                let mut package_versions_filtered = package_versions
+                    .windows(2)
+                    .filter(|w| w[0][PACKAGE] == w[1][PACKAGE])
+                    .filter(|w| w[0][VERSION] != w[1][VERSION])
+                    .flatten()
+                    .collect::<Vec<_>>();
+                // smoelius: If `package_versions` contains three versions of a package, then
+                // `package_versions_filtered` will contain:
+                // ```
+                // package version-0
+                // package version-1
+                // package version-1
+                // package version-2
+                // ```
+                package_versions_filtered.dedup();
+                package_versions_filtered
+                    .into_iter()
+                    .map(|package_version| {
+                        format!(
+                            "{} {}\n",
+                            package_version[PACKAGE], package_version[VERSION]
+                        )
+                    })
+                    .collect::<String>()
+            };
+
+            let subdir = feature.replace('-', "_");
+            let path = PathBuf::from(format!(
+                "cargo-dylint/tests/duplicate_dependencies/{subdir}/{target}.txt"
+            ));
+
+            let stdout_expected = read_to_string(&path).unwrap();
+
+            if env::enabled("BLESS") {
+                write(path, stdout_filtered).unwrap();
+            } else {
+                assert!(
+                    stdout_expected == stdout_filtered,
+                    "{}",
+                    SimpleDiff::from_str(&stdout_expected, &stdout_filtered, "left", "right")
+                );
+            }
+        }
+    }
 }
 
 #[test]
@@ -394,13 +476,6 @@ fn sort() {
             .success();
     }
 }
-
-const TARGETS: [&str; 4] = [
-    "aarch64-apple-darwin",
-    "x86_64-apple-darwin",
-    "x86_64-unknown-linux-gnu",
-    "x86_64-pc-windows-msvc",
-];
 
 // smoelius: `supply_chain` is the only test that uses `supply_chain.json`. So there is no race.
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
