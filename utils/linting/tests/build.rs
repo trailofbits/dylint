@@ -1,24 +1,23 @@
 use assert_cmd::{assert::AssertResult, prelude::*};
 use dylint_internal::env;
+use rustc_version::{version_meta, Channel};
 use std::sync::Mutex;
+use tempfile::TempDir;
+
+#[test]
+fn channel_is_nightly() {
+    assert!(matches!(version_meta().unwrap().channel, Channel::Nightly));
+}
 
 #[test]
 fn builds_with_cfg_docsrs() {
     update_nightly().unwrap();
 
+    let tempdir = TempDir::new().unwrap();
+
     std::process::Command::new("cargo")
         .env(env::RUSTFLAGS, "--cfg docsrs")
-        .arg("build")
-        .assert()
-        .success();
-}
-
-#[test]
-fn builds_with_latest_nightly() {
-    update_nightly().unwrap();
-
-    std::process::Command::new("cargo")
-        .arg("build")
+        .args(["build", "--target-dir", &tempdir.path().to_string_lossy()])
         .assert()
         .success();
 }

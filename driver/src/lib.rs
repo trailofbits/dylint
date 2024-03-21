@@ -426,6 +426,12 @@ mod test {
     #![allow(clippy::unwrap_used)]
 
     use super::*;
+    use rustc_version::{version_meta, Channel};
+
+    #[test]
+    fn channel_is_nightly() {
+        assert!(matches!(version_meta().unwrap().channel, Channel::Nightly));
+    }
 
     #[test]
     fn no_rustc() {
