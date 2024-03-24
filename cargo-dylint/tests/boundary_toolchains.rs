@@ -26,12 +26,14 @@ const BOUNDARIES: &[(&str, &str)] = &[
     // https://github.com/rust-lang/rust/pull/119063
     // https://github.com/rust-lang/rust/commit/cda4736f1eaad8af6f49388baa9b7e480df8e329
     ("2023-12-18", "2023-12-19"),
+    // smoelius: `cargo-platform v0.1.8` requires rustc 1.73 or newer.
     // https://github.com/rust-lang/rust/pull/112692
     // https://github.com/rust-lang/rust/commit/b6144cd843d6eb6acc086797ea37e0c69c892b90
-    ("2023-06-28", "2023-06-29"),
+    // ("2023-06-28", "2023-06-29"),
     // https://github.com/rust-lang/rust/pull/111748
     // https://github.com/rust-lang/rust/commit/70e04bd88d85cab8ed110ace5a278fab106d0ef5
-    ("2023-05-29", "2023-05-30"),
+    // ("2023-05-29", "2023-05-30"),
+
     // smoelius: `cargo-util v0.2.7` requires rustc 1.72.0 or newer.
     // https://github.com/rust-lang/rust/pull/111633
     // https://github.com/rust-lang/rust/commit/08efb9d652c840715d15954592426e2befe13b36
