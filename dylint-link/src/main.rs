@@ -16,7 +16,7 @@ use std::{
 };
 #[cfg(target_os = "windows")]
 use std::{fs::File, io::Read};
-use toml_edit::{Document, Item};
+use toml_edit::{DocumentMut, Item};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -45,7 +45,7 @@ fn linker() -> Result<PathBuf> {
                 config_toml.to_string_lossy()
             )
         })?;
-        let document = contents.parse::<Document>()?;
+        let document = contents.parse::<DocumentMut>()?;
         document
             .as_table()
             .get("target")

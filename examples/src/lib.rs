@@ -5,7 +5,7 @@ mod test {
         clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment, CommandExt,
     };
     use std::{ffi::OsStr, fs::read_to_string};
-    use toml_edit::{Document, Item, Value};
+    use toml_edit::{DocumentMut, Item, Value};
     use walkdir::WalkDir;
 
     #[test]
@@ -52,7 +52,7 @@ mod test {
             }
             let config_toml = path.join(".cargo/config.toml");
             let contents = read_to_string(config_toml).unwrap();
-            let mut document = contents.parse::<Document>().unwrap();
+            let mut document = contents.parse::<DocumentMut>().unwrap();
             // smoelius: Hack. `build.target-dir` is expected to be a relative path. Replace it with
             // an absolute one. However, the directory might not exist when this test is run. So use
             // `cargo_util::paths::normalize_path` rather than `Path::canonicalize`.
@@ -106,7 +106,7 @@ mod test {
             let path = path.unwrap();
 
             let contents = read_to_string(path.join("rust-toolchain")).unwrap();
-            let document = contents.parse::<Document>().unwrap();
+            let document = contents.parse::<DocumentMut>().unwrap();
             let array = document
                 .as_table()
                 .get("toolchain")
