@@ -664,6 +664,22 @@
         "name": "Kornel"
       }
     ],
+    "env_filter": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/37223191?v=4",
+        "id": 460,
+        "kind": "team",
+        "login": "github:rust-cli:maintainers",
+        "name": "Maintainers"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/60961?v=4",
+        "id": 6743,
+        "kind": "user",
+        "login": "epage",
+        "name": "Ed Page"
+      }
+    ],
     "env_logger": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
@@ -1887,15 +1903,6 @@
         "name": "Steven Allen"
       }
     ],
-    "termcolor": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/456674?v=4",
-        "id": 189,
-        "kind": "user",
-        "login": "BurntSushi",
-        "name": "Andrew Gallant"
-      }
-    ],
     "terminal_size": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/402454?v=4",
@@ -2130,50 +2137,6 @@
       }
     ],
     "unicode-normalization": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
-        "avatar": "https://avatars1.githubusercontent.com/u/1203825?v=4",
-        "id": 3,
-        "kind": "user",
-        "login": "huonw",
-        "name": "Huon Wilson"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/291359?v=4",
-        "id": 7,
-        "kind": "user",
-        "login": "SimonSapin",
-        "name": "Simon Sapin"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
-        "id": 1139,
-        "kind": "user",
-        "login": "Manishearth",
-        "name": "Manish Goregaokar"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/716593?v=4",
-        "id": 1458,
-        "kind": "user",
-        "login": "kwantam",
-        "name": "Riad S. Wahby"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/5784949?v=4",
-        "id": 21056,
-        "kind": "user",
-        "login": "sujayakar",
-        "name": "Sujay Jayakar"
-      }
-    ],
-    "unicode-segmentation": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
         "id": 1,

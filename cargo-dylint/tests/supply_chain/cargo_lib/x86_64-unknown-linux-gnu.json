@@ -1241,6 +1241,22 @@
         "name": "Henri Sivonen"
       }
     ],
+    "env_filter": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/37223191?v=4",
+        "id": 460,
+        "kind": "team",
+        "login": "github:rust-cli:maintainers",
+        "name": "Maintainers"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/60961?v=4",
+        "id": 6743,
+        "kind": "user",
+        "login": "epage",
+        "name": "Ed Page"
+      }
+    ],
     "env_logger": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
@@ -3812,15 +3828,6 @@
         "kind": "user",
         "login": "Stebalien",
         "name": "Steven Allen"
-      }
-    ],
-    "termcolor": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/456674?v=4",
-        "id": 189,
-        "kind": "user",
-        "login": "BurntSushi",
-        "name": "Andrew Gallant"
       }
     ],
     "terminal_size": [
