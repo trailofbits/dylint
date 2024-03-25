@@ -15,7 +15,7 @@ required-features = ["__ci"]
 [dependencies]
 anyhow = { version = "1.0", features = ["backtrace"] }
 clap = { version = "4.5", features = ["cargo", "derive", "wrap_help"] }
-env_logger = "0.10"
+env_logger = "0.11"
 
 dylint = { version = "=3.0.0", path = "../dylint", features = [
     "package_options",
