@@ -120,7 +120,7 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
 mod test {
     use super::*;
     use std::fs::read_to_string;
-    use toml_edit::{Document, Item};
+    use toml_edit::{DocumentMut, Item};
 
     #[cfg_attr(
         dylint_lib = "assert_eq_arg_misordering",
@@ -155,7 +155,7 @@ mod test {
         let contents =
             read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("template/Cargo.toml~"))
                 .unwrap();
-        let document = contents.parse::<Document>().unwrap();
+        let document = contents.parse::<DocumentMut>().unwrap();
         let version = document
             .as_table()
             .get("package")

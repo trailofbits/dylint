@@ -4,7 +4,7 @@ use std::{
     fs::{read_to_string, write},
     path::Path,
 };
-use toml_edit::{Document, Item, Value};
+use toml_edit::{DocumentMut, Item, Value};
 
 #[allow(clippy::module_name_repetitions)]
 pub fn clippy_utils_version_from_rust_version(rust_version: &str) -> Result<String> {
@@ -22,7 +22,7 @@ pub fn clippy_utils_package_version(path: &Path) -> Result<String> {
             cargo_toml.to_string_lossy(),
         )
     })?;
-    let document = contents.parse::<Document>()?;
+    let document = contents.parse::<DocumentMut>()?;
     document
         .as_table()
         .get("package")
@@ -41,7 +41,7 @@ pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()
             cargo_toml.to_string_lossy(),
         )
     })?;
-    let mut document = contents.parse::<Document>()?;
+    let mut document = contents.parse::<DocumentMut>()?;
     // smoelius: First check `dependencies` for `clippy_utils`.
     let mut clippy_utils = document
         .as_table_mut()
@@ -74,7 +74,7 @@ pub fn toolchain_channel(path: &Path) -> Result<String> {
             rust_toolchain.to_string_lossy(),
         )
     })?;
-    let document = contents.parse::<Document>()?;
+    let document = contents.parse::<DocumentMut>()?;
     document
         .as_table()
         .get("toolchain")
@@ -93,7 +93,7 @@ pub fn set_toolchain_channel(path: &Path, channel: &str) -> Result<()> {
             rust_toolchain.to_string_lossy(),
         )
     })?;
-    let mut document = contents.parse::<Document>()?;
+    let mut document = contents.parse::<DocumentMut>()?;
     document
         .as_table_mut()
         .get_mut("toolchain")
