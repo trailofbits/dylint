@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - dylint/src/library_packages/cargo_cli/string_or_vec.rs</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">dylint/src/library_packages/cargo_cli</a> - string_or_vec.rs<span style="font-size: 80%;"> (source / <a href="string_or_vec.rs.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2024-03-26 03:34:02</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #![allow(clippy::doc_markdown, clippy::use_self)]</a>
+<a name="2"><span class="lineNum">       2 </span>            : #![cfg_attr(</a>
+<a name="3"><span class="lineNum">       3 </span>            :     dylint_lib = &quot;inconsistent_qualification&quot;,</a>
+<a name="4"><span class="lineNum">       4 </span>            :     allow(inconsistent_qualification)</a>
+<a name="5"><span class="lineNum">       5 </span>            : )]</a>
+<a name="6"><span class="lineNum">       6 </span>            : #![cfg_attr(dylint_lib = &quot;overscoped_allow&quot;, allow(overscoped_allow))]</a>
+<a name="7"><span class="lineNum">       7 </span>            : </a>
+<a name="8"><span class="lineNum">       8 </span>            : use serde::{de, Serialize};</a>
+<a name="9"><span class="lineNum">       9 </span>            : use serde_untagged::UntaggedEnumVisitor;</a>
+<a name="10"><span class="lineNum">      10 </span>            : </a>
+<a name="11"><span class="lineNum">      11 </span>            : // smoelius: `StringOrVec` was copied from:</a>
+<a name="12"><span class="lineNum">      12 </span>            : // https://github.com/rust-lang/cargo/blob/e476251168fab96ae3c7544ee1a9f3ae3b7f885f/src/cargo/util/toml/mod.rs#L871-L887</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : /// A StringOrVec can be parsed from either a TOML string or array,</a>
+<a name="15"><span class="lineNum">      15 </span>            : /// but is always stored as a vector.</a>
+<a name="16"><span class="lineNum">      16 </span>            : #[derive(Clone, Debug, Serialize, Eq, PartialEq, PartialOrd, Ord)]</a>
+<a name="17"><span class="lineNum">      17 </span>            : pub struct StringOrVec(Vec&lt;String&gt;);</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : impl&lt;'de&gt; de::Deserialize&lt;'de&gt; for StringOrVec {</a>
+<a name="20"><span class="lineNum">      20 </span><span class="lineNoCov">          0 :     fn deserialize&lt;D&gt;(deserializer: D) -&gt; Result&lt;Self, D::Error&gt;</span></a>
+<a name="21"><span class="lineNum">      21 </span><span class="lineNoCov">          0 :     where</span></a>
+<a name="22"><span class="lineNum">      22 </span><span class="lineNoCov">          0 :         D: de::Deserializer&lt;'de&gt;,</span></a>
+<a name="23"><span class="lineNum">      23 </span><span class="lineNoCov">          0 :     {</span></a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineNoCov">          0 :         UntaggedEnumVisitor::new()</span></a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineNoCov">          0 :             .expecting(&quot;string or list of strings&quot;)</span></a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineNoCov">          0 :             .string(|value| Ok(StringOrVec(vec![value.to_owned()])))</span></a>
+<a name="27"><span class="lineNum">      27 </span><span class="lineNoCov">          0 :             .seq(|value| value.deserialize().map(StringOrVec))</span></a>
+<a name="28"><span class="lineNum">      28 </span><span class="lineNoCov">          0 :             .deserialize(deserializer)</span></a>
+<a name="29"><span class="lineNum">      29 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="30"><span class="lineNum">      30 </span>            : }</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
