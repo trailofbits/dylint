@@ -6,10 +6,21 @@ use dylint_internal::{
 };
 use tempfile::tempdir;
 
-// smoelius: The channel date is one day later than the `rustc --version` date.
+// smoelius: The channel date is one day later than the `rustc --version` date. For example, suppose
+// the code contains:
+// ```
+// #[rustversion::since(2024-03-29)] ...
+// ```
+// Then the boundary should be:
+// ```
+// ("2024-03-29", "2024-03-30"),
+// ```
 // smoelius: Put recent boundaries first, since they're more likely to cause problems.
 // smoelius: The relevant PRs and merge commits appear before each boundary.
 const BOUNDARIES: &[(&str, &str)] = &[
+    // https://github.com/rust-lang/rust/pull/122450
+    // https://github.com/rust-lang/rust/commit/685927aae69657b46323cffbeb0062835bd7fa2b
+    ("2024-03-29", "2024-03-30"),
     // https://github.com/rust-lang/rust/pull/121780
     // https://github.com/rust-lang/rust/commit/1547c076bfec8abb819d6a81e1e4095d267bd5b4
     // https://github.com/rust-lang/rust/pull/121969

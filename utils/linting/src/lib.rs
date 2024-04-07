@@ -671,9 +671,18 @@ fn local_crate_source_file(sess: &rustc_session::Session) -> Option<PathBuf> {
 // smoelius: Relevant PR and merge commit:
 // - https://github.com/rust-lang/rust/pull/106810
 // - https://github.com/rust-lang/rust/commit/65d2f2a5f9c323c88d1068e8e90d0b47a20d491c
-#[rustversion::since(2023-01-19)]
+#[rustversion::all(since(2023-01-19), before(2024-03-29))]
 fn local_crate_source_file(sess: &rustc_session::Session) -> Option<PathBuf> {
     sess.local_crate_source_file()
+}
+
+// smoelius: Relevant PR and merge commit:
+// - https://github.com/rust-lang/rust/pull/122450
+// - https://github.com/rust-lang/rust/commit/685927aae69657b46323cffbeb0062835bd7fa2b
+#[rustversion::since(2024-03-29)]
+fn local_crate_source_file(sess: &rustc_session::Session) -> Option<PathBuf> {
+    sess.local_crate_source_file()
+        .and_then(rustc_span::RealFileName::into_local_path)
 }
 
 #[rustversion::before(2023-06-28)]
