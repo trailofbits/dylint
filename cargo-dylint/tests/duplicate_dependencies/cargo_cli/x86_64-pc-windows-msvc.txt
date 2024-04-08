@@ -1,9 +1,5 @@
-bstr v0.2.17
-bstr v1.9.1
 miow v0.3.7
 miow v0.6.0
-regex-automata v0.1.10
-regex-automata v0.4.6
 windows-sys v0.48.0
 windows-sys v0.52.0
 windows-targets v0.48.5

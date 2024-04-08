@@ -1,4 +1,0 @@
-bstr v0.2.17
-bstr v1.9.1
-regex-automata v0.1.10
-regex-automata v0.4.6
