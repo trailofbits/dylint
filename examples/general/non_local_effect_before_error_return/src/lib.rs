@@ -11,7 +11,7 @@ extern crate rustc_span;
 extern crate rustc_target;
 
 use clippy_utils::{diagnostics::span_lint_and_then, match_def_path};
-use rustc_errors::Diagnostic;
+use rustc_errors::Diag;
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind};
 use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
@@ -396,7 +396,7 @@ fn is_deref_assign(statement: &Statement) -> Option<Span> {
     }
 }
 
-fn error_note(span: Option<Span>) -> impl FnOnce(&mut Diagnostic) {
+fn error_note(span: Option<Span>) -> impl FnOnce(&mut Diag<'_, ()>) {
     move |diag| {
         if let Some(span) = span {
             diag.span_note(span, "error is determined here");

@@ -1,4 +1,4 @@
-use anyhow::{self, Context};
+use anyhow::Context;
 use std::fs::File;
 
 fn main() {
