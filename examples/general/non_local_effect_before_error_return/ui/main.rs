@@ -4,7 +4,6 @@ use std::{
     env::{var, VarError},
     fs::File,
     io::{Error, ErrorKind, Read},
-    result::Result,
 };
 
 fn main() {}

@@ -203,10 +203,8 @@ impl<'tcx> LateLintPass<'tcx> for OverscopedAllow {
 
         // smoelius: The grandparent is the potential trait item (in which case, the parent is an
         // `Expr`).
-        if let Node::TraitItem(trait_item) = cx
-            .tcx
-            .hir()
-            .get_parent(cx.tcx.hir().parent_id(block.hir_id))
+        if let Node::TraitItem(trait_item) =
+            cx.tcx.parent_hir_node(cx.tcx.parent_hir_id(block.hir_id))
         {
             self.visit(cx, trait_item.hir_id());
         }

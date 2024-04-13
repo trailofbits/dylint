@@ -74,7 +74,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnamedConstant {
 
             // smoelius: Only flag expressions that appear within other expressions (as opposed to,
             // e.g., array bounds).
-            && matches!(cx.tcx.hir().get_parent(expr.hir_id), Node::Expr(_))
+            && matches!(cx.tcx.parent_hir_node(expr.hir_id), Node::Expr(_))
 
             // smoelius: And those other expressions must not appear within a constant declaration.
             && let owner_id = cx.tcx.hir().get_parent_item(expr.hir_id)

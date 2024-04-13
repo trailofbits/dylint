@@ -502,7 +502,6 @@ mod test {
 
     use super::*;
     use dylint_internal::examples;
-    use once_cell::sync::Lazy;
     use std::{
         env::{join_paths, set_var},
         sync::Mutex,

@@ -52,7 +52,7 @@ dylint_linting::declare_late_lint! {
 
 impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
     fn check_stmt(&mut self, cx: &LateContext<'tcx>, stmt: &'tcx Stmt<'tcx>) {
-        if let StmtKind::Local(Local {
+        if let StmtKind::Let(Local {
                 pat:
                     Pat {
                         kind: PatKind::Binding(_, _, ident, _),
