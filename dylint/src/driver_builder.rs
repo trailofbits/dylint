@@ -219,10 +219,9 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
     Ok(())
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod test {
-    #![allow(clippy::unwrap_used)]
-
     use super::*;
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.

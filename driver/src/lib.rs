@@ -421,10 +421,9 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
     Ok(rustc_args)
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod test {
-    #![allow(clippy::unwrap_used)]
-
     use super::*;
     use rustc_version::{version_meta, Channel};
 
