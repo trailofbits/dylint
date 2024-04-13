@@ -124,10 +124,9 @@ impl<'revs> Iterator for RevIter<'revs> {
     }
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod test {
-    #![allow(clippy::unwrap_used)]
-
     use super::*;
     use once_cell::sync::Lazy;
 

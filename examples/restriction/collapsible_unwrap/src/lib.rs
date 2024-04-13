@@ -92,7 +92,7 @@ impl CollapsibleUnwrap {
                             sugg: String::new(),
                         });
                     }
-                    unwrap_span_sugg = and_then_span_sugg.clone();
+                    unwrap_span_sugg.clone_from(&and_then_span_sugg);
                     let needs_mut = cx
                         .typeck_results()
                         .type_dependent_def_id(expr.hir_id)

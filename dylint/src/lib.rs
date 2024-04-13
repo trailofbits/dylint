@@ -496,10 +496,9 @@ fn clippy_disable_docs_links() -> Result<String> {
     serde_json::to_string(&val).map_err(Into::into)
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod test {
-    #![allow(clippy::unwrap_used)]
-
     use super::*;
     use dylint_internal::examples;
     use std::{

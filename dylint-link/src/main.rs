@@ -277,10 +277,9 @@ const ARCHITECTURES: &[&str] = &[
     "x86_64h",
 ];
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod test {
-    #![allow(clippy::unwrap_used)]
-
     use super::{env, ARCHITECTURES};
     use assert_cmd::prelude::*;
     use dylint_internal::{packaging::isolate, CommandExt};
