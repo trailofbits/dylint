@@ -222,7 +222,7 @@ impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
                 span,
                 "inconsistent qualification",
                 Some(item.span),
-                &msg,
+                msg,
             );
             self.diagnostic_emitted = true;
         }

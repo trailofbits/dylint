@@ -107,14 +107,14 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
                 cx,
                 MISLEADING_VARIABLE_NAME,
                 ident.span,
-                &format!(
+                format!(
                     "`{}` exports a type `{}`, which is not the type of `{}`",
                     cx.tcx.def_path_str(module_def_id),
                     child_ty_name,
                     ident.name
                 ),
                 None,
-                &help_msg,
+                help_msg,
             );
         }
     }

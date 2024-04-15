@@ -52,7 +52,7 @@ impl<'tcx> LateLintPass<'tcx> for EnvLiteral {
                 args[0].span,
                 "referring to an environment variable with a string literal is error prone",
                 None,
-                &format!("define a constant `{s}` and use that instead"),
+                format!("define a constant `{s}` and use that instead"),
             );
         }
     }

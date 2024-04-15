@@ -151,7 +151,7 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
                     self.cx,
                     NON_THREAD_SAFE_CALL_IN_TEST,
                     expr.span,
-                    &format!(
+                    format!(
                         "calling `{}` in a test could affect the outcome of other tests",
                         path.join("::")
                     ),

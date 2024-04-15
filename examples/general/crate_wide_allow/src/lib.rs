@@ -55,9 +55,9 @@ impl EarlyLintPass for CrateWideAllow {
                     cx,
                     CRATE_WIDE_ALLOW,
                     attr.span,
-                    &format!("silently overrides `--warn {path}` and `--deny {path}`"),
+                    format!("silently overrides `--warn {path}` and `--deny {path}`"),
                     None,
-                    &format!("pass `--allow {path}` on the command line"),
+                    format!("pass `--allow {path}` on the command line"),
                 );
             }
         }

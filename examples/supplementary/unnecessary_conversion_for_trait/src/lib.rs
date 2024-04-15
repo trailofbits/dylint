@@ -214,7 +214,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                                     cx,
                                     UNNECESSARY_CONVERSION_FOR_TRAIT,
                                     expr.span,
-                                    &format!("ignoring {inner_callee_path:?}"),
+                                    format!("ignoring {inner_callee_path:?}"),
                                 );
                             }
                             break;
@@ -252,7 +252,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                         cx,
                         UNNECESSARY_CONVERSION_FOR_TRAIT,
                         maybe_arg.span.with_lo(inner_arg.span.hi()),
-                        &msg,
+                        msg,
                         "remove this",
                         String::new(),
                         Applicability::MachineApplicable,
@@ -265,7 +265,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                         cx,
                         UNNECESSARY_CONVERSION_FOR_TRAIT,
                         span,
-                        &msg,
+                        msg,
                         None,
                         "use the macro arguments directly",
                     );
@@ -274,7 +274,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                         cx,
                         UNNECESSARY_CONVERSION_FOR_TRAIT,
                         maybe_arg.span,
-                        &msg,
+                        msg,
                         "use",
                         format!("{refs_prefix}{snippet}"),
                         Applicability::MachineApplicable,
