@@ -681,8 +681,9 @@ fn local_crate_source_file(sess: &rustc_session::Session) -> Option<PathBuf> {
 // - https://github.com/rust-lang/rust/commit/685927aae69657b46323cffbeb0062835bd7fa2b
 #[rustversion::since(2024-03-29)]
 fn local_crate_source_file(sess: &rustc_session::Session) -> Option<PathBuf> {
+    use rustc_span::RealFileName;
     sess.local_crate_source_file()
-        .and_then(rustc_span::RealFileName::into_local_path)
+        .and_then(RealFileName::into_local_path)
 }
 
 #[rustversion::before(2023-06-28)]
