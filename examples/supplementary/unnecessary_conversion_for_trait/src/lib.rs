@@ -31,7 +31,6 @@ use rustc_middle::ty::{
     self,
     adjustment::{Adjust, Adjustment, AutoBorrow},
     ClauseKind, EarlyBinder, FnDef, FnSig, GenericArgsRef, Param, ParamTy, ProjectionPredicate, Ty,
-    TypeAndMut,
 };
 use rustc_span::symbol::{sym, Symbol};
 use rustc_trait_selection::traits::{
@@ -698,14 +697,7 @@ fn build_ty_and_refs_prefix<'tcx>(
         if is_copy(cx, ty) {
             break;
         }
-        ty = Ty::new_ref(
-            cx.tcx,
-            cx.tcx.lifetimes.re_erased,
-            TypeAndMut {
-                ty,
-                mutbl: mutability,
-            },
-        );
+        ty = Ty::new_ref(cx.tcx, cx.tcx.lifetimes.re_erased, ty, mutability);
         refs_prefix = "&".to_owned() + mutability.prefix_str() + &refs_prefix;
     }
     (ty, refs_prefix)

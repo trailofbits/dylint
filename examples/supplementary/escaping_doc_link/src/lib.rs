@@ -47,13 +47,17 @@ impl<'tcx> LateLintPass<'tcx> for EscapingDocLink {
             return;
         };
 
-        let Some(source_dir) = source_path.parent().map(|parent| {
-            if parent.as_os_str().is_empty() {
-                Path::new(".")
-            } else {
-                parent
-            }
-        }) else {
+        let Some(source_dir) = source_path
+            .local_path()
+            .and_then(Path::parent)
+            .map(|parent| {
+                if parent.as_os_str().is_empty() {
+                    Path::new(".")
+                } else {
+                    parent
+                }
+            })
+        else {
             return;
         };
 

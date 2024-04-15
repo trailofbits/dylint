@@ -386,7 +386,7 @@ fn get_ufcs_type_name<'tcx>(
                 ty::Array(..)
                 | ty::Dynamic(..)
                 | ty::Never
-                | ty::RawPtr(_)
+                | ty::RawPtr(_, _)
                 | ty::Ref(..)
                 | ty::Slice(_)
                 | ty::Tuple(_) => {

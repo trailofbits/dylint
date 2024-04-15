@@ -256,7 +256,7 @@ fn collect_non_ref_idents(pat: &Pat<'_>) -> Option<FxHashSet<HirId>> {
                 BindingAnnotation(ByRef::No, _) => {
                     hir_ids.as_mut().map(|hir_ids| hir_ids.insert(pat.hir_id));
                 }
-                BindingAnnotation(ByRef::Yes, _) => {
+                BindingAnnotation(ByRef::Yes(_), _) => {
                     hir_ids = None;
                 }
             }

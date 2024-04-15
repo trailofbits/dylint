@@ -14,7 +14,7 @@ use heck::ToSnakeCase;
 use rustc_hir::{
     def::{DefKind, Res},
     def_id::{DefId, ModDefId},
-    Expr, ExprKind, LangItem, Local, MatchSource, Pat, PatKind, QPath, Stmt, StmtKind,
+    Expr, ExprKind, LangItem, LetStmt, MatchSource, Pat, PatKind, QPath, Stmt, StmtKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty;
@@ -52,7 +52,7 @@ dylint_linting::declare_late_lint! {
 
 impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
     fn check_stmt(&mut self, cx: &LateContext<'tcx>, stmt: &'tcx Stmt<'tcx>) {
-        if let StmtKind::Let(Local {
+        if let StmtKind::Let(LetStmt {
                 pat:
                     Pat {
                         kind: PatKind::Binding(_, _, ident, _),
