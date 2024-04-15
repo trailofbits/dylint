@@ -112,6 +112,12 @@ fn downgrade_upgrade_package() {
         .assert()
         .success();
 
+    // smoelius: Temporarily disable the rest of this test because of:
+    // https://github.com/dtolnay/proc-macro2/issues/451
+    if cfg!(all()) {
+        return;
+    }
+
     dylint_internal::cargo::build("upgraded dylint-template")
         .build()
         .sanitize_environment()
