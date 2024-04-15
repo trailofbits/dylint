@@ -20,7 +20,13 @@ use tempfile::tempdir;
 const BOUNDARIES: &[(&str, &str)] = &[
     // https://github.com/rust-lang/rust/pull/122450
     // https://github.com/rust-lang/rust/commit/685927aae69657b46323cffbeb0062835bd7fa2b
-    ("2024-03-29", "2024-03-30"),
+    // smoelius: `proc-macro2` now requires library features `proc_macro_byte_character` and
+    // `proc_macro_c_str_literals`. However, `proc-macro2` does this only when the compiler's minor
+    // version is 79 or greater:
+    // https://github.com/dtolnay/proc-macro2/blob/70a804be6d9b21d8707a1c349759f64332429c35/build.rs#L66-L69
+    // Hence, it suffices to skip early `1.79` nightlies.
+    // ("2024-03-29", "2024-03-30"),
+    ("2024-03-17", "2024-04-05"),
     // https://github.com/rust-lang/rust/pull/121780
     // https://github.com/rust-lang/rust/commit/1547c076bfec8abb819d6a81e1e4095d267bd5b4
     // https://github.com/rust-lang/rust/pull/121969
