@@ -100,7 +100,7 @@ impl<'tcx> LateLintPass<'tcx> for WrongSerializeStructArg {
                 cx,
                 WRONG_SERIALIZE_STRUCT_ARG,
                 serialize_struct_span,
-                &format!(
+                format!(
                     "`serialize_struct` call's `len` argument is {len}, but number of \
                      `serialize_field` calls is {n}"
                 ),

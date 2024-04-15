@@ -140,7 +140,7 @@ impl EarlyLintPass for IncorrectMatchesOperation {
                         "&&"
                     };
                     let msg = format!("Is this a bug? matches!(obj, A) {op} matches!(obj, B) is (almost) always false");
-                    span_lint(cx, INCORRECT_MATCHES_OPERATION, expr.span, &msg);
+                    span_lint(cx, INCORRECT_MATCHES_OPERATION, expr.span, msg);
                 }
                 _ => {
                     unreachable!("This should never happen - op.node can't be other operator");

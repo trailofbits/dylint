@@ -162,7 +162,7 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                         cx,
                         SUBOPTIMAL_PATTERN,
                         pat.span,
-                        &format!(
+                        format!(
                             "could destructure reference{}",
                             if n_derefs > 1 { "s" } else { "" }
                         ),
