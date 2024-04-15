@@ -404,7 +404,7 @@ fn param_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty
                                 trait_id,
                                 [tcx.mk_param_from_def(param)],
                             ),
-                            polarity: ty::ImplPolarity::Positive,
+                            polarity: ty::PredicatePolarity::Positive,
                         })
                         .to_predicate(tcx)
                     }),
