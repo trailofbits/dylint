@@ -556,7 +556,6 @@ fn unmaintained() {
 }
 
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
-    #[allow(unknown_lints, abs_home_path)]
     read_to_string(dir.as_ref().join("README.md")).map_err(Into::into)
 }
 
@@ -569,7 +568,6 @@ fn compare_lines(left: &str, right: &str) {
 }
 
 fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
-    #[allow(unknown_lints, abs_home_path)]
     walkdir::WalkDir::new(".")
         .into_iter()
         .filter_entry(move |entry| {
