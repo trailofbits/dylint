@@ -78,7 +78,7 @@ fn append_workspace_metadata(path: &Path) -> Result<()> {
         .open(&manifest)
         .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
 
-    #[allow(unknown_lints, env_cargo_path)]
+    #[allow(unknown_lints, abs_home_path)]
     let parent = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .ok_or_else(|| anyhow!("Could not get parent directory"))?;

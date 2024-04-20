@@ -1,4 +1,4 @@
-# env_cargo_path
+# abs_home_path
 
 ### What it does
 Checks for `env!` or `option_env!` applied outside of a test to a Cargo environment variable

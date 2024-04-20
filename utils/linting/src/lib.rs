@@ -77,7 +77,7 @@
 //!                                                ^^^
 //! ```
 //!
-//! An example use of `impl_pre_expansion_lint!` can be found in [`env_cargo_path`] in this
+//! An example use of `impl_pre_expansion_lint!` can be found in [`abs_home_path`] in this
 //! repository.
 //!
 //! # `constituent` feature
@@ -170,6 +170,7 @@
 //! [Configurable libraries]: #configurable-libraries
 //! [Dylint]: https://github.com/trailofbits/dylint/tree/master
 //! [`LintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
+//! [`abs_home_path`]: https://github.com/trailofbits/dylint/tree/master/examples/general/abs_home_path/src/lib.rs
 //! [`config_or_default`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_or_default.html
 //! [`config_toml`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_toml.html
 //! [`config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config.html
@@ -179,7 +180,6 @@
 //! [`declare_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint_pass.html
 //! [`dylint-link`]: https://github.com/trailofbits/dylint/tree/master/dylint-link
 //! [`dylint_library!`]: #dylint_library
-//! [`env_cargo_path`]: https://github.com/trailofbits/dylint/tree/master/examples/general/env_cargo_path/src/lib.rs
 //! [`general` library]: https://github.com/trailofbits/dylint/tree/master/examples/general/src/lib.rs
 //! [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]: #impl_late_lint-etc
 //! [`impl_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html

@@ -39,18 +39,18 @@ dylint_linting::impl_pre_expansion_lint! {
     ///     println!("{:?}", path);
     /// }
     /// ```
-    pub ENV_CARGO_PATH,
+    pub ABS_HOME_PATH,
     Warn,
     "`env!` applied to Cargo environment variables containing paths",
-    EnvCargoPath::default()
+    AbsHomePath::default()
 }
 
 #[derive(Default)]
-pub struct EnvCargoPath {
+pub struct AbsHomePath {
     stack: Vec<NodeId>,
 }
 
-impl EarlyLintPass for EnvCargoPath {
+impl EarlyLintPass for AbsHomePath {
     fn check_item(&mut self, _cx: &EarlyContext, item: &Item) {
         if self.in_test_item() || is_test_item(item) {
             self.stack.push(item.id);
@@ -75,7 +75,7 @@ impl EarlyLintPass for EnvCargoPath {
         {
             span_lint(
                 cx,
-                ENV_CARGO_PATH,
+                ABS_HOME_PATH,
                 expr.span,
                 "this path might not exist in production",
             );
@@ -83,7 +83,7 @@ impl EarlyLintPass for EnvCargoPath {
     }
 }
 
-impl EnvCargoPath {
+impl AbsHomePath {
     fn in_test_item(&self) -> bool {
         !self.stack.is_empty()
     }

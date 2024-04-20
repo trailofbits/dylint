@@ -20,7 +20,7 @@ fn write_dylint_driver_manifest_dir() {
     let cargo_home = cargo_home().unwrap();
     let out_dir = env::var(env::OUT_DIR).unwrap();
 
-    #[allow(unknown_lints, env_cargo_path)]
+    #[allow(unknown_lints, abs_home_path)]
     let dylint_manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
 
     let dylint_driver_manifest_dir = if dylint_manifest_dir.starts_with(cargo_home)
