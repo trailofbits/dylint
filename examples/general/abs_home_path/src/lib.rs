@@ -3,21 +3,25 @@
 #![warn(unused_extern_crates)]
 
 extern crate rustc_ast;
+extern crate rustc_hir;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint, sym};
-use rustc_ast::{
-    token::{LitKind, TokenKind},
-    tokenstream::TokenTree,
-    Expr, ExprKind, Item, NodeId,
+use clippy_utils::{diagnostics::span_lint, match_def_path, path_def_id};
+use dylint_internal::paths;
+use once_cell::unsync::OnceCell;
+use rustc_ast::ast::LitKind;
+use rustc_hir::{def_id::DefId, Closure, Expr, ExprKind, Item, ItemKind, Node};
+use rustc_lint::{LateContext, LateLintPass};
+use rustc_span::Span;
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
 };
-use rustc_lint::{EarlyContext, EarlyLintPass};
-use rustc_span::sym;
 
-dylint_linting::impl_pre_expansion_lint! {
+dylint_linting::impl_late_lint! {
     /// ### What it does
-    /// Checks for `env!` or `option_env!` applied outside of a test to a Cargo environment variable
-    /// containing a path, e.g., `CARGO_MANIFEST_DIR`.
+    /// Checks for string literals that are absolute paths into the user's home directory, e.g.,
+    /// `env!(CARGO_MANIFEST_DIR)`.
     ///
     /// ### Why is this bad?
     /// The path might not exist when the code is used in production.
@@ -41,79 +45,98 @@ dylint_linting::impl_pre_expansion_lint! {
     /// ```
     pub ABS_HOME_PATH,
     Warn,
-    "`env!` applied to Cargo environment variables containing paths",
+    "string literals that are absolute paths into the user's home directory",
     AbsHomePath::default()
 }
 
 #[derive(Default)]
 pub struct AbsHomePath {
-    stack: Vec<NodeId>,
+    test_fns: HashSet<DefId>,
+    home: OnceCell<Option<PathBuf>>,
 }
 
-impl EarlyLintPass for AbsHomePath {
-    fn check_item(&mut self, _cx: &EarlyContext, item: &Item) {
-        if self.in_test_item() || is_test_item(item) {
-            self.stack.push(item.id);
-        }
+impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
+    fn check_crate(&mut self, cx: &LateContext<'tcx>) {
+        self.find_test_fns(cx);
     }
 
-    fn check_item_post(&mut self, _cx: &EarlyContext, item: &Item) {
-        if let Some(node_id) = self.stack.pop() {
-            assert_eq!(node_id, item.id);
+    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr) {
+        if cx
+            .tcx
+            .hir()
+            .parent_iter(expr.hir_id)
+            .any(|(_id, node)| matches!(node, Node::Item(item) if self.is_test_item(item)))
+        {
+            return;
         }
-    }
 
-    fn check_expr(&mut self, cx: &EarlyContext, expr: &Expr) {
-        if !self.in_test_item()
-            && let ExprKind::MacCall(mac) = &expr.kind
-            && (mac.path == sym!(env) || mac.path == sym!(option_env))
-            && let [TokenTree::Token(token, _)] =
-                mac.args.tokens.trees().collect::<Vec<_>>().as_slice()
-            && let TokenKind::Literal(lit) = token.kind
-            && lit.kind == LitKind::Str
-            && is_blacklisted_variable(lit.symbol.as_str())
+        if let ExprKind::Lit(lit) = &expr.kind
+            && let LitKind::Str(symbol, _) = lit.node
+            && let path = Path::new(symbol.as_str())
+            && path.is_absolute()
+            && self
+                .home
+                .get_or_init(home::home_dir)
+                .as_ref()
+                .map_or(false, |dir| path.starts_with(dir))
         {
             span_lint(
                 cx,
                 ABS_HOME_PATH,
-                expr.span,
+                Span::with_root_ctxt(expr.span.lo(), expr.span.hi()),
                 "this path might not exist in production",
             );
         }
     }
 }
 
+// smoelius: The contents of this `impl` are based on:
+// https://github.com/trailofbits/dylint/blob/3610f9b3ddd7847adeb00d3d33aa830a7db409c6/examples/general/non_thread_safe_call_in_test/src/late.rs#L87-L120
 impl AbsHomePath {
-    fn in_test_item(&self) -> bool {
-        !self.stack.is_empty()
-    }
-}
-
-fn is_test_item(item: &Item) -> bool {
-    item.attrs.iter().any(|attr| {
-        if attr.has_name(sym::test) {
-            true
-        } else if attr.has_name(sym::cfg)
-            && let Some(items) = attr.meta_item_list()
-            && let [item] = items.as_slice()
-            && let Some(feature_item) = item.meta_item()
-            && feature_item.has_name(sym::test)
-        {
-            true
-        } else {
-            false
+    fn find_test_fns(&mut self, cx: &LateContext<'_>) {
+        for item_id in cx.tcx.hir().items() {
+            let item = cx.tcx.hir().item(item_id);
+            // smoelius:
+            // https://rustc-dev-guide.rust-lang.org/test-implementation.html?step-3-test-object-generation
+            if let ItemKind::Const(ty, _, const_body_id) = item.kind
+                && let Some(ty_def_id) = path_def_id(cx, ty)
+                && match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN)
+                && let const_body = cx.tcx.hir().body(const_body_id)
+                && let ExprKind::Struct(_, fields, _) = const_body.value.kind
+                && let Some(testfn) = fields.iter().find(|field| field.ident.as_str() == "testfn")
+                // smoelius: Callee is `self::test::StaticTestFn`.
+                && let ExprKind::Call(_, [arg]) = testfn.expr.kind
+                && let ExprKind::Closure(Closure {
+                    body: closure_body_id,
+                    ..
+                }) = arg.kind
+                && let closure_body = cx.tcx.hir().body(*closure_body_id)
+                // smoelius: Callee is `self::test::assert_test_result`.
+                && let ExprKind::Call(_, [arg]) = closure_body.value.kind
+                // smoelius: Callee is test function.
+                && let ExprKind::Call(callee, _) = arg.kind
+                && let Some(callee_def_id) = path_def_id(cx, callee)
+            {
+                // smoelius: Record both the `TestDescAndFn` and the test function.
+                self.test_fns.insert(item.owner_id.to_def_id());
+                self.test_fns.insert(callee_def_id);
+            }
         }
-    })
-}
+    }
 
-fn is_blacklisted_variable(var: &str) -> bool {
-    var == "CARGO" || var == "CARGO_MANIFEST_DIR" || var.starts_with("CARGO_BIN_EXE_")
+    fn is_test_item(&self, item: &Item) -> bool {
+        self.test_fns
+            .iter()
+            .any(|&def_id| item.owner_id.to_def_id() == def_id)
+    }
 }
 
 #[test]
 fn ui() {
-    dylint_testing::ui_test(
+    dylint_testing::ui::Test::src_base(
         env!("CARGO_PKG_NAME"),
         &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-    );
+    )
+    .rustc_flags(["--test"])
+    .run();
 }

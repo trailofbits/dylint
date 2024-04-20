@@ -7,8 +7,11 @@ name = "abs_home_path"
 version = "3.0.0"
 dependencies = [
  "clippy_utils",
+ "dylint_internal",
  "dylint_linting",
  "dylint_testing",
+ "home",
+ "once_cell",
 ]
 
 [[package]]
