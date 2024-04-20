@@ -93,7 +93,7 @@ impl NonThreadSafeCallInTest {
         for item_id in cx.tcx.hir().items() {
             let item = cx.tcx.hir().item(item_id);
             // smoelius:
-            // https://rustc-dev-guide.rust-lang.org/test-implementation.html?highlight=testdesc#step-3-test-object-generation
+            // https://rustc-dev-guide.rust-lang.org/test-implementation.html#step-3-test-object-generation
             if let ItemKind::Const(ty, _, const_body_id) = item.kind
                 && let Some(ty_def_id) = path_def_id(cx, ty)
                 && match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN)
