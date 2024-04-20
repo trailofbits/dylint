@@ -1,5 +1,5 @@
 [package]
-name = "env_cargo_path"
+name = "abs_home_path"
 version = "3.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for `env!` applied to Cargo environment variables containing paths"

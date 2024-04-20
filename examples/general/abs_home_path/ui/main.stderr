@@ -4,7 +4,7 @@ warning: this path might not exist in production
 LL |     let _ = env!("CARGO");
    |             ^^^^^^^^^^^^^
    |
-   = note: `#[warn(env_cargo_path)]` on by default
+   = note: `#[warn(abs_home_path)]` on by default
 
 warning: this path might not exist in production
   --> $DIR/main.rs:3:13

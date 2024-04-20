@@ -5,7 +5,7 @@ use walkdir::WalkDir;
 
 pub fn build() -> Result<()> {
     // smoelius: The examples use `dylint-link` as the linker, so it must be built first.
-    #[allow(unknown_lints, env_cargo_path)]
+    #[allow(unknown_lints, abs_home_path)]
     crate::cargo::build("dylint-link")
         .build()
         .sanitize_environment()
@@ -28,7 +28,7 @@ pub fn build() -> Result<()> {
 }
 
 pub fn iter(workspace: bool) -> Result<impl Iterator<Item = Result<PathBuf>>> {
-    #[allow(unknown_lints, env_cargo_path)]
+    #[allow(unknown_lints, abs_home_path)]
     let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
     // smoelius: Use `cargo_util::paths::normalize_path` instead of `canonicalize` so as not to
     // "taint" the path with a path prefix on Windows.

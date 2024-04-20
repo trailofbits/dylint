@@ -10,12 +10,12 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
+abs_home_path = { path = "abs_home_path", features = ["rlib"] }
 await_holding_span_guard = { path = "await_holding_span_guard", features = [
     "rlib",
 ] }
 basic_dead_store = { path = "basic_dead_store", features = ["rlib"] }
 crate_wide_allow = { path = "crate_wide_allow", features = ["rlib"] }
-env_cargo_path = { path = "env_cargo_path", features = ["rlib"] }
 incorrect_matches_operation = { path = "incorrect_matches_operation", features = [
     "rlib",
 ] }
@@ -36,10 +36,10 @@ rustc_private = true
 
 [workspace]
 members = [
+    "abs_home_path",
     "await_holding_span_guard",
     "basic_dead_store",
     "crate_wide_allow",
-    "env_cargo_path",
     "incorrect_matches_operation",
     "non_local_effect_before_error_return",
     "non_thread_safe_call_in_test",

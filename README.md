@@ -126,7 +126,7 @@ Also note that the just described approach does not work for pre-expansion lints
 #[allow(PRE_EXPANSION_LINT_NAME)]
 ```
 
-For an example involving [`env_cargo_path`], see [internal/src/examples.rs] in this repository.
+For an example involving [`abs_home_path`], see [internal/src/examples.rs] in this repository.
 
 ### VS Code integration
 
@@ -213,12 +213,12 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 [Workspace metadata]: #workspace-metadata
 [Writing lints]: #writing-lints
 [`LateLintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
+[`abs_home_path`]: ./examples/general/abs_home_path
 [`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ./dylint-link
 [`dylint_library!`]: ./utils/linting
 [`dylint_linting`]: ./utils/linting
-[`env_cargo_path`]: ./examples/general/env_cargo_path
 [`non_local_effect_before_error_return`]: ./examples/general/non_local_effect_before_error_return
 [`non_thread_safe_call_in_test`]: ./examples/general/non_thread_safe_call_in_test
 [`try_io_result`]: ./examples/restriction/try_io_result
