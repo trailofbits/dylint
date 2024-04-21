@@ -133,9 +133,28 @@ impl AbsHomePath {
 
 #[test]
 fn ui() {
+    use std::{
+        io::{stderr, Write},
+        path::Path,
+    };
+
+    // smoelius: On GitHub, `dylint` is stored on the D drive, not in the user's home directory on
+    // the C drive.
+    if let Some(home) = home::home_dir()
+        && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
+    {
+        #[allow(clippy::explicit_write)]
+        writeln!(
+            stderr(),
+            "Skipping `ui` test as repository is not stored in the user's home directory"
+        )
+        .unwrap();
+        return;
+    }
+
     dylint_testing::ui::Test::src_base(
         env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
+        &Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
     )
     .rustc_flags(["--test"])
     .run();
