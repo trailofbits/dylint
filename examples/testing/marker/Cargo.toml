@@ -10,7 +10,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-bumpalo = "3.15"
+bumpalo = "3.16"
 camino = "1.1"
 marker_adapter = "=0.4.0"
 # smoelius: `marker_api` isn't actually used. But the tests fail if `marker_lints`' version doesn't
