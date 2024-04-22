@@ -3,6 +3,6 @@ miow v0.6.0
 windows-sys v0.48.0
 windows-sys v0.52.0
 windows-targets v0.48.5
-windows-targets v0.52.4
+windows-targets v0.52.5
 windows_x86_64_msvc v0.48.5
-windows_x86_64_msvc v0.52.4
+windows_x86_64_msvc v0.52.5
