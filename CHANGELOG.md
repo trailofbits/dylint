@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.1
+
+- Address [rust-lang/rust#122450](https://github.com/rust-lang/rust/pull/122450) ([9add993](https://github.com/trailofbits/dylint/commit/9add9935d34bc58c425b5b1be0e9227c4b1f54b1))
+
 ## 3.0.0
 
 - Rename option `--path` to `--lib-path`. For the time being, `--path` will continue to work as before when used to refer to a file as opposed to a directory. ([e52da02](https://github.com/trailofbits/dylint/commit/e52da024fada4ff4b353ca2de86ed12499076972))
