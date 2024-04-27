@@ -1,0 +1,25 @@
+[package]
+name = "local_ref_cell"
+version = "3.0.1"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for `RefCell` local variables"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+clippy_utils = { workspace = true }
+
+dylint_internal = { path = "../../../internal" }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[features]
+rlib = ["dylint_linting/constituent"]
+
+[package.metadata.rust-analyzer]
+rustc_private = true

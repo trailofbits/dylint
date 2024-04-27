@@ -1,0 +1,16 @@
+warning: locally declared `RefCell`
+  --> $DIR/main.rs:6:5
+   |
+LL |     let x: RefCell<usize>;
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(local_ref_cell)]` on by default
+
+warning: locally declared `RefCell`
+  --> $DIR/main.rs:7:5
+   |
+LL |     let y = RefCell::new(0);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: 2 warnings emitted
+

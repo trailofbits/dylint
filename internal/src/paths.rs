@@ -7,6 +7,7 @@ pub const CAMINO_UTF8_PATH_JOIN: [&str; 3] = ["camino", "Utf8Path", "join"];
 pub const CAMINO_UTF8_PATH_NEW: [&str; 3] = ["camino", "Utf8Path", "new"];
 pub const CAMINO_UTF8_PATH_BUF: [&str; 2] = ["camino", "Utf8PathBuf"];
 
+pub const CELL_REF_CELL: [&str; 3] = ["core", "cell", "RefCell"];
 pub const REF_CELL_BORROW_MUT: [&str; 4] = ["core", "cell", "RefCell", "borrow_mut"];
 
 pub const SERDE_SERIALIZE_STRUCT: [&str; 4] = ["serde", "ser", "Serializer", "serialize_struct"];
