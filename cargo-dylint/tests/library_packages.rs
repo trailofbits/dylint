@@ -69,6 +69,21 @@ libraries = [
 }
 
 #[test]
+fn library_packages_in_dylint_toml() {
+    let _lock = MUTEX.lock().unwrap();
+
+    std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir("fixtures/library_packages_in_dylint_toml")
+        .args(["dylint", "--all"])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains(
+            "\nwarning: `unwrap`s that could be combined\n",
+        ));
+}
+
+#[test]
 fn list() {
     let _lock = MUTEX.lock().unwrap();
 

@@ -51,7 +51,17 @@ impl<'opts> Lazy<'opts> {
                     let library_packages = if self.inner.opts.git_or_path() {
                         crate::library_packages::from_opts(self.inner.opts)?
                     } else {
-                        crate::library_packages::from_workspace_metadata(self.inner.opts)?
+                        let mut library_packages =
+                            crate::library_packages::from_workspace_metadata(self.inner.opts)?;
+                        let library_packages_other =
+                            crate::library_packages::from_dylint_toml(self.inner.opts)?;
+                        ensure!(
+                            library_packages.is_empty() || library_packages_other.is_empty(),
+                            "`workspace.metadata.dylint.libraries` cannot appear in both \
+                             Cargo.toml and dylint.toml"
+                        );
+                        library_packages.extend(library_packages_other);
+                        library_packages
                     };
 
                     for package in library_packages {

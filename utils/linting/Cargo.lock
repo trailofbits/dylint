@@ -101,6 +101,10 @@ name = "dylint_internal"
 version = "3.0.1"
 dependencies = [
  "anyhow",
+ "cargo_metadata",
+ "serde",
+ "thiserror",
+ "toml",
 ]
 
 [[package]]

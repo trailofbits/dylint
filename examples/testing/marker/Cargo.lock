@@ -140,6 +140,9 @@ dependencies = [
  "is-terminal",
  "log",
  "once_cell",
+ "serde",
+ "thiserror",
+ "toml",
 ]
 
 [[package]]

@@ -43,6 +43,7 @@ curl-sys = { version = "0.4", features = [
 ], optional = true }
 
 dylint_internal = { version = "=3.0.1", path = "../internal", features = [
+    "config",
     "git",
     "packaging",
     "rustup",
