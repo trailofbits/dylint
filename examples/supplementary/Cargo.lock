@@ -753,6 +753,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "01cda141df6706de531b6c46c3a33ecca755538219bd484262fa09410c13539c"
 
 [[package]]
+name = "local_ref_cell"
+version = "3.0.1"
+dependencies = [
+ "clippy_utils",
+ "dylint_internal",
+ "dylint_linting",
+ "dylint_testing",
+]
+
+[[package]]
 name = "log"
 version = "0.4.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1095,6 +1105,7 @@ dependencies = [
  "commented_code",
  "dylint_linting",
  "escaping_doc_link",
+ "local_ref_cell",
  "redundant_reference",
  "unnamed_constant",
  "unnecessary_borrow_mut",

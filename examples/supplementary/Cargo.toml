@@ -12,6 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 commented_code = { path = "commented_code", features = ["rlib"] }
 escaping_doc_link = { path = "escaping_doc_link", features = ["rlib"] }
+local_ref_cell = { path = "local_ref_cell", features = ["rlib"] }
 redundant_reference = { path = "redundant_reference", features = ["rlib"] }
 unnamed_constant = { path = "unnamed_constant", features = ["rlib"] }
 unnecessary_borrow_mut = { path = "unnecessary_borrow_mut", features = [
@@ -30,6 +31,7 @@ rustc_private = true
 members = [
     "commented_code",
     "escaping_doc_link",
+    "local_ref_cell",
     "redundant_reference",
     "unnamed_constant",
     "unnecessary_borrow_mut",
