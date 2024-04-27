@@ -1,7 +1,7 @@
 use crate::{error::warn, opts};
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage};
-use dylint_internal::{env, library_filename, rustup::SanitizeEnvironment, CommandExt};
+use dylint_internal::{config, env, library_filename, rustup::SanitizeEnvironment, CommandExt};
 use glob::glob;
 use if_chain::if_chain;
 use once_cell::sync::OnceCell;
@@ -206,6 +206,52 @@ fn library_packages_from_dylint_metadata(
         .map(|(key, value)| {
             if key == "libraries" {
                 let libraries = serde_json::from_value::<Vec<Library>>(value.clone())?;
+                library_packages(opts, metadata, &libraries)
+            } else {
+                bail!("Unknown key `{}`", key)
+            }
+        })
+        .collect::<Result<Vec<_>>>()?;
+    Ok(libraries.into_iter().flatten().collect())
+}
+
+pub fn from_dylint_toml(opts: &opts::Dylint) -> Result<Vec<Package>> {
+    if_chain! {
+        if let Some(metadata) = cargo_metadata(opts)?;
+        let _ = config::try_init_with_metadata(metadata)?;
+        if let Some(table) = config::get();
+        then {
+            library_packages_from_dylint_toml(opts, metadata, table)
+        } else {
+            Ok(vec![])
+        }
+    }
+}
+
+fn library_packages_from_dylint_toml(
+    opts: &opts::Dylint,
+    metadata: &'static Metadata,
+    table: &toml::Table,
+) -> Result<Vec<Package>> {
+    let Some(config_metadata) = table
+        .get("workspace")
+        .and_then(toml::Value::as_table)
+        .and_then(|table| table.get("metadata"))
+        .and_then(toml::Value::as_table)
+        .and_then(|table| table.get("dylint"))
+    else {
+        return Ok(Vec::new());
+    };
+
+    let Some(table) = config_metadata.as_table() else {
+        bail!("`dylint` value must be a table");
+    };
+
+    let libraries = table
+        .iter()
+        .map(|(key, value)| {
+            if key == "libraries" {
+                let libraries = Vec::<Library>::deserialize(value.clone().into_deserializer())?;
                 library_packages(opts, metadata, &libraries)
             } else {
                 bail!("Unknown key `{}`", key)

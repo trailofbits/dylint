@@ -15,7 +15,9 @@ serde = "1.0"
 thiserror = "1.0"
 toml = "0.8"
 
-dylint_internal = { version = "=3.0.1", path = "../../internal" }
+dylint_internal = { version = "=3.0.1", path = "../../internal", features = [
+    "config",
+] }
 
 [build-dependencies]
 toml = "0.8"
