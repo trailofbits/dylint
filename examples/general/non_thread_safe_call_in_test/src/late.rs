@@ -185,8 +185,7 @@ fn is_blacklisted_function(
         .find(|path| is_expr_path_def_path(cx, callee, path));
 
     // smoelius: Hack, until we can come up with a more general solution.
-    if path == Some(&paths::PROCESS_COMMAND_NEW) && !command_new_additional_checks(cx, callee, args)
-    {
+    if path == Some(&paths::COMMAND_NEW) && !command_new_additional_checks(cx, callee, args) {
         return None;
     }
 

@@ -115,7 +115,7 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
             if is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW) {
                 &paths::CAMINO_UTF8_PATH_BUF
             } else {
-                &paths::PATH_BUF
+                &paths::PATH_PATH_BUF
             }
         }))
     } else {
@@ -136,11 +136,11 @@ fn is_path_buf_from(
         && let ty = cx.typeck_results().expr_ty(expr)
         && let ty::Adt(adt_def, _) = ty.kind()
     {
-        let paths: &[&[&str]] = &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_BUF];
+        let paths: &[&[&str]] = &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_PATH_BUF];
         match_any_def_paths(
             cx,
             adt_def.did(),
-            &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_BUF],
+            &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_PATH_BUF],
         )
         .map(|i| paths[i])
     } else {

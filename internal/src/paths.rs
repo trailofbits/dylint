@@ -1,6 +1,16 @@
+// smoelius: Please keep these entries sorted by path.
+
+// smoelius: Please try to use the last two path entries for a constant's name. (Note that there are
+// some exceptions below.)
+
 pub const CAMINO_UTF8_PATH_JOIN: [&str; 3] = ["camino", "Utf8Path", "join"];
 pub const CAMINO_UTF8_PATH_NEW: [&str; 3] = ["camino", "Utf8Path", "new"];
 pub const CAMINO_UTF8_PATH_BUF: [&str; 2] = ["camino", "Utf8PathBuf"];
+
+pub const REF_CELL_BORROW_MUT: [&str; 4] = ["core", "cell", "RefCell", "borrow_mut"];
+
+pub const SERDE_SERIALIZE_STRUCT: [&str; 4] = ["serde", "ser", "Serializer", "serialize_struct"];
+pub const SERDE_SERIALIZE_FIELD: [&str; 4] = ["serde", "ser", "SerializeStruct", "serialize_field"];
 
 pub const ENV_REMOVE_VAR: [&str; 3] = ["std", "env", "remove_var"];
 pub const ENV_SET_CURRENT_DIR: [&str; 3] = ["std", "env", "set_current_dir"];
@@ -23,15 +33,10 @@ pub const IO_ERROR: [&str; 4] = ["std", "io", "error", "Error"];
 
 pub const PATH_JOIN: [&str; 4] = ["std", "path", "Path", "join"];
 pub const PATH_NEW: [&str; 4] = ["std", "path", "Path", "new"];
-pub const PATH_BUF: [&str; 3] = ["std", "path", "PathBuf"];
+pub const PATH_PATH_BUF: [&str; 3] = ["std", "path", "PathBuf"];
 
-pub const PROCESS_COMMAND_NEW: [&str; 4] = ["std", "process", "Command", "new"];
-pub const PROCESS_COMMAND_ARG: [&str; 4] = ["std", "process", "Command", "arg"];
-pub const PROCESS_COMMAND_ARGS: [&str; 4] = ["std", "process", "Command", "args"];
-
-pub const REFCELL_BORROW_MUT: [&str; 4] = ["core", "cell", "RefCell", "borrow_mut"];
-
-pub const SERDE_SERIALIZE_STRUCT: [&str; 4] = ["serde", "ser", "Serializer", "serialize_struct"];
-pub const SERDE_SERIALIZE_FIELD: [&str; 4] = ["serde", "ser", "SerializeStruct", "serialize_field"];
+pub const COMMAND_NEW: [&str; 4] = ["std", "process", "Command", "new"];
+pub const COMMAND_ARG: [&str; 4] = ["std", "process", "Command", "arg"];
+pub const COMMAND_ARGS: [&str; 4] = ["std", "process", "Command", "args"];
 
 pub const TEST_DESC_AND_FN: [&str; 3] = ["test", "types", "TestDescAndFn"];

@@ -15,5 +15,5 @@ pub const BLACKLIST: &[&[&str]] = &[
     &paths::FS_SET_PERMISSIONS,
     &paths::FS_SOFT_LINK,
     &paths::FS_WRITE,
-    &paths::PROCESS_COMMAND_NEW,
+    &paths::COMMAND_NEW,
 ];
