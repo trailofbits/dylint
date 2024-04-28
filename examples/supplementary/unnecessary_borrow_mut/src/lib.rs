@@ -95,7 +95,7 @@ fn collect_borrow_mut_locals(cx: &LateContext<'_>, mir: &Body) -> Vec<(Local, Sp
                 ..
             } = &terminator.kind
                 && let Some((def_id, _)) = func.const_fn_def()
-                && match_def_path(cx, def_id, &paths::REFCELL_BORROW_MUT)
+                && match_def_path(cx, def_id, &paths::REF_CELL_BORROW_MUT)
                 && let Some(local) = destination.as_local()
             {
                 Some((local, *fn_span))
