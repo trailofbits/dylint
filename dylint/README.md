@@ -1,15 +1,5 @@
 # Dylint
 
-**News:** The `cargo`-cli-based package download method is now the default. If the new method causes you problems, please [open an issue]. If you prefer to use the old `cargo`-lib-based method, install `cargo-dylint` with the following command:
-
-```sh
-cargo install cargo-dylint --no-default-features --features=cargo-lib
-```
-
-The original README follows.
-
----
-
 Run Rust lints from dynamic libraries
 
 ```sh
@@ -230,7 +220,6 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 [glob]: https://docs.rs/glob/0.3.0/glob/struct.Pattern.html
 [how Dylint works]: ../docs/how_dylint_works.md
 [internal/src/examples.rs]: ../internal/src/examples.rs
-[open an issue]: https://github.com/trailofbits/dylint/issues
 [resources]: #resources
 [rust-analyzer]: https://github.com/rust-analyzer/rust-analyzer
 [toml table]: https://toml.io/en/v1.0.0#table
