@@ -4,11 +4,9 @@ regex-automata v0.1.10
 regex-automata v0.4.6
 regex-syntax v0.6.29
 regex-syntax v0.8.3
-syn v1.0.109
-syn v2.0.60
 toml v0.7.8
 toml v0.8.12
 toml_edit v0.19.15
 toml_edit v0.22.12
 winnow v0.5.40
-winnow v0.6.6
+winnow v0.6.7
