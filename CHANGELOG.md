@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0
+
+- Allow library packages to be specified in a dylint.toml file instead of a Cargo.toml file. The syntax is exactly the same. Thus, users wishing to switch can simply cut-and-paste the `[workspace.metadata.dylint.libraries]` declaration from their Cargo.toml file into a dylint.toml file. ([#1143](https://github.com/trailofbits/dylint/issues/1143) and [#1151](https://github.com/trailofbits/dylint/issues/1151))
+
 ## 3.0.1
 
 - Address [rust-lang/rust#122450](https://github.com/rust-lang/rust/pull/122450) ([9add993](https://github.com/trailofbits/dylint/commit/9add9935d34bc58c425b5b1be0e9227c4b1f54b1))

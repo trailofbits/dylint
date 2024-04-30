@@ -1,6 +1,6 @@
 [package]
 name = "non_local_effect_before_error_return"
-version = "3.0.1"
+version = "3.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for non-local effects before return of an error"
 edition = "2021"
