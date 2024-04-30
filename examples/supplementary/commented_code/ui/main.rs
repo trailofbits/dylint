@@ -38,3 +38,8 @@ fn negative_tests() {
     /// doc_comment();
     foo(0);
 }
+
+fn single_identifier() {
+    // smoelius: This is a "false positive." Ideally, the lint would not fire on the next line.
+    // Identifier
+}
