@@ -62,7 +62,7 @@ Helpful [resources] for writing lints appear below.
 
 ### Workspace metadata
 
-A workspace can name the libraries it should be linted with in its `Cargo.toml` file. Specifically, a workspace's manifest can contain a TOML list under `workspace.metadata.dylint.libraries`. Each list entry must have the form of a Cargo `git` or `path` dependency, with the following differences:
+A workspace can name the libraries it should be linted with in its `Cargo.toml` or `dylint.toml` file. Specifically, either file can contain a TOML list under `workspace.metadata.dylint.libraries`. Each list entry must have the form of a Cargo `git` or `path` dependency, with the following differences:
 
 - There is no leading package name, i.e., no `package =`.
 - `path` entries can contain [glob] patterns, e.g., `*`.
@@ -70,7 +70,7 @@ A workspace can name the libraries it should be linted with in its `Cargo.toml` 
 
 Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements] under [How Dylint works]).
 
-As an example, if you include the following in your workspace's `Cargo.toml` file and run `cargo dylint --all`, Dylint will run all of this repository's [example general-purpose lints], as well as the example restriction lint [`try_io_result`].
+As an example, if you include the following in your workspace's `Cargo.toml` or `dylint.toml` file and run `cargo dylint --all`, Dylint will run all of this repository's [example general-purpose lints], as well as the example restriction lint [`try_io_result`].
 
 ```toml
 [workspace.metadata.dylint]
