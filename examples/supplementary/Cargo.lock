@@ -212,7 +212,7 @@ checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
 name = "commented_code"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -364,7 +364,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -383,7 +383,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -404,7 +404,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -417,7 +417,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -478,7 +478,7 @@ dependencies = [
 
 [[package]]
 name = "escaping_doc_link"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "cargo-util",
  "cargo_metadata",
@@ -754,7 +754,7 @@ checksum = "01cda141df6706de531b6c46c3a33ecca755538219bd484262fa09410c13539c"
 
 [[package]]
 name = "local_ref_cell"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -908,7 +908,7 @@ dependencies = [
 
 [[package]]
 name = "redundant_reference"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -1100,7 +1100,7 @@ checksum = "45bb67a18fa91266cc7807181f62f9178a6873bfad7dc788c42e6430db40184f"
 
 [[package]]
 name = "supplementary"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "commented_code",
  "dylint_linting",
@@ -1328,7 +1328,7 @@ checksum = "68f5e5f3158ecfd4b8ff6fe086db7c8467a2dfdac97fe420f2b7c4aa97af66d6"
 
 [[package]]
 name = "unnamed_constant"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -1338,7 +1338,7 @@ dependencies = [
 
 [[package]]
 name = "unnecessary_borrow_mut"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -1348,7 +1348,7 @@ dependencies = [
 
 [[package]]
 name = "unnecessary_conversion_for_trait"
-version = "3.0.1"
+version = "3.1.0"
 dependencies = [
  "clippy_utils",
  "dylint_internal",

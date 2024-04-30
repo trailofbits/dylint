@@ -1,6 +1,6 @@
 [package]
 name = "ref_aware_redundant_closure_for_method_calls"
-version = "3.0.1"
+version = "3.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A ref-aware fork of `redundant_closure_for_method_calls`"
 edition = "2021"

@@ -1,6 +1,6 @@
 [package]
 name = "marker"
-version = "3.0.1"
+version = "3.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Marker lints run from a Dylint library"
 edition = "2021"
