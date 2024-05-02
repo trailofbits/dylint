@@ -32,7 +32,7 @@ dylint_linting::impl_late_lint! {
     /// ```
     ///
     /// ### Configuration
-    /// - `threshold: u64` (default `1000`): Minimum value a constant must exceed to be flagged.
+    /// - `threshold: u64` (default `10`): Minimum value a constant must exceed to be flagged.
     ///
     /// [pandaquests]: https://levelup.gitconnected.com/whats-so-bad-about-magic-numbers-4c0a0c524b7d
     pub UNNAMED_CONSTANT,
@@ -48,7 +48,7 @@ struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        Self { threshold: 1000 }
+        Self { threshold: 10 }
     }
 }
 
@@ -83,7 +83,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnamedConstant {
 
             && let ExprKind::Lit(lit) = expr.kind
             && let LitKind::Int(value, _) = lit.node
-            && value >= u128::from(self.config.threshold)
+            && !self.okay(value.get())
         {
             span_lint_and_help(
                 cx,
@@ -95,6 +95,31 @@ impl<'tcx> LateLintPass<'tcx> for UnnamedConstant {
             );
         }
     }
+}
+
+impl UnnamedConstant {
+    // smoelius: False positive.
+    #[allow(unknown_lints, incorrect_matches_operation)]
+    fn okay(&self, value: u128) -> bool {
+        if value <= u128::from(self.config.threshold) {
+            return true;
+        }
+        let flips = flips(value);
+        matches!(flips.as_slice(), [_]) || matches!(flips.as_slice(), &[x, y] if x + 1 == y)
+    }
+}
+
+fn flips(value: u128) -> Vec<u32> {
+    let mut flips = Vec::new();
+    let mut prev = (value & 1) != 0;
+    for i in 0..(128 - 1) {
+        let curr = ((value >> (i + 1)) & 1) != 0;
+        if prev != curr {
+            flips.push(i);
+        }
+        prev = curr;
+    }
+    flips
 }
 
 #[test]

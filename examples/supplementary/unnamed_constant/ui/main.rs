@@ -1,13 +1,13 @@
 fn main() {
     let mut x: i64 = 1;
 
-    x *= -1000;
-    x *= 1000;
+    x *= -11;
+    x *= 11;
 
     // negative tests (with default threshold)
 
-    x *= -999;
-    x *= 999;
+    x *= -10;
+    x *= 10;
 
     // negative tests (with default threshold or otherwise)
 
@@ -19,4 +19,24 @@ fn main() {
 
     x *= -1;
     x *= 1;
+}
+
+fn revised_heuristic() {
+    let mut x: i64 = 1;
+
+    x *= -48;
+    x *= 48;
+
+    x *= -80;
+    x *= 80;
+
+    // negative tests: one flip
+
+    x *= -15;
+    x *= 15;
+
+    // negative tests: single bit
+
+    x *= -16;
+    x *= 16;
 }
