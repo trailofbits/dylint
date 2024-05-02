@@ -1,8 +1,8 @@
 warning: unnamed constant
   --> $DIR/main.rs:4:11
    |
-LL |     x *= -1000;
-   |           ^^^^
+LL |     x *= -11;
+   |           ^^
    |
    = help: give the constant a name and use that instead
    = note: `#[warn(unnamed_constant)]` on by default
@@ -10,26 +10,58 @@ LL |     x *= -1000;
 warning: unnamed constant
   --> $DIR/main.rs:5:10
    |
-LL |     x *= 1000;
-   |          ^^^^
+LL |     x *= 11;
+   |          ^^
    |
    = help: give the constant a name and use that instead
 
 warning: unnamed constant
   --> $DIR/main.rs:9:11
    |
-LL |     x *= -999;
-   |           ^^^
+LL |     x *= -10;
+   |           ^^
    |
    = help: give the constant a name and use that instead
 
 warning: unnamed constant
   --> $DIR/main.rs:10:10
    |
-LL |     x *= 999;
-   |          ^^^
+LL |     x *= 10;
+   |          ^^
    |
    = help: give the constant a name and use that instead
 
-warning: 4 warnings emitted
+warning: unnamed constant
+  --> $DIR/main.rs:27:11
+   |
+LL |     x *= -48;
+   |           ^^
+   |
+   = help: give the constant a name and use that instead
+
+warning: unnamed constant
+  --> $DIR/main.rs:28:10
+   |
+LL |     x *= 48;
+   |          ^^
+   |
+   = help: give the constant a name and use that instead
+
+warning: unnamed constant
+  --> $DIR/main.rs:30:11
+   |
+LL |     x *= -80;
+   |           ^^
+   |
+   = help: give the constant a name and use that instead
+
+warning: unnamed constant
+  --> $DIR/main.rs:31:10
+   |
+LL |     x *= 80;
+   |          ^^
+   |
+   = help: give the constant a name and use that instead
+
+warning: 8 warnings emitted
 
