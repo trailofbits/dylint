@@ -82,9 +82,6 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
                 );
                 lib_sel.lib_paths.extend(lib_sel.paths.split_off(0));
             };
-
-            // smoelius: Use of `--git` or `--path` implies `--all`.
-            lib_sel.all |= lib_sel.git_or_path();
         }
 
         opts
@@ -122,7 +119,11 @@ fn run_with_name_toolchain_map(
 ) -> Result<()> {
     let lib_sel = opts.library_selection();
 
-    if lib_sel.libs.is_empty() && lib_sel.lib_paths.is_empty() && !lib_sel.all {
+    if lib_sel.libs.is_empty()
+        && lib_sel.lib_paths.is_empty()
+        && !lib_sel.all
+        && !lib_sel.git_or_path()
+    {
         if matches!(opts.operation, opts::Operation::List(_)) {
             warn_if_empty(opts, name_toolchain_map)?;
             return list_libs(name_toolchain_map);
@@ -199,6 +200,11 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
 fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result<ToolchainMap> {
     let lib_sel = opts.library_selection();
 
+    ensure!(
+        !lib_sel.all || lib_sel.libs.is_empty(),
+        "`--lib` cannot be used with `--all`"
+    );
+
     let mut toolchain_map = ToolchainMap::new();
 
     if lib_sel.all {
@@ -219,7 +225,6 @@ fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result
     }
 
     for name in &lib_sel.libs {
-        ensure!(!lib_sel.all, "`--lib` cannot be used with `--all`");
         let (toolchain, maybe_library) =
             name_as_lib(name_toolchain_map, name, true)?.unwrap_or_else(|| unreachable!());
         let path = maybe_library.build(opts)?;
