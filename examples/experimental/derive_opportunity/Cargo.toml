@@ -46,4 +46,5 @@ libraries = [
     { path = "../../supplementary" },
     { path = "../../testing/clippy" },
     { path = "../../restriction/*" },
+    { path = "../../experimental/overscoped_allow" },
 ]

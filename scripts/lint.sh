@@ -37,10 +37,6 @@ RESTRICTIONS="$(echo "$RESTRICTION_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 
 EXPERIMENTAL_DIRS="$(echo examples/experimental/*)"
 
-# smoelius: `overscoped_allow` must be run after other lints have been run. (See its documentation.)
-EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<overscoped_allow\>[[:space:]]*//')"
-RESTRICTIONS="$(echo "$RESTRICTIONS" | sed 's/\<overscoped_allow\>[[:space:]]*//')"
-
 RESTRICTIONS_AS_FLAGS="$(echo "$RESTRICTIONS" | sed 's/\<[^[:space:]]\+\>/--lib &/g')"
 
 DIRS=". driver utils/linting examples/general examples/supplementary examples/restriction examples/testing/clippy $EXPERIMENTAL_DIRS"

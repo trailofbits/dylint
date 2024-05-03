@@ -20,7 +20,7 @@ path = "ui_test/main.rs"
 [dependencies]
 anyhow = "1.0"
 cargo_metadata = "0.18"
-clippy_utils = { workspace = true }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9725c4a162502a02c1c67fdca6b797fe09b2b73c" }
 once_cell = "1.19"
 rustfix = "0.6"
 serde = "1.0"
@@ -37,3 +37,14 @@ dylint_testing = { path = "../../../utils/testing" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../general" },
+    { path = "../../supplementary" },
+    { path = "../../testing/clippy" },
+    { path = "../../restriction/*" },
+    { path = "../../experimental/overscoped_allow" },
+]

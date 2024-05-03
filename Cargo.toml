@@ -18,6 +18,7 @@ libraries = [
     { path = "examples/supplementary" },
     { path = "examples/testing/clippy" },
     { path = "examples/restriction/*" },
+    { path = "examples/experimental/overscoped_allow" },
 ]
 
 [workspace.metadata.unmaintained]

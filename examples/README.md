@@ -43,7 +43,6 @@ The example libraries are separated into the following three categories:
 | [`env_literal`](./restriction/env_literal)                                                                   | Environment variables referred to with string literals                           |
 | [`inconsistent_qualification`](./restriction/inconsistent_qualification)                                     | Inconsistent qualification of module items                                       |
 | [`misleading_variable_name`](./restriction/misleading_variable_name)                                         | Variables whose names suggest they have types other than the ones they have      |
-| [`overscoped_allow`](./restriction/overscoped_allow)                                                         | `allow` attributes whose scope could be reduced                                  |
 | [`question_mark_in_expression`](./restriction/question_mark_in_expression)                                   | The `?` operator in expressions                                                  |
 | [`ref_aware_redundant_closure_for_method_calls`](./restriction/ref_aware_redundant_closure_for_method_calls) | A ref-aware fork of `redundant_closure_for_method_calls`                         |
 | [`suboptimal_pattern`](./restriction/suboptimal_pattern)                                                     | Patterns that could perform additional destructuring                             |
@@ -51,10 +50,11 @@ The example libraries are separated into the following three categories:
 
 ## Experimental
 
-| Example                                                                   | Description/check                              |
-| ------------------------------------------------------------------------- | ---------------------------------------------- |
-| [`derive_opportunity`](./experimental/derive_opportunity)                 | Traits that could be derived                   |
-| [`missing_doc_comment_openai`](./experimental/missing_doc_comment_openai) | A lint that suggests doc comments using OpenAI |
+| Example                                                                   | Description/check                               |
+| ------------------------------------------------------------------------- | ----------------------------------------------- |
+| [`derive_opportunity`](./experimental/derive_opportunity)                 | Traits that could be derived                    |
+| [`missing_doc_comment_openai`](./experimental/missing_doc_comment_openai) | A lint that suggests doc comments using OpenAI  |
+| [`overscoped_allow`](./experimental/overscoped_allow)                     | `allow` attributes whose scope could be reduced |
 
 ## Testing
 

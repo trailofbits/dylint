@@ -6,7 +6,6 @@ members = [
     "env_literal",
     "inconsistent_qualification",
     "misleading_variable_name",
-    "overscoped_allow",
     "question_mark_in_expression",
     "ref_aware_redundant_closure_for_method_calls",
     "suboptimal_pattern",
@@ -23,4 +22,5 @@ libraries = [
     { path = "../supplementary" },
     { path = "../testing/clippy" },
     { path = "../restriction/*" },
+    { path = "../experimental/overscoped_allow" },
 ]
