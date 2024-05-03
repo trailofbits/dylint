@@ -13,6 +13,10 @@ crate-type = ["cdylib", "rlib"]
 name = "ui"
 path = "ui/main.rs"
 
+[[example]]
+name = "ui_public_only"
+path = "ui_public_only/main.rs"
+
 [dependencies]
 clippy_utils = { workspace = true }
 serde = { version = "1.0", features = ["derive"] }

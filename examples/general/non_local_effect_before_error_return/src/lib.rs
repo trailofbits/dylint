@@ -77,6 +77,7 @@ dylint_linting::impl_late_lint! {
     /// ```
     ///
     /// ### Configuration
+    /// - `public_only: bool` (default `true`): Whether to check only publicly accessible functions.
     /// - `work_limit: u64` (default 500000): When exploring a function body, the maximum number of
     ///   times the search path is extended. Setting this to a higher number allows more bodies to
     ///   be explored exhaustively, but at the expense of greater runtime.
@@ -88,13 +89,15 @@ dylint_linting::impl_late_lint! {
 
 #[derive(Deserialize)]
 struct Config {
-    work_limit: u64,
+    public_only: Option<bool>,
+    work_limit: Option<u64>,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            work_limit: 500_000,
+            public_only: Some(true),
+            work_limit: Some(500_000),
         }
     }
 }
@@ -119,9 +122,18 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
         _: &'tcx rustc_hir::FnDecl<'_>,
         body: &'tcx rustc_hir::Body<'_>,
         span: Span,
-        _: LocalDefId,
+        local_def_id: LocalDefId,
     ) {
         if span.from_expansion() {
+            return;
+        }
+
+        if self
+            .config
+            .public_only
+            .unwrap_or_else(|| Config::default().public_only.unwrap())
+            && !cx.effective_visibilities.is_exported(local_def_id)
+        {
             return;
         }
 
@@ -143,7 +155,9 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
         }
 
         visit_error_paths(
-            self.config.work_limit,
+            self.config
+                .work_limit
+                .unwrap_or_else(|| Config::default().work_limit.unwrap()),
             cx,
             fn_kind,
             mir,
@@ -413,4 +427,24 @@ fn enabled(opt: &str) -> bool {
 #[test]
 fn ui() {
     dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "ui");
+}
+
+#[test]
+fn ui_public_only() {
+    dylint_testing::ui::Test::example(env!("CARGO_PKG_NAME"), "ui_public_only")
+        .dylint_toml("non_local_effect_before_error_return.public_only = false")
+        .run();
+}
+
+#[test]
+fn ui_main_rs_equal() {
+    let ui_main_rs = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui/main.rs"),
+    )
+    .unwrap();
+    let ui_public_only_main_rs = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_public_only/main.rs"),
+    )
+    .unwrap();
+    assert_eq!(ui_main_rs, ui_public_only_main_rs);
 }

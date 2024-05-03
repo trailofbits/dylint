@@ -1,2 +1,5 @@
+[non_local_effect_before_error_return]
+public_only = false
+
 [redundant_reference]
 lifetime_check = false

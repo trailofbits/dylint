@@ -173,5 +173,17 @@ note: error is determined here
 LL |         Err(VarError::NotPresent)
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: 16 warnings emitted
+warning: call to `std::vec::Vec::<u32>::push` with mutable reference before error return
+  --> $DIR/main.rs:275:12
+   |
+LL |         xs.push(0);
+   |            ^^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:276:9
+   |
+LL |         Err(VarError::NotPresent)
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: 17 warnings emitted
 

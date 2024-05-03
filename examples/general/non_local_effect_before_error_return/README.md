@@ -41,6 +41,7 @@ impl Account {
 ```
 
 ### Configuration
+- `public_only: bool` (default `true`): Whether to check only publicly accessible functions.
 - `work_limit: u64` (default 500000): When exploring a function body, the maximum number of
   times the search path is extended. Setting this to a higher number allows more bodies to
   be explored exhaustively, but at the expense of greater runtime.
