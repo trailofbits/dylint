@@ -84,6 +84,16 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
             };
 
             // smoelius: Use of `--git` or `--path` implies `--all`.
+            //
+            // smoelius: The intuition is as follows. Option `--git` or `--path` creates an
+            // alternative namespace of library packages, i.e., alternative to the one built
+            // from workspace metadata. The alternative namespace consists of just the
+            // library packages in the `--git`-named repository, or the `--path`-named
+            // directory.
+            //
+            // It would seem silly to require the user to pass `--lib` in addition to `--git` or
+            // `--path`. For this reason, all of the libraries in the alternative namespace are
+            // loaded.
             lib_sel.all |= lib_sel.git_or_path();
         }
 
