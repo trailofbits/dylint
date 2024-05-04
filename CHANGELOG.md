@@ -2,7 +2,7 @@
 
 ## 3.1.0
 
-- Allow library packages to be specified in a dylint.toml file instead of a Cargo.toml file. The syntax is exactly the same. Thus, users wishing to switch can simply cut-and-paste the `[workspace.metadata.dylint.libraries]` declaration from their Cargo.toml file into a dylint.toml file. ([#1143](https://github.com/trailofbits/dylint/issues/1143) and [#1151](https://github.com/trailofbits/dylint/issues/1151))
+- FEATURE: Allow library packages to be specified in a dylint.toml file instead of a Cargo.toml file. The syntax is exactly the same. Thus, users wishing to switch can simply cut-and-paste the `[workspace.metadata.dylint.libraries]` declaration from their Cargo.toml file into a dylint.toml file. ([#1143](https://github.com/trailofbits/dylint/issues/1143) and [#1151](https://github.com/trailofbits/dylint/issues/1151))
 
 ## 3.0.1
 
