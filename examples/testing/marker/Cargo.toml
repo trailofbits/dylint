@@ -12,11 +12,11 @@ crate-type = ["cdylib"]
 [dependencies]
 bumpalo = "3.16"
 camino = "1.1"
-marker_adapter = "=0.4.0"
+marker_adapter = "=0.5.0"
 # smoelius: `marker_api` isn't actually used. But the tests fail if `marker_lints`' version doesn't
 # exactly match `marker_api`'s version.
-marker_api = "=0.4.0"
-marker_rustc_driver = "=0.4.0"
+marker_api = "=0.5.0"
+marker_rustc_driver = "=0.5.0"
 serde = "1.0"
 
 dylint_linting = { path = "../../../utils/linting" }
