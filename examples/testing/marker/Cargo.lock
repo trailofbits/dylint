@@ -282,9 +282,9 @@ checksum = "7655c9839580ee829dfacba1d1278c2b7883e50a277ff7541299489d6bdfdc45"
 
 [[package]]
 name = "itertools"
-version = "0.11.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
+checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
 dependencies = [
  "either",
 ]
@@ -399,9 +399,9 @@ dependencies = [
 
 [[package]]
 name = "marker_adapter"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e43b16ad121e3bd56509bdc7708cc442f4d273b75c572354dce0afceeb6d0de"
+checksum = "b79d4e5538f574f829b015222c9a727cb624f3cb875b077d56528653dd7236bc"
 dependencies = [
  "camino",
  "itertools",
@@ -415,9 +415,9 @@ dependencies = [
 
 [[package]]
 name = "marker_api"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "656e2a5a54cf9d95991aba9eafee1c1cdeb2af572fb6523066d00a07ed27ba6f"
+checksum = "5aefd184dcf3b6d6645124126407da51763e9d190966077c8c8f3b7b3c0b3769"
 dependencies = [
  "typed-builder",
  "visibility",
@@ -425,9 +425,9 @@ dependencies = [
 
 [[package]]
 name = "marker_error"
-version = "0.4.3"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b8d47305cf0472fdbe768ac85e1d5262c9339b4577890ab0543a500251d9f35"
+checksum = "95f419aa64c113932944e82ac6c7d885e1fcf75deda3b871877dbf2a9752d38a"
 dependencies = [
  "miette",
  "thiserror",
@@ -437,9 +437,9 @@ dependencies = [
 
 [[package]]
 name = "marker_rustc_driver"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "945e3039cbc49d441a5abc50f3951e7a8529a12a6948ecb64c02537edc1cb3b8"
+checksum = "c023a4dd5512e5107680f2a83d31650ab9e80d52df47c9f2c62c3758d1daac2c"
 dependencies = [
  "bumpalo",
  "camino",
@@ -451,9 +451,9 @@ dependencies = [
 
 [[package]]
 name = "marker_utils"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1043919c96379a491de8f5e99a91b44e1e89f8c1cf68b10f1e46630117daa5ae"
+checksum = "663e1ab5e5e0cf304c8e452c816177765230d76d7674cab52937e8adac964cb4"
 dependencies = [
  "marker_api",
 ]
@@ -909,18 +909,18 @@ dependencies = [
 
 [[package]]
 name = "typed-builder"
-version = "0.16.2"
+version = "0.18.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34085c17941e36627a879208083e25d357243812c30e7d7387c3b954f30ade16"
+checksum = "77739c880e00693faef3d65ea3aad725f196da38b22fdc7ea6ded6e1ce4d3add"
 dependencies = [
  "typed-builder-macro",
 ]
 
 [[package]]
 name = "typed-builder-macro"
-version = "0.16.2"
+version = "0.18.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f03ca4cb38206e2bef0700092660bb74d696f808514dae47fa1467cbfe26e96e"
+checksum = "1f718dfaf347dcb5b983bfc87608144b0bad87970aebcbea5ce44d2a30c08e63"
 dependencies = [
  "proc-macro2",
  "quote",
