@@ -447,6 +447,8 @@ fn check_or_fix(
                 ),
                 (env::RUSTC_WORKSPACE_WRAPPER, &*driver.to_string_lossy()),
                 (env::RUSTUP_TOOLCHAIN, toolchain),
+                // smoelius:: See: https://github.com/rust-lang/rustup/pull/3703
+                (env::RUSTUP_WINDOWS_PATH_ADD_BIN, "1"),
             ])
             .args(args);
 
