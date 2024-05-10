@@ -207,7 +207,9 @@ jobs:
               fi
               pushd "$X"
               sed -i.bak 's/"cdylib"/"lib"/g' Cargo.toml
-              cargo test --doc
+              # smoelius: `RUSTUP_WINDOWS_PATH_ADD_BIN=1` is needed for the `redundant_reference`
+              # doc tests to pass on Windows.
+              RUSTUP_WINDOWS_PATH_ADD_BIN=1 cargo test --doc
               popd
             done
           fi
