@@ -3286,11 +3286,18 @@
     ],
     "rustc-demangle": [
       {
-        "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
+        "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
+        "id": 11,
+        "kind": "team",
+        "login": "github:rust-lang:libs",
+        "name": "libs"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
+        "id": 408,
+        "kind": "team",
+        "login": "github:rust-lang:compiler",
+        "name": "compiler"
       },
       {
         "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
