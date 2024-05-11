@@ -4476,9 +4476,9 @@
       "cargo-dylint",
       "dylint",
       "dylint-link",
+      "dylint_examples",
       "dylint_internal",
-      "dylint_testing",
-      "examples"
+      "dylint_testing"
     ]
   }
 }
