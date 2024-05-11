@@ -9,7 +9,7 @@ use regex::Regex;
 use semver::Version;
 use similar_asserts::SimpleDiff;
 use std::{
-    env::{set_current_dir, set_var},
+    env::{set_current_dir, set_var, var},
     ffi::OsStr,
     fs::{read_dir, read_to_string, write},
     io::{stderr, Write},
@@ -615,7 +615,8 @@ static MUTEX: Mutex<()> = Mutex::new(());
 fn preserves_cleanliness(test_name: &str, ignore_blank_lines: bool, f: impl FnOnce()) {
     let _lock = MUTEX.lock().unwrap();
 
-    if cfg!(not(feature = "strict")) && dirty(false).is_some() {
+    // smoelius: Do not skip tests when running on GitHub.
+    if var(env::CI).is_err() && dirty(false).is_some() {
         #[allow(clippy::explicit_write)]
         writeln!(
             stderr(),
