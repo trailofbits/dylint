@@ -384,7 +384,6 @@ dependencies = [
  "once_cell",
  "predicates",
  "regex",
- "sedregex",
  "semver",
  "serde_json",
  "similar-asserts",
@@ -869,6 +868,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "dylint_examples"
+version = "3.1.0"
+dependencies = [
+ "cargo-util",
+ "cargo_metadata",
+ "dylint_internal",
+ "toml_edit 0.22.12",
+ "walkdir",
+]
+
+[[package]]
 name = "dylint_internal"
 version = "3.1.0"
 dependencies = [
@@ -1022,17 +1032,6 @@ checksum = "a258e46cdc063eb8519c00b9fc845fc47bcfca4130e2f08e88665ceda8474245"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "examples"
-version = "3.1.0"
-dependencies = [
- "cargo-util",
- "cargo_metadata",
- "dylint_internal",
- "toml_edit 0.22.12",
- "walkdir",
 ]
 
 [[package]]
@@ -2890,15 +2889,6 @@ checksum = "317936bbbd05227752583946b9e66d7ce3b489f84e11a94a510b4437fef407d7"
 dependencies = [
  "core-foundation-sys",
  "libc",
-]
-
-[[package]]
-name = "sedregex"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19411e23596093f03bbd11dc45603b6329bb4bfec77b9fd13e2b9fc9b02efe3e"
-dependencies = [
- "regex",
 ]
 
 [[package]]

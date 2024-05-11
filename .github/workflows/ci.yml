@@ -109,7 +109,7 @@ jobs:
             cargo-dylint,
             cargo-dylint-cargo-lib,
             cargo-dylint-ci,
-            examples,
+            dylint_examples,
             other,
           ]
 
@@ -187,7 +187,7 @@ jobs:
           elif [[ '${{ matrix.package }}' != 'other' ]]; then
             cargo test -p '${{ matrix.package }}' -- --nocapture
           else
-            cargo test --all-features --workspace --exclude cargo-dylint --exclude examples -- --nocapture
+            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples -- --nocapture
 
             pushd driver
             cargo test --all-features -- --nocapture
