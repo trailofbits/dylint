@@ -163,8 +163,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clippy_config"
-version = "0.1.78"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=60cb29c5e4f9772685c9873752196725c946a849#60cb29c5e4f9772685c9873752196725c946a849"
+version = "0.1.79"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=9725c4a162502a02c1c67fdca6b797fe09b2b73c#9725c4a162502a02c1c67fdca6b797fe09b2b73c"
 dependencies = [
  "rustc-semver",
  "serde",
@@ -173,8 +173,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.78"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=60cb29c5e4f9772685c9873752196725c946a849#60cb29c5e4f9772685c9873752196725c946a849"
+version = "0.1.79"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=9725c4a162502a02c1c67fdca6b797fe09b2b73c#9725c4a162502a02c1c67fdca6b797fe09b2b73c"
 dependencies = [
  "arrayvec",
  "clippy_config",
@@ -558,9 +558,9 @@ checksum = "f8478577c03552c21db0e2724ffb8986a5ce7af88107e6be5d2ee6e158c12800"
 
 [[package]]
 name = "itertools"
-version = "0.11.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
+checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
 dependencies = [
  "either",
 ]

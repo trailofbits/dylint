@@ -384,7 +384,6 @@ dependencies = [
  "once_cell",
  "predicates",
  "regex",
- "sedregex",
  "semver",
  "serde_json",
  "similar-asserts",
@@ -2890,15 +2889,6 @@ checksum = "317936bbbd05227752583946b9e66d7ce3b489f84e11a94a510b4437fef407d7"
 dependencies = [
  "core-foundation-sys",
  "libc",
-]
-
-[[package]]
-name = "sedregex"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19411e23596093f03bbd11dc45603b6329bb4bfec77b9fd13e2b9fc9b02efe3e"
-dependencies = [
- "regex",
 ]
 
 [[package]]
