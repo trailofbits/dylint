@@ -9,4 +9,4 @@ toml v0.8.12
 toml_edit v0.19.15
 toml_edit v0.22.12
 winnow v0.5.40
-winnow v0.6.7
+winnow v0.6.8
