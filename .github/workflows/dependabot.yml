@@ -42,7 +42,10 @@ jobs:
             git push
           fi
 
+      # smoelius: `@dependabot merge` does not work with merge queues. See:
+      # https://github.com/orgs/community/discussions/46757#discussioncomment-4909000
       - uses: actions/github-script@v7
+        if: ${{ false }}
         with:
           github-token: ${{ secrets.REPO_TOKEN }}
           script: |
