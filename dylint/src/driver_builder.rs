@@ -34,7 +34,7 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0"
-env_logger = "0.10"
+env_logger = "0.11"
 dylint_driver = {{ {dylint_driver_spec} }}
 "#,
     )

@@ -174,7 +174,7 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
- "env_logger 0.10.2",
+ "env_logger",
  "log",
  "serde_json",
  "tempfile",
@@ -400,7 +400,7 @@ dependencies = [
  "compiletest_rs",
  "dylint",
  "dylint_internal",
- "env_logger 0.11.3",
+ "env_logger",
  "once_cell",
  "regex",
  "serde_json",
@@ -421,19 +421,6 @@ checksum = "a009aa4810eb158359dda09d0c87378e4bbb89b5a801f016885a4707ba24f7ea"
 dependencies = [
  "log",
  "regex",
-]
-
-[[package]]
-name = "env_logger"
-version = "0.10.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4cd405aab171cb85d6735e5c8d9db038c17d3ca007a4d2c25f337935c3d90580"
-dependencies = [
- "humantime",
- "is-terminal",
- "log",
- "regex",
- "termcolor",
 ]
 
 [[package]]
@@ -1043,15 +1030,6 @@ dependencies = [
  "dirs-next",
  "rustversion",
  "winapi",
-]
-
-[[package]]
-name = "termcolor"
-version = "1.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
-dependencies = [
- "winapi-util",
 ]
 
 [[package]]
