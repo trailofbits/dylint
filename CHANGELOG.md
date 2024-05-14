@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.1
+
+- Update `env_logger` to version 0.11 in `dylint_driver` and `dylint_testing` ([#1200](https://github.com/trailofbits/dylint/issues/1200))
+- Prepend the toolchain `bin` directory to `PATH` on Windows (i.e., account for [rust-lang/rustup#3703](https://github.com/rust-lang/rustup/pull/3703)) ([c222181](https://github.com/trailofbits/dylint/commit/c22218107853018a04e01a65a16406612e36186a))
+
 ## 3.1.0
 
 - FEATURE: Allow library packages to be specified in a dylint.toml file instead of a Cargo.toml file. The syntax is exactly the same. Thus, users wishing to switch can simply cut-and-paste the `[workspace.metadata.dylint.libraries]` declaration from their Cargo.toml file into a dylint.toml file. ([#1143](https://github.com/trailofbits/dylint/issues/1143) and [#1151](https://github.com/trailofbits/dylint/issues/1151))
