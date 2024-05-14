@@ -122,6 +122,7 @@ impl Builder {
     }
 
     /// Consumes the builder and returns a [`std::process::Command`].
+    #[allow(clippy::needless_pass_by_ref_mut)]
     pub fn build(&mut self) -> Command {
         if !self.quiet.contains(Quiet::MESSAGE) {
             // smoelius: Writing directly to `stderr` prevents capture by `libtest`.

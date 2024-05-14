@@ -66,6 +66,7 @@ impl Test {
     }
 
     /// Run the test.
+    #[allow(clippy::needless_pass_by_ref_mut)]
     pub fn run(&mut self) {
         self.run_immutable();
     }
