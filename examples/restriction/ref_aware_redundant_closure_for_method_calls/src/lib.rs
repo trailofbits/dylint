@@ -24,9 +24,7 @@ use clippy_utils::usage::{local_used_after_expr, local_used_in};
 use clippy_utils::{higher, is_adjusted, path_to_local, path_to_local_id};
 use rustc_errors::Applicability;
 use rustc_hir::def_id::DefId;
-use rustc_hir::{
-    BindingAnnotation, Expr, ExprKind, FnRetTy, Param, PatKind, QPath, TyKind, Unsafety,
-};
+use rustc_hir::{BindingMode, Expr, ExprKind, FnRetTy, Param, PatKind, QPath, TyKind, Unsafety};
 use rustc_infer::infer::TyCtxtInferExt;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
@@ -247,7 +245,7 @@ fn check_inputs(
             .map(|(p, arg)| {
                 if matches!(
                     p.pat.kind,
-                    PatKind::Binding(BindingAnnotation::NONE | BindingAnnotation::MUT, id, _, None)
+                    PatKind::Binding(BindingMode::NONE | BindingMode::MUT, id, _, None)
                     if path_to_local_id(arg, id)
                 ) {
                     method_name_from_adjustments(cx, cx.typeck_results().expr_adjustments(arg))
