@@ -450,6 +450,14 @@ fn check_or_fix(
             ])
             .args(args);
 
+        // smoelius:: See: https://github.com/rust-lang/rustup/pull/3703 and
+        // https://github.com/rust-lang/rustup/issues/3825
+        #[cfg(windows)]
+        {
+            let new_path = dylint_internal::prepend_toolchain_path(toolchain)?;
+            command.envs(vec![(crate::env::PATH, new_path)]);
+        }
+
         if let Some(stderr_path) = &opts.pipe_stderr {
             let file = OpenOptions::new()
                 .append(true)

@@ -147,12 +147,7 @@ impl Builder {
         {
             // smoelius: Work around: https://github.com/rust-lang/rustup/pull/2978
             let cargo_home = cargo_home().unwrap();
-            let old_path = crate::env::var(crate::env::PATH).unwrap();
-            let new_path = std::env::join_paths(
-                std::iter::once(Path::new(&cargo_home).join("bin"))
-                    .chain(std::env::split_paths(&old_path)),
-            )
-            .unwrap();
+            let new_path = crate::prepend_path(Path::new(&cargo_home).join("bin")).unwrap();
             command.envs(vec![(crate::env::PATH, new_path)]);
         }
         command.args([&self.subcommand]);
