@@ -34,7 +34,6 @@ declare_const!(RUSTC_WORKSPACE_WRAPPER);
 declare_const!(RUSTFLAGS);
 declare_const!(RUSTUP_HOME);
 declare_const!(RUSTUP_TOOLCHAIN);
-declare_const!(RUSTUP_WINDOWS_PATH_ADD_BIN);
 declare_const!(RUST_BACKTRACE);
 declare_const!(TARGET);
 
