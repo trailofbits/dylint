@@ -1,6 +1,7 @@
 use anyhow::{ensure, Context, Result};
 use std::{
-    path::Path,
+    ffi::{OsStr, OsString},
+    path::{Path, PathBuf},
     process::{Command, Output},
 };
 
@@ -61,18 +62,26 @@ pub fn driver(toolchain: &str, driver: &Path) -> Result<Command> {
     {
         // MinerSebas: To succesfully determine the dylint driver Version on Windows,
         // it is neccesary to add some Libraries to the Path.
-        let rustup_home = crate::env::var(crate::env::RUSTUP_HOME)?;
-        let old_path = crate::env::var(crate::env::PATH)?;
-        let new_path = std::env::join_paths(
-            std::iter::once(
-                Path::new(&rustup_home)
-                    .join("toolchains")
-                    .join(toolchain)
-                    .join("bin"),
-            )
-            .chain(std::env::split_paths(&old_path)),
-        )?;
+        let new_path = prepend_toolchain_path(toolchain)?;
         command.envs(vec![(crate::env::PATH, new_path)]);
     }
     Ok(command)
+}
+
+pub fn prepend_toolchain_path(toolchain: impl AsRef<Path>) -> Result<OsString> {
+    let rustup_home = crate::env::var(crate::env::RUSTUP_HOME)?;
+    prepend_path(
+        Path::new(&rustup_home)
+            .join("toolchains")
+            .join(toolchain)
+            .join("bin"),
+    )
+}
+
+pub fn prepend_path(path: impl AsRef<OsStr>) -> Result<OsString> {
+    let old_path = crate::env::var(crate::env::PATH)?;
+    let new_path = std::env::join_paths(
+        std::iter::once(PathBuf::from(path.as_ref())).chain(std::env::split_paths(&old_path)),
+    )?;
+    Ok(new_path)
 }
