@@ -114,20 +114,36 @@ fn check_captures(
 ) {
     let range = captures.get(span_index).unwrap().range();
     let text = &captures[text_index];
-    if let Ok(block) = syn::parse_str::<syn::Block>(&format!("{{{text}}}"))
-        && !block.stmts.is_empty()
-    {
-        #[allow(clippy::cast_possible_truncation)]
-        span_lint_and_help(
-            cx,
-            COMMENTED_CODE,
-            span.with_lo(span.lo() + BytePos(range.start as u32))
-                .with_hi(span.lo() + BytePos(range.end as u32)),
-            "commented out code",
-            None,
-            "uncomment or remove",
-        );
+
+    let Ok(block) = syn::parse_str::<syn::Block>(&format!("{{{text}}}")) else {
+        return;
+    };
+
+    if block.stmts.is_empty() {
+        return;
     }
+
+    if let [syn::Stmt::Expr(syn::Expr::Path(expr_path), None)] = block.stmts.as_slice()
+        && expr_path_is_ident(expr_path)
+    {
+        return;
+    }
+
+    #[allow(clippy::cast_possible_truncation)]
+    span_lint_and_help(
+        cx,
+        COMMENTED_CODE,
+        span.with_lo(span.lo() + BytePos(range.start as u32))
+            .with_hi(span.lo() + BytePos(range.end as u32)),
+        "commented out code",
+        None,
+        "uncomment or remove",
+    );
+}
+
+fn expr_path_is_ident(expr_path: &syn::ExprPath) -> bool {
+    let syn::ExprPath { attrs, qself, path } = expr_path;
+    attrs.is_empty() && qself.is_none() && path.get_ident().is_some()
 }
 
 #[test]
