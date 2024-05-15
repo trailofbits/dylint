@@ -108,6 +108,8 @@ for FLAGS in "--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS" '--lib c
     echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
 
     # smoelius: All libraries must be named to enable their respective `cfg_attr`.
+    # smoelius: For this reason, `overscoped_allow` cannot be run with `--git` or `--path`, like I
+    # had hoped.
     COMMAND="$CARGO_DYLINT dylint $FLAGS --lib overscoped_allow -- --all-features --tests"
 
     for DIR in $DIRS; do
