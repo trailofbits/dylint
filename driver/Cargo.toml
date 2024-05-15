@@ -1,6 +1,6 @@
 [package]
 name = "dylint_driver"
-version = "3.1.1"
+version = "3.1.2"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Dylint driver library"
 edition = "2021"
@@ -15,7 +15,7 @@ log = "0.4"
 rustversion = "1.0"
 serde_json = "1.0"
 
-dylint_internal = { version = "=3.1.1", path = "../internal", features = [
+dylint_internal = { version = "=3.1.2", path = "../internal", features = [
     "rustup",
 ] }
 

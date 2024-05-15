@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.2
+
+- Extend rather than overwrite `RUSTFLAGS` when building drivers ([7662d4c](https://github.com/trailofbits/dylint/commit/7662d4c4d761aeaa47e37a74cd9133adc9b8ae59))
+
 ## 3.1.1
 
 - Update `env_logger` to version 0.11 in `dylint_driver` and `dylint_testing` ([#1200](https://github.com/trailofbits/dylint/issues/1200))
