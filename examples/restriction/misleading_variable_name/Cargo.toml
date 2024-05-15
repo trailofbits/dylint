@@ -15,7 +15,7 @@ path = "ui/main.rs"
 
 [dependencies]
 clippy_utils = { workspace = true }
-heck = "0.4"
+heck = "0.5"
 
 dylint_linting = { path = "../../../utils/linting" }
 
