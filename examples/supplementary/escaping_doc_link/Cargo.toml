@@ -14,7 +14,7 @@ cargo-util = "0.2"
 cargo_metadata = "0.18"
 clippy_utils = { workspace = true }
 once_cell = "1.19"
-pulldown-cmark = "0.9"
+pulldown-cmark = "0.10"
 
 dylint_linting = { path = "../../../utils/linting" }
 
