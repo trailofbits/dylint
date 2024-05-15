@@ -2368,6 +2368,7 @@
   "not_audited": {
     "foreign_crates": [],
     "local_crates": [
+      "alpine",
       "cargo-dylint",
       "dylint",
       "dylint-link",
