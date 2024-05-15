@@ -104,17 +104,12 @@ jobs:
       fail-fast: ${{ github.event_name == 'merge_group' }}
       matrix:
         environment: [ubuntu-latest, macos-latest, windows-latest]
-        package:
-          [
-            cargo-dylint,
-            cargo-dylint-cargo-lib,
-            cargo-dylint-ci,
-            dylint_examples,
-            other,
-          ]
+        package: [cargo-dylint, cargo-dylint-cargo-lib, dylint_examples, other]
         include:
           - environment: ubuntu-latest
             package: alpine
+          - environment: ubuntu-latest
+            package: cargo-dylint-ci
 
     runs-on: ${{ matrix.environment }}
 
@@ -143,11 +138,15 @@ jobs:
       - name: Install dylint-link
         run: cargo install --path ./dylint-link --force
 
-      # smoelius: This list will grow: https://github.com/trailofbits/dylint/issues/636
       - name: Install tools
         run: |
           npm install -g prettier
           rustup install nightly
+
+      # smoelius: This list will grow: https://github.com/trailofbits/dylint/issues/636
+      - name: Install CI tools
+        if: ${{ matrix.package == 'cargo-dylint-ci' }}
+        run: |
           cargo install cargo-hack           || true
           cargo install cargo-license        || true
           cargo install cargo-msrv           || true
@@ -167,7 +166,6 @@ jobs:
           # du -sh /usr/*/* 2>/dev/null | sort -h || true
 
       - name: Test
-        if: ${{ matrix.environment == 'ubuntu-latest' || matrix.package != 'cargo-dylint-ci' }}
         run: |
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
             case '${{ matrix.package }}' in
