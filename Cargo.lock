@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "alpine"
-version = "3.1.1"
+version = "3.1.2"
 
 [[package]]
 name = "ansi_term"
@@ -373,7 +373,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-dylint"
-version = "3.1.1"
+version = "3.1.2"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -824,7 +824,7 @@ checksum = "56ce8c6da7551ec6c462cbaf3bfbc75131ebbfa1c944aeaa9dab51ca1c5f0c3b"
 
 [[package]]
 name = "dylint"
-version = "3.1.1"
+version = "3.1.2"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -858,7 +858,7 @@ dependencies = [
 
 [[package]]
 name = "dylint-link"
-version = "3.1.1"
+version = "3.1.2"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -873,7 +873,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_examples"
-version = "3.1.1"
+version = "3.1.2"
 dependencies = [
  "cargo-util",
  "cargo_metadata",
@@ -884,7 +884,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "3.1.1"
+version = "3.1.2"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -911,7 +911,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "3.1.1"
+version = "3.1.2"
 dependencies = [
  "anyhow",
  "cargo_metadata",

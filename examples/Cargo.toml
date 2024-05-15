@@ -1,6 +1,6 @@
 [package]
 name = "dylint_examples"
-version = "3.1.1"
+version = "3.1.2"
 description = "A dummy package for testing the example Dylint libraries"
 edition = "2021"
 license = "MIT OR Apache-2.0"
@@ -12,7 +12,7 @@ cargo_metadata = "0.18"
 toml_edit = "0.22"
 walkdir = "2.5"
 
-dylint_internal = { version = "=3.1.1", path = "../internal", features = [
+dylint_internal = { version = "=3.1.2", path = "../internal", features = [
     "clippy_utils",
     "examples",
 ] }
