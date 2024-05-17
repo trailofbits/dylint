@@ -12,7 +12,10 @@ extern crate rustc_session;
 extern crate rustc_span;
 
 use anyhow::{Context, Result};
-use cargo_metadata::{Metadata, MetadataCommand};
+use cargo_metadata::{
+    diagnostic::{Diagnostic, DiagnosticSpan},
+    Metadata, MetadataCommand,
+};
 use clippy_utils::{diagnostics::span_lint_and_help, source::snippet_opt};
 use dylint_internal::env::var;
 use once_cell::sync::OnceCell;
@@ -24,7 +27,6 @@ use rustc_hir::{
 use rustc_lint::{LateContext, LateLintPass, LintContext, LintStore};
 use rustc_session::{declare_lint, impl_lint_pass, Session};
 use rustc_span::{sym, BytePos, CharPos, FileLines, FileName, RealFileName, Span, Symbol};
-use rustfix::diagnostics::{Diagnostic, DiagnosticSpan};
 use serde::Deserialize;
 use std::{
     borrow::Cow,
