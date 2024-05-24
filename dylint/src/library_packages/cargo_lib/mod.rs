@@ -12,7 +12,7 @@ pub use cargo::{
 use cargo_metadata::Metadata;
 use std::path::PathBuf;
 
-pub use crate::util_schemas::manifest::TomlDetailedDependency;
+pub use cargo_util_schemas::manifest::TomlDetailedDependency;
 
 mod toml;
 

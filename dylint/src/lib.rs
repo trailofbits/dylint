@@ -21,7 +21,7 @@ type Object = serde_json::Map<String, serde_json::Value>;
 
 // smoelius: See note in dylint/src/library_packages/mod.rs.
 #[cfg(feature = "__cargo_lib")]
-pub(crate) use cargo::{core, sources, util, util_schemas};
+pub(crate) use cargo::{core, sources, util};
 
 pub mod driver_builder;
 
