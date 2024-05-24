@@ -1,5 +1,5 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/0.77.0/src/cargo/util/toml/mod.rs with adjustments to
+// https://github.com/rust-lang/cargo/blob/0.78.0/src/cargo/util/toml/mod.rs with adjustments to
 // make some things public.
 // smoelius: I experimented with creating a reduced Cargo crate that included just this module and
 // the things it depends upon. Such a crate could reduce build times and incur less of a maintenance
@@ -62,17 +62,22 @@ impl<'a, 'b> Context<'a, 'b> {
     }
 }
 
+// use annotate_snippets::{Annotation, AnnotationType, Renderer, Slice, Snippet, SourceAnnotation};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::str::{self, FromStr};
 
+// use crate::AlreadyPrintedError;
 use anyhow::{anyhow, bail, Context as _};
 use cargo_platform::Platform;
 use cargo_util::paths;
+use cargo_util_schemas::manifest;
+use cargo_util_schemas::manifest::RustVersion;
 // use itertools::Itertools;
 // use lazycell::LazyCell;
+// use pathdiff::diff_paths;
 // use tracing::{debug, trace};
 // use url::Url;
 
@@ -88,8 +93,6 @@ use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
 use crate::util::errors::{CargoResult, ManifestError};
 use crate::util::interning::InternedString;
 use crate::util::{self, config::ConfigRelativePath, Config, IntoUrl, OptVersionReq};
-use crate::util_schemas::manifest;
-use crate::util_schemas::manifest::RustVersion;
 
 /// Warn about paths that have been deprecated and may conflict.
 fn warn_on_deprecated(new_path: &str, name: &str, kind: &str, warnings: &mut Vec<String>) {
