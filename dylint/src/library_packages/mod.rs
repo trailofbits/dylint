@@ -20,6 +20,10 @@ mod impl_;
 
 use impl_::{dependency_source_id_and_root, Config, PackageId, SourceId, TomlDetailedDependency};
 
+trait UnusedKeys {
+    fn unused_keys(&self) -> Vec<String>;
+}
+
 type Object = serde_json::Map<String, serde_json::Value>;
 
 #[derive(Clone, Debug)]
@@ -352,7 +356,7 @@ fn library_package(
                 };
                 // smoelius: When `__cargo_cli` is enabled, `source_id`'s type is `String`.
                 #[allow(clippy::clone_on_copy)]
-                let package_id = package_id(&package, source_id.clone())?;
+                let package_id = package_id(&package, source_id.clone());
                 let lib_name = package_library_name(&package)?;
                 let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
                 Ok(Some(Package {
@@ -399,8 +403,12 @@ fn package_with_root(package_root: &Path) -> Result<MetadataPackage> {
     dylint_internal::cargo::package_with_root(&metadata, package_root)
 }
 
-fn package_id(package: &MetadataPackage, source_id: SourceId) -> Result<PackageId> {
-    PackageId::new(package.name.clone(), package.version.clone(), source_id)
+fn package_id(package: &MetadataPackage, source_id: SourceId) -> PackageId {
+    PackageId::new(
+        package.name.clone().into(),
+        package.version.clone(),
+        source_id,
+    )
 }
 
 pub fn package_library_name(package: &MetadataPackage) -> Result<String> {
