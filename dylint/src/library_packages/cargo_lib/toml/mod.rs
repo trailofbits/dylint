@@ -29,8 +29,8 @@
 )]
 #![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 
-// smoelius: `DetailedTomlDependency::unused_keys` does not appear in the original.
-impl DetailedTomlDependency {
+// smoelius: `schema::DetailedTomlDependency::unused_keys` does not appear in the original.
+impl schema::DetailedTomlDependency {
     pub fn unused_keys(&self) -> Vec<String> {
         self.other.keys().cloned().collect()
     }
@@ -64,7 +64,6 @@ impl<'a, 'b> Context<'a, 'b> {
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::ffi::OsStr;
-use std::fmt::{self, Display, Write};
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::str::{self, FromStr};
@@ -74,10 +73,6 @@ use cargo_platform::Platform;
 use cargo_util::paths;
 // use itertools::Itertools;
 // use lazycell::LazyCell;
-use serde::de::{self, IntoDeserializer as _, Unexpected};
-use serde::ser;
-use serde::{Deserialize, Serialize};
-use serde_untagged::UntaggedEnumVisitor;
 // use tracing::{debug, trace};
 // use url::Url;
 
@@ -97,6 +92,8 @@ use crate::util::{
     RustVersion,
 };
 
+mod schema;
+
 /// Warn about paths that have been deprecated and may conflict.
 fn warn_on_deprecated(new_path: &str, name: &str, kind: &str, warnings: &mut Vec<String>) {
     let old_path = new_path.replace("-", "_");
@@ -104,99 +101,6 @@ fn warn_on_deprecated(new_path: &str, name: &str, kind: &str, warnings: &mut Vec
         "conflicting between `{new_path}` and `{old_path}` in the `{name}` {kind}.\n
         `{old_path}` is ignored and not recommended for use in the future"
     ))
-}
-
-pub trait ResolveToPath {
-    fn resolve(&self, config: &Config) -> PathBuf;
-}
-
-impl ResolveToPath for String {
-    fn resolve(&self, _: &Config) -> PathBuf {
-        self.into()
-    }
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub struct DetailedTomlDependency<P: Clone = String> {
-    version: Option<String>,
-    registry: Option<String>,
-    /// The URL of the `registry` field.
-    /// This is an internal implementation detail. When Cargo creates a
-    /// package, it replaces `registry` with `registry-index` so that the
-    /// manifest contains the correct URL. All users won't have the same
-    /// registry names configured, so Cargo can't rely on just the name for
-    /// crates published by other users.
-    registry_index: Option<String>,
-    // `path` is relative to the file it appears in. If that's a `Cargo.toml`, it'll be relative to
-    // that TOML file, and if it's a `.cargo/config` file, it'll be relative to that file.
-    path: Option<P>,
-    git: Option<String>,
-    branch: Option<String>,
-    tag: Option<String>,
-    rev: Option<String>,
-    features: Option<Vec<String>>,
-    optional: Option<bool>,
-    default_features: Option<bool>,
-    #[serde(rename = "default_features")]
-    default_features2: Option<bool>,
-    package: Option<String>,
-    public: Option<bool>,
-
-    /// One or more of `bin`, `cdylib`, `staticlib`, `bin:<name>`.
-    artifact: Option<StringOrVec>,
-    /// If set, the artifact should also be a dependency
-    lib: Option<bool>,
-    /// A platform name, like `x86_64-apple-darwin`
-    target: Option<String>,
-    /// This is here to provide a way to see the "unused manifest keys" when deserializing
-    #[serde(skip_serializing)]
-    #[serde(flatten)]
-    other: BTreeMap<String, toml::Value>,
-}
-
-// Explicit implementation so we avoid pulling in P: Default
-impl<P: Clone> Default for DetailedTomlDependency<P> {
-    fn default() -> Self {
-        Self {
-            version: Default::default(),
-            registry: Default::default(),
-            registry_index: Default::default(),
-            path: Default::default(),
-            git: Default::default(),
-            branch: Default::default(),
-            tag: Default::default(),
-            rev: Default::default(),
-            features: Default::default(),
-            optional: Default::default(),
-            default_features: Default::default(),
-            default_features2: Default::default(),
-            package: Default::default(),
-            public: Default::default(),
-            artifact: Default::default(),
-            lib: Default::default(),
-            target: Default::default(),
-            other: Default::default(),
-        }
-    }
-}
-
-/// A StringOrVec can be parsed from either a TOML string or array,
-/// but is always stored as a vector.
-#[derive(Clone, Debug, Serialize, Eq, PartialEq, PartialOrd, Ord)]
-pub struct StringOrVec(Vec<String>);
-
-impl<'de> de::Deserialize<'de> for StringOrVec {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: de::Deserializer<'de>,
-    {
-        UntaggedEnumVisitor::new()
-            .expecting("string or list of strings")
-            .string(|value| Ok(StringOrVec(vec![value.to_owned()])))
-            .seq(|value| value.deserialize().map(StringOrVec))
-            .deserialize(deserializer)
-    }
 }
 
 #[allow(dead_code)]
@@ -211,7 +115,7 @@ pub struct Context<'a, 'b> {
     features: &'a Features,
 }
 
-impl<P: ResolveToPath + Clone> DetailedTomlDependency<P> {
+impl<P: ResolveToPath + Clone> schema::DetailedTomlDependency<P> {
     pub fn to_dependency(
         &self,
         name_in_toml: &str,
@@ -454,5 +358,15 @@ impl<P: ResolveToPath + Clone> DetailedTomlDependency<P> {
             }
         }
         Ok(dep)
+    }
+}
+
+pub trait ResolveToPath {
+    fn resolve(&self, config: &Config) -> PathBuf;
+}
+
+impl ResolveToPath for String {
+    fn resolve(&self, _: &Config) -> PathBuf {
+        self.into()
     }
 }

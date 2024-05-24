@@ -11,7 +11,7 @@ rust-version = "1.73"
 [dependencies]
 ansi_term = "0.12"
 anyhow = "1.0"
-# smoelius: The `cargo` dependency should be kept in sync with dylint/src/metadata/cargo/toml.rs.
+# smoelius: The `cargo` dependency should be kept in sync with dylint/src/library_packages/cargo/toml/mod.rs.
 cargo = { version = "0.75", optional = true }
 cargo-platform = { version = "0.1", optional = true }
 cargo-util = { version = "0.2", optional = true }
