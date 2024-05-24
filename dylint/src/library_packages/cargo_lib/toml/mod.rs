@@ -13,6 +13,7 @@
 #![allow(unused_imports)]
 #![allow(clippy::default_trait_access)]
 #![allow(clippy::doc_markdown)]
+#![allow(clippy::if_not_else)]
 #![allow(clippy::semicolon_if_nothing_returned)]
 #![allow(clippy::single_char_pattern)]
 #![allow(clippy::too_many_lines)]
