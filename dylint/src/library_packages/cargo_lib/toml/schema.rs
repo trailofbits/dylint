@@ -1,5 +1,9 @@
+// smoelius: This file is essentially the dependency specific portions of:
+// https://github.com/rust-lang/cargo/blob/0.76.0/src/cargo/util/toml/schema.rs
+
 use std::collections::BTreeMap;
 use std::fmt::{self, Display, Write};
+use std::path::PathBuf;
 use std::str;
 
 use serde::de::{self, IntoDeserializer as _, Unexpected};
@@ -40,10 +44,17 @@ pub struct DetailedTomlDependency<P: Clone = String> {
     pub lib: Option<bool>,
     /// A platform name, like `x86_64-apple-darwin`
     pub target: Option<String>,
+
     /// This is here to provide a way to see the "unused manifest keys" when deserializing
     #[serde(skip_serializing)]
     #[serde(flatten)]
-    pub other: BTreeMap<String, toml::Value>,
+    pub unused_keys: BTreeMap<String, toml::Value>,
+}
+
+impl<P: Clone> DetailedTomlDependency<P> {
+    pub fn default_features(&self) -> Option<bool> {
+        self.default_features.or(self.default_features2)
+    }
 }
 
 // Explicit implementation so we avoid pulling in P: Default
@@ -67,7 +78,7 @@ impl<P: Clone> Default for DetailedTomlDependency<P> {
             artifact: Default::default(),
             lib: Default::default(),
             target: Default::default(),
-            other: Default::default(),
+            unused_keys: Default::default(),
         }
     }
 }
@@ -75,7 +86,7 @@ impl<P: Clone> Default for DetailedTomlDependency<P> {
 /// A StringOrVec can be parsed from either a TOML string or array,
 /// but is always stored as a vector.
 #[derive(Clone, Debug, Serialize, Eq, PartialEq, PartialOrd, Ord)]
-pub struct StringOrVec(Vec<String>);
+pub struct StringOrVec(pub Vec<String>);
 
 impl<'de> de::Deserialize<'de> for StringOrVec {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
