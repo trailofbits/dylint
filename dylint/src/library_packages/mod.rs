@@ -18,7 +18,9 @@ mod impl_;
 #[path = "cargo_lib/mod.rs"]
 mod impl_;
 
-use impl_::{dependency_source_id_and_root, Config, PackageId, SourceId, TomlDetailedDependency};
+use impl_::{
+    dependency_source_id_and_root, GlobalContext, PackageId, SourceId, TomlDetailedDependency,
+};
 
 trait UnusedKeys {
     fn unused_keys(&self) -> Vec<String>;
@@ -270,11 +272,11 @@ fn library_packages(
     metadata: &'static Metadata,
     libraries: &[Library],
 ) -> Result<Vec<Package>> {
-    let config = Config::default()?;
+    let gctx = GlobalContext::default()?;
 
     let packages = libraries
         .iter()
-        .map(|library| library_package(opts, metadata, &config, library))
+        .map(|library| library_package(opts, metadata, &gctx, library))
         .collect::<Result<Vec<_>>>()
         .with_context(|| "Could not build metadata entries")?;
 
@@ -284,7 +286,7 @@ fn library_packages(
 fn library_package(
     opts: &opts::Dylint,
     metadata: &'static Metadata,
-    config: &Config,
+    gctx: &GlobalContext,
     library: &Library,
 ) -> Result<Vec<Package>> {
     let details = toml_detailed_dependency(library)?;
@@ -292,7 +294,7 @@ fn library_package(
     // smoelius: The dependency root cannot be canonicalized here. It could contain a `glob` pattern
     // (e.g., `*`), because Dylint allows `path` entries to contain `glob` patterns.
     let (source_id, dependency_root) =
-        dependency_source_id_and_root(opts, metadata, config, details)?;
+        dependency_source_id_and_root(opts, metadata, gctx, details)?;
 
     let pattern = if let Some(pattern) = &library.pattern {
         dependency_root.join(pattern)

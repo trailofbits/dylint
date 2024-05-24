@@ -49,7 +49,7 @@ impl Drop for NamedTempDir {
 // make them all `pub`.
 include!("toml_detailed_dependency.rs");
 
-pub struct Config;
+pub struct GlobalContext;
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct PackageId {
@@ -60,7 +60,7 @@ pub struct PackageId {
 
 pub type SourceId = String;
 
-impl Config {
+impl GlobalContext {
     #[allow(clippy::unnecessary_wraps)]
     pub const fn default() -> Result<Self> {
         Ok(Self)
@@ -85,7 +85,7 @@ impl PackageId {
 pub fn dependency_source_id_and_root(
     _opts: &opts::Dylint,
     metadata: &Metadata,
-    _config: &Config,
+    _gctx: &GlobalContext,
     details: &TomlDetailedDependency,
 ) -> Result<(SourceId, PathBuf)> {
     if let Some(url) = &details.git {

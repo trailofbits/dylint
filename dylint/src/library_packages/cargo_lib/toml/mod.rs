@@ -1,5 +1,5 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/0.78.0/src/cargo/util/toml/mod.rs with adjustments to
+// https://github.com/rust-lang/cargo/blob/0.79.0/src/cargo/util/toml/mod.rs with adjustments to
 // make some things public.
 // smoelius: I experimented with creating a reduced Cargo crate that included just this module and
 // the things it depends upon. Such a crate could reduce build times and incur less of a maintenance
@@ -36,14 +36,13 @@ impl super::UnusedKeys for manifest::TomlDetailedDependency {
     }
 }
 
-// smoelius: `Context::new` does not appear in the original.
+// smoelius: `ManifestContext::new` does not appear in the original.
 #[allow(clippy::too_many_arguments)]
-impl<'a, 'b> Context<'a, 'b> {
+impl<'a, 'b> ManifestContext<'a, 'b> {
     pub fn new(
         deps: &'a mut Vec<Dependency>,
         source_id: SourceId,
-        nested_paths: &'a mut Vec<PathBuf>,
-        config: &'b Config,
+        gctx: &'b GlobalContext,
         warnings: &'a mut Vec<String>,
         platform: Option<Platform>,
         root: &'a Path,
@@ -52,8 +51,7 @@ impl<'a, 'b> Context<'a, 'b> {
         Self {
             deps,
             source_id,
-            nested_paths,
-            config,
+            gctx,
             warnings,
             platform,
             root,
@@ -73,26 +71,25 @@ use std::str::{self, FromStr};
 use anyhow::{anyhow, bail, Context as _};
 use cargo_platform::Platform;
 use cargo_util::paths;
-use cargo_util_schemas::manifest;
 use cargo_util_schemas::manifest::RustVersion;
+use cargo_util_schemas::manifest::{self, TomlManifest};
 // use itertools::Itertools;
 // use lazycell::LazyCell;
 // use pathdiff::diff_paths;
-// use tracing::{debug, trace};
 // use url::Url;
 
 use crate::core::compiler::{CompileKind, CompileTarget};
 use crate::core::dependency::{Artifact, ArtifactTarget, DepKind};
-use crate::core::manifest::{ManifestMetadata, TargetSourcePath, Warnings};
+use crate::core::manifest::{ManifestMetadata, TargetSourcePath};
 use crate::core::resolver::ResolveBehavior;
-use crate::core::{find_workspace_root, resolve_relative_path, CliUnstable};
+use crate::core::{find_workspace_root, resolve_relative_path, CliUnstable, FeatureValue};
 use crate::core::{Dependency, Manifest, PackageId, Summary, Target};
 use crate::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
 use crate::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
 use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
 use crate::util::errors::{CargoResult, ManifestError};
 use crate::util::interning::InternedString;
-use crate::util::{self, config::ConfigRelativePath, Config, IntoUrl, OptVersionReq};
+use crate::util::{self, context::ConfigRelativePath, GlobalContext, IntoUrl, OptVersionReq};
 
 /// Warn about paths that have been deprecated and may conflict.
 fn warn_on_deprecated(new_path: &str, name: &str, kind: &str, warnings: &mut Vec<String>) {
@@ -104,11 +101,10 @@ fn warn_on_deprecated(new_path: &str, name: &str, kind: &str, warnings: &mut Vec
 }
 
 #[allow(dead_code)]
-pub struct Context<'a, 'b> {
+pub struct ManifestContext<'a, 'b> {
     deps: &'a mut Vec<Dependency>,
     source_id: SourceId,
-    nested_paths: &'a mut Vec<PathBuf>,
-    config: &'b Config,
+    gctx: &'b GlobalContext,
     warnings: &'a mut Vec<String>,
     platform: Option<Platform>,
     root: &'a Path,
@@ -118,7 +114,7 @@ pub struct Context<'a, 'b> {
 pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
     orig: &manifest::TomlDetailedDependency<P>,
     name_in_toml: &str,
-    cx: &mut Context<'_, '_>,
+    manifest_ctx: &mut ManifestContext<'_, '_>,
     kind: Option<DepKind>,
 ) -> CargoResult<Dependency> {
     if orig.version.is_none() && orig.path.is_none() && orig.git.is_none() {
@@ -129,12 +125,12 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
                  error in future versions",
             name_in_toml
         );
-        cx.warnings.push(msg);
+        manifest_ctx.warnings.push(msg);
     }
 
     if let Some(version) = &orig.version {
         if version.contains('+') {
-            cx.warnings.push(format!(
+            manifest_ctx.warnings.push(format!(
                 "version requirement `{}` for dependency `{}` \
                      includes semver metadata which will be ignored, removing the \
                      metadata is recommended to avoid confusion",
@@ -244,14 +240,13 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
                         use `rev = \"{}\"` in the dependency declaration.",
                     fragment, name_in_toml, fragment
                 );
-                cx.warnings.push(msg)
+                manifest_ctx.warnings.push(msg)
             }
 
             SourceId::for_git(&loc, reference)?
         }
         (None, Some(path), _, _) => {
-            let path = path.resolve(cx.config);
-            cx.nested_paths.push(path.clone());
+            let path = path.resolve(manifest_ctx.gctx);
             // If the source ID for the package we're parsing is a path
             // source, then we normalize the path here to get rid of
             // components like `..`.
@@ -260,20 +255,20 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
             // that we're depending on to ensure that builds of this package
             // always end up hashing to the same value no matter where it's
             // built from.
-            if cx.source_id.is_path() {
-                let path = cx.root.join(path);
+            if manifest_ctx.source_id.is_path() {
+                let path = manifest_ctx.root.join(path);
                 let path = paths::normalize_path(&path);
                 SourceId::for_path(&path)?
             } else {
-                cx.source_id
+                manifest_ctx.source_id
             }
         }
-        (None, None, Some(registry), None) => SourceId::alt_registry(cx.config, registry)?,
+        (None, None, Some(registry), None) => SourceId::alt_registry(manifest_ctx.gctx, registry)?,
         (None, None, None, Some(registry_index)) => {
             let url = registry_index.into_url()?;
             SourceId::for_registry(&url)?
         }
-        (None, None, None, None) => SourceId::crates_io(cx.config)?,
+        (None, None, None, None) => SourceId::crates_io(manifest_ctx.gctx)?,
     };
 
     let (pkg_name, explicit_name_in_toml) = match orig.package {
@@ -284,14 +279,19 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
     let version = orig.version.as_deref();
     let mut dep = Dependency::parse(pkg_name, version, new_source_id)?;
     if orig.default_features.is_some() && orig.default_features2.is_some() {
-        warn_on_deprecated("default-features", name_in_toml, "dependency", cx.warnings);
+        warn_on_deprecated(
+            "default-features",
+            name_in_toml,
+            "dependency",
+            manifest_ctx.warnings,
+        );
     }
     dep.set_features(orig.features.iter().flatten())
         .set_default_features(orig.default_features().unwrap_or(true))
         .set_optional(orig.optional.unwrap_or(false))
-        .set_platform(cx.platform.clone());
+        .set_platform(manifest_ctx.platform.clone());
     if let Some(registry) = &orig.registry {
-        let registry_id = SourceId::alt_registry(cx.config, registry)?;
+        let registry_id = SourceId::alt_registry(manifest_ctx.gctx, registry)?;
         dep.set_registry_id(registry_id);
     }
     if let Some(registry_index) = &orig.registry_index {
@@ -308,13 +308,26 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
     }
 
     if let Some(p) = orig.public {
-        cx.features.require(Feature::public_dependency())?;
-
-        if dep.kind() != DepKind::Normal {
-            bail!("'public' specifier can only be used on regular dependencies, not {:?} dependencies", dep.kind());
+        let public_feature = manifest_ctx.features.require(Feature::public_dependency());
+        let with_z_public = manifest_ctx.gctx.cli_unstable().public_dependency;
+        let with_public_feature = public_feature.is_ok();
+        if !with_public_feature && (!with_z_public && !manifest_ctx.gctx.nightly_features_allowed) {
+            public_feature?;
         }
 
-        dep.set_public(p);
+        if dep.kind() != DepKind::Normal {
+            let hint = format!(
+                "'public' specifier can only be used on regular dependencies, not {}",
+                dep.kind().kind_table(),
+            );
+            match (with_public_feature, with_z_public) {
+                (true, _) | (_, true) => bail!(hint),
+                // If public feature isn't enabled in nightly, we instead warn that.
+                (false, false) => manifest_ctx.warnings.push(hint),
+            }
+        } else {
+            dep.set_public(p);
+        }
     }
 
     #[cfg(any())]
@@ -323,7 +336,7 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
         orig.lib.unwrap_or(false),
         orig.target.as_deref(),
     ) {
-        if cx.config.cli_unstable().bindeps {
+        if manifest_ctx.gctx.cli_unstable().bindeps {
             let artifact = Artifact::parse(&artifact.0, is_lib, target)?;
             if dep.kind() != DepKind::Build
                 && artifact.target() == Some(ArtifactTarget::BuildDependencyAssumeTarget)
@@ -356,11 +369,11 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
 }
 
 pub trait ResolveToPath {
-    fn resolve(&self, config: &Config) -> PathBuf;
+    fn resolve(&self, gctx: &GlobalContext) -> PathBuf;
 }
 
 impl ResolveToPath for String {
-    fn resolve(&self, _: &Config) -> PathBuf {
+    fn resolve(&self, _: &GlobalContext) -> PathBuf {
         self.into()
     }
 }
