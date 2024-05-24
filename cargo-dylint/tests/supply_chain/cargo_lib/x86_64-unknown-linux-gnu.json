@@ -25,6 +25,15 @@
         "name": "Jonas Schievink"
       }
     ],
+    "ahash": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/4756752?v=4",
+        "id": 25353,
+        "kind": "user",
+        "login": "tkaitchuck",
+        "name": "Tom Kaitchuck"
+      }
+    ],
     "aho-corasick": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/456674?v=4",
@@ -32,6 +41,22 @@
         "kind": "user",
         "login": "BurntSushi",
         "name": "Andrew Gallant"
+      }
+    ],
+    "annotate-snippets": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/449986?v=4",
+        "id": 9648,
+        "kind": "user",
+        "login": "zbraniecki",
+        "name": "Zibi Braniecki"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/23045215?v=4",
+        "id": 160543,
+        "kind": "user",
+        "login": "Muscraft",
+        "name": "Scott Schafer"
       }
     ],
     "ansi_term": [
@@ -338,15 +363,6 @@
         "name": "Hyunsik Choi"
       }
     ],
-    "byteyarn": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/2711945?v=4",
-        "id": 13363,
-        "kind": "user",
-        "login": "mcy",
-        "name": "Miguel Young"
-      }
-    ],
     "camino": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
@@ -453,52 +469,6 @@
         "name": null
       }
     ],
-    "cargo-credential-macos-keychain": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
-        "id": 4282,
-        "kind": "team",
-        "login": "github:rust-lang:release-publishers",
-        "name": "release-publishers"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
-        "id": 6202,
-        "kind": "user",
-        "login": "ehuss",
-        "name": "Eric Huss"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
-        "id": 55123,
-        "kind": "user",
-        "login": "rust-lang-owner",
-        "name": null
-      }
-    ],
-    "cargo-credential-wincred": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
-        "id": 4282,
-        "kind": "team",
-        "login": "github:rust-lang:release-publishers",
-        "name": "release-publishers"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
-        "id": 6202,
-        "kind": "user",
-        "login": "ehuss",
-        "name": "Eric Huss"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
-        "id": 55123,
-        "kind": "user",
-        "login": "rust-lang-owner",
-        "name": null
-      }
-    ],
     "cargo-platform": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
@@ -544,6 +514,22 @@
         "login": "github:rust-lang:release-publishers",
         "name": "release-publishers"
       },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
+        "id": 6202,
+        "kind": "user",
+        "login": "ehuss",
+        "name": "Eric Huss"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
+      }
+    ],
+    "cargo-util-schemas": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
         "id": 6202,
@@ -1342,6 +1328,31 @@
         "name": "Dan Gohman"
       }
     ],
+    "fallible-iterator": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1455697?v=4",
+        "id": 5,
+        "kind": "user",
+        "login": "sfackler",
+        "name": "Steven Fackler"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/9209?v=4",
+        "id": 133,
+        "kind": "user",
+        "login": "dpc",
+        "name": "Dawid Ciężarkiewicz"
+      }
+    ],
+    "fallible-streaming-iterator": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1455697?v=4",
+        "id": 5,
+        "kind": "user",
+        "login": "sfackler",
+        "name": "Steven Fackler"
+      }
+    ],
     "faster-hex": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/3198439?v=4",
@@ -2109,6 +2120,15 @@
         "name": "Amanieu d'Antras"
       }
     ],
+    "hashlink": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1538607?v=4",
+        "id": 6715,
+        "kind": "user",
+        "login": "kyren",
+        "name": null
+      }
+    ],
     "heck": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/9063376?v=4",
@@ -2367,6 +2387,15 @@
         "name": null
       }
     ],
+    "kstring": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/60961?v=4",
+        "id": 6743,
+        "kind": "user",
+        "login": "epage",
+        "name": "Ed Page"
+      }
+    ],
     "lazy_static": [
       {
         "avatar": "https://avatars1.githubusercontent.com/u/14631425?v=4",
@@ -2503,6 +2532,22 @@
         "kind": "user",
         "login": "alexcrichton",
         "name": "Alex Crichton"
+      }
+    ],
+    "libsqlite3-sys": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/860665?v=4",
+        "id": 4357,
+        "kind": "user",
+        "login": "thomcc",
+        "name": "Thom Chiovoloni"
+      },
+      {
+        "avatar": "https://avatars2.githubusercontent.com/u/45554?v=4",
+        "id": 5062,
+        "kind": "user",
+        "login": "gwenn",
+        "name": "gwenn"
       }
     ],
     "libssh2-sys": [
@@ -3128,29 +3173,6 @@
         "name": "Sebastian Thiel"
       }
     ],
-    "pulldown-cmark": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/1255413?v=4",
-        "id": 822,
-        "kind": "user",
-        "login": "marcusklaas",
-        "name": "Marcus Klaas de Vries"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/242367?v=4",
-        "id": 1968,
-        "kind": "user",
-        "login": "raphlinus",
-        "name": "Raph Levien"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/4211771?v=4",
-        "id": 27114,
-        "kind": "user",
-        "login": "Martin1887",
-        "name": "Martín Pozo"
-      }
-    ],
     "quote": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1940490?v=4",
@@ -3328,6 +3350,22 @@
         "kind": "team",
         "login": "github:rustcrypto:signatures",
         "name": "signatures"
+      }
+    ],
+    "rusqlite": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/860665?v=4",
+        "id": 4357,
+        "kind": "user",
+        "login": "thomcc",
+        "name": "Thom Chiovoloni"
+      },
+      {
+        "avatar": "https://avatars2.githubusercontent.com/u/45554?v=4",
+        "id": 5062,
+        "kind": "user",
+        "login": "gwenn",
+        "name": "gwenn"
       }
     ],
     "rust-embed": [
@@ -3649,6 +3687,15 @@
         "name": "Steven Fackler"
       }
     ],
+    "shell-words": [
+      {
+        "avatar": "https://avatars0.githubusercontent.com/u/51362316?v=4",
+        "id": 62153,
+        "kind": "user",
+        "login": "tmiasko",
+        "name": "Tomasz Miąsko"
+      }
+    ],
     "signature": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/797?v=4",
@@ -3750,6 +3797,15 @@
         "name": "formats"
       }
     ],
+    "static_assertions": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/10367662?v=4",
+        "id": 3832,
+        "kind": "user",
+        "login": "nvzqz",
+        "name": "Nikolai Vazquez"
+      }
+    ],
     "strsim": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/2763135?v=4",
@@ -3780,6 +3836,24 @@
         "kind": "team",
         "login": "github:dalek-cryptography:subtle-maintainers",
         "name": "subtle-maintainers"
+      }
+    ],
+    "supports-hyperlinks": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/17535?v=4",
+        "id": 49020,
+        "kind": "user",
+        "login": "zkat",
+        "name": "Kat Marchán"
+      }
+    ],
+    "supports-unicode": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/17535?v=4",
+        "id": 49020,
+        "kind": "user",
+        "login": "zkat",
+        "name": "Kat Marchán"
       }
     ],
     "syn": [
@@ -4028,6 +4102,15 @@
         "kind": "user",
         "login": "hawkw",
         "name": "Eliza Weisman"
+      }
+    ],
+    "tracing-chrome": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/3453006?v=4",
+        "id": 85939,
+        "kind": "user",
+        "login": "thoren-d",
+        "name": "Thoren Paulson"
       }
     ],
     "tracing-core": [
@@ -4472,6 +4555,15 @@
         "kind": "user",
         "login": "epage",
         "name": "Ed Page"
+      }
+    ],
+    "zerocopy": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1046063?v=4",
+        "id": 7178,
+        "kind": "user",
+        "login": "joshlf",
+        "name": "Joshua Liebow-Feeser"
       }
     ],
     "zeroize": [
