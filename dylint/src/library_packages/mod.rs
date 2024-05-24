@@ -18,7 +18,7 @@ mod impl_;
 #[path = "cargo_lib/mod.rs"]
 mod impl_;
 
-use impl_::{dependency_source_id_and_root, Config, DetailedTomlDependency, PackageId, SourceId};
+use impl_::{dependency_source_id_and_root, Config, PackageId, SourceId, TomlDetailedDependency};
 
 type Object = serde_json::Map<String, serde_json::Value>;
 
@@ -77,7 +77,7 @@ impl Package {
 struct Library {
     pattern: Option<String>,
     #[serde(flatten)]
-    details: DetailedTomlDependency,
+    details: TomlDetailedDependency,
 }
 
 pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
@@ -111,7 +111,7 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
     .flatten()
     .collect();
 
-    let details = DetailedTomlDependency::deserialize(toml.into_deserializer())?;
+    let details = TomlDetailedDependency::deserialize(toml.into_deserializer())?;
 
     let library = Library {
         details,
@@ -283,7 +283,7 @@ fn library_package(
     config: &Config,
     library: &Library,
 ) -> Result<Vec<Package>> {
-    let details = detailed_toml_dependency(library)?;
+    let details = toml_detailed_dependency(library)?;
 
     // smoelius: The dependency root cannot be canonicalized here. It could contain a `glob` pattern
     // (e.g., `*`), because Dylint allows `path` entries to contain `glob` patterns.
@@ -371,7 +371,7 @@ fn library_package(
     Ok(packages.into_iter().flatten().collect())
 }
 
-fn detailed_toml_dependency(library: &Library) -> Result<&DetailedTomlDependency> {
+fn toml_detailed_dependency(library: &Library) -> Result<&TomlDetailedDependency> {
     let mut unused_keys = library.details.unused_keys();
     #[allow(clippy::format_collect)]
     if !unused_keys.is_empty() {

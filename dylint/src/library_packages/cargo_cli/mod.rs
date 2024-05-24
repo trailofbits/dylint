@@ -45,9 +45,9 @@ impl Drop for NamedTempDir {
     }
 }
 
-// smoelius: Use `include!` so that `DetailedTomlDependency`'s fields are visible without having to
+// smoelius: Use `include!` so that `TomlDetailedDependency`'s fields are visible without having to
 // make them all `pub`.
-include!("detailed_toml_dependency.rs");
+include!("toml_detailed_dependency.rs");
 
 pub struct Config;
 
@@ -86,7 +86,7 @@ pub fn dependency_source_id_and_root(
     _opts: &opts::Dylint,
     metadata: &Metadata,
     _config: &Config,
-    details: &DetailedTomlDependency,
+    details: &TomlDetailedDependency,
 ) -> Result<(SourceId, PathBuf)> {
     if let Some(url) = &details.git {
         ensure!(
@@ -109,7 +109,7 @@ pub fn dependency_source_id_and_root(
     }
 }
 
-fn git_source_id(url: &str, details: &DetailedTomlDependency) -> Result<String> {
+fn git_source_id(url: &str, details: &TomlDetailedDependency) -> Result<String> {
     #[derive(Serialize)]
     struct GitReference<'a> {
         url: &'a str,
@@ -126,7 +126,7 @@ fn git_source_id(url: &str, details: &DetailedTomlDependency) -> Result<String> 
     Ok(json)
 }
 
-fn git_dependency_root(url: &str, details: &DetailedTomlDependency) -> Result<PathBuf> {
+fn git_dependency_root(url: &str, details: &TomlDetailedDependency) -> Result<PathBuf> {
     let dependency = create_dummy_dependency()?;
     let filename = dependency
         .path()
@@ -205,7 +205,7 @@ fn create_dummy_dependency() -> Result<TempDir> {
 
 /// Creates a dummy package in a temporary directory, and returns the temporary directory if
 /// everything was successful.
-fn create_dummy_package(dep_name: &str, details: &DetailedTomlDependency) -> Result<TempDir> {
+fn create_dummy_package(dep_name: &str, details: &TomlDetailedDependency) -> Result<TempDir> {
     let tempdir = tempdir().with_context(|| "Could not create temporary directory")?;
 
     let manifest_contents = manifest_contents(dep_name, details)?;
@@ -225,7 +225,7 @@ fn create_dummy_package(dep_name: &str, details: &DetailedTomlDependency) -> Res
     Ok(tempdir)
 }
 
-fn manifest_contents(dep_name: &str, details: &DetailedTomlDependency) -> Result<String> {
+fn manifest_contents(dep_name: &str, details: &TomlDetailedDependency) -> Result<String> {
     let details = toml::to_string(details)?;
 
     Ok(format!(

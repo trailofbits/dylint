@@ -1,19 +1,19 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-// smoelius: `DetailedTomlDependency::unused_keys` does not appear in the original.
-impl DetailedTomlDependency {
+// smoelius: `TomlDetailedDependency::unused_keys` does not appear in the original.
+impl TomlDetailedDependency {
     pub fn unused_keys(&self) -> Vec<String> {
         self.other.keys().cloned().collect()
     }
 }
 
-// smoelius: `DetailedTomlDependency` was copied from:
+// smoelius: `TomlDetailedDependency` was copied from:
 // https://github.com/rust-lang/cargo/blob/e476251168fab96ae3c7544ee1a9f3ae3b7f885f/src/cargo/util/toml/mod.rs#L250-L287
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "kebab-case")]
-pub struct DetailedTomlDependency<P: Clone = String> {
+pub struct TomlDetailedDependency<P: Clone = String> {
     version: Option<String>,
     registry: Option<String>,
     /// The URL of the `registry` field.
