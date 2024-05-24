@@ -12,13 +12,13 @@ use cargo_metadata::Metadata;
 use std::path::PathBuf;
 
 mod toml;
-pub use self::toml::schema::DetailedTomlDependency;
+pub use self::toml::schema::TomlDetailedDependency;
 
 pub fn dependency_source_id_and_root(
     opts: &opts::Dylint,
     metadata: &Metadata,
     config: &Config,
-    details: &DetailedTomlDependency,
+    details: &TomlDetailedDependency,
 ) -> Result<(SourceId, PathBuf)> {
     let name_in_toml = "library";
 

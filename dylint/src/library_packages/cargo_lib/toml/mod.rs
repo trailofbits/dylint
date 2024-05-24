@@ -29,8 +29,8 @@
 )]
 #![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 
-// smoelius: `schema::DetailedTomlDependency::unused_keys` does not appear in the original.
-impl schema::DetailedTomlDependency {
+// smoelius: `schema::TomlDetailedDependency::unused_keys` does not appear in the original.
+impl schema::TomlDetailedDependency {
     pub fn unused_keys(&self) -> Vec<String> {
         self.unused_keys.keys().cloned().collect()
     }
@@ -119,7 +119,7 @@ pub struct Context<'a, 'b> {
     features: &'a Features,
 }
 
-impl<P: ResolveToPath + Clone> schema::DetailedTomlDependency<P> {
+impl<P: ResolveToPath + Clone> schema::TomlDetailedDependency<P> {
     pub fn to_dependency(
         &self,
         name_in_toml: &str,

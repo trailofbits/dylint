@@ -13,7 +13,7 @@ use serde_untagged::UntaggedEnumVisitor;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "kebab-case")]
-pub struct DetailedTomlDependency<P: Clone = String> {
+pub struct TomlDetailedDependency<P: Clone = String> {
     pub version: Option<String>,
     pub registry: Option<String>,
     /// The URL of the `registry` field.
@@ -51,14 +51,14 @@ pub struct DetailedTomlDependency<P: Clone = String> {
     pub unused_keys: BTreeMap<String, toml::Value>,
 }
 
-impl<P: Clone> DetailedTomlDependency<P> {
+impl<P: Clone> TomlDetailedDependency<P> {
     pub fn default_features(&self) -> Option<bool> {
         self.default_features.or(self.default_features2)
     }
 }
 
 // Explicit implementation so we avoid pulling in P: Default
-impl<P: Clone> Default for DetailedTomlDependency<P> {
+impl<P: Clone> Default for TomlDetailedDependency<P> {
     fn default() -> Self {
         Self {
             version: Default::default(),
