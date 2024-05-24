@@ -1,14 +1,13 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-// smoelius: `TomlDetailedDependency::unused_keys` does not appear in the original.
-impl TomlDetailedDependency {
-    pub fn unused_keys(&self) -> Vec<String> {
+impl super::UnusedKeys for TomlDetailedDependency {
+    fn unused_keys(&self) -> Vec<String> {
         self.other.keys().cloned().collect()
     }
 }
 
-// smoelius: `TomlDetailedDependency` was copied from:
+// smoelius: `TomlDetailedDependency` is based on:
 // https://github.com/rust-lang/cargo/blob/e476251168fab96ae3c7544ee1a9f3ae3b7f885f/src/cargo/util/toml/mod.rs#L250-L287
 
 #[derive(Deserialize, Serialize, Clone, Debug)]

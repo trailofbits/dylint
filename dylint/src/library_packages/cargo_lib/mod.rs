@@ -1,3 +1,4 @@
+use super::UnusedKeys;
 use crate::{error::warn, opts};
 use anyhow::{anyhow, bail, ensure, Result};
 use cargo::{
@@ -11,8 +12,9 @@ pub use cargo::{
 use cargo_metadata::Metadata;
 use std::path::PathBuf;
 
+pub use crate::util_schemas::manifest::TomlDetailedDependency;
+
 mod toml;
-pub use self::toml::schema::TomlDetailedDependency;
 
 pub fn dependency_source_id_and_root(
     opts: &opts::Dylint,
@@ -41,7 +43,7 @@ pub fn dependency_source_id_and_root(
 
     let kind = None;
 
-    let dep = details.to_dependency(name_in_toml, &mut cx, kind)?;
+    let dep = toml::detailed_dep_to_dependency(details, name_in_toml, &mut cx, kind)?;
 
     if !warnings.is_empty() {
         warn(opts, &warnings.join("\n"));

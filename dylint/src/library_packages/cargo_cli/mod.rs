@@ -69,12 +69,12 @@ impl Config {
 
 impl PackageId {
     #[allow(clippy::unnecessary_wraps)]
-    pub const fn new(name: String, version: Version, source_id: SourceId) -> Result<Self> {
-        Ok(Self {
+    pub const fn new(name: String, version: Version, source_id: SourceId) -> Self {
+        Self {
             name,
             version,
             source_id,
-        })
+        }
     }
 
     pub fn name(&self) -> &str {
