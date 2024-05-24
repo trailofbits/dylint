@@ -6,13 +6,13 @@ use cargo::{
 };
 pub use cargo::{
     core::{PackageId, SourceId},
-    util::Config,
+    util::{cache_lock::CacheLockMode, Config},
 };
 use cargo_metadata::Metadata;
 use std::path::PathBuf;
 
 mod toml;
-pub use self::toml::DetailedTomlDependency;
+pub use self::toml::schema::DetailedTomlDependency;
 
 pub fn dependency_source_id_and_root(
     opts: &opts::Dylint,
@@ -71,7 +71,7 @@ fn dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
 }
 
 fn git_dependency_root(config: &Config, dep: &Dependency) -> Result<PathBuf> {
-    let _lock = config.acquire_package_cache_lock()?;
+    let _lock = config.acquire_package_cache_lock(CacheLockMode::DownloadExclusive)?;
 
     #[allow(clippy::default_trait_access)]
     let mut source = dep.source_id().load(config, &Default::default())?;
@@ -116,7 +116,8 @@ fn git_dependency_root_from_package<'a>(
 
     if source.source_id().is_git() {
         let git_path = config.git_path();
-        let git_path = config.assert_package_cache_locked(&git_path);
+        let git_path =
+            config.assert_package_cache_locked(CacheLockMode::DownloadExclusive, &git_path);
         ensure!(
             package_root.starts_with(git_path.join("checkouts")),
             "Unexpected path: {}",

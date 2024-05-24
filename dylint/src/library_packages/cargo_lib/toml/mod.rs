@@ -1,5 +1,5 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/0.75.0/src/cargo/util/toml/mod.rs with adjustments to
+// https://github.com/rust-lang/cargo/blob/0.76.0/src/cargo/util/toml/mod.rs with adjustments to
 // make some things public.
 // smoelius: I experimented with creating a reduced Cargo crate that included just this module and
 // the things it depends upon. Such a crate could reduce build times and incur less of a maintenance
@@ -32,7 +32,7 @@
 // smoelius: `schema::DetailedTomlDependency::unused_keys` does not appear in the original.
 impl schema::DetailedTomlDependency {
     pub fn unused_keys(&self) -> Vec<String> {
-        self.other.keys().cloned().collect()
+        self.unused_keys.keys().cloned().collect()
     }
 }
 
@@ -87,12 +87,16 @@ use crate::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, Worksp
 use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
 use crate::util::errors::{CargoResult, ManifestError};
 use crate::util::interning::InternedString;
+use crate::util::restricted_names;
 use crate::util::{
     self, config::ConfigRelativePath, validate_package_name, Config, IntoUrl, OptVersionReq,
     RustVersion,
 };
 
-mod schema;
+// mod embedded;
+pub mod schema;
+// mod targets;
+// use self::targets::targets;
 
 /// Warn about paths that have been deprecated and may conflict.
 fn warn_on_deprecated(new_path: &str, name: &str, kind: &str, warnings: &mut Vec<String>) {
@@ -288,11 +292,7 @@ impl<P: ResolveToPath + Clone> schema::DetailedTomlDependency<P> {
             warn_on_deprecated("default-features", name_in_toml, "dependency", cx.warnings);
         }
         dep.set_features(self.features.iter().flatten())
-            .set_default_features(
-                self.default_features
-                    .or(self.default_features2)
-                    .unwrap_or(true),
-            )
+            .set_default_features(self.default_features().unwrap_or(true))
             .set_optional(self.optional.unwrap_or(false))
             .set_platform(cx.platform.clone());
         if let Some(registry) = &self.registry {
