@@ -100,7 +100,10 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
         opts
     };
 
-    if opts.library_selection().pattern.is_some() && !opts.git_or_path() {
+    if opts.has_library_selection()
+        && opts.library_selection().pattern.is_some()
+        && !opts.git_or_path()
+    {
         bail!("`--pattern` can be used only with `--git` or `--path`");
     }
 

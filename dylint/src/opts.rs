@@ -112,6 +112,11 @@ pub struct Upgrade {
 
 impl Dylint {
     #[must_use]
+    pub const fn has_library_selection(&self) -> bool {
+        self.operation.has_library_selection()
+    }
+
+    #[must_use]
     pub fn library_selection(&self) -> &LibrarySelection {
         self.operation.library_selection()
     }
@@ -135,6 +140,14 @@ impl LibrarySelection {
 static LIBRARY_SELECTION: Lazy<LibrarySelection> = Lazy::new(LibrarySelection::default);
 
 impl Operation {
+    const fn has_library_selection(&self) -> bool {
+        match self {
+            Self::Check(_) | Self::List(_) => true,
+            #[cfg(feature = "package_options")]
+            Self::New(_) | Self::Upgrade(_) => false,
+        }
+    }
+
     fn library_selection(&self) -> &LibrarySelection {
         match self {
             Self::Check(check) => &check.lib_sel,
@@ -149,6 +162,7 @@ impl Operation {
                         "`library_selection` called on an `Operation` with no `LibrarySelection` \
                          field"
                     );
+                    eprintln!("{}", std::backtrace::Backtrace::force_capture());
                 }
                 &LIBRARY_SELECTION
             }
