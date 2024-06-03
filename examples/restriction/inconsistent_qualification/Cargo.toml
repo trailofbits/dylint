@@ -19,7 +19,7 @@ clippy_utils = { workspace = true }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-diesel = "2.1"
+diesel = "2.2"
 
 dylint_testing = { path = "../../../utils/testing" }
 
