@@ -2,7 +2,5 @@ regex-automata v0.1.10
 regex-automata v0.4.6
 regex-syntax v0.6.29
 regex-syntax v0.8.3
-rustfix v0.6.1
-rustfix v0.8.2
 winnow v0.5.40
-winnow v0.6.8
+winnow v0.6.9
