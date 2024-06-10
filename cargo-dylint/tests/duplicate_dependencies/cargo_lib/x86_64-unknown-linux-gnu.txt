@@ -1,6 +1,6 @@
 regex-automata v0.1.10
-regex-automata v0.4.6
+regex-automata v0.4.7
 regex-syntax v0.6.29
-regex-syntax v0.8.3
+regex-syntax v0.8.4
 winnow v0.5.40
-winnow v0.6.9
+winnow v0.6.13
