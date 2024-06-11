@@ -35,7 +35,7 @@ EXAMPLES="$(echo "$EXAMPLE_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 RESTRICTION_DIRS="$(find examples/restriction -mindepth 1 -maxdepth 1 -type d ! -name .cargo)"
 RESTRICTIONS="$(echo "$RESTRICTION_DIRS" | xargs -n 1 basename | tr '\n' ' ')"
 
-EXPERIMENTAL_DIRS="$(echo examples/experimental/*)"
+EXPERIMENTAL_DIRS="$(find examples/experimental -mindepth 1 -maxdepth 1 -type d ! -name .cargo)"
 
 # smoelius: `overscoped_allow` must be run after other lints have been run. (See its documentation.)
 EXAMPLES="$(echo "$EXAMPLES" | sed 's/\<overscoped_allow\>[[:space:]]*//')"
