@@ -15,7 +15,9 @@ cd "$WORKSPACE"
 
 CARGO_DYLINT='timeout 10m cargo run -p cargo-dylint -- dylint'
 
-for EXAMPLE in examples/general examples/supplementary examples/restriction examples/experimental/* examples/testing/clippy internal/template; do
+EXPERIMENTAL_DIRS="$(find examples/experimental -mindepth 1 -maxdepth 1 -type d ! -name .cargo)"
+
+for EXAMPLE in examples/general examples/supplementary examples/restriction $EXPERIMENTAL_DIRS examples/testing/clippy internal/template; do
     # smoelius: If the example's directory has changes, assume the example was already upgraded and
     # the script had to be restarted.
     if ! git diff --exit-code "$EXAMPLE"; then
