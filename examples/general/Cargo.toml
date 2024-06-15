@@ -46,7 +46,7 @@ members = [
 ]
 
 [workspace.dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1325425589efdaf4bba99c37f0d80030ab53aac5" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "3e5a02b13b1244545454752c6629b767522a44b1" }
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "deny", check-cfg = [
