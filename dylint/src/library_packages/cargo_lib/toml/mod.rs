@@ -1,5 +1,5 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/0.79.0/src/cargo/util/toml/mod.rs with adjustments to
+// https://github.com/rust-lang/cargo/blob/0.80.0/src/cargo/util/toml/mod.rs with adjustments to
 // make some things public.
 // smoelius: I experimented with creating a reduced Cargo crate that included just this module and
 // the things it depends upon. Such a crate could reduce build times and incur less of a maintenance
@@ -47,7 +47,6 @@ impl<'a, 'b> ManifestContext<'a, 'b> {
         warnings: &'a mut Vec<String>,
         platform: Option<Platform>,
         root: &'a Path,
-        features: &'a Features,
     ) -> Self {
         Self {
             deps,
@@ -56,13 +55,12 @@ impl<'a, 'b> ManifestContext<'a, 'b> {
             warnings,
             platform,
             root,
-            features,
         }
     }
 }
 
-// use annotate_snippets::{Annotation, AnnotationType, Renderer, Slice, Snippet, SourceAnnotation};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+// use annotate_snippets::{Level, Renderer, Snippet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
@@ -71,9 +69,9 @@ use std::str::{self, FromStr};
 // use crate::AlreadyPrintedError;
 use anyhow::{anyhow, bail, Context as _};
 use cargo_platform::Platform;
-use cargo_util::paths;
-use cargo_util_schemas::manifest::RustVersion;
+use cargo_util::paths::{self, normalize_path};
 use cargo_util_schemas::manifest::{self, TomlManifest};
+use cargo_util_schemas::manifest::{RustVersion, StringOrBool};
 // use itertools::Itertools;
 // use lazycell::LazyCell;
 // use pathdiff::diff_paths;
@@ -83,23 +81,15 @@ use crate::core::compiler::{CompileKind, CompileTarget};
 use crate::core::dependency::{Artifact, ArtifactTarget, DepKind};
 use crate::core::manifest::{ManifestMetadata, TargetSourcePath};
 use crate::core::resolver::ResolveBehavior;
+use crate::core::FeatureValue::Dep;
 use crate::core::{find_workspace_root, resolve_relative_path, CliUnstable, FeatureValue};
-use crate::core::{Dependency, Manifest, PackageId, Summary, Target};
+use crate::core::{Dependency, Manifest, Package, PackageId, Summary, Target};
 use crate::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
 use crate::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
 use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
 use crate::util::errors::{CargoResult, ManifestError};
 use crate::util::interning::InternedString;
 use crate::util::{self, context::ConfigRelativePath, GlobalContext, IntoUrl, OptVersionReq};
-
-/// Warn about paths that have been deprecated and may conflict.
-fn warn_on_deprecated(new_path: &str, name: &str, kind: &str, warnings: &mut Vec<String>) {
-    let old_path = new_path.replace("-", "_");
-    warnings.push(format!(
-        "conflicting between `{new_path}` and `{old_path}` in the `{name}` {kind}.\n
-        `{old_path}` is ignored and not recommended for use in the future"
-    ))
-}
 
 #[allow(dead_code)]
 pub struct ManifestContext<'a, 'b> {
@@ -109,7 +99,6 @@ pub struct ManifestContext<'a, 'b> {
     warnings: &'a mut Vec<String>,
     platform: Option<Platform>,
     root: &'a Path,
-    features: &'a Features,
 }
 
 pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
@@ -119,14 +108,11 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
     kind: Option<DepKind>,
 ) -> CargoResult<Dependency> {
     if orig.version.is_none() && orig.path.is_none() && orig.git.is_none() {
-        let msg = format!(
-            "dependency ({}) specified without \
+        anyhow::bail!(
+            "dependency ({name_in_toml}) specified without \
                  providing a local path, Git repository, version, or \
-                 workspace dependency to use. This will be considered an \
-                 error in future versions",
-            name_in_toml
+                 workspace dependency to use"
         );
-        manifest_ctx.warnings.push(msg);
     }
 
     if let Some(version) = &orig.version {
@@ -187,90 +173,7 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
         }
     }
 
-    let new_source_id = match (
-        orig.git.as_ref(),
-        orig.path.as_ref(),
-        orig.registry.as_ref(),
-        orig.registry_index.as_ref(),
-    ) {
-        (Some(_), _, Some(_), _) | (Some(_), _, _, Some(_)) => bail!(
-            "dependency ({}) specification is ambiguous. \
-                 Only one of `git` or `registry` is allowed.",
-            name_in_toml
-        ),
-        (_, _, Some(_), Some(_)) => bail!(
-            "dependency ({}) specification is ambiguous. \
-                 Only one of `registry` or `registry-index` is allowed.",
-            name_in_toml
-        ),
-        (Some(git), maybe_path, _, _) => {
-            if maybe_path.is_some() {
-                bail!(
-                    "dependency ({}) specification is ambiguous. \
-                         Only one of `git` or `path` is allowed.",
-                    name_in_toml
-                );
-            }
-
-            let n_details = [&orig.branch, &orig.tag, &orig.rev]
-                .iter()
-                .filter(|d| d.is_some())
-                .count();
-
-            if n_details > 1 {
-                bail!(
-                    "dependency ({}) specification is ambiguous. \
-                         Only one of `branch`, `tag` or `rev` is allowed.",
-                    name_in_toml
-                );
-            }
-
-            let reference = orig
-                .branch
-                .clone()
-                .map(GitReference::Branch)
-                .or_else(|| orig.tag.clone().map(GitReference::Tag))
-                .or_else(|| orig.rev.clone().map(GitReference::Rev))
-                .unwrap_or(GitReference::DefaultBranch);
-            let loc = git.into_url()?;
-
-            if let Some(fragment) = loc.fragment() {
-                let msg = format!(
-                    "URL fragment `#{}` in git URL is ignored for dependency ({}). \
-                        If you were trying to specify a specific git revision, \
-                        use `rev = \"{}\"` in the dependency declaration.",
-                    fragment, name_in_toml, fragment
-                );
-                manifest_ctx.warnings.push(msg)
-            }
-
-            SourceId::for_git(&loc, reference)?
-        }
-        (None, Some(path), _, _) => {
-            let path = path.resolve(manifest_ctx.gctx);
-            // If the source ID for the package we're parsing is a path
-            // source, then we normalize the path here to get rid of
-            // components like `..`.
-            //
-            // The purpose of this is to get a canonical ID for the package
-            // that we're depending on to ensure that builds of this package
-            // always end up hashing to the same value no matter where it's
-            // built from.
-            if manifest_ctx.source_id.is_path() {
-                let path = manifest_ctx.root.join(path);
-                let path = paths::normalize_path(&path);
-                SourceId::for_path(&path)?
-            } else {
-                manifest_ctx.source_id
-            }
-        }
-        (None, None, Some(registry), None) => SourceId::alt_registry(manifest_ctx.gctx, registry)?,
-        (None, None, None, Some(registry_index)) => {
-            let url = registry_index.into_url()?;
-            SourceId::for_registry(&url)?
-        }
-        (None, None, None, None) => SourceId::crates_io(manifest_ctx.gctx)?,
-    };
+    let new_source_id = to_dependency_source_id(orig, name_in_toml, manifest_ctx)?;
 
     let (pkg_name, explicit_name_in_toml) = match orig.package {
         Some(ref s) => (&s[..], Some(name_in_toml)),
@@ -279,14 +182,6 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
 
     let version = orig.version.as_deref();
     let mut dep = Dependency::parse(pkg_name, version, new_source_id)?;
-    if orig.default_features.is_some() && orig.default_features2.is_some() {
-        warn_on_deprecated(
-            "default-features",
-            name_in_toml,
-            "dependency",
-            manifest_ctx.warnings,
-        );
-    }
     dep.set_features(orig.features.iter().flatten())
         .set_default_features(orig.default_features().unwrap_or(true))
         .set_optional(orig.optional.unwrap_or(false))
@@ -309,26 +204,7 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
     }
 
     if let Some(p) = orig.public {
-        let public_feature = manifest_ctx.features.require(Feature::public_dependency());
-        let with_z_public = manifest_ctx.gctx.cli_unstable().public_dependency;
-        let with_public_feature = public_feature.is_ok();
-        if !with_public_feature && (!with_z_public && !manifest_ctx.gctx.nightly_features_allowed) {
-            public_feature?;
-        }
-
-        if dep.kind() != DepKind::Normal {
-            let hint = format!(
-                "'public' specifier can only be used on regular dependencies, not {}",
-                dep.kind().kind_table(),
-            );
-            match (with_public_feature, with_z_public) {
-                (true, _) | (_, true) => bail!(hint),
-                // If public feature isn't enabled in nightly, we instead warn that.
-                (false, false) => manifest_ctx.warnings.push(hint),
-            }
-        } else {
-            dep.set_public(p);
-        }
+        dep.set_public(p);
     }
 
     #[cfg(any())]
@@ -367,6 +243,91 @@ pub fn detailed_dep_to_dependency<P: ResolveToPath + Clone>(
         }
     }
     Ok(dep)
+}
+
+fn to_dependency_source_id<P: ResolveToPath + Clone>(
+    orig: &manifest::TomlDetailedDependency<P>,
+    name_in_toml: &str,
+    manifest_ctx: &mut ManifestContext<'_, '_>,
+) -> CargoResult<SourceId> {
+    match (
+        orig.git.as_ref(),
+        orig.path.as_ref(),
+        orig.registry.as_deref(),
+        orig.registry_index.as_ref(),
+    ) {
+        (Some(_git), _, Some(_registry), _) | (Some(_git), _, _, Some(_registry)) => bail!(
+            "dependency ({name_in_toml}) specification is ambiguous. \
+                 Only one of `git` or `registry` is allowed.",
+        ),
+        (_, _, Some(_registry), Some(_registry_index)) => bail!(
+            "dependency ({name_in_toml}) specification is ambiguous. \
+                 Only one of `registry` or `registry-index` is allowed.",
+        ),
+        (Some(_git), Some(_path), None, None) => {
+            bail!(
+                "dependency ({name_in_toml}) specification is ambiguous. \
+                     Only one of `git` or `path` is allowed.",
+            );
+        }
+        (Some(git), None, None, None) => {
+            let n_details = [&orig.branch, &orig.tag, &orig.rev]
+                .iter()
+                .filter(|d| d.is_some())
+                .count();
+
+            if n_details > 1 {
+                bail!(
+                    "dependency ({name_in_toml}) specification is ambiguous. \
+                         Only one of `branch`, `tag` or `rev` is allowed.",
+                );
+            }
+
+            let reference = orig
+                .branch
+                .clone()
+                .map(GitReference::Branch)
+                .or_else(|| orig.tag.clone().map(GitReference::Tag))
+                .or_else(|| orig.rev.clone().map(GitReference::Rev))
+                .unwrap_or(GitReference::DefaultBranch);
+            let loc = git.into_url()?;
+
+            if let Some(fragment) = loc.fragment() {
+                let msg = format!(
+                    "URL fragment `#{fragment}` in git URL is ignored for dependency ({name_in_toml}). \
+                        If you were trying to specify a specific git revision, \
+                        use `rev = \"{fragment}\"` in the dependency declaration.",
+                );
+                manifest_ctx.warnings.push(msg);
+            }
+
+            SourceId::for_git(&loc, reference)
+        }
+        (None, Some(path), _, _) => {
+            let path = path.resolve(manifest_ctx.gctx);
+            // If the source ID for the package we're parsing is a path
+            // source, then we normalize the path here to get rid of
+            // components like `..`.
+            //
+            // The purpose of this is to get a canonical ID for the package
+            // that we're depending on to ensure that builds of this package
+            // always end up hashing to the same value no matter where it's
+            // built from.
+            if manifest_ctx.source_id.is_path() {
+                let path = manifest_ctx.root.join(path);
+                let path = paths::normalize_path(&path);
+                SourceId::for_path(&path)
+            } else {
+                Ok(manifest_ctx.source_id)
+            }
+        }
+        (None, None, Some(registry), None) => SourceId::alt_registry(manifest_ctx.gctx, registry),
+        (None, None, None, Some(registry_index)) => {
+            let url = registry_index.into_url()?;
+            SourceId::for_registry(&url)
+        }
+        (None, None, None, None) => SourceId::crates_io(manifest_ctx.gctx),
+    }
 }
 
 pub trait ResolveToPath {

@@ -2,7 +2,7 @@ use super::UnusedKeys;
 use crate::{error::warn, opts};
 use anyhow::{anyhow, bail, ensure, Result};
 use cargo::{
-    core::{Dependency, Features, Package as CargoPackage},
+    core::{Dependency, Package as CargoPackage},
     sources::source::{MaybePackage, QueryKind, Source},
 };
 pub use cargo::{
@@ -28,16 +28,7 @@ pub fn dependency_source_id_and_root(
     let root = PathBuf::from(&metadata.workspace_root);
     let source_id = SourceId::for_path(&root)?;
     let mut warnings = vec![];
-    let features = Features::new(&[], gctx, &mut warnings, source_id.is_path())?;
-    let mut cx = toml::ManifestContext::new(
-        &mut deps,
-        source_id,
-        gctx,
-        &mut warnings,
-        None,
-        &root,
-        &features,
-    );
+    let mut cx = toml::ManifestContext::new(&mut deps, source_id, gctx, &mut warnings, None, &root);
 
     let kind = None;
 
