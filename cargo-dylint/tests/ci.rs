@@ -262,6 +262,16 @@ fn license() {
             if line == "MPL-2.0+ (3): bitmaps, im-rc, sized-chunks" {
                 continue;
             }
+            // smoelius: Exception for `idna` dependencies.
+            if line
+                == "Unicode-3.0 (19): icu_collections, icu_locid, icu_locid_transform, \
+                    icu_locid_transform_data, icu_normalizer, icu_normalizer_data, icu_properties, \
+                    icu_properties_data, icu_provider, icu_provider_macros, litemap, tinystr, \
+                    writeable, yoke, yoke-derive, zerofrom, zerofrom-derive, zerovec, \
+                    zerovec-derive"
+            {
+                continue;
+            }
             // smoelius: Good explanation of the differences between the BSD-3-Clause and MIT
             // licenses: https://opensource.stackexchange.com/a/582
             assert!(re.is_match(line), "{line:?} does not match");
