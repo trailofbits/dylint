@@ -14,7 +14,8 @@ use tempfile::tempdir;
 // smoelius: `home v0.5.9` (2013-12-15) requires rustc 1.70.0 or newer.
 // smoelius: `cargo-util v0.2.7` requires rustc 1.72.0 or newer.
 // smoelius: `cargo-platform v0.1.8` requires rustc 1.73 or newer.
-const RUST_VERSION: &str = "1.73.0";
+// smoelius: `rustfix v0.8.4` requires rustc 1.75 or newer.
+const RUST_VERSION: &str = "1.75.0";
 
 #[test]
 fn new_package() {
