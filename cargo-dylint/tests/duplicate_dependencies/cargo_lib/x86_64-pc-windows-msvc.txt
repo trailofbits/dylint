@@ -12,5 +12,3 @@ windows-targets v0.52.5
 windows_x86_64_msvc v0.42.2
 windows_x86_64_msvc v0.48.5
 windows_x86_64_msvc v0.52.5
-winnow v0.5.40
-winnow v0.6.13
