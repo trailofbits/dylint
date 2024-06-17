@@ -27,6 +27,15 @@
         "name": "Andrew Gallant"
       }
     ],
+    "allocator-api2": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/4456841?v=4",
+        "id": 945,
+        "kind": "user",
+        "login": "zakarumych",
+        "name": "Zakarum"
+      }
+    ],
     "annotate-snippets": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/449986?v=4",
@@ -320,15 +329,6 @@
         "kind": "user",
         "login": "BurntSushi",
         "name": "Andrew Gallant"
-      }
-    ],
-    "btoi": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/402777?v=4",
-        "id": 6157,
-        "kind": "user",
-        "login": "niklasf",
-        "name": "Niklas Fiekas"
       }
     ],
     "bytes": [
@@ -1454,6 +1454,22 @@
         "name": null
       }
     ],
+    "fnv": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2566135?v=4",
+        "id": 5,
+        "kind": "team",
+        "login": "github:servo:cargo-publish",
+        "name": "cargo publish"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/291359?v=4",
+        "id": 7,
+        "kind": "user",
+        "login": "SimonSapin",
+        "name": "Simon Sapin"
+      }
+    ],
     "form_urlencoded": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/2566135?v=4",
@@ -1699,6 +1715,15 @@
       }
     ],
     "gix-diff": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      }
+    ],
+    "gix-dir": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/63622?v=4",
         "id": 980,
