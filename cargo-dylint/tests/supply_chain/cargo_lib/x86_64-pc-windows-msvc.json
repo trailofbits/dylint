@@ -1152,6 +1152,15 @@
         "name": "Nathan McCarty"
       }
     ],
+    "displaydoc": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1993852?v=4",
+        "id": 43601,
+        "kind": "user",
+        "login": "yaahc",
+        "name": "Jane Losare-Lusby"
+      }
+    ],
     "dunce": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/72159?v=4",
@@ -2230,6 +2239,194 @@
         "name": "Paul Colomiets"
       }
     ],
+    "icu_collections": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1145762?v=4",
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_locid": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/449986?v=4",
+        "id": 9648,
+        "kind": "user",
+        "login": "zbraniecki",
+        "name": "Zibi Braniecki"
+      }
+    ],
+    "icu_locid_transform": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1145762?v=4",
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_locid_transform_data": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1145762?v=4",
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_normalizer": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
+    "icu_normalizer_data": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1145762?v=4",
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_properties": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1145762?v=4",
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_properties_data": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1145762?v=4",
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_provider": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/449986?v=4",
+        "id": 9648,
+        "kind": "user",
+        "login": "zbraniecki",
+        "name": "Zibi Braniecki"
+      }
+    ],
+    "icu_provider_macros": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1145762?v=4",
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
     "idna": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/2566135?v=4",
@@ -2574,6 +2771,22 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
+      }
+    ],
+    "litemap": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
       }
     ],
     "lock_api": [
@@ -3738,6 +3951,29 @@
         "name": "formats"
       }
     ],
+    "stable_deref_trait": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2903206?v=4",
+        "id": 394,
+        "kind": "user",
+        "login": "Kimundi",
+        "name": "Marvin Löbel"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/877878?v=4",
+        "id": 1574,
+        "kind": "user",
+        "login": "jpernst",
+        "name": null
+      },
+      {
+        "avatar": "https://avatars3.githubusercontent.com/u/999674?v=4",
+        "id": 4492,
+        "kind": "user",
+        "login": "Storyyeller",
+        "name": "Robert Grosse"
+      }
+    ],
     "static_assertions": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/10367662?v=4",
@@ -3804,6 +4040,15 @@
         "kind": "user",
         "login": "dtolnay",
         "name": "David Tolnay"
+      }
+    ],
+    "synstructure": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1261662?v=4",
+        "id": 1947,
+        "kind": "user",
+        "login": "mystor",
+        "name": "Nika Layzell"
       }
     ],
     "tar": [
@@ -3924,6 +4169,36 @@
         "kind": "user",
         "login": "jhpratt",
         "name": "Jacob Pratt"
+      }
+    ],
+    "tinystr": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/242367?v=4",
+        "id": 1968,
+        "kind": "user",
+        "login": "raphlinus",
+        "name": "Raph Levien"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/449986?v=4",
+        "id": 9648,
+        "kind": "user",
+        "login": "zbraniecki",
+        "name": "Zibi Braniecki"
       }
     ],
     "tinyvec": [
@@ -4134,50 +4409,6 @@
         "kind": "user",
         "login": "seanmonstar",
         "name": "Sean McArthur"
-      }
-    ],
-    "unicode-bidi": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/2566135?v=4",
-        "id": 5,
-        "kind": "team",
-        "login": "github:servo:cargo-publish",
-        "name": "cargo publish"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/291359?v=4",
-        "id": 7,
-        "kind": "user",
-        "login": "SimonSapin",
-        "name": "Simon Sapin"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/475847?v=4",
-        "id": 576,
-        "kind": "user",
-        "login": "larsbergstrom",
-        "name": "Lars Bergstrom"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/28357?v=3",
-        "id": 1966,
-        "kind": "user",
-        "login": "metajack",
-        "name": "Jack Moffitt"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/5920?v=4",
-        "id": 2017,
-        "kind": "user",
-        "login": "mbrubeck",
-        "name": "Matt Brubeck"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/37169?v=4",
-        "id": 6534,
-        "kind": "user",
-        "login": "behnam",
-        "name": "Behnam Esfahbod"
       }
     ],
     "unicode-bom": [
@@ -4411,6 +4642,24 @@
         "name": "rust-url"
       }
     ],
+    "utf16_iter": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/478856?v=4",
+        "id": 4484,
+        "kind": "user",
+        "login": "hsivonen",
+        "name": "Henri Sivonen"
+      }
+    ],
+    "utf8_iter": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/478856?v=4",
+        "id": 4484,
+        "kind": "user",
+        "login": "hsivonen",
+        "name": "Henri Sivonen"
+      }
+    ],
     "utf8parse": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/4285147?v=4",
@@ -4543,6 +4792,63 @@
         "name": "Ed Page"
       }
     ],
+    "write16": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/478856?v=4",
+        "id": 4484,
+        "kind": "user",
+        "login": "hsivonen",
+        "name": "Henri Sivonen"
+      }
+    ],
+    "writeable": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/449986?v=4",
+        "id": 9648,
+        "kind": "user",
+        "login": "zbraniecki",
+        "name": "Zibi Braniecki"
+      }
+    ],
+    "yoke": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
+    "yoke-derive": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
     "zerocopy": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1046063?v=4",
@@ -4550,6 +4856,38 @@
         "kind": "user",
         "login": "joshlf",
         "name": "Joshua Liebow-Feeser"
+      }
+    ],
+    "zerofrom": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
+    "zerofrom-derive": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
       }
     ],
     "zeroize": [
@@ -4566,6 +4904,38 @@
         "kind": "team",
         "login": "github:rustcrypto:utils",
         "name": "utils"
+      }
+    ],
+    "zerovec": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
+    "zerovec-derive": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13873561?v=4",
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
       }
     ]
   },
