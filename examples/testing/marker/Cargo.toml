@@ -30,6 +30,11 @@ tempfile = "3.10"
 
 dylint_internal = { path = "../../../internal", features = ["cargo", "git"] }
 
+[lints.rust]
+unexpected_cfgs = { level = "deny", check-cfg = [
+    'cfg(dylint_lib, values(any()))',
+] }
+
 [package.metadata.rust-analyzer]
 rustc_private = true
 

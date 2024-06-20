@@ -15,6 +15,11 @@ members = [
 ]
 resolver = "2"
 
+[workspace.lints.rust]
+unexpected_cfgs = { level = "deny", check-cfg = [
+    'cfg(dylint_lib, values(any()))',
+] }
+
 [workspace.metadata.dylint]
 libraries = [
     { path = "examples/general" },

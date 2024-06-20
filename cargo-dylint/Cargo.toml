@@ -47,3 +47,6 @@ cargo-cli = ["dylint/__cargo_cli"]
 cargo-lib = ["dylint/__cargo_lib"]
 __ci = []
 __clap_headings = []
+
+[lints]
+workspace = true

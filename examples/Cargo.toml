@@ -16,3 +16,6 @@ dylint_internal = { version = "=3.1.2", path = "../internal", features = [
     "clippy_utils",
     "examples",
 ] }
+
+[lints]
+workspace = true

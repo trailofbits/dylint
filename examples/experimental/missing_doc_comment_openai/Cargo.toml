@@ -20,6 +20,11 @@ dylint_linting = { path = "../../../utils/linting" }
 [dev-dependencies]
 dylint_testing = { path = "../../../utils/testing" }
 
+[lints.rust]
+unexpected_cfgs = { level = "deny", check-cfg = [
+    'cfg(dylint_lib, values(any()))',
+] }
+
 [package.metadata.rust-analyzer]
 rustc_private = true
 
