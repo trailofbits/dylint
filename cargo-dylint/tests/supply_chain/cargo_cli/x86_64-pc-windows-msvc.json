@@ -210,32 +210,11 @@
     ],
     "cargo-platform": [
       {
-        "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
-        "avatar": "https://avatars1.githubusercontent.com/u/5430905?v=4",
-        "id": 70,
-        "kind": "team",
-        "login": "github:rust-lang:core",
-        "name": "core"
-      },
-      {
         "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
         "id": 4282,
         "kind": "team",
         "login": "github:rust-lang:release-publishers",
         "name": "release-publishers"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
-        "id": 6202,
-        "kind": "user",
-        "login": "ehuss",
-        "name": "Eric Huss"
       },
       {
         "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
@@ -252,13 +231,6 @@
         "kind": "team",
         "login": "github:rust-lang:release-publishers",
         "name": "release-publishers"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
-        "id": 6202,
-        "kind": "user",
-        "login": "ehuss",
-        "name": "Eric Huss"
       },
       {
         "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
@@ -1801,32 +1773,11 @@
     ],
     "rustfix": [
       {
-        "avatar": "https://avatars.githubusercontent.com/u/20063?v=4",
-        "id": 58,
-        "kind": "user",
-        "login": "killercup",
-        "name": "Pascal Hertleif"
-      },
-      {
-        "avatar": "https://avatars1.githubusercontent.com/u/14631425?v=4",
-        "id": 401,
+        "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
+        "id": 4282,
         "kind": "team",
-        "login": "github:rust-lang-nursery:rustfix",
-        "name": "rustfix"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/332036?v=4",
-        "id": 1471,
-        "kind": "user",
-        "login": "oli-obk",
-        "name": "Oli Scherer"
-      },
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/43198?v=4",
-        "id": 6202,
-        "kind": "user",
-        "login": "ehuss",
-        "name": "Eric Huss"
+        "login": "github:rust-lang:release-publishers",
+        "name": "release-publishers"
       },
       {
         "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
