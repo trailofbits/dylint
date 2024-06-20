@@ -23,3 +23,6 @@ dylint_internal = { version = "=3.1.2", path = "../../internal" }
 [features]
 default = []
 deny_warnings = []
+
+[lints]
+workspace = true

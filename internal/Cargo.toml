@@ -55,3 +55,6 @@ packaging = ["cargo", "rust-embed"]
 rustup = ["command"]
 sed = ["regex"]
 testing = ["ctor", "env_logger", "packaging"]
+
+[lints]
+workspace = true

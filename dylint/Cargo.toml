@@ -97,6 +97,9 @@ __cargo_lib = [
     "toml",
 ]
 
+[lints]
+workspace = true
+
 # smoelius: When both `__cargo_cli` and `__cargo_lib` are enabled, we treat it as though
 # `--features=cargo-lib` was passed but the user forgot to pass `--no-default-features`. This
 # approach causes `fs_extra` to look like an unused dependency.

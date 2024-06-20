@@ -25,5 +25,8 @@ cargo_metadata = "0.18"
 
 dylint_testing = { path = "../../../utils/testing" }
 
+[lints]
+workspace = true
+
 [package.metadata.rust-analyzer]
 rustc_private = true
