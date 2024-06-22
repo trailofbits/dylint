@@ -118,6 +118,37 @@ Also note that the just described approach does not work for pre-expansion lints
 
 For an example involving [`abs_home_path`], see [internal/src/examples.rs] in this repository.
 
+#### Rustc's `unexpected_cfg` lint
+
+As of nightly-2024-05-05, the names and values of every reachable `#[cfg]` [are checked]. This causes the compiler to produce warnings for `cfg_attr` attributes as described above.
+
+To suppress such warnings, add the following to your packages' Cargo.toml files:
+
+```toml
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(dylint_lib, values(any()))',
+] }
+```
+
+Or, if you're using a Cargo workspace, add the following the workspace's Cargo.toml file:
+
+```toml
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(dylint_lib, values(any()))',
+] }
+```
+
+Then, add the following to the Cargo.toml file of each package in the workspace:
+
+```toml
+[lints]
+workspace = true
+```
+
+For an example, see commit [`c8fabc5`] in this repository.
+
 ### VS Code integration
 
 Dylint results can be viewed in VS Code using [rust-analyzer]. To do so, add the following to your VS Code `settings.json` file:
@@ -204,6 +235,7 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 [Writing lints]: #writing-lints
 [`LateLintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
 [`abs_home_path`]: ../examples/general/abs_home_path
+[`c8fabc5`]: https://github.com/trailofbits/dylint/pull/1240/commits/c8fabc59dff5564333d4b6d4108e5f09108a0b4a
 [`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ../dylint-link
@@ -214,6 +246,7 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 [`try_io_result`]: ../examples/restriction/try_io_result
 [`ui_test`]: ../utils/testing
 [`unknown_lints`]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#unknown-lints
+[are checked]: https://blog.rust-lang.org/2024/05/06/check-cfg.html
 [dylint/src/lib.rs]: ../dylint/src/lib.rs
 [example general-purpose lints]: ../examples/general
 [general-purpose, example lints]: ../examples/README.md#general
