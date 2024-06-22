@@ -2,7 +2,7 @@ use anyhow::{anyhow, Context, Result};
 use dylint_internal::{
     clippy_utils::{clippy_utils_package_version, toolchain_channel},
     clone,
-    git2::{Commit, ObjectType, Repository},
+    git2::{Commit, ObjectType, Oid, Repository},
 };
 use if_chain::if_chain;
 use tempfile::{tempdir, TempDir};
@@ -13,7 +13,7 @@ const RUST_CLIPPY_URL: &str = "https://github.com/rust-lang/rust-clippy";
 pub struct Rev {
     pub version: String,
     pub channel: String,
-    pub rev: String,
+    pub oid: Oid,
 }
 
 pub struct Revs {
@@ -51,14 +51,14 @@ impl Revs {
             .ok_or_else(|| anyhow!("Object is not a commit"))?;
         let version = clippy_utils_package_version(self.tempdir.path())?;
         let channel = toolchain_channel(self.tempdir.path())?;
-        let rev = commit.id().to_string();
+        let oid = commit.id();
         Ok(RevIter {
             revs: self,
             commit: commit.clone(),
             curr_rev: Some(Rev {
                 version,
                 channel,
-                rev,
+                oid,
             }),
         })
     }
@@ -102,11 +102,11 @@ impl<'revs> Iterator for RevIter<'revs> {
                         })?;
                     let version = clippy_utils_package_version(self.revs.tempdir.path())?;
                     let channel = toolchain_channel(self.revs.tempdir.path())?;
-                    let rev = commit.id().to_string();
+                    let oid = commit.id();
                     Rev {
                         version,
                         channel,
-                        rev,
+                        oid,
                     }
                 };
                 if_chain! {
@@ -135,33 +135,33 @@ mod test {
             Rev {
                 version: "0.1.65".to_owned(),
                 channel: "nightly-2022-08-11".to_owned(),
-                rev: "2b2190cb5667cdd276a24ef8b9f3692209c54a89".to_owned(),
+                oid: Oid::from_str("2b2190cb5667cdd276a24ef8b9f3692209c54a89").unwrap(),
             },
             Rev {
                 version: "0.1.64".to_owned(),
                 channel: "nightly-2022-06-30".to_owned(),
-                rev: "0cb0f7636851f9fcc57085cf80197a2ef6db098f".to_owned(),
+                oid: Oid::from_str("0cb0f7636851f9fcc57085cf80197a2ef6db098f").unwrap(),
             },
             // smoelius: 0.1.62 and 0.1.63 omitted (for no particular reason).
             Rev {
                 version: "0.1.61".to_owned(),
                 channel: "nightly-2022-02-24".to_owned(),
-                rev: "7b2896a8fc9f0b275692677ee6d2d66a7cbde16a".to_owned(),
+                oid: Oid::from_str("7b2896a8fc9f0b275692677ee6d2d66a7cbde16a").unwrap(),
             },
             Rev {
                 version: "0.1.60".to_owned(),
                 channel: "nightly-2022-01-13".to_owned(),
-                rev: "97a5daa65908e59744e2bc625b14849352231c75".to_owned(),
+                oid: Oid::from_str("97a5daa65908e59744e2bc625b14849352231c75").unwrap(),
             },
             Rev {
                 version: "0.1.59".to_owned(),
                 channel: "nightly-2021-12-02".to_owned(),
-                rev: "392b0c5c25ddbd36e4dc480afcf70ed01dce352d".to_owned(),
+                oid: Oid::from_str("392b0c5c25ddbd36e4dc480afcf70ed01dce352d").unwrap(),
             },
             Rev {
                 version: "0.1.58".to_owned(),
                 channel: "nightly-2021-10-21".to_owned(),
-                rev: "91496c2ac6abf6454c413bb23e8becf6b6dc20ea".to_owned(),
+                oid: Oid::from_str("91496c2ac6abf6454c413bb23e8becf6b6dc20ea").unwrap(),
             },
         ]
     });

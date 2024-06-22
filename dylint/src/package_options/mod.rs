@@ -149,7 +149,7 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
         Backup::new(cargo_toml_path).with_context(|| "Could not backup `Cargo.toml`")?;
 
     set_toolchain_channel(path, &rev.channel)?;
-    set_clippy_utils_dependency_revision(path, &rev.rev)?;
+    set_clippy_utils_dependency_revision(path, &rev.oid.to_string())?;
 
     cargo_toml_backup
         .disable()
