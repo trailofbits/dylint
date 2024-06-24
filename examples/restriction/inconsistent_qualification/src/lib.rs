@@ -61,11 +61,12 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
     fn check_path(&mut self, cx: &LateContext<'tcx>, path: &Path<'tcx>, hir_id: HirId) {
         // smoelius: On the Dylint source code itself, simply checking
         // `path.span.in_derive_expansion()` isn't sufficient to prevent false positives.
-        if !cx
-            .tcx
-            .hir()
-            .parent_iter(hir_id)
-            .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion())
+        if !path.span.from_expansion()
+            && !cx
+                .tcx
+                .hir()
+                .parent_iter(hir_id)
+                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion())
             && let node = cx.tcx.hir_node(hir_id)
             && !matches!(
                 node,

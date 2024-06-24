@@ -131,3 +131,13 @@ mod underscore_import {
         }
     }
 }
+
+macro_rules! check_ld_preload {
+    () => {
+        assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
+    };
+}
+
+fn foo() {
+    check_ld_preload!();
+}
