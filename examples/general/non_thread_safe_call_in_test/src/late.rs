@@ -65,6 +65,7 @@ impl_lint_pass!(NonThreadSafeCallInTest => [NON_THREAD_SAFE_CALL_IN_TEST]);
 impl<'tcx> LateLintPass<'tcx> for NonThreadSafeCallInTest {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         if !cx.sess().opts.test {
+            #[allow(clippy::disallowed_methods)]
             cx.sess().dcx().warn(
                 "`non_thread_safe_call_in_test` is unlikely to be effective as `--test` was not \
                  passed to rustc",

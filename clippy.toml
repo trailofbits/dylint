@@ -1,3 +1,4 @@
 disallowed-methods = [
+    { path = "rustc_errors::DiagCtxt::warn", reason = "ensure `DiagCtxt::warn` is not called from `register_lints`" },
     { path = "std::process::Command::output", reason = "use `CommandExt::logged_output`" },
 ]
