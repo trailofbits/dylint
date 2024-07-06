@@ -105,7 +105,7 @@ declare_lint! {
 #[derive(Default)]
 struct OverscopedAllow {
     metadata: OnceCell<Metadata>,
-    diagnostics: Vec<Diagnostic>,
+    diagnostics: OnceCell<Vec<Diagnostic>>,
     ancestor_meta_item_span_map: FxHashMap<HirId, FxHashMap<Span, FxHashSet<Option<Span>>>>,
 }
 
@@ -119,18 +119,9 @@ struct Message {
 
 #[allow(clippy::no_mangle_with_rust_abi)]
 #[no_mangle]
-pub fn register_lints(sess: &Session, lint_store: &mut LintStore) {
-    let diagnostics = match read_diagnostics() {
-        Ok(diagnostics) => diagnostics,
-        Err(error) => {
-            sess.dcx()
-                .warn(format!("`overscoped_allow` is disabled: {error:?}"));
-            Vec::new()
-        }
-    };
-
+pub fn register_lints(_sess: &Session, lint_store: &mut LintStore) {
     lint_store.register_lints(&[OVERSCOPED_ALLOW]);
-    lint_store.register_late_pass(move |_| Box::new(OverscopedAllow::new(diagnostics.clone())));
+    lint_store.register_late_pass(move |_| Box::new(OverscopedAllow::new()));
 }
 
 fn read_diagnostics() -> Result<Vec<Diagnostic>> {
@@ -157,10 +148,10 @@ fn read_diagnostics() -> Result<Vec<Diagnostic>> {
 }
 
 impl OverscopedAllow {
-    fn new(diagnostics: Vec<Diagnostic>) -> Self {
+    fn new() -> Self {
         Self {
             metadata: OnceCell::new(),
-            diagnostics,
+            diagnostics: OnceCell::new(),
             ancestor_meta_item_span_map: FxHashMap::default(),
         }
     }
@@ -180,9 +171,30 @@ impl OverscopedAllow {
                 .unwrap()
         })
     }
+
+    fn diagnostics(&self, cx: &LateContext<'_>) -> &Vec<Diagnostic> {
+        self.diagnostics.get_or_init(|| {
+            read_diagnostics().unwrap_or_else(|error| {
+                #[allow(clippy::disallowed_methods)]
+                cx.sess()
+                    .dcx()
+                    .warn(format!("`overscoped_allow` is disabled: {error:?}"));
+                Vec::new()
+            })
+        })
+    }
+
+    fn diagnostics_mut(&mut self, cx: &LateContext<'_>) -> &mut Vec<Diagnostic> {
+        let _: &Vec<Diagnostic> = self.diagnostics(cx);
+        self.diagnostics.get_mut().unwrap()
+    }
 }
 
 impl<'tcx> LateLintPass<'tcx> for OverscopedAllow {
+    fn check_crate(&mut self, cx: &LateContext<'tcx>) {
+        let _: &Vec<Diagnostic> = self.diagnostics(cx);
+    }
+
     fn check_item_post(&mut self, cx: &LateContext<'tcx>, item: &'tcx Item<'tcx>) {
         self.visit(cx, item.hir_id());
     }
@@ -226,9 +238,10 @@ impl OverscopedAllow {
     fn check(&mut self, cx: &LateContext<'_>, hir_id: HirId) {
         let span = include_trailing_semicolons(cx, cx.tcx.hir().span(hir_id));
         let mut i = 0;
-        while i < self.diagnostics.len() {
-            if self.span_contains_diagnostic(cx, span, &self.diagnostics[i]) {
-                let diagnostic = self.diagnostics.swap_remove(i);
+        while i < self.diagnostics(cx).len() {
+            let diagnostic = &self.diagnostics(cx)[i];
+            if self.span_contains_diagnostic(cx, span, diagnostic) {
+                let diagnostic = self.diagnostics_mut(cx).swap_remove(i);
                 self.check_ancestor_lint_attrs(cx, hir_id, &diagnostic);
             } else {
                 i += 1;
