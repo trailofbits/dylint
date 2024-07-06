@@ -1,6 +1,6 @@
 use super::{IGNORED_INHERENTS, WATCHED_INHERENTS};
 use clippy_utils::{def_path_res, get_trait_def_id, match_def_path};
-use rustc_hir::{def_id::DefId, Unsafety};
+use rustc_hir::{def_id::DefId, Safety};
 use rustc_lint::LateContext;
 use rustc_middle::ty::{
     self,
@@ -29,7 +29,7 @@ pub fn check_inherents(cx: &LateContext<'_>) {
         }
 
         let fn_sig = cx.tcx.fn_sig(assoc_item.def_id).skip_binder();
-        if fn_sig.unsafety() == Unsafety::Unsafe || fn_sig.skip_binder().inputs().len() != 1 {
+        if fn_sig.safety() == Safety::Unsafe || fn_sig.skip_binder().inputs().len() != 1 {
             return false;
         }
 
@@ -169,12 +169,25 @@ fn is_primitive_impl(path: &[&str]) -> bool {
     path.iter().any(|s| s.starts_with('<'))
 }
 
+// smoelius: See comment preceding `replace_ty_params_with_global_ty` re type parameters. If `ty`
+// contains any constant parameters, `implements_trait_with_item` returns `None`.
 fn implements_trait_with_item<'tcx>(
     cx: &LateContext<'tcx>,
     ty: ty::Ty<'tcx>,
     trait_id: DefId,
 ) -> Option<ty::Ty<'tcx>> {
-    cx.get_associated_type(replace_params_with_global_ty(cx, ty), trait_id, "Item")
+    if let Some(adt_def) = ty.ty_adt_def()
+        && cx
+            .tcx
+            .generics_of(adt_def.did())
+            .own_params
+            .iter()
+            .any(|param| matches!(param.kind, ty::GenericParamDefKind::Const { .. }))
+    {
+        return None;
+    }
+
+    cx.get_associated_type(replace_ty_params_with_global_ty(cx, ty), trait_id, "Item")
 }
 
 // smoelius: This is a hack. For `get_associated_type` to return `Some(..)`, all of its argument
@@ -182,7 +195,10 @@ fn implements_trait_with_item<'tcx>(
 // second type parameter must implement `alloc::alloc::Allocator`. So we instantiate all type
 // parameters with the default `Allocator`, `alloc::alloc::Global`. A more robust solution would
 // at least consider trait bounds and alert when a trait other than `Allocator` was encountered.
-fn replace_params_with_global_ty<'tcx>(cx: &LateContext<'tcx>, ty: ty::Ty<'tcx>) -> ty::Ty<'tcx> {
+fn replace_ty_params_with_global_ty<'tcx>(
+    cx: &LateContext<'tcx>,
+    ty: ty::Ty<'tcx>,
+) -> ty::Ty<'tcx> {
     let global_def_id = def_path_res(cx, &["alloc", "alloc", "Global"])
         .into_iter()
         .find_map(|res| res.opt_def_id())

@@ -24,12 +24,13 @@ use clippy_utils::usage::{local_used_after_expr, local_used_in};
 use clippy_utils::{higher, is_adjusted, path_to_local, path_to_local_id};
 use rustc_errors::Applicability;
 use rustc_hir::def_id::DefId;
-use rustc_hir::{BindingMode, Expr, ExprKind, FnRetTy, Param, PatKind, QPath, TyKind, Unsafety};
+use rustc_hir::{BindingMode, Expr, ExprKind, FnRetTy, Param, PatKind, QPath, Safety, TyKind};
 use rustc_infer::infer::TyCtxtInferExt;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
     self, Binder, ClosureArgs, ClosureKind, EarlyBinder, FnSig, GenericArg, GenericArgKind,
-    GenericArgsRef, ImplPolarity, List, Region, RegionKind, Ty, TypeVisitableExt, TypeckResults,
+    GenericArgsRef, ImplPolarity, List, Region, RegionKind, Ty, TyCtxt, TypeVisitableExt,
+    TypeckResults,
 };
 use rustc_session::declare_lint_pass;
 use rustc_span::symbol::sym;
@@ -296,13 +297,13 @@ fn method_name_from_adjustments<'tcx>(
 
 fn check_sig<'tcx>(
     cx: &LateContext<'tcx>,
-    closure: ClosureArgs<'tcx>,
+    closure: ClosureArgs<TyCtxt<'tcx>>,
     call_sig: FnSig<'_>,
 ) -> bool {
-    call_sig.unsafety == Unsafety::Normal
+    call_sig.safety == Safety::Safe
         && !has_late_bound_to_non_late_bound_regions(
             cx.tcx
-                .signature_unclosure(closure.sig(), Unsafety::Normal)
+                .signature_unclosure(closure.sig(), Safety::Safe)
                 .skip_binder(),
             call_sig,
         )

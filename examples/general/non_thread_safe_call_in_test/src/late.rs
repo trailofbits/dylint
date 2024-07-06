@@ -163,9 +163,8 @@ impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
 
             if let Some(callee_def_id) = path_def_id(self.cx, callee)
                 && let Some(local_def_id) = callee_def_id.as_local()
-                && let Some(body_id) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id)
+                && let Some(body) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id)
             {
-                let body = self.cx.tcx.hir().body(body_id);
                 walk_body(self, body);
                 return;
             }

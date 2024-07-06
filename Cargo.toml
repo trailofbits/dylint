@@ -17,7 +17,11 @@ resolver = "2"
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "deny", check-cfg = [
+    'cfg(coverage)',
     'cfg(dylint_lib, values(any()))',
+    'cfg(__cargo_cli)',
+    'cfg(__cargo_lib)',
+    'cfg(__library_packages)',
 ] }
 
 [workspace.metadata.dylint]

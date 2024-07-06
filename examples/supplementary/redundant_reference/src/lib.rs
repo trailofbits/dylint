@@ -8,6 +8,7 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{
+    diagnostics::span_lint_hir_and_then,
     get_parent_expr,
     ty::{is_copy, peel_mid_ty_refs},
 };
@@ -18,7 +19,7 @@ use rustc_hir::{
     Expr, ExprKind, GenericParam, GenericParamKind, HirId, Item, ItemKind, Lifetime, LifetimeName,
     MutTy, Mutability, TyKind, VariantData,
 };
-use rustc_lint::{LateContext, LateLintPass, LintContext};
+use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty;
 use rustc_span::{symbol::Ident, Span};
 use serde::Deserialize;
@@ -198,8 +199,10 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                 };
                 let (subfield, (subfield_ty, access_spans)) =
                     subfield_accesses.iter().next().unwrap();
-                cx.span_lint(
+                span_lint_hir_and_then(
+                    cx,
                     REDUNDANT_REFERENCE,
+                    item.hir_id(),
                     field_def.span,
                     format!(
                         "`.{field}`{lifetime_msg} is used only to read `.{field}.{subfield}`, \

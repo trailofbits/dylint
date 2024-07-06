@@ -150,6 +150,8 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["core", "str", "<impl str>", "trim_start"],
     &["std", "ffi", "os_str", "OsStr", "to_ascii_lowercase"],
     &["std", "ffi", "os_str", "OsStr", "to_ascii_uppercase"],
+    &["std", "ffi", "os_str", "OsString", "leak"],
+    &["std", "path", "PathBuf", "leak"],
 ];
 
 impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
@@ -598,16 +600,15 @@ fn replace_types<'tcx>(
         // The `replaced.insert(...)` check provides some protection against infinite loops.
         if replaced.insert(param_ty.index) {
             for projection_predicate in projection_predicates {
-                if projection_predicate.projection_ty.self_ty() == param_ty.to_ty(cx.tcx)
-                    && let Some(term_ty) = projection_predicate.term.ty()
+                if projection_predicate.projection_term.self_ty() == param_ty.to_ty(cx.tcx)
+                    && let Some(term_ty) = projection_predicate.term.as_type()
                     && let ty::Param(term_param_ty) = term_ty.kind()
                 {
-                    let projection = cx.tcx.mk_ty_from_kind(ty::Alias(
-                        ty::Projection,
-                        projection_predicate
-                            .projection_ty
-                            .with_self_ty(cx.tcx, new_ty),
-                    ));
+                    let projection = projection_predicate
+                        .projection_term
+                        .with_self_ty(cx.tcx, new_ty)
+                        .expect_ty(cx.tcx)
+                        .to_ty(cx.tcx);
 
                     if let Ok(projected_ty) = cx
                         .tcx
