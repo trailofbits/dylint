@@ -24,7 +24,7 @@ use rustc_hir::{def_id::DefId, Item, ItemKind};
 use rustc_lint::{LateContext, LateLintPass, LintStore};
 use rustc_middle::{
     traits::Reveal,
-    ty::{self, ToPredicate},
+    ty::{self, Upcast},
 };
 use rustc_session::{declare_lint, impl_lint_pass, Session};
 use rustc_span::{sym, ExpnKind, MacroKind, Symbol};
@@ -269,9 +269,9 @@ fn all_params_are_lifetimes(tcx: ty::TyCtxt<'_>, trait_id: DefId) -> bool {
         .chain(super_traits_of(tcx, trait_id))
         .all(|trait_id| {
             let generics = tcx.generics_of(trait_id);
-            generics.count() == generics.params.len()
+            generics.count() == generics.own_params.len()
                 && generics
-                    .params
+                    .own_params
                     .iter()
                     .skip(1)
                     .all(|param| matches!(param.kind, ty::GenericParamDefKind::Lifetime))
@@ -350,7 +350,7 @@ fn implements_trait_with_bounds<'tcx>(
     // smoelius: `all_params_are_lifetimes` should have already been checked.
     let args = vec![
         ty::Region::new_from_kind(cx.tcx, ty::ReStatic).into();
-        generics.params.len().saturating_sub(1)
+        generics.own_params.len().saturating_sub(1)
     ];
     if let ty::Adt(adt_def, _) = ty.kind() {
         let param_env = param_env_with_bounds(cx.tcx, adt_def.did(), trait_id);
@@ -375,7 +375,7 @@ fn param_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty
     // Vec<(param_def, needs_bound)>
     let mut params = tcx
         .generics_of(did)
-        .params
+        .own_params
         .iter()
         .map(|p| (p, matches!(p.kind, ty::GenericParamDefKind::Type { .. })))
         .collect::<Vec<_>>();
@@ -406,7 +406,7 @@ fn param_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty
                             ),
                             polarity: ty::PredicatePolarity::Positive,
                         })
-                        .to_predicate(tcx)
+                        .upcast(tcx)
                     }),
             ),
         ),

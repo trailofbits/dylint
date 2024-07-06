@@ -54,7 +54,7 @@ dylint_linting::declare_late_lint! {
 }
 
 impl<'tcx> LateLintPass<'tcx> for UnnecessaryBorrowMut {
-    fn check_body(&mut self, cx: &LateContext<'tcx>, body: &'tcx hir::Body<'tcx>) {
+    fn check_body(&mut self, cx: &LateContext<'tcx>, body: &hir::Body<'tcx>) {
         let local_def_id = cx.tcx.hir().body_owner_def_id(body.id());
 
         if cx.tcx.hir().body_const_context(local_def_id).is_some() {
