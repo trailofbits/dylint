@@ -35,10 +35,9 @@ serde_derive = "1.0"
 
 dylint_testing = { path = "../../../utils/testing" }
 
-[lints.rust]
-unexpected_cfgs = { level = "deny", check-cfg = [
-    'cfg(dylint_lib, values(any()))',
-] }
+[lints.rust.unexpected_cfgs]
+level = "deny"
+check-cfg = ["cfg(dylint_lib, values(any()))"]
 
 [package.metadata.rust-analyzer]
 rustc_private = true

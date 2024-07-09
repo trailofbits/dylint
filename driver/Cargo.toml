@@ -22,10 +22,9 @@ dylint_internal = { version = "=3.1.2", path = "../internal", features = [
 [dev-dependencies]
 rustc_version = "0.4"
 
-[lints.rust]
-unexpected_cfgs = { level = "deny", check-cfg = [
-    'cfg(dylint_lib, values(any()))',
-] }
+[lints.rust.unexpected_cfgs]
+level = "deny"
+check-cfg = ["cfg(dylint_lib, values(any()))"]
 
 [workspace]
 

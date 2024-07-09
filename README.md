@@ -125,19 +125,17 @@ As of nightly-2024-05-05, the names and values of every reachable `#[cfg]` [are 
 To suppress such warnings, add the following to your packages' Cargo.toml files:
 
 ```toml
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = [
-    'cfg(dylint_lib, values(any()))',
-] }
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = ["cfg(dylint_lib, values(any()))"]
 ```
 
 Or, if you're using a Cargo workspace, add the following the workspace's Cargo.toml file:
 
 ```toml
-[workspace.lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = [
-    'cfg(dylint_lib, values(any()))',
-] }
+[workspace.lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = ["cfg(dylint_lib, values(any()))"]
 ```
 
 Then, add the following to the Cargo.toml file of each package in the workspace:
