@@ -27,10 +27,8 @@ jobs:
       - name: Install dylint-link
         run: cargo install --path ./dylint-link
 
-      - name: Install cargo-llvm-cov and rustfilt
-        run: |
-          cargo install cargo-llvm-cov
-          cargo install rustfilt
+      - name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov
 
       - name: Free up space on Ubuntu
         run: |
@@ -44,13 +42,7 @@ jobs:
         run: |
           for X in . driver utils/linting; do
             pushd "$X"
-            TMP="$(mktemp)"
-            cargo llvm-cov --coverage-target-only --target x86_64-unknown-linux-gnu --workspace --exclude examples --failure-mode all --lcov --output-path "$TMP"
-            # smoelius: Collapse crate disambiguators. See:
-            # - https://github.com/rust-lang/rust/blob/5ad7a646a5df1c7e37fc4529f0f1000091ac902d/compiler/rustc_symbol_mangling/src/typeid/typeid_itanium_cxx_abi.rs#L416-L417
-            # - https://github.com/rust-lang/rust/blob/5ad7a646a5df1c7e37fc4529f0f1000091ac902d/compiler/rustc_symbol_mangling/src/typeid/typeid_itanium_cxx_abi.rs#L58-L64
-            # sed -i 's/Cs[^_]*_/Cs_/g' coverage.lcov
-            rustfilt -i "$TMP" -o coverage.lcov
+            cargo llvm-cov --coverage-target-only --target x86_64-unknown-linux-gnu --workspace --exclude dylint_examples --exclude alpine --failure-mode all --lcov --output-path coverage.lcov
             popd
           done
 
