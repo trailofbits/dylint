@@ -34,9 +34,4 @@ libraries = [
 ]
 
 [workspace.metadata.unmaintained]
-ignore = [
-    "icu_locid",
-    "icu_locid_transform",
-    "icu_locid_transform_data",
-    "num_cpus",
-]
+ignore = ["adler", "num_cpus", "tester"]
