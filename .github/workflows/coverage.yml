@@ -42,7 +42,7 @@ jobs:
         run: |
           for X in . driver utils/linting; do
             pushd "$X"
-            cargo llvm-cov --coverage-target-only --target x86_64-unknown-linux-gnu --workspace --exclude dylint_examples --exclude alpine --failure-mode all --lcov --output-path coverage.lcov
+            cargo llvm-cov --coverage-target-only --target x86_64-unknown-linux-gnu --workspace --exclude dylint_examples --exclude alpine --failure-mode all --lcov --output-path coverage.lcov --verbose
             popd
           done
 
