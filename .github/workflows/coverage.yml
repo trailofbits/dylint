@@ -28,7 +28,7 @@ jobs:
         run: cargo install --path ./dylint-link
 
       - name: Install cargo-llvm-cov
-        run: cargo install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov --git https://github.com/smoelius/cargo-llvm-cov --branch demangle
 
       - name: Free up space on Ubuntu
         run: |
