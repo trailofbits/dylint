@@ -1508,6 +1508,15 @@
         "name": "Andrew Gallant"
       }
     ],
+    "rewriter": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/35515885?v=4",
+        "id": 64944,
+        "kind": "user",
+        "login": "smoelius",
+        "name": "Samuel Moelius"
+      }
+    ],
     "rust-embed": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1687946?v=4",
