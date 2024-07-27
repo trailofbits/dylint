@@ -878,6 +878,7 @@ dependencies = [
  "is-terminal",
  "log",
  "once_cell",
+ "rewriter",
  "semver",
  "serde",
  "serde-untagged",
@@ -2266,7 +2267,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4979f22fdb869068da03c9f7528f8297c6fd2606bc3a4affe42e6a823fdb8da4"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.6",
 ]
 
 [[package]]
@@ -2860,6 +2861,15 @@ name = "regex-syntax"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
+
+[[package]]
+name = "rewriter"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81a417374326652efe672e1b1b07a207193f10059e3d55c5cf298248def47c52"
+dependencies = [
+ "tempfile",
+]
 
 [[package]]
 name = "rfc6979"

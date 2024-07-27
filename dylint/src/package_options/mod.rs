@@ -10,15 +10,13 @@ use dylint_internal::{
 };
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
+use rewriter::Backup;
 use std::{
     fs::{copy, create_dir_all},
     path::Path,
 };
 use tempfile::tempdir;
 use walkdir::WalkDir;
-
-mod backup;
-use backup::Backup;
 
 mod revs;
 use revs::Revs;
