@@ -271,7 +271,7 @@ dependencies = [
  "cargo-credential-wincred",
  "cargo-platform",
  "cargo-util",
- "cargo-util-schemas",
+ "cargo-util-schemas 0.3.1",
  "clap",
  "color-print",
  "crates-io",
@@ -437,6 +437,22 @@ name = "cargo-util-schemas"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "161d4f7828830c7893180528e121e701bb8070b80c0f97f793a930d285b315a6"
+dependencies = [
+ "semver",
+ "serde",
+ "serde-untagged",
+ "serde-value",
+ "thiserror",
+ "toml",
+ "unicode-xid",
+ "url",
+]
+
+[[package]]
+name = "cargo-util-schemas"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34ddc7fc157e3dbbd88f05ef8be7c3ed3ecb05925a3f51f716d6103a607fb7c4"
 dependencies = [
  "semver",
  "serde",
@@ -862,7 +878,7 @@ dependencies = [
  "cargo",
  "cargo-platform",
  "cargo-util",
- "cargo-util-schemas",
+ "cargo-util-schemas 0.4.0",
  "cargo_metadata",
  "curl-sys",
  "dirs",
