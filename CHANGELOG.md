@@ -6,12 +6,12 @@
 
 ## 3.1.1
 
-- Update `env_logger` to version 0.11 in `dylint_driver` and `dylint_testing` ([#1200](https://github.com/trailofbits/dylint/issues/1200))
+- Update `env_logger` to version 0.11 in `dylint_driver` and `dylint_testing` ([#1200](https://github.com/trailofbits/dylint/pull/1200))
 - Prepend the toolchain `bin` directory to `PATH` on Windows (i.e., account for [rust-lang/rustup#3703](https://github.com/rust-lang/rustup/pull/3703)) ([c222181](https://github.com/trailofbits/dylint/commit/c22218107853018a04e01a65a16406612e36186a))
 
 ## 3.1.0
 
-- FEATURE: Allow library packages to be specified in a dylint.toml file instead of a Cargo.toml file. The syntax is exactly the same. Thus, users wishing to switch can simply cut-and-paste the `[workspace.metadata.dylint.libraries]` declaration from their Cargo.toml file into a dylint.toml file. ([#1143](https://github.com/trailofbits/dylint/issues/1143) and [#1151](https://github.com/trailofbits/dylint/issues/1151))
+- FEATURE: Allow library packages to be specified in a dylint.toml file instead of a Cargo.toml file. The syntax is exactly the same. Thus, users wishing to switch can simply cut-and-paste the `[workspace.metadata.dylint.libraries]` declaration from their Cargo.toml file into a dylint.toml file. ([#1143](https://github.com/trailofbits/dylint/pull/1143) and [#1151](https://github.com/trailofbits/dylint/pull/1151))
 
 ## 3.0.1
 
@@ -21,8 +21,8 @@
 
 - Rename option `--path` to `--lib-path`. For the time being, `--path` will continue to work as before when used to refer to a file as opposed to a directory. ([e52da02](https://github.com/trailofbits/dylint/commit/e52da024fada4ff4b353ca2de86ed12499076972))
 - FEATURE: Add options `--git` and `--path` to allow naming library packages on the command line ([883e521](https://github.com/trailofbits/dylint/commit/883e5218734819d120c332e025aa726ab30dbd40))
-- BREAKING CHANGE: Make `metadata` no longer a default `dylint` package feature ([#1052](https://github.com/trailofbits/dylint/issues/1052)) (see also renaming of `metadata` below)
-- BREAKING CHANGE: No longer pass `-D warnings` to rustc by default in `dylint_testing`. To retain the previous behavior, enable the `deny_warnings` feature. ([#1053](https://github.com/trailofbits/dylint/issues/1053))
+- BREAKING CHANGE: Make `metadata` no longer a default `dylint` package feature ([#1052](https://github.com/trailofbits/dylint/pull/1052)) (see also renaming of `metadata` below)
+- BREAKING CHANGE: No longer pass `-D warnings` to rustc by default in `dylint_testing`. To retain the previous behavior, enable the `deny_warnings` feature. ([#1053](https://github.com/trailofbits/dylint/pull/1053))
 - BREAKING CHANGE: Rename the following package features ([42cb7a2](https://github.com/trailofbits/dylint/commit/42cb7a2d48b398f90bc5975c69f976f5fedd6c65)):
   - `cargo-dylint` package: `metadata-cargo` -> `cargo-lib` (download library packages using `cargo` as a library)
   - `cargo-dylint` package: `metadata-cli` -> `cargo-cli` (download library packages using the `cargo` executable)
@@ -37,7 +37,7 @@
   - `--rust-version` (now part of the `upgrade` subcommand)
   - `--upgrade` (replaced with the `upgrade` subcommand)
 - Update `cargo-dylint` MSRV to 1.74 ([965ebf5](https://github.com/trailofbits/dylint/commit/965ebf58d280db22a8143cbfbe88c17dea4f5617))
-- Eliminate reliance on `sedregex` ([#1079](https://github.com/trailofbits/dylint/issues/1079))
+- Eliminate reliance on `sedregex` ([#1079](https://github.com/trailofbits/dylint/pull/1079))
 - Make `cargo-cli` the default method for building library packages ([01aa9ba](https://github.com/trailofbits/dylint/commit/01aa9ba790ff15c3f3e20a71a455bee5424aff09))
 
 ## 2.6.1
