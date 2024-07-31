@@ -62,7 +62,7 @@ Helpful [resources] for writing lints appear below.
 
 ### Workspace metadata
 
-A workspace can name the libraries it should be linted with in its `Cargo.toml` or `dylint.toml` file. Specifically, either file can contain a TOML list under `workspace.metadata.dylint.libraries`. Each list entry must have the form of a Cargo `git` or `path` dependency, with the following differences:
+A workspace can name the libraries it should be linted with in its `Cargo.toml` or `dylint.toml` file. Specifically, either file can contain a TOML array under `workspace.metadata.dylint.libraries`. Each array entry must have the form of a Cargo `git` or `path` dependency, with the following differences:
 
 - There is no leading package name, i.e., no `package =`.
 - `path` entries can contain [glob] patterns, e.g., `*`.
