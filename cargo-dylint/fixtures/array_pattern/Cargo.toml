@@ -1,0 +1,13 @@
+[package]
+name = "array_pattern"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../../examples", pattern = [
+        "testing/clippy",
+        "restriction/question_mark_in_expression",
+    ] },
+]

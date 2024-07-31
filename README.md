@@ -80,6 +80,18 @@ libraries = [
 ]
 ```
 
+For convenience, the `pattern` field can contain an array, in which case the pattern is considered to be the union of the array elements. Thus, the just given `workspace.metadata.dylint.libraries` example could alternatively be written as:
+
+```toml
+[workspace.metadata.dylint]
+libraries = [
+    { git = "https://github.com/trailofbits/dylint", pattern = [
+        "examples/general",
+        "examples/restriction/try_io_result",
+    ] },
+]
+```
+
 ### Configurable libraries
 
 Libraries can be configured by including a `dylint.toml` file in a linted workspace's root directory. The file should encode a [toml table] whose keys are library names. A library determines how its value in the table (if any) is interpreted.

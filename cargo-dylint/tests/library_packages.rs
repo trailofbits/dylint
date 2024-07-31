@@ -19,6 +19,23 @@ fn initialize() {
 static MUTEX: Mutex<()> = Mutex::new(());
 
 #[test]
+fn array_pattern() {
+    let _lock = MUTEX.lock().unwrap();
+
+    let assert = std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir("fixtures/array_pattern")
+        .args(["dylint", "list"])
+        .assert()
+        .success();
+    let stdout = std::str::from_utf8(&assert.get_output().stdout).unwrap();
+    let lines = stdout.lines().collect::<Vec<_>>();
+    assert_eq!(2, lines.len());
+    assert!(lines[0].starts_with("clippy "));
+    assert!(lines[1].starts_with("question_mark_in_expression "));
+}
+
+#[test]
 fn invalid_pattern() {
     let _lock = MUTEX.lock().unwrap();
 

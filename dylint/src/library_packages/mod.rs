@@ -1,7 +1,7 @@
 use crate::{error::warn, opts};
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage};
-use cargo_util_schemas::manifest::TomlDetailedDependency;
+use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
 use dylint_internal::{config, env, library_filename, rustup::SanitizeEnvironment, CommandExt};
 use glob::glob;
 use if_chain::if_chain;
@@ -76,7 +76,7 @@ impl Package {
 
 #[derive(Debug, Deserialize)]
 struct Library {
-    pattern: Option<String>,
+    pattern: Option<StringOrVec>,
     #[serde(flatten)]
     details: TomlDetailedDependency,
 }
@@ -116,7 +116,10 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
 
     let library = Library {
         details,
-        pattern: lib_sel.pattern.clone(),
+        pattern: lib_sel
+            .pattern
+            .as_ref()
+            .map(|pattern| StringOrVec(vec![pattern.clone()])),
     };
 
     library_packages(opts, metadata, &[library])
@@ -291,45 +294,51 @@ fn library_package(
     let (source_id, dependency_root) =
         dependency_source_id_and_root(opts, metadata, gctx, details)?;
 
-    let pattern = if let Some(pattern) = &library.pattern {
-        dependency_root.join(pattern)
+    let patterns = if let Some(StringOrVec(patterns)) = &library.pattern {
+        patterns.clone()
     } else {
-        #[allow(clippy::redundant_clone)]
-        dependency_root.clone()
+        vec![String::new()]
     };
 
-    let entries = glob(&pattern.to_string_lossy())?;
+    let mut paths = Vec::new();
+    for pattern in patterns {
+        let results = glob(&dependency_root.join(&pattern).to_string_lossy())?;
 
-    let paths = entries
-        .map(|entry| {
-            entry.map_err(Into::into).and_then(|path| {
-                // smoelius: Because `dependency_root` might not be absolute, `path` might not be
-                // absolute. So `path` must be normalized.
-                let path_buf = cargo_util::paths::normalize_path(&path);
-                if let Some(pattern) = &library.pattern {
-                    // smoelius: Use `cargo_util::paths::normalize_path` instead of `canonicalize`
-                    // so as not to "taint" the path with a path prefix on Windows.
-                    //
-                    // This problem keeps coming up. For example, it recently came up in:
-                    // https://github.com/trailofbits/dylint/pull/944
-                    let dependency_root = cargo_util::paths::normalize_path(&dependency_root);
-                    ensure!(
-                        path_buf.starts_with(&dependency_root),
-                        "Pattern `{pattern}` could refer to `{}`, which is outside of `{}`",
-                        path_buf.to_string_lossy(),
-                        dependency_root.to_string_lossy()
-                    );
-                }
-                Ok(path_buf)
-            })
-        })
-        .collect::<std::result::Result<Vec<_>, _>>()?;
+        let mut matched = false;
+        for result in results {
+            let path = result?;
 
-    ensure!(
-        !paths.is_empty(),
-        "No paths matched `{}`",
-        pattern.to_string_lossy()
-    );
+            // smoelius: Because `dependency_root` might not be absolute, `path` might not be
+            // absolute. So `path` must be normalized.
+            let path_buf = cargo_util::paths::normalize_path(&path);
+
+            // smoelius: If `library.pattern` is set, verify the `path` that it matched is in
+            // `dependency_root`.
+            //
+            // Note that even if `library.pattern` is not set, the current loop must still be
+            // traversed. Recall, `dependency_root` could be a `glob` pattern. In such a
+            // case, the paths that it matches must be pushed onto `paths`.
+            if library.pattern.is_some() {
+                // smoelius: Use `cargo_util::paths::normalize_path` instead of `canonicalize`
+                // so as not to "taint" the path with a path prefix on Windows.
+                //
+                // This problem keeps coming up. For example, it recently came up in:
+                // https://github.com/trailofbits/dylint/pull/944
+                let dependency_root = cargo_util::paths::normalize_path(&dependency_root);
+                ensure!(
+                    path_buf.starts_with(&dependency_root),
+                    "Pattern `{pattern}` could refer to `{}`, which is outside of `{}`",
+                    path_buf.to_string_lossy(),
+                    dependency_root.to_string_lossy()
+                );
+            }
+
+            paths.push(path_buf);
+            matched = true;
+        }
+
+        ensure!(matched, "No paths matched `{}`", pattern);
+    }
 
     // smoelius: Collecting the package ids before building reveals missing/unparsable `Cargo.toml`
     // files sooner.
