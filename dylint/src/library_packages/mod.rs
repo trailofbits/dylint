@@ -1,6 +1,7 @@
 use crate::{error::warn, opts};
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage};
+use cargo_util_schemas::manifest::TomlDetailedDependency;
 use dylint_internal::{config, env, library_filename, rustup::SanitizeEnvironment, CommandExt};
 use glob::glob;
 use if_chain::if_chain;
@@ -18,13 +19,7 @@ mod impl_;
 #[path = "cargo_lib/mod.rs"]
 mod impl_;
 
-use impl_::{
-    dependency_source_id_and_root, GlobalContext, PackageId, SourceId, TomlDetailedDependency,
-};
-
-trait UnusedKeys {
-    fn unused_keys(&self) -> Vec<String>;
-}
+use impl_::{dependency_source_id_and_root, GlobalContext, PackageId, SourceId};
 
 type Object = serde_json::Map<String, serde_json::Value>;
 
@@ -378,7 +373,13 @@ fn library_package(
 }
 
 fn toml_detailed_dependency(library: &Library) -> Result<&TomlDetailedDependency> {
-    let mut unused_keys = library.details.unused_keys();
+    let mut unused_keys = library
+        .details
+        ._unused_keys
+        .keys()
+        .cloned()
+        .collect::<Vec<_>>();
+
     #[allow(clippy::format_collect)]
     if !unused_keys.is_empty() {
         unused_keys.sort_unstable();

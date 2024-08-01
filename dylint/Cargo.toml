@@ -76,6 +76,7 @@ package_options = [
 ]
 __cargo_cli = [
     "cargo-util",
+    "cargo-util-schemas",
     "dunce",
     "fs_extra",
     "glob",

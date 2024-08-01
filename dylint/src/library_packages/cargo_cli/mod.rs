@@ -18,11 +18,14 @@
 use crate::opts;
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::{Metadata, MetadataCommand};
+use cargo_util_schemas::manifest::TomlDetailedDependency;
 use dylint_internal::{packaging::isolate, CommandExt};
 use home::cargo_home;
 use semver::Version;
+use serde::Serialize;
 use std::{
     borrow::Cow,
+    collections::BTreeMap,
     ffi::{OsStr, OsString},
     fs::{create_dir_all, read_dir, remove_dir_all, write},
     path::{Path, PathBuf},
@@ -30,9 +33,6 @@ use std::{
 };
 use tempfile::{tempdir, Builder, TempDir};
 use url::Url;
-
-mod string_or_vec;
-use string_or_vec::StringOrVec;
 
 mod util;
 use util::{short_hash, CanonicalUrl};
@@ -44,10 +44,6 @@ impl Drop for NamedTempDir {
         remove_dir_all(&self.0).unwrap_or_default();
     }
 }
-
-// smoelius: Use `include!` so that `TomlDetailedDependency`'s fields are visible without having to
-// make them all `pub`.
-include!("toml_detailed_dependency.rs");
 
 pub struct GlobalContext;
 

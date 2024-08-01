@@ -1,4 +1,3 @@
-use super::UnusedKeys;
 use crate::{error::warn, opts};
 use anyhow::{anyhow, bail, ensure, Result};
 use cargo::{
