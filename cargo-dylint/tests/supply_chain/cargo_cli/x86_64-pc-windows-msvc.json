@@ -114,6 +114,22 @@
         "name": "David Tolnay"
       }
     ],
+    "autocfg": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/36186?v=4",
+        "id": 539,
+        "kind": "user",
+        "login": "cuviper",
+        "name": "Josh Stone"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1711539?v=4",
+        "id": 2699,
+        "kind": "user",
+        "login": "matklad",
+        "name": "Alex Kladov"
+      }
+    ],
     "backtrace": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
@@ -225,6 +241,22 @@
       }
     ],
     "cargo-util": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
+        "id": 4282,
+        "kind": "team",
+        "login": "github:rust-lang:release-publishers",
+        "name": "release-publishers"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/53090244?v=4",
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
+      }
+    ],
+    "cargo-util-schemas": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/5430905?v=4",
         "id": 4282,
@@ -1325,6 +1357,15 @@
         "name": "Yosh"
       }
     ],
+    "num-traits": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/36186?v=4",
+        "id": 539,
+        "kind": "user",
+        "login": "cuviper",
+        "name": "Josh Stone"
+      }
+    ],
     "num_cpus": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/51479?v=4",
@@ -1357,6 +1398,29 @@
         "kind": "user",
         "login": "soc",
         "name": null
+      }
+    ],
+    "ordered-float": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/4745181?v=4",
+        "id": 4,
+        "kind": "user",
+        "login": "reem",
+        "name": "Jonathan Reem"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/2566135?v=4",
+        "id": 5,
+        "kind": "team",
+        "login": "github:servo:cargo-publish",
+        "name": "cargo publish"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/5920?v=4",
+        "id": 2017,
+        "kind": "user",
+        "login": "mbrubeck",
+        "name": "Matt Brubeck"
       }
     ],
     "percent-encoding": [
@@ -1642,6 +1706,15 @@
         "kind": "user",
         "login": "dtolnay",
         "name": "David Tolnay"
+      }
+    ],
+    "serde-value": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/13426784?v=4",
+        "id": 2287,
+        "kind": "user",
+        "login": "arcnmx",
+        "name": null
       }
     ],
     "serde_derive": [
@@ -2075,6 +2148,50 @@
       }
     ],
     "unicode-width": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
+        "id": 1,
+        "kind": "user",
+        "login": "alexcrichton",
+        "name": "Alex Crichton"
+      },
+      {
+        "avatar": "https://avatars1.githubusercontent.com/u/1203825?v=4",
+        "id": 3,
+        "kind": "user",
+        "login": "huonw",
+        "name": "Huon Wilson"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/291359?v=4",
+        "id": 7,
+        "kind": "user",
+        "login": "SimonSapin",
+        "name": "Simon Sapin"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1617736?v=4",
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/716593?v=4",
+        "id": 1458,
+        "kind": "user",
+        "login": "kwantam",
+        "name": "Riad S. Wahby"
+      },
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/5784949?v=4",
+        "id": 21056,
+        "kind": "user",
+        "login": "sujayakar",
+        "name": "Sujay Jayakar"
+      }
+    ],
+    "unicode-xid": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/64996?v=4",
         "id": 1,

@@ -30,13 +30,6 @@
 )]
 #![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 
-// smoelius: `manifest::TomlDetailedDependency::unused_keys` does not appear in the original.
-impl super::UnusedKeys for manifest::TomlDetailedDependency {
-    fn unused_keys(&self) -> Vec<String> {
-        self._unused_keys.keys().cloned().collect()
-    }
-}
-
 // smoelius: `ManifestContext::new` does not appear in the original.
 #[allow(clippy::too_many_arguments)]
 impl<'a, 'b> ManifestContext<'a, 'b> {
