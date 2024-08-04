@@ -1,4 +1,4 @@
-#[cfg(test)]
+#[cfg(all(not(coverage), test))]
 mod test {
     use cargo_metadata::MetadataCommand;
     use dylint_internal::{
