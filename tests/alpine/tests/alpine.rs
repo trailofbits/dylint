@@ -1,4 +1,4 @@
-#![cfg(unix)]
+#![cfg(all(not(coverage), unix))]
 
 use std::{
     io::{stderr, Write},
