@@ -14,5 +14,7 @@ are present to use these unconventional options.
 ```
 Use instead:
 ```rust
-// Pass `--allow clippy::assertions-on-constants` on the command line.
+// Allow `clippy::assertions-on-constants` in Cargo.toml. See:
+// - https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section
+// - https://doc.rust-lang.org/clippy/configuration.html#lints-section-in-cargotoml
 ```
