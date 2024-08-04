@@ -5,7 +5,7 @@
 extern crate rustc_hir;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_help, source::get_source_text};
+use clippy_utils::{diagnostics::span_lint_and_help, source::SpanRangeExt};
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use rustc_hir::Block;
@@ -89,7 +89,7 @@ static LINE_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new("(^|[^/])(//([^/].*))
 static BLOCK_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
 
 fn check_span(cx: &LateContext<'_>, span: Span) {
-    let Some(source_file_range) = get_source_text(cx, span) else {
+    let Some(source_file_range) = span.get_source_text(cx) else {
         return;
     };
     let Some(text) = source_file_range.as_str() else {

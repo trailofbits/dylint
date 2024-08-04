@@ -293,7 +293,7 @@ fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<It
 
     iter::from_fn(move || -> Option<DefId> {
         let trait_did = stack.pop()?;
-        let generic_predicates = tcx.super_predicates_of(trait_did);
+        let generic_predicates = tcx.explicit_super_predicates_of(trait_did);
 
         for (predicate, _) in generic_predicates.predicates {
             if let ty::ClauseKind::Trait(data) = predicate.kind().skip_binder() {

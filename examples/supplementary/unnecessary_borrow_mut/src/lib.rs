@@ -173,7 +173,7 @@ impl<'tcx> Visitor<'tcx> for V<'tcx> {
             }
             if let Some((def_id, _)) = func.const_fn_def()
                 && self.tcx.is_diagnostic_item(sym::deref_method, def_id)
-                && let [arg] = args.as_slice()
+                && let [arg] = args.as_ref()
                 && let Some(arg_place) = arg.node.place()
                 && arg_place.as_local() == Some(self.local)
             {

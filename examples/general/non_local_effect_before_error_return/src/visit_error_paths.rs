@@ -279,7 +279,7 @@ fn is_from_residual_or_try_implementor_method_call<'tcx>(
 ) -> Option<Place<'tcx>> {
     if let TerminatorKind::Call { func, args, .. } = &terminator.kind
         && let Some((def_id, _)) = func.const_fn_def()
-        && let [arg, ..] = args.as_slice()
+        && let [arg, ..] = args.as_ref()
         && let Some(arg_place) = arg.node.place()
         && {
             if cx.tcx.lang_items().from_residual_fn() == Some(def_id) {

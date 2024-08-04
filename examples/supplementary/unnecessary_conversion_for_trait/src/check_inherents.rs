@@ -11,10 +11,13 @@ use rustc_span::{symbol::sym, Symbol};
 
 #[allow(clippy::too_many_lines)]
 pub fn check_inherents(cx: &LateContext<'_>) {
-    let into_iterator_def_id =
-        get_trait_def_id(cx, &["core", "iter", "traits", "collect", "IntoIterator"]).unwrap();
+    let into_iterator_def_id = get_trait_def_id(
+        cx.tcx,
+        &["core", "iter", "traits", "collect", "IntoIterator"],
+    )
+    .unwrap();
     let iterator_def_id =
-        get_trait_def_id(cx, &["core", "iter", "traits", "iterator", "Iterator"]).unwrap();
+        get_trait_def_id(cx.tcx, &["core", "iter", "traits", "iterator", "Iterator"]).unwrap();
 
     let type_paths = type_paths();
 
@@ -62,7 +65,7 @@ pub fn check_inherents(cx: &LateContext<'_>) {
 
     let type_path_impl_def_ids = type_paths
         .iter()
-        .flat_map(|type_path| def_path_res(cx, type_path))
+        .flat_map(|type_path| def_path_res(cx.tcx, type_path))
         .filter_map(|res| res.opt_def_id())
         .flat_map(|def_id| cx.tcx.inherent_impls(def_id).unwrap());
 
@@ -93,7 +96,7 @@ pub fn check_inherents(cx: &LateContext<'_>) {
             continue;
         }
 
-        let def_id = def_path_res(cx, path)
+        let def_id = def_path_res(cx.tcx, path)
             .into_iter()
             .find_map(|res| res.opt_def_id())
             .ok_or_else(|| format!("`def_path_res` failed for {path:?}"))
@@ -199,7 +202,7 @@ fn replace_ty_params_with_global_ty<'tcx>(
     cx: &LateContext<'tcx>,
     ty: ty::Ty<'tcx>,
 ) -> ty::Ty<'tcx> {
-    let global_def_id = def_path_res(cx, &["alloc", "alloc", "Global"])
+    let global_def_id = def_path_res(cx.tcx, &["alloc", "alloc", "Global"])
         .into_iter()
         .find_map(|res| res.opt_def_id())
         .unwrap();
