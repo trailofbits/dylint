@@ -1,5 +1,5 @@
 // smoelius: This file is essentially the dependency specific portions of
-// https://github.com/rust-lang/cargo/blob/0.80.0/src/cargo/util/toml/mod.rs with adjustments to
+// https://github.com/rust-lang/cargo/blob/0.81.0/src/cargo/util/toml/mod.rs with adjustments to
 // make some things public.
 // smoelius: I experimented with creating a reduced Cargo crate that included just this module and
 // the things it depends upon. Such a crate could reduce build times and incur less of a maintenance
@@ -52,7 +52,7 @@ impl<'a, 'b> ManifestContext<'a, 'b> {
     }
 }
 
-// use annotate_snippets::{Level, Renderer, Snippet};
+// use annotate_snippets::{Level, Snippet};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
