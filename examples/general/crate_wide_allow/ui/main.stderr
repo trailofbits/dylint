@@ -4,7 +4,7 @@ warning: silently overrides `--warn clippy::assertions-on-constants` and `--deny
 LL | #![allow(clippy::assertions_on_constants)]
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: pass `--allow clippy::assertions-on-constants` on the command line
+   = help: allow `clippy::assertions-on-constants` in Cargo.toml
    = note: `#[warn(crate_wide_allow)]` on by default
 
 warning: 1 warning emitted

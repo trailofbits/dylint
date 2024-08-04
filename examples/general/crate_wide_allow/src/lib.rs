@@ -25,7 +25,9 @@ dylint_linting::declare_early_lint! {
     /// ```
     /// Use instead:
     /// ```rust
-    /// // Pass `--allow clippy::assertions-on-constants` on the command line.
+    /// // Allow `clippy::assertions-on-constants` in Cargo.toml. See:
+    /// // - https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section
+    /// // - https://doc.rust-lang.org/clippy/configuration.html#lints-section-in-cargotoml
     /// ```
     pub CRATE_WIDE_ALLOW,
     Warn,
@@ -57,7 +59,7 @@ impl EarlyLintPass for CrateWideAllow {
                     attr.span,
                     format!("silently overrides `--warn {path}` and `--deny {path}`"),
                     None,
-                    format!("pass `--allow {path}` on the command line"),
+                    format!("allow `{path}` in Cargo.toml"),
                 );
             }
         }
@@ -69,6 +71,7 @@ mod test {
     use assert_cmd::{assert::Assert, Command};
     use cargo_metadata::MetadataCommand;
     use dylint_internal::env;
+    use predicates::prelude::*;
     use std::{env::consts, path::Path, sync::Mutex};
 
     static MUTEX: Mutex<()> = Mutex::new(());
@@ -149,5 +152,43 @@ mod test {
         cargo_dylint(None).success();
 
         assert(cargo_dylint(Some(rustflags)));
+    }
+
+    const ASSERTIONS_ON_CONSTANTS_WARNING: &str =
+        "`assert!(true)` will be optimized out by the compiler";
+
+    #[test]
+    fn premise_manifest_sanity() {
+        let mut command = Command::new("cargo");
+        command.args(["clippy"]);
+        command.current_dir("ui_manifest");
+        command
+            .assert()
+            .success()
+            .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING).not());
+    }
+
+    /// Verify that `allow`ing a lint in the manifest does not silently override `--warn`.
+    #[test]
+    fn premise_manifest_warn() {
+        let mut command = Command::new("cargo");
+        command.args(["clippy", "--", "--warn=clippy::assertions-on-constants"]);
+        command.current_dir("ui_manifest");
+        command
+            .assert()
+            .success()
+            .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING));
+    }
+
+    /// Verify that `allow`ing a lint in the manifest does not silently override `--deny`.
+    #[test]
+    fn premise_manifest_deny() {
+        let mut command = Command::new("cargo");
+        command.args(["clippy", "--", "--deny=clippy::assertions-on-constants"]);
+        command.current_dir("ui_manifest");
+        command
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING));
     }
 }
