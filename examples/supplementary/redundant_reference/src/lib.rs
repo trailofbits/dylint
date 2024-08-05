@@ -139,7 +139,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                 let subfield_access = field_use
                     .subfield_accesses
                     .entry(subfield)
-                    .or_insert((parent_ty.to_string(), HashSet::default()));
+                    .or_insert_with(|| (parent_ty.to_string(), HashSet::default()));
                 subfield_access
                     .1
                     .insert(subfield.span.with_lo(operand.span.hi()));
