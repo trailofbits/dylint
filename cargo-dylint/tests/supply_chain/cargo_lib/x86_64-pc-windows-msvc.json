@@ -331,6 +331,15 @@
         "name": "Andrew Gallant"
       }
     ],
+    "byteorder": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/456674?v=4",
+        "id": 189,
+        "kind": "user",
+        "login": "BurntSushi",
+        "name": "Andrew Gallant"
+      }
+    ],
     "bytes": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/6180?v=4",
@@ -4452,6 +4461,15 @@
       }
     ],
     "zerocopy": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/1046063?v=4",
+        "id": 7178,
+        "kind": "user",
+        "login": "joshlf",
+        "name": "Joshua Liebow-Feeser"
+      }
+    ],
+    "zerocopy-derive": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/1046063?v=4",
         "id": 7178,
