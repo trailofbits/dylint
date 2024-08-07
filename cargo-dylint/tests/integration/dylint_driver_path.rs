@@ -7,6 +7,7 @@ use dylint_internal::{
 use std::fs::create_dir_all;
 use tempfile::tempdir_in;
 
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn dylint_driver_path() {
     let tempdir = tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();

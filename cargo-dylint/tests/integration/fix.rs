@@ -35,6 +35,7 @@ fn main() {
 }
 "#;
 
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn fix() {
     let tempdir = tempdir().unwrap();
