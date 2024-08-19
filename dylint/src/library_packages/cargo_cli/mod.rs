@@ -136,46 +136,60 @@ fn git_dependency_root(url: &str, details: &TomlDetailedDependency) -> Result<Pa
     let ident = ident(url)?;
     let checkout_path = cargo_home.join("git/checkouts").join(ident);
 
-    // smoelius: `checkout_path` might not exist, e.g., if the url has never been cloned.
-    let injected_dependencies = if checkout_path
-        .try_exists()
-        .with_context(|| format!("Could not determine whether {checkout_path:?} exists"))?
-    {
-        inject_dummy_dependencies(dependency.path(), &dep_name, &checkout_path)?
-    } else {
-        BTreeMap::new()
-    };
+    let mut errors = Vec::new();
+    // smoelius: It should take at most two attempts to find the git dependency root. The first
+    // attempt may fail because a new checkouts subdirectory had to be created. But the second
+    // attempt should then succeed.
+    for _ in [false, true] {
+        // smoelius: `checkout_path` might not exist, e.g., if the url has never been cloned.
+        let injected_dependencies = if checkout_path
+            .try_exists()
+            .with_context(|| format!("Could not determine whether {checkout_path:?} exists"))?
+        {
+            inject_dummy_dependencies(dependency.path(), &dep_name, &checkout_path)?
+        } else {
+            BTreeMap::new()
+        };
 
-    let output = cargo_fetch(package.path())?;
+        let output = cargo_fetch(package.path())?;
 
-    // smoelius: `cargo metadata` will fail if `cargo fetch` had to create a new checkouts
-    // subdirectory.
-    let metadata = cargo_metadata(package.path()).ok();
+        // smoelius: `cargo metadata` will fail if `cargo fetch` had to create a new checkouts
+        // subdirectory.
+        let metadata = cargo_metadata(package.path()).ok();
 
-    let path = match (
-        find_accessed_subdir(
+        match find_accessed_subdir(
             &dep_name,
             &checkout_path,
             &injected_dependencies,
             metadata.as_ref(),
-        ),
-        output.status.success(),
-    ) {
-        (Ok(path), _) => Ok(path),
-        (Err(err), true) => Err(err),
-        (Err(err), false) => Err(err).with_context(|| {
-            format!(
-                "fetching packages failed\nstdout: {:?}\nstderr: {:?}",
-                String::from_utf8(output.stdout).unwrap_or_default(),
-                dummy_dependency_free_suffix(
-                    &dep_name,
-                    &String::from_utf8(output.stderr).unwrap_or_default()
-                )
-            )
-        }),
-    }?;
+        ) {
+            Ok(path) => {
+                return Ok(path.to_path_buf());
+            }
+            Err(error) => {
+                let s = if output.status.success() {
+                    error.to_string()
+                } else {
+                    format!(
+                        "{:?}",
+                        Result::<PathBuf>::Err(error).with_context(|| {
+                            format!(
+                                "fetching packages failed\nstdout: {:?}\nstderr: {:?}",
+                                String::from_utf8(output.stdout).unwrap_or_default(),
+                                dummy_dependency_free_suffix(
+                                    &dep_name,
+                                    &String::from_utf8(output.stderr).unwrap_or_default()
+                                )
+                            )
+                        })
+                    )
+                };
+                errors.push(s);
+            }
+        }
+    }
 
-    Ok(path.to_path_buf())
+    Err(anyhow!("Could not find git dependency root: {errors:#?}"))
 }
 
 /// Creates a dummy dependency in a temporary directory, and returns the temporary directory if
@@ -344,7 +358,7 @@ fn find_accessed_subdir<'a>(
     accessed
         .into_iter()
         .next()
-        .ok_or_else(|| anyhow!("Could not determined accessed subdirectory"))
+        .ok_or_else(|| anyhow!("Could not determine accessed subdirectory"))
 }
 
 fn for_each_subdir(
