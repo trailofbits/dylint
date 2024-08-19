@@ -1376,7 +1376,7 @@
         "id": 6289,
         "kind": "user",
         "login": "str4d",
-        "name": null
+        "name": "Jack Grigg"
       }
     ],
     "fiat-crypto": [
@@ -2097,7 +2097,7 @@
         "id": 6289,
         "kind": "user",
         "login": "str4d",
-        "name": null
+        "name": "Jack Grigg"
       }
     ],
     "hashbrown": [
