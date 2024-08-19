@@ -51,6 +51,8 @@ components = ["llvm-tools-preview", "rustc-dev"]
 }
 
 const MAIN_RS: &str = r"
+#![feature(rustc_private)]
+
 use anyhow::Result;
 use std::env;
 use std::ffi::OsString;
