@@ -50,6 +50,8 @@ components = ["llvm-tools-preview", "rustc-dev"]
     )
 }
 
+// smoelius: We need `#![feature(rustc_private)]` as it changes `dylib` linking behavior and allows
+// us to link to `rustc_driver`. See: https://github.com/rust-lang/rust/pull/122362
 const MAIN_RS: &str = r"
 #![feature(rustc_private)]
 
