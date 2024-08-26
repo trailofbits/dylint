@@ -25,6 +25,15 @@
         "name": "Jonas Schievink"
       }
     ],
+    "adler2": [
+      {
+        "avatar": "https://avatars1.githubusercontent.com/u/8319210?v=4",
+        "id": 4968,
+        "kind": "user",
+        "login": "oyvindln",
+        "name": null
+      }
+    ],
     "ahash": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/4756752?v=4",
@@ -2351,6 +2360,15 @@
         "kind": "user",
         "login": "dtolnay",
         "name": "David Tolnay"
+      }
+    ],
+    "jiff": [
+      {
+        "avatar": "https://avatars.githubusercontent.com/u/456674?v=4",
+        "id": 189,
+        "kind": "user",
+        "login": "BurntSushi",
+        "name": "Andrew Gallant"
       }
     ],
     "jobserver": [
