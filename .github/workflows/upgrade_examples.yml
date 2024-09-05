@@ -25,7 +25,7 @@ jobs:
           git diff --name-only
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           title: Upgrade examples
           commit-message: Upgrade examples
