@@ -9,7 +9,7 @@ use rustc_middle::ty::{
 };
 use rustc_span::{symbol::sym, Symbol};
 
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 pub fn check_inherents(cx: &LateContext<'_>) {
     let into_iterator_def_id = get_trait_def_id(
         cx.tcx,

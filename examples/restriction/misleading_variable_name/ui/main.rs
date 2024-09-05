@@ -1,4 +1,4 @@
-#![allow(unused)]
+#![expect(unused)]
 
 use anyhow::{Context, Result};
 use std::{

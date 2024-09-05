@@ -129,7 +129,7 @@ fn check_captures(
         return;
     }
 
-    #[allow(clippy::cast_possible_truncation)]
+    #[expect(clippy::cast_possible_truncation)]
     span_lint_and_help(
         cx,
         COMMENTED_CODE,

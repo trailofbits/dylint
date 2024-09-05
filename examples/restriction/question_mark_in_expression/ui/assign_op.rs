@@ -1,4 +1,4 @@
-#![allow(unused)]
+#![expect(unused)]
 
 fn main() -> Result<(), ()> {
     let mut x = 0;

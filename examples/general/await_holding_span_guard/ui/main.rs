@@ -28,7 +28,7 @@ async fn bad_owned() {
     bar().await;
 }
 
-#[allow(clippy::manual_async_fn)]
+#[expect(clippy::manual_async_fn)]
 fn bad_async_block_borrowed() -> impl std::future::Future<Output = ()> + 'static {
     async move {
         let span = span!(Level::INFO, "async_block_borrowed");
@@ -43,7 +43,7 @@ async fn baz(value: usize) {
     let _ = value;
 }
 
-#[allow(unused_must_use)]
+#[expect(unused_must_use)]
 fn main() {
     good_in_scope();
     good_instrument();

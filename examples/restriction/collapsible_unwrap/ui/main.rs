@@ -4,7 +4,7 @@ use std::fs;
 
 const PATH: &str = "Cargo.toml";
 
-#[allow(unused_variables)]
+#[expect(unused_variables)]
 fn main() {
     assert!(std::path::Path::new(PATH)
         .canonicalize()
@@ -71,7 +71,7 @@ fn main() {
     println!("{:?}", name);
 }
 
-#[allow(dead_code)]
+#[expect(dead_code)]
 fn mut_test() {
     let _ = fs::read_dir(".").unwrap().next().unwrap();
 }

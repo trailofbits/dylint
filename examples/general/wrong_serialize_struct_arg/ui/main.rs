@@ -90,7 +90,7 @@ mod multiple_serialize_struct_calls {
         field: u8,
     }
     impl Struct {
-        #[allow(dead_code)]
+        #[expect(dead_code)]
         fn foo<S>(&self, first: S, second: S) -> Result<S::Ok, S::Error>
         where
             S: Serializer,
@@ -112,7 +112,7 @@ mod nested_blocks {
         field: u8,
     }
     impl Struct {
-        #[allow(dead_code)]
+        #[expect(dead_code)]
         fn foo<S>(&self, outer: S, inner: S) -> Result<S::Ok, S::Error>
         where
             S: Serializer,
@@ -137,7 +137,7 @@ mod serialize_field_with_no_preceding_serialize_struct {
         field: u8,
     }
     impl Struct {
-        #[allow(dead_code)]
+        #[expect(dead_code)]
         fn foo<S>(&self, mut state: S::SerializeStruct) -> Result<S::Ok, S::Error>
         where
             S: Serializer,
@@ -169,7 +169,7 @@ mod wrong_serialize_struct {
         field: u8,
     }
     impl Struct {
-        #[allow(dead_code)]
+        #[expect(dead_code)]
         // smoelius: Changing `T<S>` to `S` in the next line should cause a warning to be emitted.
         fn foo<S>(&self, serializer: T<S>) -> Result<S::Ok, S::Error>
         where

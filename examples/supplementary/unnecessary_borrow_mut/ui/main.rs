@@ -1,4 +1,4 @@
-#![allow(unused_assignments, unused_variables)]
+#![expect(unused_assignments, unused_variables)]
 
 use std::cell::RefCell;
 

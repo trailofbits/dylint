@@ -4,7 +4,7 @@ use dylint_internal::{clone, env, CommandExt};
 use std::path::Path;
 use tempfile::{tempdir, tempdir_in};
 
-#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
+#[cfg_attr(dylint_lib = "supplementary", expect(commented_code))]
 #[test]
 fn ui() {
     // smoelius: Try to order failures by how informative they are: failure to build the library,
@@ -116,7 +116,7 @@ mod unused {
 
     // smoelius: The `macro_use_imports` test produces the right four errors, but not in the right
     // order. I haven't yet figured out why. Hence, this hack.
-    #[allow(clippy::shadow_unrelated)]
+    #[expect(clippy::shadow_unrelated)]
     fn adjust_macro_use_imports_test(src_base: &Path) -> Result<()> {
         let stderr_file = src_base.join("macro_use_imports.stderr");
         let contents = read_to_string(&stderr_file).with_context(|| {

@@ -3,7 +3,7 @@
 fn main() {}
 
 // A comment.
-#[allow(clippy::disallowed_names)]
+#[expect(clippy::disallowed_names)]
 pub fn foo() {}
 
 /// Negative test.
