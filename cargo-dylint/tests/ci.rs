@@ -34,6 +34,21 @@ fn initialize() {
 }
 
 #[test]
+fn actionlint() {
+    Command::new("go")
+        .args([
+            "install",
+            "github.com/rhysd/actionlint/cmd/actionlint@latest",
+        ])
+        .assert()
+        .success();
+    let home = home::home_dir().unwrap();
+    Command::new(home.join("go/bin/actionlint"))
+        .assert()
+        .success();
+}
+
+#[test]
 fn versions_are_equal() {
     for package in &METADATA.packages {
         assert_eq!(
@@ -471,6 +486,18 @@ fn prettier_examples_and_template() {
             .assert()
             .success();
     });
+}
+
+#[test]
+fn shellcheck() {
+    for entry in read_dir("scripts").unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        Command::new("shellcheck")
+            .args(["--exclude=SC2002", &path.to_string_lossy()])
+            .assert()
+            .success();
+    }
 }
 
 #[test]
