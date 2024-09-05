@@ -153,7 +153,7 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
 ];
 
 impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
-    #[allow(clippy::too_many_lines)]
+    #[expect(clippy::too_many_lines)]
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         if let Some((maybe_call, maybe_arg, ancestor_mutabilities)) =
             ancestor_addr_of_mutabilities(cx, expr)
@@ -312,7 +312,7 @@ mod sort {
 
     #[cfg_attr(
         dylint_lib = "assert_eq_arg_misordering",
-        allow(assert_eq_arg_misordering)
+        expect(assert_eq_arg_misordering)
     )]
     #[test]
     fn watched_traits_are_sorted() {
@@ -321,7 +321,7 @@ mod sort {
 
     #[cfg_attr(
         dylint_lib = "assert_eq_arg_misordering",
-        allow(assert_eq_arg_misordering)
+        expect(assert_eq_arg_misordering)
     )]
     #[test]
     fn watched_inherents_are_sorted() {
@@ -330,7 +330,7 @@ mod sort {
 
     #[cfg_attr(
         dylint_lib = "assert_eq_arg_misordering",
-        allow(assert_eq_arg_misordering)
+        expect(assert_eq_arg_misordering)
     )]
     #[test]
     fn ignored_inherents_are_sorted() {
@@ -357,7 +357,7 @@ mod ui {
 
     static MUTEX: Mutex<()> = Mutex::new(());
 
-    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
     fn general() {
         let _lock = MUTEX.lock().unwrap();
@@ -390,7 +390,7 @@ mod ui {
         assert_eq!(combined_watchlist.len(), coverage_lines.len());
     }
 
-    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
     fn check_inherents() {
         let _lock = MUTEX.lock().unwrap();
@@ -458,9 +458,8 @@ mod ui {
 
 #[cfg_attr(
     dylint_lib = "inconsistent_qualification",
-    allow(inconsistent_qualification)
+    expect(inconsistent_qualification)
 )]
-#[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 /// Checks whether an expression is a function or method call and, if so, returns its `DefId`,
 /// `GenericArgs`, and arguments.
 fn get_callee_generic_args_and_args<'tcx>(
@@ -565,7 +564,7 @@ fn inner_arg_implements_traits<'tcx>(
 
 #[cfg_attr(
     dylint_lib = "inconsistent_qualification",
-    allow(inconsistent_qualification)
+    expect(inconsistent_qualification)
 )]
 // Iteratively replaces `param_ty` with `new_ty` in `substs`, and similarly for each resulting
 // projected type that is a type parameter. Returns `false` if replacing the types would have an
@@ -643,7 +642,7 @@ fn ancestor_addr_of_mutabilities<'tcx>(
 fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
     const BOX_NEW: [&str; 4] = ["alloc", "boxed", "Box", "new"];
 
-    #[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
+    #[cfg_attr(dylint_lib = "supplementary", expect(commented_code))]
     loop {
         // smoelius: No longer necessary since: https://github.com/rust-lang/rust/pull/108471
         /* if let ExprKind::Box(inner_expr) = expr.kind {

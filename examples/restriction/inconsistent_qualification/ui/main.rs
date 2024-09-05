@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+#![expect(dead_code)]
 
 use std::env::var;
 
@@ -61,7 +61,7 @@ mod trait_import {
 // is that the compiler is not returning the correct span for that path.
 #[cfg_attr(
     dylint_lib = "inconsistent_qualification",
-    allow(inconsistent_qualification)
+    expect(inconsistent_qualification)
 )]
 mod diesel {
     use diesel::table;
@@ -100,7 +100,7 @@ mod trait_path {
 }
 
 mod relative_module_path {
-    #[allow(unused_imports)]
+    #[expect(unused_imports)]
     use bar::baz;
 
     fn foo() {

@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+#![expect(dead_code)]
 
 use serde::{Deserialize, Serialize};
 

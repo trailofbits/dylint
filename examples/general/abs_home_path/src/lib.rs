@@ -143,7 +143,7 @@ fn ui() {
     if let Some(home) = home::home_dir()
         && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
     {
-        #[allow(clippy::explicit_write)]
+        #[expect(clippy::explicit_write)]
         writeln!(
             stderr(),
             "Skipping `ui` test as repository is not stored in the user's home directory"

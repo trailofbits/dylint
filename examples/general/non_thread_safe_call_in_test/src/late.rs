@@ -192,8 +192,7 @@ fn is_blacklisted_function(
     path
 }
 
-#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
-#[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
+#[cfg_attr(dylint_lib = "supplementary", expect(commented_code))]
 fn command_new_additional_checks(cx: &LateContext<'_>, callee: &Expr, args: &[Expr]) -> bool {
     if let [arg] = args
         && let ExprKind::Lit(lit) = arg.kind

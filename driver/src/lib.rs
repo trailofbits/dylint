@@ -421,7 +421,7 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
     Ok(rustc_args)
 }
 
-#[allow(clippy::unwrap_used)]
+#[expect(clippy::unwrap_used)]
 #[cfg(test)]
 mod test {
     use super::*;
