@@ -396,6 +396,7 @@ dependencies = [
  "dylint_internal",
  "env_logger",
  "glob",
+ "home",
  "log",
  "once_cell",
  "predicates",

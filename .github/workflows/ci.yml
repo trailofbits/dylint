@@ -69,14 +69,6 @@ jobs:
       - name: Install dylint-link
         run: cargo install --path ./dylint-link --force
 
-      - name: Actionlint
-        run: |
-          go install github.com/rhysd/actionlint/cmd/actionlint@latest
-          "$HOME"/go/bin/actionlint
-
-      - name: Shellcheck
-        run: shellcheck --exclude=SC2002 scripts/*
-
       - name: Install tools
         run: |
           # smoelius: Prettier is still needed for scripts/update_example_READMEs.sh.
