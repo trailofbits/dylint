@@ -44,9 +44,11 @@ const BOUNDARIES: &[(&str, &str)] = &[
     // https://github.com/rust-lang/rust/pull/119171
     // https://github.com/rust-lang/rust/commit/e0d7a72c46d554cb63a1f91a523bfc9e6e37d886
     ("2023-12-23", "2023-12-24"),
+    // smoelius: `rustfix` 0.8.5 (used by `dylint_testing`) requires rustc 1.77 or newer.
+    // nightly-2023-12-18 is Rust 1.76.
     // https://github.com/rust-lang/rust/pull/119063
     // https://github.com/rust-lang/rust/commit/cda4736f1eaad8af6f49388baa9b7e480df8e329
-    ("2023-12-18", "2023-12-19"),
+    // ("2023-12-18", "2023-12-19"),
     // smoelius: `cargo-platform v0.1.8` requires rustc 1.73 or newer.
     // https://github.com/rust-lang/rust/pull/112692
     // https://github.com/rust-lang/rust/commit/b6144cd843d6eb6acc086797ea37e0c69c892b90
