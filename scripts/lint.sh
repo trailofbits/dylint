@@ -82,39 +82,43 @@ for FLAGS in "--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS" '--lib c
         bash -c "$COMMAND"
         popd
     done
-
-    force_check
-
-    # smoelius: For `overscoped_allow`.
-    DYLINT_RUSTFLAGS="$(echo "$DYLINT_RUSTFLAGS" | sed 's/-D warnings\>//g;s/-W\>/--force-warn/g')"
-    if [[ "$FLAGS" != '--lib clippy' ]]; then
-        DYLINT_RUSTFLAGS="$DYLINT_RUSTFLAGS $(echo "$EXAMPLES" | sed 's/\<[^[:space:]]\+\>/--force-warn &/g')"
-    fi
-    export DYLINT_RUSTFLAGS
-    echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
-
-    find . -name warnings.json -delete
-
-    for DIR in $DIRS; do
-        pushd "$DIR"
-        bash -c "$COMMAND --message-format=json" >> warnings.json
-        popd
-    done
-
-    force_check
-
-    DYLINT_RUSTFLAGS='-D warnings'
-    export DYLINT_RUSTFLAGS
-    echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
-
-    # smoelius: All libraries must be named to enable their respective `cfg_attr`.
-    # smoelius: For this reason, `overscoped_allow` cannot be run with `--git` or `--path`, like I
-    # had hoped.
-    COMMAND="$CARGO_DYLINT dylint $FLAGS --lib overscoped_allow -- --all-features --tests"
-
-    for DIR in $DIRS; do
-        pushd "$DIR"
-        bash -c "$COMMAND"
-        popd
-    done
 done
+
+# smoelius: What follows is old code for running `overscoped_allow`. That lint's usefulness was
+# impacted when we switched to using `expect`. The lint was a little finicky to begin with, and
+# running it added considerable overhead. So I am just disabling it for now.
+
+#   force_check
+#
+#   # smoelius: For `overscoped_allow`.
+#   DYLINT_RUSTFLAGS="$(echo "$DYLINT_RUSTFLAGS" | sed 's/-D warnings\>//g;s/-W\>/--force-warn/g')"
+#   if [[ "$FLAGS" != '--lib clippy' ]]; then
+#       DYLINT_RUSTFLAGS="$DYLINT_RUSTFLAGS $(echo "$EXAMPLES" | sed 's/\<[^[:space:]]\+\>/--force-warn &/g')"
+#   fi
+#   export DYLINT_RUSTFLAGS
+#   echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
+#
+#   find . -name warnings.json -delete
+#
+#   for DIR in $DIRS; do
+#       pushd "$DIR"
+#       bash -c "$COMMAND --message-format=json" >> warnings.json
+#       popd
+#   done
+#
+#   force_check
+#
+#   DYLINT_RUSTFLAGS='-D warnings'
+#   export DYLINT_RUSTFLAGS
+#   echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
+#
+#   # smoelius: All libraries must be named to enable their respective `cfg_attr`.
+#   # smoelius: For this reason, `overscoped_allow` cannot be run with `--git` or `--path`, like I
+#   # had hoped.
+#   COMMAND="$CARGO_DYLINT dylint $FLAGS --lib overscoped_allow -- --all-features --tests"
+#
+#   for DIR in $DIRS; do
+#       pushd "$DIR"
+#       bash -c "$COMMAND"
+#       popd
+#   done
