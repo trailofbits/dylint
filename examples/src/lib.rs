@@ -12,6 +12,12 @@ mod test {
     fn examples() {
         for path in iter(false).unwrap() {
             let path = path.unwrap();
+            // smoelius: Skip the `marker` test for now. `marker` uses nightly-2023-11-16, which is
+            // Rust 1.76. But `rustfix` 0.8.5 (used by `dylint_testing`) requires rustc 1.77 or
+            // newer.
+            if path.ends_with("testing/marker") {
+                continue;
+            }
             let file_name = path.file_name().unwrap();
             // smoelius: Pass `--lib --tests` to `cargo test` to avoid the potential filename
             // collision associated with building the examples.
