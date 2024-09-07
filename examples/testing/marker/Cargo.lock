@@ -140,6 +140,7 @@ dependencies = [
  "is-terminal",
  "log",
  "once_cell",
+ "regex",
  "serde",
  "thiserror",
  "toml",
