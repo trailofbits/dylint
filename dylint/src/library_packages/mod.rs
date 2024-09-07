@@ -416,11 +416,7 @@ fn package_with_root(package_root: &Path) -> Result<MetadataPackage> {
 }
 
 fn package_id(package: &MetadataPackage, source_id: SourceId) -> PackageId {
-    PackageId::new(
-        package.name.clone().into(),
-        package.version.clone(),
-        source_id,
-    )
+    PackageId::new(package.name.clone(), package.version.clone(), source_id)
 }
 
 pub fn package_library_name(package: &MetadataPackage) -> Result<String> {
