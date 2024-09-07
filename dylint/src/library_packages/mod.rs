@@ -417,6 +417,7 @@ fn package_with_root(package_root: &Path) -> Result<MetadataPackage> {
 
 fn package_id(package: &MetadataPackage, source_id: SourceId) -> PackageId {
     PackageId::new(
+        #[allow(clippy::useless_conversion)]
         package.name.clone().into(),
         package.version.clone(),
         source_id,
