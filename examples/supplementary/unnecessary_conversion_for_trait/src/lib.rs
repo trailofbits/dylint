@@ -1,7 +1,5 @@
 #![feature(rustc_private)]
 #![feature(let_chains)]
-#![allow(clippy::items_after_test_module)]
-#![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_errors;
@@ -179,7 +177,6 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
             let mut strip_unnecessary_conversions = |mut expr, mut mutabilities| {
                 let mut refs_prefix = None;
 
-                #[allow(clippy::while_let_loop)]
                 loop {
                     if let Some((inner_callee_def_id, _, inner_receiver, inner_args)) =
                         get_callee_generic_args_and_args(cx, expr)

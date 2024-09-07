@@ -149,7 +149,6 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
         }
     }
 
-    #[allow(clippy::nonminimal_bool)]
     fn check_crate_post(&mut self, cx: &LateContext<'tcx>) {
         for (
             (local_def_id, field),

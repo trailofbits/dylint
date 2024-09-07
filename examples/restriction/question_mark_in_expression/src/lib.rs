@@ -36,7 +36,6 @@ dylint_linting::declare_late_lint! {
     "`?` operators embedded within an expression"
 }
 
-#[allow(clippy::collapsible_match)]
 impl<'tcx> LateLintPass<'tcx> for QuestionMarkInExpression {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
         if !cx
