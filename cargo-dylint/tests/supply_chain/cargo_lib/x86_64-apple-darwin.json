@@ -3476,10 +3476,10 @@
       },
       {
         "avatar": "https://avatars.githubusercontent.com/u/22351541?v=4",
-        "id": 1868,
+        "id": 4457,
         "kind": "team",
-        "login": "github:rustcrypto:elliptic-curves",
-        "name": "elliptic-curves"
+        "login": "github:rustcrypto:formats",
+        "name": "formats"
       }
     ],
     "security-framework": [
