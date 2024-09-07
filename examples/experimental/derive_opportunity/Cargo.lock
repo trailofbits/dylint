@@ -163,23 +163,22 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clippy_config"
-version = "0.1.82"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=37f4fbb92913586b73a35772efd00eccd1cbbe13#37f4fbb92913586b73a35772efd00eccd1cbbe13"
+version = "0.1.83"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=a95afe2d0a2051d97b723b0b197393b7811bc4e4#a95afe2d0a2051d97b723b0b197393b7811bc4e4"
 dependencies = [
- "rustc-semver",
+ "itertools",
  "serde",
  "toml 0.7.8",
 ]
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.82"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=37f4fbb92913586b73a35772efd00eccd1cbbe13#37f4fbb92913586b73a35772efd00eccd1cbbe13"
+version = "0.1.83"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=a95afe2d0a2051d97b723b0b197393b7811bc4e4#a95afe2d0a2051d97b723b0b197393b7811bc4e4"
 dependencies = [
  "arrayvec",
  "clippy_config",
  "itertools",
- "rustc-semver",
  "rustc_apfloat",
 ]
 
@@ -856,12 +855,6 @@ dependencies = [
  "sha2",
  "walkdir",
 ]
-
-[[package]]
-name = "rustc-semver"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5be1bdc7edf596692617627bbfeaba522131b18e06ca4df2b6b689e3c5d5ce84"
 
 [[package]]
 name = "rustc_apfloat"

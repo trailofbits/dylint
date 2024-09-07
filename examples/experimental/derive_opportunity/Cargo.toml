@@ -22,7 +22,7 @@ name = "ui_ignore"
 path = "ui_ignore/main.rs"
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "37f4fbb92913586b73a35772efd00eccd1cbbe13" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "a95afe2d0a2051d97b723b0b197393b7811bc4e4" }
 once_cell = "1.19"
 serde = "1.0"
 
