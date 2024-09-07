@@ -173,6 +173,9 @@ jobs:
           echo /Applications/Xcode* | sort | head -n1 | xargs rm -rf
           # du -sh /*/* 2>/dev/null | sort -h || true
 
+      - name: Preinstall toolchains
+        run: cargo run -p dylint_internal --bin preinstall-toolchains
+
       - name: Test
         run: |
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
