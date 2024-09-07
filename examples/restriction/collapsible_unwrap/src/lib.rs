@@ -76,7 +76,6 @@ impl CollapsibleUnwrap {
         let mut and_then_span_sugg = None;
         let mut unwrap_span_sugg = None;
 
-        #[allow(clippy::while_let_loop)]
         loop {
             if let Some((method, mut recv, _, _, span)) = method_call(expr)
                 && let snip_span = trim_span(cx.sess().source_map(), span.with_lo(recv.span.hi()))

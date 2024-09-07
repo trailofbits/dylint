@@ -83,7 +83,6 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
     let mut components_reversed = Vec::new();
     let mut partial_span = expr.span.with_lo(expr.span.hi());
 
-    #[allow(clippy::while_let_loop)]
     loop {
         if let ExprKind::MethodCall(_, receiver, [arg], _) = expr.kind
             && let Some(method_def_id) = cx.typeck_results().type_dependent_def_id(expr.hir_id)
