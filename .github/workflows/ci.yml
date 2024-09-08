@@ -157,6 +157,13 @@ jobs:
           sudo rm -rf /usr/share/swift
           # du -sh /usr/*/* 2>/dev/null | sort -h || true
 
+      - name: Free up space on macOS
+        if: ${{ matrix.environment == 'macos-latest' }}
+        run: |
+          # https://github.com/actions/runner-images/issues/2840#issuecomment-2334584217
+          echo /Applications/Xcode* | sort | head -n1 | xargs rm -rf
+          # du -sh /*/* 2>/dev/null | sort -h || true
+
       - name: Test
         run: |
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
