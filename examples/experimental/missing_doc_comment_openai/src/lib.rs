@@ -131,7 +131,6 @@ impl MissingDocCommentOpenai {
 impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         if std::env::var(OPENAI_API_KEY).is_err() {
-            #[expect(clippy::disallowed_methods)]
             cx.sess().dcx().warn(format!(
                 "`missing_doc_comment_openai` suggestions are disabled because environment \
                  variable `{OPENAI_API_KEY}` is not set"

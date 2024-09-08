@@ -257,7 +257,6 @@ where
                 FnKind::ItemFn(ident, _, _) | FnKind::Method(ident, _) => format!("`{ident}`"),
                 FnKind::Closure => "closure".to_owned(),
             };
-            #[allow(clippy::disallowed_methods)]
             self.cx.sess().dcx().warn(format!(
                 "reached work limit ({}) while checking {}; set `{}.work_limit` in `dylint.toml` \
                  to override",

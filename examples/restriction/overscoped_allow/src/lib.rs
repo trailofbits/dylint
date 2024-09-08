@@ -175,7 +175,6 @@ impl OverscopedAllow {
     fn diagnostics(&self, cx: &LateContext<'_>) -> &Vec<Diagnostic> {
         self.diagnostics.get_or_init(|| {
             read_diagnostics().unwrap_or_else(|error| {
-                #[allow(clippy::disallowed_methods)]
                 cx.sess()
                     .dcx()
                     .warn(format!("`overscoped_allow` is disabled: {error:?}"));
