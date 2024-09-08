@@ -1,0 +1,24 @@
+[package]
+name = "register_lints_warn"
+version = "3.1.2"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for calls to `rustc_errors::DiagCtxtHandle::warn` from within a `register_lints` function"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { workspace = true }
+
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[lints]
+workspace = true
+
+[package.metadata.rust-analyzer]
+rustc_private = true

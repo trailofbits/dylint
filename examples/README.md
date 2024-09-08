@@ -35,19 +35,20 @@ The example libraries are separated into the following three categories:
 
 ## Restriction
 
-| Example                                                                                                      | Description/check                                                                |
-| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| [`assert_eq_arg_misordering`](./restriction/assert_eq_arg_misordering)                                       | `assert_eq!(actual, expected)`                                                   |
-| [`collapsible_unwrap`](./restriction/collapsible_unwrap)                                                     | An `unwrap` that could be combined with an `expect` or `unwrap` using `and_then` |
-| [`const_path_join`](./restriction/const_path_join)                                                           | Joining of constant path components                                              |
-| [`env_literal`](./restriction/env_literal)                                                                   | Environment variables referred to with string literals                           |
-| [`inconsistent_qualification`](./restriction/inconsistent_qualification)                                     | Inconsistent qualification of module items                                       |
-| [`misleading_variable_name`](./restriction/misleading_variable_name)                                         | Variables whose names suggest they have types other than the ones they have      |
-| [`overscoped_allow`](./restriction/overscoped_allow)                                                         | `allow` attributes whose scope could be reduced                                  |
-| [`question_mark_in_expression`](./restriction/question_mark_in_expression)                                   | The `?` operator in expressions                                                  |
-| [`ref_aware_redundant_closure_for_method_calls`](./restriction/ref_aware_redundant_closure_for_method_calls) | A ref-aware fork of `redundant_closure_for_method_calls`                         |
-| [`suboptimal_pattern`](./restriction/suboptimal_pattern)                                                     | Patterns that could perform additional destructuring                             |
-| [`try_io_result`](./restriction/try_io_result)                                                               | The `?` operator applied to `std::io::Result`                                    |
+| Example                                                                                                      | Description/check                                                                     |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| [`assert_eq_arg_misordering`](./restriction/assert_eq_arg_misordering)                                       | `assert_eq!(actual, expected)`                                                        |
+| [`collapsible_unwrap`](./restriction/collapsible_unwrap)                                                     | An `unwrap` that could be combined with an `expect` or `unwrap` using `and_then`      |
+| [`const_path_join`](./restriction/const_path_join)                                                           | Joining of constant path components                                                   |
+| [`env_literal`](./restriction/env_literal)                                                                   | Environment variables referred to with string literals                                |
+| [`inconsistent_qualification`](./restriction/inconsistent_qualification)                                     | Inconsistent qualification of module items                                            |
+| [`misleading_variable_name`](./restriction/misleading_variable_name)                                         | Variables whose names suggest they have types other than the ones they have           |
+| [`overscoped_allow`](./restriction/overscoped_allow)                                                         | `allow` attributes whose scope could be reduced                                       |
+| [`question_mark_in_expression`](./restriction/question_mark_in_expression)                                   | The `?` operator in expressions                                                       |
+| [`ref_aware_redundant_closure_for_method_calls`](./restriction/ref_aware_redundant_closure_for_method_calls) | A ref-aware fork of `redundant_closure_for_method_calls`                              |
+| [`register_lints_warn`](./restriction/register_lints_warn)                                                   | Calls to `rustc_errors::DiagCtxtHandle::warn` from within a `register_lints` function |
+| [`suboptimal_pattern`](./restriction/suboptimal_pattern)                                                     | Patterns that could perform additional destructuring                                  |
+| [`try_io_result`](./restriction/try_io_result)                                                               | The `?` operator applied to `std::io::Result`                                         |
 
 ## Experimental
 

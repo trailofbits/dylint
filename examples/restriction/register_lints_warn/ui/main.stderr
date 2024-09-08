@@ -1,0 +1,10 @@
+warning: call to `rustc_errors::DiagCtxtHandle::warn` from within a `register_lints` function
+  --> $DIR/main.rs:7:5
+   |
+LL |     sess.dcx().warn("something bad happened");
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(register_lints_warn)]` on by default
+
+warning: 1 warning emitted
+

@@ -1,0 +1,26 @@
+#![feature(rustc_private)]
+
+extern crate rustc_lint;
+extern crate rustc_session;
+
+pub fn register_lints(sess: &rustc_session::Session, _lint_store: &mut rustc_lint::LintStore) {
+    sess.dcx().warn("something bad happened");
+}
+
+use rustc_lint::LintContext;
+
+struct LintPass;
+
+impl rustc_lint::LintPass for LintPass {
+    fn name(&self) -> &'static str {
+        "lint_pass"
+    }
+}
+
+impl<'tcx> rustc_lint::LateLintPass<'tcx> for LintPass {
+    fn check_crate(&mut self, cx: &rustc_lint::LateContext<'tcx>) {
+        cx.sess().dcx().warn("something bad happened");
+    }
+}
+
+fn main() {}
