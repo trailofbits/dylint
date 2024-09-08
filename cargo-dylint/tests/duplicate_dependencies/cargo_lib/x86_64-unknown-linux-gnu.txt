@@ -1,3 +1,5 @@
+cargo-util-schemas v0.4.0
+cargo-util-schemas v0.5.0
 gix-date v0.8.7
 gix-date v0.9.0
 miniz_oxide v0.7.4
