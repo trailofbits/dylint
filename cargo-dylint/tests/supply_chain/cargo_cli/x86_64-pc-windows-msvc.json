@@ -2023,15 +2023,6 @@
         "name": "Publish tracing"
       }
     ],
-    "tracing-attributes": [
-      {
-        "avatar": "https://avatars.githubusercontent.com/u/2796466?v=4",
-        "id": 1249,
-        "kind": "user",
-        "login": "hawkw",
-        "name": "Eliza Weisman"
-      }
-    ],
     "tracing-core": [
       {
         "avatar": "https://avatars.githubusercontent.com/u/2796466?v=4",
