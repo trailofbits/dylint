@@ -164,11 +164,12 @@ fn absolutize(base: &Path, path: &Path, normalize: bool) -> PathBuf {
     }
 }
 
+#[cfg_attr(dylint_lib = "general", allow(unnecessary_conversion_for_trait))]
 #[test]
 fn ui_absolute() {
     dylint_testing::ui_test(
         env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
     );
 }
 

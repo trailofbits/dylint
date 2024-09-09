@@ -337,7 +337,7 @@ mod sort {
         assert_eq!(&sort(IGNORED_INHERENTS), &IGNORED_INHERENTS);
     }
 
-    fn sort<'a, 'b, 'c>(items: &'a [&'b [&'c str]]) -> Vec<&'b [&'c str]> {
+    fn sort<'a, 'b>(items: &[&'a [&'b str]]) -> Vec<&'a [&'b str]> {
         let mut items = items.to_vec();
         items.sort_unstable();
         items
@@ -402,7 +402,7 @@ mod ui {
 
         write(tempdir.path().join("main.rs"), "fn main() {}").unwrap();
 
-        dylint_testing::ui_test(env!("CARGO_PKG_NAME"), tempdir.path());
+        dylint_testing::ui_test(env!("CARGO_PKG_NAME"), &tempdir);
     }
 
     #[test]
