@@ -483,11 +483,9 @@ name = "escaping_doc_link"
 version = "3.1.2"
 dependencies = [
  "cargo-util",
- "cargo_metadata",
  "clippy_utils",
  "dylint_linting",
  "dylint_testing",
- "once_cell",
  "pulldown-cmark",
 ]
 
