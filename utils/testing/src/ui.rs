@@ -28,8 +28,8 @@ impl Test {
     ///
     /// [`ui_test`]: crate::ui_test
     #[must_use]
-    pub fn src_base(name: &str, src_base: &Path) -> Self {
-        Self::new(name, Target::SrcBase(src_base.to_owned()))
+    pub fn src_base(name: &str, src_base: impl AsRef<Path>) -> Self {
+        Self::new(name, Target::SrcBase(src_base.as_ref().to_owned()))
     }
 
     /// Test a library on one example target (similar to [`ui_test_example`]).
@@ -117,6 +117,6 @@ mod test {
     // smoelius: Verify that `rustc_flags` compiles when used as intended.
     #[allow(dead_code)]
     fn rustc_flags() {
-        let _ = Test::src_base("name", &PathBuf::new()).rustc_flags(["--test"]);
+        let _ = Test::src_base("name", PathBuf::new()).rustc_flags(["--test"]);
     }
 }

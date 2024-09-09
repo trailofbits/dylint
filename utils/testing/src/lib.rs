@@ -139,7 +139,7 @@ static LINKING_FLAGS: OnceCell<Vec<String>> = OnceCell::new();
 /// - `src_base` is a directory containing:
 ///   - source files on which to test the library (`.rs` files), and
 ///   - the output those files should produce (`.stderr` files).
-pub fn ui_test(name: &str, src_base: &Path) {
+pub fn ui_test(name: &str, src_base: impl AsRef<Path>) {
     ui::Test::src_base(name, src_base).run();
 }
 
