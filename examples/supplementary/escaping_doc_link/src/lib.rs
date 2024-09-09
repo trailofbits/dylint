@@ -3,6 +3,7 @@
 
 extern crate rustc_ast;
 extern crate rustc_resolve;
+extern crate rustc_span;
 
 use cargo_metadata::{Metadata, MetadataCommand};
 use clippy_utils::diagnostics::span_lint;
@@ -11,7 +12,8 @@ use pulldown_cmark::{Options, Parser};
 use rustc_ast::Attribute;
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_resolve::rustdoc::{add_doc_fragment, attrs_to_doc_fragments, DocFragment};
-use std::path::{Path, PathBuf};
+use rustc_span::RealFileName;
+use std::path::{absolute, Path, PathBuf};
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
@@ -43,29 +45,25 @@ struct EscapingDocLink {
 
 impl<'tcx> LateLintPass<'tcx> for EscapingDocLink {
     fn check_attribute(&mut self, cx: &LateContext<'tcx>, attr: &'tcx Attribute) {
-        let Some(source_path) = cx.sess().local_crate_source_file() else {
-            return;
-        };
-
-        let Some(source_dir) = source_path
-            .local_path()
-            .and_then(Path::parent)
-            .map(|parent| {
-                if parent.as_os_str().is_empty() {
-                    Path::new(".")
-                } else {
-                    parent
-                }
-            })
+        let Some(source_path) = cx
+            .sess()
+            .local_crate_source_file()
+            .as_ref()
+            .and_then(RealFileName::local_path)
+            .and_then(|path| absolute(path).ok())
         else {
             return;
         };
 
+        assert!(source_path.is_absolute());
+
+        let source_dir = source_path.parent().unwrap_or_else(|| Path::new("/"));
+
+        assert!(source_dir.is_absolute());
+
         let metadata = self.metadata(source_dir);
 
-        let source_dir = absolutize(metadata.workspace_root.as_std_path(), source_dir, false);
-
-        let Some(manifest_dir) = find_package(metadata, &source_dir) else {
+        let Some(manifest_dir) = find_package(metadata, source_dir) else {
             return;
         };
 
@@ -167,9 +165,14 @@ fn absolutize(base: &Path, path: &Path, normalize: bool) -> PathBuf {
 }
 
 #[test]
-fn ui() {
+fn ui_absolute() {
     dylint_testing::ui_test(
         env!("CARGO_PKG_NAME"),
         &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
     );
+}
+
+#[test]
+fn ui_relative() {
+    dylint_testing::ui_test(env!("CARGO_PKG_NAME"), Path::new("ui"));
 }
