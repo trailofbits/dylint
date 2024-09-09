@@ -189,6 +189,9 @@ fn git_dependency_root(url: &str, details: &TomlDetailedDependency) -> Result<Pa
         }
     }
 
+    // smoelius: If we get here, it should be because `find_accessed_subdir` failed twice.
+    debug_assert!(errors.len() >= 2);
+
     Err(anyhow!("Could not find git dependency root: {errors:#?}"))
 }
 
