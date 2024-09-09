@@ -449,18 +449,10 @@ fn ui_ignore() {
 
 #[test]
 fn ui_main_rs_equal() {
-    let ui_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui/main.rs"),
-    )
-    .unwrap();
-    let ui_at_least_one_field_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_at_least_one_field/main.rs"),
-    )
-    .unwrap();
-    let ui_ignore_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_ignore/main.rs"),
-    )
-    .unwrap();
+    let ui_main_rs = std::fs::read_to_string("ui/main.rs").unwrap();
+    let ui_at_least_one_field_main_rs =
+        std::fs::read_to_string("ui_at_least_one_field/main.rs").unwrap();
+    let ui_ignore_main_rs = std::fs::read_to_string("ui_ignore/main.rs").unwrap();
     assert_eq!(ui_main_rs, ui_at_least_one_field_main_rs);
     assert_eq!(ui_main_rs, ui_ignore_main_rs);
 }

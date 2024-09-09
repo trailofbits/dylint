@@ -531,10 +531,7 @@ mod test {
         // smoelius: Don't use `dylint_testing::ui_test_example`. That function copies the example's
         // source file to a temporary directory, so the resulting path wouldn't match what's in the
         // (temporary) `warnings.json` file.
-        dylint_testing::ui_test(
-            env!("CARGO_PKG_NAME"),
-            &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_general"),
-        );
+        dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui_general");
     }
 
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
@@ -560,12 +557,9 @@ mod test {
             OVERSCOPED_ALLOW_PATH,
             temp_path.to_string_lossy().to_string(),
         );
-        dylint_testing::ui::Test::src_base(
-            env!("CARGO_PKG_NAME"),
-            &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_test"),
-        )
-        .rustc_flags(["--test"])
-        .run();
+        dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui_test")
+            .rustc_flags(["--test"])
+            .run();
     }
 
     // smoelius: I am not sure why, but I started seeing `error: 'cargo-clippy' is not installed for

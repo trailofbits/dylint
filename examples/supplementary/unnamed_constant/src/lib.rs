@@ -124,31 +124,19 @@ fn flips(value: u128) -> Vec<u32> {
 
 #[test]
 fn ui() {
-    dylint_testing::ui_test(
-        env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-    );
+    dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui");
 }
 
 #[test]
 fn ui_threshold() {
-    dylint_testing::ui::Test::src_base(
-        env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_threshold"),
-    )
-    .dylint_toml("unnamed_constant.threshold = 2")
-    .run();
+    dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui_threshold")
+        .dylint_toml("unnamed_constant.threshold = 2")
+        .run();
 }
 
 #[test]
 fn ui_main_rs_equal() {
-    let ui_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui/main.rs"),
-    )
-    .unwrap();
-    let ui_threshold_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_threshold/main.rs"),
-    )
-    .unwrap();
+    let ui_main_rs = std::fs::read_to_string("ui/main.rs").unwrap();
+    let ui_threshold_main_rs = std::fs::read_to_string("ui_threshold/main.rs").unwrap();
     assert_eq!(ui_main_rs, ui_threshold_main_rs);
 }
