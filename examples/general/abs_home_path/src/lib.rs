@@ -21,7 +21,7 @@ use std::{
 dylint_linting::impl_late_lint! {
     /// ### What it does
     /// Checks for string literals that are absolute paths into the user's home directory, e.g.,
-    /// `env!(CARGO_MANIFEST_DIR)`.
+    /// `env!("CARGO_MANIFEST_DIR")`.
     ///
     /// ### Why is this bad?
     /// The path might not exist when the code is used in production.
