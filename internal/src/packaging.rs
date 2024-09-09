@@ -154,9 +154,7 @@ mod test {
 
     #[test]
     fn template_has_initial_version() {
-        let contents =
-            read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("template/Cargo.toml~"))
-                .unwrap();
+        let contents = read_to_string("template/Cargo.toml~").unwrap();
         let document = contents.parse::<DocumentMut>().unwrap();
         let version = document
             .as_table()

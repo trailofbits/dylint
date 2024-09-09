@@ -152,10 +152,7 @@ fn ui() {
         return;
     }
 
-    dylint_testing::ui::Test::src_base(
-        env!("CARGO_PKG_NAME"),
-        &Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-    )
-    .rustc_flags(["--test"])
-    .run();
+    dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui")
+        .rustc_flags(["--test"])
+        .run();
 }

@@ -438,13 +438,7 @@ fn ui_public_only() {
 
 #[test]
 fn ui_main_rs_equal() {
-    let ui_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui/main.rs"),
-    )
-    .unwrap();
-    let ui_public_only_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_public_only/main.rs"),
-    )
-    .unwrap();
+    let ui_main_rs = std::fs::read_to_string("ui/main.rs").unwrap();
+    let ui_public_only_main_rs = std::fs::read_to_string("ui_public_only/main.rs").unwrap();
     assert_eq!(ui_main_rs, ui_public_only_main_rs);
 }

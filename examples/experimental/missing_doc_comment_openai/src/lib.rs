@@ -417,11 +417,8 @@ presence_penalty = 0.0
 "#
         );
 
-        dylint_testing::ui::Test::src_base(
-            env!("CARGO_PKG_NAME"),
-            &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-        )
-        .dylint_toml(toml)
-        .run();
+        dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui")
+            .dylint_toml(toml)
+            .run();
     }
 }

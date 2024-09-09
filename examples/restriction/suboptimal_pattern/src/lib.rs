@@ -354,33 +354,22 @@ fn count_derefs<'tcx>(cx: &LateContext<'tcx>, mut expr: &Expr<'tcx>) -> (usize, 
 
 #[test]
 fn ui() {
-    dylint_testing::ui_test(
-        env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-    );
+    dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui");
 }
 
 #[test]
 fn ui_no_explicit_deref_check() {
-    dylint_testing::ui::Test::src_base(
-        env!("CARGO_PKG_NAME"),
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_no_explicit_deref_check"),
-    )
-    .dylint_toml("suboptimal_pattern.explicit_deref_check = false")
-    .run();
+    dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui_no_explicit_deref_check")
+        .dylint_toml("suboptimal_pattern.explicit_deref_check = false")
+        .run();
 }
 
 #[test]
 fn ui_main_rs_are_equal() {
-    let ui_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui/main.rs"),
-    )
-    .unwrap();
+    let ui_main_rs = std::fs::read_to_string("ui/main.rs").unwrap();
 
-    let ui_no_explicit_deref_check_main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui_no_explicit_deref_check/main.rs"),
-    )
-    .unwrap();
+    let ui_no_explicit_deref_check_main_rs =
+        std::fs::read_to_string("ui_no_explicit_deref_check/main.rs").unwrap();
 
     assert_eq!(ui_main_rs, ui_no_explicit_deref_check_main_rs);
 }

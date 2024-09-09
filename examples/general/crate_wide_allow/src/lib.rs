@@ -72,7 +72,7 @@ mod test {
     use cargo_metadata::MetadataCommand;
     use dylint_internal::env;
     use predicates::prelude::*;
-    use std::{env::consts, path::Path, sync::Mutex};
+    use std::{env::consts, sync::Mutex};
 
     static MUTEX: Mutex<()> = Mutex::new(());
 
@@ -113,18 +113,18 @@ mod test {
     // smoelius: Metadata entries are no longer rebuilt when `RUSTFLAGS` changes.
 
     fn test(rustflags: &str, assert: impl Fn(Assert) -> Assert) {
+        const MANIFEST_DIR: &str = "../../..";
+
         let _lock = MUTEX.lock().unwrap();
 
-        let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
-
         Command::new("cargo")
-            .current_dir(&manifest_dir)
+            .current_dir(MANIFEST_DIR)
             .args(["build", "--bin", "cargo-dylint"])
             .assert()
             .success();
 
         let metadata = MetadataCommand::new()
-            .current_dir(manifest_dir)
+            .current_dir(MANIFEST_DIR)
             .no_deps()
             .exec()
             .unwrap();

@@ -175,5 +175,5 @@ fn ui_absolute() {
 
 #[test]
 fn ui_relative() {
-    dylint_testing::ui_test(env!("CARGO_PKG_NAME"), Path::new("ui"));
+    dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui");
 }
