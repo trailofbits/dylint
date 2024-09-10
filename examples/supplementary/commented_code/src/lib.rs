@@ -92,9 +92,7 @@ fn check_span(cx: &LateContext<'_>, span: Span) {
     let Some(source_file_range) = span.get_source_text(cx) else {
         return;
     };
-    let Some(text) = source_file_range.as_str() else {
-        return;
-    };
+    let text = source_file_range.as_str();
     for captures in LINE_COMMENT.captures_iter(text) {
         assert_eq!(4, captures.len());
         check_captures(cx, span, &captures, 2, 3);

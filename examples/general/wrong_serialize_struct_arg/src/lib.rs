@@ -6,7 +6,7 @@ extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{
-    consts::{constant, Constant},
+    consts::{ConstEvalCtxt, Constant},
     diagnostics::span_lint_and_then,
     match_def_path,
 };
@@ -124,7 +124,7 @@ impl<'tcx> LateLintPass<'tcx> for WrongSerializeStructArg {
 
         if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_STRUCT)
             && let [_, arg] = args
-            && let Some(Constant::Int(len)) = constant(cx, cx.typeck_results(), arg)
+            && let Some(Constant::Int(len)) = ConstEvalCtxt::new(cx).eval(arg)
         {
             self.stack.last_mut().unwrap().push(SerializeStruct {
                 serialize_struct_span: expr.span,

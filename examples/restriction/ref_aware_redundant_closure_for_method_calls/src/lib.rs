@@ -19,7 +19,7 @@ extern crate rustc_trait_selection;
 use clippy_utils::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use clippy_utils::higher::VecArgs;
 use clippy_utils::source::snippet_opt;
-use clippy_utils::ty::type_diagnostic_name;
+use clippy_utils::ty::get_type_diagnostic_name;
 use clippy_utils::usage::{local_used_after_expr, local_used_in};
 use clippy_utils::{higher, is_adjusted, path_to_local, path_to_local_id};
 use rustc_errors::Applicability;
