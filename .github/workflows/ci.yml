@@ -3,6 +3,8 @@ name: CI
 on:
   merge_group:
   pull_request:
+  schedule:
+    - cron: "0 3 * * tue"
   workflow_dispatch:
 
 concurrency:
@@ -96,10 +98,15 @@ jobs:
       fail-fast: ${{ github.event_name == 'merge_group' }}
       matrix:
         environment: [ubuntu-latest, macos-latest, windows-latest]
-        package: [cargo-dylint, cargo-dylint-cargo-lib, dylint_examples, other]
+        package:
+          [
+            cargo-dylint,
+            cargo-dylint-cargo-lib,
+            dylint_examples,
+            expensive,
+            other,
+          ]
         include:
-          - environment: ubuntu-latest
-            package: alpine
           - environment: ubuntu-latest
             package: cargo-dylint-ci
 
@@ -185,9 +192,14 @@ jobs:
                 ;;
             esac
           elif [[ '${{ matrix.package }}' != 'other' ]]; then
+            if [[ '${{ matrix.package }}' = 'expensive' ]]; then
+              if [[ '${{ github.event_name }}' != 'schedule' && '${{ github.event_name }}' != 'workflow_dispatch' ]]; then
+                exit
+              fi
+            fi
             cargo test -p '${{ matrix.package }}' -- --nocapture
           else
-            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude alpine -- --nocapture
+            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive -- --nocapture
 
             pushd driver
             cargo test --all-features -- --nocapture

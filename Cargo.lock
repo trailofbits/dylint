@@ -45,10 +45,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c6cb57a04249c6480766f7f7cef5467412af1490f8d1e243141daddada3264f"
 
 [[package]]
-name = "alpine"
-version = "3.1.2"
-
-[[package]]
 name = "annotate-snippets"
 version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1089,6 +1085,15 @@ checksum = "534c5cf6194dfab3db3242765c03bbe257cf92f22b38f6bc0c58d59108a820ba"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "expensive"
+version = "3.1.2"
+dependencies = [
+ "anyhow",
+ "dylint_internal",
+ "tempfile",
 ]
 
 [[package]]

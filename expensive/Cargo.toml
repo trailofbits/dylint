@@ -1,0 +1,20 @@
+[package]
+name = "expensive"
+description = "Expensive tests"
+version = "3.1.2"
+edition = "2021"
+publish = false
+
+[dev-dependencies]
+anyhow = "1.0"
+tempfile = "3.12"
+
+dylint_internal = { version = "=3.1.2", path = "../internal", features = [
+    "clippy_utils",
+    "rustup",
+    "sed",
+    "testing",
+] }
+
+[lints]
+workspace = true
