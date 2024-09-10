@@ -8,8 +8,8 @@ members = [
     "dylint",
     "dylint-link",
     "examples",
+    "expensive",
     "internal",
-    "tests/alpine",
     # "utils/linting",
     "utils/testing",
 ]

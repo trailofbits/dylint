@@ -24,10 +24,17 @@ fn alpine() {
             "build",
             "--progress=plain",
             "-f",
-            "tests/alpine/Dockerfile",
+            "expensive/tests/Dockerfile",
             ".",
         ])
-        .current_dir("../..")
+        .current_dir("..")
+        .status()
+        .unwrap();
+    assert!(status.success());
+
+    Command::new("docker")
+        .args(["system", "prune"])
+        .current_dir("..")
         .status()
         .unwrap();
     assert!(status.success());

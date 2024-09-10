@@ -2461,13 +2461,13 @@
   "not_audited": {
     "foreign_crates": [],
     "local_crates": [
-      "alpine",
       "cargo-dylint",
       "dylint",
       "dylint-link",
       "dylint_examples",
       "dylint_internal",
-      "dylint_testing"
+      "dylint_testing",
+      "expensive"
     ]
   }
 }
