@@ -17,8 +17,9 @@ use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
-        pretty::write_mir_fn, BasicBlock, Body, ConstOperand, Local, Location, Mutability, Operand,
-        Place, ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind,
+        pretty::{write_mir_fn, PrettyPrintMirOptions},
+        BasicBlock, Body, ConstOperand, Local, Location, Mutability, Operand, Place,
+        ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind,
     },
     ty,
 };
@@ -151,7 +152,15 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
         let mir = cx.tcx.optimized_mir(local_def_id.to_def_id());
 
         if enabled("DEBUG_MIR") {
-            write_mir_fn(cx.tcx, mir, &mut |_, _| Ok(()), &mut std::io::stdout()).unwrap();
+            let options = PrettyPrintMirOptions::from_cli(cx.tcx);
+            write_mir_fn(
+                cx.tcx,
+                mir,
+                &mut |_, _| Ok(()),
+                &mut std::io::stdout(),
+                options,
+            )
+            .unwrap();
         }
 
         visit_error_paths(

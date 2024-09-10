@@ -295,7 +295,7 @@ fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<It
         let trait_did = stack.pop()?;
         let generic_predicates = tcx.explicit_super_predicates_of(trait_did);
 
-        for (predicate, _) in generic_predicates.predicates {
+        for (predicate, _) in generic_predicates.skip_binder() {
             if let ty::ClauseKind::Trait(data) = predicate.kind().skip_binder() {
                 if set.insert(data.def_id()) {
                     stack.push(data.def_id());

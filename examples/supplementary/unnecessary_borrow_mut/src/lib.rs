@@ -16,7 +16,7 @@ use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
-        pretty::write_mir_fn,
+        pretty::{write_mir_fn, PrettyPrintMirOptions},
         visit::{PlaceContext, Visitor},
         Body, Local, Location, Mutability, Place, Rvalue, Terminator, TerminatorKind,
     },
@@ -64,7 +64,15 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryBorrowMut {
         let mir = cx.tcx.optimized_mir(local_def_id.to_def_id());
 
         if enabled("DEBUG_MIR") {
-            write_mir_fn(cx.tcx, mir, &mut |_, _| Ok(()), &mut std::io::stdout()).unwrap();
+            let options = PrettyPrintMirOptions::from_cli(cx.tcx);
+            write_mir_fn(
+                cx.tcx,
+                mir,
+                &mut |_, _| Ok(()),
+                &mut std::io::stdout(),
+                options,
+            )
+            .unwrap();
         }
 
         for (local, borrow_mut_span) in collect_borrow_mut_locals(cx, mir) {
