@@ -31,7 +31,7 @@ use serde::Deserialize;
 use std::{
     borrow::Cow,
     fs::OpenOptions,
-    path::{Path, PathBuf},
+    path::{absolute, Path, PathBuf},
 };
 
 const OVERSCOPED_ALLOW_PATH: &str = "OVERSCOPED_ALLOW_PATH";
@@ -394,7 +394,7 @@ fn local_path_from_span(cx: &LateContext<'_>, span: Span) -> Option<PathBuf> {
     if let FileName::Real(RealFileName::LocalPath(local_path)) =
         cx.sess().source_map().span_to_filename(span)
     {
-        Some(local_path)
+        absolute(local_path).ok()
     } else {
         None
     }
