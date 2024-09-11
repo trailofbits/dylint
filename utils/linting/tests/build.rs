@@ -25,6 +25,7 @@ fn builds_with_cfg_docsrs() {
 // smoelius: Avoid: https://github.com/rust-lang/rustup/issues/988
 static MUTEX: Mutex<()> = Mutex::new(());
 
+#[allow(clippy::result_large_err)]
 fn update_nightly() -> AssertResult {
     let _lock = MUTEX.lock().unwrap();
 
