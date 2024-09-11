@@ -75,7 +75,9 @@ for FLAGS in "--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS" '--lib c
 
     # smoelius: `--all-targets` cannot be used here. It would cause the command to fail on the
     # lint examples.
-    COMMAND="$CARGO_DYLINT dylint $FLAGS -- --all-features --tests"
+    # smoelius: `--workspace` is needed because the `general` and `supplementary` workspaces contain
+    # root packages.
+    COMMAND="$CARGO_DYLINT dylint $FLAGS -- --all-features --tests --workspace"
 
     for DIR in $DIRS; do
         pushd "$DIR"
