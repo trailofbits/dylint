@@ -72,13 +72,28 @@ mod test {
     use cargo_metadata::MetadataCommand;
     use dylint_internal::env;
     use predicates::prelude::*;
-    use std::{env::consts, sync::Mutex};
+    use std::{
+        env::consts,
+        sync::{Mutex, MutexGuard},
+    };
 
-    static MUTEX: Mutex<()> = Mutex::new(());
+    fn mutex<T: maybe_return::MaybeReturn<MutexGuard<'static, ()>>>() -> T::Output {
+        static MUTEX: Mutex<()> = Mutex::new(());
+
+        let lock = MUTEX.lock().unwrap();
+
+        // smoelius: Ensure the `clippy` component is installed.
+        Command::new("rustup")
+            .args(["component", "add", "clippy"])
+            .assert()
+            .success();
+
+        T::maybe_return(lock)
+    }
 
     #[test]
     fn ui() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = mutex::<maybe_return::Yes>();
 
         dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "ui");
     }
@@ -115,7 +130,7 @@ mod test {
     fn test(rustflags: &str, assert: impl Fn(Assert) -> Assert) {
         const MANIFEST_DIR: &str = "../../..";
 
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = mutex::<maybe_return::Yes>();
 
         Command::new("cargo")
             .current_dir(MANIFEST_DIR)
@@ -159,6 +174,8 @@ mod test {
 
     #[test]
     fn premise_manifest_sanity() {
+        mutex::<maybe_return::No>();
+
         let mut command = Command::new("cargo");
         command.args(["clippy"]);
         command.current_dir("ui_manifest");
@@ -171,6 +188,8 @@ mod test {
     /// Verify that `allow`ing a lint in the manifest does not silently override `--warn`.
     #[test]
     fn premise_manifest_warn() {
+        mutex::<maybe_return::No>();
+
         let mut command = Command::new("cargo");
         command.args(["clippy", "--", "--warn=clippy::assertions-on-constants"]);
         command.current_dir("ui_manifest");
@@ -183,6 +202,8 @@ mod test {
     /// Verify that `allow`ing a lint in the manifest does not silently override `--deny`.
     #[test]
     fn premise_manifest_deny() {
+        mutex::<maybe_return::No>();
+
         let mut command = Command::new("cargo");
         command.args(["clippy", "--", "--deny=clippy::assertions-on-constants"]);
         command.current_dir("ui_manifest");
@@ -190,5 +211,28 @@ mod test {
             .assert()
             .failure()
             .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING));
+    }
+
+    mod maybe_return {
+        pub trait MaybeReturn<T> {
+            type Output;
+            fn maybe_return(value: T) -> Self::Output;
+        }
+
+        pub struct Yes;
+
+        pub struct No;
+
+        impl<T> MaybeReturn<T> for Yes {
+            type Output = T;
+            fn maybe_return(value: T) -> Self::Output {
+                value
+            }
+        }
+
+        impl<T> MaybeReturn<T> for No {
+            type Output = ();
+            fn maybe_return(_value: T) -> Self::Output {}
+        }
     }
 }
