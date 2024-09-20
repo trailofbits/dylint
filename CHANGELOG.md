@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.2.0
+
+- Upgrade `compiletest_rs` to version 0.11 in `dylint_testing` ([145623a](https://github.com/trailofbits/dylint/commit/145623aedba033d90e25e54b6f178178202df3d5))
+- Add documentation on the example libraries' use of `dylint_linting`'s `constituent` feature ([9625952](https://github.com/trailofbits/dylint/commit/96259528055d0cad4a52c9914e056ad614c821ce))
+- Add documentation on suppressing rustc's `unexpected_cfg` lint warnings ([#1243](https://github.com/trailofbits/dylint/pull/1243) and [#1252](https://github.com/trailofbits/dylint/pull/1252))
+- FEATURE: Allow `pattern`s to be arrays when specifying workspace metadata entries ([#1273](https://github.com/trailofbits/dylint/pull/1273))
+- Upgrade `cargo` to version 0.81 ([#1280](https://github.com/trailofbits/dylint/pull/1280))
+- Add `#![feature(rustc_private)]` to `dylint_driver`'s main.rs. This fixes a bug caused by [rust-lang/rust#122362](https://github.com/rust-lang/rust/pull/122362). ([b691069](https://github.com/trailofbits/dylint/commit/b69106982158c34a1874639fa7b196a4a1e830bb))
+- Enable Dylint to use Cargo's checkouts directories concurrently. Previously, such concurrent use could cause Dylint to produce errors. ([cb6299a](https://github.com/trailofbits/dylint/commit/cb6299aa10418e655e6e585b564190ad802ad535))
+- FEATURE: In `dylint_testing`, `ui_test` and `Test::src_base` now accept an `impl AsRef<Path>` as opposed to a `&Path` ([be85b10](https://github.com/trailofbits/dylint/commit/be85b10a44e4fc173241a71cf7b0e1fba65d8c74))
+
 ## 3.1.2
 
 - Extend rather than overwrite `RUSTFLAGS` when building drivers ([7662d4c](https://github.com/trailofbits/dylint/commit/7662d4c4d761aeaa47e37a74cd9133adc9b8ae59))
