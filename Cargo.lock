@@ -879,7 +879,6 @@ dependencies = [
  "cargo-util",
  "cargo-util-schemas 0.5.0",
  "cargo_metadata",
- "curl-sys",
  "dirs",
  "dunce",
  "dylint_internal",
