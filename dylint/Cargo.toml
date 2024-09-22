@@ -38,12 +38,6 @@ toml = { version = "0.8", optional = true }
 url = { version = "2.5", optional = true }
 walkdir = "2.5"
 
-# smoelius: Work around: https://github.com/curl/curl/issues/11893
-# See: https://github.com/alexcrichton/curl-rust/issues/524#issuecomment-1703325064
-curl-sys = { version = "0.4", features = [
-    "force-system-lib-on-osx",
-], optional = true }
-
 dylint_internal = { version = "=3.2.0", path = "../internal", features = [
     "config",
     "git",
@@ -92,7 +86,6 @@ __cargo_lib = [
     "cargo-platform",
     "cargo-util",
     "cargo-util-schemas",
-    "curl-sys",
     "dunce",
     "glob",
     "if_chain",
