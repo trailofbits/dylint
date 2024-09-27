@@ -541,7 +541,8 @@ fn supply_chain() {
             let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
             // smoelius: Sanity. (I have nothing against Redox OS.)
             assert!(!stdout_actual.contains("redox"));
-            let value = serde_json::Value::from_str(stdout_actual).unwrap();
+            let mut value = serde_json::Value::from_str(stdout_actual).unwrap();
+            remove_avatars(&mut value);
             let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
 
             let subdir = feature.replace('-', "_");
@@ -560,6 +561,29 @@ fn supply_chain() {
                     SimpleDiff::from_str(&stdout_expected, &stdout_normalized, "left", "right")
                 );
             }
+        }
+    }
+}
+
+fn remove_avatars(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Null
+        | serde_json::Value::Bool(_)
+        | serde_json::Value::Number(_)
+        | serde_json::Value::String(_) => {}
+        serde_json::Value::Array(array) => {
+            for value in array {
+                remove_avatars(value);
+            }
+        }
+        serde_json::Value::Object(object) => {
+            object.retain(|key, value| {
+                if key == "avatar" {
+                    return false;
+                }
+                remove_avatars(value);
+                true
+            });
         }
     }
 }
