@@ -1,3 +1,4 @@
+#![cfg(not(coverage))]
 // smoelius: As per `dylint-link/src/main.rs`:
 // "Only the MSVC toolchain is supported on Windows"
 #![cfg(not(target_os = "windows"))]
