@@ -29,7 +29,7 @@ use std::{
     ffi::{OsStr, OsString},
     fs::{create_dir_all, read_dir, remove_dir_all, write},
     path::{Path, PathBuf},
-    process::{Output, Stdio},
+    process::{id, Output, Stdio},
 };
 use tempfile::{tempdir, Builder, TempDir};
 use url::Url;
@@ -333,6 +333,8 @@ fn find_accessed_subdir<'a>(
                 let grandparent = parent
                     .parent()
                     .ok_or_else(|| anyhow!("Could not get grandparent directory"))?;
+                #[cfg(debug_assertions)]
+                eprintln!("{}: accessed: {grandparent:?}", id());
                 Ok(Some(Cow::Borrowed(grandparent.as_std_path())))
             } else {
                 Ok(None)
@@ -346,6 +348,8 @@ fn find_accessed_subdir<'a>(
     if accessed.is_empty() {
         for_each_subdir(checkout_path, |subdir, path| {
             if injected_dependencies.get(subdir).is_none() {
+                #[cfg(debug_assertions)]
+                eprintln!("{}: pushing: {path:?}", id());
                 accessed.push(Cow::Owned(path.to_path_buf()));
             }
             Ok(())
