@@ -7,7 +7,7 @@ publish = false
 
 [dev-dependencies]
 anyhow = "1.0"
-tempfile = "3.12"
+tempfile = "3.13"
 
 dylint_internal = { version = "=3.2.0", path = "../internal", features = [
     "clippy_utils",
