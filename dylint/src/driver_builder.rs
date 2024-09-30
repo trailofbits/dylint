@@ -9,10 +9,10 @@ use dylint_internal::{
 use semver::Version;
 use std::{
     env::consts,
-    fs::{copy, create_dir_all, write},
+    fs::{copy, create_dir_all, rename, write},
     path::{Path, PathBuf},
 };
-use tempfile::tempdir;
+use tempfile::{tempdir, NamedTempFile};
 
 include!(concat!(env!("OUT_DIR"), "/dylint_driver_manifest_dir.rs"));
 
@@ -183,15 +183,28 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
         .join("debug")
         .join(format!("dylint_driver-{toolchain}{}", consts::EXE_SUFFIX));
 
-    let driver = driver_dir.join("dylint-driver");
+    let named_temp_file = NamedTempFile::new_in(driver_dir)
+        .with_context(|| "Could not create temporary directory")?;
 
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
-    copy(&binary, &driver).with_context(|| {
+    copy(&binary, &named_temp_file).with_context(|| {
         format!(
             "Could not copy `{binary}` to `{}`",
-            driver.to_string_lossy()
+            named_temp_file.path().to_string_lossy()
         )
     })?;
+
+    let driver = driver_dir.join("dylint-driver");
+
+    // smoelius: Windows requires that the old file be moved out of the way first.
+    if cfg!(target_os = "windows") {
+        let temp_path = NamedTempFile::new_in(driver_dir)
+            .map(NamedTempFile::into_temp_path)
+            .with_context(|| "Could not create temporary directory")?;
+        rename(&driver, &temp_path).unwrap_or_default();
+    }
+
+    named_temp_file.persist(&driver)?;
 
     Ok(())
 }
@@ -231,7 +244,7 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::process::Command;
+    use std::process::{Command, ExitStatus};
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
@@ -241,6 +254,9 @@ mod test {
         build(&opts::Dylint::default(), "nightly", tempdir.path()).unwrap();
     }
 
+    // smoelius: As mentioned above, `tempdir` is a temporary directory. So there should be no race
+    // here.
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn can_install_while_driver_is_running() {
         const WHICH: &str = if cfg!(target_os = "windows") {
@@ -266,6 +282,6 @@ mod test {
         build(&opts::Dylint::default(), "nightly", tempdir.path()).unwrap();
 
         child.kill().unwrap();
-        let _: std::process::ExitStatus = child.wait().unwrap();
+        let _: ExitStatus = child.wait().unwrap();
     }
 }
