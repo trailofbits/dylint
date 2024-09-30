@@ -87,7 +87,7 @@ pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
 
     let driver = driver_dir.join("dylint-driver");
     if !driver.exists() || is_outdated(opts, toolchain, &driver)? {
-        build(opts, toolchain, &driver)?;
+        build(opts, toolchain, &driver_dir)?;
     }
 
     Ok(driver)
@@ -142,7 +142,7 @@ fn is_outdated(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<bo
 }
 
 #[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
-fn build(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
+fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> {
     let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
     let package = tempdir.path();
 
@@ -182,8 +182,11 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<()> {
         .target_directory
         .join("debug")
         .join(format!("dylint_driver-{toolchain}{}", consts::EXE_SUFFIX));
+
+    let driver = driver_dir.join("dylint-driver");
+
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
-    copy(&binary, driver).with_context(|| {
+    copy(&binary, &driver).with_context(|| {
         format!(
             "Could not copy `{binary}` to `{}`",
             driver.to_string_lossy()
@@ -228,17 +231,41 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::process::Command;
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn nightly() {
         let tempdir = tempdir().unwrap();
-        build(
-            &opts::Dylint::default(),
-            "nightly",
-            &tempdir.path().join("dylint-driver"),
-        )
-        .unwrap();
+        build(&opts::Dylint::default(), "nightly", tempdir.path()).unwrap();
+    }
+
+    #[test]
+    fn can_install_while_driver_is_running() {
+        const WHICH: &str = if cfg!(target_os = "windows") {
+            "where"
+        } else {
+            "which"
+        };
+
+        let tempdir = tempdir().unwrap();
+        let driver = tempdir.path().join("dylint-driver");
+
+        // Set tmpdir/dylint-driver to `sleep` and call it with `infinity`.
+        let stdout = Command::new(WHICH)
+            .arg("sleep")
+            .logged_output(false)
+            .unwrap()
+            .stdout;
+        let sleep_path = String::from_utf8(stdout).unwrap();
+        copy(sleep_path.trim_end(), &driver).unwrap();
+        let mut child = Command::new(driver).arg("infinity").spawn().unwrap();
+
+        // Install should not fail with "text file busy".
+        build(&opts::Dylint::default(), "nightly", tempdir.path()).unwrap();
+
+        child.kill().unwrap();
+        let _: std::process::ExitStatus = child.wait().unwrap();
     }
 }
