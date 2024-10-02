@@ -14,7 +14,7 @@ unnoticed.
 
 ### Example
 ```rust
-fn foo() -> std::io::Result<()> {
+fn foo() -> anyhow::Result<()> {
     let _ = File::open("/dev/null")?;
     Ok(())
 }
