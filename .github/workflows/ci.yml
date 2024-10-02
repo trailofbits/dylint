@@ -103,7 +103,9 @@ jobs:
             cargo-dylint,
             cargo-dylint-cargo-lib,
             dylint_examples,
-            expensive,
+            expensive-alpine,
+            expensive-boundary_toolchains,
+            expensive-custom_toolchain,
             other,
           ]
         include:
@@ -192,12 +194,19 @@ jobs:
                 ;;
             esac
           elif [[ '${{ matrix.package }}' != 'other' ]]; then
-            if [[ '${{ matrix.package }}' = 'expensive' ]]; then
+            PACKAGE=''
+            TEST=''
+            if [[ '${{ matrix.package }}' =~ ^expensive- ]]; then
               if [[ '${{ github.event_name }}' != 'schedule' && '${{ github.event_name }}' != 'workflow_dispatch' ]]; then
                 exit
               fi
+              PACKAGE='expensive'
+              TEST='${{ matrix.package }}'
+              TEST="--test=${TEST#'expensive-'}"
+            else
+              PACKAGE='${{ matrix.package }}'
             fi
-            cargo test -p '${{ matrix.package }}' -- --nocapture
+            cargo test -p "$PACKAGE" "$TEST" -- --nocapture
           else
             cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive -- --nocapture
 
