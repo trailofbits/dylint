@@ -28,7 +28,7 @@ dylint_linting::declare_late_lint! {
     /// ### Example
     /// ```rust
     /// # use std::fs::File;
-    /// fn foo() -> std::io::Result<()> {
+    /// fn foo() -> anyhow::Result<()> {
     ///     let _ = File::open("/dev/null")?;
     ///     Ok(())
     /// }
@@ -60,6 +60,8 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
             && let body_owner_hir_id = cx.tcx.hir().enclosing_body_owner(expr.hir_id)
             && let body = cx.tcx.hir().body_owned_by(body_owner_hir_id)
             && let body_ty = cx.typeck_results().expr_ty(body.value)
+            // smoelius: If the body's return type is `std::io::Result`, do not flag, because the
+            // return type cannot carry any additional information.
             && !is_io_result(cx, body_ty)
         {
             span_lint_and_help(
@@ -67,7 +69,7 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
                 TRY_IO_RESULT,
                 expr.span,
                 "returning a `std::io::Result` could discard relevant context (e.g., files or \
-                paths involved)",
+                 paths involved)",
                 None,
                 "return a type that includes relevant context",
             );
@@ -78,7 +80,7 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
 fn is_io_result(cx: &LateContext<'_>, ty: Ty) -> bool {
     if let TyKind::Adt(def, substs) = ty.kind()
         && cx.tcx.is_diagnostic_item(sym::Result, def.did())
-        && let [_, generic_arg] = substs.iter().collect::<Vec<_>>().as_slice()
+        && let [_, generic_arg] = substs.as_slice()
         && let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack()
         && let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind()
         && match_def_path(cx, generic_arg_def.did(), &dylint_internal::paths::IO_ERROR)
