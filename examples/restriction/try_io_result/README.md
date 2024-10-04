@@ -15,7 +15,7 @@ unnoticed.
 ### Example
 ```rust
 fn foo() -> anyhow::Result<()> {
-    let _ = File::open("/dev/null")?;
+    let _ = File::open("/nonexistent")?;
     Ok(())
 }
 ```
@@ -23,7 +23,7 @@ Use instead:
 ```rust
 use anyhow::Context;
 fn foo() -> anyhow::Result<()> {
-    let _ = File::open("/dev/null").with_context(|| "could not open `/dev/null`")?;
+    let _ = File::open("/nonexistent").with_context(|| "could not open `/nonexistent`")?;
     Ok(())
 }
 ```

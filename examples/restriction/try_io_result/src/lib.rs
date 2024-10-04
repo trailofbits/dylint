@@ -29,7 +29,7 @@ dylint_linting::declare_late_lint! {
     /// ```rust
     /// # use std::fs::File;
     /// fn foo() -> anyhow::Result<()> {
-    ///     let _ = File::open("/dev/null")?;
+    ///     let _ = File::open("/nonexistent")?;
     ///     Ok(())
     /// }
     /// ```
@@ -38,7 +38,7 @@ dylint_linting::declare_late_lint! {
     /// # use std::fs::File;
     /// use anyhow::Context;
     /// fn foo() -> anyhow::Result<()> {
-    ///     let _ = File::open("/dev/null").with_context(|| "could not open `/dev/null`")?;
+    ///     let _ = File::open("/nonexistent").with_context(|| "could not open `/nonexistent`")?;
     ///     Ok(())
     /// }
     /// ```
