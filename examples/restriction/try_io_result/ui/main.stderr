@@ -1,11 +1,19 @@
 warning: returning a `std::io::Result` could discard relevant context (e.g., files or paths involved)
-  --> $DIR/main.rs:11:13
+  --> $DIR/main.rs:18:13
    |
-LL |     let _ = File::open("/dev/null")?;
-   |             ^^^^^^^^^^^^^^^^^^^^^^^^
+LL |     let _ = File::open("/nonexistent")?;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: return a type that includes relevant context
    = note: `#[warn(try_io_result)]` on by default
 
-warning: 1 warning emitted
+warning: returning a `std::io::Result` could discard relevant context (e.g., files or paths involved)
+  --> $DIR/main.rs:28:13
+   |
+LL |     let _ = File::open("/nonexistent")?;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: return a type that includes relevant context
+
+warning: 2 warnings emitted
 

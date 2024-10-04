@@ -21,6 +21,7 @@ dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
 anyhow = "1.0"
+thiserror = "1.0"
 
 dylint_testing = { path = "../../../utils/testing" }
 
