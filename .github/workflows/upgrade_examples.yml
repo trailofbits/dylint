@@ -28,6 +28,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           title: Upgrade examples
+          branch: upgrade-examples
+          branch-suffix: random
           commit-message: Upgrade examples
           token: ${{ secrets.REPO_TOKEN }}
-          branch-suffix: random
