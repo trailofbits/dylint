@@ -58,7 +58,7 @@ struct Dylint {
         number_of_values = 1,
         short,
         long = "package",
-        value_name = "spec",
+        value_name = "SPEC",
         help = "Package to check"
     )]
     packages: Vec<String>,
@@ -119,8 +119,8 @@ Combine with `--all` to list all lints in all discovered libraries."
 
         #[clap(
             long,
-            value_name = "version",
-            help = "Upgrade to the version of `clippy_utils` with tag `rust-<version>`"
+            value_name = "VERSION",
+            help = "Upgrade to the version of `clippy_utils` with tag `rust-<VERSION>`"
         )]
         rust_version: Option<String>,
 
@@ -144,7 +144,7 @@ struct LibrarySelection {
 
     #[clap(
         long,
-        value_name = "url",
+        value_name = "URL",
         conflicts_with("paths"),
         help = "Git url containing library packages"
     )]
@@ -154,7 +154,7 @@ struct LibrarySelection {
         action = ArgAction::Append,
         number_of_values = 1,
         long = "lib-path",
-        value_name = "path",
+        value_name = "PATH",
         help = "Library path to load lints from"
     )]
     lib_paths: Vec<String>,
@@ -163,9 +163,9 @@ struct LibrarySelection {
         action = ArgAction::Append,
         number_of_values = 1,
         long = "lib",
-        value_name = "name",
+        value_name = "NAME",
         help = "Library name to load lints from. A file with a name of the form \"DLL_PREFIX \
-        <name> '@' TOOLCHAIN DLL_SUFFIX\" is searched for in the directories listed in \
+        <NAME> '@' TOOLCHAIN DLL_SUFFIX\" is searched for in the directories listed in \
         DYLINT_LIBRARY_PATH, and in the `target/release` directories produced by building the \
         current workspace's metadata entries (see example below)."
     )]
@@ -173,9 +173,9 @@ struct LibrarySelection {
 
     #[clap(
         long,
-        value_name = "path",
+        value_name = "PATH",
         help = "Path to Cargo.toml. Note: if the manifest uses metadata, then `--manifest-path \
-                <path>` must appear before `--`, not after."
+                <PATH>` must appear before `--`, not after."
     )]
     manifest_path: Option<String>,
 
@@ -189,7 +189,7 @@ struct LibrarySelection {
         action = ArgAction::Append,
         number_of_values = 1,
         long = "path",
-        value_name = "path",
+        value_name = "PATH",
         conflicts_with("git"),
         help = "Path containing library packages"
     )]
@@ -219,10 +219,10 @@ struct LibrarySelection {
 #[derive(Debug, Parser)]
 #[cfg_attr(feature = "__clap_headings", clap(next_help_heading = Some("Output Options")))]
 struct OutputOptions {
-    #[clap(long, value_name = "path", help = "Path to pipe stderr to")]
+    #[clap(long, value_name = "PATH", help = "Path to pipe stderr to")]
     pipe_stderr: Option<String>,
 
-    #[clap(long, value_name = "path", help = "Path to pipe stdout to")]
+    #[clap(long, value_name = "PATH", help = "Path to pipe stdout to")]
     pipe_stdout: Option<String>,
 
     #[clap(
