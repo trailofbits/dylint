@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.1
+
+- Enable drivers to be installed concurrently. Previously, an attempt to install a driver would fail if the existing driver was running. ([4438f40](https://github.com/trailofbits/dylint/commit/4438f402591d05e369636f54e18b4bab232702b5) and [231974a](https://github.com/trailofbits/dylint/commit/231974a7b94d2c22e85227998a6bc8fd94c5cd0f))
+- Fix capitalization in help messages ([5a44c22](https://github.com/trailofbits/dylint/commit/5a44c2266bc1ee660791535042e4c5e57ee4feff))
+
 ## 3.2.0
 
 - Upgrade `compiletest_rs` to version 0.11 in `dylint_testing` ([145623a](https://github.com/trailofbits/dylint/commit/145623aedba033d90e25e54b6f178178202df3d5))
