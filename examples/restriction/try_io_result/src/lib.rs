@@ -46,7 +46,7 @@ dylint_linting::declare_late_lint! {
     /// [Error Handling Survey]: https://blog.yoshuawuyts.com/error-handling-survey/
     pub TRY_IO_RESULT,
     Warn,
-    "`?` operators applied to `std::io::Result`"
+    "`?` operator applied to `std::io::Result`"
 }
 
 impl<'tcx> LateLintPass<'tcx> for TryIoResult {
