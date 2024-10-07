@@ -183,8 +183,8 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
         .join("debug")
         .join(format!("dylint_driver-{toolchain}{}", consts::EXE_SUFFIX));
 
-    let named_temp_file = NamedTempFile::new_in(driver_dir)
-        .with_context(|| "Could not create temporary directory")?;
+    let named_temp_file =
+        NamedTempFile::new_in(driver_dir).with_context(|| "Could not create temporary file")?;
 
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     copy(&binary, &named_temp_file).with_context(|| {
@@ -200,7 +200,7 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
     if cfg!(target_os = "windows") {
         let temp_path = NamedTempFile::new_in(driver_dir)
             .map(NamedTempFile::into_temp_path)
-            .with_context(|| "Could not create temporary directory")?;
+            .with_context(|| "Could not create temporary file")?;
         rename(&driver, &temp_path).unwrap_or_default();
     }
 
