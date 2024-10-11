@@ -1,6 +1,6 @@
 # Dylint
 
-Run Rust lints from dynamic libraries
+Run Rust lints from dynamic libraries ([EuroRust 2024 slides])
 
 ```sh
 cargo install cargo-dylint dylint-link
@@ -226,6 +226,7 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 [Configurable libraries]: #configurable-libraries
 [Crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 [Crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
+[EuroRust 2024 slides]: ../docs/2024-10-11%20Linting%20with%20Dylint%20(EuroRust).pdf
 [Features]: #features
 [Field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
 [Guide to Rustc Development]: https://rustc-dev-guide.rust-lang.org/
