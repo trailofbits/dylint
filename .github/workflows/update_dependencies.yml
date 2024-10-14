@@ -43,7 +43,7 @@ jobs:
             pushd "$(dirname "$X")"
             rm -f Cargo.lock
             cargo build --all-targets
-            cargo upgrade --locked
+            cargo upgrade
             popd
           done
 
