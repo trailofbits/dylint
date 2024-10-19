@@ -10,9 +10,9 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-clippy_config = { git = "https://github.com/rust-lang/rust-clippy", rev = "a95afe2d0a2051d97b723b0b197393b7811bc4e4" }
-clippy_lints = { git = "https://github.com/rust-lang/rust-clippy", rev = "a95afe2d0a2051d97b723b0b197393b7811bc4e4" }
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "a95afe2d0a2051d97b723b0b197393b7811bc4e4" }
+clippy_config = { git = "https://github.com/rust-lang/rust-clippy", rev = "a109190d7060236e655fc75533373fa274ec5343" }
+clippy_lints = { git = "https://github.com/rust-lang/rust-clippy", rev = "a109190d7060236e655fc75533373fa274ec5343" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "a109190d7060236e655fc75533373fa274ec5343" }
 serde_json = "1.0"
 
 dylint_internal = { path = "../../../internal" }
