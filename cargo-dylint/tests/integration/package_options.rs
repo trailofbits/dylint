@@ -16,7 +16,10 @@ use tempfile::tempdir;
 // smoelius: `cargo-platform v0.1.8` requires rustc 1.73 or newer.
 // smoelius: `rustfix v0.8.4` requires rustc 1.75 or newer.
 // smoelius: `rustfix v0.8.5` requires rustc 1.77 or newer.
-const RUST_VERSION: &str = "1.77.0";
+// smoelius: `rustfix v0.8.6` requires rustc 1.78 or newer. However, I get errors building
+// `serde` 1.0.210 with rustc 1.78, and `proc_macro2` 1.0.87 with rustc 1.79. So I am bumping
+// `RUSTC_VERSION` to 1.80.
+const RUST_VERSION: &str = "1.80.0";
 
 #[test]
 fn new_package() {
