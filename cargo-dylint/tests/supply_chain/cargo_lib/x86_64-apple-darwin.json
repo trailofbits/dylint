@@ -2362,10 +2362,22 @@
     ],
     "memmap2": [
       {
+        "id": 471,
+        "kind": "user",
+        "login": "tbu-",
+        "name": "Tobias Bucher"
+      },
+      {
         "id": 4818,
         "kind": "user",
         "login": "RazrFalcon",
         "name": "Yevhenii Reizner"
+      },
+      {
+        "id": 35980,
+        "kind": "user",
+        "login": "de-vri-es",
+        "name": "Maarten de Vries"
       }
     ],
     "minimal-lexical": [
