@@ -1,0 +1,550 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - utils/testing/src/lib.rs</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">utils/testing/src</a> - lib.rs<span style="font-size: 80%;"> (source / <a href="lib.rs.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">237</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2024-10-23 19:20:50</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //! This crate provides convenient access to the [`compiletest_rs`] package for testing [Dylint]</a>
+<a name="2"><span class="lineNum">       2 </span>            : //! libraries.</a>
+<a name="3"><span class="lineNum">       3 </span>            : //!</a>
+<a name="4"><span class="lineNum">       4 </span>            : //! **Note: If your test has dependencies, you must use `ui_test_example` or `ui_test_examples`.**</a>
+<a name="5"><span class="lineNum">       5 </span>            : //! See the [`question_mark_in_expression`] example in this repository.</a>
+<a name="6"><span class="lineNum">       6 </span>            : //!</a>
+<a name="7"><span class="lineNum">       7 </span>            : //! This crate provides the following three functions:</a>
+<a name="8"><span class="lineNum">       8 </span>            : //!</a>
+<a name="9"><span class="lineNum">       9 </span>            : //! - [`ui_test`] - test a library on all source files in a directory</a>
+<a name="10"><span class="lineNum">      10 </span>            : //! - [`ui_test_example`] - test a library on one example target</a>
+<a name="11"><span class="lineNum">      11 </span>            : //! - [`ui_test_examples`] - test a library on all example targets</a>
+<a name="12"><span class="lineNum">      12 </span>            : //!</a>
+<a name="13"><span class="lineNum">      13 </span>            : //! For most situations, you can add the following to your library's `lib.rs` file:</a>
+<a name="14"><span class="lineNum">      14 </span>            : //!</a>
+<a name="15"><span class="lineNum">      15 </span>            : //! ```rust,ignore</a>
+<a name="16"><span class="lineNum">      16 </span>            : //! #[test]</a>
+<a name="17"><span class="lineNum">      17 </span>            : //! fn ui() {</a>
+<a name="18"><span class="lineNum">      18 </span>            : //!     dylint_testing::ui_test(env!(&quot;CARGO_PKG_NAME&quot;), &quot;ui&quot;);</a>
+<a name="19"><span class="lineNum">      19 </span>            : //! }</a>
+<a name="20"><span class="lineNum">      20 </span>            : //! ```</a>
+<a name="21"><span class="lineNum">      21 </span>            : //!</a>
+<a name="22"><span class="lineNum">      22 </span>            : //! And include one or more `.rs` and `.stderr` files in a `ui` directory alongside your library's</a>
+<a name="23"><span class="lineNum">      23 </span>            : //! `src` directory. See the [examples] in this repository.</a>
+<a name="24"><span class="lineNum">      24 </span>            : //!</a>
+<a name="25"><span class="lineNum">      25 </span>            : //! # Test builder</a>
+<a name="26"><span class="lineNum">      26 </span>            : //!</a>
+<a name="27"><span class="lineNum">      27 </span>            : //! In addition to the above three functions, [`ui::Test`] is a test &quot;builder.&quot; Currently, the main</a>
+<a name="28"><span class="lineNum">      28 </span>            : //! advantage of using `Test` over the above functions is that `Test` allows flags to be passed to</a>
+<a name="29"><span class="lineNum">      29 </span>            : //! `rustc`. For an example of its use, see [`non_thread_safe_call_in_test`] in this repository.</a>
+<a name="30"><span class="lineNum">      30 </span>            : //!</a>
+<a name="31"><span class="lineNum">      31 </span>            : //! `Test` has three constructors, which correspond to the above three functions as follows:</a>
+<a name="32"><span class="lineNum">      32 </span>            : //!</a>
+<a name="33"><span class="lineNum">      33 </span>            : //! - [`ui::Test::src_base`] &lt;-&gt; [`ui_test`]</a>
+<a name="34"><span class="lineNum">      34 </span>            : //! - [`ui::Test::example`] &lt;-&gt; [`ui_test_example`]</a>
+<a name="35"><span class="lineNum">      35 </span>            : //! - [`ui::Test::examples`] &lt;-&gt; [`ui_test_examples`]</a>
+<a name="36"><span class="lineNum">      36 </span>            : //!</a>
+<a name="37"><span class="lineNum">      37 </span>            : //! In each case, the constructor's arguments are exactly those of the corresponding function.</a>
+<a name="38"><span class="lineNum">      38 </span>            : //!</a>
+<a name="39"><span class="lineNum">      39 </span>            : //! A `Test` instance has the following methods:</a>
+<a name="40"><span class="lineNum">      40 </span>            : //!</a>
+<a name="41"><span class="lineNum">      41 </span>            : //! - `dylint_toml` - set the `dylint.toml` file's contents (for testing [configurable libraries])</a>
+<a name="42"><span class="lineNum">      42 </span>            : //! - `rustc_flags` - pass flags to the compiler when running the test</a>
+<a name="43"><span class="lineNum">      43 </span>            : //! - `run` - run the test</a>
+<a name="44"><span class="lineNum">      44 </span>            : //!</a>
+<a name="45"><span class="lineNum">      45 </span>            : //! # Updating `.stderr` files</a>
+<a name="46"><span class="lineNum">      46 </span>            : //!</a>
+<a name="47"><span class="lineNum">      47 </span>            : //! If the standard error that results from running your `.rs` file differs from the contents of</a>
+<a name="48"><span class="lineNum">      48 </span>            : //! your `.stderr` file, `compiletest_rs` will produce a report like the following:</a>
+<a name="49"><span class="lineNum">      49 </span>            : //!</a>
+<a name="50"><span class="lineNum">      50 </span>            : //! ```text</a>
+<a name="51"><span class="lineNum">      51 </span>            : //! diff of stderr:</a>
+<a name="52"><span class="lineNum">      52 </span>            : //!</a>
+<a name="53"><span class="lineNum">      53 </span>            : //!  error: calling `std::env::set_var` in a test could affect the outcome of other tests</a>
+<a name="54"><span class="lineNum">      54 </span>            : //!    --&gt; $DIR/main.rs:8:5</a>
+<a name="55"><span class="lineNum">      55 </span>            : //!     |</a>
+<a name="56"><span class="lineNum">      56 </span>            : //!  LL |     std::env::set_var(&quot;KEY&quot;, &quot;VALUE&quot;);</a>
+<a name="57"><span class="lineNum">      57 </span>            : //!     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</a>
+<a name="58"><span class="lineNum">      58 </span>            : //!     |</a>
+<a name="59"><span class="lineNum">      59 </span>            : //!     = note: `-D non-thread-safe-call-in-test` implied by `-D warnings`</a>
+<a name="60"><span class="lineNum">      60 </span>            : //!</a>
+<a name="61"><span class="lineNum">      61 </span>            : //! -error: aborting due to previous error</a>
+<a name="62"><span class="lineNum">      62 </span>            : //! +error: calling `std::env::set_var` in a test could affect the outcome of other tests</a>
+<a name="63"><span class="lineNum">      63 </span>            : //! +  --&gt; $DIR/main.rs:23:9</a>
+<a name="64"><span class="lineNum">      64 </span>            : //! +   |</a>
+<a name="65"><span class="lineNum">      65 </span>            : //! +LL |         std::env::set_var(&quot;KEY&quot;, &quot;VALUE&quot;);</a>
+<a name="66"><span class="lineNum">      66 </span>            : //! +   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</a>
+<a name="67"><span class="lineNum">      67 </span>            : //! +</a>
+<a name="68"><span class="lineNum">      68 </span>            : //! +error: aborting due to 2 previous errors</a>
+<a name="69"><span class="lineNum">      69 </span>            : //!</a>
+<a name="70"><span class="lineNum">      70 </span>            : //!</a>
+<a name="71"><span class="lineNum">      71 </span>            : //!</a>
+<a name="72"><span class="lineNum">      72 </span>            : //! The actual stderr differed from the expected stderr.</a>
+<a name="73"><span class="lineNum">      73 </span>            : //! Actual stderr saved to ...</a>
+<a name="74"><span class="lineNum">      74 </span>            : //! ```</a>
+<a name="75"><span class="lineNum">      75 </span>            : //!</a>
+<a name="76"><span class="lineNum">      76 </span>            : //! The meaning of each line is as follows:</a>
+<a name="77"><span class="lineNum">      77 </span>            : //!</a>
+<a name="78"><span class="lineNum">      78 </span>            : //! - A line beginning with a plus (`+`) is in the actual standard error, but not in your `.stderr`</a>
+<a name="79"><span class="lineNum">      79 </span>            : //!   file.</a>
+<a name="80"><span class="lineNum">      80 </span>            : //! - A line beginning with a minus (`-`) is in your `.stderr` file, but not in the actual standard</a>
+<a name="81"><span class="lineNum">      81 </span>            : //!   error.</a>
+<a name="82"><span class="lineNum">      82 </span>            : //! - A line beginning with a space (` `) is in both the actual standard error and your `.stderr`</a>
+<a name="83"><span class="lineNum">      83 </span>            : //!   file, and is provided for context.</a>
+<a name="84"><span class="lineNum">      84 </span>            : //! - All other lines (e.g., `diff of stderr:`) contain `compiletest_rs` messages.</a>
+<a name="85"><span class="lineNum">      85 </span>            : //!</a>
+<a name="86"><span class="lineNum">      86 </span>            : //! **Note:** In the actual standard error, a blank line usually follows the `error: aborting due to</a>
+<a name="87"><span class="lineNum">      87 </span>            : //! N previous errors` line. So a correct `.stderr` file will typically contain one blank line at</a>
+<a name="88"><span class="lineNum">      88 </span>            : //! the end.</a>
+<a name="89"><span class="lineNum">      89 </span>            : //!</a>
+<a name="90"><span class="lineNum">      90 </span>            : //! In general, it is not too hard to update a `.stderr` file by hand. However, the `compiletest_rs`</a>
+<a name="91"><span class="lineNum">      91 </span>            : //! report should contain a line of the form `Actual stderr saved to PATH`. Copying `PATH` to your</a>
+<a name="92"><span class="lineNum">      92 </span>            : //! `.stderr` file should update it completely.</a>
+<a name="93"><span class="lineNum">      93 </span>            : //!</a>
+<a name="94"><span class="lineNum">      94 </span>            : //! Additional documentation on `compiletest_rs` can be found in [its repository].</a>
+<a name="95"><span class="lineNum">      95 </span>            : //!</a>
+<a name="96"><span class="lineNum">      96 </span>            : //! [Dylint]: https://github.com/trailofbits/dylint/tree/master</a>
+<a name="97"><span class="lineNum">      97 </span>            : //! [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs</a>
+<a name="98"><span class="lineNum">      98 </span>            : //! [`non_thread_safe_call_in_test`]: https://github.com/trailofbits/dylint/tree/master/examples/general/non_thread_safe_call_in_test/src/lib.rs</a>
+<a name="99"><span class="lineNum">      99 </span>            : //! [`question_mark_in_expression`]: https://github.com/trailofbits/dylint/tree/master/examples/restriction/question_mark_in_expression/Cargo.toml</a>
+<a name="100"><span class="lineNum">     100 </span>            : //! [`ui::Test::example`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.example</a>
+<a name="101"><span class="lineNum">     101 </span>            : //! [`ui::Test::examples`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.examples</a>
+<a name="102"><span class="lineNum">     102 </span>            : //! [`ui::Test::src_base`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.src_base</a>
+<a name="103"><span class="lineNum">     103 </span>            : //! [`ui::Test`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html</a>
+<a name="104"><span class="lineNum">     104 </span>            : //! [`ui_test_example`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_example.html</a>
+<a name="105"><span class="lineNum">     105 </span>            : //! [`ui_test_examples`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_examples.html</a>
+<a name="106"><span class="lineNum">     106 </span>            : //! [`ui_test`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test.html</a>
+<a name="107"><span class="lineNum">     107 </span>            : //! [configurable libraries]: https://github.com/trailofbits/dylint/tree/master#configurable-libraries</a>
+<a name="108"><span class="lineNum">     108 </span>            : //! [docs.rs documentation]: https://docs.rs/dylint_testing/latest/dylint_testing/</a>
+<a name="109"><span class="lineNum">     109 </span>            : //! [examples]: https://github.com/trailofbits/dylint/tree/master/examples</a>
+<a name="110"><span class="lineNum">     110 </span>            : //! [its repository]: https://github.com/Manishearth/compiletest-rs</a>
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<a name="112"><span class="lineNum">     112 </span>            : use anyhow::{anyhow, ensure, Context, Result};</a>
+<a name="113"><span class="lineNum">     113 </span>            : use cargo_metadata::{Metadata, Package, Target};</a>
+<a name="114"><span class="lineNum">     114 </span>            : use compiletest_rs as compiletest;</a>
+<a name="115"><span class="lineNum">     115 </span>            : use dylint_internal::{env, library_filename, rustup::is_rustc, CommandExt};</a>
+<a name="116"><span class="lineNum">     116 </span>            : use once_cell::sync::{Lazy, OnceCell};</a>
+<a name="117"><span class="lineNum">     117 </span>            : use regex::Regex;</a>
+<a name="118"><span class="lineNum">     118 </span>            : use std::{</a>
+<a name="119"><span class="lineNum">     119 </span>            :     env::{consts, remove_var, set_var, var_os},</a>
+<a name="120"><span class="lineNum">     120 </span>            :     ffi::{OsStr, OsString},</a>
+<a name="121"><span class="lineNum">     121 </span>            :     fs::{copy, read_dir, remove_file},</a>
+<a name="122"><span class="lineNum">     122 </span>            :     io::BufRead,</a>
+<a name="123"><span class="lineNum">     123 </span>            :     path::{Path, PathBuf},</a>
+<a name="124"><span class="lineNum">     124 </span>            :     sync::Mutex,</a>
+<a name="125"><span class="lineNum">     125 </span>            : };</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span>            : pub mod ui;</a>
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<a name="129"><span class="lineNum">     129 </span>            : static DRIVER: OnceCell&lt;PathBuf&gt; = OnceCell::new();</a>
+<a name="130"><span class="lineNum">     130 </span>            : static LINKING_FLAGS: OnceCell&lt;Vec&lt;String&gt;&gt; = OnceCell::new();</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            : /// Test a library on all source files in a directory.</a>
+<a name="133"><span class="lineNum">     133 </span>            : ///</a>
+<a name="134"><span class="lineNum">     134 </span>            : /// - `name` is the name of a Dylint library to be tested. (Often, this is the same as the package</a>
+<a name="135"><span class="lineNum">     135 </span>            : ///   name.)</a>
+<a name="136"><span class="lineNum">     136 </span>            : /// - `src_base` is a directory containing:</a>
+<a name="137"><span class="lineNum">     137 </span>            : ///   - source files on which to test the library (`.rs` files), and</a>
+<a name="138"><span class="lineNum">     138 </span>            : ///   - the output those files should produce (`.stderr` files).</a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 : pub fn ui_test(name: &amp;str, src_base: impl AsRef&lt;Path&gt;) {</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 :     ui::Test::src_base(name, src_base).run();</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<a name="143"><span class="lineNum">     143 </span>            : /// Test a library on one example target.</a>
+<a name="144"><span class="lineNum">     144 </span>            : ///</a>
+<a name="145"><span class="lineNum">     145 </span>            : /// - `name` is the name of a Dylint library to be tested.</a>
+<a name="146"><span class="lineNum">     146 </span>            : /// - `example` is an example target on which to test the library.</a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineNoCov">          0 : pub fn ui_test_example(name: &amp;str, example: &amp;str) {</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 :     ui::Test::example(name, example).run();</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<a name="151"><span class="lineNum">     151 </span>            : /// Test a library on all example targets.</a>
+<a name="152"><span class="lineNum">     152 </span>            : ///</a>
+<a name="153"><span class="lineNum">     153 </span>            : /// - `name` is the name of a Dylint library to be tested.</a>
+<a name="154"><span class="lineNum">     154 </span><span class="lineNoCov">          0 : pub fn ui_test_examples(name: &amp;str) {</span></a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineNoCov">          0 :     ui::Test::examples(name).run();</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineNoCov">          0 : fn initialize(name: &amp;str) -&gt; Result&lt;&amp;Path&gt; {</span></a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineNoCov">          0 :     DRIVER</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :         .get_or_try_init(|| {</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 :             let _ = env_logger::try_init();</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineNoCov">          0 : </span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineNoCov">          0 :             // smoelius: Try to order failures by how informative they are: failure to build the</span></a>
+<a name="164"><span class="lineNum">     164 </span><span class="lineNoCov">          0 :             // library, failure to find the library, failure to build/find the driver.</span></a>
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 : </span></a>
+<a name="166"><span class="lineNum">     166 </span><span class="lineNoCov">          0 :             dylint_internal::cargo::build(&amp;format!(&quot;library `{name}`&quot;))</span></a>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 .build()</span></a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 .success()?;</span></a>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<a name="170"><span class="lineNum">     170 </span>            :             // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.</a>
+<a name="171"><span class="lineNum">     171 </span>            :             // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is</a>
+<a name="172"><span class="lineNum">     172 </span>            :             // no longer the case. I am leaving the comment here for now in case removal</a>
+<a name="173"><span class="lineNum">     173 </span>            :             // of the `name_toolchain_map` call causes a regression.</a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineNoCov">          0 :             let metadata = dylint_internal::cargo::current_metadata().unwrap();</span></a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineNoCov">          0 :             let dylint_library_path = metadata.target_directory.join(&quot;debug&quot;);</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineNoCov">          0 :             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);</span></a>
+<a name="177"><span class="lineNum">     177 </span>            : </a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 :             let dylint_libs = dylint_libs(name)?;</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineNoCov">          0 :             let driver = dylint::driver_builder::get(</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineNoCov">          0 :                 &amp;dylint::opts::Dylint::default(),</span></a>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 :                 env!(&quot;RUSTUP_TOOLCHAIN&quot;),</span></a>
+<a name="182"><span class="lineNum">     182 </span><span class="lineNoCov">          0 :             )?;</span></a>
+<a name="183"><span class="lineNum">     183 </span>            : </a>
+<a name="184"><span class="lineNum">     184 </span><span class="lineNoCov">          0 :             set_var(env::CLIPPY_DISABLE_DOCS_LINKS, &quot;true&quot;);</span></a>
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 :             set_var(env::DYLINT_LIBS, dylint_libs);</span></a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 : </span></a>
+<a name="187"><span class="lineNum">     187 </span><span class="lineNoCov">          0 :             Ok(driver)</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineNoCov">          0 :         })</span></a>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 :         .map(PathBuf::as_path)</span></a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span>            : #[doc(hidden)]</a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 : pub fn dylint_libs(name: &amp;str) -&gt; Result&lt;String&gt; {</span></a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineNoCov">          0 :     let metadata = dylint_internal::cargo::current_metadata().unwrap();</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineNoCov">          0 :     let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;</span></a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineNoCov">          0 :     let filename = library_filename(name, &amp;rustup_toolchain);</span></a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 :     let path = metadata.target_directory.join(&quot;debug&quot;).join(filename);</span></a>
+<a name="198"><span class="lineNum">     198 </span><span class="lineNoCov">          0 :     let paths = vec![path];</span></a>
+<a name="199"><span class="lineNum">     199 </span><span class="lineNoCov">          0 :     serde_json::to_string(&amp;paths).map_err(Into::into)</span></a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="201"><span class="lineNum">     201 </span>            : </a>
+<a name="202"><span class="lineNum">     202 </span><span class="lineNoCov">          0 : fn example_target(package: &amp;Package, example: &amp;str) -&gt; Result&lt;Target&gt; {</span></a>
+<a name="203"><span class="lineNum">     203 </span><span class="lineNoCov">          0 :     package</span></a>
+<a name="204"><span class="lineNum">     204 </span><span class="lineNoCov">          0 :         .targets</span></a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineNoCov">          0 :         .iter()</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineNoCov">          0 :         .find(|target| target.kind == [&quot;example&quot;] &amp;&amp; target.name == example)</span></a>
+<a name="207"><span class="lineNum">     207 </span><span class="lineNoCov">          0 :         .cloned()</span></a>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :         .ok_or_else(|| anyhow!(&quot;Could not find example `{}`&quot;, example))</span></a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span>            : #[allow(clippy::unnecessary_wraps)]</a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineNoCov">          0 : fn example_targets(package: &amp;Package) -&gt; Result&lt;Vec&lt;Target&gt;&gt; {</span></a>
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 :     Ok(package</span></a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 :         .targets</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 :         .iter()</span></a>
+<a name="216"><span class="lineNum">     216 </span><span class="lineNoCov">          0 :         .filter(|target| target.kind == [&quot;example&quot;])</span></a>
+<a name="217"><span class="lineNum">     217 </span><span class="lineNoCov">          0 :         .cloned()</span></a>
+<a name="218"><span class="lineNum">     218 </span><span class="lineNoCov">          0 :         .collect())</span></a>
+<a name="219"><span class="lineNum">     219 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<a name="221"><span class="lineNum">     221 </span><span class="lineNoCov">          0 : fn run_example_test(</span></a>
+<a name="222"><span class="lineNum">     222 </span><span class="lineNoCov">          0 :     driver: &amp;Path,</span></a>
+<a name="223"><span class="lineNum">     223 </span><span class="lineNoCov">          0 :     metadata: &amp;Metadata,</span></a>
+<a name="224"><span class="lineNum">     224 </span><span class="lineNoCov">          0 :     package: &amp;Package,</span></a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineNoCov">          0 :     target: &amp;Target,</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineNoCov">          0 :     config: &amp;ui::Config,</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 : ) -&gt; Result&lt;()&gt; {</span></a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :     let linking_flags = linking_flags(metadata, package, target)?;</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineNoCov">          0 :     let file_name = target</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 :         .src_path</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineNoCov">          0 :         .file_name()</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineNoCov">          0 :         .ok_or_else(|| anyhow!(&quot;Could not get file name&quot;))?;</span></a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineNoCov">          0 :     let tempdir = tempfile::tempdir().with_context(|| &quot;`tempdir` failed&quot;)?;</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :     let src_base = tempdir.path();</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineNoCov">          0 :     let to = src_base.join(file_name);</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 : </span></a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineNoCov">          0 :     copy(&amp;target.src_path, &amp;to).with_context(|| {</span></a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 :         format!(</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineNoCov">          0 :             &quot;Could not copy `{}` to `{}`&quot;,</span></a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 :             target.src_path,</span></a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineNoCov">          0 :             to.to_string_lossy()</span></a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 :         )</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineNoCov">          0 :     })?;</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 :     [&quot;fixed&quot;, &quot;stderr&quot;, &quot;stdout&quot;]</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 :         .map(|extension| copy_with_extension(&amp;target.src_path, &amp;to, extension).unwrap_or_default());</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineNoCov">          0 : </span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineNoCov">          0 :     let mut config = config.clone();</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :     config.rustc_flags.extend(linking_flags.iter().cloned());</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineNoCov">          0 : </span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineNoCov">          0 :     run_tests(driver, src_base, &amp;config);</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 : </span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :     Ok(())</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineNoCov">          0 : fn linking_flags(</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineNoCov">          0 :     metadata: &amp;Metadata,</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 :     package: &amp;Package,</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineNoCov">          0 :     target: &amp;Target,</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineNoCov">          0 : ) -&gt; Result&lt;&amp;'static [String]&gt; {</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineNoCov">          0 :     LINKING_FLAGS</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineNoCov">          0 :         .get_or_try_init(|| {</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineNoCov">          0 :             let rustc_flags = rustc_flags(metadata, package, target)?;</span></a>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineNoCov">          0 :             let mut linking_flags = Vec::new();</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineNoCov">          0 : </span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineNoCov">          0 :             let mut iter = rustc_flags.into_iter();</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineNoCov">          0 :             while let Some(flag) = iter.next() {</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineNoCov">          0 :                 if flag.starts_with(&quot;--edition=&quot;) {</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineNoCov">          0 :                     linking_flags.push(flag);</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 } else if flag == &quot;--extern&quot; || flag == &quot;-L&quot; {</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineNoCov">          0 :                     let arg = next(&amp;flag, &amp;mut iter)?;</span></a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineNoCov">          0 :                     linking_flags.extend([flag, arg.trim_matches('\'').to_owned()]);</span></a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 }</span></a>
+<a name="275"><span class="lineNum">     275 </span>            :             }</a>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :             Ok(linking_flags)</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineNoCov">          0 :         })</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineNoCov">          0 :         .map(Vec::as_slice)</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="281"><span class="lineNum">     281 </span>            : </a>
+<a name="282"><span class="lineNum">     282 </span>            : // smoelius: We need to recover the `rustc` flags used to build a target. I can see four options:</a>
+<a name="283"><span class="lineNum">     283 </span>            : //</a>
+<a name="284"><span class="lineNum">     284 </span>            : // * Use `cargo build --build-plan`</a>
+<a name="285"><span class="lineNum">     285 </span>            : //   - Pros: Easily parsable JSON output</a>
+<a name="286"><span class="lineNum">     286 </span>            : //   - Cons: Unstable and likely to be removed: https://github.com/rust-lang/cargo/issues/7614</a>
+<a name="287"><span class="lineNum">     287 </span>            : // * Parse the output of `cargo build --verbose`</a>
+<a name="288"><span class="lineNum">     288 </span>            : //   - Pros: ?</a>
+<a name="289"><span class="lineNum">     289 </span>            : //   - Cons: Not as easily parsable, requires synchronization (see below)</a>
+<a name="290"><span class="lineNum">     290 </span>            : // * Use a custom executor like Siderophile does: https://github.com/trailofbits/siderophile/blob/26c067306f6c2f66d9530dacef6b17dbf59cdf8c/src/trawl_source/mod.rs#L399</a>
+<a name="291"><span class="lineNum">     291 </span>            : //   - Pros: Ground truth</a>
+<a name="292"><span class="lineNum">     292 </span>            : //   - Cons: Seems a bit of a heavy lift (Note: I think Siderophile's approach was inspired by</a>
+<a name="293"><span class="lineNum">     293 </span>            : //     `cargo-geiger`.)</a>
+<a name="294"><span class="lineNum">     294 </span>            : // * Set `RUSTC_WORKSPACE_WRAPPER` to something that logs `rustc` invocations</a>
+<a name="295"><span class="lineNum">     295 </span>            : //   - Pros: Ground truth</a>
+<a name="296"><span class="lineNum">     296 </span>            : //   - Cons: Requires a separate executable/script, portability could be an issue</a>
+<a name="297"><span class="lineNum">     297 </span>            : //</a>
+<a name="298"><span class="lineNum">     298 </span>            : // I am going with the second option for now, because it seems to be the least of all evils. This</a>
+<a name="299"><span class="lineNum">     299 </span>            : // decision may need to be revisited.</a>
+<a name="300"><span class="lineNum">     300 </span>            : </a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 : static RE: Lazy&lt;Regex&gt; = Lazy::new(|| Regex::new(r&quot;^\s*Running\s*`(.*)`$&quot;).unwrap());</span></a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineNoCov">          0 : fn rustc_flags(metadata: &amp;Metadata, package: &amp;Package, target: &amp;Target) -&gt; Result&lt;Vec&lt;String&gt;&gt; {</span></a>
+<a name="304"><span class="lineNum">     304 </span>            :     // smoelius: The following comments are old and retained for posterity. The linking flags are</a>
+<a name="305"><span class="lineNum">     305 </span>            :     // now initialized using a `OnceCell`, which makes the mutex unnecessary.</a>
+<a name="306"><span class="lineNum">     306 </span>            :     //   smoelius: Force rebuilding of the example by removing it. This is kind of messy. The</a>
+<a name="307"><span class="lineNum">     307 </span>            :     //   example is a shared resource that may be needed by multiple tests. For now, I lock a mutex</a>
+<a name="308"><span class="lineNum">     308 </span>            :     //   while the example is removed and put back.</a>
+<a name="309"><span class="lineNum">     309 </span>            :     //   smoelius: Should we use a temporary target directory here?</a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineNoCov">          0 :     let output = {</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineNoCov">          0 :         remove_example(metadata, package, target)?;</span></a>
+<a name="312"><span class="lineNum">     312 </span>            : </a>
+<a name="313"><span class="lineNum">     313 </span>            :         // smoelius: Because of lazy initialization, `cargo build` is run only once. Seeing</a>
+<a name="314"><span class="lineNum">     314 </span>            :         // &quot;Building example `target`&quot; for one example but not for others is confusing. So instead</a>
+<a name="315"><span class="lineNum">     315 </span>            :         // say &quot;Building `package` examples&quot;.</a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineNoCov">          0 :         dylint_internal::cargo::build(&amp;format!(&quot;`{}` examples&quot;, package.name))</span></a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineNoCov">          0 :             .build()</span></a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineNoCov">          0 :             .envs([(env::CARGO_TERM_COLOR, &quot;never&quot;)])</span></a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineNoCov">          0 :             .args([</span></a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineNoCov">          0 :                 &quot;--manifest-path&quot;,</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineNoCov">          0 :                 package.manifest_path.as_ref(),</span></a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineNoCov">          0 :                 &quot;--example&quot;,</span></a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineNoCov">          0 :                 &amp;target.name,</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 :                 &quot;--verbose&quot;,</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 :             ])</span></a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineNoCov">          0 :             .logged_output(true)?</span></a>
+<a name="327"><span class="lineNum">     327 </span>            :     };</a>
+<a name="328"><span class="lineNum">     328 </span>            : </a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineNoCov">          0 :     let matches = output</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 :         .stderr</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineNoCov">          0 :         .lines()</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineNoCov">          0 :         .map(|line| {</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 :             let line =</span></a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineNoCov">          0 :                 line.with_context(|| format!(&quot;Could not read from `{}`&quot;, package.manifest_path))?;</span></a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineNoCov">          0 :             Ok((*RE).captures(&amp;line).and_then(|captures| {</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineNoCov">          0 :                 let args = captures[1]</span></a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 :                     .split(' ')</span></a>
+<a name="338"><span class="lineNum">     338 </span><span class="lineNoCov">          0 :                     .map(ToOwned::to_owned)</span></a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineNoCov">          0 :                     .collect::&lt;Vec&lt;_&gt;&gt;();</span></a>
+<a name="340"><span class="lineNum">     340 </span><span class="lineNoCov">          0 :                 if args.first().map_or(false, is_rustc)</span></a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineNoCov">          0 :                     &amp;&amp; args</span></a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 :                         .as_slice()</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineNoCov">          0 :                         .windows(2)</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineNoCov">          0 :                         .any(|window| window == [&quot;--crate-name&quot;, &amp;snake_case(&amp;target.name)])</span></a>
+<a name="345"><span class="lineNum">     345 </span>            :                 {</a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineNoCov">          0 :                     Some(args)</span></a>
+<a name="347"><span class="lineNum">     347 </span>            :                 } else {</a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineNoCov">          0 :                     None</span></a>
+<a name="349"><span class="lineNum">     349 </span>            :                 }</a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineNoCov">          0 :             }))</span></a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineNoCov">          0 :         })</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 :         .collect::&lt;Result&lt;Vec&lt;Option&lt;Vec&lt;_&gt;&gt;&gt;&gt;&gt;()?;</span></a>
+<a name="353"><span class="lineNum">     353 </span>            : </a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineNoCov">          0 :     let mut matches = matches.into_iter().flatten().collect::&lt;Vec&lt;Vec&lt;_&gt;&gt;&gt;();</span></a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineNoCov">          0 :     ensure!(</span></a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 :         matches.len() &lt;= 1,</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 :         &quot;Found multiple `rustc` invocations for `{}`&quot;,</span></a>
+<a name="358"><span class="lineNum">     358 </span>            :         target.name</a>
+<a name="359"><span class="lineNum">     359 </span>            :     );</a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineNoCov">          0 :     matches</span></a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineNoCov">          0 :         .pop()</span></a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineNoCov">          0 :         .ok_or_else(|| anyhow!(&quot;Found no `rustc` invocations for `{}`&quot;, target.name))</span></a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="364"><span class="lineNum">     364 </span>            : </a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineNoCov">          0 : fn remove_example(metadata: &amp;Metadata, _package: &amp;Package, target: &amp;Target) -&gt; Result&lt;()&gt; {</span></a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineNoCov">          0 :     let examples = metadata.target_directory.join(&quot;debug/examples&quot;);</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineNoCov">          0 :     for entry in</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineNoCov">          0 :         read_dir(&amp;examples).with_context(|| format!(&quot;`read_dir` failed for `{examples}`&quot;))?</span></a>
+<a name="369"><span class="lineNum">     369 </span>            :     {</a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineNoCov">          0 :         let entry = entry.with_context(|| format!(&quot;`read_dir` failed for `{examples}`&quot;))?;</span></a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineNoCov">          0 :         let path = entry.path();</span></a>
+<a name="372"><span class="lineNum">     372 </span>            : </a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :         if let Some(file_name) = path.file_name() {</span></a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineNoCov">          0 :             let s = file_name.to_string_lossy();</span></a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineNoCov">          0 :             let target_name = snake_case(&amp;target.name);</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 :             if s == target_name.clone() + consts::EXE_SUFFIX</span></a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineNoCov">          0 :                 || s.starts_with(&amp;(target_name.clone() + &quot;-&quot;))</span></a>
+<a name="378"><span class="lineNum">     378 </span>            :             {</a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineNoCov">          0 :                 remove_file(&amp;path).with_context(|| {</span></a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineNoCov">          0 :                     format!(&quot;`remove_file` failed for `{}`&quot;, path.to_string_lossy())</span></a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineNoCov">          0 :                 })?;</span></a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineNoCov">          0 :             }</span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineNoCov">          0 :         }</span></a>
+<a name="384"><span class="lineNum">     384 </span>            :     }</a>
+<a name="385"><span class="lineNum">     385 </span>            : </a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineNoCov">          0 :     Ok(())</span></a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="388"><span class="lineNum">     388 </span>            : </a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineNoCov">          0 : fn next&lt;I, T&gt;(flag: &amp;str, iter: &amp;mut I) -&gt; Result&lt;T&gt;</span></a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineNoCov">          0 : where</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :     I: Iterator&lt;Item = T&gt;,</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 : {</span></a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineNoCov">          0 :     iter.next()</span></a>
+<a name="394"><span class="lineNum">     394 </span><span class="lineNoCov">          0 :         .ok_or_else(|| anyhow!(&quot;Missing argument for `{}`&quot;, flag))</span></a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="396"><span class="lineNum">     396 </span>            : </a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineNoCov">          0 : fn copy_with_extension&lt;P: AsRef&lt;Path&gt;, Q: AsRef&lt;Path&gt;&gt;(</span></a>
+<a name="398"><span class="lineNum">     398 </span><span class="lineNoCov">          0 :     from: P,</span></a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineNoCov">          0 :     to: Q,</span></a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineNoCov">          0 :     extension: &amp;str,</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 : ) -&gt; Result&lt;u64&gt; {</span></a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineNoCov">          0 :     let from = from.as_ref().with_extension(extension);</span></a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 :     let to = to.as_ref().with_extension(extension);</span></a>
+<a name="404"><span class="lineNum">     404 </span><span class="lineNoCov">          0 :     copy(from, to).map_err(Into::into)</span></a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="406"><span class="lineNum">     406 </span>            : </a>
+<a name="407"><span class="lineNum">     407 </span>            : static MUTEX: Mutex&lt;()&gt; = Mutex::new(());</a>
+<a name="408"><span class="lineNum">     408 </span>            : </a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineNoCov">          0 : fn run_tests(driver: &amp;Path, src_base: &amp;Path, config: &amp;ui::Config) {</span></a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineNoCov">          0 :     let _lock = MUTEX.lock().unwrap();</span></a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineNoCov">          0 : </span></a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineNoCov">          0 :     // smoelius: There doesn't seem to be a way to set environment variables using `compiletest`'s</span></a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :     // [`Config`](https://docs.rs/compiletest_rs/0.7.1/compiletest_rs/common/struct.Config.html)</span></a>
+<a name="414"><span class="lineNum">     414 </span><span class="lineNoCov">          0 :     // struct. For comparison, where Clippy uses `compiletest`, it sets environment variables</span></a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineNoCov">          0 :     // directly (see: https://github.com/rust-lang/rust-clippy/blob/master/tests/compile-test.rs).</span></a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineNoCov">          0 :     //</span></a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineNoCov">          0 :     // Of course, even if `compiletest` had such support, it would need to be incorporated into</span></a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineNoCov">          0 :     // `dylint_testing`.</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineNoCov">          0 : </span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineNoCov">          0 :     let _var = config</span></a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :         .dylint_toml</span></a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineNoCov">          0 :         .as_ref()</span></a>
+<a name="423"><span class="lineNum">     423 </span><span class="lineNoCov">          0 :         .map(|value| VarGuard::set(env::DYLINT_TOML, value));</span></a>
+<a name="424"><span class="lineNum">     424 </span>            : </a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 :     let config = compiletest::Config {</span></a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineNoCov">          0 :         mode: compiletest::common::Mode::Ui,</span></a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineNoCov">          0 :         rustc_path: driver.to_path_buf(),</span></a>
+<a name="428"><span class="lineNum">     428 </span><span class="lineNoCov">          0 :         src_base: src_base.to_path_buf(),</span></a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 :         target_rustcflags: Some(</span></a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineNoCov">          0 :             config.rustc_flags.clone().join(&quot; &quot;)</span></a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineNoCov">          0 :                 + &quot; --emit=metadata&quot;</span></a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineNoCov">          0 :                 + if cfg!(feature = &quot;deny_warnings&quot;) {</span></a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineNoCov">          0 :                     &quot; -Dwarnings&quot;</span></a>
+<a name="434"><span class="lineNum">     434 </span>            :                 } else {</a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineNoCov">          0 :                     &quot;&quot;</span></a>
+<a name="436"><span class="lineNum">     436 </span>            :                 }</a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :                 + &quot; -Zui-testing&quot;,</span></a>
+<a name="438"><span class="lineNum">     438 </span><span class="lineNoCov">          0 :         ),</span></a>
+<a name="439"><span class="lineNum">     439 </span><span class="lineNoCov">          0 :         ..compiletest::Config::default()</span></a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineNoCov">          0 :     };</span></a>
+<a name="441"><span class="lineNum">     441 </span><span class="lineNoCov">          0 : </span></a>
+<a name="442"><span class="lineNum">     442 </span><span class="lineNoCov">          0 :     compiletest::run_tests(&amp;config);</span></a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="444"><span class="lineNum">     444 </span>            : </a>
+<a name="445"><span class="lineNum">     445 </span>            : // smoelius: `VarGuard` was copied from:</a>
+<a name="446"><span class="lineNum">     446 </span>            : // https://github.com/rust-lang/rust-clippy/blob/9cc8da222b3893bc13bc13c8827e93f8ea246854/tests/compile-test.rs</a>
+<a name="447"><span class="lineNum">     447 </span>            : </a>
+<a name="448"><span class="lineNum">     448 </span>            : /// Restores an env var on drop</a>
+<a name="449"><span class="lineNum">     449 </span>            : #[must_use]</a>
+<a name="450"><span class="lineNum">     450 </span>            : struct VarGuard {</a>
+<a name="451"><span class="lineNum">     451 </span>            :     key: &amp;'static str,</a>
+<a name="452"><span class="lineNum">     452 </span>            :     value: Option&lt;OsString&gt;,</a>
+<a name="453"><span class="lineNum">     453 </span>            : }</a>
+<a name="454"><span class="lineNum">     454 </span>            : </a>
+<a name="455"><span class="lineNum">     455 </span>            : impl VarGuard {</a>
+<a name="456"><span class="lineNum">     456 </span><span class="lineNoCov">          0 :     fn set(key: &amp;'static str, val: impl AsRef&lt;OsStr&gt;) -&gt; Self {</span></a>
+<a name="457"><span class="lineNum">     457 </span><span class="lineNoCov">          0 :         let value = var_os(key);</span></a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineNoCov">          0 :         set_var(key, val);</span></a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineNoCov">          0 :         Self { key, value }</span></a>
+<a name="460"><span class="lineNum">     460 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="461"><span class="lineNum">     461 </span>            : }</a>
+<a name="462"><span class="lineNum">     462 </span>            : </a>
+<a name="463"><span class="lineNum">     463 </span>            : impl Drop for VarGuard {</a>
+<a name="464"><span class="lineNum">     464 </span><span class="lineNoCov">          0 :     fn drop(&amp;mut self) {</span></a>
+<a name="465"><span class="lineNum">     465 </span><span class="lineNoCov">          0 :         match self.value.as_deref() {</span></a>
+<a name="466"><span class="lineNum">     466 </span><span class="lineNoCov">          0 :             None =&gt; remove_var(self.key),</span></a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineNoCov">          0 :             Some(value) =&gt; set_var(self.key, value),</span></a>
+<a name="468"><span class="lineNum">     468 </span>            :         }</a>
+<a name="469"><span class="lineNum">     469 </span><span class="lineNoCov">          0 :     }</span></a>
+<a name="470"><span class="lineNum">     470 </span>            : }</a>
+<a name="471"><span class="lineNum">     471 </span>            : </a>
+<a name="472"><span class="lineNum">     472 </span><span class="lineNoCov">          0 : fn snake_case(name: &amp;str) -&gt; String {</span></a>
+<a name="473"><span class="lineNum">     473 </span><span class="lineNoCov">          0 :     name.replace('-', &quot;_&quot;)</span></a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineNoCov">          0 : }</span></a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - cargo-dylint/src/main.rs</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">cargo-dylint/src</a> - main.rs<span style="font-size: 80%;"> (source / <a href="main.rs.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">150</td>
+            <td class="headerCovTableEntry">163</td>
+            <td class="headerCovTableEntryHi">92.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2024-10-23 19:20:50</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntryLo">29.5 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : use clap::{crate_version, ArgAction, Parser};</a>
+<a name="2"><span class="lineNum">       2 </span>            : use std::{</a>
+<a name="3"><span class="lineNum">       3 </span>            :     ffi::{OsStr, OsString},</a>
+<a name="4"><span class="lineNum">       4 </span>            :     fmt::Debug,</a>
+<a name="5"><span class="lineNum">       5 </span>            : };</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : #[derive(Debug, Parser)]</a>
+<a name="8"><span class="lineNum">       8 </span>            : #[clap(bin_name = &quot;cargo&quot;, display_name = &quot;cargo&quot;)]</a>
+<a name="9"><span class="lineNum">       9 </span>            : struct Opts {</a>
+<a name="10"><span class="lineNum">      10 </span>            :     #[clap(subcommand)]</a>
+<a name="11"><span class="lineNum">      11 </span>            :     subcmd: CargoSubcommand,</a>
+<a name="12"><span class="lineNum">      12 </span>            : }</a>
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<a name="14"><span class="lineNum">      14 </span>            : #[derive(Debug, Parser)]</a>
+<a name="15"><span class="lineNum">      15 </span>            : enum CargoSubcommand {</a>
+<a name="16"><span class="lineNum">      16 </span>            :     Dylint(Dylint),</a>
+<a name="17"><span class="lineNum">      17 </span>            : }</a>
+<a name="18"><span class="lineNum">      18 </span>            : </a>
+<a name="19"><span class="lineNum">      19 </span>            : #[allow(clippy::struct_excessive_bools)]</a>
+<a name="20"><span class="lineNum">      20 </span>            : #[derive(Debug, Parser)]</a>
+<a name="21"><span class="lineNum">      21 </span>            : #[clap(</a>
+<a name="22"><span class="lineNum">      22 </span>            :     version = crate_version!(),</a>
+<a name="23"><span class="lineNum">      23 </span>            :     args_conflicts_with_subcommands = true,</a>
+<a name="24"><span class="lineNum">      24 </span>            :     after_help = r#&quot;ENVIRONMENT VARIABLES:</a>
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : DYLINT_DRIVER_PATH (default: $HOME/.dylint_drivers) is the directory where Dylint stores rustc</a>
+<a name="27"><span class="lineNum">      27 </span>            : drivers.</a>
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<a name="29"><span class="lineNum">      29 </span>            : DYLINT_LIBRARY_PATH (default: none) is a colon-separated list of directories where Dylint searches</a>
+<a name="30"><span class="lineNum">      30 </span>            : for libraries.</a>
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<a name="32"><span class="lineNum">      32 </span>            : DYLINT_RUSTFLAGS (default: none) is a space-separated list of flags that Dylint passes to `rustc`</a>
+<a name="33"><span class="lineNum">      33 </span>            : when checking the packages in the workspace.</a>
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<a name="35"><span class="lineNum">      35 </span>            : METADATA EXAMPLE:</a>
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<a name="37"><span class="lineNum">      37 </span>            :     [workspace.metadata.dylint]</a>
+<a name="38"><span class="lineNum">      38 </span>            :     libraries = [</a>
+<a name="39"><span class="lineNum">      39 </span>            :         { git = &quot;https://github.com/trailofbits/dylint&quot;, pattern = &quot;examples/*/*&quot; },</a>
+<a name="40"><span class="lineNum">      40 </span>            :         { path = &quot;libs/*&quot; },</a>
+<a name="41"><span class="lineNum">      41 </span>            :     ]</a>
+<a name="42"><span class="lineNum">      42 </span>            : &quot;#,</a>
+<a name="43"><span class="lineNum">      43 </span>            : )]</a>
+<a name="44"><span class="lineNum">      44 </span>            : // smoelius: Please keep the last four fields `args`, `operation`, `lib_sel`, and `output`, in that</a>
+<a name="45"><span class="lineNum">      45 </span>            : // order. Please keep all other fields sorted.</a>
+<a name="46"><span class="lineNum">      46 </span>            : struct Dylint {</a>
+<a name="47"><span class="lineNum">      47 </span>            :     #[clap(long, help = &quot;Automatically apply lint suggestions&quot;)]</a>
+<a name="48"><span class="lineNum">      48 </span><span class="lineNoCov">          0 :     fix: bool,</span></a>
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            :     #[clap(long, help = &quot;Continue if `cargo check` fails&quot;)]</a>
+<a name="51"><span class="lineNum">      51 </span><span class="lineNoCov">          0 :     keep_going: bool,</span></a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span>            :     #[clap(long, help = &quot;Do not check other packages within the workspace&quot;)]</a>
+<a name="54"><span class="lineNum">      54 </span><span class="lineNoCov">          0 :     no_deps: bool,</span></a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span>            :     #[clap(</a>
+<a name="57"><span class="lineNum">      57 </span>            :         action = ArgAction::Append,</a>
+<a name="58"><span class="lineNum">      58 </span>            :         number_of_values = 1,</a>
+<a name="59"><span class="lineNum">      59 </span>            :         short,</a>
+<a name="60"><span class="lineNum">      60 </span>            :         long = &quot;package&quot;,</a>
+<a name="61"><span class="lineNum">      61 </span>            :         value_name = &quot;SPEC&quot;,</a>
+<a name="62"><span class="lineNum">      62 </span>            :         help = &quot;Package to check&quot;</a>
+<a name="63"><span class="lineNum">      63 </span>            :     )]</a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">          2 :     packages: Vec&lt;String&gt;,</span></a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span>            :     #[clap(long, help = &quot;Check all packages in the workspace&quot;)]</a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineNoCov">          0 :     workspace: bool,</span></a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            :     #[clap(last = true, help = &quot;Arguments for `cargo check`&quot;)]</a>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">          1 :     args: Vec&lt;String&gt;,</span></a>
+<a name="71"><span class="lineNum">      71 </span>            : </a>
+<a name="72"><span class="lineNum">      72 </span>            :     #[clap(subcommand)]</a>
+<a name="73"><span class="lineNum">      73 </span>            :     operation: Option&lt;Operation&gt;,</a>
+<a name="74"><span class="lineNum">      74 </span>            : </a>
+<a name="75"><span class="lineNum">      75 </span>            :     #[clap(flatten)]</a>
+<a name="76"><span class="lineNum">      76 </span>            :     lib_sel: LibrarySelection,</a>
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<a name="78"><span class="lineNum">      78 </span>            :     #[clap(flatten)]</a>
+<a name="79"><span class="lineNum">      79 </span>            :     output: OutputOptions,</a>
+<a name="80"><span class="lineNum">      80 </span>            : }</a>
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<a name="82"><span class="lineNum">      82 </span>            : #[derive(Debug, Parser)]</a>
+<a name="83"><span class="lineNum">      83 </span>            : enum Operation {</a>
+<a name="84"><span class="lineNum">      84 </span>            :     #[clap(</a>
+<a name="85"><span class="lineNum">      85 </span>            :         about = &quot;List libraries or lints&quot;,</a>
+<a name="86"><span class="lineNum">      86 </span>            :         long_about = &quot;If no libraries are named, list the name, toolchain, and location of all \</a>
+<a name="87"><span class="lineNum">      87 </span>            : discovered libraries.</a>
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<a name="89"><span class="lineNum">      89 </span>            : If at least one library is named, list the name, level, and description of all lints in all named \</a>
+<a name="90"><span class="lineNum">      90 </span>            : libraries.</a>
+<a name="91"><span class="lineNum">      91 </span>            : </a>
+<a name="92"><span class="lineNum">      92 </span>            : Combine with `--all` to list all lints in all discovered libraries.&quot;</a>
+<a name="93"><span class="lineNum">      93 </span>            :     )]</a>
+<a name="94"><span class="lineNum">      94 </span>            :     List {</a>
+<a name="95"><span class="lineNum">      95 </span>            :         #[clap(flatten)]</a>
+<a name="96"><span class="lineNum">      96 </span>            :         lib_sel: LibrarySelection,</a>
+<a name="97"><span class="lineNum">      97 </span>            :     },</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<a name="99"><span class="lineNum">      99 </span>            :     #[clap(</a>
+<a name="100"><span class="lineNum">     100 </span>            :         about = &quot;Create a new library package&quot;,</a>
+<a name="101"><span class="lineNum">     101 </span>            :         long_about = &quot;Create a new library package at &lt;PATH&gt;&quot;</a>
+<a name="102"><span class="lineNum">     102 </span>            :     )]</a>
+<a name="103"><span class="lineNum">     103 </span>            :     New {</a>
+<a name="104"><span class="lineNum">     104 </span>            :         #[clap(long, help = &quot;Put the package in its own workspace&quot;)]</a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 :         isolate: bool,</span></a>
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<a name="107"><span class="lineNum">     107 </span>            :         #[clap(help = &quot;Path to library package&quot;)]</a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 :         path: String,</span></a>
+<a name="109"><span class="lineNum">     109 </span>            :     },</a>
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<a name="111"><span class="lineNum">     111 </span>            :     #[clap(</a>
+<a name="112"><span class="lineNum">     112 </span>            :         about = &quot;Upgrade library package&quot;,</a>
+<a name="113"><span class="lineNum">     113 </span>            :         long_about = &quot;Upgrade the library package at &lt;PATH&gt; to the latest version of \</a>
+<a name="114"><span class="lineNum">     114 </span>            :                       `clippy_utils`&quot;</a>
+<a name="115"><span class="lineNum">     115 </span>            :     )]</a>
+<a name="116"><span class="lineNum">     116 </span>            :     Upgrade {</a>
+<a name="117"><span class="lineNum">     117 </span>            :         #[clap(long, hide = true)]</a>
+<a name="118"><span class="lineNum">     118 </span><span class="lineNoCov">          0 :         allow_downgrade: bool,</span></a>
+<a name="119"><span class="lineNum">     119 </span>            : </a>
+<a name="120"><span class="lineNum">     120 </span>            :         #[clap(</a>
+<a name="121"><span class="lineNum">     121 </span>            :             long,</a>
+<a name="122"><span class="lineNum">     122 </span>            :             value_name = &quot;VERSION&quot;,</a>
+<a name="123"><span class="lineNum">     123 </span>            :             help = &quot;Upgrade to the version of `clippy_utils` with tag `rust-&lt;VERSION&gt;`&quot;</a>
+<a name="124"><span class="lineNum">     124 </span>            :         )]</a>
+<a name="125"><span class="lineNum">     125 </span>            :         rust_version: Option&lt;String&gt;,</a>
+<a name="126"><span class="lineNum">     126 </span>            : </a>
+<a name="127"><span class="lineNum">     127 </span>            :         #[clap(help = &quot;Path to library package&quot;)]</a>
+<a name="128"><span class="lineNum">     128 </span><span class="lineNoCov">          0 :         path: String,</span></a>
+<a name="129"><span class="lineNum">     129 </span>            :     },</a>
+<a name="130"><span class="lineNum">     130 </span>            : }</a>
+<a name="131"><span class="lineNum">     131 </span>            : </a>
+<a name="132"><span class="lineNum">     132 </span>            : #[derive(Debug, Parser)]</a>
+<a name="133"><span class="lineNum">     133 </span>            : #[cfg_attr(feature = &quot;__clap_headings&quot;, clap(next_help_heading = Some(&quot;Library Selection&quot;)))]</a>
+<a name="134"><span class="lineNum">     134 </span>            : struct LibrarySelection {</a>
+<a name="135"><span class="lineNum">     135 </span>            :     #[clap(long, help = &quot;Load all discovered libraries&quot;)]</a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :     all: bool,</span></a>
+<a name="137"><span class="lineNum">     137 </span>            : </a>
+<a name="138"><span class="lineNum">     138 </span>            :     #[clap(</a>
+<a name="139"><span class="lineNum">     139 </span>            :         long,</a>
+<a name="140"><span class="lineNum">     140 </span>            :         requires(&quot;git&quot;),</a>
+<a name="141"><span class="lineNum">     141 </span>            :         help = &quot;Branch to use when downloading library packages&quot;</a>
+<a name="142"><span class="lineNum">     142 </span>            :     )]</a>
+<a name="143"><span class="lineNum">     143 </span>            :     branch: Option&lt;String&gt;,</a>
+<a name="144"><span class="lineNum">     144 </span>            : </a>
+<a name="145"><span class="lineNum">     145 </span>            :     #[clap(</a>
+<a name="146"><span class="lineNum">     146 </span>            :         long,</a>
+<a name="147"><span class="lineNum">     147 </span>            :         value_name = &quot;URL&quot;,</a>
+<a name="148"><span class="lineNum">     148 </span>            :         conflicts_with(&quot;paths&quot;),</a>
+<a name="149"><span class="lineNum">     149 </span>            :         help = &quot;Git url containing library packages&quot;</a>
+<a name="150"><span class="lineNum">     150 </span>            :     )]</a>
+<a name="151"><span class="lineNum">     151 </span>            :     git: Option&lt;String&gt;,</a>
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<a name="153"><span class="lineNum">     153 </span>            :     #[clap(</a>
+<a name="154"><span class="lineNum">     154 </span>            :         action = ArgAction::Append,</a>
+<a name="155"><span class="lineNum">     155 </span>            :         number_of_values = 1,</a>
+<a name="156"><span class="lineNum">     156 </span>            :         long = &quot;lib-path&quot;,</a>
+<a name="157"><span class="lineNum">     157 </span>            :         value_name = &quot;PATH&quot;,</a>
+<a name="158"><span class="lineNum">     158 </span>            :         help = &quot;Library path to load lints from&quot;</a>
+<a name="159"><span class="lineNum">     159 </span>            :     )]</a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 :     lib_paths: Vec&lt;String&gt;,</span></a>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<a name="162"><span class="lineNum">     162 </span>            :     #[clap(</a>
+<a name="163"><span class="lineNum">     163 </span>            :         action = ArgAction::Append,</a>
+<a name="164"><span class="lineNum">     164 </span>            :         number_of_values = 1,</a>
+<a name="165"><span class="lineNum">     165 </span>            :         long = &quot;lib&quot;,</a>
+<a name="166"><span class="lineNum">     166 </span>            :         value_name = &quot;NAME&quot;,</a>
+<a name="167"><span class="lineNum">     167 </span>            :         help = &quot;Library name to load lints from. A file with a name of the form \&quot;DLL_PREFIX \</a>
+<a name="168"><span class="lineNum">     168 </span>            :         &lt;NAME&gt; '@' TOOLCHAIN DLL_SUFFIX\&quot; is searched for in the directories listed in \</a>
+<a name="169"><span class="lineNum">     169 </span>            :         DYLINT_LIBRARY_PATH, and in the `target/release` directories produced by building the \</a>
+<a name="170"><span class="lineNum">     170 </span>            :         current workspace's metadata entries (see example below).&quot;</a>
+<a name="171"><span class="lineNum">     171 </span>            :     )]</a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">          9 :     libs: Vec&lt;String&gt;,</span></a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<a name="174"><span class="lineNum">     174 </span>            :     #[clap(</a>
+<a name="175"><span class="lineNum">     175 </span>            :         long,</a>
+<a name="176"><span class="lineNum">     176 </span>            :         value_name = &quot;PATH&quot;,</a>
+<a name="177"><span class="lineNum">     177 </span>            :         help = &quot;Path to Cargo.toml. Note: if the manifest uses metadata, then `--manifest-path \</a>
+<a name="178"><span class="lineNum">     178 </span>            :                 &lt;PATH&gt;` must appear before `--`, not after.&quot;</a>
+<a name="179"><span class="lineNum">     179 </span>            :     )]</a>
+<a name="180"><span class="lineNum">     180 </span>            :     manifest_path: Option&lt;String&gt;,</a>
+<a name="181"><span class="lineNum">     181 </span>            : </a>
+<a name="182"><span class="lineNum">     182 </span>            :     #[clap(long, help = &quot;Do not build metadata entries&quot;)]</a>
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :     no_build: bool,</span></a>
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<a name="185"><span class="lineNum">     185 </span>            :     #[clap(long, help = &quot;Ignore metadata entirely&quot;)]</a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineNoCov">          0 :     no_metadata: bool,</span></a>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<a name="188"><span class="lineNum">     188 </span>            :     #[clap(</a>
+<a name="189"><span class="lineNum">     189 </span>            :         action = ArgAction::Append,</a>
+<a name="190"><span class="lineNum">     190 </span>            :         number_of_values = 1,</a>
+<a name="191"><span class="lineNum">     191 </span>            :         long = &quot;path&quot;,</a>
+<a name="192"><span class="lineNum">     192 </span>            :         value_name = &quot;PATH&quot;,</a>
+<a name="193"><span class="lineNum">     193 </span>            :         conflicts_with(&quot;git&quot;),</a>
+<a name="194"><span class="lineNum">     194 </span>            :         help = &quot;Path containing library packages&quot;</a>
+<a name="195"><span class="lineNum">     195 </span>            :     )]</a>
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">          3 :     paths: Vec&lt;String&gt;,</span></a>
+<a name="197"><span class="lineNum">     197 </span>            : </a>
+<a name="198"><span class="lineNum">     198 </span>            :     #[clap(</a>
+<a name="199"><span class="lineNum">     199 </span>            :         long,</a>
+<a name="200"><span class="lineNum">     200 </span>            :         help = &quot;Subdirectories of the `--git` or `--path` argument containing library packages&quot;</a>
+<a name="201"><span class="lineNum">     201 </span>            :     )]</a>
+<a name="202"><span class="lineNum">     202 </span>            :     pattern: Option&lt;String&gt;,</a>
+<a name="203"><span class="lineNum">     203 </span>            : </a>
+<a name="204"><span class="lineNum">     204 </span>            :     #[clap(</a>
+<a name="205"><span class="lineNum">     205 </span>            :         long,</a>
+<a name="206"><span class="lineNum">     206 </span>            :         requires(&quot;git&quot;),</a>
+<a name="207"><span class="lineNum">     207 </span>            :         help = &quot;Specific commit to use when downloading library packages&quot;</a>
+<a name="208"><span class="lineNum">     208 </span>            :     )]</a>
+<a name="209"><span class="lineNum">     209 </span>            :     rev: Option&lt;String&gt;,</a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span>            :     #[clap(</a>
+<a name="212"><span class="lineNum">     212 </span>            :         long,</a>
+<a name="213"><span class="lineNum">     213 </span>            :         requires(&quot;git&quot;),</a>
+<a name="214"><span class="lineNum">     214 </span>            :         help = &quot;Tag to use when downloading library packages&quot;</a>
+<a name="215"><span class="lineNum">     215 </span>            :     )]</a>
+<a name="216"><span class="lineNum">     216 </span>            :     tag: Option&lt;String&gt;,</a>
+<a name="217"><span class="lineNum">     217 </span>            : }</a>
+<a name="218"><span class="lineNum">     218 </span>            : </a>
+<a name="219"><span class="lineNum">     219 </span>            : #[derive(Debug, Parser)]</a>
+<a name="220"><span class="lineNum">     220 </span>            : #[cfg_attr(feature = &quot;__clap_headings&quot;, clap(next_help_heading = Some(&quot;Output Options&quot;)))]</a>
+<a name="221"><span class="lineNum">     221 </span>            : struct OutputOptions {</a>
+<a name="222"><span class="lineNum">     222 </span>            :     #[clap(long, value_name = &quot;PATH&quot;, help = &quot;Path to pipe stderr to&quot;)]</a>
+<a name="223"><span class="lineNum">     223 </span>            :     pipe_stderr: Option&lt;String&gt;,</a>
+<a name="224"><span class="lineNum">     224 </span>            : </a>
+<a name="225"><span class="lineNum">     225 </span>            :     #[clap(long, value_name = &quot;PATH&quot;, help = &quot;Path to pipe stdout to&quot;)]</a>
+<a name="226"><span class="lineNum">     226 </span>            :     pipe_stdout: Option&lt;String&gt;,</a>
+<a name="227"><span class="lineNum">     227 </span>            : </a>
+<a name="228"><span class="lineNum">     228 </span>            :     #[clap(</a>
+<a name="229"><span class="lineNum">     229 </span>            :         global = true,</a>
+<a name="230"><span class="lineNum">     230 </span>            :         short,</a>
+<a name="231"><span class="lineNum">     231 </span>            :         long,</a>
+<a name="232"><span class="lineNum">     232 </span>            :         help = &quot;Do not show warnings or progress running commands besides `cargo check` and \</a>
+<a name="233"><span class="lineNum">     233 </span>            :                 `cargo fix`&quot;</a>
+<a name="234"><span class="lineNum">     234 </span>            :     )]</a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineNoCov">          0 :     quiet: bool,</span></a>
+<a name="236"><span class="lineNum">     236 </span>            : }</a>
+<a name="237"><span class="lineNum">     237 </span>            : </a>
+<a name="238"><span class="lineNum">     238 </span>            : impl From&lt;Dylint&gt; for dylint::opts::Dylint {</a>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">         41 :     fn from(opts: Dylint) -&gt; Self {</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">         41 :         let Dylint {</span></a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">         41 :             fix,</span></a>
+<a name="242"><span class="lineNum">     242 </span><span class="lineCov">         41 :             keep_going,</span></a>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">         41 :             no_deps,</span></a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">         41 :             packages,</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">         41 :             workspace,</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">         41 :             args,</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">         41 :             operation,</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">         41 :             mut lib_sel,</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">         41 :             output:</span></a>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov">         41 :                 OutputOptions {</span></a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">         41 :                     pipe_stderr,</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineCov">         41 :                     pipe_stdout,</span></a>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">         41 :                     quiet,</span></a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">         41 :                 },</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">         41 :         } = opts;</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">         41 :         let operation = match operation {</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">         27 :             None =&gt; dylint::opts::Operation::Check({</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">         27 :                 dylint::opts::Check {</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">         27 :                     lib_sel: lib_sel.into(),</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">         27 :                     fix,</span></a>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">         27 :                     keep_going,</span></a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">         27 :                     no_deps,</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">         27 :                     packages,</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">         27 :                     workspace,</span></a>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">         27 :                     args,</span></a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">         27 :                 }</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">         27 :             }),</span></a>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">         10 :             Some(Operation::List { lib_sel: other }) =&gt; {</span></a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">         10 :                 lib_sel.absorb(other);</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineCov">         10 :                 dylint::opts::Operation::List(dylint::opts::List {</span></a>
+<a name="271"><span class="lineNum">     271 </span><span class="lineCov">         10 :                     lib_sel: lib_sel.into(),</span></a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">         10 :                 })</span></a>
+<a name="273"><span class="lineNum">     273 </span>            :             }</a>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">          1 :             Some(Operation::New { isolate, path }) =&gt; {</span></a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">          1 :                 dylint::opts::Operation::New(dylint::opts::New { isolate, path })</span></a>
+<a name="276"><span class="lineNum">     276 </span>            :             }</a>
+<a name="277"><span class="lineNum">     277 </span>            :             Some(Operation::Upgrade {</a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">          3 :                 allow_downgrade,</span></a>
+<a name="279"><span class="lineNum">     279 </span><span class="lineCov">          3 :                 rust_version,</span></a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">          3 :                 path,</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">          3 :             }) =&gt; dylint::opts::Operation::Upgrade(dylint::opts::Upgrade {</span></a>
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">          3 :                 allow_downgrade,</span></a>
+<a name="283"><span class="lineNum">     283 </span><span class="lineCov">          3 :                 rust_version,</span></a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">          3 :                 path,</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">          3 :             }),</span></a>
+<a name="286"><span class="lineNum">     286 </span>            :         };</a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">         41 :         Self {</span></a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">         41 :             pipe_stderr,</span></a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">         41 :             pipe_stdout,</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">         41 :             quiet,</span></a>
+<a name="291"><span class="lineNum">     291 </span><span class="lineCov">         41 :             operation,</span></a>
+<a name="292"><span class="lineNum">     292 </span><span class="lineCov">         41 :         }</span></a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">         41 :     }</span></a>
+<a name="294"><span class="lineNum">     294 </span>            : }</a>
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<a name="296"><span class="lineNum">     296 </span>            : macro_rules! option_absorb {</a>
+<a name="297"><span class="lineNum">     297 </span>            :     ($this:expr, $other:expr) =&gt; {</a>
+<a name="298"><span class="lineNum">     298 </span>            :         if $other.is_some() {</a>
+<a name="299"><span class="lineNum">     299 </span>            :             assert!(</a>
+<a name="300"><span class="lineNum">     300 </span>            :                 $this.is_none(),</a>
+<a name="301"><span class="lineNum">     301 </span>            :                 &quot;`--{}` used multiple times&quot;,</a>
+<a name="302"><span class="lineNum">     302 </span>            :                 stringify!($other).replace(&quot;_&quot;, &quot;-&quot;)</a>
+<a name="303"><span class="lineNum">     303 </span>            :             );</a>
+<a name="304"><span class="lineNum">     304 </span>            :             *$this = $other;</a>
+<a name="305"><span class="lineNum">     305 </span>            :         }</a>
+<a name="306"><span class="lineNum">     306 </span>            :     };</a>
+<a name="307"><span class="lineNum">     307 </span>            : }</a>
+<a name="308"><span class="lineNum">     308 </span>            : </a>
+<a name="309"><span class="lineNum">     309 </span>            : impl LibrarySelection {</a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">         10 :     pub fn absorb(&amp;mut self, other: Self) {</span></a>
+<a name="311"><span class="lineNum">     311 </span><span class="lineCov">         10 :         let Self {</span></a>
+<a name="312"><span class="lineNum">     312 </span><span class="lineCov">         10 :             all,</span></a>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">         10 :             branch,</span></a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">         10 :             git,</span></a>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">         10 :             lib_paths,</span></a>
+<a name="316"><span class="lineNum">     316 </span><span class="lineCov">         10 :             libs,</span></a>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">         10 :             manifest_path,</span></a>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">         10 :             no_build,</span></a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">         10 :             no_metadata,</span></a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">         10 :             paths,</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">         10 :             pattern,</span></a>
+<a name="322"><span class="lineNum">     322 </span><span class="lineCov">         10 :             rev,</span></a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineCov">         10 :             tag,</span></a>
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">         10 :         } = other;</span></a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">         10 :         self.all |= all;</span></a>
+<a name="326"><span class="lineNum">     326 </span><span class="lineCov">         10 :         option_absorb!(&amp;mut self.branch, branch);</span></a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">         10 :         option_absorb!(&amp;mut self.git, git);</span></a>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">         10 :         self.lib_paths.extend(lib_paths);</span></a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">         10 :         self.libs.extend(libs);</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">         10 :         option_absorb!(&amp;mut self.manifest_path, manifest_path);</span></a>
+<a name="331"><span class="lineNum">     331 </span><span class="lineCov">         10 :         self.no_build |= no_build;</span></a>
+<a name="332"><span class="lineNum">     332 </span><span class="lineCov">         10 :         self.no_metadata |= no_metadata;</span></a>
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">         10 :         self.paths.extend(paths);</span></a>
+<a name="334"><span class="lineNum">     334 </span><span class="lineCov">         10 :         option_absorb!(&amp;mut self.pattern, pattern);</span></a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineCov">         10 :         option_absorb!(&amp;mut self.rev, rev);</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">         10 :         option_absorb!(&amp;mut self.tag, tag);</span></a>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">         10 :     }</span></a>
+<a name="338"><span class="lineNum">     338 </span>            : }</a>
+<a name="339"><span class="lineNum">     339 </span>            : </a>
+<a name="340"><span class="lineNum">     340 </span>            : impl From&lt;LibrarySelection&gt; for dylint::opts::LibrarySelection {</a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">         37 :     fn from(lib_sel: LibrarySelection) -&gt; Self {</span></a>
+<a name="342"><span class="lineNum">     342 </span><span class="lineCov">         37 :         let LibrarySelection {</span></a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineCov">         37 :             all,</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">         37 :             branch,</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">         37 :             git,</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">         37 :             lib_paths,</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineCov">         37 :             libs,</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">         37 :             manifest_path,</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">         37 :             no_build,</span></a>
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">         37 :             no_metadata,</span></a>
+<a name="351"><span class="lineNum">     351 </span><span class="lineCov">         37 :             paths,</span></a>
+<a name="352"><span class="lineNum">     352 </span><span class="lineCov">         37 :             pattern,</span></a>
+<a name="353"><span class="lineNum">     353 </span><span class="lineCov">         37 :             rev,</span></a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineCov">         37 :             tag,</span></a>
+<a name="355"><span class="lineNum">     355 </span><span class="lineCov">         37 :         } = lib_sel;</span></a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineCov">         37 :         Self {</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">         37 :             all,</span></a>
+<a name="358"><span class="lineNum">     358 </span><span class="lineCov">         37 :             branch,</span></a>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">         37 :             git,</span></a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineCov">         37 :             lib_paths,</span></a>
+<a name="361"><span class="lineNum">     361 </span><span class="lineCov">         37 :             libs,</span></a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineCov">         37 :             manifest_path,</span></a>
+<a name="363"><span class="lineNum">     363 </span><span class="lineCov">         37 :             no_build,</span></a>
+<a name="364"><span class="lineNum">     364 </span><span class="lineCov">         37 :             no_metadata,</span></a>
+<a name="365"><span class="lineNum">     365 </span><span class="lineCov">         37 :             paths,</span></a>
+<a name="366"><span class="lineNum">     366 </span><span class="lineCov">         37 :             pattern,</span></a>
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">         37 :             rev,</span></a>
+<a name="368"><span class="lineNum">     368 </span><span class="lineCov">         37 :             tag,</span></a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">         37 :         }</span></a>
+<a name="370"><span class="lineNum">     370 </span><span class="lineCov">         37 :     }</span></a>
+<a name="371"><span class="lineNum">     371 </span>            : }</a>
+<a name="372"><span class="lineNum">     372 </span>            : </a>
+<a name="373"><span class="lineNum">     373 </span><span class="lineCov">         43 : fn main() -&gt; dylint::ColorizedResult&lt;()&gt; {</span></a>
+<a name="374"><span class="lineNum">     374 </span><span class="lineCov">         43 :     env_logger::try_init().unwrap_or_else(|error| {</span></a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineCov">         43 :         dylint::__warn(</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineCov">         43 :             &amp;dylint::opts::Dylint::default(),</span></a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineCov">         43 :             &amp;format!(&quot;`env_logger` already initialized: {error}&quot;),</span></a>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">         43 :         );</span></a>
+<a name="379"><span class="lineNum">     379 </span><span class="lineCov">         43 :     });</span></a>
+<a name="380"><span class="lineNum">     380 </span><span class="lineCov">         43 : </span></a>
+<a name="381"><span class="lineNum">     381 </span><span class="lineCov">         43 :     let args: Vec&lt;_&gt; = std::env::args().map(OsString::from).collect();</span></a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineCov">         43 : </span></a>
+<a name="383"><span class="lineNum">     383 </span><span class="lineCov">         43 :     cargo_dylint(&amp;args)</span></a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineCov">         43 : }</span></a>
+<a name="385"><span class="lineNum">     385 </span>            : </a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineCov">         43 : fn cargo_dylint&lt;T: AsRef&lt;OsStr&gt;&gt;(args: &amp;[T]) -&gt; dylint::ColorizedResult&lt;()&gt; {</span></a>
+<a name="387"><span class="lineNum">     387 </span><span class="lineCov">         43 :     match Opts::parse_from(args).subcmd {</span></a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineCov">         43 :         CargoSubcommand::Dylint(opts) =&gt; dylint::run(&amp;dylint::opts::Dylint::from(opts)),</span></a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">         43 :     }</span></a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineCov">         43 :     .map_err(dylint::ColorizedError::new)</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineCov">         43 : }</span></a>
+<a name="392"><span class="lineNum">     392 </span>            : </a>
+<a name="393"><span class="lineNum">     393 </span>            : #[cfg(test)]</a>
+<a name="394"><span class="lineNum">     394 </span>            : mod tests {</a>
+<a name="395"><span class="lineNum">     395 </span>            :     use super::*;</a>
+<a name="396"><span class="lineNum">     396 </span>            :     use assert_cmd::prelude::*;</a>
+<a name="397"><span class="lineNum">     397 </span>            :     use clap::CommandFactory;</a>
+<a name="398"><span class="lineNum">     398 </span>            : </a>
+<a name="399"><span class="lineNum">     399 </span>            :     #[test]</a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineCov">          1 :     fn verify_cli() {</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineCov">          1 :         Opts::command().debug_assert();</span></a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineCov">          1 :     }</span></a>
+<a name="403"><span class="lineNum">     403 </span>            : </a>
+<a name="404"><span class="lineNum">     404 </span>            :     #[test]</a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineCov">          1 :     fn usage() {</span></a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineCov">          1 :         std::process::Command::cargo_bin(&quot;cargo-dylint&quot;)</span></a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineCov">          1 :             .unwrap()</span></a>
+<a name="408"><span class="lineNum">     408 </span><span class="lineCov">          1 :             .args([&quot;dylint&quot;, &quot;--help&quot;])</span></a>
+<a name="409"><span class="lineNum">     409 </span><span class="lineCov">          1 :             .assert()</span></a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineCov">          1 :             .success()</span></a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineCov">          1 :             .stdout(predicates::str::contains(&quot;Usage: cargo dylint&quot;));</span></a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineCov">          1 :     }</span></a>
+<a name="413"><span class="lineNum">     413 </span>            : </a>
+<a name="414"><span class="lineNum">     414 </span>            :     #[test]</a>
+<a name="415"><span class="lineNum">     415 </span><span class="lineCov">          1 :     fn version() {</span></a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineCov">          1 :         std::process::Command::cargo_bin(&quot;cargo-dylint&quot;)</span></a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineCov">          1 :             .unwrap()</span></a>
+<a name="418"><span class="lineNum">     418 </span><span class="lineCov">          1 :             .args([&quot;dylint&quot;, &quot;--version&quot;])</span></a>
+<a name="419"><span class="lineNum">     419 </span><span class="lineCov">          1 :             .assert()</span></a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineCov">          1 :             .success()</span></a>
+<a name="421"><span class="lineNum">     421 </span><span class="lineCov">          1 :             .stdout(format!(&quot;cargo-dylint {}\n&quot;, env!(&quot;CARGO_PKG_VERSION&quot;)));</span></a>
+<a name="422"><span class="lineNum">     422 </span><span class="lineCov">          1 :     }</span></a>
+<a name="423"><span class="lineNum">     423 </span>            : </a>
+<a name="424"><span class="lineNum">     424 </span>            :     // `no_env_logger_warning` fails if [`std::process::Command::new`] is replaced with</a>
+<a name="425"><span class="lineNum">     425 </span>            :     // [`assert_cmd::cargo::CommandCargoExt::cargo_bin`]. I don't understand why.</a>
+<a name="426"><span class="lineNum">     426 </span>            :     //</a>
+<a name="427"><span class="lineNum">     427 </span>            :     // [`assert_cmd::cargo::CommandCargoExt::cargo_bin`]: https://docs.rs/assert_cmd/latest/assert_cmd/cargo/trait.CommandCargoExt.html#tymethod.cargo_bin</a>
+<a name="428"><span class="lineNum">     428 </span>            :     // [`std::process::Command::new`]: https://doc.rust-lang.org/std/process/struct.Command.html#method.new</a>
+<a name="429"><span class="lineNum">     429 </span>            :     //</a>
+<a name="430"><span class="lineNum">     430 </span>            :     // smoelius: I am switching to `assert_cmd::cargo::CommandCargoExt::cargo_bin` and disabling</a>
+<a name="431"><span class="lineNum">     431 </span>            :     // this test. `cargo run` without a `--features=...` argument can cause `cargo-dylint` to be</a>
+<a name="432"><span class="lineNum">     432 </span>            :     // rebuilt with the wrong features.</a>
+<a name="433"><span class="lineNum">     433 </span>            :     #[cfg(any())]</a>
+<a name="434"><span class="lineNum">     434 </span>            :     #[test]</a>
+<a name="435"><span class="lineNum">     435 </span>            :     fn no_env_logger_warning() {</a>
+<a name="436"><span class="lineNum">     436 </span>            :         std::process::Command::cargo_bin(&quot;cargo-dylint&quot;)</a>
+<a name="437"><span class="lineNum">     437 </span>            :             .unwrap()</a>
+<a name="438"><span class="lineNum">     438 </span>            :             .arg(&quot;dylint&quot;)</a>
+<a name="439"><span class="lineNum">     439 </span>            :             .assert()</a>
+<a name="440"><span class="lineNum">     440 </span>            :             .failure()</a>
+<a name="441"><span class="lineNum">     441 </span>            :             .stderr(predicates::str::contains(&quot;`env_logger` already initialized&quot;).not());</a>
+<a name="442"><span class="lineNum">     442 </span>            :     }</a>
+<a name="443"><span class="lineNum">     443 </span>            : }</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
