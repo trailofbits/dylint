@@ -46,7 +46,7 @@ jobs:
             pushd "$X"
             TMP="$(mktemp)"
             cargo llvm-cov --coverage-target-only --target x86_64-unknown-linux-gnu --workspace --failure-mode all --lcov --output-path "$TMP"
-            rustfilt -i "$TMP" -o coverage.lcov
+            rustfilt -i "$TMP" -o lcov.info
             popd
           done
 
@@ -54,7 +54,7 @@ jobs:
         run: sudo apt install lcov
 
       - name: Generate html
-        run: find . -name coverage.lcov -print0 | xargs -0 genhtml --output-directory coverage
+        run: find . -name lcov.info -print0 | xargs -0 genhtml --output-directory coverage
 
       - name: Push to gh-pages branch
         run: |
