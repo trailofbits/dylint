@@ -40,6 +40,9 @@ jobs:
           sudo rm -rf /usr/share/swift
           # du -sh /usr/*/* 2>/dev/null | sort -h || true
 
+      - name: Preinstall toolchains
+        run: cargo run -p dylint_internal --bin preinstall-toolchains
+
       - name: Coverage
         run: |
           for X in . driver utils/linting; do
