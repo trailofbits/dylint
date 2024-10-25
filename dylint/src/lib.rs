@@ -518,14 +518,10 @@ fn clippy_disable_docs_links() -> Result<String> {
 }
 
 #[allow(clippy::unwrap_used)]
-#[cfg(test)]
+#[cfg(all(test, __library_packages))]
 mod test {
     use super::*;
-    use dylint_internal::examples;
-    use std::{
-        env::{join_paths, set_var},
-        sync::Mutex,
-    };
+    use std::sync::Mutex;
 
     // smoelius: With the upgrade to nightly-2023-03-10, I started running into this:
     // https://github.com/rust-lang/rustup/issues/988
@@ -535,7 +531,7 @@ mod test {
     static OPTS: Lazy<opts::Dylint> = Lazy::new(|| opts::Dylint {
         operation: opts::Operation::Check(opts::Check {
             lib_sel: opts::LibrarySelection {
-                no_metadata: true,
+                manifest_path: Some(String::from("../fixtures/name_toolchain_map/Cargo.toml")),
                 ..Default::default()
             },
             ..Default::default()
@@ -544,27 +540,6 @@ mod test {
     });
 
     fn name_toolchain_map() -> NameToolchainMap<'static> {
-        examples::build().unwrap();
-        let metadata = dylint_internal::cargo::current_metadata().unwrap();
-        // smoelius: As of version 0.1.14, `cargo-llvm-cov` no longer sets `CARGO_TARGET_DIR`.
-        // So `dylint_library_path` no longer requires a `cfg!(coverage)` special case.
-        let dylint_library_path = join_paths([
-            metadata.target_directory.join("examples/debug"),
-            metadata.target_directory.join("straggler/debug"),
-        ])
-        .unwrap();
-
-        #[rustfmt::skip]
-        // smoelius: Following the upgrade nightly-2023-08-24, I started seeing the following error:
-        //
-        //   error: internal compiler error: encountered incremental compilation error with shallow_lint_levels_on(dylint_internal[...]::cargo::{use#15})
-        //     |
-        //     = help: This is a known issue with the compiler. Run `cargo clean -p dylint_internal` or `cargo clean` to allow your project to compile
-        //     = note: Please follow the instructions below to create a bug report with the provided information
-        //     = note: See <https://github.com/rust-lang/rust/issues/84970> for more information
-        set_var(env::CARGO_INCREMENTAL, "0");
-        set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-
         NameToolchainMap::new(&OPTS)
     }
 
