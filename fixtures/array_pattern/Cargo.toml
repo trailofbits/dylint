@@ -6,7 +6,7 @@ publish = false
 
 [workspace.metadata.dylint]
 libraries = [
-    { path = "../../../examples", pattern = [
+    { path = "../../examples", pattern = [
         "testing/clippy",
         "restriction/question_mark_in_expression",
     ] },

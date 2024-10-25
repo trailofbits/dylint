@@ -12,7 +12,7 @@ fn initialize() {
 fn depinfo_dylint_libs() {
     Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir("fixtures/depinfo_dylint_libs")
+        .current_dir("../fixtures/depinfo_dylint_libs")
         .args(["dylint", "--lib", "question_mark_in_expression"])
         .assert()
         .stderr(predicate::str::contains(
@@ -21,7 +21,7 @@ fn depinfo_dylint_libs() {
 
     Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir("fixtures/depinfo_dylint_libs")
+        .current_dir("../fixtures/depinfo_dylint_libs")
         .args(["dylint", "--lib", "try_io_result"])
         .assert()
         .stderr(predicate::str::contains(

@@ -16,7 +16,7 @@ fn initialize() {
 fn array_pattern() {
     let assert = std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir("fixtures/array_pattern")
+        .current_dir("../fixtures/array_pattern")
         .args(["dylint", "list"])
         .assert()
         .success();
@@ -79,7 +79,7 @@ libraries = [
 fn library_packages_in_dylint_toml() {
     std::process::Command::cargo_bin("cargo-dylint")
         .unwrap()
-        .current_dir("fixtures/library_packages_in_dylint_toml")
+        .current_dir("../fixtures/library_packages_in_dylint_toml")
         .args(["dylint", "--all"])
         .assert()
         .success()

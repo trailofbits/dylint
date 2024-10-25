@@ -11,6 +11,6 @@ anyhow = "1.0"
 
 [workspace.metadata.dylint]
 libraries = [
-    { path = "../../../examples/restriction/question_mark_in_expression" },
-    { path = "../../../examples/restriction/try_io_result" },
+    { path = "../../examples/restriction/question_mark_in_expression" },
+    { path = "../../examples/restriction/try_io_result" },
 ]
