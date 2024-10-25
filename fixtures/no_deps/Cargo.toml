@@ -4,5 +4,5 @@ resolver = "2"
 
 [workspace.metadata.dylint]
 libraries = [
-    { path = "../../../examples/restriction/question_mark_in_expression" },
+    { path = "../../examples/restriction/question_mark_in_expression" },
 ]

@@ -5,7 +5,7 @@ use std::process::Command;
 #[test]
 fn current_dir() {
     test(|command| {
-        command.current_dir("fixtures/no_deps/a");
+        command.current_dir("../fixtures/no_deps/a");
     });
 }
 
@@ -13,7 +13,7 @@ fn current_dir() {
 fn manifest_path() {
     test(|command| {
         command
-            .current_dir("fixtures/no_deps")
+            .current_dir("../fixtures/no_deps")
             .args(["--manifest-path", "a/Cargo.toml"]);
     });
 }
@@ -22,7 +22,7 @@ fn manifest_path() {
 fn package() {
     test(|command| {
         command
-            .current_dir("fixtures/no_deps")
+            .current_dir("../fixtures/no_deps")
             .args(["--package", "a"]);
     });
 }

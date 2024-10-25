@@ -1,2 +1,0 @@
-[workspace.metadata.dylint]
-libraries = [{ path = "../../../examples/restriction/collapsible_unwrap" }]
