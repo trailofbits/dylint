@@ -45,28 +45,3 @@ cat > "$TMP"
 mv "$TMP" README.md
 
 prettier --write README.md
-
-for EXAMPLE in */* ../internal/template; do
-    if [[ ! -d "$EXAMPLE" ]]; then
-        continue
-    fi
-
-    if [[ "$(basename "$EXAMPLE")" = '.cargo' || "$(basename "$EXAMPLE")" = 'src' ]]; then
-        continue
-    fi
-
-    pushd "$EXAMPLE" >/dev/null
-
-    (
-        echo "# $(basename "$EXAMPLE")"
-        echo
-        cat src/*.rs |
-        sed -n '/^[a-z_:]*_lint! {$/,/^}$/p' |
-        sed '\,^[[:space:]]*///[[:space:]]\?#[^!#[],d' |
-        sed -n 's,^[[:space:]]*///[[:space:]]\?\(.*\)$,\1,;T;p'
-    ) > README.md
-
-    # prettier --write README.md
-
-    popd >/dev/null
-done
