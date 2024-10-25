@@ -3,7 +3,7 @@
 use anyhow::Result;
 use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
-use dylint_internal::{cargo::current_metadata, env};
+use dylint_internal::{cargo::current_metadata, env, examples};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use semver::Version;
@@ -11,8 +11,9 @@ use similar_asserts::SimpleDiff;
 use std::{
     env::{set_current_dir, set_var, var},
     ffi::OsStr,
+    fmt::Write as _,
     fs::{read_dir, read_to_string, write},
-    io::{stderr, Write},
+    io::{stderr, Write as _},
     path::{Component, Path, PathBuf},
     str::FromStr,
     sync::Mutex,
@@ -142,6 +143,77 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
     let dylint_readme = readme_contents("dylint").unwrap();
 
     compare_lines(&cargo_dylint_readme, &dylint_readme);
+}
+
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+#[test]
+fn format_example_readmes() {
+    let re = Regex::new(r"(?m)^\s*///\s?(.*)$").unwrap();
+
+    for result in examples::iter(false).unwrap() {
+        let example_dir = result.unwrap();
+
+        assert!(example_dir.is_dir());
+
+        let src_dir = example_dir.join("src");
+
+        if !src_dir.try_exists().unwrap() {
+            continue;
+        }
+
+        let mut readme_lines = Vec::new();
+        for entry in read_dir(src_dir).unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            if path.extension() != Some(OsStr::new("rs")) {
+                continue;
+            }
+            let contents = read_to_string(path).unwrap();
+            let lines = contents
+                .lines()
+                .skip_while(|line| !line.ends_with("_lint! {"))
+                .skip(1)
+                .take_while(|&line| line != "}");
+            for line in lines {
+                let Some(captures) = re.captures(line) else {
+                    continue;
+                };
+                assert_eq!(2, captures.len());
+                let readme_line = captures.get(1).unwrap().as_str();
+                if readme_line.starts_with("# ") {
+                    continue;
+                }
+                readme_lines.push(readme_line.to_owned());
+            }
+        }
+        if readme_lines.is_empty() {
+            continue;
+        }
+
+        let mut readme = String::new();
+        for line in [
+            format!("# {}", example_dir.file_name().unwrap().to_string_lossy()),
+            String::new(),
+        ]
+        .into_iter()
+        .chain(readme_lines)
+        {
+            writeln!(readme, "{line}").unwrap();
+        }
+
+        let readme_path = example_dir.join("README.md");
+
+        if env::enabled("BLESS") {
+            write(readme_path, readme).unwrap();
+        } else {
+            let readme_expected = read_to_string(&readme_path).unwrap();
+            assert!(
+                readme_expected == readme,
+                "{}",
+                SimpleDiff::from_str(&readme_expected, &readme, "left", "right")
+            );
+        }
+    }
 }
 
 #[test]
