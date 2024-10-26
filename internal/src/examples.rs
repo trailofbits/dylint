@@ -29,9 +29,9 @@ pub fn build() -> Result<()> {
 
 /// Returns an iterator over the example libraries' directories.
 /// - If the `workspace` argument is true, workspace directories (e.g., general and supplementary)
-///   will be included, but their member directories will not be included.
-/// - If the `workspace` argument is false, the member directories will be included, but the
-///   workspace directories will not be included.
+///   are included, but their member directories are not.
+/// - If the `workspace` argument is false, the member directories are included, but the workspace
+///   directories are not.
 pub fn iter(workspace: bool) -> Result<impl Iterator<Item = Result<PathBuf>>> {
     #[cfg_attr(dylint_lib = "general", allow(abs_home_path))]
     let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
