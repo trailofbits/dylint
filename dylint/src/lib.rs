@@ -525,7 +525,7 @@ mod test {
 
     // smoelius: With the upgrade to nightly-2023-03-10, I started running into this:
     // https://github.com/rust-lang/rustup/issues/988
-    // The easiest solution is to just not run the tests concurrently.
+    // The easiest solution is to just run the tests sequentially.
     static MUTEX: Mutex<()> = Mutex::new(());
 
     static OPTS: Lazy<opts::Dylint> = Lazy::new(|| opts::Dylint {
