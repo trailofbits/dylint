@@ -19,7 +19,7 @@ use cargo_metadata::{
 use clippy_utils::{diagnostics::span_lint_and_help, source::snippet_opt};
 use dylint_internal::env::var;
 use once_cell::sync::OnceCell;
-use rustc_ast::ast::{Attribute, MetaItem, NestedMetaItem};
+use rustc_ast::ast::{Attribute, MetaItem, MetaItemInner};
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
     Block, Expr, ExprKind, HirId, ImplItem, Item, ItemKind, Node, Stmt, StmtKind, CRATE_HIR_ID,
@@ -476,7 +476,7 @@ fn meta_item_for_diagnostic(attr: &Attribute, diagnostic: &Diagnostic) -> Option
     {
         items
             .iter()
-            .filter_map(NestedMetaItem::meta_item)
+            .filter_map(MetaItemInner::meta_item)
             .find(|meta_item| {
                 meta_item
                     .path

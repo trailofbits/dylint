@@ -67,12 +67,11 @@ pub fn check_inherents(cx: &LateContext<'_>) {
         .iter()
         .flat_map(|type_path| def_path_res(cx.tcx, type_path))
         .filter_map(|res| res.opt_def_id())
-        .flat_map(|def_id| cx.tcx.inherent_impls(def_id).unwrap());
+        .flat_map(|def_id| cx.tcx.inherent_impls(def_id));
 
     let slice_incoherent_impl_def_ids = cx
         .tcx
         .incoherent_impls(SimplifiedType::Slice)
-        .unwrap()
         .iter()
         .filter(|&impl_def_id| {
             // smoelius: Filter out cases like `core::slice::ascii::<impl [u8]>::trim_ascii`.
@@ -82,7 +81,7 @@ pub fn check_inherents(cx: &LateContext<'_>) {
             matches!(ty.kind(), ty::Param(_))
         });
 
-    let str_incoherent_impl_def_ids = cx.tcx.incoherent_impls(SimplifiedType::Str).unwrap();
+    let str_incoherent_impl_def_ids = cx.tcx.incoherent_impls(SimplifiedType::Str);
 
     let impl_def_ids = type_path_impl_def_ids
         .chain(slice_incoherent_impl_def_ids)
