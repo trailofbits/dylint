@@ -15,7 +15,7 @@ anyhow = "1.0"
 cargo = { version = "0.81", optional = true }
 cargo-platform = { version = "0.1", optional = true }
 cargo-util = { version = "0.2", optional = true }
-cargo-util-schemas = { version = "0.5", optional = true }
+cargo-util-schemas = { version = "0.6", optional = true }
 cargo_metadata = "0.18"
 dirs = "5.0"
 dunce = { version = "1.0", optional = true }
