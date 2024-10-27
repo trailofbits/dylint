@@ -131,7 +131,7 @@ pub struct Checker<'cx, 'tcx> {
     item: &'tcx Item<'tcx>,
 }
 
-impl<'cx, 'tcx> Visitor<'tcx> for Checker<'cx, 'tcx> {
+impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
     type NestedFilter = nested_filter::OnlyBodies;
 
     fn nested_visit_map(&mut self) -> Self::Map {

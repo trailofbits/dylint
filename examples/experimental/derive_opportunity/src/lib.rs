@@ -102,7 +102,7 @@ struct DeriveOpportunity<'tcx> {
     transitively_applicable_macros_map: RefCell<FxHashMap<ty::Ty<'tcx>, FxHashSet<Macro>>>,
 }
 
-impl<'tcx> DeriveOpportunity<'tcx> {
+impl DeriveOpportunity<'_> {
     pub fn new() -> Self {
         Self {
             config: dylint_linting::config_or_default(env!("CARGO_PKG_NAME")),

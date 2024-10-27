@@ -291,7 +291,7 @@ struct DereferenceVisitor<'cx, 'tcx> {
     explicit_deref: bool,
 }
 
-impl<'cx, 'tcx> Visitor<'tcx> for DereferenceVisitor<'cx, 'tcx> {
+impl<'tcx> Visitor<'tcx> for DereferenceVisitor<'_, 'tcx> {
     fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
         if self
             .hir_ids
