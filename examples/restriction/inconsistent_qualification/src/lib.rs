@@ -122,7 +122,7 @@ struct UseVisitor<'cx, 'tcx, 'syms> {
 // smoelius: `visit_scope` is based on the source of:
 // https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html#method.get_enclosing_scope
 // Does something similar already exist and I am just not seeing it?
-impl<'cx, 'tcx, 'syms> UseVisitor<'cx, 'tcx, 'syms> {
+impl<'tcx> UseVisitor<'_, 'tcx, '_> {
     fn visit_scope(&mut self, node: Node<'tcx>) {
         match node {
             Node::Item(item) => self.visit_item(item),
@@ -142,7 +142,7 @@ enum PathMatch<'hir> {
     Mod,
 }
 
-impl<'cx, 'tcx, 'syms> Visitor<'tcx> for UseVisitor<'cx, 'tcx, 'syms> {
+impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
     type NestedFilter = rustc_middle::hir::nested_filter::All;
 
     fn nested_visit_map(&mut self) -> Self::Map {

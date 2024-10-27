@@ -343,7 +343,7 @@ pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     let rustflags = rustflags();
     let paths = paths();
 
-    let rustc_args = rustc_args(args, &sysroot, &rustflags, &paths)?;
+    let rustc_args = rustc_args(args, sysroot.as_deref(), &rustflags, &paths)?;
 
     let mut callbacks = Callbacks::new(paths);
 
@@ -381,7 +381,7 @@ fn paths() -> Vec<PathBuf> {
 
 fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
     args: &[T],
-    sysroot: &Option<PathBuf>,
+    sysroot: Option<&Path>,
     rustflags: &[U],
     paths: &[V],
 ) -> Result<Vec<String>> {
@@ -437,7 +437,7 @@ mod test {
         assert_eq!(
             rustc_args(
                 &["--crate-name", "name"],
-                &None,
+                None,
                 &[] as &[&str],
                 &[] as &[&Path]
             )
@@ -451,7 +451,7 @@ mod test {
         assert_eq!(
             rustc_args(
                 &["rustc", "--crate-name", "name"],
-                &None,
+                None,
                 &[] as &[&str],
                 &[] as &[&Path]
             )
@@ -465,7 +465,7 @@ mod test {
         assert_eq!(
             rustc_args(
                 &["/bin/rustc", "--crate-name", "name"],
-                &None,
+                None,
                 &[] as &[&str],
                 &[] as &[&Path]
             )

@@ -64,7 +64,7 @@ impl Revs {
     }
 }
 
-impl<'revs> Iterator for RevIter<'revs> {
+impl Iterator for RevIter<'_> {
     type Item = Result<Rev>;
 
     // smoelius: I think it is okay to ignore the `non_local_effect_before_error_return` warning

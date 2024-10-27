@@ -368,6 +368,7 @@ fn license() {
 
 #[test]
 fn markdown_does_not_use_inline_links() {
+    let re = Regex::new(r"\[[^\]]*\]\(").unwrap();
     // smoelius: Skip examples directory for now.
     for entry in walkdir(false).with_extension("md") {
         let entry = entry.unwrap();
@@ -377,7 +378,7 @@ fn markdown_does_not_use_inline_links() {
         }
         let markdown = read_to_string(path).unwrap();
         assert!(
-            !Regex::new(r"\[[^\]]*\]\(").unwrap().is_match(&markdown),
+            !re.is_match(&markdown),
             "`{}` uses inline links",
             path.canonicalize().unwrap().to_string_lossy()
         );
@@ -413,7 +414,7 @@ fn markdown_reference_links_are_sorted() {
 fn markdown_reference_links_are_valid_and_used() {
     const CODE: &str = "`[^`]*`";
     const CODE_BLOCK: &str = "```([^`]|`[^`]|``[^`])*```";
-    let ref_re = Regex::new(&format!(r#"(?m){CODE}|{CODE_BLOCK}|\[([^\]]*)\]([^:]|$)"#)).unwrap();
+    let ref_re = Regex::new(&format!(r"(?m){CODE}|{CODE_BLOCK}|\[([^\]]*)\]([^:]|$)")).unwrap();
     let link_re = Regex::new(r"(?m)^\[([^\]]*)\]:").unwrap();
     for entry in walkdir(true).with_extension("md") {
         let entry = entry.unwrap();
