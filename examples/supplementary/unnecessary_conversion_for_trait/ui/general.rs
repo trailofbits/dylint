@@ -1,7 +1,7 @@
 // run-rustfix
 
 #![allow(unused_imports, unused_parens)]
-// #![feature(os_str_bytes)]
+#![feature(str_as_str)]
 
 use std::{
     borrow::{Borrow, BorrowMut},
@@ -66,6 +66,7 @@ fn main() {
     let _ = Command::new("ls").args(["-a", "-l"].iter_mut());
 
     let _ = std::fs::write("x", "".as_bytes());
+    let _ = std::fs::write("x", "".as_str());
 
     let _ = os_str_or_bytes(osstr.as_encoded_bytes());
     let _ = is_empty_os(osstring.clone().into_boxed_os_str().into_os_string());
