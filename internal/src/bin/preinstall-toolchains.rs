@@ -10,7 +10,7 @@ use std::{
 };
 
 fn main() -> Result<()> {
-    let toolchains = collect_toolchains(&["cargo-dylint", "internal"])?;
+    let toolchains = collect_toolchains(&["cargo-dylint", "examples", "internal"])?;
 
     println!("{:#?}", &toolchains);
 
