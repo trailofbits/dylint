@@ -2086,12 +2086,6 @@
     ],
     "libc": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 3,
         "kind": "user",
         "login": "huonw",
