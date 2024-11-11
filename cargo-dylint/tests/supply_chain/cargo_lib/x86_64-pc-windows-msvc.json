@@ -924,6 +924,20 @@
         "name": "Nathan McCarty"
       }
     ],
+    "displaydoc": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 43601,
+        "kind": "user",
+        "login": "yaahc",
+        "name": "Jane Losare-Lusby"
+      }
+    ],
     "dunce": [
       {
         "id": 988,
@@ -1894,6 +1908,170 @@
         "name": "Paul Colomiets"
       }
     ],
+    "icu_collections": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_locid": [
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 9648,
+        "kind": "user",
+        "login": "zbraniecki",
+        "name": "Zibi Braniecki"
+      }
+    ],
+    "icu_locid_transform": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_locid_transform_data": [
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_normalizer": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
+    "icu_normalizer_data": [
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_properties": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_properties_data": [
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
+    "icu_provider": [
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 9648,
+        "kind": "user",
+        "login": "zbraniecki",
+        "name": "Zibi Braniecki"
+      }
+    ],
+    "icu_provider_macros": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
+      }
+    ],
     "idna": [
       {
         "id": 5,
@@ -1912,6 +2090,26 @@
         "kind": "team",
         "login": "github:servo:rust-url",
         "name": "rust-url"
+      }
+    ],
+    "idna_adapter": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 4484,
+        "kind": "user",
+        "login": "hsivonen",
+        "name": "Henri Sivonen"
+      },
+      {
+        "id": 72883,
+        "kind": "user",
+        "login": "valenting",
+        "name": "Valentin Gosu"
       }
     ],
     "if_chain": [
@@ -2212,6 +2410,20 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
+      }
+    ],
+    "litemap": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
       }
     ],
     "lock_api": [
@@ -3248,6 +3460,26 @@
         "name": "formats"
       }
     ],
+    "stable_deref_trait": [
+      {
+        "id": 394,
+        "kind": "user",
+        "login": "Kimundi",
+        "name": "Marvin Löbel"
+      },
+      {
+        "id": 1574,
+        "kind": "user",
+        "login": "jpernst",
+        "name": null
+      },
+      {
+        "id": 4492,
+        "kind": "user",
+        "login": "Storyyeller",
+        "name": "Robert Grosse"
+      }
+    ],
     "static_assertions": [
       {
         "id": 3832,
@@ -3306,6 +3538,14 @@
         "kind": "user",
         "login": "dtolnay",
         "name": "David Tolnay"
+      }
+    ],
+    "synstructure": [
+      {
+        "id": 1947,
+        "kind": "user",
+        "login": "mystor",
+        "name": "Nika Layzell"
       }
     ],
     "tar": [
@@ -3418,6 +3658,32 @@
         "kind": "user",
         "login": "jhpratt",
         "name": "Jacob Pratt"
+      }
+    ],
+    "tinystr": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 1968,
+        "kind": "user",
+        "login": "raphlinus",
+        "name": "Raph Levien"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 9648,
+        "kind": "user",
+        "login": "zbraniecki",
+        "name": "Zibi Braniecki"
       }
     ],
     "tinyvec": [
@@ -3602,44 +3868,6 @@
         "kind": "user",
         "login": "seanmonstar",
         "name": "Sean McArthur"
-      }
-    ],
-    "unicode-bidi": [
-      {
-        "id": 5,
-        "kind": "team",
-        "login": "github:servo:cargo-publish",
-        "name": "cargo publish"
-      },
-      {
-        "id": 7,
-        "kind": "user",
-        "login": "SimonSapin",
-        "name": "Simon Sapin"
-      },
-      {
-        "id": 576,
-        "kind": "user",
-        "login": "larsbergstrom",
-        "name": "Lars Bergstrom"
-      },
-      {
-        "id": 1966,
-        "kind": "user",
-        "login": "metajack",
-        "name": "Jack Moffitt"
-      },
-      {
-        "id": 2017,
-        "kind": "user",
-        "login": "mbrubeck",
-        "name": "Matt Brubeck"
-      },
-      {
-        "id": 6534,
-        "kind": "user",
-        "login": "behnam",
-        "name": "Behnam Esfahbod"
       }
     ],
     "unicode-bom": [
@@ -3842,6 +4070,22 @@
         "name": "rust-url"
       }
     ],
+    "utf16_iter": [
+      {
+        "id": 4484,
+        "kind": "user",
+        "login": "hsivonen",
+        "name": "Henri Sivonen"
+      }
+    ],
+    "utf8_iter": [
+      {
+        "id": 4484,
+        "kind": "user",
+        "login": "hsivonen",
+        "name": "Henri Sivonen"
+      }
+    ],
     "utf8parse": [
       {
         "id": 1317,
@@ -3958,6 +4202,56 @@
         "name": "Ed Page"
       }
     ],
+    "write16": [
+      {
+        "id": 4484,
+        "kind": "user",
+        "login": "hsivonen",
+        "name": "Henri Sivonen"
+      }
+    ],
+    "writeable": [
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 9648,
+        "kind": "user",
+        "login": "zbraniecki",
+        "name": "Zibi Braniecki"
+      }
+    ],
+    "yoke": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
+    "yoke-derive": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
     "zerocopy": [
       {
         "id": 1442,
@@ -3980,6 +4274,34 @@
         "name": "Joshua Liebow-Feeser"
       }
     ],
+    "zerofrom": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
+    "zerofrom-derive": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
     "zeroize": [
       {
         "id": 267,
@@ -3992,6 +4314,34 @@
         "kind": "team",
         "login": "github:rustcrypto:utils",
         "name": "utils"
+      }
+    ],
+    "zerovec": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      }
+    ],
+    "zerovec-derive": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
       }
     ]
   },
