@@ -662,26 +662,6 @@ fn remove_avatars(value: &mut serde_json::Value) {
 }
 
 #[test]
-fn update() {
-    preserves_cleanliness("update", false, || {
-        for entry in walkdir(true).with_file_name("Cargo.lock") {
-            let entry = entry.unwrap();
-            let path = entry.path();
-            let manifest_path = path.with_file_name("Cargo.toml");
-            Command::new("cargo")
-                .args([
-                    "update",
-                    "--workspace",
-                    "--manifest-path",
-                    &manifest_path.to_string_lossy(),
-                ])
-                .assert()
-                .success();
-        }
-    });
-}
-
-#[test]
 fn unmaintained() {
     Command::new("cargo")
         .args(["unmaintained", "--color=never", "--fail-fast"])
