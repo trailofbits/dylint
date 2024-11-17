@@ -1178,12 +1178,6 @@
     ],
     "flate2": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 980,
         "kind": "user",
         "login": "Byron",
