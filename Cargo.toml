@@ -38,6 +38,7 @@ ignore = [
     "icu_locid",
     "icu_locid_transform",
     "icu_locid_transform_data",
+    "miow",
     "num_cpus",
     "serde-value",
     "tester",
