@@ -28,7 +28,7 @@ dylint_internal = { path = "../../../internal", features = ["cargo"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-tempfile = "3.13"
+tempfile = "3.14"
 
 dylint_testing = { path = "../../../utils/testing" }
 
