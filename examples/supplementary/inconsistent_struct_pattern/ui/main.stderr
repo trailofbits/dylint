@@ -1,22 +1,22 @@
 warning: struct pattern field order is inconsistent with struct definition field order
-  --> $DIR/main.rs:18:9
+  --> $DIR/main.rs:21:18
    |
 LL |     let Struct { a, c, b } = strukt;
-   |         ^^^^^^^^^^^^^^^^^^
+   |                  ^^^^^^^ help: use: `a, b, c`
    |
    = note: `#[warn(inconsistent_struct_pattern)]` on by default
 
 warning: struct pattern field order is inconsistent with struct definition field order
-  --> $DIR/main.rs:19:9
+  --> $DIR/main.rs:22:18
    |
 LL |     let Struct { b, a, c } = strukt;
-   |         ^^^^^^^^^^^^^^^^^^
+   |                  ^^^^^^^ help: use: `a, b, c`
 
 warning: struct pattern field order is inconsistent with struct definition field order
-  --> $DIR/main.rs:20:9
+  --> $DIR/main.rs:23:18
    |
 LL |     let Struct { c, b, a } = strukt;
-   |         ^^^^^^^^^^^^^^^^^^
+   |                  ^^^^^^^ help: use: `a, b, c`
 
 warning: 3 warnings emitted
 
