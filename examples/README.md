@@ -27,6 +27,7 @@ The example libraries are separated into the following three categories:
 | -------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | [`commented_code`](./supplementary/commented_code)                                     | Code that has been commented out                               |
 | [`escaping_doc_link`](./supplementary/escaping_doc_link)                               | Doc comment links that escape their packages                   |
+| [`inconsistent_struct_pattern`](./supplementary/inconsistent_struct_pattern)           | Struct patterns whose fields do not match their declared order |
 | [`local_ref_cell`](./supplementary/local_ref_cell)                                     | `RefCell` local variables                                      |
 | [`redundant_reference`](./supplementary/redundant_reference)                           | Reference fields used only to read one copyable subfield       |
 | [`unnamed_constant`](./supplementary/unnamed_constant)                                 | Unnamed constants, aka magic numbers                           |
