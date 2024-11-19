@@ -3,11 +3,13 @@
 #![warn(unused_extern_crates)]
 
 extern crate rustc_data_structures;
+extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_span;
 
-use clippy_utils::diagnostics::span_lint;
+use clippy_utils::{diagnostics::span_lint_and_sugg, source::snippet_opt};
 use rustc_data_structures::fx::FxHashMap;
+use rustc_errors::Applicability;
 use rustc_hir::{
     def::{DefKind, Res},
     Pat, PatField, PatKind, Path, QPath,
@@ -74,13 +76,55 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentStructPattern {
             return;
         }
 
-        span_lint(
+        let span = fields
+            .first()
+            .unwrap()
+            .span
+            .with_hi(fields.last().unwrap().span.hi());
+        let sugg = suggestion(cx, fields, &def_order_map);
+
+        span_lint_and_sugg(
             cx,
             INCONSISTENT_STRUCT_PATTERN,
-            pat.span,
+            span,
             "struct pattern field order is inconsistent with struct definition field order",
+            "use",
+            sugg,
+            Applicability::MachineApplicable,
         );
     }
+}
+
+fn suggestion(
+    cx: &LateContext<'_>,
+    fields: &[PatField],
+    def_order_map: &FxHashMap<Symbol, usize>,
+) -> String {
+    let ws = fields
+        .windows(2)
+        .map(|w| {
+            let span = w[0].span.with_hi(w[1].span.lo()).with_lo(w[0].span.hi());
+            snippet_opt(cx, span).unwrap()
+        })
+        .collect::<Vec<_>>();
+
+    let mut fields = fields.to_vec();
+    fields.sort_unstable_by_key(|field| def_order_map[&field.ident.name]);
+    let pat_snippets = fields
+        .iter()
+        .map(|field| snippet_opt(cx, field.span).unwrap())
+        .collect::<Vec<_>>();
+
+    assert_eq!(pat_snippets.len(), ws.len() + 1);
+
+    let mut sugg = String::new();
+    for i in 0..pat_snippets.len() {
+        sugg += &pat_snippets[i];
+        if i < ws.len() {
+            sugg += &ws[i];
+        }
+    }
+    sugg
 }
 
 // smoelius: `is_consistent_order` is based on:
