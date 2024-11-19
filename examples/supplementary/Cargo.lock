@@ -787,6 +787,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "inconsistent_struct_pattern"
+version = "3.2.1"
+dependencies = [
+ "clippy_utils",
+ "dylint_linting",
+ "dylint_testing",
+]
+
+[[package]]
 name = "indexmap"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1286,6 +1295,7 @@ dependencies = [
  "commented_code",
  "dylint_linting",
  "escaping_doc_link",
+ "inconsistent_struct_pattern",
  "local_ref_cell",
  "redundant_reference",
  "unnamed_constant",
