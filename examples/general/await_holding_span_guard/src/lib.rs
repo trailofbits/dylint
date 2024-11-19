@@ -88,12 +88,12 @@ const TRACING_SPAN_ENTERED_GUARD: [&str; 3] = ["tracing", "span", "EnteredSpan"]
 impl LateLintPass<'_> for AwaitHoldingSpanGuard {
     fn check_expr(&mut self, cx: &LateContext<'_>, expr: &'_ hir::Expr<'_>) {
         if let hir::ExprKind::Closure(hir::Closure {
+            def_id,
             kind:
                 hir::ClosureKind::Coroutine(hir::CoroutineKind::Desugared(
                     hir::CoroutineDesugaring::Async,
                     _,
                 )),
-            def_id,
             ..
         }) = expr.kind
         {
