@@ -403,8 +403,8 @@ fn local_path_from_span(cx: &LateContext<'_>, span: Span) -> Option<PathBuf> {
 fn is_extern_crate_test(cx: &LateContext<'_>, hir_id: HirId) -> bool {
     let node = cx.tcx.hir_node(hir_id);
     if let Node::Item(Item {
-        kind: ItemKind::ExternCrate(None),
         ident,
+        kind: ItemKind::ExternCrate(None),
         ..
     }) = node
     {
