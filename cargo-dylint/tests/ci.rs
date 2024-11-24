@@ -597,43 +597,30 @@ fn supply_chain() {
         .assert()
         .success();
 
-    for feature in ["cargo-cli", "cargo-lib"] {
-        for target in TARGETS {
-            let mut command = Command::new("cargo");
-            command.args([
-                "supply-chain",
-                "json",
-                "--no-dev",
-                "--no-default-features",
-                &format!("--features={feature}"),
-                "--target",
-                target,
-            ]);
-            let assert = command.assert().success();
+    for target in TARGETS {
+        let mut command = Command::new("cargo");
+        command.args(["supply-chain", "json", "--no-dev", "--target", target]);
+        let assert = command.assert().success();
 
-            let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
-            // smoelius: Sanity. (I have nothing against Redox OS.)
-            assert!(!stdout_actual.contains("redox"));
-            let mut value = serde_json::Value::from_str(stdout_actual).unwrap();
-            remove_avatars(&mut value);
-            let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
+        let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
+        // smoelius: Sanity. (I have nothing against Redox OS.)
+        assert!(!stdout_actual.contains("redox"));
+        let mut value = serde_json::Value::from_str(stdout_actual).unwrap();
+        remove_avatars(&mut value);
+        let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
 
-            let subdir = feature.replace('-', "_");
-            let path = PathBuf::from(format!(
-                "cargo-dylint/tests/supply_chain/{subdir}/{target}.json"
-            ));
+        let path = PathBuf::from(format!("cargo-dylint/tests/supply_chain/{target}.json"));
 
-            let stdout_expected = read_to_string(&path).unwrap();
+        let stdout_expected = read_to_string(&path).unwrap();
 
-            if env::enabled("BLESS") {
-                write(path, stdout_normalized).unwrap();
-            } else {
-                assert!(
-                    stdout_expected == stdout_normalized,
-                    "{}",
-                    SimpleDiff::from_str(&stdout_expected, &stdout_normalized, "left", "right")
-                );
-            }
+        if env::enabled("BLESS") {
+            write(path, stdout_normalized).unwrap();
+        } else {
+            assert!(
+                stdout_expected == stdout_normalized,
+                "{}",
+                SimpleDiff::from_str(&stdout_expected, &stdout_normalized, "left", "right")
+            );
         }
     }
 }
