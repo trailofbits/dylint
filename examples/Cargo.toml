@@ -8,7 +8,7 @@ publish = false
 
 [dev-dependencies]
 cargo-util = "0.2"
-cargo_metadata = "0.18"
+cargo_metadata = "0.19"
 toml_edit = "0.22"
 walkdir = "2.5"
 
