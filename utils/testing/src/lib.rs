@@ -110,7 +110,7 @@
 //! [its repository]: https://github.com/Manishearth/compiletest-rs
 
 use anyhow::{anyhow, ensure, Context, Result};
-use cargo_metadata::{Metadata, Package, Target};
+use cargo_metadata::{Metadata, Package, Target, TargetKind};
 use compiletest_rs as compiletest;
 use dylint_internal::{env, library_filename, rustup::is_rustc, CommandExt};
 use once_cell::sync::{Lazy, OnceCell};
@@ -203,7 +203,7 @@ fn example_target(package: &Package, example: &str) -> Result<Target> {
     package
         .targets
         .iter()
-        .find(|target| target.kind == ["example"] && target.name == example)
+        .find(|target| target.kind == [TargetKind::Example] && target.name == example)
         .cloned()
         .ok_or_else(|| anyhow!("Could not find example `{}`", example))
 }
@@ -213,7 +213,7 @@ fn example_targets(package: &Package) -> Result<Vec<Target>> {
     Ok(package
         .targets
         .iter()
-        .filter(|target| target.kind == ["example"])
+        .filter(|target| target.kind == [TargetKind::Example])
         .cloned()
         .collect())
 }

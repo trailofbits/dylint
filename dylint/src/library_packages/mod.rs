@@ -1,6 +1,6 @@
 use crate::{error::warn, opts};
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage};
+use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage, TargetKind};
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
 use dylint_internal::{config, env, library_filename, rustup::SanitizeEnvironment, CommandExt};
 use glob::glob;
@@ -429,7 +429,7 @@ pub fn package_library_name(package: &MetadataPackage) -> Result<String> {
         .targets
         .iter()
         .find_map(|target| {
-            if target.kind.iter().any(|kind| kind == "cdylib") {
+            if target.kind.iter().any(|kind| kind == &TargetKind::CDyLib) {
                 Some(target.name.clone())
             } else {
                 None
