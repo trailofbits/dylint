@@ -8,6 +8,7 @@
 
 use crate::cargo::{current_metadata, package};
 use anyhow::{anyhow, Context, Result};
+use cargo_metadata::TargetKind;
 use rust_embed::RustEmbed;
 use std::{
     fs::{create_dir_all, OpenOptions},
@@ -98,7 +99,7 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
             || package
                 .targets
                 .iter()
-                .all(|target| target.kind.iter().all(|kind| kind != "lib"))
+                .all(|target| target.kind.iter().all(|kind| kind != &TargetKind::Lib))
         {
             continue;
         }
