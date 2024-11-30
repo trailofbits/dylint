@@ -202,24 +202,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "clippy_config"
-version = "0.1.84"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=a109190d7060236e655fc75533373fa274ec5343#a109190d7060236e655fc75533373fa274ec5343"
-dependencies = [
- "itertools",
- "serde",
- "toml 0.7.8",
-]
-
-[[package]]
 name = "clippy_utils"
-version = "0.1.84"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=a109190d7060236e655fc75533373fa274ec5343#a109190d7060236e655fc75533373fa274ec5343"
+version = "0.1.85"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=ff4a26d442bead94a4c96fb1de967374bc4fbd8e#ff4a26d442bead94a4c96fb1de967374bc4fbd8e"
 dependencies = [
  "arrayvec",
- "clippy_config",
  "itertools",
  "rustc_apfloat",
+ "serde",
 ]
 
 [[package]]
@@ -230,7 +220,7 @@ dependencies = [
  "dylint_linting",
  "dylint_testing",
  "heck",
- "toml 0.8.19",
+ "toml",
 ]
 
 [[package]]
@@ -489,7 +479,7 @@ dependencies = [
  "rust-embed",
  "serde",
  "thiserror",
- "toml 0.8.19",
+ "toml",
 ]
 
 [[package]]
@@ -502,7 +492,7 @@ dependencies = [
  "rustversion",
  "serde",
  "thiserror",
- "toml 0.8.19",
+ "toml",
 ]
 
 [[package]]
@@ -1514,18 +1504,6 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.7.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd79e69d3b627db300ff956027cc6c3798cef26d22526befdfcd12feeb6d2257"
-dependencies = [
- "serde",
- "serde_spanned",
- "toml_datetime",
- "toml_edit 0.19.15",
-]
-
-[[package]]
-name = "toml"
 version = "0.8.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1ed1f98e3fdc28d6d910e6737ae6ab1a93bf1985935a1193e68f93eeb68d24e"
@@ -1533,7 +1511,7 @@ dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "toml_edit 0.22.22",
+ "toml_edit",
 ]
 
 [[package]]
@@ -1547,19 +1525,6 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.19.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
-dependencies = [
- "indexmap",
- "serde",
- "serde_spanned",
- "toml_datetime",
- "winnow 0.5.40",
-]
-
-[[package]]
-name = "toml_edit"
 version = "0.22.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ae48d6208a266e853d946088ed816055e556cc6028c5e8e2b84d9fa5dd7c7f5"
@@ -1568,7 +1533,7 @@ dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "winnow 0.6.20",
+ "winnow",
 ]
 
 [[package]]
@@ -1864,15 +1829,6 @@ name = "windows_x86_64_msvc"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
-
-[[package]]
-name = "winnow"
-version = "0.5.40"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f593a95398737aeed53e489c785df13f3618e41dbcd6718c6addbf1395aa6876"
-dependencies = [
- "memchr",
-]
 
 [[package]]
 name = "winnow"
