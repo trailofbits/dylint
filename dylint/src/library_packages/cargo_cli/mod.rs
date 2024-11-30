@@ -29,7 +29,6 @@ use std::{
     ffi::{OsStr, OsString},
     fs::{create_dir_all, read_dir, remove_dir_all, write},
     path::{Path, PathBuf},
-    process::{id, Output, Stdio},
 };
 use tempfile::{tempdir, Builder, TempDir};
 use url::Url;
@@ -270,7 +269,7 @@ fn inject_dummy_dependencies(
     Ok(injected_dependencies)
 }
 
-fn cargo_fetch(path: &Path) -> Result<Output> {
+fn cargo_fetch(path: &Path) -> Result<std::process::Output> {
     // smoelius: `cargo fetch` could fail, e.g., if a new checkouts subdirectory had to be created.
     // But the command should still be executed.
     // smoelius: Since stdout and stderr are captured, there is no need to use `.quiet(true)`.
@@ -283,8 +282,8 @@ fn cargo_fetch(path: &Path) -> Result<Output> {
             "--manifest-path",
             &path.join("Cargo.toml").to_string_lossy(),
         ])
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
         .logged_output(false)
 }
 
@@ -336,7 +335,7 @@ fn find_accessed_subdir<'a>(
                 #[cfg(debug_assertions)]
                 eprintln!(
                     "{}:{:?}: accessed: {grandparent:?}",
-                    id(),
+                    std::process::id(),
                     std::thread::current().id()
                 );
                 Ok(Some(Cow::Borrowed(grandparent.as_std_path())))
@@ -355,7 +354,7 @@ fn find_accessed_subdir<'a>(
                 #[cfg(debug_assertions)]
                 eprintln!(
                     "{}:{:?}: pushing: {path:?}",
-                    id(),
+                    std::process::id(),
                     std::thread::current().id()
                 );
                 accessed.push(Cow::Owned(path.to_path_buf()));
