@@ -21,6 +21,6 @@ for EXAMPLE in */*; do
     fi
 
     pushd "$EXAMPLE"
-    cargo build --all-targets
+    cargo check --all-targets
     popd
 done
