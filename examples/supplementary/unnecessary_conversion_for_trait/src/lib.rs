@@ -556,7 +556,7 @@ fn inner_arg_implements_traits<'tcx>(
         let obligation = Obligation::new(cx.tcx, ObligationCause::dummy(), cx.param_env, predicate);
         cx.tcx
             .infer_ctxt()
-            .build()
+            .build(cx.typing_mode())
             .predicate_must_hold_modulo_regions(&obligation)
     })
 }
@@ -611,7 +611,7 @@ fn replace_types<'tcx>(
 
                     if let Ok(projected_ty) = cx
                         .tcx
-                        .try_normalize_erasing_regions(cx.param_env, projection)
+                        .try_normalize_erasing_regions(cx.typing_env(), projection)
                         && substs[term_param_ty.index as usize]
                             != ty::GenericArg::from(projected_ty)
                     {
@@ -674,7 +674,7 @@ fn adjustment_mutabilities<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> V
         .iter()
         .map_while(|adjustment| {
             if let Adjustment {
-                kind: Adjust::Borrow(AutoBorrow::Ref(_, mutability)),
+                kind: Adjust::Borrow(AutoBorrow::Ref(mutability)),
                 target: _,
             } = adjustment
             {

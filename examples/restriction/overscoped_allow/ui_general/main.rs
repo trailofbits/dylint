@@ -2,6 +2,9 @@
 
 fn main() {}
 
+// smoelius: This test broken around the time `clippy::module_name_repetitions` was moved to
+// `restriction`: https://github.com/rust-lang/rust-clippy/pull/13541
+// I haven't yet figured out how to fix it.
 #[allow(clippy::module_name_repetitions)]
 mod item {
     pub struct ItemStruct;
@@ -33,6 +36,7 @@ fn block_expr() {
     Some(()).unwrap()
 }
 
+// smoelius: See comment above re `clippy::module_name_repetitions` moving to `restriction`.
 #[allow(clippy::module_name_repetitions)]
 mod nested_item {
     mod item {

@@ -275,7 +275,7 @@ fn method_name_from_adjustments<'tcx>(
             target,
         }] if is_copy(cx, *target) => Some("copied"),
         [Adjustment {
-            kind: Adjust::Borrow(AutoBorrow::Ref(_, mutability)),
+            kind: Adjust::Borrow(AutoBorrow::Ref(mutability)),
             ..
         }] => Some(match mutability {
             AutoBorrowMutability::Mut { .. } => "as_mut",
@@ -285,7 +285,7 @@ fn method_name_from_adjustments<'tcx>(
             kind: Adjust::Deref(Some(OverloadedDeref { .. })),
             ..
         }, Adjustment {
-            kind: Adjust::Borrow(AutoBorrow::Ref(_, mutability)),
+            kind: Adjust::Borrow(AutoBorrow::Ref(mutability)),
             ..
         }] => Some(match mutability {
             AutoBorrowMutability::Mut { .. } => "as_deref_mut",
@@ -377,8 +377,8 @@ fn get_ufcs_type_name<'tcx>(
     let assoc_item = cx.tcx.associated_item(method_def_id);
     let def_id = assoc_item.container_id(cx.tcx);
     match assoc_item.container {
-        ty::TraitContainer => cx.tcx.def_path_str(def_id),
-        ty::ImplContainer => {
+        ty::AssocItemContainer::Trait => cx.tcx.def_path_str(def_id),
+        ty::AssocItemContainer::Impl => {
             let ty = cx.tcx.type_of(def_id).instantiate_identity();
             match ty.kind() {
                 ty::Adt(adt, _) => cx.tcx.def_path_str(adt.did()),
