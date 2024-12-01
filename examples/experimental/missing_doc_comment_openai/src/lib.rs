@@ -375,7 +375,7 @@ fn skip_preceding_line_comments(cx: &LateContext<'_>, mut span: Span) -> Span {
         let lo_prev_relative = sf.lines()[line];
         let lo_prev = sf.absolute_position(lo_prev_relative);
         let span_prev = span.with_lo(lo_prev);
-        if snippet_opt(cx, span_prev).map_or(false, |snippet| snippet.starts_with("//")) {
+        if snippet_opt(cx, span_prev).is_some_and(|snippet| snippet.starts_with("//")) {
             span = span_prev;
         } else {
             break;
@@ -387,12 +387,12 @@ fn skip_preceding_line_comments(cx: &LateContext<'_>, mut span: Span) -> Span {
 #[must_use]
 fn enabled(name: &str) -> bool {
     let key = env!("CARGO_PKG_NAME").to_uppercase() + "_" + name;
-    std::env::var(key).map_or(false, |value| value != "0")
+    std::env::var(key).is_ok_and(|value| value != "0")
 }
 
 #[must_use]
 fn testing() -> bool {
-    std::env::var(OPENAI_API_KEY).map_or(false, |value| value.to_lowercase().contains("test"))
+    std::env::var(OPENAI_API_KEY).is_ok_and(|value| value.to_lowercase().contains("test"))
 }
 
 #[cfg(test)]

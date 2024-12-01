@@ -224,7 +224,7 @@ impl<'tcx> Visitor<'tcx> for V<'tcx> {
 #[must_use]
 fn enabled(opt: &str) -> bool {
     let key = env!("CARGO_PKG_NAME").to_uppercase() + "_" + opt;
-    std::env::var(key).map_or(false, |value| value != "0")
+    std::env::var(key).is_ok_and(|value| value != "0")
 }
 
 #[test]

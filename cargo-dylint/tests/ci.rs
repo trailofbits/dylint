@@ -242,7 +242,7 @@ fn duplicate_dependencies() {
         let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
         let package_versions = stdout_actual
             .lines()
-            .filter(|line| line.chars().next().map_or(false, char::is_alphabetic))
+            .filter(|line| line.chars().next().is_some_and(char::is_alphabetic))
             .map(|line| {
                 <[_; 2]>::try_from(line.split_ascii_whitespace().take(2).collect::<Vec<_>>())
                     .unwrap()

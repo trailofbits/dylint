@@ -337,7 +337,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
                     .split(' ')
                     .map(ToOwned::to_owned)
                     .collect::<Vec<_>>();
-                if args.first().map_or(false, is_rustc)
+                if args.first().is_some_and(is_rustc)
                     && args
                         .as_slice()
                         .windows(2)

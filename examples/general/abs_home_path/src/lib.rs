@@ -78,7 +78,7 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
                 .home
                 .get_or_init(home::home_dir)
                 .as_ref()
-                .map_or(false, |dir| path.starts_with(dir))
+                .is_some_and(|dir| path.starts_with(dir))
         {
             span_lint(
                 cx,

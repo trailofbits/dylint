@@ -26,7 +26,7 @@ fn write_dylint_driver_manifest_dir() {
     let dylint_driver_manifest_dir = if dylint_manifest_dir.starts_with(cargo_home)
         || dylint_manifest_dir
             .parent()
-            .map_or(false, |path| path.ends_with("target/package"))
+            .is_some_and(|path| path.ends_with("target/package"))
         || env::var(env::DOCS_RS).is_ok()
     {
         "None".to_owned()

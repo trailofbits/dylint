@@ -382,7 +382,7 @@ fn include_trailing_semicolons(cx: &LateContext<'_>, mut span: Span) -> Span {
     };
     while span.hi() < file.end_position() {
         let next = span.with_hi(span.hi() + BytePos(1));
-        if !snippet_opt(cx, next).map_or(false, |snip| snip.ends_with(';')) {
+        if !snippet_opt(cx, next).is_some_and(|snip| snip.ends_with(';')) {
             break;
         }
         span = next;
@@ -456,8 +456,7 @@ fn can_have_attrs(cx: &LateContext<'_>, hir_id: HirId) -> bool {
 }
 
 fn is_lint_attr(attr: &Attribute) -> bool {
-    attr.ident()
-        .map_or(false, |ident| is_lint_level(ident.name))
+    attr.ident().is_some_and(|ident| is_lint_level(ident.name))
 }
 
 // smoelius: `is_lint_level` was copied from:
