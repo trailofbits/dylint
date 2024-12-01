@@ -22,10 +22,7 @@ use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_errors::Applicability;
 use rustc_hir::{def_id::DefId, Item, ItemKind};
 use rustc_lint::{LateContext, LateLintPass, LintStore};
-use rustc_middle::{
-    traits::Reveal,
-    ty::{self, Upcast},
-};
+use rustc_middle::ty::{self, Upcast};
 use rustc_session::{declare_lint, impl_lint_pass, Session};
 use rustc_span::{sym, ExpnKind, MacroKind, Symbol};
 use serde::Deserialize;
@@ -353,24 +350,24 @@ fn implements_trait_with_bounds<'tcx>(
         generics.own_params.len().saturating_sub(1)
     ];
     if let ty::Adt(adt_def, _) = ty.kind() {
-        let param_env = param_env_with_bounds(cx.tcx, adt_def.did(), trait_id);
+        let typing_env = typing_env_with_bounds(cx.tcx, adt_def.did(), trait_id);
         // smoelius: The decision to pass `adt_def.did()` as the `callee_id` argument is based on
         // the following, but I am not sure it is the correct choice:
         // https://github.com/rust-lang/rust-clippy/blob/782520088f9c5a0274459060a6fdcd41301f35e2/clippy_lints/src/derive.rs#L453
         // See also: https://github.com/rust-lang/rust/pull/118661#discussion_r1449013176
         // smoelius: `Some(adt_def.did())` was changed to `None`. See:
         // https://github.com/rust-lang/rust/pull/120000
-        implements_trait_with_env(cx.tcx, param_env, ty, trait_id, None, &args)
+        implements_trait_with_env(cx.tcx, typing_env, ty, trait_id, None, &args)
     } else {
         implements_trait(cx, ty, trait_id, &args)
     }
 }
 
-// smoelius: `param_env_with_bounds` is based on Clippy's `param_env_for_derived_eq`:
+// smoelius: `typing_env_with_bounds` is based on Clippy's `param_env_for_derived_eq`:
 // https://github.com/rust-lang/rust-clippy/blob/716c552632acb50a524e62284b9ca2446333a626/clippy_lints/src/derive.rs#L493-L529
 
 /// Creates the `ParamEnv` used for the give type's derived impl.
-fn param_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty::ParamEnv<'_> {
+fn typing_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty::TypingEnv<'_> {
     // Initial map from generic index to param def.
     // Vec<(param_def, needs_bound)>
     let mut params = tcx
@@ -391,7 +388,7 @@ fn param_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty
         }
     }
 
-    ty::ParamEnv::new(
+    let param_env = ty::ParamEnv::new(
         tcx.mk_clauses_from_iter(
             ty_predicates.iter().map(|&(p, _)| p).chain(
                 params
@@ -410,8 +407,11 @@ fn param_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty
                     }),
             ),
         ),
-        Reveal::UserFacing,
-    )
+    );
+    ty::TypingEnv {
+        typing_mode: ty::TypingMode::non_body_analysis(),
+        param_env,
+    }
 }
 
 impl Macro {

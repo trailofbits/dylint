@@ -15,6 +15,9 @@ impl rustc_lint::LintPass for LintPass {
     fn name(&self) -> &'static str {
         "lint_pass"
     }
+    fn get_lints(&self) -> Vec<&'static rustc_lint::Lint> {
+        Vec::new()
+    }
 }
 
 impl<'tcx> rustc_lint::LateLintPass<'tcx> for LintPass {
