@@ -245,8 +245,7 @@ impl rustc_driver::Callbacks for Callbacks {
             let dylint_libs = env::var(env::DYLINT_LIBS).ok();
             let dylint_metadata = env::var(env::DYLINT_METADATA).ok();
             let dylint_no_deps = env::var(env::DYLINT_NO_DEPS).ok();
-            let dylint_no_deps_enabled =
-                dylint_no_deps.as_ref().map_or(false, |value| value != "0");
+            let dylint_no_deps_enabled = dylint_no_deps.as_ref().is_some_and(|value| value != "0");
             let cargo_primary_package_is_set = env::var(env::CARGO_PRIMARY_PACKAGE).is_ok();
 
             sess.parse_sess().env_depinfo.lock().insert((
@@ -299,7 +298,7 @@ impl rustc_driver::Callbacks for Callbacks {
 
 #[must_use]
 fn list_enabled() -> bool {
-    env::var(env::DYLINT_LIST).map_or(false, |value| value != "0")
+    env::var(env::DYLINT_LIST).is_ok_and(|value| value != "0")
 }
 
 fn list_lints(before: &BTreeSet<Lint>, after: &BTreeSet<Lint>) {
@@ -389,6 +388,8 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
     let mut rustc_args = Vec::new();
 
     let first_arg = args.peek();
+    // smoelius: `Option::is_none_or` is too recent for some toolchains we test with.
+    #[allow(clippy::unnecessary_map_or)]
     if first_arg.map_or(true, |arg| !is_rustc(arg)) {
         rustc_args.push("rustc".to_owned());
     }

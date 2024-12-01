@@ -55,7 +55,7 @@ pub fn check_inherents(cx: &LateContext<'_>) {
             let ty = peel_unwanted(cx, def_id, ty);
             ty.is_slice()
                 || ty.is_str()
-                || ty.ty_adt_def().map_or(false, |adt_def| {
+                || ty.ty_adt_def().is_some_and(|adt_def| {
                     type_paths
                         .iter()
                         .any(|path| match_def_path(cx, adt_def.did(), path))

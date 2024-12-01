@@ -210,7 +210,7 @@ fn in_async_function(tcx: ty::TyCtxt<'_>, hir_id: rustc_hir::HirId) -> bool {
         .chain(tcx.hir().parent_iter(hir_id))
         .any(|(_, node)| {
             node.fn_kind()
-                .map_or(false, |fn_kind| fn_kind.asyncness().is_async())
+                .is_some_and(|fn_kind| fn_kind.asyncness().is_async())
         })
 }
 
@@ -237,7 +237,7 @@ fn is_call_with_mut_ref<'tcx>(
             ..
         } = &terminator.kind
         // smoelius: `deref_mut` generates too much noise.
-        && func.const_fn_def().map_or(true, |(def_id, _)| {
+        && func.const_fn_def().is_none_or(|(def_id, _)| {
             !cx.tcx.is_diagnostic_item(sym::deref_mut_method, def_id)
         })
         && let (locals, constants) = collect_locals_and_constants(cx, mir, path, args.iter().map(|arg| &arg.node))
@@ -314,12 +314,12 @@ fn collect_locals_and_constants<'tcx>(
                 && let followed_widely = locals_widely.remove(destination.local)
                 && (followed_narrowly || followed_widely)
             {
-                let width_preserving = func.const_fn_def().map_or(false, |(def_id, _)| {
+                let width_preserving = func.const_fn_def().is_some_and(|(def_id, _)| {
                     WIDTH_PRESERVING
                         .iter()
                         .any(|path| match_def_path(cx, def_id, path))
                 });
-                let widening = func.const_fn_def().map_or(false, |(def_id, _)| {
+                let widening = func.const_fn_def().is_some_and(|(def_id, _)| {
                     WIDENING.iter().any(|path| match_def_path(cx, def_id, path))
                 });
                 for arg in args {
@@ -430,7 +430,7 @@ fn error_note(span: Option<Span>) -> impl FnOnce(&mut Diag<'_, ()>) {
 #[must_use]
 fn enabled(opt: &str) -> bool {
     let key = env!("CARGO_PKG_NAME").to_uppercase() + "_" + opt;
-    std::env::var(key).map_or(false, |value| value != "0")
+    std::env::var(key).is_ok_and(|value| value != "0")
 }
 
 #[test]

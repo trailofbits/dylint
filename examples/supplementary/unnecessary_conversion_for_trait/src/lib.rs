@@ -706,7 +706,7 @@ fn build_ty_and_refs_prefix<'tcx>(
 #[must_use]
 fn enabled(name: &str) -> bool {
     let key = option(name);
-    std::env::var(key).map_or(false, |value| value != "0")
+    std::env::var(key).is_ok_and(|value| value != "0")
 }
 
 fn option(name: &str) -> String {

@@ -95,7 +95,7 @@ impl CollapsibleUnwrap {
                     let needs_mut = cx
                         .typeck_results()
                         .type_dependent_def_id(expr.hir_id)
-                        .map_or(false, |def_id| has_ref_mut_self(cx, def_id));
+                        .is_some_and(|def_id| has_ref_mut_self(cx, def_id));
                     let recv_ty = cx.typeck_results().expr_ty(recv);
                     let name = suggest_name_from_type(cx, recv_ty);
                     recv = inner_recv;

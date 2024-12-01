@@ -232,7 +232,7 @@ impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
 }
 
 fn is_local(res: Res) -> bool {
-    res.opt_def_id().map_or(false, DefId::is_local)
+    res.opt_def_id().is_some_and(DefId::is_local)
 }
 
 fn get_owner(tcx: TyCtxt<'_>, hir_id: HirId) -> Option<OwnerNode<'_>> {

@@ -56,7 +56,7 @@ declare_const!(TARGET);
 /// ```
 #[must_use]
 pub fn enabled(key: &str) -> bool {
-    std::env::var(key).map_or(false, |value| value != "0")
+    std::env::var(key).is_ok_and(|value| value != "0")
 }
 
 /// A wrapper around `std::env::var` that converts the error into an `anyhow::Error`.
