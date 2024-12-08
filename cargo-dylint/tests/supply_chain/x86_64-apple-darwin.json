@@ -2130,6 +2130,12 @@
         "name": "Carl Lerche"
       },
       {
+        "id": 1249,
+        "kind": "user",
+        "login": "hawkw",
+        "name": "Eliza Weisman"
+      },
+      {
         "id": 1294,
         "kind": "team",
         "login": "github:tokio-rs:publish-tracing",
