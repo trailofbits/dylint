@@ -13,4 +13,10 @@ WORKSPACE="$(realpath "$SCRIPTS"/..)"
 
 cd "$WORKSPACE"
 
-find . -name Cargo.toml -exec cargo update --workspace --manifest-path {} \;
+find . -name Cargo.toml |
+while read -r X; do
+    if [[ "$X" = './examples/testing/marker/Cargo.toml' ]]; then
+        continue
+    fi
+    cargo update --workspace --manifest-path "$X"
+done
