@@ -1,4 +1,4 @@
 thiserror v1.0.69
-thiserror v2.0.3
+thiserror v2.0.6
 thiserror-impl v1.0.69
-thiserror-impl v2.0.3
+thiserror-impl v2.0.6
