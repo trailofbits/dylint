@@ -18,6 +18,9 @@ use tempfile::tempdir;
 // smoelius: Put recent boundaries first, since they're more likely to cause problems.
 // smoelius: The relevant PRs and merge commits appear before each boundary.
 const BOUNDARIES: &[(&str, &str)] = &[
+    // https://github.com/rust-lang/rust/pull/133567
+    // https://github.com/rust-lang/rust/commit/d2881e4eb5e0fe1591bfd8e4cab1d5abc3e3a46c
+    ("2024-12-09", "2024-12-10"),
     // https://github.com/rust-lang/rust/pull/122450
     // https://github.com/rust-lang/rust/commit/685927aae69657b46323cffbeb0062835bd7fa2b
     // smoelius: `proc-macro2` now requires library features `proc_macro_byte_character` and
@@ -37,18 +40,22 @@ const BOUNDARIES: &[(&str, &str)] = &[
     // attributes", which were introduced in Rust 1.78. nightly-2024-02-03 is the latest toolchain
     // with minor version 77. nightly-2024-03-09 is the earliest toolchain incorporating the
     // diagnostic attributes PR: https://github.com/rust-lang/rust/pull/119888
-    ("2024-02-03", "2024-03-09"),
+    // smoelius: `cargo-platform v0.1.9` requires rustc 1.78 or newer.
+    // nightly-2024-02-03 is Rust 1.77.
+    // ("2024-02-03", "2024-03-09"),
     // https://github.com/rust-lang/rust/pull/119146
     // https://github.com/rust-lang/rust/commit/2271c26e4a8e062bb00d709d0ccb5846e0c341b9
-    ("2023-12-26", "2023-12-27"),
+    // ("2023-12-26", "2023-12-27"),
     // https://github.com/rust-lang/rust/pull/119171
     // https://github.com/rust-lang/rust/commit/e0d7a72c46d554cb63a1f91a523bfc9e6e37d886
-    ("2023-12-23", "2023-12-24"),
+    // ("2023-12-23", "2023-12-24"),
+
     // smoelius: `rustfix` 0.8.5 (used by `dylint_testing`) requires rustc 1.77 or newer.
     // nightly-2023-12-18 is Rust 1.76.
     // https://github.com/rust-lang/rust/pull/119063
     // https://github.com/rust-lang/rust/commit/cda4736f1eaad8af6f49388baa9b7e480df8e329
     // ("2023-12-18", "2023-12-19"),
+
     // smoelius: `cargo-platform v0.1.8` requires rustc 1.73 or newer.
     // https://github.com/rust-lang/rust/pull/112692
     // https://github.com/rust-lang/rust/commit/b6144cd843d6eb6acc086797ea37e0c69c892b90
