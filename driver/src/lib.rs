@@ -350,9 +350,7 @@ pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     // of the log messages.
     log::debug!("{:?}", rustc_args);
 
-    rustc_driver::RunCompiler::new(&rustc_args, &mut callbacks)
-        .run()
-        .map_err(|_| std::process::exit(1))
+    map_run_compiler_err(rustc_driver::RunCompiler::new(&rustc_args, &mut callbacks).run())
 }
 
 fn sysroot() -> Result<PathBuf> {
@@ -420,6 +418,16 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
     );
 
     Ok(rustc_args)
+}
+
+#[rustversion::before(2024-12-09)]
+fn map_run_compiler_err(result: Result<(), rustc_span::ErrorGuaranteed>) -> Result<()> {
+    result.map_err(|_| std::process::exit(1))
+}
+
+#[rustversion::since(2024-12-09)]
+fn map_run_compiler_err((): ()) -> Result<()> {
+    Ok(())
 }
 
 #[expect(clippy::unwrap_used)]
