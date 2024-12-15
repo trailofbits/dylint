@@ -120,6 +120,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # smoelius: The `nightly_toolchain` test makes sense only if the nightly driver is cached.
       - uses: actions/cache@v4
@@ -200,7 +202,9 @@ jobs:
             PACKAGE=''
             TEST=''
             if [[ '${{ matrix.package }}' =~ ^expensive- ]]; then
-              if [[ '${{ github.event_name }}' != 'schedule' && '${{ github.event_name }}' != 'workflow_dispatch' ]]; then
+              if [[ '${{ github.event_name }}' != 'schedule' && '${{ github.event_name }}' != 'workflow_dispatch' ]] &&
+                ! git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -w 'expensive'
+              then
                 exit
               fi
               PACKAGE='expensive'
