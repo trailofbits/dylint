@@ -19,7 +19,8 @@ use tempfile::tempdir;
 // smoelius: `rustfix v0.8.6` requires rustc 1.78 or newer. However, I get errors building
 // `serde` 1.0.210 with rustc 1.78, and `proc_macro2` 1.0.87 with rustc 1.79. So I am bumping
 // `RUSTC_VERSION` to 1.80.
-const RUST_VERSION: &str = "1.80.0";
+// smoelius: `home@0.5.11` (2024-12-16) requires rustc 1.81.
+const RUST_VERSION: &str = "1.81.0";
 
 #[test]
 fn new_package() {
