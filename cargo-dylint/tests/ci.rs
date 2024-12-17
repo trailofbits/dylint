@@ -15,6 +15,7 @@ use std::{
     fs::{read_dir, read_to_string, write},
     io::{stderr, Write as _},
     path::{Component, Path, PathBuf},
+    process,
     str::FromStr,
     sync::Mutex,
 };
@@ -582,10 +583,9 @@ fn sort() {
 #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 #[test]
 fn supply_chain() {
-    Command::new("cargo")
-        .args(["supply-chain", "update"])
-        .assert()
-        .success();
+    let mut command = process::Command::new("cargo");
+    command.args(["supply-chain", "update", "--cache-max-age=0s"]);
+    let _: process::ExitStatus = command.status().unwrap();
 
     for target in TARGETS {
         let mut command = Command::new("cargo");
