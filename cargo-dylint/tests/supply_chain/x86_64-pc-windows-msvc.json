@@ -840,12 +840,6 @@
     ],
     "home": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 443,
         "kind": "user",
         "login": "brson",
