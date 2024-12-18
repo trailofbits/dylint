@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.3.0
+
+- Add EuroRust 2024 slides to README.md ([#1370](https://github.com/trailofbits/dylint/pull/1370))
+- Upgrade `cargo-util-schemas` to version 0.7 ([#1394](https://github.com/trailofbits/dylint/pull/1394) and [#1429](https://github.com/trailofbits/dylint/pull/1429))
+- Upgrade `cargo_metadata` to version 0.19 ([8a7bc95](https://github.com/trailofbits/dylint/commit/8a7bc9575875c50da2acae390be0f5a611103a38))
+- Bump `dylint`'s MSRV to 1.78 ([c4c27d1](https://github.com/trailofbits/dylint/commit/c4c27d1e9969e9f1c0a097223fa99fd2a30c0a6d))
+- Upgrade `thiserror` to version 2 ([7398557](https://github.com/trailofbits/dylint/commit/73985574c95ba2c512df4c1b25ebe1aab0a05e92))
+- Remove mention of `rustc_attr` from Dylint library template, as the crate was [recently renamed](https://github.com/rust-lang/rust/pull/134381) ([#1446](https://github.com/trailofbits/dylint/pull/1446))
+
 ## 3.2.1
 
 - Enable drivers to be installed concurrently. Previously, an attempt to install a driver would fail if the existing driver was running. ([4438f40](https://github.com/trailofbits/dylint/commit/4438f402591d05e369636f54e18b4bab232702b5) and [231974a](https://github.com/trailofbits/dylint/commit/231974a7b94d2c22e85227998a6bc8fd94c5cd0f))
