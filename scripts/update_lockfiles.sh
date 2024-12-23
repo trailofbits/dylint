@@ -18,5 +18,5 @@ while read -r X; do
     if [[ "$X" = './examples/testing/marker/Cargo.toml' ]]; then
         continue
     fi
-    cargo update --workspace --manifest-path "$X"
+    cargo update --manifest-path "$X"
 done
