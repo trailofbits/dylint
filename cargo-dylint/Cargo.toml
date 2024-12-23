@@ -12,9 +12,9 @@ name = "ci"
 required-features = ["__ci"]
 
 [dependencies]
-anyhow = { version = "1.0", features = ["backtrace"] }
-clap = { version = "4.5", features = ["cargo", "derive", "wrap_help"] }
-env_logger = "0.11"
+anyhow = { workspace = true, features = ["backtrace"] }
+clap = { workspace = true, features = ["cargo", "derive", "wrap_help"] }
+env_logger = { workspace = true }
 
 dylint = { version = "=3.3.0", path = "../dylint", features = [
     "package_options",
@@ -22,20 +22,20 @@ dylint = { version = "=3.3.0", path = "../dylint", features = [
 dylint_internal = { version = "=3.3.0", path = "../internal" }
 
 [dev-dependencies]
-assert_cmd = "2.0"
-cargo_metadata = "0.19"
-ctor = "0.2"
-glob = "0.3"
-home = "0.5"
-log = "0.4"
-once_cell = "1.20"
-predicates = "3.1"
-regex = "1.11"
-semver = "1.0"
-serde_json = "1.0"
-similar-asserts = "1.6"
-tempfile = "3.14"
-walkdir = "2.5"
+assert_cmd = { workspace = true }
+cargo_metadata = { workspace = true }
+ctor = { workspace = true }
+glob = { workspace = true }
+home = { workspace = true }
+log = { workspace = true }
+once_cell = { workspace = true }
+predicates = { workspace = true }
+regex = { workspace = true }
+semver = { workspace = true }
+serde_json = { workspace = true }
+similar-asserts = { workspace = true }
+tempfile = { workspace = true }
+walkdir = { workspace = true }
 
 dylint_internal = { version = "=3.3.0", path = "../internal", features = [
     "examples",

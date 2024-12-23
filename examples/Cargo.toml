@@ -7,10 +7,10 @@ license = "MIT OR Apache-2.0"
 publish = false
 
 [dev-dependencies]
-cargo-util = "0.2"
-cargo_metadata = "0.19"
-toml_edit = "0.22"
-walkdir = "2.5"
+cargo-util = { workspace = true }
+cargo_metadata = { workspace = true }
+toml_edit = { workspace = true }
+walkdir = { workspace = true }
 
 dylint_internal = { version = "=3.3.0", path = "../internal", features = [
     "clippy_utils",

@@ -31,8 +31,8 @@ clippy_utils = { workspace = true }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-git2 = "0.18"
-tempfile = "3.14"
+git2 = { workspace = true }
+tempfile = { workspace = true }
 
 dylint_testing = { path = "../../../utils/testing" }
 

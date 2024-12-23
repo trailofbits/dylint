@@ -6,8 +6,8 @@ edition = "2021"
 publish = false
 
 [dev-dependencies]
-anyhow = "1.0"
-tempfile = "3.14"
+anyhow = { workspace = true }
+tempfile = { workspace = true }
 
 dylint_internal = { version = "=3.3.0", path = "../internal", features = [
     "clippy_utils",

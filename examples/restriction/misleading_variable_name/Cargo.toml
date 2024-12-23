@@ -15,13 +15,13 @@ path = "ui/main.rs"
 
 [dependencies]
 clippy_utils = { workspace = true }
-heck = "0.5"
+heck = { workspace = true }
 
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-anyhow = "1.0"
-cargo_metadata = "0.18"
+anyhow = { workspace = true }
+cargo_metadata = { workspace = true }
 
 dylint_testing = { path = "../../../utils/testing" }
 
