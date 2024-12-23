@@ -7,7 +7,7 @@ extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint, match_def_path, path_def_id};
-use dylint_internal::paths;
+use dylint_internal::{home, paths};
 use once_cell::unsync::OnceCell;
 use rustc_ast::ast::LitKind;
 use rustc_hir::{def_id::DefId, Closure, Expr, ExprKind, Item, ItemKind, Node};

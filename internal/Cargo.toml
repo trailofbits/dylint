@@ -23,7 +23,10 @@ home = { workspace = true, optional = true }
 if_chain = { workspace = true, optional = true }
 is-terminal = { workspace = true, optional = true }
 log = { workspace = true, optional = true }
-rust-embed = { workspace = true, features = ["include-exclude"], optional = true }
+rust-embed = { workspace = true, features = [
+    "include-exclude",
+], optional = true }
+rustversion = { workspace = true, optional = true }
 semver = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 thiserror = { workspace = true, optional = true }
@@ -48,6 +51,7 @@ command = ["log"]
 config = ["cargo_metadata", "serde", "thiserror", "toml"]
 examples = ["cargo", "cargo-util", "rustup", "walkdir"]
 git = ["command", "git2", "if_chain"]
+home = ["dep:home", "rustversion"]
 packaging = ["cargo", "rust-embed"]
 rustup = ["command"]
 sed = []

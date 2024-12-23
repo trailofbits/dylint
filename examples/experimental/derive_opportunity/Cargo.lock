@@ -337,6 +337,7 @@ dependencies = [
  "once_cell",
  "regex",
  "rust-embed",
+ "rustversion",
  "serde",
  "thiserror 2.0.7",
  "toml",

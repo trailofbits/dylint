@@ -3,7 +3,7 @@
 use anyhow::Result;
 use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
-use dylint_internal::{cargo::current_metadata, env, examples};
+use dylint_internal::{cargo::current_metadata, env, examples, home};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use semver::Version;

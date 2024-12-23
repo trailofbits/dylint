@@ -1,4 +1,4 @@
-use crate::CommandExt;
+use crate::{home, CommandExt};
 use ansi_term::Style;
 use anyhow::{anyhow, ensure, Result};
 use bitflags::bitflags;

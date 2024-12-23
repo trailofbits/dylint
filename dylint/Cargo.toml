@@ -23,7 +23,6 @@ fs_extra = { workspace = true, optional = true }
 glob = { workspace = true, optional = true }
 heck = { workspace = true, optional = true }
 hex = { workspace = true, optional = true }
-home = { workspace = true, optional = true }
 if_chain = { workspace = true, optional = true }
 is-terminal = { workspace = true }
 log = { workspace = true }
@@ -72,10 +71,10 @@ __cargo_cli = [
     "cargo-util",
     "cargo-util-schemas",
     "dunce",
+    "dylint_internal/home",
     "fs_extra",
     "glob",
     "hex",
-    "home",
     "if_chain",
     "serde-untagged",
     "toml",

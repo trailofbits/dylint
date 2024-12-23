@@ -19,8 +19,7 @@ use crate::opts;
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cargo_metadata::{Metadata, MetadataCommand};
 use cargo_util_schemas::manifest::TomlDetailedDependency;
-use dylint_internal::{packaging::isolate, CommandExt};
-use home::cargo_home;
+use dylint_internal::{home::cargo_home, packaging::isolate, CommandExt};
 use semver::Version;
 use serde::Serialize;
 use std::{
