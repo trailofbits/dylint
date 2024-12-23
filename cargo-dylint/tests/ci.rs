@@ -6,7 +6,7 @@ use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::{cargo::current_metadata, env, examples, home};
 use once_cell::sync::Lazy;
 use regex::Regex;
-use semver::Version;
+use semver::{Op, Version};
 use similar_asserts::SimpleDiff;
 use std::{
     env::{set_current_dir, set_var, var},
@@ -97,7 +97,7 @@ fn versions_are_exact_and_match() {
 }
 
 #[test]
-fn requirements_do_not_include_patch_versions() {
+fn patch_version_requirements_are_exact() {
     let metadata = ["driver", "utils/linting"].map(|path| {
         MetadataCommand::new()
             .current_dir(path)
@@ -109,14 +109,11 @@ fn requirements_do_not_include_patch_versions() {
     for metadata in std::iter::once(&*METADATA).chain(metadata.iter()) {
         for package in &metadata.packages {
             for Dependency { name: dep, req, .. } in &package.dependencies {
-                if dep.starts_with("dylint") {
-                    continue;
-                }
                 assert!(
                     req.comparators
                         .iter()
-                        .all(|comparator| comparator.patch.is_none()),
-                    "`{}` requirement on `{dep}` includes patch version: {req}",
+                        .all(|comparator| comparator.op == Op::Exact || comparator.patch.is_none()),
+                    "`{}` requirement on `{dep}` includes patch version and is not exact: {req}",
                     package.name
                 );
             }
