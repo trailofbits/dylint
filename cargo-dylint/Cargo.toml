@@ -26,7 +26,6 @@ assert_cmd = { workspace = true }
 cargo_metadata = { workspace = true }
 ctor = { workspace = true }
 glob = { workspace = true }
-home = { workspace = true }
 log = { workspace = true }
 once_cell = { workspace = true }
 predicates = { workspace = true }

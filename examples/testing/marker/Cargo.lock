@@ -166,6 +166,7 @@ dependencies = [
  "log",
  "once_cell",
  "regex",
+ "rustversion",
  "serde",
  "thiserror 2.0.9",
  "toml",

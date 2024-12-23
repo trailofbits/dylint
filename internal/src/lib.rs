@@ -28,6 +28,9 @@ pub use git::*;
 #[cfg(feature = "git")]
 pub use git2;
 
+#[cfg(feature = "home")]
+pub mod home;
+
 #[cfg(feature = "packaging")]
 pub mod packaging;
 
