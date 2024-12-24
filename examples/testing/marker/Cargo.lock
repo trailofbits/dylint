@@ -106,7 +106,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -120,7 +120,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -153,7 +153,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "3.2.1"
+version = "3.3.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -167,20 +167,20 @@ dependencies = [
  "once_cell",
  "regex",
  "serde",
- "thiserror",
+ "thiserror 2.0.9",
  "toml",
 ]
 
 [[package]]
 name = "dylint_linting"
-version = "3.2.1"
+version = "3.3.0"
 dependencies = [
  "cargo_metadata 0.19.0",
  "dylint_internal",
  "paste",
  "rustversion",
  "serde",
- "thiserror",
+ "thiserror 2.0.9",
  "toml",
 ]
 
@@ -541,7 +541,7 @@ checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
 name = "marker"
-version = "3.2.1"
+version = "3.3.0"
 dependencies = [
  "anyhow",
  "bumpalo",
@@ -571,7 +571,7 @@ dependencies = [
  "marker_error",
  "marker_utils",
  "miette",
- "thiserror",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -591,7 +591,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "95f419aa64c113932944e82ac6c7d885e1fcf75deda3b871877dbf2a9752d38a"
 dependencies = [
  "miette",
- "thiserror",
+ "thiserror 1.0.69",
  "tracing-error",
  "yansi",
 ]
@@ -642,7 +642,7 @@ dependencies = [
  "supports-unicode",
  "terminal_size",
  "textwrap",
- "thiserror",
+ "thiserror 1.0.69",
  "unicode-width",
 ]
 
@@ -986,7 +986,16 @@ version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
 dependencies = [
- "thiserror-impl",
+ "thiserror-impl 1.0.69",
+]
+
+[[package]]
+name = "thiserror"
+version = "2.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f072643fd0190df67a8bab670c20ef5d8737177d6ac6b2e9a236cb096206b2cc"
+dependencies = [
+ "thiserror-impl 2.0.9",
 ]
 
 [[package]]
@@ -994,6 +1003,17 @@ name = "thiserror-impl"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "2.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b50fa271071aae2e6ee85f842e2e28ba8cd2c5fb67f11fcb1fd70b276f9e7d4"
 dependencies = [
  "proc-macro2",
  "quote",
