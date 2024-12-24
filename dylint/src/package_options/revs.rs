@@ -5,6 +5,7 @@ use dylint_internal::{
     git2::{Commit, ObjectType, Oid, Repository},
 };
 use if_chain::if_chain;
+use std::{cell::RefCell, rc::Rc};
 use tempfile::{tempdir, TempDir};
 
 const RUST_CLIPPY_URL: &str = "https://github.com/rust-lang/rust-clippy";
@@ -17,30 +18,28 @@ pub struct Rev {
 }
 
 pub struct Revs {
-    tempdir: TempDir,
-    repository: Repository,
+    repository: Rc<Repository>,
 }
 
 pub struct RevIter<'revs> {
-    revs: &'revs Revs,
+    repository: Rc<Repository>,
     commit: Commit<'revs>,
     curr_rev: Option<Rev>,
 }
 
 impl Revs {
     pub fn new(quiet: bool) -> Result<Self> {
-        let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
+        let repository = clippy_repository(quiet)?;
 
-        let repository = clone(RUST_CLIPPY_URL, "master", tempdir.path(), quiet)?;
-
-        Ok(Self {
-            tempdir,
-            repository,
-        })
+        Ok(Self { repository })
     }
 
     #[allow(clippy::iter_not_returning_iterator)]
     pub fn iter(&self) -> Result<RevIter> {
+        let path = self
+            .repository
+            .workdir()
+            .ok_or_else(|| anyhow!("Could not get working directory"))?;
         let object = {
             let head = self.repository.head()?;
             let oid = head.target().ok_or_else(|| anyhow!("Could not get HEAD"))?;
@@ -49,11 +48,11 @@ impl Revs {
         let commit = object
             .as_commit()
             .ok_or_else(|| anyhow!("Object is not a commit"))?;
-        let version = clippy_utils_package_version(self.tempdir.path())?;
-        let channel = toolchain_channel(self.tempdir.path())?;
+        let version = clippy_utils_package_version(path)?;
+        let channel = toolchain_channel(path)?;
         let oid = commit.id();
         Ok(RevIter {
-            revs: self,
+            repository: self.repository.clone(),
             commit: commit.clone(),
             curr_rev: Some(Rev {
                 version,
@@ -78,6 +77,10 @@ impl Iterator for RevIter<'_> {
                 let curr_rev = if let Some(rev) = self.curr_rev.take() {
                     rev
                 } else {
+                    let path = self
+                        .repository
+                        .workdir()
+                        .ok_or_else(|| anyhow!("Could not get working directory"))?;
                     // smoelius: Note that this is not `git log`'s default behavior. Rather, this
                     // behavior corresponds to:
                     //   git log --first-parent
@@ -87,20 +90,18 @@ impl Iterator for RevIter<'_> {
                     } else {
                         return Ok(None);
                     };
-                    self.revs
-                        .repository
+                    self.repository
                         .checkout_tree(commit.as_object(), None)
                         .with_context(|| {
                             format!("`checkout_tree` failed for `{:?}`", commit.as_object())
                         })?;
-                    self.revs
-                        .repository
+                    self.repository
                         .set_head_detached(commit.id())
                         .with_context(|| {
                             format!("`set_head_detached` failed for `{}`", commit.id())
                         })?;
-                    let version = clippy_utils_package_version(self.revs.tempdir.path())?;
-                    let channel = toolchain_channel(self.revs.tempdir.path())?;
+                    let version = clippy_utils_package_version(path)?;
+                    let channel = toolchain_channel(path)?;
                     let oid = commit.id();
                     Rev {
                         version,
@@ -121,6 +122,27 @@ impl Iterator for RevIter<'_> {
         })()
         .transpose()
     }
+}
+
+// smoelius: `thread_local!` because `git2::Repository` cannot be shared between threads safely.
+thread_local! {
+    static TMPDIR_AND_REPOSITORY: RefCell<Option<(TempDir, Rc<Repository>)>> = const { RefCell::new(None) };
+}
+
+pub fn clippy_repository(quiet: bool) -> Result<Rc<Repository>> {
+    TMPDIR_AND_REPOSITORY.with_borrow_mut(|cell| {
+        if let Some((_, repository)) = cell {
+            return Ok(repository.clone());
+        }
+
+        let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
+
+        let repository = clone(RUST_CLIPPY_URL, "master", tempdir.path(), quiet).map(Rc::new)?;
+
+        cell.replace((tempdir, repository.clone()));
+
+        Ok(repository)
+    })
 }
 
 #[allow(clippy::unwrap_used)]
