@@ -1,14 +1,11 @@
+use super::common::clippy_repository;
 use anyhow::{anyhow, Context, Result};
 use dylint_internal::{
     clippy_utils::{clippy_utils_package_version, toolchain_channel},
-    clone,
     git2::{Commit, ObjectType, Oid, Repository},
 };
 use if_chain::if_chain;
-use std::{cell::RefCell, rc::Rc};
-use tempfile::{tempdir, TempDir};
-
-const RUST_CLIPPY_URL: &str = "https://github.com/rust-lang/rust-clippy";
+use std::rc::Rc;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Rev {
@@ -122,27 +119,6 @@ impl Iterator for RevIter<'_> {
         })()
         .transpose()
     }
-}
-
-// smoelius: `thread_local!` because `git2::Repository` cannot be shared between threads safely.
-thread_local! {
-    static TMPDIR_AND_REPOSITORY: RefCell<Option<(TempDir, Rc<Repository>)>> = const { RefCell::new(None) };
-}
-
-pub fn clippy_repository(quiet: bool) -> Result<Rc<Repository>> {
-    TMPDIR_AND_REPOSITORY.with_borrow_mut(|cell| {
-        if let Some((_, repository)) = cell {
-            return Ok(repository.clone());
-        }
-
-        let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
-
-        let repository = clone(RUST_CLIPPY_URL, "master", tempdir.path(), quiet).map(Rc::new)?;
-
-        cell.replace((tempdir, repository.clone()));
-
-        Ok(repository)
-    })
 }
 
 #[allow(clippy::unwrap_used)]
