@@ -61,10 +61,10 @@ dylint_internal = { version = "=3.3.0", path = "../internal", features = [
 default = []
 library_packages = ["__cargo_cli"]
 package_options = [
-    "heck",
-    "if_chain",
     "dylint_internal/clippy_utils",
     "dylint_internal/git",
+    "heck",
+    "if_chain",
     "rewriter",
 ]
 __cargo_cli = [
