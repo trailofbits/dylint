@@ -103,6 +103,8 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
         match &upgrade_opts.rust_version {
             Some(rust_version) => {
                 let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
+                // smoelius: The next iterative search is a bottleneck. It should be a binary
+                // search.
                 iter.find(|result| {
                     result
                         .as_ref()
