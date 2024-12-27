@@ -2,6 +2,7 @@
 
 fn main() -> Result<(), ()> {
     let mut x = 0;
+    x = foo()?;
     x += foo()?;
     Ok(())
 }

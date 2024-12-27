@@ -10,8 +10,8 @@ publish = false
 crate-type = ["cdylib"]
 
 [[example]]
-name = "assign_op"
-path = "ui/assign_op.rs"
+name = "assign"
+path = "ui/assign.rs"
 
 [[example]]
 name = "clone"
