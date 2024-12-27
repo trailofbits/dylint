@@ -39,19 +39,21 @@ dylint_linting::declare_late_lint! {
 impl<'tcx> LateLintPass<'tcx> for QuestionMarkInExpression {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
         if !cx
-                .tcx
-                .hir()
-                .parent_iter(expr.hir_id)
-                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion())
+            .tcx
+            .hir()
+            .parent_iter(expr.hir_id)
+            .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion())
             && let ExprKind::Match(_, _, MatchSource::TryDesugar(_)) = expr.kind
             && let Some((Node::Expr(ancestor), child_hir_id)) =
                 get_filtered_ancestor(cx, expr.hir_id)
-            // smoelius: `AssignOp`, `If`, `Let`, and `Match` expressions get a pass.
+            // smoelius: `Assign`, `AssignOp`, `If`, `Let`, and `Match` expressions get a pass.
             && !match ancestor.kind {
                 ExprKind::Let(..) => true,
                 ExprKind::If(condition, _, _) => condition.hir_id == child_hir_id,
                 ExprKind::Match(scrutinee, _, _) => scrutinee.hir_id == child_hir_id,
-                ExprKind::AssignOp(_, _, expr) => expr.hir_id == child_hir_id,
+                ExprKind::Assign(_, expr, _) | ExprKind::AssignOp(_, _, expr) => {
+                    expr.hir_id == child_hir_id
+                }
                 _ => false,
             }
         {
