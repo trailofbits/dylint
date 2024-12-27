@@ -71,7 +71,6 @@ impl Iterator for RevIter<'_> {
     // here. If `self.commit` were not updated, the same commits would be traversed the next time
     // `next` was called.
     #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
-    #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
     fn next(&mut self) -> Option<Self::Item> {
         (|| -> Result<Option<Rev>> {
             let mut prev_rev: Option<Rev> = None;

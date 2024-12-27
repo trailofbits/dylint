@@ -13,7 +13,6 @@ pub trait CommandExt {
 
 impl CommandExt for Command {
     #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
-    #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
     fn logged_output(&mut self, require_success: bool) -> Result<Output> {
         log::debug!("{:?}", self.get_envs().collect::<Vec<_>>());
         log::debug!("{:?}", self.get_current_dir());
@@ -38,7 +37,6 @@ impl CommandExt for Command {
     // smoelius: Why not get the status by calling `self.output()`? Because we don't want stdout and
     // stderr to be captured.
     #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
-    #[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
     fn success(&mut self) -> Result<()> {
         log::debug!("{:?}", self.get_envs().collect::<Vec<_>>());
         log::debug!("{:?}", self.get_current_dir());

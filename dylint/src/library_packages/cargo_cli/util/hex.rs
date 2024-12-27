@@ -3,7 +3,6 @@
 
 #![allow(deprecated)]
 #![allow(clippy::module_name_repetitions)]
-#![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 #![cfg_attr(dylint_lib = "supplementary", allow(unnamed_constant))]
 
 type StableHasher = std::hash::SipHasher;

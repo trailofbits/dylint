@@ -76,7 +76,6 @@ fn git_dependency_root(gctx: &GlobalContext, dep: &Dependency) -> Result<PathBuf
 }
 
 #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
-#[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 fn sample_package_id(dep: &Dependency, source: &mut dyn Source) -> Result<PackageId> {
     let mut package_id: Option<PackageId> = None;
 
