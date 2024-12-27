@@ -1,11 +1,15 @@
 use anyhow::{anyhow, Context, Result};
 use assert_cmd::prelude::*;
 use cargo_metadata::{Dependency, MetadataCommand};
-use dylint_internal::{rustup::SanitizeEnvironment, CommandExt};
+use dylint_internal::{clone, env::enabled, rustup::SanitizeEnvironment, CommandExt};
 use predicates::prelude::*;
 use regex::Regex;
 use semver::Version;
-use std::{fs::read_to_string, path::Path};
+use std::{
+    fs::read_to_string,
+    io::{stderr, Write},
+    path::Path,
+};
 use tempfile::tempdir;
 
 // smoelius: I expected `git2-0.17.2` to build with nightly-2022-06-30, which corresponds to
@@ -137,6 +141,62 @@ fn downgrade_upgrade_package() {
         .current_dir(&tempdir)
         .success()
         .unwrap();
+}
+
+const DYLINT_URL: &str = "https://github.com/trailofbits/dylint";
+
+// smoelius: Each of the following commits is just before an "Upgrade examples" commit. In the
+// upgrades, the changes to the `restriction` lints are small. Thus, the auto-correct option should
+// be able to generate fixes for them.
+const REVS_AND_RUST_VERSIONS: &[(&str, &str)] = &[
+    // smoelius: "Upgrade examples" commit:
+    // https://github.com/trailofbits/dylint/commit/33969746aef6947c68d7adb55137ce8a13d9cc47
+    ("5b3792515ac255fdb06a31b10eb3c9f7949a3ed5", "1.80.0"),
+    // smoelius: "Upgrade examples" commit:
+    // https://github.com/trailofbits/dylint/commit/7bc453f0778dee3b13bc1063773774304ac96cad
+    ("23c08c8a0b043d26f66653bf173a0e6722a2d699", "1.79.0"),
+];
+
+#[test]
+fn upgrade_with_auto_correct() {
+    for (rev, rust_version) in REVS_AND_RUST_VERSIONS {
+        let tempdir = tempdir().unwrap();
+
+        clone(DYLINT_URL, rev, tempdir.path(), false).unwrap();
+
+        let mut command = std::process::Command::cargo_bin("cargo-dylint").unwrap();
+        command.args([
+            "dylint",
+            "upgrade",
+            &tempdir
+                .path()
+                .join("examples/restriction")
+                .to_string_lossy(),
+            "--auto-correct",
+            "--rust-version",
+            rust_version,
+        ]);
+        command.success().unwrap();
+
+        if enabled("DEBUG_DIFF") {
+            let mut command = std::process::Command::new("git");
+            command.current_dir(&tempdir);
+            command.args(["--no-pager", "diff", "--", "*.rs"]);
+            command.success().unwrap();
+        }
+
+        dylint_internal::cargo::check("auto-corrected, upgraded library package")
+            .build()
+            .sanitize_environment()
+            .current_dir(tempdir.path().join("examples/restriction"))
+            .env("RUSTFLAGS", "--allow=warnings")
+            .arg("--quiet")
+            .success()
+            .unwrap();
+
+        #[allow(clippy::explicit_write)]
+        writeln!(stderr(), "Success").unwrap();
+    }
 }
 
 #[allow(dead_code)]

@@ -18,6 +18,9 @@ use std::{
 use tempfile::tempdir;
 use walkdir::WalkDir;
 
+mod auto_correct;
+use auto_correct::auto_correct;
+
 mod common;
 use common::parse_as_nightly;
 
@@ -153,6 +156,10 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
 
     set_toolchain_channel(path, &rev.channel)?;
     set_clippy_utils_dependency_revision(path, &rev.oid.to_string())?;
+
+    if upgrade_opts.auto_correct {
+        auto_correct(opts, upgrade_opts, &old_channel, rev.oid)?;
+    }
 
     cargo_toml_backup
         .disable()

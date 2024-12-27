@@ -107,6 +107,8 @@ pub struct Upgrade {
 
     pub rust_version: Option<String>,
 
+    pub auto_correct: bool,
+
     pub path: String,
 }
 
