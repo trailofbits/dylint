@@ -3,7 +3,6 @@
 // `unnecessary_conversion_for_trait` causes one of its tests to fail. So allow the lint for now.
 // smoelius: `abs_home_path` now fires as well.
 #![cfg_attr(dylint_lib = "general", allow(abs_home_path))]
-#![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 #![cfg_attr(dylint_lib = "supplementary", allow(unnecessary_conversion_for_trait))]
 
 use crate::cargo::{current_metadata, package};

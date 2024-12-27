@@ -12,7 +12,6 @@
     dylint_lib = "inconsistent_qualification",
     allow(inconsistent_qualification)
 )]
-#![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 
 use anyhow::Result as CargoResult;
 

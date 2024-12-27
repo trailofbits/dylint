@@ -6,7 +6,6 @@ members = [
     "env_literal",
     "inconsistent_qualification",
     "misleading_variable_name",
-    "overscoped_allow",
     "question_mark_in_expression",
     "ref_aware_redundant_closure_for_method_calls",
     "register_lints_warn",

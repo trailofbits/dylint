@@ -296,7 +296,6 @@ fn cargo_metadata(path: &Path) -> Result<Metadata> {
 // smoelius: `ident` is based on the function of the same name at:
 // https://github.com/rust-lang/cargo/blob/1a498b6c1c119a79d677553862bffae96b97ad7f/src/cargo/sources/git/source.rs#L136-L147
 #[allow(clippy::manual_next_back)]
-#[cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 fn ident(url: &str) -> Result<String> {
     let url = Url::parse(url)?;
 

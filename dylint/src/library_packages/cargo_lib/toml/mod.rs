@@ -28,7 +28,6 @@
     dylint_lib = "misleading_variable_name",
     allow(misleading_variable_name)
 )]
-#![cfg_attr(dylint_lib = "overscoped_allow", allow(overscoped_allow))]
 
 // smoelius: `ManifestContext::new` does not appear in the original.
 #[allow(clippy::too_many_arguments)]
