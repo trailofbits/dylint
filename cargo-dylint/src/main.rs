@@ -126,6 +126,15 @@ Combine with `--all` to list all lints in all discovered libraries."
 
         #[clap(help = "Path to library package")]
         path: String,
+
+        #[clap(
+            help_heading = Some("Experimental"),
+            long,
+            help = "Try to extract fixes from Clippy repository commits whose date is that of the \
+                    un-upgraded toolchain or later",
+            default_value = "false",
+        )]
+        auto_correct: bool,
     },
 }
 
@@ -278,9 +287,11 @@ impl From<Dylint> for dylint::opts::Dylint {
                 allow_downgrade,
                 rust_version,
                 path,
+                auto_correct,
             }) => dylint::opts::Operation::Upgrade(dylint::opts::Upgrade {
                 allow_downgrade,
                 rust_version,
+                auto_correct,
                 path,
             }),
         };

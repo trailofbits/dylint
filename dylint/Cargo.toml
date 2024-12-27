@@ -17,6 +17,7 @@ cargo-platform = { workspace = true, optional = true }
 cargo-util = { workspace = true, optional = true }
 cargo-util-schemas = { workspace = true, optional = true }
 cargo_metadata = { workspace = true }
+chrono = { workspace = true, optional = true }
 dirs = { workspace = true }
 dunce = { workspace = true, optional = true }
 fs_extra = { workspace = true, optional = true }
@@ -32,6 +33,12 @@ semver = { workspace = true }
 serde = { workspace = true }
 serde-untagged = { workspace = true, optional = true }
 serde_json = { workspace = true }
+# smoelius: `syntect` can tokenize incomplete Rust fragments, e.g., code with unbalanced delimiters.
+syntect = { workspace = true, features = [
+    "default-syntaxes",
+    "regex-fancy",
+    "parsing",
+], optional = true }
 tempfile = { workspace = true }
 toml = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
@@ -61,11 +68,13 @@ dylint_internal = { version = "=3.3.0", path = "../internal", features = [
 default = []
 library_packages = ["__cargo_cli"]
 package_options = [
+    "chrono",
     "dylint_internal/clippy_utils",
     "dylint_internal/git",
     "heck",
     "if_chain",
     "rewriter",
+    "syntect",
 ]
 __cargo_cli = [
     "cargo-util",
