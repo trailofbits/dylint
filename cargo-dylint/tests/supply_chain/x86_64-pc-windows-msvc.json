@@ -1,5 +1,13 @@
 {
   "crates_io_crates": {
+    "adler2": [
+      {
+        "id": 4968,
+        "kind": "user",
+        "login": "oyvindln",
+        "name": null
+      }
+    ],
     "aho-corasick": [
       {
         "id": 189,
@@ -126,6 +134,66 @@
         "kind": "team",
         "login": "github:rust-lang:libs",
         "name": "libs"
+      }
+    ],
+    "bincode": [
+      {
+        "id": 78,
+        "kind": "user",
+        "login": "TyOverby",
+        "name": "Ty Overby"
+      },
+      {
+        "id": 3672,
+        "kind": "user",
+        "login": "ZoeyR",
+        "name": "Zoey Riordan"
+      },
+      {
+        "id": 4990,
+        "kind": "user",
+        "login": "VictorKoenders",
+        "name": "Trangar"
+      }
+    ],
+    "bit-set": [
+      {
+        "id": 3,
+        "kind": "team",
+        "login": "github:contain-rs:owners",
+        "name": "Owners"
+      },
+      {
+        "id": 38,
+        "kind": "user",
+        "login": "Gankra",
+        "name": "Aria Beingessner"
+      },
+      {
+        "id": 1367,
+        "kind": "user",
+        "login": "pczarn",
+        "name": "Peter Blackson"
+      }
+    ],
+    "bit-vec": [
+      {
+        "id": 3,
+        "kind": "team",
+        "login": "github:contain-rs:owners",
+        "name": "Owners"
+      },
+      {
+        "id": 38,
+        "kind": "user",
+        "login": "Gankra",
+        "name": "Aria Beingessner"
+      },
+      {
+        "id": 1367,
+        "kind": "user",
+        "login": "pczarn",
+        "name": "Peter Blackson"
       }
     ],
     "bitflags": [
@@ -280,6 +348,20 @@
         "name": null
       }
     ],
+    "chrono": [
+      {
+        "id": 23,
+        "kind": "user",
+        "login": "lifthrasiir",
+        "name": "Kang Seonghoon"
+      },
+      {
+        "id": 52,
+        "kind": "team",
+        "login": "github:chronotope:release-manager",
+        "name": "Release Manager"
+      }
+    ],
     "clap": [
       {
         "id": 460,
@@ -400,6 +482,14 @@
         "kind": "team",
         "login": "github:rustcrypto:utils",
         "name": "utils"
+      }
+    ],
+    "crc32fast": [
+      {
+        "id": 1546,
+        "kind": "user",
+        "login": "srijs",
+        "name": "Sam Rijs"
       }
     ],
     "crossbeam-deque": [
@@ -664,6 +754,26 @@
         "name": "David Tolnay"
       }
     ],
+    "fancy-regex": [
+      {
+        "id": 635,
+        "kind": "team",
+        "login": "github:fancy-regex:crate-owners",
+        "name": "crate-owners"
+      },
+      {
+        "id": 1968,
+        "kind": "user",
+        "login": "raphlinus",
+        "name": "Raph Levien"
+      },
+      {
+        "id": 5997,
+        "kind": "user",
+        "login": "robinst",
+        "name": "Robin Stocker"
+      }
+    ],
     "fastrand": [
       {
         "id": 3341,
@@ -684,6 +794,40 @@
         "kind": "user",
         "login": "alexcrichton",
         "name": "Alex Crichton"
+      }
+    ],
+    "flate2": [
+      {
+        "id": 980,
+        "kind": "user",
+        "login": "Byron",
+        "name": "Sebastian Thiel"
+      },
+      {
+        "id": 4333,
+        "kind": "user",
+        "login": "joshtriplett",
+        "name": "Josh Triplett"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
+      }
+    ],
+    "fnv": [
+      {
+        "id": 5,
+        "kind": "team",
+        "login": "github:servo:cargo-publish",
+        "name": "cargo publish"
+      },
+      {
+        "id": 7,
+        "kind": "user",
+        "login": "SimonSapin",
+        "name": "Simon Sapin"
       }
     ],
     "form_urlencoded": [
@@ -1358,6 +1502,20 @@
         "name": "Andrew Gallant"
       }
     ],
+    "miniz_oxide": [
+      {
+        "id": 4968,
+        "kind": "user",
+        "login": "oyvindln",
+        "name": null
+      },
+      {
+        "id": 10555,
+        "kind": "user",
+        "login": "Frommi",
+        "name": null
+      }
+    ],
     "miow": [
       {
         "id": 1,
@@ -1846,6 +2004,26 @@
         "kind": "user",
         "login": "mystor",
         "name": "Nika Layzell"
+      }
+    ],
+    "syntect": [
+      {
+        "id": 4373,
+        "kind": "user",
+        "login": "trishume",
+        "name": "Tristan Hume"
+      },
+      {
+        "id": 5997,
+        "kind": "user",
+        "login": "robinst",
+        "name": "Robin Stocker"
+      },
+      {
+        "id": 107610,
+        "kind": "user",
+        "login": "Enselic",
+        "name": "Martin Nordholts"
       }
     ],
     "tempfile": [
