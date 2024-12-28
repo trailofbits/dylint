@@ -131,15 +131,39 @@ mod test {
     }
 
     #[test]
-    fn examples_do_not_have_gitignore() {
+    fn examples_do_not_contain_forbidden_paths() {
+        let forbidden_files_general = [".gitignore"];
+        let forbidden_files_specific = [".cargo/config.toml", "rust-toolchain"];
+        let allowed_dirs = ["experimental", "testing"];
+
         for entry in WalkDir::new(".") {
             let entry = entry.unwrap();
             let path = entry.path();
-            assert_ne!(
-                path.file_name(),
-                Some(OsStr::new(".gitignore")),
-                "failed for {path:?}"
-            );
+            let normalized_path = path.strip_prefix("./").unwrap_or(path);
+
+            for forbidden in &forbidden_files_general {
+                if normalized_path.file_name() == Some(OsStr::new(forbidden)) {
+                    assert_ne!(
+                        normalized_path.file_name(),
+                        Some(OsStr::new(forbidden)),
+                        "Forbidden file found in examples directory: {:?}",
+                        normalized_path
+                    );
+                }
+            }
+
+            let is_allowed_directory = allowed_dirs.iter().any(|&d| normalized_path.starts_with(d));
+            if is_allowed_directory {
+            } else {
+                for forbidden in &forbidden_files_specific {
+                    if normalized_path.ends_with(forbidden) {
+                        panic!(
+                            "Forbidden file {:?} found in non-allowed directory: {:?}",
+                            forbidden, normalized_path
+                        );
+                    }
+                }
+            }
         }
     }
 }
