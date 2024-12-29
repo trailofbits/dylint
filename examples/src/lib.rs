@@ -143,7 +143,8 @@ mod test {
 
             if let Some(file_name) = normalized_path.file_name().and_then(OsStr::to_str) {
                 if forbidden_files_general.contains(&file_name) {
-                    panic!(
+                    assert!(
+                        !forbidden_files_general.contains(&file_name),
                         "Forbidden file `.gitignore` found in examples directory: {}",
                         normalized_path.display()
                     );
