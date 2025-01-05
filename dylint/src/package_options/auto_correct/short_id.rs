@@ -1,5 +1,7 @@
 use dylint_internal::git2::{Commit, Oid};
 
+const SHORT_ID_LEN: usize = 7;
+
 pub trait ShortId {
     fn short_id(&self) -> String;
 }
@@ -9,8 +11,6 @@ impl ShortId for Commit<'_> {
         self.id().short_id()
     }
 }
-
-const SHORT_ID_LEN: usize = 7;
 
 impl ShortId for Oid {
     fn short_id(&self) -> String {
