@@ -297,7 +297,9 @@ fn duplicate_dependencies() {
 #[test]
 fn hack_feature_powerset_udeps() {
     Command::new("rustup")
-        .env(env::RUSTFLAGS, "-D warnings")
+        // smoelius: `--check-cfg cfg(test)` to work around the following issue:
+        // https://github.com/est31/cargo-udeps/issues/293
+        .env(env::RUSTFLAGS, "-D warnings --check-cfg cfg(test)")
         .args([
             "run",
             "nightly",
