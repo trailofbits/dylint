@@ -70,8 +70,8 @@ fn is_matches_macro(expr: &P<Expr>) -> Option<&P<MacCall>> {
 /// belong to first argument, and comparing them without considering the span information (since
 /// span info would always differ for the two different macro calls arguments)
 fn macro_call_first_arg_equals(m1: &MacCall, m2: &MacCall) -> bool {
-    let t1 = m1.args.tokens.trees();
-    let t2 = m2.args.tokens.trees();
+    let t1 = m1.args.tokens.iter();
+    let t2 = m2.args.tokens.iter();
 
     for (t1, t2) in std::iter::zip(t1, t2) {
         // If any of the tokens are a comma, that means we are past the first argument
