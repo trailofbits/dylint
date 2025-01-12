@@ -279,6 +279,7 @@ const ARCHITECTURES: &[&str] = &[
     "thumbv8m.base",
     "thumbv8m.main",
     "wasm32",
+    "wasm32v1",
     "wasm64",
     "x86_64",
     "x86_64h",
