@@ -4,7 +4,7 @@ use dylint_internal::{
     env,
     git2::{Commit, Diff, DiffHunk, Oid, Patch, Repository},
 };
-use std::{collections::HashMap, ops::Range, time::Instant};
+use std::{cmp::min, collections::HashMap, ops::Range, time::Instant};
 
 mod diff;
 use diff::{collect_commits, diff_from_commit, patches_from_diff};
@@ -88,7 +88,7 @@ impl Rewrite {
             .zip(new_tokens.iter().rev())
             .take_while(|(x, y)| x == y)
             .count();
-        if common_prefix_len + common_suffix_len >= old_tokens.len() {
+        if common_prefix_len + common_suffix_len >= min(old_tokens.len(), new_tokens.len()) {
             Ok(None)
         } else {
             Ok(Some(Self {
