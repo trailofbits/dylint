@@ -29,7 +29,7 @@ for EXAMPLE in examples/general examples/supplementary examples/restriction $EXP
         PREV_REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
         PREV_CHANNEL="$(sed -n 's/^channel = "[^"]*"$/&/;T;p' "$EXAMPLE"/rust-toolchain)"
 
-        $CARGO_DYLINT upgrade "$EXAMPLE" --auto-correct 2>/dev/null || true
+        $CARGO_DYLINT upgrade "$EXAMPLE" --auto-correct || true
 
         REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
         sed -i "s/^\(clippy_config\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
