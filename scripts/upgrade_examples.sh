@@ -18,6 +18,8 @@ CARGO_DYLINT='timeout 10m cargo run -p cargo-dylint -- dylint'
 EXPERIMENTAL_DIRS="$(find examples/experimental -mindepth 1 -maxdepth 1 -type d ! -name .cargo)"
 
 for EXAMPLE in examples/general examples/supplementary examples/restriction $EXPERIMENTAL_DIRS examples/testing/clippy internal/template; do
+    echo "$EXAMPLE"
+
     # smoelius: If the example's directory has changes, assume the example was already upgraded and
     # the script had to be restarted.
     if ! git diff --exit-code "$EXAMPLE"; then
@@ -29,7 +31,7 @@ for EXAMPLE in examples/general examples/supplementary examples/restriction $EXP
         PREV_REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
         PREV_CHANNEL="$(sed -n 's/^channel = "[^"]*"$/&/;T;p' "$EXAMPLE"/rust-toolchain)"
 
-        $CARGO_DYLINT upgrade "$EXAMPLE" --auto-correct || true
+        $CARGO_DYLINT upgrade "$EXAMPLE" --auto-correct
 
         REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
         sed -i "s/^\(clippy_config\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
