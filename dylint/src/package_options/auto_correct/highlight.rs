@@ -111,6 +111,7 @@ impl Highlight {
 /// Invokes `cargo build` at `path` and returns the generated diagnostic messages as [`Highlight`]s.
 pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highlight>> {
     let start = Instant::now();
+
     let output = cargo::check("upgraded library package")
         .quiet(opts.quiet)
         .build()
@@ -118,37 +119,38 @@ pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highli
         .current_dir(path)
         .arg("--message-format=json")
         .logged_output(false)?;
-    let elapsed = start.elapsed();
-    eprintln!(
-        "Checked upgraded library package in {} seconds",
-        elapsed.as_secs()
-    );
-
-    if output.status.success() {
-        return Ok(Vec::new());
-    }
 
     let mut highlights = Vec::new();
-    let stdout = String::from_utf8(output.stdout)?;
-    for result in serde_json::Deserializer::from_str(&stdout).into_iter::<Message>() {
-        let message = result?;
-        if message.reason != "compiler-message" {
-            continue;
-        }
-        let Some(diagnostic) = message.diagnostic else {
-            continue;
-        };
-        for span in diagnostic.spans {
-            if span.text.is_empty() {
+
+    if !output.status.success() {
+        let stdout = String::from_utf8(output.stdout)?;
+        for result in serde_json::Deserializer::from_str(&stdout).into_iter::<Message>() {
+            let message = result?;
+            if message.reason != "compiler-message" {
                 continue;
             }
-            let highlight = Highlight::try_new(&diagnostic.message, span)?;
-            assert!(!highlight.tokens.is_empty());
-            highlights.push(highlight);
+            let Some(diagnostic) = message.diagnostic else {
+                continue;
+            };
+            for span in diagnostic.spans {
+                if span.text.is_empty() {
+                    continue;
+                }
+                let highlight = Highlight::try_new(&diagnostic.message, span)?;
+                assert!(!highlight.tokens.is_empty());
+                highlights.push(highlight);
+            }
         }
+
+        highlights.sort();
     }
 
-    highlights.sort();
+    let elapsed = start.elapsed();
+    eprintln!(
+        "Found {} highlights in {} seconds",
+        highlights.len(),
+        elapsed.as_secs()
+    );
 
     Ok(highlights)
 }
