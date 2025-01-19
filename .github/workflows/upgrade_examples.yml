@@ -21,6 +21,7 @@ jobs:
 
       - name: Upgrade examples
         run: |
+          cargo build --bins
           scripts/upgrade_examples.sh
           git diff --name-only
 
