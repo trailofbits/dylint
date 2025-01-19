@@ -1,7 +1,7 @@
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
 
-extern crate rustc_ast;
+extern crate rustc_hir;
 extern crate rustc_resolve;
 extern crate rustc_span;
 
@@ -9,7 +9,7 @@ use cargo_metadata::{Metadata, MetadataCommand};
 use clippy_utils::diagnostics::span_lint;
 use once_cell::sync::OnceCell;
 use pulldown_cmark::{Options, Parser};
-use rustc_ast::Attribute;
+use rustc_hir::Attribute;
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_resolve::rustdoc::{add_doc_fragment, attrs_to_doc_fragments, DocFragment};
 use rustc_span::RealFileName;
