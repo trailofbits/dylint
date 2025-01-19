@@ -267,7 +267,7 @@ fn send_request(api_key: &str, request: &openai::Request) -> Result<openai::Resp
         .map_err(IoError::from)
         .and_then(|data| {
             debug("request", &data);
-            send(api_key, &data).map_err(IoError::from)
+            send(api_key, &data)
         })
         .and_then(|(code, data)| {
             debug("response", &data);

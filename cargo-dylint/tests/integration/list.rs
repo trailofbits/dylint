@@ -241,5 +241,4 @@ fn target_debug(path: &Path) -> Result<PathBuf> {
     debug_dir
         .canonicalize()
         .with_context(|| format!("Could not canonicalize {debug_dir:?}"))
-        .map_err(Into::into)
 }
