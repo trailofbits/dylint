@@ -15,6 +15,7 @@ pub fn cargo_home() -> Option<PathBuf> {
 pub use home::home_dir;
 
 #[rustversion::since(1.86)]
+#[must_use]
 pub fn home_dir() -> Option<PathBuf> {
     // smoelius: The `deprecated` attribute hasn't been removed yet:
     // https://github.com/rust-lang/rust/pull/132515#discussion_r1829715262
