@@ -19,10 +19,11 @@ use cargo_metadata::{
 use clippy_utils::{diagnostics::span_lint_and_help, source::snippet_opt};
 use dylint_internal::env::var;
 use once_cell::sync::OnceCell;
-use rustc_ast::ast::{Attribute, MetaItem, MetaItemInner};
+use rustc_ast::ast::{MetaItem, MetaItemInner};
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
-    Block, Expr, ExprKind, HirId, ImplItem, Item, ItemKind, Node, Stmt, StmtKind, CRATE_HIR_ID,
+    Attribute, Block, Expr, ExprKind, HirId, ImplItem, Item, ItemKind, Node, Stmt, StmtKind,
+    CRATE_HIR_ID,
 };
 use rustc_lint::{LateContext, LateLintPass, LintContext, LintStore};
 use rustc_session::{declare_lint, impl_lint_pass, Session};

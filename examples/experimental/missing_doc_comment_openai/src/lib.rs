@@ -2,14 +2,12 @@
 #![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
-extern crate rustc_ast;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{attrs::is_doc_hidden, diagnostics::span_lint_and_then, source::snippet_opt};
-use rustc_ast::AttrKind;
-use rustc_hir::{FnSig, Item, ItemKind};
+use rustc_hir::{AttrKind, FnSig, Item, ItemKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::{BytePos, SourceFileAndLine, Span};
 use serde::Deserialize;
@@ -159,13 +157,12 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
         }
 
         // smoelius: Only enable for functions for now.
-        let ItemKind::Fn(
-            FnSig {
+        let ItemKind::Fn {
+            sig: FnSig {
                 span: fn_sig_span, ..
             },
-            _,
-            _,
-        ) = item.kind
+            ..
+        } = item.kind
         else {
             return;
         };
@@ -175,7 +172,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
             .hir()
             .attrs(item.hir_id())
             .iter()
-            .any(|attr| matches!(attr.kind, AttrKind::DocComment{ .. }))
+            .any(|attr| matches!(attr.kind, AttrKind::DocComment { .. }))
         {
             return;
         }
