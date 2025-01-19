@@ -350,6 +350,7 @@ pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     // of the log messages.
     log::debug!("{:?}", rustc_args);
 
+    #[allow(clippy::unit_arg)]
     map_run_compiler_err(rustc_driver::RunCompiler::new(&rustc_args, &mut callbacks).run())
 }
 
@@ -426,7 +427,8 @@ fn map_run_compiler_err(result: Result<(), rustc_span::ErrorGuaranteed>) -> Resu
 }
 
 #[rustversion::since(2024-12-09)]
-fn map_run_compiler_err((): ()) -> Result<()> {
+#[allow(clippy::unnecessary_wraps)]
+const fn map_run_compiler_err((): ()) -> Result<()> {
     Ok(())
 }
 
