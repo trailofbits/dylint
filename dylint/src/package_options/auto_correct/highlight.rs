@@ -1,7 +1,7 @@
 use super::tokenization::{tokenize_fragment, tokenize_lines};
-use crate::opts;
+use crate::{error::warn, opts};
 use anyhow::Result;
-use cargo_metadata::diagnostic::{Diagnostic, DiagnosticSpan};
+use cargo_metadata::diagnostic::{Diagnostic, DiagnosticLevel, DiagnosticSpan};
 use dylint_internal::{cargo, rustup::SanitizeEnvironment, CommandExt};
 use serde::Deserialize;
 use std::{path::Path, time::Instant};
@@ -132,6 +132,16 @@ pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highli
             let Some(diagnostic) = message.diagnostic else {
                 continue;
             };
+            if diagnostic.level == DiagnosticLevel::Error && diagnostic.spans.is_empty() {
+                warn(
+                    opts,
+                    &format!(
+                        "Found diagnostic error with no spans: {}",
+                        &diagnostic.message
+                    ),
+                );
+                continue;
+            }
             for span in diagnostic.spans {
                 if span.text.is_empty() {
                     continue;
