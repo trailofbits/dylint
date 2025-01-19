@@ -1,9 +1,9 @@
 bitflags v1.3.2
 bitflags v2.8.0
 thiserror v1.0.69
-thiserror v2.0.9
+thiserror v2.0.11
 thiserror-impl v1.0.69
-thiserror-impl v2.0.9
+thiserror-impl v2.0.11
 windows-sys v0.48.0
 windows-sys v0.52.0
 windows-sys v0.59.0
