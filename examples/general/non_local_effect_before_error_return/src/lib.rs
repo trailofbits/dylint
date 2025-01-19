@@ -277,7 +277,7 @@ fn is_call_with_mut_ref<'tcx>(
 
 const WIDTH_PRESERVING: &[&[&str]] = &[&["core", "result", "Result", "unwrap"]];
 
-const WIDENING: &[&[&str]] = &[&["std", "sync", "mutex", "Mutex", "lock"]];
+const WIDENING: &[&[&str]] = &[&["std", "sync", "poison", "mutex", "Mutex", "lock"]];
 
 fn collect_locals_and_constants<'tcx>(
     cx: &LateContext<'tcx>,
