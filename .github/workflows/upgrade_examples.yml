@@ -19,6 +19,9 @@ jobs:
           # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
           ssh-key: ${{ secrets.SSH_KEY }}
 
+      - name: Install dylint-link
+        run: cargo install --path ./dylint-link --force
+
       - name: Upgrade examples
         run: |
           scripts/upgrade_examples.sh
