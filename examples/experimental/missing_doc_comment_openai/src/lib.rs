@@ -175,7 +175,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
             .hir()
             .attrs(item.hir_id())
             .iter()
-            .any(|attr| matches!(attr.kind, AttrKind::DocComment(..)))
+            .any(|attr| matches!(attr.kind, AttrKind::DocComment{ .. }))
         {
             return;
         }
