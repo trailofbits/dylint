@@ -406,7 +406,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-dylint"
-version = "3.3.0"
+version = "3.4.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -534,9 +534,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.26"
+version = "4.5.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8eb5e908ef3a6efbe1ed62520fb7287959888c88485abe072543190ecc66783"
+checksum = "769b0145982b4b48713e01ec42d61614425f27b7058bda7180a3a41f30104796"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -544,9 +544,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.26"
+version = "4.5.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96b01801b5fc6a0a232407abc821660c9c6d25a1cafc0d4f85f29fb8d9afc121"
+checksum = "1b26884eb4b57140e4d2d93652abfa49498b938b3c9179f9fc487b0acc3edad7"
 dependencies = [
  "anstream",
  "anstyle",
@@ -920,7 +920,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
 name = "dylint"
-version = "3.3.0"
+version = "3.4.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -956,7 +956,7 @@ dependencies = [
 
 [[package]]
 name = "dylint-link"
-version = "3.3.0"
+version = "3.4.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -971,7 +971,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_examples"
-version = "3.3.0"
+version = "3.4.0"
 dependencies = [
  "cargo-util",
  "cargo_metadata",
@@ -982,7 +982,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "3.3.0"
+version = "3.4.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -1010,7 +1010,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "3.3.0"
+version = "3.4.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -1140,7 +1140,7 @@ dependencies = [
 
 [[package]]
 name = "expensive"
-version = "3.3.0"
+version = "3.4.0"
 dependencies = [
  "anyhow",
  "dylint_internal",

@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.4.0
+
+- Add link to EuroRust 2024 video ([#1447](https://github.com/trailofbits/dylint/pull/1447))
+- FEATURE: Add experimental `--auto-correct` option. Upgrading a lint's Rust toolchain often causes the lint to break because of changes to Rust APIs. When `--auto-correct` is enabled, `cargo-dylint` tries to infer lint fixes from Clippy's commit history. ([949cf8f](https://github.com/trailofbits/dylint/commit/949cf8f322bd664b3e432738700dd3ff223693c2), [625d3d3](https://github.com/trailofbits/dylint/commit/625d3d3673f22b086dfcc04af62c3b79948e2c0a), [c1edcfb](https://github.com/trailofbits/dylint/commit/c1edcfb1c67e4af61900af3d3f1c14b7688f6e77), [2753a88](https://github.com/trailofbits/dylint/commit/2753a88e7ce721689953cbe67fa9ca909e7fd570), and [c515601](https://github.com/trailofbits/dylint/commit/c5156019897b1674b6ff57ac839afe5a127a35e1))
+
 ## 3.3.0
 
 - Add EuroRust 2024 slides to README.md ([#1370](https://github.com/trailofbits/dylint/pull/1370))

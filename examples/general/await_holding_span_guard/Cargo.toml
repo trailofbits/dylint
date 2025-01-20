@@ -1,6 +1,6 @@
 [package]
 name = "await_holding_span_guard"
-version = "3.3.0"
+version = "3.4.0"
 authors = ["David Barsky"]
 description = "A lint to check for Span guards held while calling await inside an async function"
 edition = "2021"
