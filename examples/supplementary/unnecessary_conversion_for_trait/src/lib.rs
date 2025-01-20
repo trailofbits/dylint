@@ -642,7 +642,7 @@ fn ancestor_addr_of_mutabilities<'tcx>(
 }
 
 fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
-    const BOX_NEW: [&str; 4] = ["alloc", "boxed", "Box", "new"];
+    const BOX_NEW: [&str; 3] = ["alloc", "boxed", "box_new"];
 
     #[cfg_attr(dylint_lib = "supplementary", expect(commented_code))]
     loop {
