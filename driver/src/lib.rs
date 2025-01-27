@@ -350,8 +350,7 @@ pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     // of the log messages.
     log::debug!("{:?}", rustc_args);
 
-    #[allow(clippy::unit_arg)]
-    map_run_compiler_err(rustc_driver::RunCompiler::new(&rustc_args, &mut callbacks).run())
+    run_compiler(&rustc_args, &mut callbacks)
 }
 
 fn sysroot() -> Result<PathBuf> {
@@ -422,13 +421,31 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
 }
 
 #[rustversion::before(2024-12-09)]
-fn map_run_compiler_err(result: Result<(), rustc_span::ErrorGuaranteed>) -> Result<()> {
-    result.map_err(|_| std::process::exit(1))
+fn run_compiler(
+    at_args: &[String],
+    callbacks: &mut (dyn rustc_driver::Callbacks + Send),
+) -> Result<()> {
+    rustc_driver::RunCompiler::new(at_args, callbacks)
+        .run()
+        .map_err(|_| std::process::exit(1))
 }
 
-#[rustversion::since(2024-12-09)]
+#[rustversion::all(since(2024-12-09), before(2025-01-24))]
 #[allow(clippy::unnecessary_wraps)]
-const fn map_run_compiler_err((): ()) -> Result<()> {
+fn run_compiler(
+    at_args: &[String],
+    callbacks: &mut (dyn rustc_driver::Callbacks + Send),
+) -> Result<()> {
+    rustc_driver::RunCompiler::new(at_args, callbacks).run();
+    Ok(())
+}
+
+#[rustversion::since(2025-01-24)]
+fn run_compiler(
+    at_args: &[String],
+    callbacks: &mut (dyn rustc_driver::Callbacks + Send),
+) -> Result<()> {
+    rustc_driver::run_compiler(at_args, callbacks);
     Ok(())
 }
 

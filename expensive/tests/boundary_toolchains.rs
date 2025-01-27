@@ -18,6 +18,9 @@ use tempfile::tempdir;
 // smoelius: Put recent boundaries first, since they're more likely to cause problems.
 // smoelius: The relevant PRs and merge commits appear before each boundary.
 const BOUNDARIES: &[(&str, &str)] = &[
+    // https://github.com/rust-lang/rust/pull/135880
+    // https://github.com/rust-lang/rust/commit/7d31ae7f351b4aa0fcb47d1d22e04c275bef0653
+    ("2025-01-24", "2025-01-25"),
     // https://github.com/rust-lang/rust/pull/133567
     // https://github.com/rust-lang/rust/commit/d2881e4eb5e0fe1591bfd8e4cab1d5abc3e3a46c
     ("2024-12-09", "2024-12-10"),
