@@ -1258,14 +1258,6 @@
         "name": "Josh Stone"
       }
     ],
-    "is-terminal": [
-      {
-        "id": 6825,
-        "kind": "user",
-        "login": "sunfishcode",
-        "name": "Dan Gohman"
-      }
-    ],
     "is_terminal_polyfill": [
       {
         "id": 6743,
