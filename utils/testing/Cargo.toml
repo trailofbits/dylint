@@ -1,6 +1,6 @@
 [package]
 name = "dylint_testing"
-version = "3.4.0"
+version = "3.4.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Utilities for testing Dylint libraries"
 edition = "2021"
@@ -17,8 +17,8 @@ regex = { workspace = true }
 serde_json = { workspace = true }
 tempfile = { workspace = true }
 
-dylint = { version = "=3.4.0", path = "../../dylint" }
-dylint_internal = { version = "=3.4.0", path = "../../internal" }
+dylint = { version = "=3.4.1", path = "../../dylint" }
+dylint_internal = { version = "=3.4.1", path = "../../internal" }
 
 [features]
 default = []
