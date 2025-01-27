@@ -21,7 +21,6 @@ env_logger = { workspace = true, optional = true }
 git2 = { workspace = true, optional = true }
 home = { workspace = true, optional = true }
 if_chain = { workspace = true, optional = true }
-is-terminal = { workspace = true, optional = true }
 log = { workspace = true, optional = true }
 rust-embed = { workspace = true, features = [
     "include-exclude",
@@ -38,14 +37,7 @@ walkdir = { workspace = true, optional = true }
 toml_edit = { workspace = true }
 
 [features]
-cargo = [
-    "ansi_term",
-    "bitflags",
-    "cargo_metadata",
-    "command",
-    "home",
-    "is-terminal",
-]
+cargo = ["ansi_term", "bitflags", "cargo_metadata", "command", "home"]
 clippy_utils = ["semver", "toml_edit"]
 command = ["log"]
 config = ["cargo_metadata", "serde", "thiserror", "toml"]

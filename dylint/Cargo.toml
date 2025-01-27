@@ -25,7 +25,6 @@ glob = { workspace = true, optional = true }
 heck = { workspace = true, optional = true }
 hex = { workspace = true, optional = true }
 if_chain = { workspace = true, optional = true }
-is-terminal = { workspace = true }
 log = { workspace = true }
 once_cell = { workspace = true }
 rewriter = { workspace = true, optional = true }
