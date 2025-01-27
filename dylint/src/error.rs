@@ -2,8 +2,7 @@ use ansi_term::{
     Color::{Red, Yellow},
     Style,
 };
-use is_terminal::IsTerminal;
-use std::io::Write;
+use std::io::{IsTerminal, Write};
 
 // smoelius: `ColorizedError` is currently used only by `cargo-dylint`. But given the similarity of
 // its implementation to `warn`, I prefer to keep it here for now. Also, FWIW, this limits the

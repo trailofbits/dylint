@@ -162,7 +162,6 @@ dependencies = [
  "git2",
  "home",
  "if_chain",
- "is-terminal",
  "log",
  "once_cell",
  "regex",

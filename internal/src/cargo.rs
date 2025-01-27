@@ -3,10 +3,9 @@ use ansi_term::Style;
 use anyhow::{anyhow, ensure, Result};
 use bitflags::bitflags;
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
-use is_terminal::IsTerminal;
 use once_cell::sync::Lazy;
 use std::{
-    io::Write,
+    io::{IsTerminal, Write},
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
