@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.4.1
+
+- Account for [rust-lang/rust#135880](https://github.com/rust-lang/rust/pull/135880) ([#1501](https://github.com/trailofbits/dylint/pull/1501))
+- Eliminate reliance on `is-terminal` ([#1502](https://github.com/trailofbits/dylint/pull/1502))
+
 ## 3.4.0
 
 - Add link to EuroRust 2024 video ([#1447](https://github.com/trailofbits/dylint/pull/1447))
