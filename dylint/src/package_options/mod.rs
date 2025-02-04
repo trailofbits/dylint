@@ -14,6 +14,7 @@ use rewriter::Backup;
 use std::{
     fs::{copy, create_dir_all},
     path::Path,
+    env::current_dir,
 };
 use tempfile::tempdir;
 use walkdir::WalkDir;
@@ -101,7 +102,10 @@ fn fill_in(name: &str, from: &Path, to: &Path) -> Result<()> {
 }
 
 pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Result<()> {
-    let path = Path::new(&upgrade_opts.path);
+    let path = match & upgrade_opts.path {
+        Some(path_str) => Path::new(path_str),
+        None => &current_dir().with_context(|| "Could not get current directory")?
+    };
 
     let rev = {
         let revs = Revs::new(opts.quiet)?;

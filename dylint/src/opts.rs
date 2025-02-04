@@ -109,7 +109,7 @@ pub struct Upgrade {
 
     pub auto_correct: bool,
 
-    pub path: String,
+    pub path: Option<String>,
 }
 
 impl Dylint {

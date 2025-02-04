@@ -125,7 +125,7 @@ Combine with `--all` to list all lints in all discovered libraries."
         rust_version: Option<String>,
 
         #[clap(help = "Path to library package")]
-        path: String,
+        path: Option<String>,
 
         #[clap(
             help_heading = Some("Experimental"),
