@@ -77,9 +77,9 @@ pub fn auto_correct_revertible(
     new_oid: Oid,
     backups: &mut BTreeMap<String, Backup>,
 ) -> Result<()> {
-    let path = match & upgrade_opts.path {
+    let path = match &upgrade_opts.path {
         Some(path_str) => Path::new(path_str),
-        None => &current_dir().with_context(|| "Could not get current directory")?
+        None => &current_dir().with_context(|| "Could not get current directory")?,
     };
 
     let mut highlights = collect_highlights(opts, path)?;
