@@ -102,7 +102,6 @@ fn fill_in(name: &str, from: &Path, to: &Path) -> Result<()> {
 }
 
 pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Result<()> {
-
     let current_dir = current_dir().with_context(|| "Could not get current directory")?;
 
     let path = match &upgrade_opts.path {
