@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.5.0
+
+- FEATURE: The `PATH` argument in `cargo dylint upgrade PATH` is now optional. When omitted, `PATH` defaults to the current directory. ([#1508](https://github.com/trailofbits/dylint/pull/1508))&mdash;thanks [@YanVictorSN](https://github.com/YanVictorSN)
+
 ## 3.4.1
 
 - Account for [rust-lang/rust#135880](https://github.com/rust-lang/rust/pull/135880) ([#1501](https://github.com/trailofbits/dylint/pull/1501))

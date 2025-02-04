@@ -153,7 +153,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "3.4.1"
+version = "3.5.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -173,7 +173,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "3.4.1"
+version = "3.5.0"
 dependencies = [
  "cargo_metadata 0.19.0",
  "dylint_internal",
@@ -553,7 +553,7 @@ checksum = "04cbf5b083de1c7e0222a7a51dbfdba1cbe1c6ab0b15e29fff3f6c077fd9cd9f"
 
 [[package]]
 name = "marker"
-version = "3.4.1"
+version = "3.5.0"
 dependencies = [
  "anyhow",
  "bumpalo",
