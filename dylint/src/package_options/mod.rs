@@ -12,9 +12,9 @@ use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
 use rewriter::Backup;
 use std::{
+    env::current_dir,
     fs::{copy, create_dir_all},
     path::Path,
-    env::current_dir,
 };
 use tempfile::tempdir;
 use walkdir::WalkDir;

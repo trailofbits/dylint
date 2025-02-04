@@ -10,10 +10,10 @@ use dylint_internal::git2::Oid;
 use rewriter::{interface::Span as _, LineColumn, Rewriter, Span};
 use std::{
     collections::{BTreeMap, HashMap},
+    env::current_dir,
     fs::{read_to_string, write},
     ops::Range,
     path::Path,
-    env::current_dir,
 };
 
 mod tokenization;
