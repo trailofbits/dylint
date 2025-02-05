@@ -43,3 +43,8 @@ fn single_identifier() {
     // smoelius: This is a "false positive." Ideally, the lint would not fire on the next line.
     // Identifier
 }
+
+// smoelius: @fcasal noticed that the lint produced multiple warnings in async functions.
+async fn async_fn() {
+    // dbg!(x);
+}

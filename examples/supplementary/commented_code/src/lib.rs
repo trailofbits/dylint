@@ -89,6 +89,9 @@ static LINE_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new("(^|[^/])(//([^/].*))
 static BLOCK_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
 
 fn check_span(cx: &LateContext<'_>, span: Span) {
+    if span.from_expansion() {
+        return;
+    }
     let Some(source_file_range) = span.get_source_text(cx) else {
         return;
     };
@@ -146,5 +149,7 @@ fn expr_path_is_ident(expr_path: &syn::ExprPath) -> bool {
 
 #[test]
 fn ui() {
-    dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui");
+    dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui")
+        .rustc_flags(["--edition=2024"])
+        .run();
 }
