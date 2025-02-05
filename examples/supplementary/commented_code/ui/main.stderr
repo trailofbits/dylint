@@ -42,5 +42,13 @@ LL | |     */
    |
    = help: uncomment or remove
 
-warning: 5 warnings emitted
+warning: commented out code
+  --> $DIR/main.rs:49:5
+   |
+LL |     // dbg!(x);
+   |     ^^^^^^^^^^^
+   |
+   = help: uncomment or remove
+
+warning: 6 warnings emitted
 
