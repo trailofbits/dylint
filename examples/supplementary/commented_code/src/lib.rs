@@ -116,6 +116,9 @@ fn check_captures(
     let range = captures.get(span_index).unwrap().range();
     let text = &captures[text_index];
 
+    // smoelius: `needless_doctest_main` provides an example use of `rustc_parse`, should we decide
+    // to use that rather than `syn`:
+    // https://github.com/rust-lang/rust-clippy/blob/e8d02fe1cb20a21e0bee2f80f1e16945eb3b9437/clippy_lints/src/doc/needless_doctest_main.rs#L45-L59
     let Ok(block) = syn::parse_str::<syn::Block>(&format!("{{{text}}}")) else {
         return;
     };
