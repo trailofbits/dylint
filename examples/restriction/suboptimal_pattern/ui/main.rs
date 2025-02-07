@@ -33,9 +33,7 @@ fn main() {
     let _ = xys.iter().map(|xy| *xy.0 == xy.1 .0).collect::<Vec<_>>();
     let _ = yzs.iter().map(|yz| yz.0 .0 == yz.1).collect::<Vec<_>>();
 
-    let _ = wxs.iter().map(|(w, x)| w == *x).collect::<Vec<_>>();
     let _ = xys.iter().map(|(x, y)| **x == y.0).collect::<Vec<_>>();
-    let _ = yzs.iter().map(|(y, z)| y.0 == z).collect::<Vec<_>>();
 
     let _ = ws.clone().into_iter().map(|w| w == "").collect::<Vec<_>>();
     let _ = xs.clone().into_iter().map(|x| *x == "").collect::<Vec<_>>();
@@ -80,6 +78,11 @@ fn main() {
 
     // smoelius: Additional reference possible.
     let _ = xs.iter().map(|&x| *x == "").collect::<Vec<_>>();
+
+    // smoelius: Negative tests. Do not warn in the following cases. The tuples have implicit outer
+    // references and the suggestions the lint would produce would be incorrect.
+    let _ = wxs.iter().map(|(w, x)| w == *x).collect::<Vec<_>>();
+    let _ = yzs.iter().map(|(y, z)| y.0 == z).collect::<Vec<_>>();
 }
 
 mod ref_necessity {
