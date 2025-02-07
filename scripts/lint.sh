@@ -23,10 +23,6 @@ EXAMPLE_DIRS="$(find examples -mindepth 2 -maxdepth 2 -type d ! -name .cargo ! -
 # smoelius: Remove `experimental` examples.
 EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/experimental/[^/]*\>[[:space:]]*,,')"
 
-# smoelius: `clippy` must be run separately because, for any lint not loaded alongside of it, rustc
-# complains about the clippy-specific flags.
-EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/clippy\>[[:space:]]*,,')"
-
 # smoelius: Remove `straggler`, as it uses a different toolchain than the other examples.
 EXAMPLE_DIRS="$(echo "$EXAMPLE_DIRS" | sed 's,\<examples/testing/straggler\>[[:space:]]*,,')"
 
@@ -49,41 +45,30 @@ force_check() {
     find "$WORKSPACE"/target -name .fingerprint -path '*/dylint/target/nightly-*' -exec rm -r {} \; || true
 }
 
-for FLAGS in "--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS" '--lib clippy'; do
-    # smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
-    # smoelius: The commented command doesn't do anything now that all workspaces in the
-    # repository share a top-level target directory. Is the command still necessary?
-    # smoelius: Yes, the next command is necessary to force `cargo check` to run.
-    force_check
+# smoelius: Since lint levels are now specified in Cargo.toml files, `clippy` no longer must be run
+# in a separate pass.
+FLAGS="--lib general --lib supplementary $RESTRICTIONS_AS_FLAGS --lib clippy"
 
-    DYLINT_RUSTFLAGS='-D warnings'
-    if [[ "$FLAGS" = '--lib clippy' ]]; then
-        # smoelius: `-W clippy::all` helps for checking those lints with `overscoped_allow`.
-        DYLINT_RUSTFLAGS="$DYLINT_RUSTFLAGS
-            -W clippy::all
-            -W clippy::pedantic
-            -W clippy::nursery
-            -A clippy::option-if-let-else
-            -A clippy::missing-errors-doc
-            -A clippy::missing-panics-doc
-            -A clippy::significant-drop-tightening
-            -A clippy::struct-field-names
-        "
-    fi
-    export DYLINT_RUSTFLAGS
-    echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
+# smoelius: `cargo clean` can't be used here because it would remove cargo-dylint.
+# smoelius: The commented command doesn't do anything now that all workspaces in the
+# repository share a top-level target directory. Is the command still necessary?
+# smoelius: Yes, the next command is necessary to force `cargo check` to run.
+force_check
 
-    # smoelius: `--all-targets` cannot be used here. It would cause the command to fail on the
-    # lint examples.
-    # smoelius: `--workspace` is needed because the `general` and `supplementary` workspaces contain
-    # root packages.
-    COMMAND="$CARGO_DYLINT dylint $FLAGS -- --all-features --tests --workspace"
+DYLINT_RUSTFLAGS='-D warnings'
+export DYLINT_RUSTFLAGS
+echo "DYLINT_RUSTFLAGS='$DYLINT_RUSTFLAGS'"
 
-    for DIR in $DIRS; do
-        pushd "$DIR"
-        bash -c "$COMMAND"
-        popd
-    done
+# smoelius: `--all-targets` cannot be used here. It would cause the command to fail on the
+# lint examples.
+# smoelius: `--workspace` is needed because the `general` and `supplementary` workspaces contain
+# root packages.
+COMMAND="$CARGO_DYLINT dylint $FLAGS -- --all-features --tests --workspace"
+
+for DIR in $DIRS; do
+    pushd "$DIR"
+    bash -c "$COMMAND"
+    popd
 done
 
 # smoelius: What follows is old code for running `overscoped_allow`. That lint's usefulness was

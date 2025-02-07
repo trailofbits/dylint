@@ -54,6 +54,12 @@ serde = "1.0"
 serde_json = "1.0"
 tracing = "0.1"
 
+[workspace.lints.clippy]
+nursery = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+option-if-let-else = "allow"
+struct-field-names = "allow"
+
 [workspace.lints.rust.unexpected_cfgs]
 level = "deny"
 check-cfg = ["cfg(dylint_lib, values(any()))"]
