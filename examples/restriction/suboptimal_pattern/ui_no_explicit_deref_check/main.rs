@@ -125,3 +125,23 @@ fn tuple_with_wildcard() {
     // smoelius: Does not compile:
     // let _ = ws.split_last().map(|&(w, _)| w);
 }
+
+// smoelius: This is an approximation of the code in:
+// https://github.com/trailofbits/dylint/issues/1093#issuecomment-2639594773
+mod issue_1093 {
+    struct Metadata;
+
+    struct Advisory {
+        metadata: Metadata,
+    }
+
+    #[derive(Clone, Copy)]
+    struct Outcome;
+
+    fn display_advisory_outcomes(advisory_outcomes: Vec<(Advisory, Outcome)>) {
+        let _ = advisory_outcomes
+            .iter()
+            .map(|(advisory, outcome)| (&advisory.metadata, *outcome))
+            .collect::<Vec<_>>();
+    }
+}

@@ -37,22 +37,10 @@ LL |     let _ = yzs.iter().map(|yz| yz.0 .0 == yz.1).collect::<Vec<_>>();
    |                             ^^ help: use something like: `(yz_0, yz_1)`
 
 warning: could destructure reference
-  --> $DIR/main.rs:36:33
-   |
-LL |     let _ = wxs.iter().map(|(w, x)| w == *x).collect::<Vec<_>>();
-   |                                 ^ help: use: `&x`
-
-warning: could destructure reference
   --> $DIR/main.rs:37:29
    |
 LL |     let _ = xys.iter().map(|(x, y)| **x == y.0).collect::<Vec<_>>();
    |                             ^^^^^^ help: use: `&(x, y)`
-
-warning: could destructure tuple
-  --> $DIR/main.rs:38:30
-   |
-LL |     let _ = yzs.iter().map(|(y, z)| y.0 == z).collect::<Vec<_>>();
-   |                              ^ help: use something like: `&(y_0,)`
 
 warning: could destructure reference
   --> $DIR/main.rs:41:41
@@ -132,5 +120,5 @@ warning: could destructure reference
 LL |     let _ = ws.split_last().map(|(w, _)| *w);
    |                                   ^ help: use: `&w`
 
-warning: 22 warnings emitted
+warning: 20 warnings emitted
 

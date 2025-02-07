@@ -115,33 +115,47 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
             }
 
             param.pat.walk(|pat| {
-                let pat_ty = cx.typeck_results().node_type(pat.hir_id);
+                let pat_ty = if let Some([pat_ty, ..]) = cx
+                    .typeck_results()
+                    .pat_adjustments()
+                    .get(pat.hir_id)
+                    .map(Vec::as_slice)
+                {
+                    *pat_ty
+                } else {
+                    cx.typeck_results().node_type(pat.hir_id)
+                };
                 let (referent_ty, n_refs) = peel_middle_ty_refs(pat_ty);
 
-                if let ty::Tuple(tys) = referent_ty.kind()
-                    && let PatKind::Binding(BindingMode(ByRef::No, _), hir_id, ident, None) =
+                let mut is_tuple = false;
+
+                if let ty::Tuple(tys) = referent_ty.kind() {
+                    is_tuple = true;
+
+                    if let PatKind::Binding(BindingMode(ByRef::No, _), hir_id, ident, None) =
                         pat.kind
-                    && let Some(projections) = exclusively_projected(cx.tcx, hir_id, body.value)
-                {
-                    let tuple_pattern =
-                        build_tuple_pattern(ident.name.as_str(), &projections, tys.len());
-                    let pattern = format!(
-                        "{:&>width$}{}",
-                        "",
-                        tuple_pattern,
-                        width = if is_copy(cx, referent_ty) { n_refs } else { 0 }
-                    );
-                    span_lint_and_sugg(
-                        cx,
-                        SUBOPTIMAL_PATTERN,
-                        pat.span,
-                        "could destructure tuple",
-                        "use something like",
-                        pattern,
-                        Applicability::HasPlaceholders,
-                    );
-                    found = true;
-                    return false;
+                        && let Some(projections) = exclusively_projected(cx.tcx, hir_id, body.value)
+                    {
+                        let tuple_pattern =
+                            build_tuple_pattern(ident.name.as_str(), &projections, tys.len());
+                        let pattern = format!(
+                            "{:&>width$}{}",
+                            "",
+                            tuple_pattern,
+                            width = if is_copy(cx, referent_ty) { n_refs } else { 0 }
+                        );
+                        span_lint_and_sugg(
+                            cx,
+                            SUBOPTIMAL_PATTERN,
+                            pat.span,
+                            "could destructure tuple",
+                            "use something like",
+                            pattern,
+                            Applicability::HasPlaceholders,
+                        );
+                        found = true;
+                        return false;
+                    }
                 }
 
                 if !contains_wild(pat)
@@ -172,7 +186,10 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                     return false;
                 }
 
-                true
+                // smoelius: If the pattern is a tuple with (possibly implicit) outer references, do
+                // not walk its children. (Some of the suggestions this lint was previously offering
+                // were incorrect.)
+                !is_tuple || n_refs == 0
             });
         }
     }
