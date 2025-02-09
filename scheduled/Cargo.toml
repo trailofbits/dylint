@@ -10,7 +10,6 @@ publish = false
 [dev-dependencies]
 anyhow = { workspace = true }
 assert_cmd = { workspace = true }
-once_cell = { workspace = true }
 predicates = { workspace = true }
 regex = { workspace = true }
 serde_json = { workspace = true }

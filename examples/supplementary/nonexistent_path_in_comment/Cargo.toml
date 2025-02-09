@@ -13,7 +13,6 @@ crate-type = ["cdylib"]
 cargo_metadata = { workspace = true }
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "238edf273d195c8e472851ebd60571f77f978ac8" }
 dylint_linting = { path = "../../../utils/linting" }
-once_cell = { workspace = true }
 regex = { workspace = true }
 
 [dev-dependencies]

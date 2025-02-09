@@ -4,7 +4,6 @@ use anyhow::Result;
 use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::{cargo::current_metadata, env, examples, home};
-use once_cell::sync::Lazy;
 use regex::Regex;
 use semver::{Op, Version};
 use similar_asserts::SimpleDiff;
@@ -15,10 +14,10 @@ use std::{
     fs::{read_dir, read_to_string, write},
     io::{Write as _, stderr},
     path::{Component, Path},
-    sync::Mutex,
+    sync::{LazyLock, Mutex},
 };
 
-static METADATA: Lazy<Metadata> = Lazy::new(|| current_metadata().unwrap());
+static METADATA: LazyLock<Metadata> = LazyLock::new(|| current_metadata().unwrap());
 
 #[ctor::ctor]
 fn initialize() {

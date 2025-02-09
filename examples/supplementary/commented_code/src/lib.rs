@@ -6,11 +6,11 @@ extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint_and_help, source::SpanRangeExt};
-use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use rustc_hir::Block;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::{BytePos, Span};
+use std::sync::LazyLock;
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
@@ -91,8 +91,10 @@ impl<'tcx> LateLintPass<'tcx> for CommentedCode {
     }
 }
 
-static LINE_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new("(^|[^/])(//([^/].*))").unwrap());
-static BLOCK_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
+static LINE_COMMENT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new("(^|[^/])(//([^/].*))").unwrap());
+static BLOCK_COMMENT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
 
 fn check_span(cx: &LateContext<'_>, span: Span) {
     if span.from_expansion() {

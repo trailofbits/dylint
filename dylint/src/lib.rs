@@ -8,13 +8,13 @@ use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     CommandExt, driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment,
 };
-use once_cell::sync::Lazy;
 use std::{
     collections::BTreeMap,
     env::{consts, current_dir},
     ffi::OsStr,
     fs::{OpenOptions, metadata},
     path::{MAIN_SEPARATOR, Path, PathBuf},
+    sync::LazyLock,
 };
 
 type Object = serde_json::Map<String, serde_json::Value>;
@@ -43,7 +43,7 @@ pub mod opts;
 #[cfg(feature = "package_options")]
 mod package_options;
 
-static REQUIRED_FORM: Lazy<String> = Lazy::new(|| {
+static REQUIRED_FORM: LazyLock<String> = LazyLock::new(|| {
     format!(
         r#""{}" LIBRARY_NAME "@" TOOLCHAIN "{}""#,
         consts::DLL_PREFIX,
@@ -527,7 +527,7 @@ mod test {
     // The easiest solution is to just run the tests sequentially.
     static MUTEX: Mutex<()> = Mutex::new(());
 
-    static OPTS: Lazy<opts::Dylint> = Lazy::new(|| opts::Dylint {
+    static OPTS: LazyLock<opts::Dylint> = LazyLock::new(|| opts::Dylint {
         operation: opts::Operation::Check(opts::Check {
             lib_sel: opts::LibrarySelection {
                 manifest_path: Some(String::from("../fixtures/name_toolchain_map/Cargo.toml")),
