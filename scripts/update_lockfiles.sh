@@ -15,8 +15,5 @@ cd "$WORKSPACE"
 
 find . -name Cargo.toml |
 while read -r X; do
-    if [[ "$X" = './examples/testing/marker/Cargo.toml' ]]; then
-        continue
-    fi
     cargo update --manifest-path "$X"
 done

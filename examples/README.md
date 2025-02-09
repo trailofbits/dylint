@@ -63,7 +63,6 @@ The example libraries are separated into the following three categories:
 | Example                            | Description/check                                      |
 | ---------------------------------- | ------------------------------------------------------ |
 | [`clippy`](./testing/clippy)       | All of the Clippy lints as a Dylint library            |
-| [`marker`](./testing/marker)       | Marker lints run from a Dylint library                 |
 | [`straggler`](./testing/straggler) | A lint that uses an old toolchain for testing purposes |
 
 **Notes**
