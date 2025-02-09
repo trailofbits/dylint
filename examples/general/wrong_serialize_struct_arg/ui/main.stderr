@@ -1,94 +1,94 @@
 warning: `serialize_struct` call's `len` argument is 1, but number of `serialize_field` calls is 3
-  --> $DIR/main.rs:16:25
+  --> $DIR/main.rs:18:25
    |
 LL |         let mut state = serializer.serialize_struct("Color", 1)?;
    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `serialize_field` call 1 of 3
-  --> $DIR/main.rs:17:9
+  --> $DIR/main.rs:19:9
    |
 LL |         state.serialize_field("r", &self.r)?;
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: `serialize_field` call 2 of 3
-  --> $DIR/main.rs:18:9
+  --> $DIR/main.rs:20:9
    |
 LL |         state.serialize_field("g", &self.g)?;
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: `serialize_field` call 3 of 3
-  --> $DIR/main.rs:19:9
+  --> $DIR/main.rs:21:9
    |
 LL |         state.serialize_field("b", &self.b)?;
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: `#[warn(wrong_serialize_struct_arg)]` on by default
 
 warning: `serialize_struct` call's `len` argument is 0, but number of `serialize_field` calls is 1
-  --> $DIR/main.rs:58:33
+  --> $DIR/main.rs:60:33
    |
 LL |             let Ok(mut state) = serializer.serialize_struct("S", 0) else {
    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `serialize_field` call 1 of 1
-  --> $DIR/main.rs:61:13
+  --> $DIR/main.rs:63:13
    |
 LL |             state.serialize_field("field", &self.field)?;
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: `serialize_struct` call's `len` argument is 0, but number of `serialize_field` calls is 1
-  --> $DIR/main.rs:78:29
+  --> $DIR/main.rs:80:29
    |
 LL |             let mut state = serializer.serialize_struct("S", 0)?;
    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `serialize_field` call 1 of 1
-  --> $DIR/main.rs:79:26
+  --> $DIR/main.rs:81:26
    |
 LL |             let Ok(()) = state.serialize_field("field", &self.field) else {
    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: `serialize_struct` call's `len` argument is 0, but number of `serialize_field` calls is 1
-  --> $DIR/main.rs:98:29
+  --> $DIR/main.rs:100:29
    |
 LL |             let mut state = first.serialize_struct("S", 0)?;
    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `serialize_field` call 1 of 1
-  --> $DIR/main.rs:99:13
+  --> $DIR/main.rs:101:13
    |
 LL |             state.serialize_field("field", &self.field)?;
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: `serialize_struct` call's `len` argument is 0, but number of `serialize_field` calls is 1
-  --> $DIR/main.rs:102:29
+  --> $DIR/main.rs:104:29
    |
 LL |             let mut state = second.serialize_struct("S", 0)?;
    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `serialize_field` call 1 of 1
-  --> $DIR/main.rs:103:13
+  --> $DIR/main.rs:105:13
    |
 LL |             state.serialize_field("field", &self.field)?;
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: `serialize_struct` call's `len` argument is 0, but number of `serialize_field` calls is 1
-  --> $DIR/main.rs:123:33
+  --> $DIR/main.rs:125:33
    |
 LL |                 let mut state = inner.serialize_struct("S", 0)?;
    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `serialize_field` call 1 of 1
-  --> $DIR/main.rs:124:17
+  --> $DIR/main.rs:126:17
    |
 LL |                 state.serialize_field("field", &self.field)?;
    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: `serialize_struct` call's `len` argument is 0, but number of `serialize_field` calls is 1
-  --> $DIR/main.rs:120:29
+  --> $DIR/main.rs:122:29
    |
 LL |             let mut state = outer.serialize_struct("S", 0)?;
    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `serialize_field` call 1 of 1
-  --> $DIR/main.rs:128:13
+  --> $DIR/main.rs:130:13
    |
 LL |             state.serialize_field("field", &self.field)?;
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
