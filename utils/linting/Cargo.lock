@@ -112,7 +112,6 @@ version = "4.0.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
- "once_cell",
  "regex",
  "serde",
  "thiserror",

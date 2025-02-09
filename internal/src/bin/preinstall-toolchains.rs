@@ -1,11 +1,11 @@
 use anyhow::{Context, Result, anyhow, ensure};
-use once_cell::sync::Lazy;
 use regex::Regex;
 use std::{
     fs::File,
     io::{BufRead, BufReader},
     path::Path,
     process::{Command, Stdio},
+    sync::LazyLock,
     thread,
 };
 
@@ -60,8 +60,8 @@ fn collect_toolchains_for_dir(dir: &str) -> Result<Vec<String>> {
         })
 }
 
-static RE: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\<nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}\>").unwrap());
+static RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\<nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}\>").unwrap());
 
 fn collect_toolchains_for_path(path: impl AsRef<Path>) -> Result<Vec<String>> {
     let file = File::open(&path).with_context(|| format!("Could not open {:?}", path.as_ref()))?;

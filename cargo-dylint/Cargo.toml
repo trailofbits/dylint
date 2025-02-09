@@ -27,7 +27,6 @@ cargo_metadata = { workspace = true }
 ctor = { workspace = true }
 glob = { workspace = true }
 log = { workspace = true }
-once_cell = { workspace = true }
 predicates = { workspace = true }
 regex = { workspace = true }
 semver = { workspace = true }
