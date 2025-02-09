@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 struct Color {
     r: u8,
     g: u8,
