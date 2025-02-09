@@ -4,7 +4,6 @@ use anyhow::Result;
 use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::{cargo::current_metadata, env, examples, home};
-use once_cell::sync::Lazy;
 use regex::Regex;
 use semver::{Op, Version};
 use similar_asserts::SimpleDiff;
@@ -17,7 +16,7 @@ use std::{
     path::{Component, Path, PathBuf},
     process,
     str::FromStr,
-    sync::Mutex,
+    sync::{LazyLock, Mutex},
 };
 
 const TARGETS: [&str; 4] = [
@@ -27,7 +26,7 @@ const TARGETS: [&str; 4] = [
     "x86_64-pc-windows-msvc",
 ];
 
-static METADATA: Lazy<Metadata> = Lazy::new(|| current_metadata().unwrap());
+static METADATA: LazyLock<Metadata> = LazyLock::new(|| current_metadata().unwrap());
 
 #[ctor::ctor]
 fn initialize() {
