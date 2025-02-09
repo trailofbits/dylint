@@ -6,10 +6,10 @@ extern crate rustc_span;
 
 use cargo_metadata::MetadataCommand;
 use clippy_utils::diagnostics::span_lint_and_help;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::{BytePos, FileName, Span, SyntaxContext};
+use std::sync::LazyLock;
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
@@ -56,10 +56,10 @@ dylint_linting::declare_late_lint! {
     "file paths in comments that do not exist"
 }
 
-static LINE_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new("(^|[^/])(//([^/].*))").unwrap());
-static BLOCK_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
-static PATH_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"((?:\./|\.\./|/|[\w/-]+/)+[\w-]+(?:\.[\w-]+)+)").unwrap());
+static LINE_COMMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new("(^|[^/])(//([^/].*))").unwrap());
+static BLOCK_COMMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
+static PATH_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"((?:\./|\.\./|/|[\w/-]+/)+[\w-]+(?:\.[\w-]+)+)").unwrap());
 
 impl<'tcx> LateLintPass<'tcx> for NonexistentPathInComment {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {

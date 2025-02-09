@@ -125,9 +125,9 @@ impl Iterator for RevIter<'_> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use once_cell::sync::Lazy;
+    use std::sync::LazyLock;
 
-    static EXAMPLES: Lazy<[Rev; 6]> = Lazy::new(|| {
+    static EXAMPLES: LazyLock<[Rev; 6]> = LazyLock::new(|| {
         [
             Rev {
                 version: "0.1.65".to_owned(),

@@ -26,7 +26,6 @@ dylint_linting = { path = "../../../utils/linting" }
 [dev-dependencies]
 bitflags = { workspace = true }
 derivative = { workspace = true }
-once_cell = { workspace = true }
 
 dylint_testing = { path = "../../../utils/testing" }
 

@@ -321,7 +321,6 @@ dependencies = [
  "home",
  "if_chain",
  "log",
- "once_cell",
  "regex",
  "rust-embed",
  "rustversion",

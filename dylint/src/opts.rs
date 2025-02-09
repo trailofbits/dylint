@@ -17,7 +17,7 @@
 //! [struct update syntax]: https://doc.rust-lang.org/book/ch05-01-defining-structs.html#creating-instances-from-other-instances-with-struct-update-syntax
 
 #[cfg(feature = "package_options")]
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Default)]
@@ -139,7 +139,7 @@ impl LibrarySelection {
 }
 
 #[cfg(feature = "package_options")]
-static LIBRARY_SELECTION: Lazy<LibrarySelection> = Lazy::new(LibrarySelection::default);
+static LIBRARY_SELECTION: LazyLock<LibrarySelection> = LazyLock::new(LibrarySelection::default);
 
 impl Operation {
     const fn has_library_selection(&self) -> bool {
