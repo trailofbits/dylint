@@ -2636,7 +2636,8 @@
       "dylint_examples",
       "dylint_internal",
       "dylint_testing",
-      "expensive"
+      "expensive",
+      "scheduled"
     ]
   }
 }

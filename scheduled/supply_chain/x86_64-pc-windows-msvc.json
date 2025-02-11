@@ -1,19 +1,5 @@
 {
   "crates_io_crates": {
-    "addr2line": [
-      {
-        "id": 696,
-        "kind": "user",
-        "login": "fitzgen",
-        "name": "Nick Fitzgerald"
-      },
-      {
-        "id": 4415,
-        "kind": "user",
-        "login": "philipc",
-        "name": "Philip Craig"
-      }
-    ],
     "adler2": [
       {
         "id": 4968,
@@ -87,6 +73,20 @@
       }
     ],
     "anstyle-query": [
+      {
+        "id": 460,
+        "kind": "team",
+        "login": "github:rust-cli:maintainers",
+        "name": "Maintainers"
+      },
+      {
+        "id": 6743,
+        "kind": "user",
+        "login": "epage",
+        "name": "Ed Page"
+      }
+    ],
+    "anstyle-wincon": [
       {
         "id": 460,
         "kind": "team",
@@ -748,20 +748,6 @@
         "name": "David Tolnay"
       }
     ],
-    "errno": [
-      {
-        "id": 684,
-        "kind": "user",
-        "login": "lambda-fairy",
-        "name": "Chris Wong"
-      },
-      {
-        "id": 6825,
-        "kind": "user",
-        "login": "sunfishcode",
-        "name": "Dan Gohman"
-      }
-    ],
     "fancy-regex": [
       {
         "id": 635,
@@ -912,20 +898,6 @@
         "kind": "user",
         "login": "dhardy",
         "name": "Diggory Hardy"
-      }
-    ],
-    "gimli": [
-      {
-        "id": 696,
-        "kind": "user",
-        "login": "fitzgen",
-        "name": "Nick Fitzgerald"
-      },
-      {
-        "id": 4415,
-        "kind": "user",
-        "login": "philipc",
-        "name": "Philip Craig"
       }
     ],
     "git2": [
@@ -1464,14 +1436,6 @@
         "name": null
       }
     ],
-    "linux-raw-sys": [
-      {
-        "id": 6825,
-        "kind": "user",
-        "login": "sunfishcode",
-        "name": "Dan Gohman"
-      }
-    ],
     "litemap": [
       {
         "id": 1139,
@@ -1546,6 +1510,26 @@
         "name": null
       }
     ],
+    "miow": [
+      {
+        "id": 1,
+        "kind": "user",
+        "login": "alexcrichton",
+        "name": "Alex Crichton"
+      },
+      {
+        "id": 1459,
+        "kind": "user",
+        "login": "faern",
+        "name": "Linus Färnstrand"
+      },
+      {
+        "id": 3824,
+        "kind": "user",
+        "login": "yoshuawuyts",
+        "name": "Yosh"
+      }
+    ],
     "num-traits": [
       {
         "id": 539,
@@ -1562,20 +1546,6 @@
         "name": "Sean McArthur"
       }
     ],
-    "object": [
-      {
-        "id": 696,
-        "kind": "user",
-        "login": "fitzgen",
-        "name": "Nick Fitzgerald"
-      },
-      {
-        "id": 4415,
-        "kind": "user",
-        "login": "philipc",
-        "name": "Philip Craig"
-      }
-    ],
     "once_cell": [
       {
         "id": 2699,
@@ -1588,34 +1558,6 @@
         "kind": "user",
         "login": "vorner",
         "name": "Michal 'vorner' Vaner"
-      }
-    ],
-    "openssl-probe": [
-      {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      }
-    ],
-    "openssl-sys": [
-      {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
-        "id": 5,
-        "kind": "user",
-        "login": "sfackler",
-        "name": "Steven Fackler"
-      },
-      {
-        "id": 163,
-        "kind": "user",
-        "login": "alex",
-        "name": "Alex Gaynor"
       }
     ],
     "option-ext": [
@@ -1840,14 +1782,6 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
-      }
-    ],
-    "rustix": [
-      {
-        "id": 6825,
-        "kind": "user",
-        "login": "sunfishcode",
-        "name": "Dan Gohman"
       }
     ],
     "rustversion": [
@@ -2482,6 +2416,46 @@
         "name": "Andrew Gallant"
       }
     ],
+    "winapi": [
+      {
+        "id": 63,
+        "kind": "user",
+        "login": "retep998",
+        "name": "Peter Atashian"
+      }
+    ],
+    "winapi-util": [
+      {
+        "id": 189,
+        "kind": "user",
+        "login": "BurntSushi",
+        "name": "Andrew Gallant"
+      }
+    ],
+    "windows-sys": [
+      {
+        "id": 64539,
+        "kind": "user",
+        "login": "kennykerr",
+        "name": "Kenny Kerr"
+      }
+    ],
+    "windows-targets": [
+      {
+        "id": 64539,
+        "kind": "user",
+        "login": "kennykerr",
+        "name": "Kenny Kerr"
+      }
+    ],
+    "windows_x86_64_msvc": [
+      {
+        "id": 64539,
+        "kind": "user",
+        "login": "kennykerr",
+        "name": "Kenny Kerr"
+      }
+    ],
     "winnow": [
       {
         "id": 6743,
@@ -2606,7 +2580,8 @@
       "dylint_examples",
       "dylint_internal",
       "dylint_testing",
-      "expensive"
+      "expensive",
+      "scheduled"
     ]
   }
 }

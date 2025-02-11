@@ -1,0 +1,22 @@
+[package]
+name = "scheduled"
+description = "Scheduled tests"
+version = "3.5.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+
+[dev-dependencies]
+anyhow = { workspace = true }
+assert_cmd = { workspace = true }
+once_cell = { workspace = true }
+predicates = { workspace = true }
+regex = { workspace = true }
+serde_json = { workspace = true }
+similar-asserts = { workspace = true }
+
+dylint_internal = { version = "=3.5.0", path = "../internal" }
+
+[lints]
+workspace = true
