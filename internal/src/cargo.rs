@@ -15,6 +15,10 @@ pub use home::cargo_home;
 
 static STABLE_CARGO: Lazy<PathBuf> = Lazy::new(|| {
     let mut command = Command::new("rustup");
+    // smoelius: Rustup 1.27.1 doesn't properly handle the case where the toolchain is specified via
+    // both the `RUSTUP_TOOLCHAIN` environment variable and the command line (e.g., `+stable`). This
+    // bug is fixed in Rustup's `master` branch, though.
+    command.env_remove("RUSTUP_TOOLCHAIN");
     command.args(["+stable", "which", "cargo"]);
     let output = command.logged_output(true).unwrap();
     assert!(output.status.success());
@@ -201,4 +205,9 @@ pub fn package(metadata: &Metadata, package_id: &PackageId) -> Result<Package> {
         .find(|package| package.id == *package_id)
         .cloned()
         .ok_or_else(|| anyhow!("Could not find package"))
+}
+
+#[must_use]
+pub fn stable_cargo_path() -> &'static Path {
+    &STABLE_CARGO
 }

@@ -89,6 +89,27 @@ fn library_packages_in_dylint_toml() {
 }
 
 #[test]
+fn library_packages_with_rust_toolchain() {
+    let assert = std::process::Command::cargo_bin("cargo-dylint")
+        .unwrap()
+        .current_dir("../fixtures/library_packages_with_rust_toolchain")
+        .env(env::RUST_LOG, "debug")
+        .args(["dylint", "--all"])
+        .assert()
+        .success();
+
+    if cfg!(all(
+        feature = "cargo-cli",
+        target_arch = "x86_64",
+        not(target_os = "windows")
+    )) {
+        assert.stderr(predicate::str::contains(
+            r#"/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo" "fetch""#,
+        ));
+    }
+}
+
+#[test]
 fn list() {
     let tempdir = tempdir().unwrap();
 
