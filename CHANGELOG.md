@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.5.1
+
+- Have `cargo metadata` and `cargo fetch` use the same `cargo` when building library packages. Using different `cargo`s caused the two commands to refer to different subdirectories within the user's `CARGO_HOME`, leading to "Could not determine accessed subdirectory" errors. This bug primarily affected projects with `rust-toolchain` files. ([#1519](https://github.com/trailofbits/dylint/pull/1519))
+
 ## 3.5.0
 
 - FEATURE: The `PATH` argument in `cargo dylint upgrade PATH` is now optional. When omitted, `PATH` defaults to the current directory. ([#1508](https://github.com/trailofbits/dylint/pull/1508))&mdash;thanks [@YanVictorSN](https://github.com/YanVictorSN)

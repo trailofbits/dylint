@@ -1,6 +1,6 @@
 [package]
 name = "inconsistent_struct_pattern"
-version = "3.5.0"
+version = "3.5.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for struct patterns whose fields do not match their declared order"
 edition = "2021"
