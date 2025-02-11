@@ -34,6 +34,9 @@ toml_edit = { workspace = true, optional = true }
 walkdir = { workspace = true, optional = true }
 
 [dev-dependencies]
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+tempfile = { workspace = true }
 toml_edit = { workspace = true }
 
 [features]

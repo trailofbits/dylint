@@ -34,7 +34,7 @@ declare_const!(RUSTC_WORKSPACE_WRAPPER);
 declare_const!(RUSTFLAGS);
 declare_const!(RUSTUP_HOME);
 declare_const!(RUSTUP_TOOLCHAIN);
-declare_const!(RUST_BACKTRACE);
+declare_const!(RUST_LOG);
 declare_const!(TARGET);
 
 /// Returns true if the environment variable `key` is set to a non-zero value.

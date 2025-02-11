@@ -1,0 +1,10 @@
+[package]
+name = "library_packages_with_rust_toolchain"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace.metadata.dylint]
+libraries = [
+    { git = "https://github.com/trailofbits/dylint", pattern = "examples/general" },
+]
