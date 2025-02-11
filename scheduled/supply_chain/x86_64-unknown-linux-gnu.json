@@ -464,52 +464,6 @@
         "name": "Philip Munksgaard"
       }
     ],
-    "core-foundation": [
-      {
-        "id": 5,
-        "kind": "team",
-        "login": "github:servo:cargo-publish",
-        "name": "cargo publish"
-      },
-      {
-        "id": 576,
-        "kind": "user",
-        "login": "larsbergstrom",
-        "name": "Lars Bergstrom"
-      },
-      {
-        "id": 1966,
-        "kind": "user",
-        "login": "metajack",
-        "name": "Jack Moffitt"
-      },
-      {
-        "id": 2017,
-        "kind": "user",
-        "login": "mbrubeck",
-        "name": "Matt Brubeck"
-      },
-      {
-        "id": 2258,
-        "kind": "user",
-        "login": "pcwalton",
-        "name": "Patrick Walton"
-      }
-    ],
-    "core-foundation-sys": [
-      {
-        "id": 5,
-        "kind": "team",
-        "login": "github:servo:cargo-publish",
-        "name": "cargo publish"
-      },
-      {
-        "id": 576,
-        "kind": "user",
-        "login": "larsbergstrom",
-        "name": "Lars Bergstrom"
-      }
-    ],
     "cpufeatures": [
       {
         "id": 267,
@@ -1510,6 +1464,14 @@
         "name": null
       }
     ],
+    "linux-raw-sys": [
+      {
+        "id": 6825,
+        "kind": "user",
+        "login": "sunfishcode",
+        "name": "Dan Gohman"
+      }
+    ],
     "litemap": [
       {
         "id": 1139,
@@ -1626,6 +1588,14 @@
         "kind": "user",
         "login": "vorner",
         "name": "Michal 'vorner' Vaner"
+      }
+    ],
+    "openssl-probe": [
+      {
+        "id": 1,
+        "kind": "user",
+        "login": "alexcrichton",
+        "name": "Alex Crichton"
       }
     ],
     "openssl-sys": [
@@ -2636,7 +2606,8 @@
       "dylint_examples",
       "dylint_internal",
       "dylint_testing",
-      "expensive"
+      "expensive",
+      "scheduled"
     ]
   }
 }

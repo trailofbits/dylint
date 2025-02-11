@@ -3260,6 +3260,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "scheduled"
+version = "3.5.0"
+dependencies = [
+ "anyhow",
+ "assert_cmd",
+ "dylint_internal",
+ "once_cell",
+ "predicates",
+ "regex",
+ "serde_json",
+ "similar-asserts",
+]
+
+[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
