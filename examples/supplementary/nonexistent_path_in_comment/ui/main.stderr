@@ -1,22 +1,27 @@
-warning: referenced path does not exist: ../nonexistent/path/file.rs
-  --> $DIR/main.rs:2:3
+warning: referenced path does not exist
+  --> $DIR/main.rs:2:8
    |
 LL | // See ../nonexistent/path/file.rs
-   |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: verify the path is correct or remove the reference
    = note: `#[warn(nonexistent_path_in_comment)]` on by default
 
-warning: referenced path does not exist: ../another/nonexistent/path/file.go
-  --> $DIR/main.rs:7:3
+warning: referenced path does not exist
+  --> $DIR/main.rs:15:13
    |
-LL |   /* This is a block comment with a nonexistent path
-   |  ___^
-LL | |    See ../another/nonexistent/path/file.go
-LL | | */
-   | |_^
+LL | // The span ./ido/not/exist.rs only points to the path
+   |             ^^^^^^^^^^^^^^^^^^
    |
    = help: verify the path is correct or remove the reference
 
-warning: 2 warnings emitted
+warning: referenced path does not exist
+  --> $DIR/main.rs:8:8
+   |
+LL |    See ../another/nonexistent/path/file.go
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: verify the path is correct or remove the reference
+
+warning: 3 warnings emitted
 

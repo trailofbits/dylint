@@ -8,7 +8,7 @@ use clippy_utils::diagnostics::span_lint_and_help;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_span::{Span, SyntaxContext};
+use rustc_span::{BytePos, FileName, Span, SyntaxContext};
 use std::path::Path;
 
 dylint_linting::declare_late_lint! {
@@ -31,20 +31,20 @@ dylint_linting::declare_late_lint! {
     /// ```
     pub NONEXISTENT_PATH_IN_COMMENT,
     Warn,
-    "reports file paths in comments that do not exist"
+    "file paths in comments that do not exist"
 }
 
 static LINE_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new("(^|[^/])(//([^/].*))").unwrap());
 static BLOCK_COMMENT: Lazy<Regex> = Lazy::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
 static PATH_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"((?:\.\./|/|[\w/-]+/)+[\w-]+(?:\.[\w-]+)+)").unwrap());
+    Lazy::new(|| Regex::new(r"((?:\./|\.\./|/|[\w/-]+/)+[\w-]+(?:\.[\w-]+)+)").unwrap());
 
 impl<'tcx> LateLintPass<'tcx> for NonexistentPathInComment {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         let source_map = cx.tcx.sess.source_map();
 
         for file in source_map.files().iter() {
-            if let Ok(content) = file.src.as_ref().ok_or("err") {
+            if let Some(content) = file.src.as_ref() {
                 let file_start = file.start_pos;
 
                 for cap in LINE_COMMENT.captures_iter(content) {
@@ -52,8 +52,8 @@ impl<'tcx> LateLintPass<'tcx> for NonexistentPathInComment {
                         check_comment(
                             cx,
                             Span::new(
-                                file_start + rustc_span::BytePos(comment_text.start() as u32),
-                                file_start + rustc_span::BytePos(comment_text.end() as u32),
+                                file_start + BytePos(comment_text.start() as u32),
+                                file_start + BytePos(comment_text.end() as u32),
                                 SyntaxContext::root(),
                                 None,
                             ),
@@ -68,8 +68,8 @@ impl<'tcx> LateLintPass<'tcx> for NonexistentPathInComment {
                         check_comment(
                             cx,
                             Span::new(
-                                file_start + rustc_span::BytePos(comment_text.start() as u32),
-                                file_start + rustc_span::BytePos(comment_text.end() as u32),
+                                file_start + BytePos(comment_text.start() as u32),
+                                file_start + BytePos(comment_text.end() as u32),
                                 SyntaxContext::root(),
                                 None,
                             ),
@@ -83,14 +83,9 @@ impl<'tcx> LateLintPass<'tcx> for NonexistentPathInComment {
     }
 }
 
-fn check_comment(
-    cx: &LateContext<'_>,
-    span: Span,
-    comment_text: &str,
-    filename: &rustc_span::FileName,
-) {
+fn check_comment(cx: &LateContext<'_>, span: Span, comment_text: &str, filename: &FileName) {
     let base_dir = match filename {
-        rustc_span::FileName::Real(real_filename) => Path::new(real_filename.local_path().unwrap())
+        FileName::Real(real_filename) => Path::new(real_filename.local_path().unwrap())
             .parent()
             .unwrap()
             .to_path_buf(),
@@ -102,11 +97,20 @@ fn check_comment(
         let full_path = base_dir.join(path_str);
 
         if !full_path.exists() {
+            let path_start = captures.get(1).unwrap().start();
+            let path_end = captures.get(1).unwrap().end();
+            let path_span = Span::new(
+                span.lo() + BytePos(path_start as u32),
+                span.lo() + BytePos(path_end as u32),
+                span.ctxt(),
+                None,
+            );
+
             span_lint_and_help(
                 cx,
                 NONEXISTENT_PATH_IN_COMMENT,
-                span,
-                format!("referenced path does not exist: {}", path_str),
+                path_span,
+                "referenced path does not exist",
                 None,
                 "verify the path is correct or remove the reference",
             );
