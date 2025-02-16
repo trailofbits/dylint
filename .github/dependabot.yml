@@ -8,31 +8,18 @@ updates:
       time: "03:00"
 
   - package-ecosystem: cargo
-    directory: /
+    directories:
+      - /
+      - /driver
+      - /examples/experimental/*
+      - /examples/general
+      - /examples/restriction
+      - /examples/supplementary
+      - /examples/testing
+      - /utils/linting
     schedule:
       interval: weekly
       day: sunday
       time: "03:00"
     allow:
       - dependency-type: direct
-
-  - package-ecosystem: cargo
-    directory: /driver
-    schedule:
-      interval: weekly
-      day: sunday
-      time: "03:00"
-    allow:
-      - dependency-type: direct
-
-  - package-ecosystem: cargo
-    directory: /utils/linting
-    schedule:
-      interval: weekly
-      day: sunday
-      time: "03:00"
-    allow:
-      - dependency-type: direct
-
-  # smoelius: It would be nice to include the examples as well. But this issue suggests they cannot
-  # be included in the obvious way: https://github.com/dependabot/dependabot-core/issues/2178
