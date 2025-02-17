@@ -22,20 +22,25 @@ use rustc_span::{sym, Span};
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
+    ///
     /// Checks for joining of constant path components.
     ///
     /// ### Why is this bad?
+    ///
     /// Such paths can be constructed from string literals using `/`, since `/` works as a path
     /// separator on both Unix and Windows (see [`std::path::Path`]).
     ///
     /// ### Example
+    ///
     /// ```rust
     /// # use std::path::PathBuf;
     /// # let _ =
     /// PathBuf::from("..").join("target")
     /// # ;
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// # use std::path::PathBuf;
     /// # let _ =

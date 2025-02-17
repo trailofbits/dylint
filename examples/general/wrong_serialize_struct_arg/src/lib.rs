@@ -17,10 +17,12 @@ use rustc_span::Span;
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
+    ///
     /// Checks for `serialize_struct` calls whose `len` argument does not match the number of
     /// subsequent `serialize_field` calls.
     ///
     /// ### Why is this bad?
+    ///
     /// The [`serde` documentation] is unclear on whether the `len` argument is meant to be a hint.
     /// Even if it is just a hint, there's no telling what real-world implementations will do with
     /// that argument. Thus, ensuring that the argument is correct helps protect against
@@ -28,6 +30,7 @@ dylint_linting::impl_late_lint! {
     /// are only hypothetical.
     ///
     /// ### Example
+    ///
     /// ```rust
     /// # struct Color { r: u8, g: u8, b: u8 }
     /// # use serde::ser::{Serialize, SerializeStruct, Serializer};
@@ -41,7 +44,9 @@ dylint_linting::impl_late_lint! {
     /// #     }
     /// # }
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// # struct Color { r: u8, g: u8, b: u8 }
     /// # use serde::ser::{Serialize, SerializeStruct, Serializer};

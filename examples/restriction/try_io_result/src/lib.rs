@@ -14,18 +14,22 @@ use rustc_span::sym;
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
+    ///
     /// Checks for `?` operators applied to values of type `std::io::Result`.
     ///
     /// ### Why is this bad?
+    ///
     /// Returning a `std::io::Result` could mean relevant context (e.g., files or paths involved) is
     /// lost. The problem is discussed under "Verbose IO errors" in Yoshua Wuyts' [Error Handling
     /// Survey].
     ///
     /// ### Known problems
+    ///
     /// No interprocedural analysis is done. So if context is added by the caller, it will go
     /// unnoticed.
     ///
     /// ### Example
+    ///
     /// ```rust
     /// # use std::fs::File;
     /// fn foo() -> anyhow::Result<()> {
@@ -33,7 +37,9 @@ dylint_linting::declare_late_lint! {
     ///     Ok(())
     /// }
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// # use std::fs::File;
     /// use anyhow::Context;

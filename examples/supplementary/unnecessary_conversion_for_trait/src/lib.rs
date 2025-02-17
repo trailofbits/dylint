@@ -46,19 +46,24 @@ use check_inherents::check_inherents;
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
+    ///
     /// Checks for trait-behavior-preserving calls in positions where a trait implementation is
     /// expected.
     ///
     /// ### Why is this bad?
+    ///
     /// Such unnecessary calls make the code more verbose and could impact performance.
     ///
     /// ### Example
+    ///
     /// ```rust
     /// # use std::{path::Path, process::Command};
     /// let _ = Command::new("ls").args(["-a", "-l"].iter());
     /// let _ = Path::new("/").join(Path::new("."));
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// # use std::{path::Path, process::Command};
     /// let _ = Command::new("ls").args(["-a", "-l"]);

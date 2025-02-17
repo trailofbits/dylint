@@ -28,6 +28,7 @@ pub fn build() -> Result<()> {
 }
 
 /// Returns an iterator over the example libraries' directories.
+///
 /// - If the `workspace` argument is true, workspace directories (e.g., general and supplementary)
 ///   are included, but their member directories are not.
 /// - If the `workspace` argument is false, the member directories are included, but the workspace

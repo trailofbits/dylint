@@ -10,16 +10,19 @@ use rustc_lint::{LateContext, LateLintPass};
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
+    ///
     /// Checks for calls to `rustc_errors::DiagCtxtHandle::warn` from within a `register_lints`
     /// function.
     ///
     /// ### Why is this bad?
+    ///
     /// Dylint lists a library's lints by calling the library's `register_lints` function and
     /// comparing the lints that are registered before and after the call. If the library's
     /// `register_lints` functions emits warnings, they will be emitted when a user tries to list
     /// the library's lints.
     ///
     /// ### Example
+    ///
     /// ```rust
     /// # #![feature(rustc_private)]
     /// # extern crate rustc_driver;
@@ -32,7 +35,9 @@ dylint_linting::declare_late_lint! {
     ///     }
     /// }
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// # #![feature(rustc_private)]
     /// # extern crate rustc_driver;

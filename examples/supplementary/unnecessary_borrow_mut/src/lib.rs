@@ -26,20 +26,25 @@ use rustc_span::{sym, Span};
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
+    ///
     /// Checks for calls to [`RefCell::borrow_mut`] that could be calls to [`RefCell::borrow`].
     ///
     /// ### Why is this bad?
+    ///
     /// A call to [`RefCell::borrow_mut`] "panics if the value is currently borrowed." Thus, a call
     /// to [`RefCell::borrow_mut`] can panic in situations where a call to [`RefCell::borrow`] would
     /// not.
     ///
     /// ### Example
+    ///
     /// ```rust
     /// # let mut x = 0;
     /// # let cell = std::cell::RefCell::new(1);
     /// x = *cell.borrow_mut();
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// # let mut x = 0;
     /// # let cell = std::cell::RefCell::new(1);

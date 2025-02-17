@@ -436,6 +436,7 @@ pub fn config_or_default<T: Default + serde::de::DeserializeOwned>(name: &str) -
 /// Reads and deserializes an entry from the workspace's `dylint.toml` file.
 ///
 /// Returns:
+///
 /// - `Ok(Some(...))` if the target workspace's `dylint.toml` file contains key `name` and its value
 ///   can be deserialized as `T`
 /// - `Ok(None)` if the target workspace's `dylint.toml` file does not exist or does not contain key
@@ -454,6 +455,7 @@ pub fn config<T: serde::de::DeserializeOwned>(name: &str) -> ConfigResult<Option
 /// Reads an entry from the workspace's `dylint.toml` file as a raw `toml::Value`.
 ///
 /// Returns:
+///
 /// - `Ok(Some(...))` if the target workspace's `dylint.toml` file contains key `name`
 /// - `Ok(None)` if the target workspace's `dylint.toml` file does not exist or does not contain key
 ///   `name`
