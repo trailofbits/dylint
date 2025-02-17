@@ -13,17 +13,22 @@ use rustc_middle::ty;
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
+    ///
     /// Checks for local variables that are [`RefCell`]s.
     ///
     /// ### Why is this bad?
+    ///
     /// There is rarely a need for a locally declared `RefCell`.
     ///
     /// ### Example
+    ///
     /// ```rust
     /// # use std::cell::RefCell;
     /// let x = RefCell::<usize>::new(0);
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// # use std::cell::RefCell;
     /// let mut x: usize = 0;

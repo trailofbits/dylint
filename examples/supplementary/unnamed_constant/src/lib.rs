@@ -13,18 +13,23 @@ use serde::Deserialize;
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
+    ///
     /// Checks for unnamed constants, aka magic numbers.
     ///
     /// ### Why is this bad?
+    ///
     /// "Magic numbers are considered bad practice in programming, because they can make the code
     /// more difficult to understand and harder to maintain." ([pandaquests])
     ///
     /// ### Example
+    ///
     /// ```rust
     /// # let mut x: u64 = 1;
     /// x *= 1000;
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// # let mut x: u64 = 1;
     /// const MILLIS: u64 = 1000;
@@ -32,6 +37,7 @@ dylint_linting::impl_late_lint! {
     /// ```
     ///
     /// ### Configuration
+    ///
     /// - `threshold: u64` (default `10`): Minimum value a constant must exceed to be flagged.
     ///
     /// [pandaquests]: https://levelup.gitconnected.com/whats-so-bad-about-magic-numbers-4c0a0c524b7d

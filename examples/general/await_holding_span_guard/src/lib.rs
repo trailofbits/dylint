@@ -16,10 +16,12 @@ dylint_linting::declare_late_lint! {
     /// This lint is due to David Barsky (@davidbarsky).
     ///
     /// ### What it does
+    ///
     /// Checks for calls to await while holding a
     /// `tracing` span's `Entered` or `EnteredSpan` guards.
     ///
     /// ### Why is this bad?
+    ///
     /// The guards created by `tracing::Span::enter()` or `tracing::Span::entered()` across
     /// `.await` points will result in incorrect traces. This occurs when an async function or
     /// async block yields at an .await point, the current scope is exited, but values in that scope
@@ -28,9 +30,11 @@ dylint_linting::declare_late_lint! {
     /// entered span.
     ///
     /// ### Known problems
+    ///
     /// Will report false positive for explicitly dropped refs ([#6353]).
     ///
     /// ### Example
+    ///
     /// ```rust,ignore
     /// use tracing::{span, Level};
     ///
@@ -44,6 +48,7 @@ dylint_linting::declare_late_lint! {
     /// ```
     ///
     /// Use instead:
+    ///
     /// ```rust,ignore
     /// use tracing::{span, Level}
     ///

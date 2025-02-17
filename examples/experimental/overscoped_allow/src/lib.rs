@@ -39,13 +39,16 @@ const OVERSCOPED_ALLOW_PATH: &str = "OVERSCOPED_ALLOW_PATH";
 
 declare_lint! {
     /// ### What it does
+    ///
     /// Checks for `allow` attributes whose scope could be reduced.
     ///
     /// ### Why is this bad?
+    ///
     /// An `allow` attribute whose scope is too large could suppress warnings/errors and cause them
     /// to go unnoticed.
     ///
     /// ### Known problems
+    ///
     /// - Recommends to reduce to the following scopes only (not arbitrary inner scopes):
     ///   - item
     ///   - trait item
@@ -59,7 +62,9 @@ declare_lint! {
     ///   marked with `#[cfg(test)]`, for example.
     ///
     /// ### How to use this lint
+    ///
     /// Two steps are required:
+    ///
     /// 1. For the lint whose `allow` scopes you want to check, run it at the [`force-warn`] level
     ///    and store the resulting warnings in a file called `warnings.json`. For example, to check
     ///    the scopes of `allow(clippy::unwrap_used)`, you might run the following command:
@@ -83,13 +88,16 @@ declare_lint! {
     /// variable `OVERSCOPED_ALLOW_PATH`.
     ///
     /// ### Example
+    ///
     /// ```rust
     /// #[allow(clippy::module_name_repetitions)]
     /// mod cake {
     ///     struct BlackForestCake;
     /// }
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// mod cake {
     ///     #[allow(clippy::module_name_repetitions)]

@@ -10,20 +10,25 @@ use rustc_lint::{LateContext, LateLintPass};
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
+    ///
     /// Checks for `?` operators embedded within a larger expression.
     ///
     /// ### Why is this bad?
+    ///
     /// It can be easy to overlook the `?`. Code is more readable when a `?` is the outermost
     /// operator in an expression.
     ///
     /// ### Example
+    ///
     /// ```rust
     /// # use std::{env::{var, VarError}, path::PathBuf};
     /// # let _: Result<PathBuf, VarError> = (|| {
     /// Ok(PathBuf::from(&var("PWD")?))
     /// # })();
     /// ```
+    ///
     /// Use instead:
+    ///
     /// ```rust
     /// # use std::{env::{var, VarError}, path::PathBuf};
     /// # let _: Result<PathBuf, VarError> = (|| {
