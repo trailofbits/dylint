@@ -4,12 +4,12 @@
 
 extern crate rustc_span;
 
+use cargo_metadata::MetadataCommand;
 use clippy_utils::diagnostics::span_lint_and_help;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::{BytePos, FileName, Span, SyntaxContext};
-use std::path::Path;
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
@@ -85,36 +85,63 @@ impl<'tcx> LateLintPass<'tcx> for NonexistentPathInComment {
 
 fn check_comment(cx: &LateContext<'_>, span: Span, comment_text: &str, filename: &FileName) {
     let base_dir = match filename {
-        FileName::Real(real_filename) => Path::new(real_filename.local_path().unwrap())
+        FileName::Real(real_filename) => real_filename
+            .local_path()
+            .expect("failed getting path")
             .parent()
             .unwrap()
             .to_path_buf(),
         _ => return,
     };
 
-    for captures in PATH_REGEX.captures_iter(comment_text) {
-        let path_str = &captures[1];
+    let metadata = MetadataCommand::new()
+        .current_dir(&base_dir)
+        .no_deps()
+        .exec()
+        .expect("failed getting metadata");
+
+    for caps in PATH_REGEX.captures_iter(comment_text) {
+        let path_str = &caps[1];
         let full_path = base_dir.join(path_str);
 
-        if !full_path.exists() {
-            let path_start = captures.get(1).unwrap().start();
-            let path_end = captures.get(1).unwrap().end();
-            let path_span = Span::new(
-                span.lo() + BytePos(path_start as u32),
-                span.lo() + BytePos(path_end as u32),
-                span.ctxt(),
-                None,
-            );
-
-            span_lint_and_help(
-                cx,
-                NONEXISTENT_PATH_IN_COMMENT,
-                path_span,
-                "referenced path does not exist",
-                None,
-                "verify the path is correct or remove the reference",
-            );
+        if full_path.exists() {
+            continue;
         }
+
+        if let Some(root_pkg) = metadata.root_package() {
+            if let Some(manifest_parent) = root_pkg.manifest_path.parent() {
+                let manifest_dir = manifest_parent.as_std_path();
+
+                let candidate_from_root =
+                    if let Some(stripped) = path_str.strip_prefix(&root_pkg.name) {
+                        let stripped = stripped.strip_prefix('/').unwrap_or(stripped);
+                        manifest_dir.join(stripped)
+                    } else {
+                        manifest_dir.join(path_str)
+                    };
+
+                if candidate_from_root.exists() {
+                    continue;
+                }
+            }
+        }
+
+        let path_start = caps.get(1).unwrap().start();
+        let path_end = caps.get(1).unwrap().end();
+        let path_span = Span::new(
+            span.lo() + BytePos(path_start as u32),
+            span.lo() + BytePos(path_end as u32),
+            span.ctxt(),
+            None,
+        );
+        span_lint_and_help(
+            cx,
+            NONEXISTENT_PATH_IN_COMMENT,
+            path_span,
+            "referenced path does not exist",
+            None,
+            "verify the path is correct or remove the reference",
+        );
     }
 }
 

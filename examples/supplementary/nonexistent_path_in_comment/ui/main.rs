@@ -14,4 +14,7 @@
 // Single dot path that does not exist
 // The span ./ido/not/exist.rs only points to the path
 
+// Workspace root path that does exist
+// supplementary/Cargo.toml
+
 fn main() {}
