@@ -477,6 +477,17 @@ fn prettier_examples_and_template() {
     });
 }
 
+#[cfg_attr(target_os = "windows", ignore)]
+#[test]
+fn rustdoc_prettier() {
+    preserves_cleanliness("rustdoc_prettier", false, || {
+        Command::new("rustdoc-prettier")
+            .args(["./**/*.rs"])
+            .assert()
+            .success();
+    });
+}
+
 #[test]
 fn shellcheck() {
     for entry in read_dir("scripts").unwrap() {
