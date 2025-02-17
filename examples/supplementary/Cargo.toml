@@ -51,7 +51,7 @@ pulldown-cmark = "0.10"
 regex = "1.11"
 serde = "1.0"
 syn = "2.0"
-tempfile = "3.14"
+tempfile = "3.17"
 
 [workspace.lints.clippy]
 nursery = { level = "warn", priority = -1 }
