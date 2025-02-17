@@ -80,9 +80,6 @@ jobs:
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
 
-      - name: Format
-        run: ./scripts/format.sh && git diff --exit-code
-
       - name: Format example READMEs
         run: ./scripts/update_example_READMEs.sh && git diff --exit-code
 
@@ -158,6 +155,7 @@ jobs:
           cargo install cargo-supply-chain   || true
           cargo install cargo-udeps --locked || true
           cargo install cargo-unmaintained   || true
+          cargo install rustdoc-prettier     || true
 
       - name: Free up space on Ubuntu
         if: ${{ matrix.environment == 'ubuntu-latest' }}
