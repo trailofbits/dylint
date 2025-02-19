@@ -35,15 +35,8 @@ dylint_linting = { path = "../../utils/linting" }
 rustc_private = true
 
 [workspace]
-members = [
-    "abs_home_path",
-    "await_holding_span_guard",
-    "basic_dead_store",
-    "crate_wide_allow",
-    "incorrect_matches_operation",
-    "non_local_effect_before_error_return",
-    "non_thread_safe_call_in_test",
-]
+members = ["*"]
+exclude = [".cargo", "src"]
 
 [workspace.dependencies]
 bitflags = "2.8"
