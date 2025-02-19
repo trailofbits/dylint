@@ -80,3 +80,4 @@ The example libraries are separated into the following three categories:
 [general]: #general
 [restriction]: #restriction
 [supplementary]: #supplementary
+[testing]: #testing
