@@ -31,16 +31,8 @@ dylint_linting = { path = "../../utils/linting" }
 rustc_private = true
 
 [workspace]
-members = [
-    "commented_code",
-    "escaping_doc_link",
-    "inconsistent_struct_pattern",
-    "local_ref_cell",
-    "redundant_reference",
-    "unnamed_constant",
-    "unnecessary_borrow_mut",
-    "unnecessary_conversion_for_trait",
-]
+members = ["*"]
+exclude = [".cargo", "src"]
 
 [workspace.dependencies]
 cargo-util = "0.2"

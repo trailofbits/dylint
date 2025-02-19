@@ -1,17 +1,6 @@
 [workspace]
-members = [
-    "assert_eq_arg_misordering",
-    "collapsible_unwrap",
-    "const_path_join",
-    "env_literal",
-    "inconsistent_qualification",
-    "misleading_variable_name",
-    "question_mark_in_expression",
-    "ref_aware_redundant_closure_for_method_calls",
-    "register_lints_warn",
-    "suboptimal_pattern",
-    "try_io_result",
-]
+members = ["*"]
+exclude = [".cargo"]
 resolver = "2"
 
 [workspace.dependencies]
