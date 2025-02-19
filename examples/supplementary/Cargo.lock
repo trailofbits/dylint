@@ -946,6 +946,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "nonexistent_path_in_comment"
+version = "3.5.1"
+dependencies = [
+ "cargo_metadata 0.18.1",
+ "clippy_utils",
+ "dylint_linting",
+ "dylint_testing",
+ "once_cell",
+ "regex",
+]
+
+[[package]]
 name = "num_cpus"
 version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
