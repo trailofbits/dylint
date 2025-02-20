@@ -942,6 +942,7 @@ dependencies = [
  "log",
  "once_cell",
  "rewriter",
+ "rustc-stable-hash",
  "semver",
  "serde",
  "serde-untagged",
@@ -3206,6 +3207,12 @@ name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "719b953e2095829ee67db738b3bfa9fa368c94900df327b3f07fe6e794d2fe1f"
+
+[[package]]
+name = "rustc-stable-hash"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2febf9acc5ee5e99d1ad0afcdbccc02d87aa3f857a1f01f825b80eacf8edfcd1"
 
 [[package]]
 name = "rustfix"

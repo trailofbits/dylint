@@ -28,6 +28,7 @@ if_chain = { workspace = true, optional = true }
 log = { workspace = true }
 once_cell = { workspace = true }
 rewriter = { workspace = true, optional = true }
+rustc-stable-hash = { workspace = true, optional = true }
 semver = { workspace = true }
 serde = { workspace = true }
 serde-untagged = { workspace = true, optional = true }
@@ -84,6 +85,7 @@ __cargo_cli = [
     "glob",
     "hex",
     "if_chain",
+    "rustc-stable-hash",
     "serde-untagged",
     "toml",
     "url",
@@ -105,6 +107,6 @@ workspace = true
 
 # smoelius: When both `__cargo_cli` and `__cargo_lib` are enabled, we treat it as though
 # `--features=cargo-lib` was passed but the user forgot to pass `--no-default-features`. This
-# approach causes `fs_extra` to look like an unused dependency.
+# approach causes `fs_extra` and `rustc-stable-hash` to look like unused dependencies.
 [package.metadata.cargo-udeps.ignore]
-normal = ["fs_extra"]
+normal = ["fs_extra", "rustc-stable-hash"]
