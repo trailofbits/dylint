@@ -1,11 +1,11 @@
 // smoelius: This file is a slight modification of:
-// https://github.com/rust-lang/cargo/blob/aab416f6e68d555e8c9a0f02098a24946e0725fb/src/cargo/util/hex.rs
+// https://github.com/rust-lang/cargo/blob/674e609a0ec2dc431575c48989a7bd1953ff2ab0/src/cargo/util/hex.rs
 
 #![allow(deprecated)]
 #![allow(clippy::module_name_repetitions)]
 #![cfg_attr(dylint_lib = "supplementary", allow(unnamed_constant))]
 
-type StableHasher = std::hash::SipHasher;
+type StableHasher = rustc_stable_hash::StableSipHasher128;
 
 use std::fs::File;
 use std::hash::{Hash, Hasher};
@@ -18,7 +18,7 @@ pub fn to_hex(num: u64) -> String {
 pub fn hash_u64<H: Hash>(hashable: H) -> u64 {
     let mut hasher = StableHasher::new();
     hashable.hash(&mut hasher);
-    hasher.finish()
+    Hasher::finish(&hasher)
 }
 
 pub fn hash_u64_file(mut file: &File) -> std::io::Result<u64> {
@@ -31,7 +31,7 @@ pub fn hash_u64_file(mut file: &File) -> std::io::Result<u64> {
         }
         hasher.write(&buf[..n]);
     }
-    Ok(hasher.finish())
+    Ok(Hasher::finish(&hasher))
 }
 
 pub fn short_hash<H: Hash>(hashable: &H) -> String {
