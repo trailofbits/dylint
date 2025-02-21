@@ -1828,6 +1828,26 @@
         "name": null
       }
     ],
+    "rustc-stable-hash": [
+      {
+        "id": 408,
+        "kind": "team",
+        "login": "github:rust-lang:compiler",
+        "name": "compiler"
+      },
+      {
+        "id": 4162,
+        "kind": "user",
+        "login": "michaelwoerister",
+        "name": "Michael Woerister"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
+      }
+    ],
     "rustfix": [
       {
         "id": 4282,
