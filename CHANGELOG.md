@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.0
+
+- BREAKING CHANGE: Work with [Cargo's new hashing algorithm](https://github.com/rust-lang/cargo/pull/14917), introduced with Rust 1.85.0. `cargo-dylint` 4 does not work with Cargo 1.84.x and earlier, and `cargo-dylint` 3.x does not work with Cargo 1.85.0. If you need to use Cargo 1.84.x or earlier, please continue to use `cargo-dylint` 3.x. If you have a long term need to use Cargo 1.84.x or earlier, please [open an issue](https://github.com/trailofbits/dylint/issues). ([#1534](https://github.com/trailofbits/dylint/pull/1534))
+
 ## 3.5.1
 
 - Have `cargo metadata` and `cargo fetch` use the same `cargo` when building library packages. Using different `cargo`s caused the two commands to refer to different subdirectories within the user's `CARGO_HOME`, leading to "Could not determine accessed subdirectory" errors. This bug primarily affected projects with `rust-toolchain` files. ([#1519](https://github.com/trailofbits/dylint/pull/1519))

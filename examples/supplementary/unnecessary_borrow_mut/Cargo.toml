@@ -1,6 +1,6 @@
 [package]
 name = "unnecessary_borrow_mut"
-version = "3.5.1"
+version = "4.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for calls to `RefCell::borrow_mut` that could be `RefCell::borrow`"
 edition = "2021"
