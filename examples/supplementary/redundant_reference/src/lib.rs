@@ -12,14 +12,14 @@ use clippy_utils::{
 };
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
-    def_id::LocalDefId,
-    intravisit::{walk_generic_param, walk_lifetime, Visitor},
     Expr, ExprKind, GenericParam, GenericParamKind, HirId, Item, ItemKind, Lifetime, LifetimeName,
     MutTy, Mutability, TyKind, VariantData,
+    def_id::LocalDefId,
+    intravisit::{Visitor, walk_generic_param, walk_lifetime},
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty;
-use rustc_span::{symbol::Ident, Span};
+use rustc_span::{Span, symbol::Ident};
 use serde::Deserialize;
 use std::collections::HashSet;
 

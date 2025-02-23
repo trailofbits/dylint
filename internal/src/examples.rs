@@ -1,5 +1,5 @@
-use crate::{rustup::SanitizeEnvironment, CommandExt};
-use anyhow::{anyhow, Context, Result};
+use crate::{CommandExt, rustup::SanitizeEnvironment};
+use anyhow::{Context, Result, anyhow};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 

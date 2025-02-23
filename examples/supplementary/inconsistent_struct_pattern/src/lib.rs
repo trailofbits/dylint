@@ -11,8 +11,8 @@ use clippy_utils::{diagnostics::span_lint_and_sugg, source::snippet_opt};
 use rustc_data_structures::fx::FxHashMap;
 use rustc_errors::Applicability;
 use rustc_hir::{
-    def::{DefKind, Res},
     Pat, PatField, PatKind, Path, QPath,
+    def::{DefKind, Res},
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Symbol;

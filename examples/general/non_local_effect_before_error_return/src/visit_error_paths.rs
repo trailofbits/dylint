@@ -4,8 +4,8 @@ use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LintContext};
 use rustc_middle::{
     mir::{
-        AggregateKind, BasicBlock, Body, Local, Place, ProjectionElem, Rvalue, StatementKind,
-        Terminator, TerminatorKind, RETURN_PLACE, START_BLOCK,
+        AggregateKind, BasicBlock, Body, Local, Place, ProjectionElem, RETURN_PLACE, Rvalue,
+        START_BLOCK, StatementKind, Terminator, TerminatorKind,
     },
     ty::{AdtDef, TyCtxt},
 };

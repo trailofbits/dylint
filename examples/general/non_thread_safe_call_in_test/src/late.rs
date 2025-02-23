@@ -4,9 +4,9 @@ use clippy_utils::{
 use dylint_internal::paths;
 use rustc_ast::ast::LitKind;
 use rustc_hir::{
-    def_id::DefId,
-    intravisit::{walk_body, walk_expr, Visitor},
     Closure, Expr, ExprKind, HirId, Item, ItemKind, Node,
+    def_id::DefId,
+    intravisit::{Visitor, walk_body, walk_expr},
 };
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_middle::hir::nested_filter;

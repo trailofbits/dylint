@@ -10,7 +10,7 @@ extern crate rustc_lint;
 extern crate rustc_session;
 extern crate rustc_span;
 
-use anyhow::{bail, ensure, Result};
+use anyhow::{Result, bail, ensure};
 use dylint_internal::{env, parse_path_filename, rustup::is_rustc};
 use std::{
     collections::BTreeSet,
@@ -453,7 +453,7 @@ fn run_compiler(
 #[cfg(test)]
 mod test {
     use super::*;
-    use rustc_version::{version_meta, Channel};
+    use rustc_version::{Channel, version_meta};
 
     #[test]
     fn channel_is_nightly() {

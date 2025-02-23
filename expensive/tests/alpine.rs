@@ -1,7 +1,7 @@
 #![cfg(all(not(coverage), unix))]
 
 use std::{
-    io::{stderr, Write},
+    io::{Write, stderr},
     process::Command,
 };
 

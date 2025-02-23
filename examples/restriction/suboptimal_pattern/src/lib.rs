@@ -15,9 +15,9 @@ use clippy_utils::{
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
 use rustc_hir::{
-    def_id::LocalDefId,
-    intravisit::{walk_expr, FnKind, Visitor},
     BindingMode, Body, ByRef, Expr, ExprKind, FnDecl, HirId, Node, Pat, PatKind, UnOp,
+    def_id::LocalDefId,
+    intravisit::{FnKind, Visitor, walk_expr},
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{self, adjustment::Adjust};

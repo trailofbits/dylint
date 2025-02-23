@@ -275,24 +275,31 @@ fn method_name_from_adjustments<'tcx>(
     adjustments: &[Adjustment<'tcx>],
 ) -> Option<&'static str> {
     match adjustments {
-        [Adjustment {
-            kind: Adjust::Deref(None),
-            target,
-        }] if is_copy(cx, *target) => Some("copied"),
-        [Adjustment {
-            kind: Adjust::Borrow(AutoBorrow::Ref(mutability)),
-            ..
-        }] => Some(match mutability {
+        [
+            Adjustment {
+                kind: Adjust::Deref(None),
+                target,
+            },
+        ] if is_copy(cx, *target) => Some("copied"),
+        [
+            Adjustment {
+                kind: Adjust::Borrow(AutoBorrow::Ref(mutability)),
+                ..
+            },
+        ] => Some(match mutability {
             AutoBorrowMutability::Mut { .. } => "as_mut",
             AutoBorrowMutability::Not => "as_ref",
         }),
-        [Adjustment {
-            kind: Adjust::Deref(Some(OverloadedDeref { .. })),
-            ..
-        }, Adjustment {
-            kind: Adjust::Borrow(AutoBorrow::Ref(mutability)),
-            ..
-        }] => Some(match mutability {
+        [
+            Adjustment {
+                kind: Adjust::Deref(Some(OverloadedDeref { .. })),
+                ..
+            },
+            Adjustment {
+                kind: Adjust::Borrow(AutoBorrow::Ref(mutability)),
+                ..
+            },
+        ] => Some(match mutability {
             AutoBorrowMutability::Mut { .. } => "as_deref_mut",
             AutoBorrowMutability::Not => "as_deref",
         }),

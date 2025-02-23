@@ -6,11 +6,11 @@ use anyhow::{Context, Result};
 use assert_cmd::prelude::*;
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
+    CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
     env, library_filename,
     rustup::SanitizeEnvironment,
     testing::new_template,
-    CommandExt,
 };
 use glob::glob;
 use predicates::prelude::*;

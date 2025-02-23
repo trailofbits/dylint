@@ -1,6 +1,6 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use cargo_metadata::Dependency;
-use dylint_internal::{clone, env, CommandExt};
+use dylint_internal::{CommandExt, clone, env};
 use std::path::Path;
 use tempfile::{tempdir, tempdir_in};
 

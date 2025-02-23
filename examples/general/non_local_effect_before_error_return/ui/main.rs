@@ -1,7 +1,7 @@
 #![expect(dead_code)]
 
 use std::{
-    env::{var, VarError},
+    env::{VarError, var},
     fs::File,
     io::{Error, ErrorKind, Read},
 };

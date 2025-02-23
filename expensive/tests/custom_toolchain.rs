@@ -3,13 +3,13 @@
 // "Only the MSVC toolchain is supported on Windows"
 #![cfg(not(target_os = "windows"))]
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use dylint_internal::{
-    clippy_utils::set_toolchain_channel, find_and_replace, rustup::SanitizeEnvironment,
-    testing::new_template, CommandExt,
+    CommandExt, clippy_utils::set_toolchain_channel, find_and_replace, rustup::SanitizeEnvironment,
+    testing::new_template,
 };
 use std::{path::Path, process::Command};
-use tempfile::{tempdir, NamedTempFile, TempDir};
+use tempfile::{NamedTempFile, TempDir, tempdir};
 
 const RUST_URL: &str = "https://github.com/rust-lang/rust";
 

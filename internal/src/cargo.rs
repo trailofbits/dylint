@@ -1,6 +1,6 @@
-use crate::{home, CommandExt};
+use crate::{CommandExt, home};
 use ansi_term::Style;
-use anyhow::{anyhow, ensure, Result};
+use anyhow::{Result, anyhow, ensure};
 use bitflags::bitflags;
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
 use once_cell::sync::Lazy;
@@ -35,11 +35,7 @@ bitflags! {
 
 impl From<bool> for Quiet {
     fn from(value: bool) -> Self {
-        if value {
-            Self::all()
-        } else {
-            Self::empty()
-        }
+        if value { Self::all() } else { Self::empty() }
     }
 }
 

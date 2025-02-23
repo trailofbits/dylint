@@ -6,24 +6,30 @@ const PATH: &str = "Cargo.toml";
 
 #[expect(unused_variables)]
 fn main() {
-    assert!(std::path::Path::new(PATH)
-        .canonicalize()
-        .unwrap()
-        .try_exists()
-        .unwrap());
+    assert!(
+        std::path::Path::new(PATH)
+            .canonicalize()
+            .unwrap()
+            .try_exists()
+            .unwrap()
+    );
 
-    assert!(std::path::Path::new(PATH)
-        .canonicalize()
-        .unwrap()
-        .try_exists()
-        .expect("could not determine whether path exists"));
+    assert!(
+        std::path::Path::new(PATH)
+            .canonicalize()
+            .unwrap()
+            .try_exists()
+            .expect("could not determine whether path exists")
+    );
 
     // Should not lint, i.e., should not try to collapse an `expect`
-    assert!(std::path::Path::new(PATH)
-        .canonicalize()
-        .expect("could not canonicalize path")
-        .try_exists()
-        .unwrap());
+    assert!(
+        std::path::Path::new(PATH)
+            .canonicalize()
+            .expect("could not canonicalize path")
+            .try_exists()
+            .unwrap()
+    );
 
     // Should not lint, error types differ
     let toml = fs::read_to_string(PATH)

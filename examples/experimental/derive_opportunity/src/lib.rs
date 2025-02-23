@@ -20,11 +20,11 @@ use clippy_utils::{
 use once_cell::sync::OnceCell;
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_errors::Applicability;
-use rustc_hir::{def_id::DefId, Item, ItemKind};
+use rustc_hir::{Item, ItemKind, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass, LintStore};
 use rustc_middle::ty::{self, Upcast};
-use rustc_session::{declare_lint, impl_lint_pass, Session};
-use rustc_span::{sym, ExpnKind, MacroKind, Symbol};
+use rustc_session::{Session, declare_lint, impl_lint_pass};
+use rustc_span::{ExpnKind, MacroKind, Symbol, sym};
 use serde::Deserialize;
 use std::{cell::RefCell, iter};
 

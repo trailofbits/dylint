@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use dylint_internal::{clone, git2::Repository};
 use std::{cell::RefCell, rc::Rc};
-use tempfile::{tempdir, TempDir};
+use tempfile::{TempDir, tempdir};
 
 const RUST_CLIPPY_URL: &str = "https://github.com/rust-lang/rust-clippy";
 

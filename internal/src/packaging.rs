@@ -6,11 +6,11 @@
 #![cfg_attr(dylint_lib = "supplementary", allow(unnecessary_conversion_for_trait))]
 
 use crate::cargo::{current_metadata, package};
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use cargo_metadata::TargetKind;
 use rust_embed::RustEmbed;
 use std::{
-    fs::{create_dir_all, OpenOptions},
+    fs::{OpenOptions, create_dir_all},
     io::Write,
     path::Path,
 };

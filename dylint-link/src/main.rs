@@ -4,8 +4,8 @@
 
 #[cfg(target_os = "windows")]
 use anyhow::ensure;
-use anyhow::{anyhow, Context, Result};
-use dylint_internal::{cargo::cargo_home, env, library_filename, CommandExt};
+use anyhow::{Context, Result, anyhow};
+use dylint_internal::{CommandExt, cargo::cargo_home, env, library_filename};
 use if_chain::if_chain;
 use std::{
     env::{args, consts},
@@ -289,9 +289,9 @@ const ARCHITECTURES: &[&str] = &[
 #[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod test {
-    use super::{env, ARCHITECTURES};
+    use super::{ARCHITECTURES, env};
     use assert_cmd::prelude::*;
-    use dylint_internal::{packaging::isolate, CommandExt};
+    use dylint_internal::{CommandExt, packaging::isolate};
     use predicates::prelude::*;
     use std::fs::{create_dir, write};
     use tempfile::{tempdir, tempdir_in};

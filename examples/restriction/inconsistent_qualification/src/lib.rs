@@ -8,10 +8,10 @@ extern crate rustc_span;
 
 use clippy_utils::diagnostics::span_lint_and_note;
 use rustc_hir::{
-    def::{DefKind, Res},
-    def_id::{DefId, CRATE_DEF_ID},
-    intravisit::{walk_item, Visitor},
     HirId, Item, ItemKind, Node, OwnerNode, Path, PathSegment, UseKind, UsePath,
+    def::{DefKind, Res},
+    def_id::{CRATE_DEF_ID, DefId},
+    intravisit::{Visitor, walk_item},
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TyCtxt;

@@ -1,4 +1,4 @@
-use tracing::{span, Instrument, Level};
+use tracing::{Instrument, Level, span};
 
 async fn good_in_scope() {
     let span = span!(Level::INFO, "good");

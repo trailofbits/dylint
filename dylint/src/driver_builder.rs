@@ -1,10 +1,9 @@
 use crate::{error::warn, opts};
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, ensure};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    driver as dylint_driver, env,
-    rustup::{toolchain_path, SanitizeEnvironment},
-    CommandExt,
+    CommandExt, driver as dylint_driver, env,
+    rustup::{SanitizeEnvironment, toolchain_path},
 };
 use semver::Version;
 use std::{
@@ -12,7 +11,7 @@ use std::{
     fs::{copy, create_dir_all, rename, write},
     path::{Path, PathBuf},
 };
-use tempfile::{tempdir, NamedTempFile};
+use tempfile::{NamedTempFile, tempdir};
 
 include!(concat!(env!("OUT_DIR"), "/dylint_driver_manifest_dir.rs"));
 

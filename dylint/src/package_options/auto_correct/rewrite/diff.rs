@@ -1,5 +1,5 @@
 use super::common::parse_as_nightly;
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use chrono::{LocalResult, TimeZone, Utc};
 use dylint_internal::git2::{Commit, Diff, DiffOptions, Oid, Patch, Repository, Time};
 use std::ffi::OsStr;

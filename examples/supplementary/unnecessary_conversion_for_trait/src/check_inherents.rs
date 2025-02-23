@@ -1,13 +1,13 @@
 use super::{IGNORED_INHERENTS, WATCHED_INHERENTS};
 use clippy_utils::{def_path_res, get_trait_def_id, match_def_path};
-use rustc_hir::{def_id::DefId, Safety};
+use rustc_hir::{Safety, def_id::DefId};
 use rustc_lint::LateContext;
 use rustc_middle::ty::{
     self,
     fast_reject::SimplifiedType,
     fold::{BottomUpFolder, TypeFolder},
 };
-use rustc_span::{symbol::sym, Symbol};
+use rustc_span::{Symbol, symbol::sym};
 
 #[expect(clippy::too_many_lines)]
 pub fn check_inherents(cx: &LateContext<'_>) {
