@@ -17,13 +17,13 @@ use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
-        pretty::{write_mir_fn, PrettyPrintMirOptions},
         BasicBlock, Body, ConstOperand, Local, Location, Mutability, Operand, Place,
         ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind,
+        pretty::{PrettyPrintMirOptions, write_mir_fn},
     },
     ty,
 };
-use rustc_span::{sym, Span};
+use rustc_span::{Span, sym};
 use serde::Deserialize;
 
 mod visit_error_paths;
@@ -334,13 +334,8 @@ fn collect_locals_and_constants<'tcx>(
                     let arg_place = arg.node.place();
                     if followed_narrowly
                         && !widening
-                        && let Some(arg_place) = mut_ref_operand_place.or({
-                            if width_preserving {
-                                arg_place
-                            } else {
-                                None
-                            }
-                        })
+                        && let Some(arg_place) = mut_ref_operand_place
+                            .or({ if width_preserving { arg_place } else { None } })
                     {
                         locals_narrowly.insert(arg_place.local);
                     }

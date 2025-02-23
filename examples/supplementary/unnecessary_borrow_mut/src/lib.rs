@@ -16,13 +16,13 @@ use rustc_index::bit_set::BitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
-        pretty::{write_mir_fn, PrettyPrintMirOptions},
-        visit::{PlaceContext, Visitor},
         Body, Local, Location, Mutability, Place, Rvalue, Terminator, TerminatorKind,
+        pretty::{PrettyPrintMirOptions, write_mir_fn},
+        visit::{PlaceContext, Visitor},
     },
     ty::TyCtxt,
 };
-use rustc_span::{sym, Span};
+use rustc_span::{Span, sym};
 
 dylint_linting::declare_late_lint! {
     /// ### What it does

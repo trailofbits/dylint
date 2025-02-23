@@ -7,7 +7,7 @@ extern crate rustc_middle;
 
 use clippy_utils::{diagnostics::span_lint, match_def_path};
 use dylint_internal::paths;
-use rustc_hir::{def::Res, QPath, Stmt, StmtKind, TyKind};
+use rustc_hir::{QPath, Stmt, StmtKind, TyKind, def::Res};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty;
 

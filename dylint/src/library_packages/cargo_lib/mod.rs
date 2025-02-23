@@ -1,12 +1,12 @@
 use crate::{error::warn, opts};
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{Result, anyhow, bail, ensure};
 use cargo::{
     core::{Dependency, Package as CargoPackage},
     sources::source::{MaybePackage, QueryKind, Source},
 };
 pub use cargo::{
     core::{PackageId, SourceId},
-    util::{cache_lock::CacheLockMode, GlobalContext},
+    util::{GlobalContext, cache_lock::CacheLockMode},
 };
 use cargo_metadata::Metadata;
 use std::path::PathBuf;

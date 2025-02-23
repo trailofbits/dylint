@@ -1,5 +1,5 @@
 use crate::opts;
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
     clippy_utils::{
         clippy_utils_version_from_rust_version, set_clippy_utils_dependency_revision,

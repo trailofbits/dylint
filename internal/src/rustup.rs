@@ -1,5 +1,5 @@
-use crate::{env, CommandExt};
-use anyhow::{anyhow, Result};
+use crate::{CommandExt, env};
+use anyhow::{Result, anyhow};
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},

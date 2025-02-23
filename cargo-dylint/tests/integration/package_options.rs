@@ -1,13 +1,13 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use assert_cmd::prelude::*;
 use cargo_metadata::{Dependency, MetadataCommand};
-use dylint_internal::{clone, env::enabled, rustup::SanitizeEnvironment, CommandExt};
+use dylint_internal::{CommandExt, clone, env::enabled, rustup::SanitizeEnvironment};
 use predicates::prelude::*;
 use regex::Regex;
 use semver::Version;
 use std::{
     fs::read_to_string,
-    io::{stderr, Write},
+    io::{Write, stderr},
     path::Path,
 };
 use tempfile::tempdir;

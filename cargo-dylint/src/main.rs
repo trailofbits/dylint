@@ -1,4 +1,4 @@
-use clap::{crate_version, ArgAction, Parser};
+use clap::{ArgAction, Parser, crate_version};
 use std::{
     ffi::{OsStr, OsString},
     fmt::Debug,

@@ -109,10 +109,10 @@
 //! [examples]: https://github.com/trailofbits/dylint/tree/master/examples
 //! [its repository]: https://github.com/Manishearth/compiletest-rs
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, ensure};
 use cargo_metadata::{Metadata, Package, Target, TargetKind};
 use compiletest_rs as compiletest;
-use dylint_internal::{env, library_filename, rustup::is_rustc, CommandExt};
+use dylint_internal::{CommandExt, env, library_filename, rustup::is_rustc};
 use once_cell::sync::{Lazy, OnceCell};
 use regex::Regex;
 use std::{

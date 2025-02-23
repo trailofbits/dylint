@@ -1,7 +1,7 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use assert_cmd::prelude::*;
 use std::{
-    fs::{read_to_string, write, OpenOptions},
+    fs::{OpenOptions, read_to_string, write},
     io::Write,
     path::Path,
 };

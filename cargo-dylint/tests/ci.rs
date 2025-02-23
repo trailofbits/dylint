@@ -13,7 +13,7 @@ use std::{
     ffi::OsStr,
     fmt::Write as _,
     fs::{read_dir, read_to_string, write},
-    io::{stderr, Write as _},
+    io::{Write as _, stderr},
     path::{Component, Path},
     sync::Mutex,
 };

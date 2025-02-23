@@ -1,13 +1,13 @@
 #![allow(clippy::unwrap_used)]
 
 use super::{
-    common::{self, clippy_repository},
     Backup,
+    common::{self, clippy_repository},
 };
 use crate::opts;
 use anyhow::{Context, Result};
 use dylint_internal::git2::Oid;
-use rewriter::{interface::Span as _, LineColumn, Rewriter, Span};
+use rewriter::{LineColumn, Rewriter, Span, interface::Span as _};
 use std::{
     collections::{BTreeMap, HashMap},
     env::current_dir,
@@ -20,10 +20,10 @@ mod tokenization;
 use tokenization::tokenize_lines;
 
 mod highlight;
-use highlight::{collect_highlights, Highlight};
+use highlight::{Highlight, collect_highlights};
 
 mod rewrite;
-use rewrite::{collect_rewrites, Rewrite};
+use rewrite::{Rewrite, collect_rewrites};
 
 mod short_id;
 use short_id::ShortId;
@@ -286,10 +286,12 @@ pub fn span_and_text_of_tokens<S: AsRef<str>>(
             .find(token)
             .unwrap_or_else(|| panic!("Could not find token {token:?} in line {line:?}"));
 
-        assert!(line[..offset]
-            .as_bytes()
-            .iter()
-            .all(u8::is_ascii_whitespace));
+        assert!(
+            line[..offset]
+                .as_bytes()
+                .iter()
+                .all(u8::is_ascii_whitespace)
+        );
         if range.start < i_token {
             text += &line[..offset];
         }

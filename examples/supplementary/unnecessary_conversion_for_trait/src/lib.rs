@@ -19,20 +19,20 @@ use clippy_utils::{
 use dylint_internal::cargo::current_metadata;
 use rustc_errors::Applicability;
 use rustc_hir::{
-    def_id::{DefId, LOCAL_CRATE},
     BorrowKind, Expr, ExprKind, Mutability,
+    def_id::{DefId, LOCAL_CRATE},
 };
 use rustc_index::bit_set::BitSet;
 use rustc_infer::infer::TyCtxtInferExt;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
-    self,
+    self, ClauseKind, EarlyBinder, FnDef, FnSig, GenericArgsRef, Param, ParamTy,
+    ProjectionPredicate, Ty,
     adjustment::{Adjust, Adjustment, AutoBorrow},
-    ClauseKind, EarlyBinder, FnDef, FnSig, GenericArgsRef, Param, ParamTy, ProjectionPredicate, Ty,
 };
-use rustc_span::symbol::{sym, Symbol};
+use rustc_span::symbol::{Symbol, sym};
 use rustc_trait_selection::traits::{
-    query::evaluate_obligation::InferCtxtExt, Obligation, ObligationCause,
+    Obligation, ObligationCause, query::evaluate_obligation::InferCtxtExt,
 };
 use std::{
     collections::{BTreeSet, VecDeque},

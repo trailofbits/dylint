@@ -16,10 +16,10 @@
 //! [Marker]: https://github.com/rust-marker/marker
 
 use crate::opts;
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::{Metadata, MetadataCommand};
 use cargo_util_schemas::manifest::TomlDetailedDependency;
-use dylint_internal::{cargo::stable_cargo_path, home::cargo_home, packaging::isolate, CommandExt};
+use dylint_internal::{CommandExt, cargo::stable_cargo_path, home::cargo_home, packaging::isolate};
 use semver::Version;
 use serde::Serialize;
 use std::{
@@ -29,11 +29,11 @@ use std::{
     fs::{create_dir_all, read_dir, remove_dir_all, write},
     path::{Path, PathBuf},
 };
-use tempfile::{tempdir, Builder, TempDir};
+use tempfile::{Builder, TempDir, tempdir};
 use url::Url;
 
 mod util;
-use util::{short_hash, CanonicalUrl};
+use util::{CanonicalUrl, short_hash};
 
 struct NamedTempDir(PathBuf);
 

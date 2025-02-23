@@ -1,12 +1,12 @@
 use crate::{error::warn, opts};
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage, TargetKind};
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
-use dylint_internal::{config, env, library_filename, rustup::SanitizeEnvironment, CommandExt};
+use dylint_internal::{CommandExt, config, env, library_filename, rustup::SanitizeEnvironment};
 use glob::glob;
 use if_chain::if_chain;
 use once_cell::sync::OnceCell;
-use serde::{de::IntoDeserializer, Deserialize};
+use serde::{Deserialize, de::IntoDeserializer};
 use std::path::{Path, PathBuf};
 
 // smoelius: If both `__cargo_cli` and `__cargo_lib` are enabled, assume the user built
@@ -19,7 +19,7 @@ mod impl_;
 #[path = "cargo_lib/mod.rs"]
 mod impl_;
 
-use impl_::{dependency_source_id_and_root, GlobalContext, PackageId, SourceId};
+use impl_::{GlobalContext, PackageId, SourceId, dependency_source_id_and_root};
 
 type Object = serde_json::Map<String, serde_json::Value>;
 

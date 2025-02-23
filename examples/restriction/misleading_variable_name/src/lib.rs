@@ -12,9 +12,9 @@ use clippy_utils::{
 };
 use heck::ToSnakeCase;
 use rustc_hir::{
+    Expr, ExprKind, LangItem, LetStmt, MatchSource, Pat, PatKind, QPath, Stmt, StmtKind,
     def::{DefKind, Res},
     def_id::{DefId, ModDefId},
-    Expr, ExprKind, LangItem, LetStmt, MatchSource, Pat, PatKind, QPath, Stmt, StmtKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty;

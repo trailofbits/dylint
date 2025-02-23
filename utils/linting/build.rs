@@ -37,10 +37,12 @@ fn check_components() {
 #[cfg(docsrs)]
 fn add_components() {
     for component in COMPONENTS {
-        assert!(std::process::Command::new("rustup")
-            .args(["component", "add", component, "--toolchain", "nightly"])
-            .status()
-            .unwrap()
-            .success());
+        assert!(
+            std::process::Command::new("rustup")
+                .args(["component", "add", component, "--toolchain", "nightly"])
+                .status()
+                .unwrap()
+                .success()
+        );
     }
 }

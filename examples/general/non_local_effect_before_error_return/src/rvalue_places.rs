@@ -1,6 +1,6 @@
 use rustc_middle::mir::{
-    visit::{PlaceContext, Visitor},
     Location, Place, Rvalue,
+    visit::{PlaceContext, Visitor},
 };
 
 pub fn rvalue_places<'tcx>(rvalue: &Rvalue<'tcx>, location: Location) -> Vec<Place<'tcx>> {

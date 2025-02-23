@@ -1,6 +1,6 @@
 use anyhow::Result;
 use std::{
-    io::{stdout, Write},
+    io::{Write, stdout},
     str::from_utf8,
 };
 

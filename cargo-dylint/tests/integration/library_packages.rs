@@ -1,5 +1,5 @@
 use assert_cmd::prelude::*;
-use dylint_internal::{env, packaging::isolate, CommandExt};
+use dylint_internal::{CommandExt, env, packaging::isolate};
 use predicates::prelude::*;
 use std::{env::set_var, fs::OpenOptions, io::Write};
 use tempfile::tempdir;

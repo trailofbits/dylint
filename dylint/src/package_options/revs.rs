@@ -1,5 +1,5 @@
 use super::common::clippy_repository;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use dylint_internal::{
     clippy_utils::{clippy_utils_package_version, toolchain_channel},
     git2::{Commit, ObjectType, Oid, Repository},

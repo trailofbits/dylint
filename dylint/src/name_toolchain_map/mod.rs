@@ -1,4 +1,4 @@
-use anyhow::{ensure, Context, Result};
+use anyhow::{Context, Result, ensure};
 use dylint_internal::{env, parse_path_filename};
 use once_cell::sync::OnceCell;
 use std::{

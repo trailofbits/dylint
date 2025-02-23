@@ -3,18 +3,18 @@
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment, CommandExt,
+    CommandExt, driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment,
 };
 use once_cell::sync::Lazy;
 use std::{
     collections::BTreeMap,
     env::{consts, current_dir},
     ffi::OsStr,
-    fs::{metadata, OpenOptions},
-    path::{Path, PathBuf, MAIN_SEPARATOR},
+    fs::{OpenOptions, metadata},
+    path::{MAIN_SEPARATOR, Path, PathBuf},
 };
 
 type Object = serde_json::Map<String, serde_json::Value>;

@@ -1,6 +1,6 @@
 use assert_cmd::{assert::AssertResult, prelude::*};
 use dylint_internal::env;
-use rustc_version::{version_meta, Channel};
+use rustc_version::{Channel, version_meta};
 use std::sync::Mutex;
 use tempfile::TempDir;
 

@@ -13,8 +13,8 @@ extern crate rustc_span;
 
 use anyhow::{Context, Result};
 use cargo_metadata::{
-    diagnostic::{Diagnostic, DiagnosticSpan},
     Metadata, MetadataCommand,
+    diagnostic::{Diagnostic, DiagnosticSpan},
 };
 use clippy_utils::{diagnostics::span_lint_and_help, source::snippet_opt};
 use dylint_internal::env::var;
@@ -22,17 +22,17 @@ use once_cell::sync::OnceCell;
 use rustc_ast::ast::{MetaItem, MetaItemInner};
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
-    Attribute, Block, Expr, ExprKind, HirId, ImplItem, Item, ItemKind, Node, Stmt, StmtKind,
-    CRATE_HIR_ID,
+    Attribute, Block, CRATE_HIR_ID, Expr, ExprKind, HirId, ImplItem, Item, ItemKind, Node, Stmt,
+    StmtKind,
 };
 use rustc_lint::{LateContext, LateLintPass, LintContext, LintStore};
-use rustc_session::{declare_lint, impl_lint_pass, Session};
-use rustc_span::{sym, BytePos, CharPos, FileLines, FileName, RealFileName, Span, Symbol};
+use rustc_session::{Session, declare_lint, impl_lint_pass};
+use rustc_span::{BytePos, CharPos, FileLines, FileName, RealFileName, Span, Symbol, sym};
 use serde::Deserialize;
 use std::{
     borrow::Cow,
     fs::OpenOptions,
-    path::{absolute, Path, PathBuf},
+    path::{Path, PathBuf, absolute},
 };
 
 const OVERSCOPED_ALLOW_PATH: &str = "OVERSCOPED_ALLOW_PATH";

@@ -10,7 +10,7 @@ use clippy_utils::{diagnostics::span_lint, match_def_path, path_def_id};
 use dylint_internal::{home, paths};
 use once_cell::unsync::OnceCell;
 use rustc_ast::ast::LitKind;
-use rustc_hir::{def_id::DefId, Closure, Expr, ExprKind, Item, ItemKind, Node};
+use rustc_hir::{Closure, Expr, ExprKind, Item, ItemKind, Node, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Span;
 use std::{
@@ -140,7 +140,7 @@ impl AbsHomePath {
 #[test]
 fn ui() {
     use std::{
-        io::{stderr, Write},
+        io::{Write, stderr},
         path::Path,
     };
 

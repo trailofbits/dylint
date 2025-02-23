@@ -2,7 +2,7 @@ use super::tokenization::{tokenize_fragment, tokenize_lines};
 use crate::{error::warn, opts};
 use anyhow::Result;
 use cargo_metadata::diagnostic::{Diagnostic, DiagnosticLevel, DiagnosticSpan};
-use dylint_internal::{cargo, rustup::SanitizeEnvironment, CommandExt};
+use dylint_internal::{CommandExt, cargo, rustup::SanitizeEnvironment};
 use serde::Deserialize;
 use std::{path::Path, time::Instant};
 

@@ -11,9 +11,9 @@ use once_cell::sync::OnceCell;
 use pulldown_cmark::{Options, Parser};
 use rustc_hir::Attribute;
 use rustc_lint::{LateContext, LateLintPass, LintContext};
-use rustc_resolve::rustdoc::{add_doc_fragment, attrs_to_doc_fragments, DocFragment};
+use rustc_resolve::rustdoc::{DocFragment, add_doc_fragment, attrs_to_doc_fragments};
 use rustc_span::RealFileName;
-use std::path::{absolute, Path, PathBuf};
+use std::path::{Path, PathBuf, absolute};
 
 dylint_linting::impl_late_lint! {
     /// ### What it does

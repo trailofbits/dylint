@@ -7,8 +7,8 @@ extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint, sym};
 use rustc_ast::{
-    ptr::P, token::Token, token::TokenKind, tokenstream::TokenTree, BinOpKind, Expr, ExprKind,
-    MacCall,
+    BinOpKind, Expr, ExprKind, MacCall, ptr::P, token::Token, token::TokenKind,
+    tokenstream::TokenTree,
 };
 use rustc_lint::{EarlyContext, EarlyLintPass};
 
@@ -146,7 +146,9 @@ impl EarlyLintPass for IncorrectMatchesOperation {
                     } else {
                         "&&"
                     };
-                    let msg = format!("Is this a bug? matches!(obj, A) {op} matches!(obj, B) is (almost) always false");
+                    let msg = format!(
+                        "Is this a bug? matches!(obj, A) {op} matches!(obj, B) is (almost) always false"
+                    );
                     span_lint(cx, INCORRECT_MATCHES_OPERATION, expr.span, msg);
                 }
                 _ => {

@@ -15,10 +15,10 @@ use clippy_utils::{
 use heck::ToSnakeCase;
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
-use rustc_hir::{def_id::DefId, Expr, ExprKind, HirId, Mutability};
+use rustc_hir::{Expr, ExprKind, HirId, Mutability, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_middle::ty;
-use rustc_span::{sym, Span};
+use rustc_span::{Span, sym};
 
 dylint_linting::impl_late_lint! {
     /// ### What it does

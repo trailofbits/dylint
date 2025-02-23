@@ -59,7 +59,7 @@ use std::rc::Rc;
 use std::str::{self, FromStr};
 
 // use crate::AlreadyPrintedError;
-use anyhow::{anyhow, bail, Context as _};
+use anyhow::{Context as _, anyhow, bail};
 use cargo_platform::Platform;
 use cargo_util::paths::{self, normalize_path};
 use cargo_util_schemas::manifest::{self, TomlManifest};
@@ -69,19 +69,19 @@ use cargo_util_schemas::manifest::{RustVersion, StringOrBool};
 // use pathdiff::diff_paths;
 // use url::Url;
 
+use crate::core::FeatureValue::Dep;
 use crate::core::compiler::{CompileKind, CompileTarget};
 use crate::core::dependency::{Artifact, ArtifactTarget, DepKind};
 use crate::core::manifest::{ManifestMetadata, TargetSourcePath};
 use crate::core::resolver::ResolveBehavior;
-use crate::core::FeatureValue::Dep;
-use crate::core::{find_workspace_root, resolve_relative_path, CliUnstable, FeatureValue};
+use crate::core::{CliUnstable, FeatureValue, find_workspace_root, resolve_relative_path};
 use crate::core::{Dependency, Manifest, Package, PackageId, Summary, Target};
 use crate::core::{Edition, EitherManifest, Feature, Features, VirtualManifest, Workspace};
 use crate::core::{GitReference, PackageIdSpec, SourceId, WorkspaceConfig, WorkspaceRootConfig};
 use crate::sources::{CRATES_IO_INDEX, CRATES_IO_REGISTRY};
 use crate::util::errors::{CargoResult, ManifestError};
 use crate::util::interning::InternedString;
-use crate::util::{self, context::ConfigRelativePath, GlobalContext, IntoUrl, OptVersionReq};
+use crate::util::{self, GlobalContext, IntoUrl, OptVersionReq, context::ConfigRelativePath};
 
 #[allow(dead_code)]
 pub struct ManifestContext<'a, 'b> {
