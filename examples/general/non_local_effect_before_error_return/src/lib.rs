@@ -335,7 +335,7 @@ fn collect_locals_and_constants<'tcx>(
                     if followed_narrowly
                         && !widening
                         && let Some(arg_place) = mut_ref_operand_place
-                            .or({ if width_preserving { arg_place } else { None } })
+                            .or(if width_preserving { arg_place } else { None })
                     {
                         locals_narrowly.insert(arg_place.local);
                     }

@@ -1,21 +1,21 @@
 warning: `unwrap`s that could be combined
-  --> $DIR/main.rs:11:9
+  --> $DIR/main.rs:12:13
    |
-LL | /         .unwrap()
-LL | |         .try_exists()
-   | |_____________________^ help: use: `.and_then(|path_buf| path_buf.try_exists())`
+LL | /             .unwrap()
+LL | |             .try_exists()
+   | |_________________________^ help: use: `.and_then(|path_buf| path_buf.try_exists())`
    |
    = note: `#[warn(collapsible_unwrap)]` on by default
 
 warning: `unwrap` that could be combined with an `expect`
-  --> $DIR/main.rs:17:9
+  --> $DIR/main.rs:20:13
    |
-LL | /         .unwrap()
-LL | |         .try_exists()
-   | |_____________________^ help: use: `.and_then(|path_buf| path_buf.try_exists())`
+LL | /             .unwrap()
+LL | |             .try_exists()
+   | |_________________________^ help: use: `.and_then(|path_buf| path_buf.try_exists())`
 
 warning: `unwrap`s that could be combined
-  --> $DIR/main.rs:36:9
+  --> $DIR/main.rs:42:9
    |
 LL | /         .unwrap()
 LL | |         .get("package")
@@ -26,7 +26,7 @@ LL | |         .get("name")
    | |____________________^ help: use: `.and_then(|map| map.get("package")).and_then(|value| value.as_table()).and_then(|map| map.get("name"))`
 
 warning: `unwrap`s that could be combined
-  --> $DIR/main.rs:46:9
+  --> $DIR/main.rs:52:9
    |
 LL | /         .unwrap()
 LL | |         .get("package")
@@ -35,7 +35,7 @@ LL | |         .as_table()
    | |___________________^ help: use: `.and_then(|map| map.get("package")).and_then(|value| value.as_table())`
 
 warning: `unwrap`s that could be combined
-  --> $DIR/main.rs:55:9
+  --> $DIR/main.rs:61:9
    |
 LL | /         .unwrap()
 LL | |         .get("package")
@@ -45,7 +45,7 @@ LL | |         .get("name")
    | |____________________^ help: use: `.and_then(|map| map.get("package")).and_then(|value| value.as_table()).and_then(|map| map.get("name"))`
 
 warning: `unwrap`s that could be combined
-  --> $DIR/main.rs:65:9
+  --> $DIR/main.rs:71:9
    |
 LL | /         .unwrap()
 LL | |         .as_table()
@@ -54,7 +54,7 @@ LL | |         .get("name")
    | |____________________^ help: use: `.and_then(|value| value.as_table()).and_then(|map| map.get("name"))`
 
 warning: `unwrap`s that could be combined
-  --> $DIR/main.rs:76:30
+  --> $DIR/main.rs:82:30
    |
 LL |     let _ = fs::read_dir(".").unwrap().next().unwrap();
    |                              ^^^^^^^^^^^^^^^^ help: use: `.ok().and_then(|mut read_dir| read_dir.next())`
