@@ -1,6 +1,6 @@
 [package]
 name = "dylint"
-version = "3.5.1"
+version = "4.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
 edition = "2021"
@@ -28,6 +28,7 @@ if_chain = { workspace = true, optional = true }
 log = { workspace = true }
 once_cell = { workspace = true }
 rewriter = { workspace = true, optional = true }
+rustc-stable-hash = { workspace = true, optional = true }
 semver = { workspace = true }
 serde = { workspace = true }
 serde-untagged = { workspace = true, optional = true }
@@ -43,7 +44,7 @@ toml = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
 walkdir = { workspace = true }
 
-dylint_internal = { version = "=3.5.1", path = "../internal", features = [
+dylint_internal = { version = "=4.0.0", path = "../internal", features = [
     "config",
     "git",
     "packaging",
@@ -52,14 +53,14 @@ dylint_internal = { version = "=3.5.1", path = "../internal", features = [
 ] }
 
 [build-dependencies]
-dylint_internal = { version = "=3.5.1", path = "../internal", features = [
+dylint_internal = { version = "=4.0.0", path = "../internal", features = [
     "cargo",
 ] }
 
 [dev-dependencies]
 env_logger = { workspace = true }
 
-dylint_internal = { version = "=3.5.1", path = "../internal", features = [
+dylint_internal = { version = "=4.0.0", path = "../internal", features = [
     "examples",
 ] }
 
@@ -84,6 +85,7 @@ __cargo_cli = [
     "glob",
     "hex",
     "if_chain",
+    "rustc-stable-hash",
     "serde-untagged",
     "toml",
     "url",
@@ -105,6 +107,6 @@ workspace = true
 
 # smoelius: When both `__cargo_cli` and `__cargo_lib` are enabled, we treat it as though
 # `--features=cargo-lib` was passed but the user forgot to pass `--no-default-features`. This
-# approach causes `fs_extra` to look like an unused dependency.
+# approach causes `fs_extra` and `rustc-stable-hash` to look like unused dependencies.
 [package.metadata.cargo-udeps.ignore]
-normal = ["fs_extra"]
+normal = ["fs_extra", "rustc-stable-hash"]

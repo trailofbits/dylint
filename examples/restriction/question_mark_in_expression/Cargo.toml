@@ -1,6 +1,6 @@
 [package]
 name = "question_mark_in_expression"
-version = "3.5.1"
+version = "4.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for the `?` operator in expressions"
 edition = "2021"
