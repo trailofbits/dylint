@@ -15,6 +15,6 @@
 // The span ./ido/not/exist.rs only points to the path
 
 // Workspace root path that does exist
-// supplementary/Cargo.toml
+// nonexistent_path_in_comment/Cargo.toml
 
 fn main() {}

@@ -116,11 +116,13 @@ fn check_comment(cx: &LateContext<'_>, span: Span, comment_text: &str, filename:
         _ => return,
     };
 
-    let metadata = MetadataCommand::new()
+    let Ok(metadata) = MetadataCommand::new()
         .current_dir(&base_dir)
         .no_deps()
         .exec()
-        .expect("failed getting metadata");
+    else {
+        return;
+    };
 
     for caps in PATH_REGEX.captures_iter(comment_text) {
         let path_str = &caps[1];
@@ -130,22 +132,14 @@ fn check_comment(cx: &LateContext<'_>, span: Span, comment_text: &str, filename:
             continue;
         }
 
-        if let Some(root_pkg) = metadata.root_package() {
-            if let Some(manifest_parent) = root_pkg.manifest_path.parent() {
-                let manifest_dir = manifest_parent.as_std_path();
+        if full_path.is_absolute() {
+            continue;
+        }
 
-                let candidate_from_root =
-                    if let Some(stripped) = path_str.strip_prefix(&root_pkg.name) {
-                        let stripped = stripped.strip_prefix('/').unwrap_or(stripped);
-                        manifest_dir.join(stripped)
-                    } else {
-                        manifest_dir.join(path_str)
-                    };
+        let candidate_from_root = metadata.workspace_root.join(path_str);
 
-                if candidate_from_root.exists() {
-                    continue;
-                }
-            }
+        if candidate_from_root.exists() {
+            continue;
         }
 
         let path_start = caps.get(1).unwrap().start();
