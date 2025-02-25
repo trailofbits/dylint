@@ -1,4 +1,5 @@
 use super::{common, highlight::Highlight, short_id::ShortId, tokenization::tokenize_lines};
+use crate::{error::warn, opts};
 use anyhow::Result;
 use dylint_internal::{
     env,
@@ -142,6 +143,7 @@ fn subslice_position<T: PartialEq>(xs: &[T], ys: &[T]) -> Option<usize> {
 }
 
 pub fn collect_rewrites(
+    opts: &opts::Dylint,
     old_channel: &str,
     new_oid: Oid,
     repository: &Repository,
@@ -182,7 +184,7 @@ pub fn collect_rewrites(
     let mut rewrites = HashMap::new();
     for (patch, oid) in patches_with_oids {
         let rewrites_unflattened =
-            rewrites_from_patch(&patch, &mut n_insertions, &mut n_refactors)?;
+            rewrites_from_patch(opts, &patch, &mut n_insertions, &mut n_refactors)?;
         for rewrite in rewrites_unflattened {
             rewrites.entry(rewrite).or_insert(oid);
         }
@@ -202,6 +204,7 @@ pub fn collect_rewrites(
 // smoelius: You need a `Patch` to get a `DiffHunk`'s lines. So there would be no easy way to write
 // a `hunks_from_patch` function. See, for example, `hunk_lines` below.
 fn rewrites_from_patch(
+    opts: &opts::Dylint,
     patch: &Patch<'_>,
     n_insertions: &mut usize,
     n_refactors: &mut usize,
@@ -210,7 +213,18 @@ fn rewrites_from_patch(
     let n_hunks = patch.num_hunks();
     for hunk_idx in 0..n_hunks {
         let (hunk, line_count) = patch.hunk(hunk_idx)?;
-        debug_assert_eq!((hunk.old_lines() + hunk.new_lines()) as usize, line_count);
+        if (hunk.old_lines() + hunk.new_lines()) as usize != line_count {
+            warn(
+                opts,
+                &format!(
+                    "Malformed hunk: old lines ({}) + new lines ({}) != line count ({})",
+                    hunk.old_lines(),
+                    hunk.new_lines(),
+                    line_count
+                ),
+            );
+            continue;
+        }
         // smoelius: `hunk.old_lines()` must be non-zero for there to be something to rewrite.
         if hunk.old_lines() == 0 {
             *n_insertions += 1;

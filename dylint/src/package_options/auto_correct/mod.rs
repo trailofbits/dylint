@@ -92,7 +92,7 @@ pub fn auto_correct_revertible(
 
     let repository = clippy_repository(opts.quiet)?;
 
-    let rewrites = collect_rewrites(old_channel, new_oid, &repository)?;
+    let rewrites = collect_rewrites(opts, old_channel, new_oid, &repository)?;
 
     loop {
         let mut rewriters = BTreeMap::new();
