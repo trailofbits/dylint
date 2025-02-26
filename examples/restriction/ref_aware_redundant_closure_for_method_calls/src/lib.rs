@@ -34,7 +34,7 @@ use rustc_middle::ty::{
 };
 use rustc_session::declare_lint_pass;
 use rustc_span::symbol::sym;
-use rustc_target::spec::abi::Abi;
+use ExternAbi;
 use rustc_trait_selection::error_reporting::InferCtxtErrorExt as _;
 
 use clippy_utils::{
@@ -86,11 +86,13 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
             && c.fn_decl
                 .inputs
                 .iter()
-                .all(|ty| matches!(ty.kind, TyKind::Infer))
+                .all(|ty| matches!(ty.kind, TyKind::Infer,
+
+            ) )
             && matches!(c.fn_decl.output, FnRetTy::DefaultReturn(_))
             && !expr.span.from_expansion()
         {
-            cx.tcx.hir().body(c.body)
+            cx.tcx.hir_body(c.body)
         } else {
             return;
         };

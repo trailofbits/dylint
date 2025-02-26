@@ -101,13 +101,13 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
 impl AbsHomePath {
     fn find_test_fns(&mut self, cx: &LateContext<'_>) {
         for item_id in cx.tcx.hir().items() {
-            let item = cx.tcx.hir().item(item_id);
+            let item = cx.tcx.hir_item(item_id);
             // smoelius:
             // https://rustc-dev-guide.rust-lang.org/test-implementation.html?step-3-test-object-generation
             if let ItemKind::Const(ty, _, const_body_id) = item.kind
                 && let Some(ty_def_id) = path_def_id(cx, ty)
                 && match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN)
-                && let const_body = cx.tcx.hir().body(const_body_id)
+                && let const_body = cx.tcx.hir_body(const_body_id)
                 && let ExprKind::Struct(_, fields, _) = const_body.value.kind
                 && let Some(testfn) = fields.iter().find(|field| field.ident.as_str() == "testfn")
                 // smoelius: Callee is `self::test::StaticTestFn`.
@@ -116,7 +116,7 @@ impl AbsHomePath {
                     body: closure_body_id,
                     ..
                 }) = arg.kind
-                && let closure_body = cx.tcx.hir().body(*closure_body_id)
+                && let closure_body = cx.tcx.hir_body(*closure_body_id)
                 // smoelius: Callee is `self::test::assert_test_result`.
                 && let ExprKind::Call(_, [arg]) = closure_body.value.kind
                 // smoelius: Callee is test function.

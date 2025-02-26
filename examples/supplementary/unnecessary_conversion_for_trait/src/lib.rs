@@ -22,7 +22,7 @@ use rustc_hir::{
     BorrowKind, Expr, ExprKind, Mutability,
     def_id::{DefId, LOCAL_CRATE},
 };
-use rustc_index::bit_set::BitSet;
+use rustc_index::bit_set::DenseBitSet;
 use rustc_infer::infer::TyCtxtInferExt;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{

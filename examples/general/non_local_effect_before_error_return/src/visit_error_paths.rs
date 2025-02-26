@@ -1,6 +1,6 @@
 use clippy_utils::ty::implements_trait;
 use rustc_hir::intravisit::FnKind;
-use rustc_index::bit_set::BitSet;
+use rustc_index::bit_set::DenseBitSet;
 use rustc_lint::{LateContext, LintContext};
 use rustc_middle::{
     mir::{
@@ -10,7 +10,7 @@ use rustc_middle::{
     ty::{AdtDef, TyCtxt},
 };
 use rustc_span::Span;
-use rustc_target::abi::VariantIdx;
+use rustc_abi::VariantIdx;
 
 // smoelius: I originally tried to write this analysis using the dataflow framework. But because
 // individual paths must be considered, and because of how complicated the state is, this analysis
@@ -52,7 +52,7 @@ pub fn visit_error_paths<'tcx>(
 #[derive(Clone, Debug)]
 struct State {
     local: Option<Local>,
-    possible_variants: BitSet<VariantIdx>,
+    possible_variants: DenseBitSet<VariantIdx>,
     confirmed_variant: Option<VariantIdx>,
     span: Option<Span>,
 }
@@ -115,15 +115,15 @@ struct Guide<'cx, 'tcx, V> {
     fn_kind: FnKind<'tcx>,
     mir: &'tcx Body<'tcx>,
     visitor: V,
-    blocks_visited: BitSet<BasicBlock>,
+    blocks_visited: DenseBitSet<BasicBlock>,
     block_path: Vec<BasicBlock>,
-    contributing_calls: BitSet<BasicBlock>,
+    contributing_calls: DenseBitSet<BasicBlock>,
     work: u64,
 }
 
 impl<'cx, 'tcx, V> Guide<'cx, 'tcx, V>
 where
-    V: Fn(&[BasicBlock], &BitSet<BasicBlock>, Option<Span>),
+    V: Fn(&[BasicBlock], &DenseBitSet<BasicBlock>, Option<Span>),
 {
     fn new(
         work_limit: u64,
@@ -138,9 +138,9 @@ where
             fn_kind,
             mir,
             visitor,
-            blocks_visited: BitSet::new_empty(mir.basic_blocks.len()),
+            blocks_visited: DenseBitSet::new_empty(mir.basic_blocks.len()),
             block_path: Vec::with_capacity(mir.basic_blocks.len()),
-            contributing_calls: BitSet::new_empty(mir.basic_blocks.len()),
+            contributing_calls: DenseBitSet::new_empty(mir.basic_blocks.len()),
             work: 0,
         }
     }
