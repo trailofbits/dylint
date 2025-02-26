@@ -13,7 +13,7 @@ extern crate rustc_target;
 use clippy_utils::{diagnostics::span_lint_and_then, match_def_path};
 use rustc_errors::Diag;
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind};
-use rustc_index::bit_set::BitSet;
+use rustc_index::bit_set::DenseBitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
@@ -154,7 +154,7 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             return;
         }
 
-        let local_def_id = cx.tcx.hir().body_owner_def_id(body.id());
+        let local_def_id = cx.tcx.hir_body_owner_def_id(body.id());
 
         let mir = cx.tcx.optimized_mir(local_def_id.to_def_id());
 

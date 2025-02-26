@@ -250,7 +250,7 @@ fn module_public_children(tcx: ty::TyCtxt<'_>, module_def_id: DefId) -> Vec<(Sym
             .filter_map(|item_id| {
                 let child_def_id = item_id.owner_id.to_def_id();
                 if tcx.visibility(child_def_id).is_public() {
-                    let item = tcx.hir().item(item_id);
+                    let item = tcx.hir_item(item_id);
                     Some((item.ident.name, child_def_id))
                 } else {
                     None

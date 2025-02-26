@@ -140,8 +140,8 @@ pub struct Checker<'cx, 'tcx> {
 impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
     type NestedFilter = nested_filter::OnlyBodies;
 
-    fn nested_visit_map(&mut self) -> Self::Map {
-        self.cx.tcx.hir()
+    fn maybe_tcx(&mut self) -> Self::MaybeTyCtxt {
+        self.cx.tcx
     }
 
     fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
@@ -169,7 +169,7 @@ impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
 
             if let Some(callee_def_id) = path_def_id(self.cx, callee)
                 && let Some(local_def_id) = callee_def_id.as_local()
-                && let Some(body) = self.cx.tcx.hir().maybe_body_owned_by(local_def_id)
+                && let Some(body) = self.cx.tcx.hir_maybe_body_owned_by(local_def_id)
             {
                 walk_body(self, body);
                 return;
