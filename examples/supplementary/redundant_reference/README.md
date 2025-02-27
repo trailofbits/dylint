@@ -18,11 +18,11 @@ struct V<'cx, 'tcx> {
 }
 
 impl<'cx, 'tcx> Visitor<'tcx> for V<'cx, 'tcx> {
-    type Map = rustc_middle::hir::map::Map<'tcx>;
+    type MaybeTyCtxt = rustc_middle::ty::TyCtxt<'tcx>;
     type NestedFilter = rustc_middle::hir::nested_filter::All;
 
-    fn nested_visit_map(&mut self) -> Self::Map {
-        self.cx.tcx.hir()
+    fn maybe_tcx(&mut self) -> Self::MaybeTyCtxt {
+        self.cx.tcx
     }
 }
 ```
@@ -35,11 +35,11 @@ struct V<'tcx> {
 }
 
 impl<'tcx> Visitor<'tcx> for V<'tcx> {
-    type Map = rustc_middle::hir::map::Map<'tcx>;
+    type MaybeTyCtxt = rustc_middle::ty::TyCtxt<'tcx>;
     type NestedFilter = rustc_middle::hir::nested_filter::All;
 
-    fn nested_visit_map(&mut self) -> Self::Map {
-        self.tcx.hir()
+    fn maybe_tcx(&mut self) -> Self::MaybeTyCtxt {
+        self.tcx
     }
 }
 ```

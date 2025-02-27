@@ -39,11 +39,11 @@ mod redundant_reference {
     }
 
     impl<'cx, 'tcx> Visitor<'tcx> for V<'cx, 'tcx> {
-        type Map = rustc_middle::hir::map::Map<'tcx>;
+        type MaybeTyCtxt = rustc_middle::ty::TyCtxt<'tcx>;
         type NestedFilter = rustc_middle::hir::nested_filter::All;
 
-        fn nested_visit_map(&mut self) -> Self::Map {
-            self.cx.tcx.hir()
+        fn maybe_tcx(&mut self) -> Self::MaybeTyCtxt {
+            self.cx.tcx
         }
     }
 }

@@ -7,7 +7,7 @@ LL |         cx: &'cx LateContext<'tcx>,
 note: read here
   --> $DIR/main.rs:46:17
    |
-LL |             self.cx.tcx.hir()
+LL |             self.cx.tcx
    |                 ^^^^^^^
    = help: consider storing a copy of `.cx.tcx` to eliminate the need for `'cx`
    = note: `#[warn(redundant_reference)]` on by default
