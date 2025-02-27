@@ -37,7 +37,7 @@ pub fn visit_error_paths<'tcx>(
     cx: &LateContext<'tcx>,
     fn_kind: FnKind<'tcx>,
     mir: &'tcx Body<'tcx>,
-    visitor: impl Fn(&[BasicBlock], &BitSet<BasicBlock>, Option<Span>),
+    visitor: impl Fn(&[BasicBlock], &DenseBitSet<BasicBlock>, Option<Span>),
 ) {
     for (index, basic_block) in mir.basic_blocks.iter_enumerated() {
         let terminator = basic_block.terminator();
@@ -61,7 +61,7 @@ impl State {
     fn new() -> Self {
         Self {
             local: Some(RETURN_PLACE),
-            possible_variants: BitSet::new_filled(2),
+            possible_variants: DenseBitSet::new_filled(2),
             confirmed_variant: None,
             span: None,
         }

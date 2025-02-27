@@ -110,7 +110,7 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
                     }
                 } else {
                     let parent_module_local_def_id = cx.tcx.parent_module(hir_id);
-                    let parent_module = cx.tcx.hir().get_module(parent_module_local_def_id);
+                    let parent_module = cx.tcx.hir_get_module(parent_module_local_def_id);
                     visitor.visit_mod(parent_module.0, parent_module.1, parent_module.2);
                     break;
                 }

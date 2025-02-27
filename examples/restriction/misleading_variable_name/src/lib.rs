@@ -245,8 +245,7 @@ fn module_public_child_types(
 
 fn module_public_children(tcx: ty::TyCtxt<'_>, module_def_id: DefId) -> Vec<(Symbol, DefId)> {
     if let Some(module_local_def_id) = ModDefId::new_unchecked(module_def_id).as_local() {
-        tcx.hir()
-            .module_items(module_local_def_id)
+        tcx.hir_module_free_items(module_local_def_id)
             .filter_map(|item_id| {
                 let child_def_id = item_id.owner_id.to_def_id();
                 if tcx.visibility(child_def_id).is_public() {
