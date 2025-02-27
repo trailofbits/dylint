@@ -13,7 +13,6 @@ extern crate rustc_hir;
 extern crate rustc_infer;
 extern crate rustc_middle;
 extern crate rustc_span;
-extern crate rustc_target;
 extern crate rustc_trait_selection;
 
 use clippy_utils::diagnostics::{span_lint_and_sugg, span_lint_and_then};
@@ -34,7 +33,6 @@ use rustc_middle::ty::{
 };
 use rustc_session::declare_lint_pass;
 use rustc_span::symbol::sym;
-use ExternAbi;
 use rustc_trait_selection::error_reporting::InferCtxtErrorExt as _;
 
 use clippy_utils::{
@@ -86,7 +84,7 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
             && c.fn_decl
                 .inputs
                 .iter()
-                .all(|ty| matches!(ty.kind, TyKind::Infer,
+                .all(|ty| matches!(ty.kind, TyKind::Infer(_),
 
             ) )
             && matches!(c.fn_decl.output, FnRetTy::DefaultReturn(_))

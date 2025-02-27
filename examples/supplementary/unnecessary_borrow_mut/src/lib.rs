@@ -12,7 +12,7 @@ use clippy_utils::{diagnostics::span_lint_and_sugg, match_def_path};
 use dylint_internal::paths;
 use rustc_errors::Applicability;
 use rustc_hir as hir;
-use rustc_index::bit_set::BitSet;
+use rustc_index::bit_set::DenseBitSet;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
@@ -62,7 +62,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryBorrowMut {
     fn check_body(&mut self, cx: &LateContext<'tcx>, body: &hir::Body<'tcx>) {
         let local_def_id = cx.tcx.hir_body_owner_def_id(body.id());
 
-        if cx.tcx.hir().body_const_context(local_def_id).is_some() {
+        if cx.tcx.hir_body_const_context(local_def_id).is_some() {
             return;
         }
 
@@ -132,7 +132,7 @@ fn used_exclusively_for_deref<'tcx>(
     mir: &Body<'tcx>,
     local: Local,
 ) -> bool {
-    let mut visited = BitSet::new_empty(mir.local_decls.len());
+    let mut visited = DenseBitSet::new_empty(mir.local_decls.len());
     let mut locals = vec![local];
 
     while let Some(local) = locals.pop() {

@@ -100,7 +100,7 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
 // https://github.com/trailofbits/dylint/blob/3610f9b3ddd7847adeb00d3d33aa830a7db409c6/examples/general/non_thread_safe_call_in_test/src/late.rs#L87-L120
 impl AbsHomePath {
     fn find_test_fns(&mut self, cx: &LateContext<'_>) {
-        for item_id in cx.tcx.hir().items() {
+        for item_id in cx.tcx.hir_free_items() {
             let item = cx.tcx.hir_item(item_id);
             // smoelius:
             // https://rustc-dev-guide.rust-lang.org/test-implementation.html?step-3-test-object-generation

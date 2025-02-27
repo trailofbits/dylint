@@ -586,7 +586,7 @@ fn replace_types<'tcx>(
     projection_predicates: &[ProjectionPredicate<'tcx>],
     substs: &mut [ty::GenericArg<'tcx>],
 ) -> bool {
-    let mut replaced = BitSet::new_empty(substs.len());
+    let mut replaced = DenseBitSet::new_empty(substs.len());
 
     let mut deque = VecDeque::with_capacity(substs.len());
     deque.push_back((param_ty, new_ty));

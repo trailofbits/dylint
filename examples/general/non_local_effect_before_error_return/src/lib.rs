@@ -3,12 +3,12 @@
 #![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
+extern crate rustc_abi;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
 extern crate rustc_middle;
 extern crate rustc_span;
-extern crate rustc_target;
 
 use clippy_utils::{diagnostics::span_lint_and_then, match_def_path};
 use rustc_errors::Diag;
@@ -291,9 +291,9 @@ fn collect_locals_and_constants<'tcx>(
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
     args: impl Iterator<Item = &'tcx Operand<'tcx>>,
-) -> (BitSet<Local>, Vec<&'tcx ConstOperand<'tcx>>) {
-    let mut locals_narrowly = BitSet::new_empty(mir.local_decls.len());
-    let mut locals_widely = BitSet::new_empty(mir.local_decls.len());
+) -> (DenseBitSet<Local>, Vec<&'tcx ConstOperand<'tcx>>) {
+    let mut locals_narrowly = DenseBitSet::new_empty(mir.local_decls.len());
+    let mut locals_widely = DenseBitSet::new_empty(mir.local_decls.len());
     let mut constants = Vec::new();
 
     for arg in args {

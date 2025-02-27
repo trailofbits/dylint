@@ -63,8 +63,8 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
             && matches!(path, QPath::LangItem(LangItem::TryTraitBranch, _))
             && let arg_ty = cx.typeck_results().node_type(arg.hir_id)
             && is_io_result(cx, arg_ty)
-            && let body_owner_hir_id = cx.tcx.hir().enclosing_body_owner(expr.hir_id)
-            && let body = cx.tcx.hir().body_owned_by(body_owner_hir_id)
+            && let body_owner_hir_id = cx.tcx.hir_enclosing_body_owner(expr.hir_id)
+            && let body = cx.tcx.hir_body_owned_by(body_owner_hir_id)
             && let body_ty = cx.typeck_results().expr_ty(body.value)
             // smoelius: If the body's return type is `std::io::Result`, do not flag, because the
             // return type cannot carry any additional information.

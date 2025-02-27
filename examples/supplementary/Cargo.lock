@@ -195,17 +195,6 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.86"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=19e305bb57a7595f2a8d81f521c0dd8bf854e739#19e305bb57a7595f2a8d81f521c0dd8bf854e739"
-dependencies = [
- "arrayvec",
- "itertools",
- "rustc_apfloat",
- "serde",
-]
-
-[[package]]
-name = "clippy_utils"
 version = "0.1.87"
 source = "git+https://github.com/rust-lang/rust-clippy?rev=238edf273d195c8e472851ebd60571f77f978ac8#238edf273d195c8e472851ebd60571f77f978ac8"
 dependencies = [
@@ -225,7 +214,7 @@ checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
 name = "commented_code"
 version = "4.0.0"
 dependencies = [
- "clippy_utils 0.1.87",
+ "clippy_utils",
  "dylint_linting",
  "dylint_testing",
  "once_cell",
@@ -503,7 +492,7 @@ version = "4.0.0"
 dependencies = [
  "cargo-util",
  "cargo_metadata 0.18.1",
- "clippy_utils 0.1.87",
+ "clippy_utils",
  "dylint_linting",
  "dylint_testing",
  "once_cell",
@@ -805,7 +794,7 @@ dependencies = [
 name = "inconsistent_struct_pattern"
 version = "4.0.0"
 dependencies = [
- "clippy_utils 0.1.87",
+ "clippy_utils",
  "dylint_linting",
  "dylint_testing",
 ]
@@ -929,7 +918,7 @@ checksum = "4ee93343901ab17bd981295f2cf0026d4ad018c7c31ba84549a4ddbb47a45104"
 name = "local_ref_cell"
 version = "4.0.0"
 dependencies = [
- "clippy_utils 0.1.87",
+ "clippy_utils",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -961,7 +950,7 @@ name = "nonexistent_path_in_comment"
 version = "4.0.0"
 dependencies = [
  "cargo_metadata 0.18.1",
- "clippy_utils 0.1.86",
+ "clippy_utils",
  "dylint_linting",
  "dylint_testing",
  "once_cell",
@@ -1093,7 +1082,7 @@ dependencies = [
 name = "redundant_reference"
 version = "4.0.0"
 dependencies = [
- "clippy_utils 0.1.87",
+ "clippy_utils",
  "dylint_linting",
  "dylint_testing",
  "serde",
@@ -1510,7 +1499,7 @@ checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
 name = "unnamed_constant"
 version = "4.0.0"
 dependencies = [
- "clippy_utils 0.1.87",
+ "clippy_utils",
  "dylint_linting",
  "dylint_testing",
  "serde",
@@ -1520,7 +1509,7 @@ dependencies = [
 name = "unnecessary_borrow_mut"
 version = "4.0.0"
 dependencies = [
- "clippy_utils 0.1.87",
+ "clippy_utils",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -1530,7 +1519,7 @@ dependencies = [
 name = "unnecessary_conversion_for_trait"
 version = "4.0.0"
 dependencies = [
- "clippy_utils 0.1.87",
+ "clippy_utils",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
