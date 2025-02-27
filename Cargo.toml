@@ -67,6 +67,7 @@ pedantic = { level = "warn", priority = -1 }
 option-if-let-else = "allow"
 missing-errors-doc = "allow"
 missing-panics-doc = "allow"
+non-std-lazy-statics = "allow"
 significant-drop-tightening = "allow"
 struct-field-names = "allow"
 

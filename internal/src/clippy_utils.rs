@@ -57,7 +57,7 @@ pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()
             .and_then(|table| table.get_mut("dependencies"))
             .and_then(Item::as_table_mut)
             .and_then(|table| table.get_mut("clippy_utils"));
-    };
+    }
     clippy_utils
         .and_then(Item::as_inline_table_mut)
         .and_then(|table| table.get_mut("rev"))

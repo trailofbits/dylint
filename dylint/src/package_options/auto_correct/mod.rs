@@ -287,8 +287,7 @@ pub fn span_and_text_of_tokens<S: AsRef<str>>(
             .unwrap_or_else(|| panic!("Could not find token {token:?} in line {line:?}"));
 
         assert!(
-            line[..offset]
-                .as_bytes()
+            line.as_bytes()[..offset]
                 .iter()
                 .all(u8::is_ascii_whitespace)
         );
