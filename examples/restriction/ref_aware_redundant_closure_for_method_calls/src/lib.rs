@@ -84,9 +84,7 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
             && c.fn_decl
                 .inputs
                 .iter()
-                .all(|ty| matches!(ty.kind, TyKind::Infer(_),
-
-            ) )
+                .all(|ty| matches!(ty.kind, TyKind::Infer(())))
             && matches!(c.fn_decl.output, FnRetTy::DefaultReturn(_))
             && !expr.span.from_expansion()
         {

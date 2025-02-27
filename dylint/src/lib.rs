@@ -80,7 +80,7 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
                     "Referring to libraries with `--path` is deprecated. Use `--lib-path`.",
                 );
                 lib_sel.lib_paths.extend(lib_sel.paths.split_off(0));
-            };
+            }
 
             // smoelius: Use of `--git` or `--path` implies `--all`.
             //
@@ -483,7 +483,7 @@ fn check_or_fix(
             if !check_opts.keep_going {
                 return result
                     .with_context(|| format!("Compilation failed with toolchain `{toolchain}`"));
-            };
+            }
             failures.push(toolchain);
         }
     }

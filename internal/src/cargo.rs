@@ -115,6 +115,7 @@ impl Builder {
 
     /// Whether to use a cached path to stable `cargo`. Using the cached path avoids repeated calls
     /// to `rustup`.
+    #[allow(clippy::missing_const_for_fn)]
     pub fn stable(&mut self, value: bool) -> &mut Self {
         self.stable = value;
         self
