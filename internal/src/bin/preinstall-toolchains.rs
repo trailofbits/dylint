@@ -78,12 +78,7 @@ fn collect_toolchains_for_path(path: impl AsRef<Path>) -> Result<Vec<String>> {
 
 fn install_toolchain(toolchain: &str) -> Result<()> {
     let status = Command::new("rustup")
-        .args([
-            "install",
-            toolchain,
-            "--profile=minimal",
-            "--no-self-update",
-        ])
+        .args(["install", toolchain, "--profile=minimal"])
         .status()
         .with_context(|| format!("Could not install {toolchain} with `rustup`"))?;
     ensure!(status.success());
