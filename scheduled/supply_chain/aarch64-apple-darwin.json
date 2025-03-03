@@ -654,14 +654,6 @@
         "name": "Artyom Pavlov"
       }
     ],
-    "dirs": [
-      {
-        "id": 2022,
-        "kind": "user",
-        "login": "soc",
-        "name": null
-      }
-    ],
     "dirs-next": [
       {
         "id": 13677,
@@ -674,14 +666,6 @@
         "kind": "user",
         "login": "nmccarty",
         "name": "Nathan McCarty"
-      }
-    ],
-    "dirs-sys": [
-      {
-        "id": 2022,
-        "kind": "user",
-        "login": "soc",
-        "name": null
       }
     ],
     "dirs-sys-next": [
@@ -1646,14 +1630,6 @@
         "kind": "user",
         "login": "alex",
         "name": "Alex Gaynor"
-      }
-    ],
-    "option-ext": [
-      {
-        "id": 2022,
-        "kind": "user",
-        "login": "soc",
-        "name": null
       }
     ],
     "ordered-float": [
