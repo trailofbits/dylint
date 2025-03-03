@@ -2,7 +2,10 @@ use crate::{error::warn, opts};
 use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage, TargetKind};
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
-use dylint_internal::{CommandExt, config, env, library_filename, rustup::SanitizeEnvironment};
+use dylint_internal::{
+    CommandExt, config, env, library_filename,
+    rustup::{SanitizeEnvironment, install_toolchain},
+};
 use glob::glob;
 use if_chain::if_chain;
 use once_cell::sync::OnceCell;
@@ -449,6 +452,8 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
     let path = package.path();
 
     if !opts.library_selection().no_build {
+        install_toolchain(&package.root)?;
+
         // smoelius: Clear `RUSTFLAGS` so that changes to it do not cause workspace metadata entries
         // to be rebuilt.
         dylint_internal::cargo::build(&format!("workspace metadata entry `{}`", package.id.name()))
