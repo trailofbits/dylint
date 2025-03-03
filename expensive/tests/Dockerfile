@@ -12,7 +12,7 @@ RUN wget -O - https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:$PATH"
 
 # smoelius: The nightly toolchain is needed by the `can_install_while_driver_is_running` test.
-RUN rustup install nightly --no-self-update 
+RUN rustup install nightly
 RUN rustup component add llvm-tools-preview rustc-dev --toolchain nightly
 
 RUN cargo install --path dylint-link
