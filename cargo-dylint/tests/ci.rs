@@ -257,10 +257,6 @@ fn license() {
         .unwrap()
         .lines()
         {
-            // smoelius: Exception for `dirs` dependencies.
-            if line == "MPL-2.0 (1): option-ext" {
-                continue;
-            }
             // smoelius: Exception for Cargo dependencies.
             if line == "MPL-2.0+ (3): bitmaps, im-rc, sized-chunks" {
                 continue;
