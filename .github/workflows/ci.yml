@@ -68,6 +68,9 @@ jobs:
             ~/.rustup/toolchains/
           key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
 
+      - name: Rustup
+        run: rustup update
+
       - name: Install dylint-link
         run: cargo install --path ./dylint-link --force
 
