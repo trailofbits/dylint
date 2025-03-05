@@ -1,6 +1,6 @@
 [package]
 name = "nonexistent_path_in_comment"
-version = "4.0.0"
+version = "4.0.1"
 authors = ["Augustin Villetard"]
 description = "Lint for nonexistent paths in comments"
 edition = "2021"

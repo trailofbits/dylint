@@ -1,6 +1,6 @@
 [package]
 name = "inconsistent_qualification"
-version = "4.0.0"
+version = "4.0.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for inconsistent qualification of module items"
 edition = "2021"

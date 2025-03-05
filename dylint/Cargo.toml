@@ -1,6 +1,6 @@
 [package]
 name = "dylint"
-version = "4.0.0"
+version = "4.0.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
 edition = "2021"
@@ -44,7 +44,7 @@ toml = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
 walkdir = { workspace = true }
 
-dylint_internal = { version = "=4.0.0", path = "../internal", features = [
+dylint_internal = { version = "=4.0.1", path = "../internal", features = [
     "config",
     "git",
     "packaging",
@@ -53,14 +53,14 @@ dylint_internal = { version = "=4.0.0", path = "../internal", features = [
 ] }
 
 [build-dependencies]
-dylint_internal = { version = "=4.0.0", path = "../internal", features = [
+dylint_internal = { version = "=4.0.1", path = "../internal", features = [
     "cargo",
 ] }
 
 [dev-dependencies]
 env_logger = { workspace = true }
 
-dylint_internal = { version = "=4.0.0", path = "../internal", features = [
+dylint_internal = { version = "=4.0.1", path = "../internal", features = [
     "examples",
 ] }
 
