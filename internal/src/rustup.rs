@@ -34,6 +34,10 @@ pub fn active_toolchain(path: &Path) -> Result<String> {
     parse_active_toolchain(stdout)
 }
 
+// Split from the first whitespace character
+//
+// Note:
+// Unicode whitespace characters are not considered as whitespace characters.
 fn parse_active_toolchain(active: &str) -> Result<String> {
     active
         .split_ascii_whitespace()
@@ -74,12 +78,23 @@ mod rustup_test {
 
     #[test]
     fn test_parse_active_toolchain() {
-        let output = r#"nightly-aarch64-apple-darwin
-active because: it's the default toolchain
-"#;
-        assert_eq!(
-            parse_active_toolchain(output).unwrap(),
-            "nightly-aarch64-apple-darwin".to_owned()
-        );
+        let outputs = [
+            "nightly-aarch64-apple-darwin\ractive because: it's the default toolchain",
+            "nightly-x86_64-pc-windows-msvc (default)\r\nactive toolchain",
+            "1.85.0-rv64gc-unknown-linux-gnu\nactive because: overridden by '/home/user/rust-with-riscv/rust-toolchain'",
+            // allow full width space (\u3000)
+            "自定义　rust\nactive because: overridden by '/root/app/rust-toolchain.toml'",
+            "私の　rust\r\nactive because: overridden by 'C:\\Users\\watashi\\rust-練習\\rust-toolchain.toml'",
+        ];
+        let expects = [
+            "nightly-aarch64-apple-darwin",
+            "nightly-x86_64-pc-windows-msvc",
+            "1.85.0-rv64gc-unknown-linux-gnu",
+            "自定义　rust",
+            "私の　rust",
+        ];
+        for (output, expect) in outputs.iter().zip(expects.iter()) {
+            assert_eq!(parse_active_toolchain(output).unwrap(), *expect);
+        }
     }
 }
