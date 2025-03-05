@@ -1,6 +1,6 @@
 [package]
 name = "wrong_serialize_struct_arg"
-version = "4.0.0"
+version = "4.0.1"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for calls to `serialize_struct` with incorrect `len` arguments"
 edition = "2021"

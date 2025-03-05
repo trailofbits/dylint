@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.1
+
+- Account for new `rustup show active-toolchain` format. [Rustup 1.28](https://github.com/rust-lang/rustup/blob/master/CHANGELOG.md#1280---2025-03-04) had two changes affecting Dylint. One was a change in `rustup show active-toolchain`'s output format; the other was the fact that Rustup no longer automatically installs uninstalled toolchains. This release addresses the former, but not the latter, i.e., you may need to manually install toolchains until the next release. To manually install a toolchain, either `cd` to a directory containing a `rust-toolchain` file and type `rustup toolchain install`, or type `rustup toolchain install TOOLCHAIN`, where `TOOLCHAIN` is the toolchain you wish to install. ([bda492f](https://github.com/trailofbits/dylint/commit/bda492fc62b416a5de9b532bf7165742b51bd34c) and [7e104fd](https://github.com/trailofbits/dylint/commit/7e104fd8763db7f6a41e9f62cdb06064fc42efdd))&mdash;thanks [@ClSlaid](https://github.com/ClSlaid) for the fix
+
 ## 4.0.0
 
 - BREAKING CHANGE: Work with [Cargo's new hashing algorithm](https://github.com/rust-lang/cargo/pull/14917), introduced with Rust 1.85.0. `cargo-dylint` 4 does not work with Cargo 1.84.x and earlier, and `cargo-dylint` 3.x does not work with Cargo 1.85.0. If you need to use Cargo 1.84.x or earlier, please continue to use `cargo-dylint` 3.x. If you have a long term need to use Cargo 1.84.x or earlier, please [open an issue](https://github.com/trailofbits/dylint/issues). ([#1534](https://github.com/trailofbits/dylint/pull/1534))
