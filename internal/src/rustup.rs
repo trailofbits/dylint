@@ -29,9 +29,17 @@ pub fn active_toolchain(path: &Path) -> Result<String> {
         .args(["show", "active-toolchain"])
         .logged_output(true)?;
     let stdout = std::str::from_utf8(&output.stdout)?;
-    stdout
-        .split_once(' ')
-        .map(|(s, _)| s.to_owned())
+
+    // split at the first whitespace character
+    parse_active_toolchain(stdout)
+}
+
+fn parse_active_toolchain(active: &str) -> Result<String> {
+    active
+        .split_ascii_whitespace()
+        .take(1)
+        .map(|s| s.to_owned())
+        .next()
         .ok_or_else(|| anyhow!("Could not determine active toolchain"))
 }
 
@@ -54,7 +62,24 @@ pub fn is_rustc<T: AsRef<OsStr> + ?Sized>(arg: &T) -> bool {
     Path::new(arg).file_stem() == Some(OsStr::new("rustc"))
 }
 
-#[test]
-fn rustc_is_rustc() {
-    assert!(is_rustc("rustc"));
+#[cfg(test)]
+mod rustup_test {
+
+    use crate::rustup::{is_rustc, parse_active_toolchain};
+
+    #[test]
+    fn rustc_is_rustc() {
+        assert!(is_rustc("rustc"));
+    }
+
+    #[test]
+    fn test_parse_active_toolchain() {
+        let output = r#"nightly-aarch64-apple-darwin
+active because: it's the default toolchain
+"#;
+        assert_eq!(
+            parse_active_toolchain(output).unwrap(),
+            "nightly-aarch64-apple-darwin".to_owned()
+        );
+    }
 }
