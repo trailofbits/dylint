@@ -1302,6 +1302,7 @@ dependencies = [
  "escaping_doc_link",
  "inconsistent_struct_pattern",
  "local_ref_cell",
+ "nonexistent_path_in_comment",
  "redundant_reference",
  "unnamed_constant",
  "unnecessary_borrow_mut",
