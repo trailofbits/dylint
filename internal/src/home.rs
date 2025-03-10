@@ -19,6 +19,8 @@ pub use home::home_dir;
 pub fn home_dir() -> Option<PathBuf> {
     // smoelius: The `deprecated` attribute hasn't been removed yet:
     // https://github.com/rust-lang/rust/pull/132515#discussion_r1829715262
-    #[expect(deprecated)]
+    // smoelius: The attribute is removed in Rust's master branch:
+    // https://github.com/rust-lang/rust/commit/2c752bcf559975995eb8086a7fa6a7f9b5ba0de8
+    #[allow(deprecated)]
     std::env::home_dir()
 }
