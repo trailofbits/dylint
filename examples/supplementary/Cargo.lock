@@ -217,7 +217,6 @@ dependencies = [
  "clippy_utils",
  "dylint_linting",
  "dylint_testing",
- "once_cell",
  "regex",
  "syn",
 ]
@@ -381,7 +380,6 @@ dependencies = [
  "home",
  "if_chain",
  "log",
- "once_cell",
  "regex",
  "rust-embed",
  "rustversion",
@@ -931,7 +929,6 @@ dependencies = [
  "clippy_utils",
  "dylint_linting",
  "dylint_testing",
- "once_cell",
  "regex",
 ]
 

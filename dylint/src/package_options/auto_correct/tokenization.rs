@@ -1,11 +1,11 @@
 use anyhow::Result;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use syntect::parsing::{ParseState, ScopeStackOp, SyntaxReference, SyntaxSet};
 
-static SYNTAX_SET: Lazy<SyntaxSet> = Lazy::new(SyntaxSet::load_defaults_nonewlines);
+static SYNTAX_SET: LazyLock<SyntaxSet> = LazyLock::new(SyntaxSet::load_defaults_nonewlines);
 
-static SYNTAX: Lazy<&SyntaxReference> =
-    Lazy::new(|| SYNTAX_SET.find_syntax_by_extension("rs").unwrap());
+static SYNTAX: LazyLock<&SyntaxReference> =
+    LazyLock::new(|| SYNTAX_SET.find_syntax_by_extension("rs").unwrap());
 
 pub fn tokenize_lines<T: AsRef<str>>(lines: &[T]) -> Result<Vec<&str>> {
     let tokens = lines

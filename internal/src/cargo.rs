@@ -3,17 +3,17 @@ use ansi_term::Style;
 use anyhow::{Result, anyhow, ensure};
 use bitflags::bitflags;
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
-use once_cell::sync::Lazy;
 use std::{
     io::{IsTerminal, Write},
     path::{Path, PathBuf},
     process::{Command, Stdio},
+    sync::LazyLock,
 };
 
 #[allow(clippy::module_name_repetitions)]
 pub use home::cargo_home;
 
-static STABLE_CARGO: Lazy<PathBuf> = Lazy::new(|| {
+static STABLE_CARGO: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut command = Command::new("rustup");
     // smoelius: Rustup 1.27.1 doesn't properly handle the case where the toolchain is specified via
     // both the `RUSTUP_TOOLCHAIN` environment variable and the command line (e.g., `+stable`). This

@@ -394,7 +394,6 @@ dependencies = [
  "home",
  "if_chain",
  "log",
- "once_cell",
  "regex",
  "rust-embed",
  "rustversion",
@@ -924,7 +923,6 @@ dependencies = [
  "derivative",
  "dylint_linting",
  "dylint_testing",
- "once_cell",
  "serde",
 ]
 
