@@ -25,7 +25,7 @@ toml = "0.8"
 [dev-dependencies]
 assert_cmd = "2.0"
 rustc_version = "0.4"
-tempfile = "3.18"
+tempfile = "3.19"
 
 [features]
 constituent = []
