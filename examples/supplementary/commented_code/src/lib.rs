@@ -64,13 +64,19 @@ impl<'tcx> LateLintPass<'tcx> for CommentedCode {
                     .with_hi(block.span.hi() - BytePos(1)),
             );
         } else {
-            check_span(
-                cx,
-                block
-                    .span
-                    .with_lo(block.span.lo() + BytePos(1))
-                    .with_hi(block.stmts.first().unwrap().span.lo()),
-            );
+            // smoelius: Ensure that the block's span and its first statement's span are from the
+            // same context. They can differ if one of them was produced by a macro, for example.
+            // This problem was observe in the `cargo-unmaintained` codebase. I have not yet found a
+            // small example to reproduce the problem.
+            if block.span.ctxt() == block.stmts.first().unwrap().span.ctxt() {
+                check_span(
+                    cx,
+                    block
+                        .span
+                        .with_lo(block.span.lo() + BytePos(1))
+                        .with_hi(block.stmts.first().unwrap().span.lo()),
+                );
+            }
             for window in block.stmts.windows(2) {
                 check_span(
                     cx,
@@ -80,13 +86,15 @@ impl<'tcx> LateLintPass<'tcx> for CommentedCode {
                         .with_hi(window[1].span.lo()),
                 );
             }
-            check_span(
-                cx,
-                block
-                    .span
-                    .with_lo(block.stmts.last().unwrap().span.hi())
-                    .with_hi(block.span.hi() - BytePos(1)),
-            );
+            if block.stmts.last().unwrap().span.ctxt() == block.span.ctxt() {
+                check_span(
+                    cx,
+                    block
+                        .span
+                        .with_lo(block.stmts.last().unwrap().span.hi())
+                        .with_hi(block.span.hi() - BytePos(1)),
+                );
+            }
         }
     }
 }
