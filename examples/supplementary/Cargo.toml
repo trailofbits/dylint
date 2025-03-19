@@ -16,6 +16,9 @@ inconsistent_struct_pattern = { path = "inconsistent_struct_pattern", features =
     "rlib",
 ] }
 local_ref_cell = { path = "local_ref_cell", features = ["rlib"] }
+nonexistent_path_in_comment = { path = "nonexistent_path_in_comment", features = [
+    "rlib",
+] }
 redundant_reference = { path = "redundant_reference", features = ["rlib"] }
 unnamed_constant = { path = "unnamed_constant", features = ["rlib"] }
 unnecessary_borrow_mut = { path = "unnecessary_borrow_mut", features = [
