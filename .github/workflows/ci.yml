@@ -13,6 +13,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTUP_AUTO_INSTALL: 0
 
 jobs:
   maybe-expedite:
