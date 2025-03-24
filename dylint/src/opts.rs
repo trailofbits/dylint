@@ -150,6 +150,7 @@ impl Operation {
         }
     }
 
+    #[allow(clippy::missing_const_for_fn)]
     fn library_selection(&self) -> &LibrarySelection {
         match self {
             Self::Check(check) => &check.lib_sel,
