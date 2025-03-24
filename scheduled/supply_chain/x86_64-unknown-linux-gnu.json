@@ -674,12 +674,6 @@
     ],
     "env_logger": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 3,
         "kind": "user",
         "login": "huonw",
@@ -1028,14 +1022,6 @@
         "name": null
       }
     ],
-    "humantime": [
-      {
-        "id": 892,
-        "kind": "user",
-        "login": "tailhook",
-        "name": "Paul Colomiets"
-      }
-    ],
     "icu_collections": [
       {
         "id": 1139,
@@ -1286,6 +1272,14 @@
         "name": "David Tolnay"
       }
     ],
+    "jiff": [
+      {
+        "id": 189,
+        "kind": "user",
+        "login": "BurntSushi",
+        "name": "Andrew Gallant"
+      }
+    ],
     "jobserver": [
       {
         "id": 1,
@@ -1376,12 +1370,6 @@
         "kind": "user",
         "login": "joshtriplett",
         "name": "Josh Triplett"
-      },
-      {
-        "id": 4825,
-        "kind": "user",
-        "login": "pietroalbini",
-        "name": "Pietro Albini"
       },
       {
         "id": 6202,
