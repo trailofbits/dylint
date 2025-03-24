@@ -16,7 +16,7 @@ impl CommandExt for Command {
     fn logged_output(&mut self, require_success: bool) -> Result<Output> {
         log::debug!("{:?}", self.get_envs().collect::<Vec<_>>());
         log::debug!("{:?}", self.get_current_dir());
-        log::debug!("{:?}", self);
+        log::debug!("{self:?}");
 
         #[allow(clippy::disallowed_methods)]
         let output = self
@@ -40,7 +40,7 @@ impl CommandExt for Command {
     fn success(&mut self) -> Result<()> {
         log::debug!("{:?}", self.get_envs().collect::<Vec<_>>());
         log::debug!("{:?}", self.get_current_dir());
-        log::debug!("{:?}", self);
+        log::debug!("{self:?}");
 
         let status = self
             .status()
