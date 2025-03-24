@@ -25,7 +25,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "dylint_driver"
-version = "4.0.1"
+version = "4.1.0"
 dependencies = [
  "anyhow",
  "dylint_internal",
@@ -39,7 +39,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "4.0.1"
+version = "4.1.0"
 dependencies = [
  "anyhow",
  "log",
@@ -70,9 +70,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.26"
+version = "0.4.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
+checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 
 [[package]]
 name = "memchr"

@@ -264,7 +264,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "4.0.1"
+version = "4.1.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -281,7 +281,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "4.0.1"
+version = "4.1.0"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -301,7 +301,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "4.0.1"
+version = "4.1.0"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -314,7 +314,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "4.0.1"
+version = "4.1.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -777,9 +777,9 @@ checksum = "23fb14cb19457329c82206317a5663005a4d404783dc74f4252769b0d5f42856"
 
 [[package]]
 name = "log"
-version = "0.4.26"
+version = "0.4.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
+checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 
 [[package]]
 name = "memchr"
@@ -1114,7 +1114,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "straggler"
-version = "4.0.1"
+version = "4.1.0"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
