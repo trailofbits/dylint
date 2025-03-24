@@ -163,6 +163,9 @@ mod test {
         ]
     });
 
+    // smoelius: To reiterate a comment from package_options/mod.rs, the `find` below is an
+    // iterative search and it is causing this test to become increasingly slow. As of this writing,
+    // the test takes around two minutes. The search should be a binary search.
     #[test]
     fn examples() {
         for example in &*EXAMPLES {

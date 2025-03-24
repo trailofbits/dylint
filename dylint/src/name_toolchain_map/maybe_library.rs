@@ -51,7 +51,10 @@ impl Inner {
         }
     }
 
-    #[cfg_attr(not(__library_packages), allow(unused_variables))]
+    #[cfg_attr(
+        not(__library_packages),
+        allow(unused_variables, clippy::unnecessary_wraps)
+    )]
     fn build(&self, opts: &crate::opts::Dylint) -> Result<PathBuf> {
         match self {
             Self::Path(path) => Ok(path.clone()),

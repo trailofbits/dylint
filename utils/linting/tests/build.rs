@@ -30,7 +30,7 @@ fn update_nightly() -> AssertResult {
     let _lock = MUTEX.lock().unwrap();
 
     std::process::Command::new("rustup")
-        .args(["update", "--no-self-update", "nightly"])
+        .args(["update", "nightly"])
         .assert()
         .try_success()
 }

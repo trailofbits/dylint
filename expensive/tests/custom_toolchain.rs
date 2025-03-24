@@ -19,6 +19,7 @@ const TRIPLE: &str = if cfg!(target_os = "linux") {
     "aarch64-apple-darwin"
 };
 
+#[ignore = "disabled until Rustup 1.28.2 is released; see https://github.com/rust-lang/rustup/issues/4248"]
 #[test]
 fn custom_toolchain() {
     let tempdir = tempdir().unwrap();
