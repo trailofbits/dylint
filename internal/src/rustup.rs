@@ -1,5 +1,5 @@
 use crate::{CommandExt, env};
-use anyhow::{Result, anyhow};
+use anyhow::{Result, anyhow, ensure};
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},
@@ -23,6 +23,9 @@ impl SanitizeEnvironment for Command {
 // smoelius: Consider carefully whether you need to call this function! In most cases, the toolchain
 // you want is not the one returned by rustup.
 pub fn active_toolchain(path: &Path) -> Result<String> {
+    // smoelius: A toolchain must be installed for `rustup` to show it.
+    install_toolchain(path)?;
+
     let output = Command::new("rustup")
         .sanitize_environment()
         .current_dir(path)
@@ -44,6 +47,20 @@ fn parse_active_toolchain(active: &str) -> Result<String> {
         .next()
         .map(str::to_owned)
         .ok_or_else(|| anyhow!("Could not determine active toolchain"))
+}
+
+pub fn install_toolchain(path: &Path) -> Result<()> {
+    // smoelius: Intentionally capture `stderr``. `rustup toolchain install` is a little noisy.
+    let output = Command::new("rustup")
+        .sanitize_environment()
+        .current_dir(path)
+        .args(["toolchain", "install", "--no-self-update"])
+        .logged_output(true)?;
+    ensure!(
+        output.status.success(),
+        "Could not install toolchain: {output:?}"
+    );
+    Ok(())
 }
 
 pub fn toolchain_path(path: &Path) -> Result<PathBuf> {
