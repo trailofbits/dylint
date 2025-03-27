@@ -947,6 +947,8 @@ dependencies = [
  "cargo-util",
  "cargo_metadata",
  "dylint_internal",
+ "regex",
+ "tempfile",
  "toml_edit",
  "walkdir",
 ]

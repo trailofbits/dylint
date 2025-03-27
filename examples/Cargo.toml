@@ -9,6 +9,8 @@ publish = false
 [dev-dependencies]
 cargo-util = { workspace = true }
 cargo_metadata = { workspace = true }
+regex = { workspace = true }
+tempfile = { workspace = true }
 toml_edit = { workspace = true }
 walkdir = { workspace = true }
 
