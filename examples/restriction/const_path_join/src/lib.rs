@@ -87,6 +87,7 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
 fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>, TyOrPartialSpan) {
     let mut components_reversed = Vec::new();
     let mut partial_span = expr.span.with_lo(expr.span.hi());
+    let mut has_const_expr = false;
 
     loop {
         if let ExprKind::MethodCall(_, receiver, [arg], _) = expr.kind
@@ -97,10 +98,14 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
                 &[&paths::CAMINO_UTF8_PATH_JOIN, &paths::PATH_JOIN],
             )
             .is_some()
-            && let Some(s) = is_lit_string(cx, arg)
         {
             expr = receiver;
-            components_reversed.push(s);
+            if let Some(s) = is_lit_string(cx, arg) {
+                components_reversed.push(s);
+            } else if is_const_expr(cx, arg) {
+                has_const_expr = true;
+                components_reversed.push(snippet_opt(cx, arg.span).unwrap_or_default());
+            }
             partial_span = partial_span.with_lo(receiver.span.hi());
             continue;
         }
@@ -112,9 +117,13 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
         && (is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW)
             || is_expr_path_def_path(cx, callee, &paths::PATH_NEW)
             || ty.is_some())
-        && let Some(s) = is_lit_string(cx, arg)
     {
-        components_reversed.push(s);
+        if let Some(s) = is_lit_string(cx, arg) {
+            components_reversed.push(s);
+        } else if is_const_expr(cx, arg) {
+            has_const_expr = true;
+            components_reversed.push(snippet_opt(cx, arg.span).unwrap_or_default());
+        }
         TyOrPartialSpan::Ty(ty.unwrap_or_else(|| {
             if is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW) {
                 &paths::CAMINO_UTF8_PATH_BUF
@@ -127,6 +136,14 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
     };
 
     components_reversed.reverse();
+    if has_const_expr {
+        // If we have any constant expressions, we need to use concat! macro
+        let concat_args = components_reversed.iter()
+            .map(|s| format!(r#""{}""#, s))
+            .collect::<Vec<_>>()
+            .join(", ");
+        components_reversed = vec![format!("concat!({})", concat_args)];
+    }
     (components_reversed, ty_or_partial_span)
 }
 
@@ -153,17 +170,28 @@ fn is_path_buf_from(
 }
 
 fn is_lit_string(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<String> {
-    if !expr.span.from_expansion()
-        && let ExprKind::Lit(lit) = &expr.kind
+    if let ExprKind::Lit(lit) = &expr.kind
         && let LitKind::Str(symbol, _) = lit.node
-        // smoelius: I don't think the next line should be necessary. But following the upgrade to
-        // nightly-2023-08-24, `expr.span.from_expansion()` above started returning false for
-        // `env!(...)`.
         && snippet_opt(cx, expr.span) == Some(format!(r#""{}""#, symbol.as_str()))
     {
         Some(symbol.to_ident_string())
     } else {
         None
+    }
+}
+
+fn is_const_expr(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
+    if let ExprKind::Call(callee, [arg]) = expr.kind
+        && let ExprKind::Path(qpath) = callee.kind
+        && let Some(def_id) = cx.qpath_res(qpath, callee.hir_id).opt_def_id()
+        && let Some(path) = cx.get_def_path(def_id)
+        && path.last().map_or(false, |s| s == "env")
+        && let ExprKind::Lit(lit) = arg.kind
+        && matches!(lit.node, LitKind::Str(_, _))
+    {
+        true
+    } else {
+        false
     }
 }
 
