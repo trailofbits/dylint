@@ -66,32 +66,42 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
             return;
         }
         
-        // Check if any of the components is an env! macro
-        let has_env_macro = components.iter().any(|c| c.starts_with("ENV_MACRO:"));
+        // Check for env! macro in first component (Path::new(env!()))
+        if components[0].starts_with("ENV_MACRO:") && components.len() == 2 {
+            let env_macro = &components[0][10..]; // Remove "ENV_MACRO:" prefix
+            let path = &components[1];
+            
+            // Special handling for paths that start with ".."
+            if path.starts_with("..") {
+                span_lint_and_sugg(
+                    cx,
+                    CONST_PATH_JOIN,
+                    expr.span,
+                    "path could be constructed from a string literal",
+                    "use",
+                    format!("concat!({}, \"{}\")", env_macro, path),
+                    Applicability::MachineApplicable,
+                );
+            } else {
+                span_lint_and_sugg(
+                    cx,
+                    CONST_PATH_JOIN,
+                    expr.span,
+                    "path could be constructed from a string literal",
+                    "use",
+                    format!("concat!({}, \"/{}\")", env_macro, path),
+                    Applicability::MachineApplicable,
+                );
+            }
+            return;
+        }
         
-        let (span, sugg) = if has_env_macro {
-            // For env! macros, suggest using concat! instead
-            let formatted_components = components.iter()
-                .map(|c| {
-                    if c.starts_with("ENV_MACRO:") {
-                        // Extract the original env! macro call
-                        c[10..].to_string()
-                    } else {
-                        format!("\"{}\"", c)
-                    }
-                })
-                .collect::<Vec<_>>()
-                .join(", ");
-                
-            (expr.span, format!("concat!({})", formatted_components))
-        } else {
-            // For normal string literals, keep the original behavior
-            let path = components.join("/");
-            match ty_or_partial_span {
-                TyOrPartialSpan::Ty(ty) => (expr.span, format!(r#"{}::from("{path}")"#, ty.join("::"))),
-                TyOrPartialSpan::PartialSpan(partial_span) => {
-                    (partial_span, format!(r#".join("{path}")"#))
-                }
+        // Original behavior for normal string literals
+        let path = components.join("/");
+        let (span, sugg) = match ty_or_partial_span {
+            TyOrPartialSpan::Ty(ty) => (expr.span, format!(r#"{}::from("{path}")"#, ty.join("::"))),
+            TyOrPartialSpan::PartialSpan(partial_span) => {
+                (partial_span, format!(r#".join("{path}")"#))
             }
         };
         

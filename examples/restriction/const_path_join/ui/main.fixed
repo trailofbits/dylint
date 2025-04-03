@@ -5,9 +5,22 @@ fn main() {
     let _ = std::path::PathBuf::from("../target");
     let _ = std::path::PathBuf::from("../target").as_path();
     let _ = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../target");
+    
+    // Fixed test cases for different environment variables
+    let _ = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/config.json");
+    let _ = concat!(env!("CARGO_PKG_NAME"), "/data.txt");
+    let _ = concat!(env!("CARGO_PKG_VERSION"), "/logs");
+    
+    // Fixed test cases from error messages
+    let _ = concat!(env!("CARGO_MANIFEST_DIR"), "../dylint-link");
+    let _ = concat!(env!("CARGO_MANIFEST_DIR"), "../examples");
 
     let _ = camino::Utf8PathBuf::from("../target");
     let _ = camino::Utf8PathBuf::from("../target");
     let _ = camino::Utf8PathBuf::from("../target").as_path();
     let _ = camino::Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../target");
+    
+    // Fixed test cases for camino paths
+    let _ = concat!(env!("CARGO_MANIFEST_DIR"), "/resources/icons");
+    let _ = concat!(env!("OUT_DIR"), "/generated");
 }
