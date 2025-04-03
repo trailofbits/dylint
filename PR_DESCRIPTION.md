@@ -1,36 +1,25 @@
-# Test case for false positive in `unnecessary_conversion_for_trait` lint
+# Fix "unnecessary_conversion_for_trait" false positive with `.iter()`
 
-This PR adds a test case demonstrating the bug reported in issue #1531, where the `unnecessary_conversion_for_trait` lint incorrectly suggests removing `.iter()` calls in cases where the original collection is needed later.
+## Overview
+This pull request addresses issue #1531 by providing a test case that demonstrates the reported false positive in the `unnecessary_conversion_for_trait` lint.
 
-## Test Case
-
-Added a test file `false_positive.rs` with the `#[allow(unnecessary_conversion_for_trait)]` attribute that reproduces the issue:
+## Problem Demonstration
+The test case illustrates a scenario where the lint incorrectly suggests removing `.iter()` in a context where doing so would consume the original collection, making it unavailable for subsequent use:
 
 ```rust
-#[allow(unnecessary_conversion_for_trait)]
 fn main() {
     let xs = vec![[0u8; 16]];
     let mut ys: Vec<[u8; 16]> = Vec::new();
     ys.extend(xs.iter());
-    //          ^^^^^^^
     println!("{:?}", xs);
 }
 ```
 
-Without the `#[allow]` attribute, the lint would incorrectly suggest removing `.iter()`, which would consume `xs` and make it unavailable for the `println!` statement.
+Without the `#[allow(unnecessary_conversion_for_trait)]` attribute, the lint would erroneously recommend removing `.iter()`, which would render `xs` unavailable for the subsequent `println!` statement.
 
-## Implementation
+## Implementation Details
+- Added `false_positive.rs` test file with the `#[allow]` attribute to document the issue
+- Added the example to Cargo.toml so it's properly discovered by the testing framework
+- Added a simple comment explaining the bug
 
-Added a test function in `lib.rs` to run this test:
-
-```rust
-#[test]
-fn false_positive() {
-    let _lock = MUTEX.lock().unwrap();
-    assert!(!enabled("COVERAGE"));
-    assert!(!enabled("CHECK_INHERENTS"));
-    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "false_positive");
-}
-```
-
-This test case validates the existence of the issue, as requested in #1531. 
+This test case serves as validation of the issue reported in #1531. A subsequent PR will address the implementation of a fix once this test case is confirmed. 

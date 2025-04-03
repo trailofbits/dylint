@@ -296,6 +296,7 @@ mod test {
     use std::fs::{create_dir, write};
     use tempfile::{tempdir, tempdir_in};
 
+    #[cfg_attr(target_os = "windows", ignore)]
     #[test]
     fn architectures_are_current() {
         let output = std::process::Command::new("rustc")

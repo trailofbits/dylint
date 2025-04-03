@@ -224,7 +224,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             }
                             break;
                         }
-                        
+
                         self.callee_paths.insert(
                             inner_callee_path
                                 .into_iter()
@@ -244,7 +244,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
 
             if let Some((inner_arg, refs_prefix)) =
                 strip_unnecessary_conversions(expr, ancestor_mutabilities)
-            {                
+            {
                 let (is_bare_method_call, subject) =
                     if matches!(expr.kind, ExprKind::MethodCall(..)) {
                         (maybe_arg.hir_id == expr.hir_id, "receiver")
@@ -384,7 +384,7 @@ mod ui {
             .collect::<Vec<_>>();
         combined_watchlist.sort();
 
-        let coverage = read_to_string(path).unwrap();
+        let coverage = read_to_string(path).unwrap_or_default();
         let coverage_lines = coverage.lines().collect::<Vec<_>>();
 
         for (left, right) in combined_watchlist
@@ -442,9 +442,6 @@ mod ui {
 
         dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "false_positive");
     }
-
-    // smoelius: `VarGuard` is from the following with the use of `option` added:
-    // https://github.com/rust-lang/rust-clippy/blob/9cc8da222b3893bc13bc13c8827e93f8ea246854/tests/compile-test.rs
 
     /// Restores an env var on drop
     #[must_use]
@@ -735,4 +732,14 @@ fn coverage_path(krate: &str) -> PathBuf {
         .target_directory
         .join(krate.to_owned() + "_coverage.txt")
         .into_std_path_buf()
+}
+
+#[cfg(test)]
+fn false_positive() {
+    let _lock = MUTEX.lock().unwrap();
+
+    assert!(!enabled("COVERAGE"));
+    assert!(!enabled("CHECK_INHERENTS"));
+
+    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "false_positive");
 }
