@@ -66,33 +66,23 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
             return;
         }
         
-        // Check for env! macro in first component (Path::new(env!()))
-        if components[0].starts_with("ENV_MACRO:") && components.len() == 2 {
-            let env_macro = &components[0][10..]; // Remove "ENV_MACRO:" prefix
-            let path = &components[1];
+        // This special case specifically handles:
+        // Path::new(env!("CARGO_MANIFEST_DIR")).join("../path")
+        if components.len() == 2 
+           && components[0].contains("env!(") 
+           && components[0].contains("CARGO_MANIFEST_DIR") {
             
-            // Special handling for paths that start with ".."
-            if path.starts_with("..") {
-                span_lint_and_sugg(
-                    cx,
-                    CONST_PATH_JOIN,
-                    expr.span,
-                    "path could be constructed from a string literal",
-                    "use",
-                    format!("concat!({}, \"{}\")", env_macro, path),
-                    Applicability::MachineApplicable,
-                );
-            } else {
-                span_lint_and_sugg(
-                    cx,
-                    CONST_PATH_JOIN,
-                    expr.span,
-                    "path could be constructed from a string literal",
-                    "use",
-                    format!("concat!({}, \"/{}\")", env_macro, path),
-                    Applicability::MachineApplicable,
-                );
-            }
+            let path_component = &components[1];
+            
+            span_lint_and_sugg(
+                cx,
+                CONST_PATH_JOIN,
+                expr.span,
+                "path could be constructed from a string literal",
+                "use",
+                format!("concat!({}, \"{}\")", components[0], path_component),
+                Applicability::MachineApplicable,
+            );
             return;
         }
         
@@ -201,8 +191,8 @@ fn is_lit_string(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<String> {
         // Check if this is an env! macro call
         if let Some(snip) = snippet {
             if snip.contains("env!(") {
-                // Create a special marker with the original snippet so we can reconstruct it later
-                return Some(format!("ENV_MACRO:{}", snip));
+                // Just return the original env!(...) snippet directly
+                return Some(snip);
             }
         }
     }
