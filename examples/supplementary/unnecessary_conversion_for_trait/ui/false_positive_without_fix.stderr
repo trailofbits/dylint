@@ -1,9 +1,0 @@
-warning: the inner argument implements the required traits
- --> $DIR/false_positive_without_fix.rs:4:16
-  |
-4 |     ys.extend(xs.iter());
-  |                ^^^^^^^^ help: use: `xs`
-  |
-  = note: `#[warn(unnecessary_conversion_for_trait)]` on by default
-
-warning: 1 warning emitted 
