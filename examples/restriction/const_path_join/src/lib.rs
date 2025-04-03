@@ -65,13 +65,36 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
         if components.len() < 2 {
             return;
         }
-        let path = components.join("/");
-        let (span, sugg) = match ty_or_partial_span {
-            TyOrPartialSpan::Ty(ty) => (expr.span, format!(r#"{}::from("{path}")"#, ty.join("::"))),
-            TyOrPartialSpan::PartialSpan(partial_span) => {
-                (partial_span, format!(r#".join("{path}")"#))
+        
+        // Check if any of the components is an env! macro
+        let has_env_macro = components.iter().any(|c| c.starts_with("ENV_MACRO:"));
+        
+        let (span, sugg) = if has_env_macro {
+            // For env! macros, suggest using concat! instead
+            let formatted_components = components.iter()
+                .map(|c| {
+                    if c.starts_with("ENV_MACRO:") {
+                        // Extract the original env! macro call
+                        c[10..].to_string()
+                    } else {
+                        format!("\"{}\"", c)
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+                
+            (expr.span, format!("concat!({})", formatted_components))
+        } else {
+            // For normal string literals, keep the original behavior
+            let path = components.join("/");
+            match ty_or_partial_span {
+                TyOrPartialSpan::Ty(ty) => (expr.span, format!(r#"{}::from("{path}")"#, ty.join("::"))),
+                TyOrPartialSpan::PartialSpan(partial_span) => {
+                    (partial_span, format!(r#".join("{path}")"#))
+                }
             }
         };
+        
         span_lint_and_sugg(
             cx,
             CONST_PATH_JOIN,
@@ -153,18 +176,28 @@ fn is_path_buf_from(
 }
 
 fn is_lit_string(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<String> {
-    if !expr.span.from_expansion()
-        && let ExprKind::Lit(lit) = &expr.kind
-        && let LitKind::Str(symbol, _) = lit.node
-        // smoelius: I don't think the next line should be necessary. But following the upgrade to
-        // nightly-2023-08-24, `expr.span.from_expansion()` above started returning false for
-        // `env!(...)`.
-        && snippet_opt(cx, expr.span) == Some(format!(r#""{}""#, symbol.as_str()))
-    {
-        Some(symbol.to_ident_string())
-    } else {
-        None
+    // Handle regular string literals
+    if !expr.span.from_expansion() && let ExprKind::Lit(lit) = &expr.kind && let LitKind::Str(symbol, _) = lit.node {
+        // This check ensures it's a real string literal (not from a macro expansion)
+        if snippet_opt(cx, expr.span) == Some(format!(r#""{}""#, symbol.as_str())) {
+            return Some(symbol.to_ident_string());
+        }
     }
+    
+    // Handle env!() macro expressions for any environment variable
+    if expr.span.from_expansion() {
+        let snippet = snippet_opt(cx, expr.span);
+        
+        // Check if this is an env! macro call
+        if let Some(snip) = snippet {
+            if snip.contains("env!(") {
+                // Create a special marker with the original snippet so we can reconstruct it later
+                return Some(format!("ENV_MACRO:{}", snip));
+            }
+        }
+    }
+    
+    None
 }
 
 #[test]
