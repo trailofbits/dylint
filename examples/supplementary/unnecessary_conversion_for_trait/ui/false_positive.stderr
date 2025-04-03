@@ -1,0 +1,9 @@
+warning: the inner argument implements the required traits
+ --> $DIR/false_positive.rs:5:16
+  |
+5 |     ys.extend(xs.iter());
+  |                ^^^^^^^^ help: use: `xs`
+  |
+  = note: `#[warn(unnecessary_conversion_for_trait)]` on by default
+
+warning: 1 warning emitted 

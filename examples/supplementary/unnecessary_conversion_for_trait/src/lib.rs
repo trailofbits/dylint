@@ -183,6 +183,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
         {
             let mut strip_unnecessary_conversions = |mut expr, mut mutabilities| {
                 let mut refs_prefix = None;
+                let mut is_consuming_method = false;
 
                 loop {
                     if let Some((inner_callee_def_id, _, inner_receiver, inner_args)) =
@@ -224,6 +225,16 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             }
                             break;
                         }
+                        
+                        // Check if this is a potentially consuming method like iter()
+                        // Method that potentially returns references to inner elements
+                        let method_name = inner_callee_path.last()
+                            .map(Symbol::to_ident_string)
+                            .unwrap_or_default();
+                        if method_name == "iter" && new_refs_prefix.is_empty() {
+                            is_consuming_method = true;
+                        }
+                        
                         self.callee_paths.insert(
                             inner_callee_path
                                 .into_iter()
@@ -238,12 +249,17 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                     break;
                 }
 
-                Some(expr).zip(refs_prefix)
+                Some((expr, is_consuming_method)).zip(refs_prefix)
             };
 
-            if let Some((inner_arg, refs_prefix)) =
+            if let Some(((inner_arg, is_consuming_method), refs_prefix)) =
                 strip_unnecessary_conversions(expr, ancestor_mutabilities)
             {
+                // Skip the lint if this is a potentially consuming method and the original value is used later
+                if is_consuming_method && inner_arg_is_used_later(cx, inner_arg) {
+                    return;
+                }
+                
                 let (is_bare_method_call, subject) =
                     if matches!(expr.kind, ExprKind::MethodCall(..)) {
                         (maybe_arg.hir_id == expr.hir_id, "receiver")
@@ -430,6 +446,26 @@ mod ui {
         assert!(!enabled("CHECK_INHERENTS"));
 
         dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "vec");
+    }
+
+    #[test]
+    fn false_positive() {
+        let _lock = MUTEX.lock().unwrap();
+
+        assert!(!enabled("COVERAGE"));
+        assert!(!enabled("CHECK_INHERENTS"));
+
+        dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "false_positive");
+    }
+
+    #[test]
+    fn false_positive_without_fix() {
+        let _lock = MUTEX.lock().unwrap();
+
+        assert!(!enabled("COVERAGE"));
+        assert!(!enabled("CHECK_INHERENTS"));
+
+        dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "false_positive_without_fix");
     }
 
     // smoelius: `VarGuard` is from the following with the use of `option` added:
@@ -724,4 +760,69 @@ fn coverage_path(krate: &str) -> PathBuf {
         .target_directory
         .join(krate.to_owned() + "_coverage.txt")
         .into_std_path_buf()
+}
+
+fn inner_arg_is_used_later<'tcx>(
+    cx: &LateContext<'tcx>,
+    inner_arg: &'tcx Expr<'tcx>,
+) -> bool {
+    // Get the containing block or function body
+    let expr_id = inner_arg.hir_id;
+    let parent_id = cx.tcx.hir().get_parent_node(expr_id);
+    let body_id = cx.tcx.hir().maybe_body_owned_by(parent_id);
+    
+    if let Some(body_id) = body_id {
+        let body = cx.tcx.hir().body(body_id);
+        let expr_span = inner_arg.span;
+        
+        // Check if the variable is used after the current expression
+        struct UsageFinder<'a, 'tcx> {
+            cx: &'a LateContext<'tcx>,
+            expr_id: rustc_hir::HirId,
+            expr_span: rustc_span::Span,
+            used_later: bool,
+        }
+        
+        impl<'a, 'tcx> rustc_hir::intravisit::Visitor<'tcx> for UsageFinder<'a, 'tcx> {
+            type NestedFilter = rustc_middle::hir::nested_filter::All;
+            
+            fn nested_visit_map(&mut self) -> Self::Map {
+                self.cx.tcx.hir()
+            }
+            
+            fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
+                // Only check expressions that come after our target expression
+                if expr.span > self.expr_span && expr.hir_id != self.expr_id {
+                    // Check if this expression refers to our target
+                    if let ExprKind::Path(rustc_hir::QPath::Resolved(_, path)) = expr.kind {
+                        if path.res.opt_def_id() == self.cx.tcx.hir().opt_def_id(self.expr_id) {
+                            self.used_later = true;
+                            return;
+                        }
+                    }
+                    
+                    // If expr uses our target, mark it as used
+                    if expr.hir_id == self.expr_id {
+                        self.used_later = true;
+                        return;
+                    }
+                }
+                
+                rustc_hir::intravisit::walk_expr(self, expr);
+            }
+        }
+        
+        let mut visitor = UsageFinder {
+            cx,
+            expr_id,
+            expr_span,
+            used_later: false,
+        };
+        
+        rustc_hir::intravisit::walk_expr(&mut visitor, body.value);
+        return visitor.used_later;
+    }
+    
+    // If we can't determine for sure, conservatively assume it is used
+    true
 }
