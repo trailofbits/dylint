@@ -29,7 +29,7 @@ warning: path could be constructed from a string literal
 13 |     let _ = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("target");
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: use `PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/target"))`
+   = help: use `PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/", "target"))`
 
 warning: path could be constructed from a string literal
   --> const_path_join.rs:14:5
@@ -37,7 +37,7 @@ warning: path could be constructed from a string literal
 14 |     let _ = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("target").join("debug");
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: use `PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/target/debug"))`
+   = help: use `PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/", "target", "/", "debug"))`
 
 warning: path could be constructed from a string literal
   --> const_path_join.rs:17:5
@@ -45,7 +45,7 @@ warning: path could be constructed from a string literal
 17 |     let _ = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src").join("lib.rs");
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: use `PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/src/lib.rs"))`
+   = help: use `PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/", "src", "/", "lib.rs"))`
 
 warning: path could be constructed from a string literal
   --> const_path_join.rs:18:5
@@ -53,7 +53,7 @@ warning: path could be constructed from a string literal
 18 |     let _ = PathBuf::from("target").join(env!("CARGO_PKG_NAME")).join("debug");
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: use `PathBuf::from(concat!("target", "/", env!("CARGO_PKG_NAME"), "/debug"))`
+   = help: use `PathBuf::from(concat!("target", "/", env!("CARGO_PKG_NAME"), "/", "debug"))`
 
 warning: path could be constructed from a string literal
   --> const_path_join.rs:22:5
@@ -69,4 +69,4 @@ warning: path could be constructed from a string literal
 23 |     let _ = Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("target");
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: use `Utf8PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/target"))` 
+   = help: use `Utf8PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/", "target"))` 

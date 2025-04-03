@@ -101,7 +101,7 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
         {
             expr = receiver;
             if let Some(s) = is_lit_string(cx, arg) {
-                components_reversed.push(s);
+                components_reversed.push(format!(r#""{}""#, s));
             } else if is_const_expr(cx, arg) {
                 has_const_expr = true;
                 components_reversed.push(snippet_opt(cx, arg.span).unwrap_or_default());
@@ -119,7 +119,7 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
             || ty.is_some())
     {
         if let Some(s) = is_lit_string(cx, arg) {
-            components_reversed.push(s);
+            components_reversed.push(format!(r#""{}""#, s));
         } else if is_const_expr(cx, arg) {
             has_const_expr = true;
             components_reversed.push(snippet_opt(cx, arg.span).unwrap_or_default());
@@ -139,10 +139,24 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
     if has_const_expr {
         // If we have any constant expressions, we need to use concat! macro
         let concat_args = components_reversed.iter()
-            .map(|s| format!(r#""{}""#, s))
+            .enumerate()
+            .map(|(i, s)| {
+                if i > 0 {
+                    format!(r#""/", {}"#, s)
+                } else {
+                    s.to_string()
+                }
+            })
             .collect::<Vec<_>>()
             .join(", ");
         components_reversed = vec![format!("concat!({})", concat_args)];
+    } else {
+        // For pure string literals, join with "/"
+        let path = components_reversed.iter()
+            .map(|s| s.trim_matches('"'))
+            .collect::<Vec<_>>()
+            .join("/");
+        components_reversed = vec![format!(r#""{}""#, path)];
     }
     (components_reversed, ty_or_partial_span)
 }
