@@ -363,7 +363,7 @@ mod ui {
     };
     use tempfile::tempdir;
 
-    static MUTEX: Mutex<()> = Mutex::new(());
+    pub(crate) static MUTEX: Mutex<()> = Mutex::new(());
 
     #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
@@ -735,11 +735,4 @@ fn coverage_path(krate: &str) -> PathBuf {
 }
 
 #[cfg(test)]
-fn false_positive() {
-    let _lock = MUTEX.lock().unwrap();
-
-    assert!(!enabled("COVERAGE"));
-    assert!(!enabled("CHECK_INHERENTS"));
-
-    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "false_positive");
-}
+use ui::MUTEX;
