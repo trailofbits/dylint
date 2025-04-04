@@ -41,6 +41,20 @@ use std::{
     path::PathBuf,
 };
 
+// Import the std::sync::Mutex type for testing
+#[cfg(test)]
+use std::sync::Mutex;
+
+// Define a global mutex for testing
+#[cfg(test)]
+static TEST_MUTEX: Mutex<()> = Mutex::new(());
+
+// Global helper function to acquire the test lock
+#[cfg(test)]
+fn acquire_test_lock() -> std::sync::MutexGuard<'static, ()> {
+    TEST_MUTEX.lock().unwrap()
+}
+
 mod check_inherents;
 use check_inherents::check_inherents;
 
@@ -359,16 +373,13 @@ mod ui {
         env::{remove_var, set_var, var_os},
         ffi::{OsStr, OsString},
         fs::{read_to_string, remove_file, write},
-        sync::Mutex,
     };
     use tempfile::tempdir;
-
-    pub(crate) static MUTEX: Mutex<()> = Mutex::new(());
 
     #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
     fn general() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = acquire_test_lock();
         let _var = VarGuard::set("COVERAGE", "1");
 
         assert!(!enabled("CHECK_INHERENTS"));
@@ -401,7 +412,7 @@ mod ui {
     #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
     fn check_inherents() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = acquire_test_lock();
         let _var = VarGuard::set("CHECK_INHERENTS", "1");
 
         assert!(!enabled("COVERAGE"));
@@ -415,7 +426,7 @@ mod ui {
 
     #[test]
     fn unnecessary_to_owned() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = acquire_test_lock();
 
         assert!(!enabled("COVERAGE"));
         assert!(!enabled("CHECK_INHERENTS"));
@@ -425,7 +436,7 @@ mod ui {
 
     #[test]
     fn vec() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = acquire_test_lock();
 
         assert!(!enabled("COVERAGE"));
         assert!(!enabled("CHECK_INHERENTS"));
@@ -435,7 +446,7 @@ mod ui {
 
     #[test]
     fn false_positive() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = acquire_test_lock();
 
         assert!(!enabled("COVERAGE"));
         assert!(!enabled("CHECK_INHERENTS"));
@@ -733,6 +744,3 @@ fn coverage_path(krate: &str) -> PathBuf {
         .join(krate.to_owned() + "_coverage.txt")
         .into_std_path_buf()
 }
-
-#[cfg(test)]
-use ui::MUTEX;
