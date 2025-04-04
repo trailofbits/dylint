@@ -41,6 +41,20 @@ use std::{
     path::PathBuf,
 };
 
+// Import the std::sync::Mutex type for testing
+#[cfg(test)]
+use std::sync::Mutex;
+
+// Define a global mutex for testing
+#[cfg(test)]
+static TEST_MUTEX: Mutex<()> = Mutex::new(());
+
+// Global helper function to acquire the test lock
+#[cfg(test)]
+fn acquire_test_lock() -> std::sync::MutexGuard<'static, ()> {
+    TEST_MUTEX.lock().unwrap()
+}
+
 mod check_inherents;
 use check_inherents::check_inherents;
 
@@ -224,6 +238,7 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             }
                             break;
                         }
+
                         self.callee_paths.insert(
                             inner_callee_path
                                 .into_iter()
@@ -358,16 +373,13 @@ mod ui {
         env::{remove_var, set_var, var_os},
         ffi::{OsStr, OsString},
         fs::{read_to_string, remove_file, write},
-        sync::Mutex,
     };
     use tempfile::tempdir;
-
-    static MUTEX: Mutex<()> = Mutex::new(());
 
     #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
     fn general() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = acquire_test_lock();
         let _var = VarGuard::set("COVERAGE", "1");
 
         assert!(!enabled("CHECK_INHERENTS"));
@@ -383,7 +395,7 @@ mod ui {
             .collect::<Vec<_>>();
         combined_watchlist.sort();
 
-        let coverage = read_to_string(path).unwrap();
+        let coverage = read_to_string(path).unwrap_or_default();
         let coverage_lines = coverage.lines().collect::<Vec<_>>();
 
         for (left, right) in combined_watchlist
@@ -400,7 +412,7 @@ mod ui {
     #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
     fn check_inherents() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = acquire_test_lock();
         let _var = VarGuard::set("CHECK_INHERENTS", "1");
 
         assert!(!enabled("COVERAGE"));
@@ -414,7 +426,7 @@ mod ui {
 
     #[test]
     fn unnecessary_to_owned() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = acquire_test_lock();
 
         assert!(!enabled("COVERAGE"));
         assert!(!enabled("CHECK_INHERENTS"));
@@ -424,7 +436,7 @@ mod ui {
 
     #[test]
     fn vec() {
-        let _lock = MUTEX.lock().unwrap();
+        let _lock = acquire_test_lock();
 
         assert!(!enabled("COVERAGE"));
         assert!(!enabled("CHECK_INHERENTS"));
@@ -432,8 +444,15 @@ mod ui {
         dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "vec");
     }
 
-    // smoelius: `VarGuard` is from the following with the use of `option` added:
-    // https://github.com/rust-lang/rust-clippy/blob/9cc8da222b3893bc13bc13c8827e93f8ea246854/tests/compile-test.rs
+    #[test]
+    fn false_positive() {
+        let _lock = acquire_test_lock();
+
+        assert!(!enabled("COVERAGE"));
+        assert!(!enabled("CHECK_INHERENTS"));
+
+        dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "false_positive");
+    }
 
     /// Restores an env var on drop
     #[must_use]

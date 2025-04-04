@@ -21,6 +21,10 @@ path = "ui/unnecessary_to_owned.rs"
 name = "vec"
 path = "ui/vec.rs"
 
+[[example]]
+name = "false_positive"
+path = "ui/false_positive.rs"
+
 [dependencies]
 clippy_utils = { workspace = true }
 
