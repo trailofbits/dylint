@@ -185,8 +185,8 @@ fn build_script_allowance() {
         path::Path,
         process::Command,
     };
+    use dylint_internal::CommandExt;
 
-    // Skip test if repository is not stored in the user's home directory
     if let Some(home) = home::home_dir()
         && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
     {
@@ -199,20 +199,18 @@ fn build_script_allowance() {
         return;
     }
 
-    // Run cargo check with our lint on the test package
     let output = Command::new("cargo")
         .args(["check", "--manifest-path", "ui_build_script/Cargo.toml"])
         .env("DYLINT_LIBRARY_PATH", env!("CARGO_MANIFEST_DIR"))
-        .current_dir(Path::new(env!("CARGO_MANIFEST_DIR")))
-        .output()
+        .current_dir(env!("CARGO_MANIFEST_DIR"))
+        .logged_output(true)
         .expect("Failed to execute cargo command");
 
     let stderr = String::from_utf8_lossy(&output.stderr);
     
-    assert!(output.status.success(), "Cargo check failed: {}", stderr);
+    assert!(output.status.success(), "Cargo check failed: {stderr}");
     assert!(
         !stderr.contains("this path might not exist in production"),
-        "The abs_home_path lint was incorrectly triggered in a build script: {}",
-        stderr
+        "The abs_home_path lint was incorrectly triggered in a build script: {stderr}"
     );
 }
