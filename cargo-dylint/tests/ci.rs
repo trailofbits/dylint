@@ -13,7 +13,7 @@ use std::{
     fmt::Write as _,
     fs::{read_dir, read_to_string, write},
     io::{Write as _, stderr},
-    path::{Component, Path},
+    path::{Component, Path, PathBuf},
     sync::{LazyLock, Mutex},
 };
 
@@ -131,6 +131,165 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
     let dylint_readme = readme_contents("dylint").unwrap();
 
     compare_lines(&cargo_dylint_readme, &dylint_readme);
+}
+
+#[test]
+fn examples_readme_contents() {
+    let examples_dir = find_examples_dir();
+    let categories = vec![
+        "general",
+        "supplementary",
+        "restriction",
+        "experimental",
+        "testing",
+    ];
+    
+    // Read the existing README
+    let readme_path = examples_dir.join("README.md");
+    let readme_content = read_to_string(&readme_path).unwrap();
+
+    // Generate just the lint description tables
+    let tables = generate_lint_tables(&examples_dir, &categories);
+    
+    // Extract the current tables section from README using markers
+    let current_tables = extract_between_markers(&readme_content, 
+        "<!-- lint descriptions start -->",
+        "<!-- lint descriptions end -->"
+    ).unwrap_or_else(|| panic!("Lint description markers not found in README.md"));
+
+    // Extract and compare just the meaningful content (links and descriptions)
+    let expected_content = extract_meaningful_content(&tables);
+    let actual_content = extract_meaningful_content(&current_tables);
+
+    assert_eq!(
+        expected_content,
+        actual_content,
+        "Lint descriptions in README.md do not match expected content"
+    );
+}
+
+fn extract_meaningful_content(s: &str) -> Vec<(String, String)> {
+    let link_re = Regex::new(r"\[`([^`]+)`\]\([^)]+\)").unwrap();
+    let desc_re = Regex::new(r"\|[^|]*\| ([^|]+) \|").unwrap();
+    
+    let mut result = Vec::new();
+    let mut lines = s.lines().peekable();
+    
+    while let Some(line) = lines.next() {
+        if let (Some(link_cap), Some(desc_cap)) = (link_re.captures(line), desc_re.captures(line)) {
+            result.push((
+                link_cap.get(1).unwrap().as_str().to_string(),
+                desc_cap.get(1).unwrap().as_str().trim().to_string()
+            ));
+        }
+    }
+    
+    result.sort();
+    result
+}
+
+fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
+    let mut content = String::new();
+    
+    // Generate the tables for each category
+    for category in categories {
+        use std::fmt::Write;
+        write!(content, "\n## {}\n\n", capitalize(category)).unwrap();
+        content.push_str("| Example | Description/check |\n");
+        content.push_str("| - | - |\n");
+        
+        // Get the examples for this category
+        let examples = collect_examples_from_category(examples_dir, category);
+        for (name, description) in examples {
+            writeln!(content, "| [`{name}`](./{category}/{name}) | {description} |").unwrap();
+        }
+    }
+    
+    content
+}
+
+fn extract_between_markers(content: &str, start_marker: &str, end_marker: &str) -> Option<String> {
+    let start = content.find(start_marker)? + start_marker.len();
+    let end = content.find(end_marker)?;
+    Some(content[start..end].trim().to_string())
+}
+
+fn collect_examples_from_category(examples_dir: &Path, category: &str) -> Vec<(String, String)> {
+    let mut examples = Vec::new();
+    let category_dir = examples_dir.join(category);
+    
+    for entry in read_dir(&category_dir).unwrap() {
+        let entry = entry.unwrap();
+        let metadata = entry.metadata().unwrap();
+        if metadata.is_dir() {
+            let cargo_path = entry.path().join("Cargo.toml");
+            if cargo_path.exists() {
+                if let Some((name, desc)) = extract_name_and_description(&cargo_path) {
+                    examples.push((name, desc));
+                }
+            }
+        }
+    }
+    
+    // Sort examples by name
+    examples.sort_by(|(a_0, _), (b_0, _)| a_0.cmp(b_0));
+    examples
+}
+
+fn extract_name_and_description(cargo_path: &Path) -> Option<(String, String)> {
+    let content = read_to_string(cargo_path).ok()?;
+    
+    // Get the name from the directory
+    let name = cargo_path
+        .parent()
+        .and_then(|path| path.file_name())
+        .unwrap()
+        .to_string_lossy()
+        .to_string();
+    
+    // Extract the description using regex
+    let re = Regex::new(r#"description\s*=\s*"([^"]*)""#).unwrap();
+    let description = if let Some(caps) = re.captures(&content) {
+        if let Some(desc) = caps.get(1) {
+            // Format the description like the bash script does
+            let desc_str = desc.as_str();
+            if let Some(stripped) = desc_str.strip_prefix("A lint to check for ") {
+                capitalize(stripped)
+            } else {
+                desc_str.to_string()
+            }
+        } else {
+            return None;
+        }
+    } else {
+        return None;
+    };
+    
+    Some((name, description))
+}
+
+fn capitalize(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => {
+            let mut result = first.to_uppercase().collect::<String>();
+            result.extend(chars);
+            result
+        }
+    }
+}
+
+fn find_examples_dir() -> PathBuf {
+    // Try relative paths from different possible locations
+    let paths = ["examples", "../examples", "../../examples"];
+    for path in paths {
+        let examples_dir = PathBuf::from(path);
+        if examples_dir.exists() {
+            return examples_dir;
+        }
+    }
+    panic!("Could not find examples directory");
 }
 
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
