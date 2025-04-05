@@ -10,7 +10,7 @@ extern crate rustc_span;
 
 use clippy_utils::{
     diagnostics::span_lint_and_sugg, is_expr_path_def_path, match_any_def_paths,
-    source::snippet_opt,
+    source::snippet_opt, visitors::is_const_evaluatable,
 };
 use dylint_internal::paths;
 use rustc_ast::LitKind;
@@ -60,11 +60,19 @@ enum TyOrPartialSpan {
 }
 
 impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
-    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
+    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'_>) {
         let (components, ty_or_partial_span) = collect_components(cx, expr);
         if components.len() < 2 {
             return;
         }
+
+        // Skip if any component is a constant expression
+        let has_const_expr = components.iter().any(|s| s.starts_with("__CONST_EXPR_"));
+        if has_const_expr {
+            // Don't suggest for paths with constant expressions
+            return;
+        }
+
         let path = components.join("/");
         let (span, sugg) = match ty_or_partial_span {
             TyOrPartialSpan::Ty(ty) => (expr.span, format!(r#"{}::from("{path}")"#, ty.join("::"))),
@@ -84,7 +92,7 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
     }
 }
 
-fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>, TyOrPartialSpan) {
+fn collect_components<'tcx>(cx: &LateContext<'tcx>, mut expr: &Expr<'tcx>) -> (Vec<String>, TyOrPartialSpan) {
     let mut components_reversed = Vec::new();
     let mut partial_span = expr.span.with_lo(expr.span.hi());
 
@@ -152,19 +160,30 @@ fn is_path_buf_from(
     }
 }
 
-fn is_lit_string(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<String> {
+fn is_lit_string<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) -> Option<String> {
+    // Direct string literals
     if !expr.span.from_expansion()
         && let ExprKind::Lit(lit) = &expr.kind
         && let LitKind::Str(symbol, _) = lit.node
-        // smoelius: I don't think the next line should be necessary. But following the upgrade to
-        // nightly-2023-08-24, `expr.span.from_expansion()` above started returning false for
-        // `env!(...)`.
-        && snippet_opt(cx, expr.span) == Some(format!(r#""{}""#, symbol.as_str()))
     {
-        Some(symbol.to_ident_string())
-    } else {
-        None
+        return Some(symbol.to_ident_string());
     }
+
+    // Handle constant expressions like env!() and concat!()
+    if !expr.span.from_expansion() 
+        && is_const_evaluatable(cx, expr)
+        && let ty::Str = cx.typeck_results().expr_ty(expr).kind()
+    {
+        if let Some(snippet) = snippet_opt(cx, expr.span) {
+            if snippet.starts_with("env!(") || snippet.starts_with("concat!(") {
+                // Special handling for compile-time string constants
+                // Use a unique identifier for this constant expression
+                return Some(format!("__CONST_EXPR_{}", expr.span.lo().0));
+            }
+        }
+    }
+
+    None
 }
 
 #[test]
