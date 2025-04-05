@@ -1,5 +1,12 @@
 use dylint_internal::env;
+use std::process;
 
 fn main() {
-    println!("cargo:rustc-env=TARGET={}", env::var(env::TARGET).unwrap());
+    match env::var(env::TARGET) {
+        Ok(target) => println!("cargo:rustc-env=TARGET={target}"),
+        Err(err) => {
+            eprintln!("Error getting target: {err}");
+            process::exit(1);
+        }
+    }
 }
