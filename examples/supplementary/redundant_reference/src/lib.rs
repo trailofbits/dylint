@@ -162,8 +162,8 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
             },
         ) in &self.field_uses
         {
-            let item = cx.tcx.hir().expect_item(*local_def_id);
-            if let ItemKind::Struct(VariantData::Struct { fields, .. }, _) = &item.kind
+            let item = cx.tcx.hir_expect_item(*local_def_id);
+            if let ItemKind::Struct(VariantData::Struct { fields, _, _, parent_span }, _) = &item.kind
                 && let Some(field_def) = fields.iter().find(|field_def| field_def.ident == *field)
                 && let field_def_local_def_id = field_def.def_id
                 && (!cx.tcx.visibility(*local_def_id).is_public()
