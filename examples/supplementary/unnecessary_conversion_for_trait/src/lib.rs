@@ -41,20 +41,6 @@ use std::{
     path::PathBuf,
 };
 
-// Import the std::sync::Mutex type for testing
-#[cfg(test)]
-use std::sync::Mutex;
-
-// Define a global mutex for testing
-#[cfg(test)]
-static TEST_MUTEX: Mutex<()> = Mutex::new(());
-
-// Global helper function to acquire the test lock
-#[cfg(test)]
-fn acquire_test_lock() -> std::sync::MutexGuard<'static, ()> {
-    TEST_MUTEX.lock().unwrap()
-}
-
 mod check_inherents;
 use check_inherents::check_inherents;
 
@@ -238,69 +224,56 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             }
                             break;
                         }
-
-                        self.callee_paths.insert(
-                            inner_callee_path
-                                .into_iter()
-                                .map(Symbol::to_ident_string)
-                                .collect(),
-                        );
-                        expr = inner_arg;
-                        mutabilities = new_mutabilities;
-                        refs_prefix = Some(new_refs_prefix);
-                        continue;
-                    }
-                    break;
-                }
-
-                Some(expr).zip(refs_prefix)
-            };
-
-            if let Some((inner_arg, refs_prefix)) =
-                strip_unnecessary_conversions(expr, ancestor_mutabilities)
-            {
-                let (is_bare_method_call, subject) =
-                    if matches!(expr.kind, ExprKind::MethodCall(..)) {
-                        (maybe_arg.hir_id == expr.hir_id, "receiver")
-                    } else {
-                        (false, "inner argument")
+                        Some(expr).zip(refs_prefix)
                     };
-                let msg = format!("the {subject} implements the required traits");
-                if is_bare_method_call && refs_prefix.is_empty() && !maybe_arg.span.from_expansion()
-                {
-                    span_lint_and_sugg(
-                        cx,
-                        UNNECESSARY_CONVERSION_FOR_TRAIT,
-                        maybe_arg.span.with_lo(inner_arg.span.hi()),
-                        msg,
-                        "remove this",
-                        String::new(),
-                        Applicability::MachineApplicable,
-                    );
-                } else if maybe_arg.span.from_expansion()
-                    && let Some(span) = maybe_arg.span.parent_callsite()
-                {
-                    // smoelius: This message could be more informative.
-                    span_lint_and_help(
-                        cx,
-                        UNNECESSARY_CONVERSION_FOR_TRAIT,
-                        span,
-                        msg,
-                        None,
-                        "use the macro arguments directly",
-                    );
-                } else if let Some(snippet) = snippet_opt(cx, inner_arg.span) {
-                    span_lint_and_sugg(
-                        cx,
-                        UNNECESSARY_CONVERSION_FOR_TRAIT,
-                        maybe_arg.span,
-                        msg,
-                        "use",
-                        format!("{refs_prefix}{snippet}"),
-                        Applicability::MachineApplicable,
-                    );
+
+                    if let Some((inner_arg, refs_prefix)) =
+                        strip_unnecessary_conversions(expr, ancestor_mutabilities)
+                    {
+                        let (is_bare_method_call, subject) =
+                            if matches!(expr.kind, ExprKind::MethodCall(..)) {
+                                (maybe_arg.hir_id == expr.hir_id, "receiver")
+                            } else {
+                                (false, "inner argument")
+                            };
+                        let msg = format!("the {subject} implements the required traits");
+                        if is_bare_method_call && refs_prefix.is_empty() && !maybe_arg.span.from_expansion()
+                        {
+                            span_lint_and_sugg(
+                                cx,
+                                UNNECESSARY_CONVERSION_FOR_TRAIT,
+                                maybe_arg.span.with_lo(inner_arg.span.hi()),
+                                msg,
+                                "remove this",
+                                String::new(),
+                                Applicability::MachineApplicable,
+                            );
+                        } else if maybe_arg.span.from_expansion()
+                            && let Some(span) = maybe_arg.span.parent_callsite()
+                        {
+                            // smoelius: This message could be more informative.
+                            span_lint_and_help(
+                                cx,
+                                UNNECESSARY_CONVERSION_FOR_TRAIT,
+                                span,
+                                msg,
+                                None,
+                                "use the macro arguments directly",
+                            );
+                        } else if let Some(snippet) = snippet_opt(cx, inner_arg.span) {
+                            span_lint_and_sugg(
+                                cx,
+                                UNNECESSARY_CONVERSION_FOR_TRAIT,
+                                maybe_arg.span,
+                                msg,
+                                "use",
+                                format!("{refs_prefix}{snippet}"),
+                                Applicability::MachineApplicable,
+                            );
+                        }
+                    }
                 }
-            }
+            };
         }
     }
 
@@ -379,7 +352,6 @@ mod ui {
     #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
     fn general() {
-        let _lock = acquire_test_lock();
         let _var = VarGuard::set("COVERAGE", "1");
 
         assert!(!enabled("CHECK_INHERENTS"));
@@ -412,7 +384,6 @@ mod ui {
     #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
     fn check_inherents() {
-        let _lock = acquire_test_lock();
         let _var = VarGuard::set("CHECK_INHERENTS", "1");
 
         assert!(!enabled("COVERAGE"));
@@ -426,8 +397,6 @@ mod ui {
 
     #[test]
     fn unnecessary_to_owned() {
-        let _lock = acquire_test_lock();
-
         assert!(!enabled("COVERAGE"));
         assert!(!enabled("CHECK_INHERENTS"));
 
@@ -436,8 +405,6 @@ mod ui {
 
     #[test]
     fn vec() {
-        let _lock = acquire_test_lock();
-
         assert!(!enabled("COVERAGE"));
         assert!(!enabled("CHECK_INHERENTS"));
 
@@ -446,8 +413,6 @@ mod ui {
 
     #[test]
     fn false_positive() {
-        let _lock = acquire_test_lock();
-
         assert!(!enabled("COVERAGE"));
         assert!(!enabled("CHECK_INHERENTS"));
 

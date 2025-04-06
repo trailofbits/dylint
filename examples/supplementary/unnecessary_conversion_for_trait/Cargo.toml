@@ -25,6 +25,10 @@ path = "ui/vec.rs"
 name = "false_positive"
 path = "ui/false_positive.rs"
 
+[[example]]
+name = "check_inherents"
+path = "ui/check_inherents.rs"
+
 [dependencies]
 clippy_utils = { workspace = true }
 
