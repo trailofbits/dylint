@@ -1,6 +1,6 @@
 [package]
 name = "supplementary"
-version = "4.0.1"
+version = "4.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Supplementary lints"
 edition = "2021"

@@ -212,6 +212,7 @@ fn strip_deps(path: &Path) -> PathBuf {
 const ARCHITECTURES: &[&str] = &[
     "aarch64",
     "aarch64_be",
+    "amdgcn",
     "arm",
     "arm64_32",
     "arm64e",

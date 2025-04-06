@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result, anyhow, bail};
 use semver::Version;
 use std::{
     fs::{read_to_string, write},
@@ -68,12 +68,21 @@ pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()
 
 pub fn toolchain_channel(path: &Path) -> Result<String> {
     let rust_toolchain = path.join("rust-toolchain");
-    let contents = read_to_string(&rust_toolchain).with_context(|| {
-        format!(
-            "`read_to_string` failed for `{}`",
-            rust_toolchain.to_string_lossy(),
-        )
-    })?;
+    let rust_toolchain_toml = path.join("rust-toolchain.toml");
+    let contents = match read_to_string(&rust_toolchain) {
+        Ok(contents) => contents,
+        Err(error) => match read_to_string(&rust_toolchain_toml) {
+            Ok(contents) => contents,
+            Err(error_toml) => {
+                bail!(
+                    "`read_to_string` failed for both `{}` and `{}`: {:#?}",
+                    rust_toolchain.to_string_lossy(),
+                    rust_toolchain_toml.to_string_lossy(),
+                    [error, error_toml]
+                );
+            }
+        },
+    };
     let document = contents.parse::<DocumentMut>()?;
     document
         .as_table()

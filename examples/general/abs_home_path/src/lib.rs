@@ -11,7 +11,7 @@ use dylint_internal::{home, paths};
 use once_cell::unsync::OnceCell;
 use rustc_ast::ast::LitKind;
 use rustc_hir::{Closure, Expr, ExprKind, Item, ItemKind, Node, def_id::DefId};
-use rustc_lint::{LateContext, LateLintPass};
+use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::Span;
 use std::{
     collections::HashSet,
@@ -31,6 +31,10 @@ dylint_linting::impl_late_lint! {
     /// ### Known problems
     ///
     /// The lint does not apply inside macro arguments. So false negatives could result.
+    ///
+    /// ### Note
+    ///
+    /// This lint doesn't warn in build scripts (`build.rs`), as they often need to reference absolute paths.
     ///
     /// ### Example
     ///
@@ -67,6 +71,17 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
     }
 
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr) {
+        // Skip build scripts
+        if cx
+            .sess()
+            .opts
+            .crate_name
+            .as_ref()
+            .is_some_and(|crate_name| crate_name == "build_script_build")
+        {
+            return;
+        }
+
         if cx
             .tcx
             .hir()
