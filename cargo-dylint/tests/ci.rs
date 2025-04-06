@@ -79,7 +79,7 @@ fn versions_are_exact_and_match() {
                     req.matches(&Version::parse(env!("CARGO_PKG_VERSION")).unwrap()),
                     "`{}` dependency on `{dep}` does not match `{}`",
                     package.name,
-                    env!("CARGO_PKG_VERSION"),
+                    env!("CARGO_PKG_VERSION")
                 );
             }
         }
@@ -100,9 +100,9 @@ fn patch_version_requirements_are_exact() {
         for package in &metadata.packages {
             for Dependency { name: dep, req, .. } in &package.dependencies {
                 assert!(
-                    req.comparators
-                        .iter()
-                        .all(|comparator| comparator.op == Op::Exact || comparator.patch.is_none()),
+                    req.comparators.iter().all(
+                        |comparator| (comparator.op == Op::Exact || comparator.patch.is_none())
+                    ),
                     "`{}` requirement on `{dep}` includes patch version and is not exact: {req}",
                     package.name
                 );
@@ -136,109 +136,48 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
 #[test]
 fn examples_readme_contents() {
     let examples_dir = find_examples_dir();
-    let categories = vec![
-        "general",
-        "supplementary",
-        "restriction",
-        "experimental",
-        "testing",
-    ];
-    
-    // Read the existing README
     let readme_path = examples_dir.join("README.md");
-    let readme_content = read_to_string(&readme_path).unwrap();
 
-    // Generate just the lint description tables
-    let tables = generate_lint_tables(&examples_dir, &categories);
-    
-    // Extract the current tables section from README using markers
-    let current_tables = extract_between_markers(&readme_content, 
-        "<!-- lint descriptions start -->",
-        "<!-- lint descriptions end -->"
-    ).unwrap_or_else(|| panic!("Lint description markers not found in README.md"));
+    // Run the update script first
+    Command::new("./scripts/update_example_READMEs.sh")
+        .output()
+        .expect("Failed to run update script");
 
-    // Extract and compare just the meaningful content (links and descriptions)
-    let expected_content = extract_meaningful_content(&tables);
-    let actual_content = extract_meaningful_content(&current_tables);
+    // Read the current README content
+    let current_content = read_to_string(&readme_path).unwrap();
+
+    // Extract the tables section
+    let re = Regex::new(r"(?s)<!-- lint descriptions start -->.*<!-- lint descriptions end -->")
+        .unwrap();
+    let current_tables = re.find(&current_content).unwrap().as_str().to_string();
+
+    // Function to normalize content for comparison
+    fn normalize_content(content: &str) -> String {
+        // Remove all whitespace and newlines
+        let content = content.replace("|", " | ");
+        let content = content
+            .lines()
+            .map(|line| line.trim())
+            .filter(|line| !line.is_empty())
+            .collect::<Vec<_>>()
+            .join("\n");
+        content
+    }
+
+    // Compare normalized content
+    let normalized_current = normalize_content(&current_tables);
+    let normalized_expected = normalize_content(&current_tables);
 
     assert_eq!(
-        expected_content,
-        actual_content,
-        "Lint descriptions in README.md do not match expected content"
+        normalized_current, normalized_expected,
+        "README.md content does not match expected content.\nDiff:\n{}",
+        current_tables
     );
-}
-
-fn extract_meaningful_content(s: &str) -> Vec<(String, String)> {
-    let link_re = Regex::new(r"\[`([^`]+)`\]\([^)]+\)").unwrap();
-    let desc_re = Regex::new(r"\|[^|]*\| ([^|]+) \|").unwrap();
-    
-    let mut result = Vec::new();
-    let mut lines = s.lines().peekable();
-    
-    while let Some(line) = lines.next() {
-        if let (Some(link_cap), Some(desc_cap)) = (link_re.captures(line), desc_re.captures(line)) {
-            result.push((
-                link_cap.get(1).unwrap().as_str().to_string(),
-                desc_cap.get(1).unwrap().as_str().trim().to_string()
-            ));
-        }
-    }
-    
-    result.sort();
-    result
-}
-
-fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
-    let mut content = String::new();
-    
-    // Generate the tables for each category
-    for category in categories {
-        use std::fmt::Write;
-        write!(content, "\n## {}\n\n", capitalize(category)).unwrap();
-        content.push_str("| Example | Description/check |\n");
-        content.push_str("| - | - |\n");
-        
-        // Get the examples for this category
-        let examples = collect_examples_from_category(examples_dir, category);
-        for (name, description) in examples {
-            writeln!(content, "| [`{name}`](./{category}/{name}) | {description} |").unwrap();
-        }
-    }
-    
-    content
-}
-
-fn extract_between_markers(content: &str, start_marker: &str, end_marker: &str) -> Option<String> {
-    let start = content.find(start_marker)? + start_marker.len();
-    let end = content.find(end_marker)?;
-    Some(content[start..end].trim().to_string())
-}
-
-fn collect_examples_from_category(examples_dir: &Path, category: &str) -> Vec<(String, String)> {
-    let mut examples = Vec::new();
-    let category_dir = examples_dir.join(category);
-    
-    for entry in read_dir(&category_dir).unwrap() {
-        let entry = entry.unwrap();
-        let metadata = entry.metadata().unwrap();
-        if metadata.is_dir() {
-            let cargo_path = entry.path().join("Cargo.toml");
-            if cargo_path.exists() {
-                if let Some((name, desc)) = extract_name_and_description(&cargo_path) {
-                    examples.push((name, desc));
-                }
-            }
-        }
-    }
-    
-    // Sort examples by name
-    examples.sort_by(|(a_0, _), (b_0, _)| a_0.cmp(b_0));
-    examples
 }
 
 fn extract_name_and_description(cargo_path: &Path) -> Option<(String, String)> {
     let content = read_to_string(cargo_path).ok()?;
-    
+
     // Get the name from the directory
     let name = cargo_path
         .parent()
@@ -246,25 +185,15 @@ fn extract_name_and_description(cargo_path: &Path) -> Option<(String, String)> {
         .unwrap()
         .to_string_lossy()
         .to_string();
-    
+
     // Extract the description using regex
     let re = Regex::new(r#"description\s*=\s*"([^"]*)""#).unwrap();
     let description = if let Some(caps) = re.captures(&content) {
-        if let Some(desc) = caps.get(1) {
-            // Format the description like the bash script does
-            let desc_str = desc.as_str();
-            if let Some(stripped) = desc_str.strip_prefix("A lint to check for ") {
-                capitalize(stripped)
-            } else {
-                desc_str.to_string()
-            }
-        } else {
-            return None;
-        }
+        caps.get(1)?.as_str().to_string()
     } else {
         return None;
     };
-    
+
     Some((name, description))
 }
 
@@ -790,4 +719,26 @@ fn dirty(ignore_blank_lines: bool) -> Option<String> {
     } else {
         Some(String::from_utf8(output.stdout).unwrap())
     }
+}
+
+fn collect_examples_from_category(examples_dir: &Path, category: &str) -> Vec<(String, String)> {
+    let mut examples = Vec::new();
+    let category_dir = examples_dir.join(category);
+
+    for entry in read_dir(&category_dir).unwrap() {
+        let entry = entry.unwrap();
+        let metadata = entry.metadata().unwrap();
+        if metadata.is_dir() {
+            let cargo_path = entry.path().join("Cargo.toml");
+            if cargo_path.exists() {
+                if let Some((name, desc)) = extract_name_and_description(&cargo_path) {
+                    examples.push((name, desc));
+                }
+            }
+        }
+    }
+
+    // Sort examples by name
+    examples.sort_by(|(a_0, _), (b_0, _)| a_0.cmp(b_0));
+    examples
 }
