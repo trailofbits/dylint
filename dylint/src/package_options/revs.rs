@@ -1,13 +1,10 @@
 use super::common::clippy_repository;
-use anyhow::{Context, Result, anyhow};
-use dylint_internal::{
-    clippy_utils::{clippy_utils_package_version, toolchain_channel},
-    git2::{Commit, ObjectType, Oid, Repository},
-};
-use if_chain::if_chain;
-use std::rc::Rc;
+use anyhow::{ Context, Result, anyhow };
+use dylint_internal::git2::{ Oid, Repository };
+use std::{ path::Path, time::Instant };
+use toml::Value;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Rev {
     pub version: String,
     pub channel: String,
@@ -15,109 +12,132 @@ pub struct Rev {
 }
 
 pub struct Revs {
-    repository: Rc<Repository>,
-}
-
-pub struct RevIter<'revs> {
-    repository: Rc<Repository>,
-    commit: Commit<'revs>,
-    curr_rev: Option<Rev>,
+    versions: Vec<Rev>,
 }
 
 impl Revs {
     pub fn new(quiet: bool) -> Result<Self> {
+        let start = Instant::now();
         let repository = clippy_repository(quiet)?;
+        let versions = Self::build_version_index(&repository, quiet)?;
 
-        Ok(Self { repository })
+        if !quiet {
+            eprintln!("Revs initialization took: {:?}", start.elapsed());
+        }
+
+        Ok(Self { versions })
+    }
+
+    fn build_version_index(repo: &Repository, quiet: bool) -> Result<Vec<Rev>> {
+        let start = Instant::now();
+        let mut revwalk = repo.revwalk().context("Failed to create revision walker")?;
+        revwalk.push_head().context("Failed to push HEAD to revision walker")?;
+
+        let mut versions = Vec::new();
+        let mut prev_version = String::new();
+
+        for oid in revwalk {
+            let oid = oid.context("Failed to get commit OID")?;
+            let commit = repo.find_commit(oid).context("Failed to find commit")?;
+            let tree = commit.tree().context("Failed to get commit tree")?;
+
+            // Try to get both Cargo.toml and rust-toolchain files
+            if let Ok(cargo_entry) = tree.get_path(Path::new("Cargo.toml")) {
+                let cargo_blob = repo
+                    .find_blob(cargo_entry.id())
+                    .context("Failed to find Cargo.toml blob")?;
+                let cargo_content = std::str
+                    ::from_utf8(cargo_blob.content())
+                    .context("Failed to parse Cargo.toml content as UTF-8")?;
+
+                // Parse version from Cargo.toml content
+                let cargo_toml: Value = toml
+                    ::from_str(cargo_content)
+                    .context("Failed to parse Cargo.toml as TOML")?;
+                let version = cargo_toml
+                    .get("package")
+                    .and_then(|p| p.get("version"))
+                    .and_then(|v| v.as_str())
+                    .ok_or_else(|| anyhow!("Missing or invalid version in Cargo.toml"))?
+                    .to_string();
+
+                // Try to get channel from rust-toolchain file
+                let channel = if
+                    let Ok(toolchain_entry) = tree.get_path(Path::new("rust-toolchain"))
+                {
+                    let toolchain_blob = repo.find_blob(toolchain_entry.id())?;
+                    let toolchain_content = std::str
+                        ::from_utf8(toolchain_blob.content())
+                        .context("Failed to parse rust-toolchain content as UTF-8")?;
+                    toolchain_content.trim().to_string()
+                } else {
+                    // Fallback to a default channel if rust-toolchain is not found
+                    "nightly".to_string()
+                };
+
+                // Only store if version changed
+                if version != prev_version {
+                    versions.push(Rev {
+                        version: version.clone(),
+                        channel,
+                        oid,
+                    });
+                    prev_version = version;
+                }
+            }
+        }
+
+        // Sort versions for binary search
+        versions.sort_by(|a, b| a.version.cmp(&b.version));
+
+        if !quiet {
+            eprintln!(
+                "Built version index with {} versions in {:?}",
+                versions.len(),
+                start.elapsed()
+            );
+        }
+
+        Ok(versions)
+    }
+
+    pub fn find_version(&self, target_version: &str) -> Result<Option<&Rev>> {
+        let start = Instant::now();
+        let result = self.versions
+            .binary_search_by(|rev| rev.version.as_str().cmp(target_version))
+            .ok()
+            .map(|idx| &self.versions[idx]);
+
+        eprintln!("Version search for {} took {:?}", target_version, start.elapsed());
+
+        Ok(result)
     }
 
     #[allow(clippy::iter_not_returning_iterator)]
     pub fn iter(&self) -> Result<RevIter> {
-        let path = self
-            .repository
-            .workdir()
-            .ok_or_else(|| anyhow!("Could not get working directory"))?;
-        let object = {
-            let head = self.repository.head()?;
-            let oid = head.target().ok_or_else(|| anyhow!("Could not get HEAD"))?;
-            self.repository.find_object(oid, Some(ObjectType::Commit))?
-        };
-        let commit = object
-            .as_commit()
-            .ok_or_else(|| anyhow!("Object is not a commit"))?;
-        let version = clippy_utils_package_version(path)?;
-        let channel = toolchain_channel(path)?;
-        let oid = commit.id();
         Ok(RevIter {
-            repository: self.repository.clone(),
-            commit: commit.clone(),
-            curr_rev: Some(Rev {
-                version,
-                channel,
-                oid,
-            }),
+            versions: &self.versions,
+            current_idx: 0,
         })
     }
 }
 
-impl Iterator for RevIter<'_> {
+pub struct RevIter<'a> {
+    versions: &'a [Rev],
+    current_idx: usize,
+}
+
+impl<'a> Iterator for RevIter<'a> {
     type Item = Result<Rev>;
 
-    // smoelius: I think it is okay to ignore the `non_local_effect_before_error_return` warning
-    // here. If `self.commit` were not updated, the same commits would be traversed the next time
-    // `next` was called.
-    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
     fn next(&mut self) -> Option<Self::Item> {
-        (|| -> Result<Option<Rev>> {
-            let mut prev_rev: Option<Rev> = None;
-            loop {
-                let curr_rev = if let Some(rev) = self.curr_rev.take() {
-                    rev
-                } else {
-                    let path = self
-                        .repository
-                        .workdir()
-                        .ok_or_else(|| anyhow!("Could not get working directory"))?;
-                    // smoelius: Note that this is not `git log`'s default behavior. Rather, this
-                    // behavior corresponds to:
-                    //   git log --first-parent
-                    let commit = if let Some(commit) = self.commit.parents().next() {
-                        self.commit = commit.clone();
-                        commit
-                    } else {
-                        return Ok(None);
-                    };
-                    self.repository
-                        .checkout_tree(commit.as_object(), None)
-                        .with_context(|| {
-                            format!("`checkout_tree` failed for `{:?}`", commit.as_object())
-                        })?;
-                    self.repository
-                        .set_head_detached(commit.id())
-                        .with_context(|| {
-                            format!("`set_head_detached` failed for `{}`", commit.id())
-                        })?;
-                    let version = clippy_utils_package_version(path)?;
-                    let channel = toolchain_channel(path)?;
-                    let oid = commit.id();
-                    Rev {
-                        version,
-                        channel,
-                        oid,
-                    }
-                };
-                if_chain! {
-                    if let Some(prev_rev) = prev_rev;
-                    if prev_rev.version != curr_rev.version;
-                    then {
-                        self.curr_rev = Some(curr_rev);
-                        return Ok(Some(prev_rev));
-                    }
-                }
-                prev_rev = Some(curr_rev);
-            }
-        })()
-        .transpose()
+        if self.current_idx >= self.versions.len() {
+            return None;
+        }
+
+        let rev = self.versions[self.current_idx].clone();
+        self.current_idx += 1;
+        Some(Ok(rev))
     }
 }
 
@@ -139,7 +159,6 @@ mod test {
                 channel: "nightly-2022-06-30".to_owned(),
                 oid: Oid::from_str("0cb0f7636851f9fcc57085cf80197a2ef6db098f").unwrap(),
             },
-            // smoelius: 0.1.62 and 0.1.63 omitted (for no particular reason).
             Rev {
                 version: "0.1.61".to_owned(),
                 channel: "nightly-2022-02-24".to_owned(),
@@ -163,22 +182,23 @@ mod test {
         ]
     });
 
-    // smoelius: To reiterate a comment from package_options/mod.rs, the `find` below is an
-    // iterative search and it is causing this test to become increasingly slow. As of this writing,
-    // the test takes around two minutes. The search should be a binary search.
     #[test]
     fn examples() {
+        let start = Instant::now();
+
+        let revs = Revs::new(false).unwrap();
+        let init_duration = start.elapsed();
+        println!("Initialization took: {:?}", init_duration);
+
         for example in &*EXAMPLES {
-            let revs = Revs::new(false).unwrap();
-            let mut iter = revs.iter().unwrap();
-            let rev = iter
-                .find(|rev| {
-                    rev.as_ref()
-                        .map_or(true, |rev| rev.version == example.version)
-                })
-                .unwrap()
-                .unwrap();
-            assert_eq!(rev, *example);
+            let search_start = Instant::now();
+            let found = revs.find_version(&example.version).unwrap().unwrap();
+            println!("Search for version {} took: {:?}", example.version, search_start.elapsed());
+            assert_eq!(found.version, example.version);
+            assert_eq!(found.channel, example.channel);
+            assert_eq!(found.oid, example.oid);
         }
+
+        println!("Total test duration: {:?}", start.elapsed());
     }
 }
