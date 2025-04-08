@@ -117,14 +117,49 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
     compare_lines(&cargo_dylint_readme, &dylint_readme);
 }
 
+// Function moved to top level, before any test functions
+fn normalize_content(content: &str) -> String {
+    // First normalize all whitespace and newlines
+    let content = content.trim().replace("\r\n", "\n");
+
+    // Normalize table formatting
+    let content = content
+        .replace(" |", "|") // Remove spaces before pipes
+        .replace("| ", "|") // Remove spaces after pipes
+        .replace("|", " | ") // Add consistent spacing around pipes
+        .replace("  |", " |") // Fix double spaces
+        .replace("|  ", "| ") // Fix double spaces
+        .replace("   |", " |") // Fix triple spaces
+        .replace("|   ", "| "); // Fix triple spaces
+
+    let content = content
+        .lines()
+        .map(|line| {
+            let line = line.trim();
+            // Handle table separator lines specially - remove all spaces and normalize dashes
+            if line.contains("---") {
+                line.replace(" ", "").replace("-", "-")
+            } else if line.starts_with("##") {
+                // Ensure consistent header formatting
+                format!("## {}", line.trim_start_matches('#').trim())
+            } else {
+                line.to_string()
+            }
+        })
+        .filter(|line| !line.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n");
+    content.trim().to_string()
+}
+
 #[test]
 fn examples_readme_contents() {
     let examples_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
     let readme_path = examples_dir.join("README.md");
-    let categories = &["complexity", "correctness", "nursery", "pedantic", "restriction", "style"];
+    let categories = &["general", "supplementary", "restriction", "experimental", "testing"];
 
     // Run the update script first
-    Command::new("./scripts/update_example_READMEs.sh")
+    Command::new(Path::new(env!("CARGO_MANIFEST_DIR")).join("../scripts/update_example_READMEs.sh"))
         .output()
         .expect("Failed to run update script");
 
@@ -135,20 +170,9 @@ fn examples_readme_contents() {
     let expected_tables = generate_lint_tables(&examples_dir, categories);
 
     // Extract the current tables section from README using markers
-    let actual_tables = extract_between_markers(&readme_content).unwrap();
-
-    // Function to normalize content for comparison
-    fn normalize_content(content: &str) -> String {
-        // Remove all whitespace and newlines
-        let content = content.replace("|", " | ");
-        let content = content
-            .lines()
-            .map(|line| line.trim())
-            .filter(|line| !line.is_empty())
-            .collect::<Vec<_>>()
-            .join("\n");
-        content
-    }
+    let actual_tables = extract_between_markers(&readme_content).expect(
+        "Failed to extract content between markers"
+    );
 
     // Compare normalized content
     let normalized_actual = normalize_content(&actual_tables);
@@ -157,8 +181,10 @@ fn examples_readme_contents() {
     assert_eq!(
         normalized_actual,
         normalized_expected,
-        "README.md content does not match expected content.\nDiff:\n{}",
-        actual_tables
+        "\nREADME.md content does not match expected content.\n\nActual:\n{}\n\nExpected:\n{}\n\nDiff:\n{}",
+        actual_tables,
+        expected_tables,
+        SimpleDiff::from_str(&actual_tables, &expected_tables, "actual", "expected")
     );
 }
 
@@ -173,11 +199,12 @@ fn extract_name_and_description(cargo_toml_path: &Path) -> Option<(String, Strin
         .to_string_lossy()
         .to_string();
 
-    // Extract the description using regex
+    // Extract the description using regex, handling potential whitespace
     let re = Regex::new(r#"description\s*=\s*"([^"]*)""#).unwrap();
     let description = if let Some(caps) = re.captures(&content) {
         let desc = caps.get(1).unwrap();
-        desc.as_str().to_string()
+        // Normalize whitespace in description
+        desc.as_str().trim().replace('\n', " ").replace('\r', "")
     } else {
         return None;
     };
@@ -679,6 +706,8 @@ fn collect_examples_from_category(examples_dir: &Path, category: &str) -> Vec<(S
             let cargo_toml_path = entry.path().join("Cargo.toml");
             if cargo_toml_path.exists() {
                 if let Some((name, desc)) = extract_name_and_description(&cargo_toml_path) {
+                    // Normalize description
+                    let desc = desc.trim().to_string();
                     examples.push((name, desc));
                 }
             }
@@ -696,39 +725,48 @@ fn extract_between_markers(content: &str) -> Option<String> {
 
     let start = content.find(START_MARKER)? + START_MARKER.len();
     let end = content.find(END_MARKER)?;
-    Some(content[start..end].to_string())
+
+    // Trim any leading/trailing whitespace from the extracted content
+    Some(content[start..end].trim().to_string())
 }
 
 fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
     let mut tables = String::new();
 
-    for &category in categories {
+    for (i, &category) in categories.iter().enumerate() {
         let examples = collect_examples_from_category(examples_dir, category);
         if examples.is_empty() {
             continue;
         }
 
+        // Add a newline before each category except the first one
+        if i > 0 {
+            writeln!(tables).unwrap();
+        }
+
+        writeln!(tables, "## {}", capitalize(category)).unwrap();
+        writeln!(tables).unwrap();
+
         // Calculate maximum widths
         let name_width = examples
             .iter()
-            .map(|(name, _)| name.len())
+            .map(|(name, _)| name.len() + 4) // Add 4 for the [`..`] wrapping
             .max()
-            .unwrap_or(4) // "Name" header length
-            .max(4); // Ensure at least as wide as header
+            .unwrap_or(7) // "Example" length
+            .max(7);
 
         let desc_width = examples
             .iter()
             .map(|(_, desc)| desc.len())
             .max()
-            .unwrap_or(11) // "Description" header length
-            .max(11);
+            .unwrap_or(17) // "Description/check" length
+            .max(17);
 
-        writeln!(tables, "### {}", capitalize(category)).unwrap();
         writeln!(
             tables,
             "| {:name_width$} | {:desc_width$} |",
-            "Name",
-            "Description",
+            "Example",
+            "Description/check",
             name_width = name_width,
             desc_width = desc_width
         ).unwrap();
@@ -742,17 +780,25 @@ fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
         ).unwrap();
 
         for (name, description) in examples {
+            let formatted_desc = if description.starts_with("A lint to check for ") {
+                // Remove prefix and capitalize first letter
+                let remaining = &description["A lint to check for ".len()..];
+                capitalize(remaining)
+            } else {
+                description
+            };
+
+            let formatted_name = format!("[`{name}`](./{category}/{name})");
             writeln!(
                 tables,
                 "| {:name_width$} | {:desc_width$} |",
-                name,
-                description,
+                formatted_name,
+                formatted_desc,
                 name_width = name_width,
                 desc_width = desc_width
             ).unwrap();
         }
-        writeln!(tables).unwrap();
     }
 
-    tables
+    tables.trim_end().to_string()
 }
