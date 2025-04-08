@@ -9,6 +9,7 @@ The example libraries are separated into the following three categories:
 - [testing] - used only for testing purposes
 
 <!-- lint descriptions start -->
+
 ## General
 
 | Example                                                                                  | Description/check                                                      |
@@ -66,6 +67,7 @@ The example libraries are separated into the following three categories:
 | ---------------------------------- | ------------------------------------------------------ |
 | [`clippy`](./testing/clippy)       | All of the Clippy lints as a Dylint library            |
 | [`straggler`](./testing/straggler) | A lint that uses an old toolchain for testing purposes |
+
 <!-- lint descriptions end -->
 
 **Notes**

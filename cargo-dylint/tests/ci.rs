@@ -2,19 +2,19 @@
 
 use anyhow::Result;
 use assert_cmd::Command;
-use cargo_metadata::{Dependency, Metadata, MetadataCommand};
-use dylint_internal::{cargo::current_metadata, env, examples, home};
+use cargo_metadata::{ Dependency, Metadata, MetadataCommand };
+use dylint_internal::{ cargo::current_metadata, env, examples, home };
 use regex::Regex;
-use semver::{Op, Version};
+use semver::{ Op, Version };
 use similar_asserts::SimpleDiff;
 use std::{
-    env::{set_current_dir, set_var, var},
+    env::{ set_current_dir, set_var, var },
     ffi::OsStr,
     fmt::Write as _,
-    fs::{read_dir, read_to_string, write},
-    io::{Write as _, stderr},
-    path::{Component, Path, PathBuf},
-    sync::{LazyLock, Mutex},
+    fs::{ read_dir, read_to_string, write },
+    io::{ Write as _, stderr },
+    path::{ Component, Path },
+    sync::{ LazyLock, Mutex },
 };
 
 static METADATA: LazyLock<Metadata> = LazyLock::new(|| current_metadata().unwrap());
@@ -28,38 +28,24 @@ fn initialize() {
 #[test]
 fn actionlint() {
     Command::new("go")
-        .args([
-            "install",
-            "github.com/rhysd/actionlint/cmd/actionlint@latest",
-        ])
+        .args(["install", "github.com/rhysd/actionlint/cmd/actionlint@latest"])
         .assert()
         .success();
     let home = home::home_dir().unwrap();
-    Command::new(home.join("go/bin/actionlint"))
-        .assert()
-        .success();
+    Command::new(home.join("go/bin/actionlint")).assert().success();
 }
 
 #[test]
 fn versions_are_equal() {
     for package in &METADATA.packages {
-        assert_eq!(
-            env!("CARGO_PKG_VERSION"),
-            package.version.to_string(),
-            "{}",
-            package.name
-        );
+        assert_eq!(env!("CARGO_PKG_VERSION"), package.version.to_string(), "{}", package.name);
     }
 }
 
 #[test]
 fn nightly_crates_have_same_version_as_workspace() {
     for path in ["driver", "utils/linting"] {
-        let metadata = MetadataCommand::new()
-            .current_dir(path)
-            .no_deps()
-            .exec()
-            .unwrap();
+        let metadata = MetadataCommand::new().current_dir(path).no_deps().exec().unwrap();
         let package = metadata.root_package().unwrap();
         assert_eq!(env!("CARGO_PKG_VERSION"), package.version.to_string());
     }
@@ -89,20 +75,18 @@ fn versions_are_exact_and_match() {
 #[test]
 fn patch_version_requirements_are_exact() {
     let metadata = ["driver", "utils/linting"].map(|path| {
-        MetadataCommand::new()
-            .current_dir(path)
-            .no_deps()
-            .exec()
-            .unwrap()
+        MetadataCommand::new().current_dir(path).no_deps().exec().unwrap()
     });
 
     for metadata in std::iter::once(&*METADATA).chain(metadata.iter()) {
         for package in &metadata.packages {
             for Dependency { name: dep, req, .. } in &package.dependencies {
                 assert!(
-                    req.comparators.iter().all(
-                        |comparator| (comparator.op == Op::Exact || comparator.patch.is_none())
-                    ),
+                    req.comparators
+                        .iter()
+                        .all(
+                            |comparator| (comparator.op == Op::Exact || comparator.patch.is_none())
+                        ),
                     "`{}` requirement on `{dep}` includes patch version and is not exact: {req}",
                     package.name
                 );
@@ -135,8 +119,9 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
 
 #[test]
 fn examples_readme_contents() {
-    let examples_dir = find_examples_dir();
+    let examples_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
     let readme_path = examples_dir.join("README.md");
+    let categories = &["complexity", "correctness", "nursery", "pedantic", "restriction", "style"];
 
     // Run the update script first
     Command::new("./scripts/update_example_READMEs.sh")
@@ -144,12 +129,13 @@ fn examples_readme_contents() {
         .expect("Failed to run update script");
 
     // Read the current README content
-    let current_content = read_to_string(&readme_path).unwrap();
+    let readme_content = read_to_string(&readme_path).unwrap();
 
-    // Extract the tables section
-    let re = Regex::new(r"(?s)<!-- lint descriptions start -->.*<!-- lint descriptions end -->")
-        .unwrap();
-    let current_tables = re.find(&current_content).unwrap().as_str().to_string();
+    // Generate the expected tables
+    let expected_tables = generate_lint_tables(&examples_dir, categories);
+
+    // Extract the current tables section from README using markers
+    let actual_tables = extract_between_markers(&readme_content).unwrap();
 
     // Function to normalize content for comparison
     fn normalize_content(content: &str) -> String {
@@ -165,21 +151,22 @@ fn examples_readme_contents() {
     }
 
     // Compare normalized content
-    let normalized_current = normalize_content(&current_tables);
-    let normalized_expected = normalize_content(&current_tables);
+    let normalized_actual = normalize_content(&actual_tables);
+    let normalized_expected = normalize_content(&expected_tables);
 
     assert_eq!(
-        normalized_current, normalized_expected,
+        normalized_actual,
+        normalized_expected,
         "README.md content does not match expected content.\nDiff:\n{}",
-        current_tables
+        actual_tables
     );
 }
 
-fn extract_name_and_description(cargo_path: &Path) -> Option<(String, String)> {
-    let content = read_to_string(cargo_path).ok()?;
+fn extract_name_and_description(cargo_toml_path: &Path) -> Option<(String, String)> {
+    let content = read_to_string(cargo_toml_path).ok()?;
 
     // Get the name from the directory
-    let name = cargo_path
+    let name = cargo_toml_path
         .parent()
         .and_then(|path| path.file_name())
         .unwrap()
@@ -189,7 +176,8 @@ fn extract_name_and_description(cargo_path: &Path) -> Option<(String, String)> {
     // Extract the description using regex
     let re = Regex::new(r#"description\s*=\s*"([^"]*)""#).unwrap();
     let description = if let Some(caps) = re.captures(&content) {
-        caps.get(1)?.as_str().to_string()
+        let desc = caps.get(1).unwrap();
+        desc.as_str().to_string()
     } else {
         return None;
     };
@@ -207,18 +195,6 @@ fn capitalize(s: &str) -> String {
             result
         }
     }
-}
-
-fn find_examples_dir() -> PathBuf {
-    // Try relative paths from different possible locations
-    let paths = ["examples", "../examples", "../../examples"];
-    for path in paths {
-        let examples_dir = PathBuf::from(path);
-        if examples_dir.exists() {
-            return examples_dir;
-        }
-    }
-    panic!("Could not find examples directory");
 }
 
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
@@ -271,9 +247,8 @@ fn format_example_readmes() {
             format!("# {}", example_dir.file_name().unwrap().to_string_lossy()),
             String::new(),
         ]
-        .into_iter()
-        .chain(readme_lines)
-        {
+            .into_iter()
+            .chain(readme_lines) {
             writeln!(readme, "{line}").unwrap();
         }
 
@@ -298,11 +273,7 @@ fn format_util_readmes() {
         for entry in read_dir("utils").unwrap() {
             let entry = entry.unwrap();
             let path = entry.path();
-            Command::new("cargo")
-                .arg("rdme")
-                .current_dir(path)
-                .assert()
-                .success();
+            Command::new("cargo").arg("rdme").current_dir(path).assert().success();
         }
     });
 }
@@ -313,14 +284,7 @@ fn hack_feature_powerset_udeps() {
         // smoelius: `--check-cfg cfg(test)` to work around the following issue:
         // https://github.com/est31/cargo-udeps/issues/293
         .env(env::RUSTFLAGS, "-D warnings --check-cfg cfg(test)")
-        .args([
-            "run",
-            "nightly",
-            "cargo",
-            "hack",
-            "--feature-powerset",
-            "udeps",
-        ])
+        .args(["run", "nightly", "cargo", "hack", "--feature-powerset", "udeps"])
         .assert()
         .success();
 }
@@ -333,24 +297,24 @@ fn license() {
     for entry in walkdir(false).with_file_name("Cargo.toml") {
         let entry = entry.unwrap();
         let path = entry.path();
-        for line in std::str::from_utf8(
-            &Command::new("cargo")
-                .args(["license", "--manifest-path", &path.to_string_lossy()])
-                .assert()
-                .success()
-                .get_output()
-                .stdout,
-        )
-        .unwrap()
-        .lines()
-        {
+        for line in std::str
+            ::from_utf8(
+                &Command::new("cargo")
+                    .args(["license", "--manifest-path", &path.to_string_lossy()])
+                    .assert()
+                    .success()
+                    .get_output().stdout
+            )
+            .unwrap()
+            .lines() {
             // smoelius: Exception for Cargo dependencies.
             if line == "MPL-2.0+ (3): bitmaps, im-rc, sized-chunks" {
                 continue;
             }
             // smoelius: Exception for `idna` dependencies.
-            if line
-                == "Unicode-3.0 (19): icu_collections, icu_locid, icu_locid_transform, \
+            if
+                line ==
+                "Unicode-3.0 (19): icu_collections, icu_locid, icu_locid_transform, \
                     icu_locid_transform_data, icu_normalizer, icu_normalizer_data, icu_properties, \
                     icu_properties_data, icu_provider, icu_provider_macros, litemap, tinystr, \
                     writeable, yoke, yoke-derive, zerofrom, zerofrom-derive, zerovec, \
@@ -420,9 +384,10 @@ fn markdown_reference_links_are_valid_and_used() {
         let path = entry.path();
         // smoelius: The ` ["\n```"] ` in `missing_doc_comment_openai`'s readme causes problems, and
         // I haven't found a good solution/workaround.
-        if path.file_name() == Some(OsStr::new("CHANGELOG.md"))
-            || path.ends_with("examples/README.md")
-            || path
+        if
+            path.file_name() == Some(OsStr::new("CHANGELOG.md")) ||
+            path.ends_with("examples/README.md") ||
+            path
                 .components()
                 .any(|c| c == Component::Normal(OsStr::new("missing_doc_comment_openai")))
         {
@@ -433,9 +398,7 @@ fn markdown_reference_links_are_valid_and_used() {
             .captures_iter(&markdown)
             .filter_map(|captures| {
                 // smoelius: 2 because 1 is the parenthesized expression in `CODE_BLOCK`.
-                captures
-                    .get(2)
-                    .map(|m| m.as_str().replace('\r', "").replace('\n', " "))
+                captures.get(2).map(|m| m.as_str().replace('\r', "").replace('\n', " "))
             })
             .collect::<Vec<_>>();
 
@@ -520,14 +483,7 @@ fn msrv() {
         }
         let manifest_dir = package.manifest_path.parent().unwrap();
         Command::new("cargo")
-            .args([
-                "msrv",
-                "verify",
-                "--",
-                "cargo",
-                "check",
-                "--no-default-features",
-            ])
+            .args(["msrv", "verify", "--", "cargo", "check", "--no-default-features"])
             .current_dir(manifest_dir)
             .assert()
             .success();
@@ -564,10 +520,7 @@ fn prettier_examples_and_template() {
 #[test]
 fn rustdoc_prettier() {
     preserves_cleanliness("rustdoc_prettier", false, || {
-        Command::new("rustdoc-prettier")
-            .args(["./**/*.rs"])
-            .assert()
-            .success();
+        Command::new("rustdoc-prettier").args(["./**/*.rs"]).assert().success();
     });
 }
 
@@ -630,44 +583,45 @@ fn compare_lines(left: &str, right: &str) {
 }
 
 fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
-    walkdir::WalkDir::new(".")
+    walkdir::WalkDir
+        ::new(".")
         .into_iter()
         .filter_entry(move |entry| {
-            entry.path().file_name() != Some(OsStr::new("target"))
-                && (include_examples || entry.path().file_name() != Some(OsStr::new("examples")))
+            entry.path().file_name() != Some(OsStr::new("target")) &&
+                (include_examples || entry.path().file_name() != Some(OsStr::new("examples")))
         })
 }
 
 trait IntoIterExt {
     fn with_extension(
         self,
-        extension: impl AsRef<OsStr> + 'static,
+        extension: impl AsRef<OsStr> + 'static
     ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>>;
     fn with_file_name(
         self,
-        file_name: impl AsRef<OsStr> + 'static,
+        file_name: impl AsRef<OsStr> + 'static
     ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>>;
 }
 
 impl<T: Iterator<Item = walkdir::Result<walkdir::DirEntry>>> IntoIterExt for T {
     fn with_extension(
         self,
-        extension: impl AsRef<OsStr> + 'static,
+        extension: impl AsRef<OsStr> + 'static
     ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
         self.filter(move |entry| {
-            entry.as_ref().map_or(true, |entry| {
-                entry.path().extension() == Some(extension.as_ref())
-            })
+            entry
+                .as_ref()
+                .map_or(true, |entry| { entry.path().extension() == Some(extension.as_ref()) })
         })
     }
     fn with_file_name(
         self,
-        file_name: impl AsRef<OsStr> + 'static,
+        file_name: impl AsRef<OsStr> + 'static
     ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
         self.filter(move |entry| {
-            entry.as_ref().map_or(true, |entry| {
-                entry.path().file_name() == Some(file_name.as_ref())
-            })
+            entry
+                .as_ref()
+                .map_or(true, |entry| { entry.path().file_name() == Some(file_name.as_ref()) })
         })
     }
 }
@@ -680,11 +634,7 @@ fn preserves_cleanliness(test_name: &str, ignore_blank_lines: bool, f: impl FnOn
     // smoelius: Do not skip tests when running on GitHub.
     if var(env::CI).is_err() && dirty(false).is_some() {
         #[allow(clippy::explicit_write)]
-        writeln!(
-            stderr(),
-            "Skipping `{test_name}` test as repository is dirty"
-        )
-        .unwrap();
+        writeln!(stderr(), "Skipping `{test_name}` test as repository is dirty").unwrap();
         return;
     }
 
@@ -697,10 +647,7 @@ fn preserves_cleanliness(test_name: &str, ignore_blank_lines: bool, f: impl FnOn
     // smoelius: If the repository is not dirty with `ignore_blank_lines` set to true, but would be
     // dirty otherwise, then restore the repository's contents.
     if ignore_blank_lines && dirty(false).is_some() {
-        Command::new("git")
-            .args(["checkout", "."])
-            .assert()
-            .success();
+        Command::new("git").args(["checkout", "."]).assert().success();
     }
 }
 
@@ -729,9 +676,9 @@ fn collect_examples_from_category(examples_dir: &Path, category: &str) -> Vec<(S
         let entry = entry.unwrap();
         let metadata = entry.metadata().unwrap();
         if metadata.is_dir() {
-            let cargo_path = entry.path().join("Cargo.toml");
-            if cargo_path.exists() {
-                if let Some((name, desc)) = extract_name_and_description(&cargo_path) {
+            let cargo_toml_path = entry.path().join("Cargo.toml");
+            if cargo_toml_path.exists() {
+                if let Some((name, desc)) = extract_name_and_description(&cargo_toml_path) {
                     examples.push((name, desc));
                 }
             }
@@ -739,6 +686,73 @@ fn collect_examples_from_category(examples_dir: &Path, category: &str) -> Vec<(S
     }
 
     // Sort examples by name
-    examples.sort_by(|(a_0, _), (b_0, _)| a_0.cmp(b_0));
+    examples.sort_by(|(a, _), (b, _)| a.cmp(b));
     examples
+}
+
+fn extract_between_markers(content: &str) -> Option<String> {
+    const START_MARKER: &str = "<!-- lint descriptions start -->";
+    const END_MARKER: &str = "<!-- lint descriptions end -->";
+
+    let start = content.find(START_MARKER)? + START_MARKER.len();
+    let end = content.find(END_MARKER)?;
+    Some(content[start..end].to_string())
+}
+
+fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
+    let mut tables = String::new();
+
+    for &category in categories {
+        let examples = collect_examples_from_category(examples_dir, category);
+        if examples.is_empty() {
+            continue;
+        }
+
+        // Calculate maximum widths
+        let name_width = examples
+            .iter()
+            .map(|(name, _)| name.len())
+            .max()
+            .unwrap_or(4) // "Name" header length
+            .max(4); // Ensure at least as wide as header
+
+        let desc_width = examples
+            .iter()
+            .map(|(_, desc)| desc.len())
+            .max()
+            .unwrap_or(11) // "Description" header length
+            .max(11);
+
+        writeln!(tables, "### {}", capitalize(category)).unwrap();
+        writeln!(
+            tables,
+            "| {:name_width$} | {:desc_width$} |",
+            "Name",
+            "Description",
+            name_width = name_width,
+            desc_width = desc_width
+        ).unwrap();
+        writeln!(
+            tables,
+            "|-{:-<name_width$}-|-{:-<desc_width$}-|",
+            "",
+            "",
+            name_width = name_width,
+            desc_width = desc_width
+        ).unwrap();
+
+        for (name, description) in examples {
+            writeln!(
+                tables,
+                "| {:name_width$} | {:desc_width$} |",
+                name,
+                description,
+                name_width = name_width,
+                desc_width = desc_width
+            ).unwrap();
+        }
+        writeln!(tables).unwrap();
+    }
+
+    tables
 }
