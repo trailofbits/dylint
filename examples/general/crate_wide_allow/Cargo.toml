@@ -20,10 +20,9 @@ dylint_linting = { path = "../../../utils/linting" }
 
 [target.'cfg(not(no_dev_dependencies))'.dev-dependencies]
 assert_cmd = "2.0"
-cargo_metadata = "0.18"
 predicates = "3.1"
 
-dylint_internal = { path = "../../../internal" }
+dylint_internal = { path = "../../../internal", features = ["testing"] }
 dylint_testing = { path = "../../../utils/testing" }
 
 [features]
