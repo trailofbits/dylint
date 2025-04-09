@@ -32,6 +32,10 @@ wrong_serialize_struct_arg = { path = "wrong_serialize_struct_arg", features = [
 
 dylint_linting = { path = "../../utils/linting" }
 
+[features]
+# Feature to avoid duplicate lint registration for abs_home_path
+avoid_duplicate_abs_home_path = []
+
 [package.metadata.rust-analyzer]
 rustc_private = true
 
