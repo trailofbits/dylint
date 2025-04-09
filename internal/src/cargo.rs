@@ -41,7 +41,7 @@ impl From<bool> for Quiet {
 
 /// A `cargo` command builder
 ///
-/// Note that [`std::process::Command`]is itself a builder. So technically that makes this a
+/// Note that [`std::process::Command`] is itself a builder. So technically that makes this a
 /// "builder builder".
 pub struct Builder {
     subcommand: String,
