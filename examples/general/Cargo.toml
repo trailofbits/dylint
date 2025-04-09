@@ -11,6 +11,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 abs_home_path = { path = "abs_home_path", features = ["rlib"] }
+arg_iter = { path = "arg_iter", features = ["rlib"] }
 await_holding_span_guard = { path = "await_holding_span_guard", features = [
     "rlib",
 ] }
