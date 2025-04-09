@@ -74,12 +74,11 @@ impl EarlyLintPass for CrateWideAllow {
 #[cfg(test)]
 mod test {
     use assert_cmd::{Command, assert::Assert};
-    use cargo_metadata::MetadataCommand;
-    use dylint_internal::env;
+    use dylint_internal::{env, testing::cargo_dylint};
     use predicates::prelude::*;
     use std::{
-        env::consts,
-        sync::{Mutex, MutexGuard},
+        path::PathBuf,
+        sync::{LazyLock, Mutex, MutexGuard},
     };
 
     fn mutex<T: maybe_return::MaybeReturn<MutexGuard<'static, ()>>>() -> T::Output {
@@ -133,28 +132,13 @@ mod test {
     // smoelius: Metadata entries are no longer rebuilt when `RUSTFLAGS` changes.
 
     fn test(rustflags: &str, assert: impl Fn(Assert) -> Assert) {
-        const MANIFEST_DIR: &str = "../../..";
+        static CARGO_DYLINT_PATH: LazyLock<PathBuf> =
+            LazyLock::new(|| cargo_dylint("../../..").unwrap());
 
         let _lock = mutex::<maybe_return::Yes>();
 
-        Command::new("cargo")
-            .current_dir(MANIFEST_DIR)
-            .args(["build", "--bin", "cargo-dylint"])
-            .assert()
-            .success();
-
-        let metadata = MetadataCommand::new()
-            .current_dir(MANIFEST_DIR)
-            .no_deps()
-            .exec()
-            .unwrap();
-        let cargo_dylint = metadata
-            .target_directory
-            .join("debug")
-            .join(format!("cargo-dylint{}", consts::EXE_SUFFIX));
-
         let cargo_dylint = |example_rustflags: Option<&str>| {
-            let mut command = Command::new(&cargo_dylint);
+            let mut command = Command::new(&*CARGO_DYLINT_PATH);
             command
                 .env_remove(env::DYLINT_LIBRARY_PATH)
                 .args(["dylint", "--lib", "clippy"]);
