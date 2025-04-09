@@ -200,17 +200,26 @@ fn build_script_allowance() {
         return;
     }
 
-    // Run cargo check with our lint on the test package
-    let output = Command::new("cargo")
-        .args(["check", "--manifest-path", "ui_build_script/Cargo.toml"])
-        .env("DYLINT_LIBRARY_PATH", env!("CARGO_MANIFEST_DIR"))
+    // Use the cargo_dylint function to get the path to the cargo-dylint executable
+    let cargo_dylint = dylint_internal::testing::cargo_dylint("../../..").unwrap();
+    
+    // Run dylint on the test package with our lint
+    let output = Command::new(cargo_dylint)
+        .env("DYLINT_RUSTFLAGS", "--deny warnings")
+        .args([
+            "dylint",
+            "--manifest-path",
+            "ui_build_script/Cargo.toml",
+            "--path",
+            env!("CARGO_MANIFEST_DIR")
+        ])
         .current_dir(env!("CARGO_MANIFEST_DIR"))
         .logged_output(true)
-        .expect("Failed to execute cargo command");
+        .expect("Failed to execute cargo-dylint command");
 
     let stderr = String::from_utf8_lossy(&output.stderr);
     
-    assert!(output.status.success(), "Cargo check failed: {stderr}");
+    assert!(output.status.success(), "Cargo dylint check failed: {stderr}");
     assert!(
         !stderr.contains("this path might not exist in production"),
         "The abs_home_path lint was incorrectly triggered in a build script: {stderr}"
