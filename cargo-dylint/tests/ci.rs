@@ -489,20 +489,11 @@ fn fmt() {
     for entry in walkdir(true).with_file_name("Cargo.toml") {
         let entry = entry.unwrap();
         let path = entry.path();
-        let parent_depth_2 = path.parent().and_then(|p| p.parent());
-
-        if parent_depth_2 == Some(Path::new(".")) {
-            continue;
-        }
+        let parent = path.parent().unwrap();
 
         Command::new("cargo")
-            .args([
-                "+nightly",
-                "fmt",
-                "--manifest-path",
-                &path.to_string_lossy(),
-                "--check",
-            ])
+            .args(["+nightly", "fmt", "--check"])
+            .current_dir(parent)
             .assert()
             .success();
     }
