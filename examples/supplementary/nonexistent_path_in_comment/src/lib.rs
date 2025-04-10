@@ -56,8 +56,10 @@ dylint_linting::declare_late_lint! {
     "file paths in comments that do not exist"
 }
 
-static LINE_COMMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new("(^|[^/])(//([^/].*))").unwrap());
-static BLOCK_COMMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
+static LINE_COMMENT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new("(^|[^/])(//([^/].*))").unwrap());
+static BLOCK_COMMENT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
 static PATH_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"((?:\./|\.\./|/|[\w/-]+/)+[\w-]+(?:\.[\w-]+)+)").unwrap());
 
