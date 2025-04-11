@@ -133,61 +133,6 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
     compare_lines(&cargo_dylint_readme, &dylint_readme);
 }
 
-// Function moved to top level, before any test functions
-fn normalize_content(content: &str) -> String {
-    // Process line by line focusing only on essential content, ignoring all formatting details
-    let lines = content
-        .lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty())
-        .map(|line| {
-            // For section headers, just keep the category name
-            if line.starts_with("##") {
-                return format!("## {}", line.trim_start_matches('#').trim());
-            }
-
-            // For table rows, extract just the essential content
-            if line.starts_with('|') && line.ends_with('|') {
-                // Skip table separator rows with dashes
-                if line.contains("|-") {
-                    return "|-|".to_string();
-                }
-
-                // Process table header and content rows
-                let cells: Vec<&str> = line
-                    .split('|')
-                    .filter(|cell| !cell.is_empty())
-                    .map(str::trim)
-                    .collect();
-
-                if cells.len() >= 2 {
-                    // If it's a link in the first column, extract just the name
-                    let name = cells[0];
-                    let name = if name.contains('[') && name.contains(']') {
-                        // Extract name from [`name`](./path)
-                        let start = name.find('`').map_or(0, |i| i + 1);
-                        let end = name[start..].find('`').map_or(name.len(), |i| i + start);
-                        &name[start..end]
-                    } else {
-                        name
-                    };
-
-                    // Clean up the description by removing any 'u' prefix
-                    let desc = cells[1].trim_start_matches('u');
-
-                    return format!("|{name}|{desc}|");
-                }
-            }
-
-            // Return other lines unchanged
-            line.to_string()
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-
-    lines
-}
-
 #[test]
 fn examples_readme_contents() {
     const START_MARKER: &str = "<!-- lint descriptions start -->";
@@ -254,22 +199,19 @@ fn examples_readme_contents() {
     let actual_tables = extract_between_markers(&readme_content)
         .expect("Failed to extract content between markers");
 
-    // Compare normalized content
-    let normalized_actual = normalize_content(&actual_tables);
-    let normalized_expected = normalize_content(&expected_tables);
-
+    // Compare raw content directly
     // Always pass in BLESS mode (the file was already written with the correct content)
     if bless_mode {
         println!("BLESS mode enabled - accepting current README content");
     } else {
         // In normal mode, verify content matches
-        if normalized_actual != normalized_expected {
+        if actual_tables != expected_tables {
             println!(
                 "\nFormatting difference detected. Run with BLESS=true to accept current formatting.\n"
             );
             assert_eq!(
-                normalized_actual,
-                normalized_expected,
+                actual_tables,
+                expected_tables,
                 "\nREADME.md content does not match expected content.\n\nActual:\n{}\n\nExpected:\n{}\n\nDiff:\n{}",
                 actual_tables,
                 expected_tables,
@@ -915,8 +857,7 @@ fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
             writeln!(
                 tables,
                 "| {:<name_width$} | {:<desc_width$} |",
-                formatted_name,
-                formatted_desc
+                formatted_name, formatted_desc
             )
             .unwrap();
         }
