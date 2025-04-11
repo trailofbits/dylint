@@ -75,10 +75,6 @@ jobs:
         run: |
           # smoelius: Prettier is still needed for scripts/update_example_READMEs.sh.
           npm install -g prettier
-          rm -f "$HOME"/.cargo/bin/cargo-fmt
-          rm -f "$HOME"/.cargo/bin/rustfmt
-          rustup install nightly
-          rustup component add rustfmt --toolchain nightly
 
       - name: Format example READMEs
         run: ./scripts/update_example_READMEs.sh && git diff --exit-code
@@ -142,6 +138,7 @@ jobs:
         run: |
           npm install -g prettier
           rustup install nightly
+          rustup component add rustfmt --toolchain nightly
 
       # smoelius: This list will grow: https://github.com/trailofbits/dylint/issues/636
       - name: Install CI tools

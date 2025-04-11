@@ -484,6 +484,21 @@ fn rustdoc_prettier() {
 }
 
 #[test]
+fn fmt() {
+    for entry in walkdir(true).with_file_name("Cargo.toml") {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        let parent = path.parent().unwrap();
+
+        Command::new("cargo")
+            .args(["+nightly", "fmt", "--check"])
+            .current_dir(parent)
+            .assert()
+            .success();
+    }
+}
+
+#[test]
 fn shellcheck() {
     for entry in read_dir("scripts").unwrap() {
         let entry = entry.unwrap();
