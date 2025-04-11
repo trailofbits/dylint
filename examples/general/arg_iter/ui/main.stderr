@@ -1,0 +1,17 @@
+error: parameter type has Iterator bound
+ --> $DIR/main.rs:7:1
+  |
+7 | fn bad<I: Iterator<Item = u32>>(iter: I) {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = help: consider using `IntoIterator` instead of `Iterator` for parameter `I`
+
+error: parameter type has Iterator bound
+  --> $DIR/main.rs:14:1
+   |
+14 | fn bad_with_type_parameter<T: std::fmt::Debug, I: Iterator<Item = T>>(iter: I) {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider using `IntoIterator` instead of `Iterator` for parameter `I`
+
+error: aborting due to 2 previous errors 
