@@ -850,6 +850,7 @@ fn extract_between_markers(content: &str) -> Option<String> {
     Some(content[start..end].trim().to_string())
 }
 
+#[allow(clippy::uninlined_format_args)]
 fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
     let mut tables = String::new();
 
@@ -913,9 +914,9 @@ fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
             let formatted_name = format!("[`{name}`](./{category}/{name})");
             writeln!(
                 tables,
-                "| {formatted_name:name_width$} | {formatted_desc:desc_width$} |",
-                name_width = name_width,
-                desc_width = desc_width
+                "| {:<name_width$} | {:<desc_width$} |",
+                formatted_name,
+                formatted_desc
             )
             .unwrap();
         }

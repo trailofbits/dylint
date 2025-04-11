@@ -80,7 +80,6 @@ jobs:
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
 
-
       - name: Lint
         run: ./scripts/lint.sh
 
