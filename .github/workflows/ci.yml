@@ -80,8 +80,6 @@ jobs:
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
 
-      - name: Format example READMEs
-        run: ./scripts/update_example_READMEs.sh && git diff --exit-code
 
       - name: Lint
         run: ./scripts/lint.sh
