@@ -1,3 +1,4 @@
+//! This is a crate-level documentation comment for the dylint crate.
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![deny(clippy::expect_used)]
 #![deny(clippy::unwrap_used)]

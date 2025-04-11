@@ -40,8 +40,10 @@ fn linker() -> Result<PathBuf> {
     let config_toml = cargo_home.join("config.toml");
     if config_toml.is_file() {
         let contents = read_to_string(&config_toml).with_context(|| {
-            let path = config_toml.to_string_lossy();
-            format!("`read_to_string` failed for `{path}`")
+            format!(
+                "`read_to_string` failed for `{}`",
+                config_toml.to_string_lossy()
+            )
         })?;
         let document = contents.parse::<DocumentMut>()?;
         document
@@ -161,9 +163,11 @@ fn copy_library(path: &Path) -> Result<()> {
                 .ok_or_else(|| anyhow!("Could not get parent directory"))?;
             let path_with_toolchain = strip_deps(parent).join(filename_with_toolchain);
             copy(path, &path_with_toolchain).with_context(|| {
-                let src_path = path.to_string_lossy();
-                let dst_path = path_with_toolchain.to_string_lossy();
-                format!("Could not copy `{src_path}` to `{dst_path}`")
+                format!(
+                    "Could not copy `{}` to `{}`",
+                    path.to_string_lossy(),
+                    path_with_toolchain.to_string_lossy()
+                )
             })?;
         }
     }
@@ -208,6 +212,7 @@ fn strip_deps(path: &Path) -> PathBuf {
 const ARCHITECTURES: &[&str] = &[
     "aarch64",
     "aarch64_be",
+    "amdgcn",
     "arm",
     "arm64_32",
     "arm64e",
@@ -296,31 +301,27 @@ mod test {
     fn architectures_are_current() {
         let output = std::process::Command::new("rustc")
             .args(["--print", "target-list"])
+            .unwrap();
+        let mut architectures = std::str::from_utf8(&output.stdout)
             .unwrap()
             .lines()
             .filter_map(|line| line.split_once('-').map(|(architecture, _)| architecture))
             .collect::<Vec<_>>();
         architectures.sort_unstable();
         architectures.dedup();
-        
-        let missing = ARCHITECTURES
-            .iter()
-            .filter(|arch| !architectures.contains(arch))
-            .collect::<Vec<_>>();
-            
-        assert!(
-            missing.is_empty(),
-            "These architectures are missing from rustc target list: {missing:?}"
-        );
+        assert_eq!(ARCHITECTURES, architectures);
     }
 
     #[test]
     fn architectures_are_sorted() {
-        let mut sorted = ARCHITECTURES.to_vec();
-        sorted.sort_unstable();
-        assert_eq!(ARCHITECTURES, sorted.as_slice());
+        let mut architectures = ARCHITECTURES.to_vec();
+        architectures.sort_unstable();
+        architectures.dedup();
+        assert_eq!(ARCHITECTURES, architectures);
     }
 
+    #[cfg_attr(not(all(target_arch = "x86_64", target_os = "linux")), ignore)]
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn global_config() {
         let cargo_home = tempdir().unwrap();
@@ -340,12 +341,6 @@ mod test {
             .unwrap();
 
         isolate(package.path()).unwrap();
-
-        // Add an empty workspace declaration to isolate this package from parent workspace
-        let cargo_toml_path = package.path().join("Cargo.toml");
-        let mut cargo_toml = std::fs::read_to_string(&cargo_toml_path).unwrap();
-        cargo_toml.push_str("\n[workspace]\n");
-        std::fs::write(&cargo_toml_path, cargo_toml).unwrap();
 
         let package_cargo = package.path().join(".cargo");
         create_dir(&package_cargo).unwrap();
