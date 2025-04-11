@@ -79,7 +79,7 @@ fn versions_are_exact_and_match() {
                     req.matches(&Version::parse(env!("CARGO_PKG_VERSION")).unwrap()),
                     "`{}` dependency on `{dep}` does not match `{}`",
                     package.name,
-                    env!("CARGO_PKG_VERSION"),
+                    env!("CARGO_PKG_VERSION")
                 );
             }
         }
@@ -100,9 +100,9 @@ fn patch_version_requirements_are_exact() {
         for package in &metadata.packages {
             for Dependency { name: dep, req, .. } in &package.dependencies {
                 assert!(
-                    req.comparators
-                        .iter()
-                        .all(|comparator| comparator.op == Op::Exact || comparator.patch.is_none()),
+                    req.comparators.iter().all(
+                        |comparator| (comparator.op == Op::Exact || comparator.patch.is_none())
+                    ),
                     "`{}` requirement on `{dep}` includes patch version and is not exact: {req}",
                     package.name
                 );
@@ -131,6 +131,130 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
     let dylint_readme = readme_contents("dylint").unwrap();
 
     compare_lines(&cargo_dylint_readme, &dylint_readme);
+}
+
+#[test]
+fn examples_readme_contents() {
+    const START_MARKER: &str = "<!-- lint descriptions start -->";
+    const END_MARKER: &str = "<!-- lint descriptions end -->";
+
+    let examples_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
+    let readme_path = examples_dir.join("README.md");
+    let categories = &[
+        "general",
+        "supplementary",
+        "restriction",
+        "experimental",
+        "testing",
+    ];
+
+    // Check if we're in BLESS mode
+    let bless_mode = env::enabled("BLESS");
+
+    // Update the README content with the latest lint tables
+    preserves_cleanliness("examples_readme_contents", false, || {
+        // Read the current README content
+        let mut readme_content = read_to_string(&readme_path).unwrap();
+
+        // Generate the expected tables
+        let expected_tables = generate_lint_tables(&examples_dir, categories);
+
+        // Replace the content between markers
+        if let (Some(start_pos), Some(end_pos)) = (
+            readme_content.find(START_MARKER),
+            readme_content.find(END_MARKER),
+        ) {
+            let start_pos = start_pos + START_MARKER.len();
+            let new_content = format!("\n\n{expected_tables}\n\n");
+
+            readme_content.replace_range(start_pos..end_pos, &new_content);
+
+            // Write the updated content back to the file
+            write(&readme_path, &readme_content).unwrap();
+
+            // Format the README with prettier if it's available
+            if Command::new("prettier")
+                .arg("--version")
+                .output()
+                .map(|output| output.status.success())
+                .unwrap_or(false)
+            {
+                Command::new("prettier")
+                    .args(["--write", &readme_path.to_string_lossy()])
+                    .output()
+                    .expect("Failed to run prettier");
+            }
+        } else {
+            panic!("Could not find markers in README.md");
+        }
+    });
+
+    // After updating, read the new content
+    let readme_content = read_to_string(&readme_path).unwrap();
+
+    // Generate expected tables again
+    let expected_tables = generate_lint_tables(&examples_dir, categories);
+
+    // Extract the current tables section from README using markers
+    let actual_tables = extract_between_markers(&readme_content)
+        .expect("Failed to extract content between markers");
+
+    // Compare raw content directly
+    // Always pass in BLESS mode (the file was already written with the correct content)
+    if bless_mode {
+        println!("BLESS mode enabled - accepting current README content");
+    } else {
+        // In normal mode, verify content matches
+        if actual_tables != expected_tables {
+            println!(
+                "\nFormatting difference detected. Run with BLESS=true to accept current formatting.\n"
+            );
+            assert_eq!(
+                actual_tables,
+                expected_tables,
+                "\nREADME.md content does not match expected content.\n\nActual:\n{}\n\nExpected:\n{}\n\nDiff:\n{}",
+                actual_tables,
+                expected_tables,
+                SimpleDiff::from_str(&actual_tables, &expected_tables, "actual", "expected")
+            );
+        }
+    }
+}
+
+fn extract_name_and_description(cargo_toml_path: &Path) -> Option<(String, String)> {
+    let content = read_to_string(cargo_toml_path).ok()?;
+
+    // Get the name from the directory
+    let name = cargo_toml_path
+        .parent()
+        .and_then(|path| path.file_name())
+        .unwrap()
+        .to_string_lossy()
+        .to_string();
+
+    // Extract the description using regex, handling potential whitespace
+    let re = Regex::new(r#"description\s*=\s*"([^"]*)""#).unwrap();
+    let description = if let Some(caps) = re.captures(&content) {
+        let desc = caps.get(1).unwrap();
+        // Normalize whitespace in description
+        desc.as_str().trim().replace('\n', " ").replace('\r', "")
+    } else {
+        return None;
+    };
+
+    Some((name, description))
+}
+
+fn capitalize(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => {
+            let mut result = first.to_uppercase().collect::<String>();
+            result.extend(chars);
+            result
+        }
+    }
 }
 
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
@@ -646,4 +770,113 @@ fn dirty(ignore_blank_lines: bool) -> Option<String> {
     } else {
         Some(String::from_utf8(output.stdout).unwrap())
     }
+}
+
+fn collect_examples_from_category(examples_dir: &Path, category: &str) -> Vec<(String, String)> {
+    let mut examples = Vec::new();
+    let category_dir = examples_dir.join(category);
+
+    for entry in read_dir(&category_dir).unwrap() {
+        let entry = entry.unwrap();
+        let metadata = entry.metadata().unwrap();
+        if metadata.is_dir() {
+            let cargo_toml_path = entry.path().join("Cargo.toml");
+            if cargo_toml_path.exists() {
+                if let Some((name, desc)) = extract_name_and_description(&cargo_toml_path) {
+                    // Normalize description
+                    let desc = desc.trim().to_string();
+                    examples.push((name, desc));
+                }
+            }
+        }
+    }
+
+    // Sort examples by name
+    examples.sort_by(|(a, _), (b, _)| a.cmp(b));
+    examples
+}
+
+fn extract_between_markers(content: &str) -> Option<String> {
+    const START_MARKER: &str = "<!-- lint descriptions start -->";
+    const END_MARKER: &str = "<!-- lint descriptions end -->";
+
+    let start = content.find(START_MARKER)? + START_MARKER.len();
+    let end = content.find(END_MARKER)?;
+
+    // Trim any leading/trailing whitespace from the extracted content
+    Some(content[start..end].trim().to_string())
+}
+
+#[allow(clippy::uninlined_format_args)]
+fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
+    let mut tables = String::new();
+
+    for (i, &category) in categories.iter().enumerate() {
+        let examples = collect_examples_from_category(examples_dir, category);
+        if examples.is_empty() {
+            continue;
+        }
+
+        // Add a newline before each category except the first one
+        if i > 0 {
+            writeln!(tables).unwrap();
+        }
+
+        writeln!(tables, "## {}", capitalize(category)).unwrap();
+        writeln!(tables).unwrap();
+
+        // Calculate maximum widths
+        let name_width = examples
+            .iter()
+            .map(|(name, _)| name.len() + 4) // Add 4 for the [`..`] wrapping
+            .max()
+            .unwrap_or(7) // "Example" length
+            .max(7);
+
+        let desc_width = examples
+            .iter()
+            .map(|(_, desc)| desc.len())
+            .max()
+            .unwrap_or(17) // "Description/check" length
+            .max(17);
+
+        writeln!(
+            tables,
+            "| {:name_width$} | {:desc_width$} |",
+            "Example",
+            "Description/check",
+            name_width = name_width,
+            desc_width = desc_width
+        )
+        .unwrap();
+        writeln!(
+            tables,
+            "|-{:-<name_width$}-|-{:-<desc_width$}-|",
+            "",
+            "",
+            name_width = name_width,
+            desc_width = desc_width
+        )
+        .unwrap();
+
+        for (name, description) in examples {
+            let formatted_desc =
+                if let Some(stripped) = description.strip_prefix("A lint to check for ") {
+                    // Capitalize first letter of stripped content
+                    capitalize(stripped)
+                } else {
+                    description
+                };
+
+            let formatted_name = format!("[`{name}`](./{category}/{name})");
+            writeln!(
+                tables,
+                "| {:<name_width$} | {:<desc_width$} |",
+                formatted_name, formatted_desc
+            )
+            .unwrap();
+        }
+    }
+
+    tables.trim_end().to_string()
 }
