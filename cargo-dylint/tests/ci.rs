@@ -483,7 +483,6 @@ fn rustdoc_prettier() {
     });
 }
 
-#[cfg_attr(target_os = "windows", ignore)]
 #[test]
 fn fmt() {
     for entry in walkdir(true).with_file_name("Cargo.toml") {
