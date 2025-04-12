@@ -99,9 +99,9 @@ dependencies = [
 
 [[package]]
 name = "bstr"
-version = "1.11.3"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "531a9155a481e2ee699d4f98f43c0ca4ff8ee1bfd55c31e9e98fb29d2b176fe0"
+checksum = "234113d19d0d7d613b40e86fb654acf958910802bcceab913a4f9e7cda03b1a4"
 dependencies = [
  "memchr",
  "serde",
@@ -178,9 +178,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.18"
+version = "1.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "525046617d8376e3db1deffb079e91cef90a89fc3ca5c185bbf8c9ecdd15cd5c"
+checksum = "8e3a13707ac958681c13b39b458c073d0d9bc8a22cb1b2f4c8e55eb72c13f362"
 dependencies = [
  "jobserver",
  "libc",
@@ -205,6 +205,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "clippy_utils"
+version = "0.1.88"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=7bb54d91be1af212faaa078786c1d2271a67d4f9#7bb54d91be1af212faaa078786c1d2271a67d4f9"
+dependencies = [
+ "arrayvec",
+ "itertools",
+ "rustc_apfloat",
+ "serde",
+]
+
+[[package]]
 name = "colorchoice"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -214,7 +225,7 @@ checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
 name = "commented_code"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
  "regex",
@@ -468,7 +479,7 @@ version = "4.1.0"
 dependencies = [
  "cargo-util",
  "cargo_metadata 0.18.1",
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
  "once_cell",
@@ -764,7 +775,7 @@ dependencies = [
 name = "inconsistent_struct_pattern"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
 ]
@@ -802,9 +813,9 @@ checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
 
 [[package]]
 name = "jiff"
-version = "0.2.5"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c102670231191d07d37a35af3eb77f1f0dbf7a71be51a962dcd57ea607be7260"
+checksum = "1f33145a5cbea837164362c7bd596106eb7c5198f97d1ba6f6ebb3223952e488"
 dependencies = [
  "jiff-static",
  "log",
@@ -815,9 +826,9 @@ dependencies = [
 
 [[package]]
 name = "jiff-static"
-version = "0.2.5"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4cdde31a9d349f1b1f51a0b3714a5940ac022976f4b49485fc04be052b183b4c"
+checksum = "43ce13c40ec6956157a3635d97a1ee2df323b263f09ea14165131289cb0f5c19"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -899,9 +910,9 @@ dependencies = [
 
 [[package]]
 name = "linux-raw-sys"
-version = "0.9.3"
+version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe7db12097d22ec582439daf8618b8fdd1a7bef6270e9af3b1ebcd30893cf413"
+checksum = "cd945864f07fe9f5371a27ad7b52a172b4b499999f1d97574c9fa68373937e12"
 
 [[package]]
 name = "litemap"
@@ -913,7 +924,7 @@ checksum = "23fb14cb19457329c82206317a5663005a4d404783dc74f4252769b0d5f42856"
 name = "local_ref_cell"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -945,7 +956,7 @@ name = "nonexistent_path_in_comment"
 version = "4.1.0"
 dependencies = [
  "cargo_metadata 0.18.1",
- "clippy_utils",
+ "clippy_utils 0.1.87",
  "dylint_linting",
  "dylint_testing",
  "regex",
@@ -1091,7 +1102,7 @@ dependencies = [
 name = "redundant_reference"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
  "serde",
@@ -1128,9 +1139,9 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
 name = "rust-embed"
-version = "8.6.0"
+version = "8.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b3aba5104622db5c9fc61098de54708feb732e7763d7faa2fa625899f00bf6f"
+checksum = "e5fbc0ee50fcb99af7cebb442e5df7b5b45e9460ffa3f8f549cd26b862bec49d"
 dependencies = [
  "rust-embed-impl",
  "rust-embed-utils",
@@ -1139,9 +1150,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-impl"
-version = "8.6.0"
+version = "8.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f198c73be048d2c5aa8e12f7960ad08443e56fd39cc26336719fdb4ea0ebaae"
+checksum = "6bf418c9a2e3f6663ca38b8a7134cc2c2167c9d69688860e8961e3faa731702e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1152,9 +1163,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-utils"
-version = "8.6.0"
+version = "8.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a2fcdc9f40c8dc2922842ca9add611ad19f332227fc651d015881ad1552bd9a"
+checksum = "08d55b95147fe01265d06b3955db798bdaed52e60e2211c41137701b3aba8e21"
 dependencies = [
  "globset",
  "sha2",
@@ -1507,7 +1518,7 @@ checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
 name = "unnamed_constant"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
  "serde",
@@ -1517,7 +1528,7 @@ dependencies = [
 name = "unnecessary_borrow_mut"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -1527,7 +1538,7 @@ dependencies = [
 name = "unnecessary_conversion_for_trait"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -1781,9 +1792,9 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "winnow"
-version = "0.7.4"
+version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e97b544156e9bebe1a0ffbc03484fc1ffe3100cbce3ffb17eac35f7cdd7ab36"
+checksum = "63d3fcd9bba44b03821e7d699eeee959f3126dcc4aa8e4ae18ec617c2a5cea10"
 dependencies = [
  "memchr",
 ]
