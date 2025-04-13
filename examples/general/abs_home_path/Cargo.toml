@@ -13,7 +13,7 @@ crate-type = ["cdylib", "rlib"]
 clippy_utils = { workspace = true }
 once_cell = { workspace = true }
 
-dylint_internal = { path = "../../../internal", features = ["home"] }
+dylint_internal = { path = "../../../internal", features = ["home", "testing"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
