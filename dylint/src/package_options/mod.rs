@@ -1,19 +1,21 @@
 use crate::opts;
-use anyhow::{ Context, Result, anyhow, bail };
+use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
     clippy_utils::{
-        clippy_utils_version_from_rust_version,
-        set_clippy_utils_dependency_revision,
-        set_toolchain_channel,
-        toolchain_channel,
+        clippy_utils_version_from_rust_version, set_clippy_utils_dependency_revision,
+        set_toolchain_channel, toolchain_channel,
     },
     find_and_replace,
     packaging::new_template,
 };
-use heck::{ ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase };
+use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use if_chain::if_chain;
 use rewriter::Backup;
-use std::{ env::current_dir, fs::{ copy, create_dir_all }, path::Path };
+use std::{
+    env::current_dir,
+    fs::{copy, create_dir_all},
+    path::Path,
+};
 use tempfile::tempdir;
 use walkdir::WalkDir;
 
@@ -40,14 +42,18 @@ pub fn new_package(_opts: &opts::Dylint, new_opts: &opts::New) -> Result<()> {
 
     // smoelius: Isolation is now the default.
     if !new_opts.isolate {
-        find_and_replace(&tempdir.path().join("Cargo.toml"), r"\r?\n\[workspace\]\r?\n", "")?;
+        find_and_replace(
+            &tempdir.path().join("Cargo.toml"),
+            r"\r?\n\[workspace\]\r?\n",
+            "",
+        )?;
     }
 
     // smoelius: So is allowing unused extern crates.
     find_and_replace(
         &tempdir.path().join("src/lib.rs"),
         r"(?m)^.. (#!\[warn\(unused_extern_crates\)\])$",
-        "${1}"
+        "${1}",
     )?;
 
     fill_in(&name, tempdir.path(), path)?;
@@ -77,7 +83,9 @@ fn fill_in(name: &str, from: &Path, to: &Path) -> Result<()> {
 
         let from_path = from.join(rel_path);
         let to_path = to.join(rel_path);
-        let parent = to_path.parent().ok_or_else(|| anyhow!("Could not get parent directory"))?;
+        let parent = to_path
+            .parent()
+            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
         create_dir_all(parent).with_context(|| {
             format!("`create_dir_all` failed for `{}`", parent.to_string_lossy())
         })?;
@@ -101,24 +109,23 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
         None => &current_dir,
     };
 
-    let rev = {
-        let revs = Revs::new(opts.quiet)?;
-        match &upgrade_opts.rust_version {
-            Some(rust_version) => {
-                let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
-                (*revs
-                    .find_version(&clippy_utils_version)?
-                    .ok_or_else(||
-                        anyhow!("Could not find `clippy_utils` version `{}`", clippy_utils_version)
-                    )?).clone()
-            }
-            None =>
-                revs
-                    .iter()?
-                    .next()
-                    .unwrap_or_else(|| {
-                        Err(anyhow!("Could not determine latest `clippy_utils` version"))
-                    })?,
+    // Instantiate Revs once
+    let revs = Revs::new(opts.quiet)?;
+
+    let rev = match &upgrade_opts.rust_version {
+        Some(rust_version) => {
+            // Find the specific version using the new find_version
+            let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
+            revs.find_version(&clippy_utils_version)?.ok_or_else(|| {
+                anyhow!(
+                    "Could not find `clippy_utils` version `{}`",
+                    clippy_utils_version
+                )
+            })?
+        }
+        None => {
+            // Find the latest version using the new find_latest_rev
+            revs.find_latest_rev()?
         }
     };
 
@@ -142,12 +149,10 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
     let rust_toolchain_path = path.join("rust-toolchain");
     let cargo_toml_path = path.join("Cargo.toml");
 
-    let mut rust_toolchain_backup = Backup::new(rust_toolchain_path).with_context(
-        || "Could not backup `rust-toolchain`"
-    )?;
-    let mut cargo_toml_backup = Backup::new(cargo_toml_path).with_context(
-        || "Could not backup `Cargo.toml`"
-    )?;
+    let mut rust_toolchain_backup =
+        Backup::new(rust_toolchain_path).with_context(|| "Could not backup `rust-toolchain`")?;
+    let mut cargo_toml_backup =
+        Backup::new(cargo_toml_path).with_context(|| "Could not backup `Cargo.toml`")?;
 
     set_toolchain_channel(path, &rev.channel)?;
     set_clippy_utils_dependency_revision(path, &rev.oid.to_string())?;
