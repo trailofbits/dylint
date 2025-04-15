@@ -1,4 +1,5 @@
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
+#![cfg_attr(dylint_lib = "supplementary", allow(nonexistent_path_in_comment))]
 #![deny(clippy::expect_used)]
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
@@ -19,7 +20,7 @@ use std::{
 
 type Object = serde_json::Map<String, serde_json::Value>;
 
-// smoelius: See note in dylint/src/library_packages/mod.rs.
+// smoelius: See note in: dylint/src/library_packages/mod.rs
 #[cfg(feature = "__cargo_lib")]
 pub(crate) use cargo::{core, sources, util};
 
