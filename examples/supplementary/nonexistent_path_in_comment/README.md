@@ -17,6 +17,8 @@ References to nonexistent files in comments can be misleading:
 
 ### Known problems
 
+Currently, this lint must be allowed at the crate level.
+
 - This example:
 
 ```rust
