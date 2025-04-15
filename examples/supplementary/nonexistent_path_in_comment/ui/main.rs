@@ -17,4 +17,7 @@
 // Workspace root path that does exist
 // nonexistent_path_in_comment/Cargo.toml
 
+// Negative test: urls
+// This is a url: https://github.com/trailofbits/dylint
+
 fn main() {}
