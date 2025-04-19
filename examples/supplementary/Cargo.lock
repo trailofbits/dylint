@@ -205,6 +205,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "clippy_utils"
+version = "0.1.88"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=7bb54d91be1af212faaa078786c1d2271a67d4f9#7bb54d91be1af212faaa078786c1d2271a67d4f9"
+dependencies = [
+ "arrayvec",
+ "itertools",
+ "rustc_apfloat",
+ "serde",
+]
+
+[[package]]
 name = "colorchoice"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -214,7 +225,7 @@ checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
 name = "commented_code"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
  "regex",
@@ -468,7 +479,7 @@ version = "4.1.0"
 dependencies = [
  "cargo-util",
  "cargo_metadata 0.18.1",
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
  "once_cell",
@@ -764,7 +775,7 @@ dependencies = [
 name = "inconsistent_struct_pattern"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
 ]
@@ -842,9 +853,9 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "libc"
-version = "0.2.171"
+version = "0.2.172"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c19937216e9d3aa9956d9bb8dfc0b0c8beb6058fc4f7a4dc4d850edf86a237d6"
+checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
 
 [[package]]
 name = "libgit2-sys"
@@ -913,7 +924,7 @@ checksum = "23fb14cb19457329c82206317a5663005a4d404783dc74f4252769b0d5f42856"
 name = "local_ref_cell"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -945,7 +956,7 @@ name = "nonexistent_path_in_comment"
 version = "4.1.0"
 dependencies = [
  "cargo_metadata 0.18.1",
- "clippy_utils",
+ "clippy_utils 0.1.87",
  "dylint_linting",
  "dylint_testing",
  "regex",
@@ -1026,9 +1037,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.94"
+version = "1.0.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a31971752e70b8b2686d7e46ec17fb38dad4051d94024c88df49b667caea9c84"
+checksum = "02b3e5e68a3a1a02aad3ec490a98007cbc13c37cbe84a3cd7b8e406d76e7f778"
 dependencies = [
  "unicode-ident",
 ]
@@ -1091,7 +1102,7 @@ dependencies = [
 name = "redundant_reference"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
  "serde",
@@ -1507,7 +1518,7 @@ checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
 name = "unnamed_constant"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_linting",
  "dylint_testing",
  "serde",
@@ -1517,7 +1528,7 @@ dependencies = [
 name = "unnecessary_borrow_mut"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -1527,7 +1538,7 @@ dependencies = [
 name = "unnecessary_conversion_for_trait"
 version = "4.1.0"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.88",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
