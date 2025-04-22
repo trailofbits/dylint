@@ -155,12 +155,6 @@ warning: assignment to dereference before error return
 LL |         *flag = true;
    |         ^^^^^^^^^^^^
 
-warning: call to `std::fmt::DebugStruct::<'_, '_>::field` with mutable reference before error return
-  --> $DIR/main.rs:260:12
-   |
-LL | pub struct Foo {
-   |            ^^^
-
 warning: call to `std::vec::Vec::<u32>::push` with mutable reference before error return
   --> $DIR/main.rs:270:12
    |
@@ -185,5 +179,5 @@ note: error is determined here
 LL |         Err(VarError::NotPresent)
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: 17 warnings emitted
+warning: 16 warnings emitted
 
