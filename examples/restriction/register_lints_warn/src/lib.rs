@@ -73,7 +73,7 @@ impl<'tcx> LateLintPass<'tcx> for RegisterLintsWarn {
             && match_def_path(cx, def_id, &["rustc_errors", "DiagCtxtHandle", "warn"])
             && let local_def_id = cx.tcx.hir_enclosing_body_owner(expr.hir_id)
             && let hir_id = cx.tcx.local_def_id_to_hir_id(local_def_id)
-            && let Some(name) = cx.tcx.hir().opt_name(hir_id)
+            && let Some(name) = cx.tcx.hir_opt_name(hir_id)
             && name.as_str() == "register_lints"
         {
             span_lint(

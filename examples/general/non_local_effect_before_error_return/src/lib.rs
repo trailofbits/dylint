@@ -214,7 +214,7 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
 
 fn in_async_function(tcx: ty::TyCtxt<'_>, hir_id: rustc_hir::HirId) -> bool {
     std::iter::once((hir_id, tcx.hir_node(hir_id)))
-        .chain(tcx.hir().parent_iter(hir_id))
+        .chain(tcx.hir_parent_iter(hir_id))
         .any(|(_, node)| {
             node.fn_kind()
                 .is_some_and(|fn_kind| fn_kind.asyncness().is_async())

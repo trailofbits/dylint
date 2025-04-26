@@ -155,9 +155,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.19"
+version = "1.2.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e3a13707ac958681c13b39b458c073d0d9bc8a22cb1b2f4c8e55eb72c13f362"
+checksum = "04da6a0d40b948dfc4fa8f5bbf402b0fc1a64a28dbf7d12ffd683550f2c1b63a"
 dependencies = [
  "jobserver",
  "libc",
@@ -191,8 +191,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_config"
-version = "0.1.87"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=238edf273d195c8e472851ebd60571f77f978ac8#238edf273d195c8e472851ebd60571f77f978ac8"
+version = "0.1.88"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=7bb54d91be1af212faaa078786c1d2271a67d4f9#7bb54d91be1af212faaa078786c1d2271a67d4f9"
 dependencies = [
  "clippy_utils",
  "itertools",
@@ -202,8 +202,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_lints"
-version = "0.1.87"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=238edf273d195c8e472851ebd60571f77f978ac8#238edf273d195c8e472851ebd60571f77f978ac8"
+version = "0.1.88"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=7bb54d91be1af212faaa078786c1d2271a67d4f9#7bb54d91be1af212faaa078786c1d2271a67d4f9"
 dependencies = [
  "arrayvec",
  "cargo_metadata 0.18.1",
@@ -222,8 +222,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.87"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=238edf273d195c8e472851ebd60571f77f978ac8#238edf273d195c8e472851ebd60571f77f978ac8"
+version = "0.1.88"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=7bb54d91be1af212faaa078786c1d2271a67d4f9#7bb54d91be1af212faaa078786c1d2271a67d4f9"
 dependencies = [
  "arrayvec",
  "itertools",
@@ -360,7 +360,7 @@ dependencies = [
  "rustversion",
  "serde",
  "thiserror 2.0.12",
- "toml 0.8.20",
+ "toml 0.8.21",
 ]
 
 [[package]]
@@ -373,7 +373,7 @@ dependencies = [
  "rustversion",
  "serde",
  "thiserror 2.0.12",
- "toml 0.8.20",
+ "toml 0.8.21",
 ]
 
 [[package]]
@@ -485,9 +485,9 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.2.15"
+version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4567c8db10ae91089c99af84c68c38da3ec2f087c3f82960bcdbf3656b6f4d7"
+checksum = "335ff9f135e4384c8150d6f27c6daed433577f86b4750418338c01a1a2528592"
 dependencies = [
  "cfg-if",
  "libc",
@@ -733,9 +733,9 @@ checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
 
 [[package]]
 name = "jiff"
-version = "0.2.9"
+version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59ec30f7142be6fe14e1b021f50b85db8df2d4324ea6e91ec3e5dcde092021d0"
+checksum = "5a064218214dc6a10fbae5ec5fa888d80c45d611aba169222fc272072bf7aef6"
 dependencies = [
  "jiff-static",
  "log",
@@ -746,9 +746,9 @@ dependencies = [
 
 [[package]]
 name = "jiff-static"
-version = "0.2.9"
+version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "526b834d727fd59d37b076b0c3236d9adde1b1729a4361e20b2026f738cc1dbe"
+checksum = "199b7932d97e325aff3a7030e141eafe7f2c6268e1d1b24859b753a627f45254"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -979,7 +979,7 @@ version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba009ff324d1fc1b900bd1fdb31564febe58a8ccc8a6fdbb93b543d33b13ca43"
 dependencies = [
- "getrandom 0.2.15",
+ "getrandom 0.2.16",
  "libredox",
  "thiserror 1.0.69",
 ]
@@ -1321,21 +1321,21 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.8.20"
+version = "0.8.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd87a5cdd6ffab733b2f74bc4fd7ee5fff6634124999ac278c35fc78c6120148"
+checksum = "900f6c86a685850b1bc9f6223b20125115ee3f31e01207d81655bbcc0aea9231"
 dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "toml_edit 0.22.24",
+ "toml_edit 0.22.25",
 ]
 
 [[package]]
 name = "toml_datetime"
-version = "0.6.8"
+version = "0.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0dd7358ecb8fc2f8d014bf86f6f638ce72ba252a2c3a2572f2a795f1d23efb41"
+checksum = "3da5db5a963e24bc68be8b17b6fa82814bb22ee8660f192bb182771d498f09a3"
 dependencies = [
  "serde",
 ]
@@ -1355,16 +1355,23 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.22.24"
+version = "0.22.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17b4795ff5edd201c7cd6dca065ae59972ce77d1b80fa0a84d94950ece7d1474"
+checksum = "10558ed0bd2a1562e630926a2d1f0b98c827da99fabd3fe20920a59642504485"
 dependencies = [
  "indexmap",
  "serde",
  "serde_spanned",
  "toml_datetime",
- "winnow 0.7.6",
+ "toml_write",
+ "winnow 0.7.7",
 ]
+
+[[package]]
+name = "toml_write"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28391a4201ba7eb1984cfeb6862c0b3ea2cfe23332298967c749dddc0d6cd976"
 
 [[package]]
 name = "tracing"
@@ -1674,9 +1681,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.7.6"
+version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63d3fcd9bba44b03821e7d699eeee959f3126dcc4aa8e4ae18ec617c2a5cea10"
+checksum = "6cb8234a863ea0e8cd7284fcdd4f145233eb00fee02bbdd9861aec44e6477bc5"
 dependencies = [
  "memchr",
 ]

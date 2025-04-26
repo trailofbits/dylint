@@ -162,9 +162,8 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
         // do not lint if any parent has `#[doc(hidden)]` attribute (#7347)
         if cx
             .tcx
-            .hir()
-            .parent_iter(owner_id.into())
-            .any(|(id, _node)| is_doc_hidden(cx.tcx.hir().attrs(id)))
+            .hir_parent_iter(owner_id.into())
+            .any(|(id, _node)| is_doc_hidden(cx.tcx.hir_attrs(id)))
         {
             return;
         }
@@ -180,10 +179,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
             return;
         };
 
-        if cx
-            .tcx
-            .hir()
-            .attrs(item.hir_id())
+        if cx.tcx.hir_attrs(item.hir_id())
             .iter()
             .any(|attr| matches!(attr.kind, AttrKind::DocComment { .. }))
         {
@@ -365,8 +361,7 @@ fn extract_doc_comment(response: &str) -> Option<String> {
 
 fn earliest_attr_span(cx: &LateContext<'_>, item: &Item<'_>) -> Span {
     cx.tcx
-        .hir()
-        .attrs(item.hir_id())
+        .hir_attrs(item.hir_id())
         .iter()
         .map(|attr| attr.span)
         .fold(

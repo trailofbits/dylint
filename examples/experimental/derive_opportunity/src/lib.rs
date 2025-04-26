@@ -162,7 +162,7 @@ impl<'tcx> DeriveOpportunity<'tcx> {
             return macros.clone();
         }
         if let ty::Adt(adt_def, substs) = ty.kind()
-            && let Some(span) = cx.tcx.hir().span_if_local(adt_def.did())
+            && let Some(span) = cx.tcx.hir_span_if_local(adt_def.did())
             && !span.from_expansion()
         {
             let mut macros_applicable_to_all_fields = self
