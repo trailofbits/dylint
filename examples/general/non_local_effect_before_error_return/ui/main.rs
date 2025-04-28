@@ -276,3 +276,15 @@ pub mod public_only {
         Err(VarError::NotPresent)
     }
 }
+
+// Test to check that functions returning std::fmt::Result should not trigger the lint
+pub mod fmt_result_test {
+    use std::fmt::{self, Write};
+
+    pub fn fmt_result_with_write_before_err_return(buffer: &mut String) -> fmt::Result {
+        // This non-local effect (write) should not trigger a lint warning
+        // because the return type is std::fmt::Result
+        buffer.write_str("Hello, world!")?;
+        Err(fmt::Error)
+    }
+}

@@ -169,10 +169,10 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
 
     cargo_toml_backup
         .disable()
-        .with_context(|| "Could not disable `rust-toolchain` backup")?;
+        .with_context(|| "Could not disable `Cargo.toml` backup")?;
     rust_toolchain_backup
         .disable()
-        .with_context(|| "Could not disable `Cargo.toml` backup")?;
+        .with_context(|| "Could not disable `rust-toolchain` backup")?;
 
     Ok(())
 }

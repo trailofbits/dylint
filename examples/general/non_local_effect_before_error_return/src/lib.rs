@@ -150,7 +150,7 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             return;
         }
 
-        if !is_result(cx, cx.typeck_results().expr_ty(body.value)) {
+        if !is_lintable_result(cx, cx.typeck_results().expr_ty(body.value)) {
             return;
         }
 
@@ -221,9 +221,21 @@ fn in_async_function(tcx: ty::TyCtxt<'_>, hir_id: rustc_hir::HirId) -> bool {
         })
 }
 
-fn is_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
-    if let ty::Adt(adt, _) = ty.kind() {
-        cx.tcx.is_diagnostic_item(sym::Result, adt.did())
+fn is_lintable_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
+    if let ty::Adt(adt, substs) = ty.kind() {
+        if !cx.tcx.is_diagnostic_item(sym::Result, adt.did()) {
+            return false;
+        }
+
+        // Don't lint if the error type is core::fmt::Error
+        if let Some(error_ty) = substs.get(1)
+            && let ty::Adt(error_adt, _) = error_ty.expect_ty().kind()
+            && match_def_path(cx, error_adt.did(), &["core", "fmt", "Error"])
+        {
+            return false;
+        }
+
+        true
     } else {
         false
     }
@@ -334,8 +346,11 @@ fn collect_locals_and_constants<'tcx>(
                     let arg_place = arg.node.place();
                     if followed_narrowly
                         && !widening
-                        && let Some(arg_place) = mut_ref_operand_place
-                            .or(if width_preserving { arg_place } else { None })
+                        && let Some(arg_place) = mut_ref_operand_place.or(if width_preserving {
+                            arg_place
+                        } else {
+                            None
+                        })
                     {
                         locals_narrowly.insert(arg_place.local);
                     }
