@@ -140,7 +140,7 @@ fn check_comment(cx: &LateContext<'_>, span: Span, comment_text: &str, filename:
     };
 
     for caps in PATH_REGEX.captures_iter(comment_text) {
-        let path_str = &caps[0];
+        let mut path_str = &caps[0];
 
         if path_str.chars().filter(|&c| c == '/').count() < MIN_PATH_SEPARATORS {
             continue;
@@ -148,6 +148,12 @@ fn check_comment(cx: &LateContext<'_>, span: Span, comment_text: &str, filename:
 
         if path_str.starts_with("http://") || path_str.starts_with("https://") {
             continue;
+        }
+
+        // smoelius: Strip line and column references.
+        let last_slash = path_str.rfind('/').unwrap();
+        if let Some(index) = path_str[last_slash..].find(':') {
+            path_str = &path_str[..last_slash + index];
         }
 
         let full_path = base_dir.join(path_str);
@@ -163,7 +169,7 @@ fn check_comment(cx: &LateContext<'_>, span: Span, comment_text: &str, filename:
         }
 
         let path_start = caps.get(0).unwrap().start();
-        let path_end = caps.get(0).unwrap().end();
+        let path_end = path_start + path_str.len();
         let path_span = Span::new(
             span.lo() + BytePos(path_start as u32),
             span.lo() + BytePos(path_end as u32),
