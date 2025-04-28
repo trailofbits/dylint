@@ -45,9 +45,8 @@ impl<'tcx> LateLintPass<'tcx> for QuestionMarkInExpression {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
         if !cx
             .tcx
-            .hir()
-            .parent_iter(expr.hir_id)
-            .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion())
+            .hir_parent_iter(expr.hir_id)
+            .any(|(hir_id, _)| cx.tcx.hir_span(hir_id).in_derive_expansion())
             && let ExprKind::Match(_, _, MatchSource::TryDesugar(_)) = expr.kind
             && let Some((Node::Expr(ancestor), child_hir_id)) =
                 get_filtered_ancestor(cx, expr.hir_id)
@@ -79,7 +78,7 @@ fn get_filtered_ancestor<'hir>(
     hir_id: HirId,
 ) -> Option<(Node<'hir>, HirId)> {
     let mut child_hir_id = hir_id;
-    for (hir_id, node) in cx.tcx.hir().parent_iter(hir_id) {
+    for (hir_id, node) in cx.tcx.hir_parent_iter(hir_id) {
         if let Node::Expr(expr) = node {
             if matches!(
                 expr.kind,

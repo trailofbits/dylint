@@ -333,7 +333,7 @@ impl<'tcx> Visitor<'tcx> for DereferenceVisitor<'_, 'tcx> {
 fn count_derefs<'tcx>(cx: &LateContext<'tcx>, mut expr: &Expr<'tcx>) -> (usize, bool) {
     let mut n_derefs = 0;
     let mut explicit_deref = false;
-    let mut parent_iter = cx.tcx.hir().parent_iter(expr.hir_id);
+    let mut parent_iter = cx.tcx.hir_parent_iter(expr.hir_id);
     loop {
         let adjustments = cx.typeck_results().expr_adjustments(expr);
         // `adjusted_for_deref` is meant to catch cases like the following:
