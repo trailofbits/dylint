@@ -277,7 +277,7 @@ impl OverscopedAllow {
                 target_hir_id = Some(ancestor_hir_id);
             }
 
-            for attr in cx.tcx.hir().attrs(ancestor_hir_id) {
+            for attr in cx.tcx.hir_attrs(ancestor_hir_id) {
                 if !is_lint_attr(attr) {
                     continue;
                 }
@@ -287,7 +287,7 @@ impl OverscopedAllow {
                             if target_hir_id == ancestor_hir_id {
                                 None
                             } else {
-                                Some(cx.tcx.hir().span(target_hir_id))
+                                Some(cx.tcx.hir_span(target_hir_id))
                             }
                         });
                         let meta_item_span_map = self
@@ -412,7 +412,7 @@ fn local_path_from_span(cx: &LateContext<'_>, span: Span) -> Option<PathBuf> {
 fn is_extern_crate_test(cx: &LateContext<'_>, hir_id: HirId) -> bool {
     let node = cx.tcx.hir_node(hir_id);
     if let Node::Item(Item {
-        ident,
+        Some(ident),
         kind: ItemKind::ExternCrate(None),
         ..
     }) = node
