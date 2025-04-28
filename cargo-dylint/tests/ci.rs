@@ -19,6 +19,9 @@ use std::{
 
 static METADATA: LazyLock<Metadata> = LazyLock::new(|| current_metadata().unwrap());
 
+static DESCRIPTION_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"description\s*=\s*"([^"]*)""#).unwrap());
+
 #[ctor::ctor]
 fn initialize() {
     set_current_dir("..").unwrap();
@@ -131,6 +134,168 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
     let dylint_readme = readme_contents("dylint").unwrap();
 
     compare_lines(&cargo_dylint_readme, &dylint_readme);
+}
+
+#[test]
+fn examples_readme_contents() {
+    let examples_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
+    let categories = vec![
+        "general",
+        "supplementary",
+        "restriction",
+        "experimental",
+        "testing",
+    ];
+
+    // Read the existing README
+    let readme_path = examples_dir.join("README.md");
+    let readme_content = read_to_string(&readme_path).unwrap();
+
+    // Generate just the lint description tables
+    let expected_tables = generate_lint_tables(&examples_dir, &categories);
+
+    // Extract the current tables section from README using markers
+    let actual_tables = extract_between_markers(&readme_content)
+        .unwrap_or_else(|| panic!("Lint description markers not found in README.md"));
+
+    // Compare the trimmed generated content with the actual content
+    assert_eq!(
+        expected_tables.trim(),
+        actual_tables,
+        "Lint descriptions in README.md do not match expected content"
+    );
+}
+
+fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
+    const EXAMPLE_HEADER: &str = "Example";
+    const DESC_HEADER: &str = "Description/check";
+
+    let mut content = String::new();
+
+    // Generate the tables for each category
+    for category in categories {
+        use std::cmp::max;
+        use std::fmt::Write;
+
+        // Get the examples for this category
+        let examples = collect_examples_from_category(examples_dir, category);
+
+        // Calculate column widths
+        let max_example_width = examples
+            .iter()
+            .map(|(name, _)| format!("[`{name}`](./{category}/{name})").len())
+            .max()
+            .unwrap_or(0);
+
+        let max_desc_width = examples
+            .iter()
+            .map(|(_, description)| description.len())
+            .max()
+            .unwrap_or(0);
+
+        let example_col_width = max(EXAMPLE_HEADER.len(), max_example_width);
+        let desc_col_width = max(DESC_HEADER.len(), max_desc_width);
+
+        // Write header
+        write!(content, "\n## {}\n\n", capitalize(category)).unwrap();
+        #[allow(clippy::uninlined_format_args)]
+        writeln!(
+            content,
+            "| {:<example_col_width$} | {:<desc_col_width$} |",
+            EXAMPLE_HEADER, DESC_HEADER
+        )
+        .unwrap();
+        writeln!(
+            content,
+            "| {:-<example_col_width$} | {:-<desc_col_width$} |",
+            "", ""
+        )
+        .unwrap(); // Separator line
+
+        // Write rows with padding
+        for (name, description) in examples {
+            let example_link = format!("[`{name}`](./{category}/{name})");
+            #[allow(clippy::uninlined_format_args)]
+            writeln!(
+                content,
+                "| {:<example_col_width$} | {:<desc_col_width$} |",
+                example_link, description
+            )
+            .unwrap();
+        }
+    }
+
+    content
+}
+
+fn extract_between_markers(content: &str) -> Option<String> {
+    const START_MARKER: &str = "<!-- lint descriptions start -->";
+    const END_MARKER: &str = "<!-- lint descriptions end -->";
+    let start = content.find(START_MARKER)? + START_MARKER.len();
+    let end = content.find(END_MARKER)?;
+    Some(content[start..end].trim().to_string())
+}
+
+fn collect_examples_from_category(examples_dir: &Path, category: &str) -> Vec<(String, String)> {
+    let mut examples = Vec::new();
+    let category_dir = examples_dir.join(category);
+
+    for entry in read_dir(&category_dir).unwrap() {
+        let entry = entry.unwrap();
+        let metadata = entry.metadata().unwrap();
+        if metadata.is_dir() {
+            let cargo_toml_path = entry.path().join("Cargo.toml");
+            if cargo_toml_path.exists() {
+                if let Some((name, desc)) = extract_name_and_description(&cargo_toml_path) {
+                    examples.push((name, desc));
+                }
+            }
+        }
+    }
+
+    // Sort examples by name
+    examples.sort_by(|(a, _), (b, _)| a.cmp(b));
+    examples
+}
+
+fn extract_name_and_description(cargo_toml_path: &Path) -> Option<(String, String)> {
+    let content = read_to_string(cargo_toml_path).ok()?;
+
+    // Get the name from the directory
+    let name = cargo_toml_path
+        .parent()
+        .and_then(|path| path.file_name())
+        .unwrap()
+        .to_string_lossy()
+        .to_string();
+
+    // Extract the description using regex
+    let description = if let Some(caps) = DESCRIPTION_REGEX.captures(&content) {
+        let desc = caps.get(1).unwrap();
+        // Format the description like the bash script does
+        let desc_str = desc.as_str();
+        if let Some(stripped) = desc_str.strip_prefix("A lint to check for ") {
+            capitalize(stripped)
+        } else {
+            desc_str.to_string()
+        }
+    } else {
+        return None;
+    };
+
+    Some((name, description))
+}
+
+fn capitalize(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => {
+            let mut result = first.to_uppercase().collect::<String>();
+            result.extend(chars);
+            result
+        }
+    }
 }
 
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
