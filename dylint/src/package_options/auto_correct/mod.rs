@@ -236,7 +236,7 @@ fn applicable_rewrites<'rewrite>(
 ///
 /// - `line_start` is the 1-based line where `lines` start.
 /// - `range` is a range of tokens within the tokenization of `lines`.
-#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
+#[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
 pub fn span_and_text_of_tokens<S: AsRef<str>>(
     line_start: usize,
     lines: &[S],

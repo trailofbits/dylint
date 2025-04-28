@@ -19,11 +19,11 @@ dylint_linting::declare_late_lint! {
     ///
     /// ### Why is this bad?
     ///
-    /// Commented code is often meant to be removed, but kept by mistake.
+    /// Commented-out code is often meant to be removed, but kept by mistake.
     ///
     /// ### Known problems
     ///
-    /// - Currently only checks for commented out statements in blocks.
+    /// - Currently only checks for commented-out statements in blocks.
     /// - Does not handle statements spanning multiple line comments, e.g.:
     ///
     ///   ```rust
@@ -48,12 +48,12 @@ dylint_linting::declare_late_lint! {
     /// # let x = 0;
     /// f(x);
     /// ```
-    pub COMMENTED_CODE,
+    pub COMMENTED_OUT_CODE,
     Warn,
     "code that has been commented out"
 }
 
-impl<'tcx> LateLintPass<'tcx> for CommentedCode {
+impl<'tcx> LateLintPass<'tcx> for CommentedOutCode {
     fn check_block(&mut self, cx: &LateContext<'tcx>, block: &'tcx Block<'tcx>) {
         if block.stmts.is_empty() {
             check_span(
@@ -152,10 +152,10 @@ fn check_captures(
     #[expect(clippy::cast_possible_truncation)]
     span_lint_and_help(
         cx,
-        COMMENTED_CODE,
+        COMMENTED_OUT_CODE,
         span.with_lo(span.lo() + BytePos(range.start as u32))
             .with_hi(span.lo() + BytePos(range.end as u32)),
-        "commented out code",
+        "commented-out code",
         None,
         "uncomment or remove",
     );

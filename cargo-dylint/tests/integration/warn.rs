@@ -112,7 +112,7 @@ fn opts_library_package_no_warn() {
 // understand why the difference.
 //
 // This problem was encountered in the `no_env_logger_warning` test as well.
-#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
+#[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
 fn cargo_dylint() -> std::process::Command {
     /* let mut command = std::process::Command::new("cargo");
     command.args(["run", "--quiet", "--bin", "cargo-dylint"]);
