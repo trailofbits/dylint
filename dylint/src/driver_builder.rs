@@ -140,7 +140,7 @@ fn is_outdated(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<bo
     })
 }
 
-#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
+#[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
 fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> {
     let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
     let package = tempdir.path();
@@ -154,9 +154,9 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
 
     let toolchain_path = toolchain_path(package)?;
 
-    // smoelius: The commented code was the old behavior. It would cause the driver to have rpaths
-    // like `$ORIGIN/../../`... (see https://github.com/trailofbits/dylint/issues/54). The new
-    // behavior causes the driver to have absolute rpaths.
+    // smoelius: The commented-out code was the old behavior. It would cause the driver to have
+    // rpaths like `$ORIGIN/../../`... (see https://github.com/trailofbits/dylint/issues/54). The
+    // new behavior causes the driver to have absolute rpaths.
     // let rustflags = "-C rpath=yes";
     let rustflags = format!(
         "{} -C link-args=-Wl,-rpath,{}/lib ",

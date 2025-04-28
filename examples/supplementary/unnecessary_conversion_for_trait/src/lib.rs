@@ -649,7 +649,7 @@ fn ancestor_addr_of_mutabilities<'tcx>(
 fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
     const BOX_NEW: [&str; 3] = ["alloc", "boxed", "box_new"];
 
-    #[cfg_attr(dylint_lib = "supplementary", expect(commented_code))]
+    #[cfg_attr(dylint_lib = "supplementary", expect(commented_out_code))]
     loop {
         // smoelius: No longer necessary since: https://github.com/rust-lang/rust/pull/108471
         /* if let ExprKind::Box(inner_expr) = expr.kind {

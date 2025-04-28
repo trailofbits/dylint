@@ -25,7 +25,7 @@ The example libraries are separated into the following three categories:
 
 | Example                                                                                | Description/check                                              |
 | -------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| [`commented_code`](./supplementary/commented_code)                                     | Code that has been commented out                               |
+| [`commented_out_code`](./supplementary/commented_out_code)                             | Code that has been commented out                               |
 | [`escaping_doc_link`](./supplementary/escaping_doc_link)                               | Doc comment links that escape their packages                   |
 | [`inconsistent_struct_pattern`](./supplementary/inconsistent_struct_pattern)           | Struct patterns whose fields do not match their declared order |
 | [`local_ref_cell`](./supplementary/local_ref_cell)                                     | `RefCell` local variables                                      |

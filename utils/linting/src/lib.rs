@@ -522,7 +522,7 @@ pub fn try_init_config(sess: &rustc_session::Session) -> ConfigResult<()> {
 }
 
 #[allow(clippy::empty_line_after_outer_attr)]
-#[cfg_attr(dylint_lib = "supplementary", allow(commented_code))]
+#[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
 fn try_init_config_guarded(sess: &rustc_session::Session) -> ConfigResult<()> {
     if config::get().is_some() {
         return Ok(());
