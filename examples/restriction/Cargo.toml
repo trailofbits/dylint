@@ -8,7 +8,7 @@ anyhow = "1.0"
 assert_cmd = "2.0"
 camino = "1.1"
 cargo_metadata = "0.18"
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "238edf273d195c8e472851ebd60571f77f978ac8" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "7bb54d91be1af212faaa078786c1d2271a67d4f9" }
 diesel = "2.2"
 git2 = "0.18"
 heck = "0.5"
