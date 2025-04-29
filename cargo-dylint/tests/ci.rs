@@ -565,6 +565,11 @@ fn markdown_link_check() {
         let entry = entry.unwrap();
         let path = entry.path();
 
+        // Skip CHANGELOG.md to avoid hitting GitHub rate limits
+        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) {
+            continue;
+        }
+
         let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join(path);
 
         let assert = Command::new("npx")
@@ -812,3 +817,4 @@ fn dirty(ignore_blank_lines: bool) -> Option<String> {
         Some(String::from_utf8(output.stdout).unwrap())
     }
 }
+
