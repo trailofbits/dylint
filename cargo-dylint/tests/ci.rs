@@ -817,4 +817,3 @@ fn dirty(ignore_blank_lines: bool) -> Option<String> {
         Some(String::from_utf8(output.stdout).unwrap())
     }
 }
-
