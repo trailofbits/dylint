@@ -30,8 +30,8 @@ fn main() {
     let _ = zs.iter().map(|z| z == "").collect::<Vec<_>>();
 
     let _ = wxs.iter().map(|wx| wx.0 == *wx.1).collect::<Vec<_>>();
-    let _ = xys.iter().map(|xy| *xy.0 == xy.1 .0).collect::<Vec<_>>();
-    let _ = yzs.iter().map(|yz| yz.0 .0 == yz.1).collect::<Vec<_>>();
+    let _ = xys.iter().map(|xy| *xy.0 == xy.1.0).collect::<Vec<_>>();
+    let _ = yzs.iter().map(|yz| yz.0.0 == yz.1).collect::<Vec<_>>();
 
     let _ = xys.iter().map(|(x, y)| **x == y.0).collect::<Vec<_>>();
 
@@ -52,12 +52,12 @@ fn main() {
     let _ = xys
         .clone()
         .into_iter()
-        .map(|xy| *xy.0 == xy.1 .0)
+        .map(|xy| *xy.0 == xy.1.0)
         .collect::<Vec<_>>();
     let _ = yzs
         .clone()
         .into_iter()
-        .map(|yz| yz.0 .0 == yz.1)
+        .map(|yz| yz.0.0 == yz.1)
         .collect::<Vec<_>>();
 
     let _ = wxs
