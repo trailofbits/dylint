@@ -27,13 +27,13 @@ LL |     let _ = wxs.iter().map(|wx| wx.0 == *wx.1).collect::<Vec<_>>();
 warning: could destructure tuple
   --> $DIR/main.rs:33:29
    |
-LL |     let _ = xys.iter().map(|xy| *xy.0 == xy.1 .0).collect::<Vec<_>>();
+LL |     let _ = xys.iter().map(|xy| *xy.0 == xy.1.0).collect::<Vec<_>>();
    |                             ^^ help: use something like: `&(xy_0, xy_1)`
 
 warning: could destructure tuple
   --> $DIR/main.rs:34:29
    |
-LL |     let _ = yzs.iter().map(|yz| yz.0 .0 == yz.1).collect::<Vec<_>>();
+LL |     let _ = yzs.iter().map(|yz| yz.0.0 == yz.1).collect::<Vec<_>>();
    |                             ^^ help: use something like: `(yz_0, yz_1)`
 
 warning: could destructure reference
@@ -63,13 +63,13 @@ LL |         .map(|wx| wx.0 == *wx.1)
 warning: could destructure tuple
   --> $DIR/main.rs:55:15
    |
-LL |         .map(|xy| *xy.0 == xy.1 .0)
+LL |         .map(|xy| *xy.0 == xy.1.0)
    |               ^^ help: use something like: `(xy_0, xy_1)`
 
 warning: could destructure tuple
   --> $DIR/main.rs:60:15
    |
-LL |         .map(|yz| yz.0 .0 == yz.1)
+LL |         .map(|yz| yz.0.0 == yz.1)
    |               ^^ help: use something like: `(yz_0, yz_1)`
 
 warning: could destructure reference
