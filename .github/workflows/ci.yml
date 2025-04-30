@@ -71,14 +71,6 @@ jobs:
       - name: Install dylint-link
         run: cargo install --path ./dylint-link --force
 
-      - name: Install tools
-        run: |
-          # smoelius: Prettier is still needed for scripts/update_example_READMEs.sh.
-          npm install -g prettier
-
-      - name: Format example READMEs
-        run: ./scripts/update_example_READMEs.sh && git diff --exit-code
-
       - name: Lint
         run: ./scripts/lint.sh
 
