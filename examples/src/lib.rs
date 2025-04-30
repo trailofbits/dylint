@@ -4,7 +4,7 @@ mod test {
     use dylint_internal::{
         CommandExt, clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment,
     };
-    use std::{ffi::OsStr, fs::read_to_string};
+    use std::{ffi::OsStr, fs::read_to_string, process::Command};
     use toml_edit::{DocumentMut, Item, Value};
     use walkdir::WalkDir;
 
@@ -161,5 +161,47 @@ mod test {
                 }
             }
         }
+    }
+
+    #[test]
+    fn check_examples_formatting() {
+        let mut failed_files = Vec::new();
+
+        for entry in WalkDir::new(".")
+            .into_iter()
+            .filter_map(Result::ok)
+            .filter(|e| e.path().extension() == Some(OsStr::new("rs")))
+        {
+            let path = entry.path();
+            let output = Command::new("rustfmt")
+                .args([
+                    "+nightly",
+                    "--check",
+                    "--edition=2024",
+                    path.to_str().unwrap(),
+                ])
+                .logged_output(false)
+                .expect("Failed to execute rustfmt");
+
+            if !output.status.success() {
+                failed_files.push(path.to_path_buf());
+                eprintln!(
+                    "rustfmt check failed for: {}\nstdout:\n```\n{}\n```\nstderr:\n```\n{}\n```",
+                    path.display(),
+                    String::from_utf8_lossy(&output.stdout),
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
+        }
+
+        assert!(
+            failed_files.is_empty(),
+            "rustfmt check failed for the following files:\n{}",
+            failed_files
+                .iter()
+                .map(|p| p.display().to_string())
+                .collect::<Vec<_>>()
+                .join("\n")
+        );
     }
 }
