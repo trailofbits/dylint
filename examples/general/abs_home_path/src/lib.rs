@@ -84,8 +84,7 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
 
         if cx
             .tcx
-            .hir()
-            .parent_iter(expr.hir_id)
+            .hir_parent_iter(expr.hir_id)
             .any(|(_id, node)| matches!(node, Node::Item(item) if self.is_test_item(item)))
         {
             return;
