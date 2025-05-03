@@ -178,7 +178,7 @@ impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
                 .collect::<Vec<_>>()
             && let Some(path_match) = {
                 match use_kind {
-                    UseKind::Single => {
+                    UseKind::Single(_)=> {
                         if let Some(matched_prefix) = match_path_prefix(use_path, self.path) {
                             Some(PathMatch::Prefix(matched_prefix))
                         } else if syms[..syms.len() - 1] == *self.syms_mod {
@@ -245,7 +245,7 @@ fn is_local(res: Res) -> bool {
 
 fn get_owner(tcx: TyCtxt<'_>, hir_id: HirId) -> Option<OwnerNode<'_>> {
     std::iter::once(tcx.hir_node(hir_id))
-        .chain(tcx.hir().parent_iter(hir_id).map(|(_, node)| node))
+        .chain(tcx.hir_parent_iter(hir_id).map(|(_, node)| node))
         .find_map(Node::as_owner)
 }
 

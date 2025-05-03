@@ -204,7 +204,7 @@ fn command_new_additional_checks(cx: &LateContext<'_>, callee: &Expr, args: &[Ex
         && let LitKind::Str(symbol, _) = lit.node
         && symbol.as_str() == "cargo"
     {
-        for (_, node) in cx.tcx.hir().parent_iter(callee.hir_id) {
+        for (_, node) in cx.tcx.hir_parent_iter(callee.hir_id) {
             if let Node::Expr(expr) = node
                 && let ExprKind::MethodCall(method, _, args, _) = expr.kind
                 // smoelius: We cannot call `LateContext::typeck_results` here because we might be
