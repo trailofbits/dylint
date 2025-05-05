@@ -15,7 +15,7 @@ The lint does not apply inside macro arguments. So false negatives could result.
 
 ### Note
 
-This lint doesn't warn in build scripts (`build.rs`), as they often need to reference absolute paths.
+This lint doesn't warn in build scripts (`build.rs`) or test contexts, as they often need to reference absolute paths.
 
 ### Example
 

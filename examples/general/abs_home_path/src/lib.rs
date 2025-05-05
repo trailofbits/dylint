@@ -6,17 +6,14 @@ extern crate rustc_ast;
 extern crate rustc_hir;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint, match_def_path, path_def_id};
-use dylint_internal::{home, paths};
+use clippy_utils::{diagnostics::span_lint, is_in_test};
+use dylint_internal::home;
 use once_cell::unsync::OnceCell;
 use rustc_ast::ast::LitKind;
-use rustc_hir::{Closure, Expr, ExprKind, Item, ItemKind, Node, def_id::DefId};
+use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::Span;
-use std::{
-    collections::HashSet,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
@@ -34,7 +31,7 @@ dylint_linting::impl_late_lint! {
     ///
     /// ### Note
     ///
-    /// This lint doesn't warn in build scripts (`build.rs`), as they often need to reference absolute paths.
+    /// This lint doesn't warn in build scripts (`build.rs`) or test contexts, as they often need to reference absolute paths.
     ///
     /// ### Example
     ///
@@ -61,15 +58,10 @@ dylint_linting::impl_late_lint! {
 
 #[derive(Default)]
 pub struct AbsHomePath {
-    test_fns: HashSet<DefId>,
     home: OnceCell<Option<PathBuf>>,
 }
 
 impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
-    fn check_crate(&mut self, cx: &LateContext<'tcx>) {
-        self.find_test_fns(cx);
-    }
-
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr) {
         // Skip build scripts
         if cx
@@ -82,12 +74,8 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
             return;
         }
 
-        if cx
-            .tcx
-            .hir()
-            .parent_iter(expr.hir_id)
-            .any(|(_id, node)| matches!(node, Node::Item(item) if self.is_test_item(item)))
-        {
+        // Skip expressions inside test functions
+        if is_in_test(cx.tcx, expr.hir_id) {
             return;
         }
 
@@ -108,47 +96,6 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
                 "this path might not exist in production",
             );
         }
-    }
-}
-
-// smoelius: The contents of this `impl` are based on:
-// https://github.com/trailofbits/dylint/blob/3610f9b3ddd7847adeb00d3d33aa830a7db409c6/examples/general/non_thread_safe_call_in_test/src/late.rs#L87-L120
-impl AbsHomePath {
-    fn find_test_fns(&mut self, cx: &LateContext<'_>) {
-        for item_id in cx.tcx.hir_free_items() {
-            let item = cx.tcx.hir_item(item_id);
-            // smoelius:
-            // https://rustc-dev-guide.rust-lang.org/test-implementation.html?step-3-test-object-generation
-            if let ItemKind::Const(ty, _, const_body_id) = item.kind
-                && let Some(ty_def_id) = path_def_id(cx, ty)
-                && match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN)
-                && let const_body = cx.tcx.hir_body(const_body_id)
-                && let ExprKind::Struct(_, fields, _) = const_body.value.kind
-                && let Some(testfn) = fields.iter().find(|field| field.ident.as_str() == "testfn")
-                // smoelius: Callee is `self::test::StaticTestFn`.
-                && let ExprKind::Call(_, [arg]) = testfn.expr.kind
-                && let ExprKind::Closure(Closure {
-                    body: closure_body_id,
-                    ..
-                }) = arg.kind
-                && let closure_body = cx.tcx.hir_body(*closure_body_id)
-                // smoelius: Callee is `self::test::assert_test_result`.
-                && let ExprKind::Call(_, [arg]) = closure_body.value.kind
-                // smoelius: Callee is test function.
-                && let ExprKind::Call(callee, _) = arg.kind
-                && let Some(callee_def_id) = path_def_id(cx, callee)
-            {
-                // smoelius: Record both the `TestDescAndFn` and the test function.
-                self.test_fns.insert(item.owner_id.to_def_id());
-                self.test_fns.insert(callee_def_id);
-            }
-        }
-    }
-
-    fn is_test_item(&self, item: &Item) -> bool {
-        self.test_fns
-            .iter()
-            .any(|&def_id| item.owner_id.to_def_id() == def_id)
     }
 }
 
@@ -178,52 +125,94 @@ fn ui() {
         .run();
 }
 
+// Combined test for context allowances (build script and test context)
 #[test]
-fn build_script_allowance() {
+fn context_allowance() {
     use dylint_internal::CommandExt;
     use std::{
         io::{Write, stderr},
         path::Path,
-        process::Command,
+        process::{Command, Output},
     };
 
-    // Skip test if repository is not stored in the user's home directory
+    struct TestCase {
+        context_name: &'static str,
+        manifest_path: &'static str,
+        deny_warnings: bool,
+        assert_fn: fn(&Output),
+    }
+
+    let test_cases = [
+        TestCase {
+            context_name: "build script",
+            manifest_path: "ui_build_script/Cargo.toml",
+            deny_warnings: true,
+            assert_fn: |output: &Output| {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                assert!(
+                    !stderr.contains("this path might not exist in production"),
+                    "The abs_home_path lint was incorrectly triggered in a build script: {stderr}"
+                );
+            },
+        },
+        TestCase {
+            context_name: "test context",
+            manifest_path: "ui_test/Cargo.toml",
+            deny_warnings: false,
+            assert_fn: |output: &Output| {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                // We expect warnings for non-test functions but not for test functions
+                assert!(
+                    stderr.contains("this path might not exist in production"),
+                    "Expected the abs_home_path lint to trigger for non-test functions in test context: {stderr}"
+                );
+                // Verify the test detected non-test functions correctly
+                assert!(
+                    stderr.contains("src/main.rs:8:13") && stderr.contains("src/main.rs:9:13"),
+                    "Expected warning in non-test function in test context: {stderr}"
+                );
+                // Verify that test functions weren't warned about
+                assert!(
+                    stderr.lines().all(|line| !line.contains("src/main.rs")
+                        || line.contains("src/main.rs:8:13")
+                        || line.contains("src/main.rs:9:13")),
+                    "The abs_home_path lint should not trigger for lines other than src/main.rs:8:13 or src/main.rs:9:13: {stderr}"
+                );
+            },
+        },
+    ];
+
+    // Skip tests if repository is not stored in the user's home directory
     if let Some(home) = home::home_dir()
         && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
     {
         #[expect(clippy::explicit_write)]
         writeln!(
             stderr(),
-            "Skipping `build_script_allowance` test as repository is not stored in the user's home directory"
+            "Skipping `context_allowance` tests as repository is not stored in the user's home directory"
         )
         .unwrap();
         return;
     }
 
-    // Use the cargo_dylint function to get the path to the cargo-dylint executable
     let cargo_dylint = dylint_internal::testing::cargo_dylint("../../..").unwrap();
+    for case in test_cases {
+        println!("Testing {} allowance...", case.context_name);
+        let mut command = Command::new(&cargo_dylint);
+        if case.deny_warnings {
+            command.env("DYLINT_RUSTFLAGS", "--deny warnings");
+        }
+        let output = command
+            .args([
+                "dylint",
+                "--manifest-path",
+                case.manifest_path,
+                "--path",
+                env!("CARGO_MANIFEST_DIR"),
+            ])
+            .logged_output(true)
+            .expect("Failed to execute cargo-dylint command");
 
-    // Run dylint on the test package with our lint
-    let output = Command::new(cargo_dylint)
-        .env("DYLINT_RUSTFLAGS", "--deny warnings")
-        .args([
-            "dylint",
-            "--manifest-path",
-            "ui_build_script/Cargo.toml",
-            "--path",
-            env!("CARGO_MANIFEST_DIR"),
-        ])
-        .logged_output(false)
-        .expect("Failed to execute cargo-dylint command");
-
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    assert!(
-        output.status.success(),
-        "Cargo dylint check failed: {stderr}"
-    );
-    assert!(
-        !stderr.contains("this path might not exist in production"),
-        "The abs_home_path lint was incorrectly triggered in a build script: {stderr}"
-    );
+        (case.assert_fn)(&output);
+    }
 }
