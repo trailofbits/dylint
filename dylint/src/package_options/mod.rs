@@ -116,7 +116,8 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
         Some(rust_version) => {
             // Find the specific version using the new find_version
             let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
-            revs.find_version(&clippy_utils_version)?.ok_or_else(|| {
+            let found_version = revs.find_version(&clippy_utils_version)?;
+            found_version.ok_or_else(|| {
                 anyhow!(
                     "Could not find `clippy_utils` version `{}`",
                     clippy_utils_version

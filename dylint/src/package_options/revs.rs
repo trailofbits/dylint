@@ -321,7 +321,7 @@ mod test {
     fn find_latest() {
         let revs = Revs::new(false).unwrap();
         let latest_rev = revs.find_latest_rev().unwrap();
-        println!("Latest Rev found: {:?}", latest_rev);
+        println!("Latest Rev found: {latest_rev:?}");
         assert!(!latest_rev.version.is_empty());
         assert!(!latest_rev.channel.is_empty());
     }
@@ -331,7 +331,7 @@ mod test {
         let start = Instant::now();
         let revs = Revs::new(false).unwrap();
         let init_duration = start.elapsed();
-        println!("Test Initialization took: {:?}", init_duration);
+        println!("Test Initialization took: {init_duration:?}");
 
         for example in EXAMPLES.iter() {
             // Example: Use find_version to verify we get the expected version
@@ -401,8 +401,7 @@ mod test {
 
         assert!(
             result.is_some(),
-            "Searching for ancient version {} should return the oldest known version, but got None",
-            ancient_version
+            "Searching for ancient version {ancient_version} should return the oldest known version, but got None",
         );
 
         let found_rev = result.unwrap();
@@ -418,8 +417,7 @@ mod test {
         );
 
         println!(
-            "Search for ancient version {} found Rev: {:?}",
-            ancient_version, found_rev
+            "Search for ancient version {ancient_version} found Rev: {found_rev:?}",
         );
     }
 }
