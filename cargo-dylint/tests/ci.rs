@@ -563,8 +563,8 @@ fn markdown_link_check() {
         let entry = entry.unwrap();
         let path = entry.path();
 
-        // Skip CHANGELOG.md to avoid hitting GitHub rate limits
-        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) {
+        // Skip CHANGELOG.md and symlinks to avoid hitting GitHub rate limits
+        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) || path.is_symlink() {
             continue;
         }
 
@@ -575,6 +575,7 @@ fn markdown_link_check() {
                 "markdown-link-check",
                 "--config",
                 &config.to_string_lossy(),
+                "--retry=1s",
                 &path_buf.to_string_lossy(),
             ])
             .current_dir(&tempdir)
