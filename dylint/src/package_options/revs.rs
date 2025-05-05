@@ -63,7 +63,7 @@ impl Revs {
             then {
                 content.trim().to_string()
             } else {
-                return Err(anyhow!("Could not find or parse rust-toolchain file in commit {}", oid))
+                return Ok(None);
             }
         };
 
@@ -138,7 +138,7 @@ impl Revs {
 
             if current_batch_oids.is_empty() && commit_data.is_empty() {
                 // If HEAD commit has no parseable version and no history provided.
-                return Err(anyhow!("No valid commits found in repository history"));
+                return Ok(None);
             }
 
             for oid in current_batch_oids {
@@ -416,8 +416,6 @@ mod test {
             expected_oldest_rev.version
         );
 
-        println!(
-            "Search for ancient version {ancient_version} found Rev: {found_rev:?}",
-        );
+        println!("Search for ancient version {ancient_version} found Rev: {found_rev:?}",);
     }
 }
