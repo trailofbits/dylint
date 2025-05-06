@@ -45,7 +45,7 @@ jobs:
             echo "value=1" >> "$GITHUB_OUTPUT"
           fi
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
 
   lint:
     needs: [maybe-expedite]
@@ -235,6 +235,7 @@ jobs:
           fi
         env:
           CARGO_INCREMENTAL: 0
+          GITHUB_TOKEN: ${{ github.token }}
 
   all-checks:
     needs: [lint, test]
