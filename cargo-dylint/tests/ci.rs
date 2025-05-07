@@ -11,7 +11,7 @@ use std::{
     env::{set_current_dir, set_var, var},
     ffi::OsStr,
     fmt::Write as _,
-    fs::{read_dir, read_to_string, write},
+    fs::{read_dir, read_to_string, remove_dir_all, write},
     io::{Write as _, stderr},
     path::{Component, Path},
     sync::{LazyLock, Mutex},
@@ -729,6 +729,104 @@ fn update() {
                 ])
                 .assert()
                 .success();
+        }
+    });
+}
+
+#[test]
+fn lint_script_test() {
+    preserves_cleanliness("lint_script_test", false, || {
+        let cargo_dylint_path = Path::new("target/debug/cargo-dylint");
+
+        let example_restriction_dir = Path::new("examples/restriction");
+        let mut restriction_libs = Vec::new();
+        if example_restriction_dir.is_dir() {
+            for entry in read_dir(example_restriction_dir).unwrap() {
+                let entry = entry.unwrap();
+                if entry.path().is_dir() {
+                    let lib_name = entry.file_name().into_string().unwrap();
+                    // Exclude overscoped_allow as in the script
+                    if lib_name != "overscoped_allow" {
+                        restriction_libs.push(format!("--lib {lib_name}"));
+                    }
+                }
+            }
+        }
+        let restrictions_as_flags = restriction_libs.join(" ");
+
+        let mut experimental_dirs_str = Vec::new();
+        let example_experimental_dir = Path::new("examples/experimental");
+        if example_experimental_dir.is_dir() {
+            for entry in read_dir(example_experimental_dir).unwrap() {
+                let entry = entry.unwrap();
+                let path = entry.path();
+                if path.is_dir() && path.file_name().unwrap() != ".cargo" {
+                    // Convert path to string for the DIRS array
+                    experimental_dirs_str.push(path.to_string_lossy().to_string());
+                }
+            }
+        }
+
+        let base_flags = format!(
+            "--lib general --lib supplementary {} --lib clippy",
+            restrictions_as_flags
+        );
+
+        let mut dirs_to_lint = vec![
+            ".",
+            "driver",
+            "utils/linting",
+            "examples/general",
+            "examples/supplementary",
+            "examples/restriction",
+            "examples/testing/clippy",
+        ]
+        .into_iter()
+        .map(String::from)
+        .collect::<Vec<_>>();
+
+        dirs_to_lint.extend(experimental_dirs_str);
+
+        // Function similar to force_check in lint.sh
+        let workspace_root = Path::new("."); // current dir is workspace root
+        let target_dir = workspace_root.join("target");
+        if target_dir.exists() {
+            for entry in walkdir::WalkDir::new(&target_dir) {
+                let entry = entry.unwrap();
+                if entry.file_name().to_string_lossy() == ".fingerprint" {
+                    if entry
+                        .path()
+                        .starts_with(target_dir.join("dylint/target/nightly-"))
+                        || entry.path().starts_with(target_dir.join("nightly-"))
+                    {
+                        let _ = remove_dir_all(entry.path());
+                    }
+                }
+            }
+        }
+
+        set_var("DYLINT_RUSTFLAGS", "-D warnings");
+        eprintln!("DYLINT_RUSTFLAGS='-D warnings'");
+
+        for dir_path_str in &dirs_to_lint {
+            let dir_path = Path::new(dir_path_str);
+            eprintln!("Linting in directory: {:?}", dir_path);
+
+            let mut cmd = Command::new(&cargo_dylint_path);
+            cmd.arg("dylint");
+            cmd.args(base_flags.split_whitespace());
+            cmd.args(["--", "--all-features", "--tests", "--workspace"]);
+            cmd.current_dir(dir_path);
+
+            // Capture output for debugging if needed
+            let output = cmd.output().expect("Failed to execute command");
+
+            if !output.status.success() {
+                eprintln!("Failed to lint in {:?}", dir_path);
+                eprintln!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+                eprintln!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
+            }
+            assert!(output.status.success(), "Linting failed in {:?}", dir_path);
         }
     });
 }
