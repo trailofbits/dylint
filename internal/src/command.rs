@@ -58,7 +58,7 @@ pub fn driver(toolchain: &str, driver: &Path) -> Result<Command> {
     let mut command = Command::new(driver);
     #[cfg(windows)]
     {
-        // MinerSebas: To succesfully determine the dylint driver Version on Windows,
+        // MinerSebas: To successfully determine the dylint driver Version on Windows,
         // it is neccesary to add some Libraries to the Path.
         let new_path = prepend_toolchain_path(toolchain)?;
         command.envs(vec![(crate::env::PATH, new_path)]);
