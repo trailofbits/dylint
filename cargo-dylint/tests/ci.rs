@@ -8,6 +8,7 @@ use regex::Regex;
 use semver::{Op, Version};
 use similar_asserts::SimpleDiff;
 use std::{
+    collections::BTreeSet,
     env::{set_current_dir, set_var, var},
     ffi::OsStr,
     fmt::Write as _,
@@ -711,6 +712,63 @@ fn update() {
                 .success();
         }
     });
+}
+
+#[test]
+fn verify_registered_lints() {
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let examples_dir = manifest_dir.join("../examples");
+
+    let folders = ["general", "supplementary"];
+
+    let register_lints_re =
+        Regex::new(r"([a-zA-Z_][a-zA-Z0-9_]*)::register_lints\s*\(").expect("Invalid regex");
+
+    for folder in folders.iter() {
+        let folder_path = examples_dir.join(folder);
+
+        let lib_rs_path = folder_path.join("src").join("lib.rs");
+        let file_contents = read_to_string(&lib_rs_path)
+            .unwrap_or_else(|e| panic!("Failed to read {}: {}", lib_rs_path.display(), e));
+
+        let mut extracted_lints: Vec<String> = register_lints_re
+            .captures_iter(&file_contents)
+            .map(|cap| cap.get(1).unwrap().as_str().to_string())
+            .collect();
+        extracted_lints.sort();
+        extracted_lints.dedup();
+
+        let mut expected_lints: Vec<String> = read_dir(&folder_path)
+            .unwrap_or_else(|e| panic!("Failed to read directory {}: {}", folder_path.display(), e))
+            .filter_map(|entry| {
+                let entry = entry.ok()?;
+                let path = entry.path();
+                if path.is_dir() {
+                    let dir_name = path.file_name()?.to_str()?;
+                    if dir_name != "src" && !dir_name.starts_with('.') {
+                        return Some(dir_name.to_string());
+                    }
+                }
+                None
+            })
+            .collect();
+        expected_lints.sort();
+        expected_lints.dedup();
+
+        let expected_set: BTreeSet<_> = expected_lints.iter().cloned().collect();
+        let extracted_set: BTreeSet<_> = extracted_lints.iter().cloned().collect();
+        let missing: Vec<_> = expected_set.difference(&extracted_set).cloned().collect();
+
+        if !missing.is_empty() {
+            panic!(
+                "Mismatch in {}:\n\nMissing registered lints: {:?}\n\nExpected: {:?}\nActual: {:?}",
+                folder_path.display(),
+                missing,
+                expected_lints,
+                extracted_lints
+            );
+        }
+    }
 }
 
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
