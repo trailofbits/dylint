@@ -718,7 +718,9 @@ fn update() {
 #[test]
 fn lint_script_test() {
     preserves_cleanliness("lint_script_test", false, || {
-        let cargo_dylint_path = Path::new("target/debug/cargo-dylint");
+        let cargo_dylint_path = Path::new("target/debug/cargo-dylint")
+            .canonicalize()
+            .expect("Failed to find cargo-dylint executable. Ensure it is built, e.g., with `cargo build -p cargo-dylint`.");
 
         let example_restriction_dir = Path::new("examples/restriction");
         let mut restriction_libs = Vec::new();
@@ -791,7 +793,7 @@ fn lint_script_test() {
             let dir_path = Path::new(dir_path_str);
             eprintln!("Linting in directory: {dir_path:?}");
 
-            let mut cmd = Command::new(cargo_dylint_path);
+            let mut cmd = Command::new(&cargo_dylint_path);
             cmd.arg("dylint");
             cmd.args(base_flags.split_whitespace());
             cmd.args(["--", "--all-features", "--tests", "--workspace"]);
