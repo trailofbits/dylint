@@ -22,6 +22,8 @@ static METADATA: LazyLock<Metadata> = LazyLock::new(|| current_metadata().unwrap
 static DESCRIPTION_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"description\s*=\s*"([^"]*)""#).unwrap());
 
+const DYLINT_RUSTFLAGS_VAR_NAME: &str = "DYLINT_RUSTFLAGS";
+
 #[ctor::ctor]
 fn initialize() {
     set_current_dir("..").unwrap();
@@ -767,10 +769,8 @@ fn lint_script_test() {
             }
         }
 
-        let base_flags = format!(
-            "--lib general --lib supplementary {} --lib clippy",
-            restrictions_as_flags
-        );
+        let base_flags =
+            format!("--lib general --lib supplementary {restrictions_as_flags} --lib clippy");
 
         let mut dirs_to_lint = vec![
             ".",
@@ -793,26 +793,25 @@ fn lint_script_test() {
         if target_dir.exists() {
             for entry in walkdir::WalkDir::new(&target_dir) {
                 let entry = entry.unwrap();
-                if entry.file_name().to_string_lossy() == ".fingerprint" {
-                    if entry
+                if entry.file_name().to_string_lossy() == ".fingerprint"
+                    && (entry
                         .path()
                         .starts_with(target_dir.join("dylint/target/nightly-"))
-                        || entry.path().starts_with(target_dir.join("nightly-"))
-                    {
-                        let _ = remove_dir_all(entry.path());
-                    }
+                        || entry.path().starts_with(target_dir.join("nightly-")))
+                {
+                    let _ = remove_dir_all(entry.path());
                 }
             }
         }
 
-        set_var("DYLINT_RUSTFLAGS", "-D warnings");
-        eprintln!("DYLINT_RUSTFLAGS='-D warnings'");
+        set_var(DYLINT_RUSTFLAGS_VAR_NAME, "-D warnings");
+        eprintln!("{DYLINT_RUSTFLAGS_VAR_NAME}='-D warnings'");
 
         for dir_path_str in &dirs_to_lint {
             let dir_path = Path::new(dir_path_str);
-            eprintln!("Linting in directory: {:?}", dir_path);
+            eprintln!("Linting in directory: {dir_path:?}");
 
-            let mut cmd = Command::new(&cargo_dylint_path);
+            let mut cmd = Command::new(cargo_dylint_path);
             cmd.arg("dylint");
             cmd.args(base_flags.split_whitespace());
             cmd.args(["--", "--all-features", "--tests", "--workspace"]);
@@ -822,11 +821,11 @@ fn lint_script_test() {
             let output = cmd.output().expect("Failed to execute command");
 
             if !output.status.success() {
-                eprintln!("Failed to lint in {:?}", dir_path);
+                eprintln!("Failed to lint in {dir_path:?}");
                 eprintln!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
                 eprintln!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
             }
-            assert!(output.status.success(), "Linting failed in {:?}", dir_path);
+            assert!(output.status.success(), "Linting failed in {dir_path:?}");
         }
     });
 }
