@@ -20,9 +20,9 @@ Dylint tries to run all lints in all libraries named on the command line. Dylint
 
 It is considered an error if a name used on the command line resolves to multiple libraries.
 
-If `--lib name` is used, then `name` is is treated only as a library name, and not as a path.
+If `--lib name` is used, then `name` is treated only as a library name, and not as a path.
 
-If `--lib-path name` is used, then `name` is is treated only as a path, and not as a library name.
+If `--lib-path name` is used, then `name` is treated only as a path, and not as a library name.
 
 If `--all` is used, Dylint runs all lints in all libraries discovered via 1 and 2 above.
 
