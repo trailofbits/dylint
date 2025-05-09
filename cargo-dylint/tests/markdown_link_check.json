@@ -23,9 +23,5 @@
       "pattern": "^https://github.com/([^/]+)/([^/]+)$",
       "replacement": "https://api.github.com/repos/$1/$2"
     }
-  ],
-  "timeout": "10s",
-  "retryOn429": true,
-  "retryCount": 3,
-  "fallbackRetryDelay": "30s"
+  ]
 }
