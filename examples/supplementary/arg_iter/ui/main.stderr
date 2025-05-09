@@ -1,0 +1,19 @@
+warning: parameter type has `Iterator` bound
+  --> $DIR/main.rs:8:39
+   |
+LL | fn bad<I: Iterator<Item = u32>>(iter: I) {
+   |                                       ^
+   |
+   = help: consider using `IntoIterator` instead of `Iterator` for parameter `I`
+   = note: `#[warn(arg_iter)]` on by default
+
+warning: parameter type has `Iterator` bound
+  --> $DIR/main.rs:15:77
+   |
+LL | fn bad_with_type_parameter<T: std::fmt::Debug, I: Iterator<Item = T>>(iter: I) {
+   |                                                                             ^
+   |
+   = help: consider using `IntoIterator` instead of `Iterator` for parameter `I`
+
+warning: 2 warnings emitted
+
