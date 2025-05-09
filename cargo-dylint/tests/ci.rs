@@ -563,8 +563,8 @@ fn markdown_link_check() {
         let entry = entry.unwrap();
         let path = entry.path();
 
-        // Skip CHANGELOG.md and symlinks to avoid hitting GitHub rate limits
-        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) || path.is_symlink() {
+        // Skip CHANGELOG.md to avoid hitting GitHub rate limits
+        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) {
             continue;
         }
 
@@ -587,11 +587,7 @@ fn markdown_link_check() {
                 .lines()
                 .skip_while(|line| !line.ends_with(" links checked."))
                 .skip(1)
-                .all(|line| {
-                    line.is_empty()
-                        || line.ends_with(" → Status: 500")
-                        || (line.contains("https://github.com") && line.ends_with(" → Status: 429"))
-                }),
+                .all(|line| { line.is_empty() || line.ends_with(" → Status: 500") }),
             "{stdout}"
         );
     }

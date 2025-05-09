@@ -27,7 +27,6 @@ declare_const!(DYLINT_METADATA);
 declare_const!(DYLINT_NO_DEPS);
 declare_const!(DYLINT_RUSTFLAGS);
 declare_const!(DYLINT_TOML);
-declare_const!(GITHUB_TOKEN);
 declare_const!(OUT_DIR);
 declare_const!(PATH);
 declare_const!(RUSTC);

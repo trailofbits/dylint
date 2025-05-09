@@ -2,10 +2,10 @@
   "httpHeaders": [
     { "urls": ["https://crates.io"], "headers": { "Accept": "text/html" } },
     { 
-      "urls": ["https://github.com"],
+      "urls": ["https://github.com", "https://api.github.com"],
       "headers": { 
         "Accept": "text/html",
-        "Authorization": "token ${env.GITHUB_TOKEN}"
+        "Authorization": "token ${GITHUB_TOKEN}"
       }
     }
   ],
@@ -13,5 +13,19 @@
     {
       "pattern": "^https://[^/]*\\.openai\\.com/"
     }
-  ]
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^https://github.com/([^/]+)/([^/]+)/blob/(.+)",
+      "replacement": "https://api.github.com/repos/$1/$2/contents/$3"
+    },
+    {
+      "pattern": "^https://github.com/([^/]+)/([^/]+)$",
+      "replacement": "https://api.github.com/repos/$1/$2"
+    }
+  ],
+  "timeout": "10s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "30s"
 }
