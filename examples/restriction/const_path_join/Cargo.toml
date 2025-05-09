@@ -13,6 +13,10 @@ crate-type = ["cdylib"]
 name = "ui"
 path = "ui/main.rs"
 
+[[example]]
+name = "ui_const_expr"
+path = "ui/const_expr.rs"
+
 [dependencies]
 clippy_utils = { workspace = true }
 
