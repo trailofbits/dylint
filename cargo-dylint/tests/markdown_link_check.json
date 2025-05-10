@@ -2,9 +2,15 @@
   "httpHeaders": [
     { "urls": ["https://crates.io"], "headers": { "Accept": "text/html" } },
     { 
-      "urls": ["https://github.com", "https://api.github.com"],
+      "urls": ["https://github.com"], 
       "headers": { 
-        "Accept": "text/html",
+        "Accept": "text/html" 
+      }
+    },
+    { 
+      "urls": ["https://api.github.com"], 
+      "headers": { 
+        "Accept": "application/vnd.github.v3+json",
         "Authorization": "token ${GITHUB_TOKEN}"
       }
     }
