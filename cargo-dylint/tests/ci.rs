@@ -548,8 +548,8 @@ const GITHUB_ACTIONS_ENV: &str = "GITHUB_ACTIONS";
 
 #[cfg_attr(target_os = "windows", ignore)]
 #[test]
+#[allow(non_thread_safe_call_in_test)] // Corrected lint name
 #[allow(clippy::too_many_lines)]
-#[allow(clippy::non_thread_safe_call_in_test)]
 fn markdown_link_check() {
     let tempdir = tempfile::tempdir().unwrap();
 
@@ -574,22 +574,10 @@ fn markdown_link_check() {
         // If running in GitHub Actions but token wasn't found, try several token environment
         // variables that might be available in GitHub Actions
         for var_name in ["GITHUB_TOKEN", "github_token", "GH_TOKEN"] {
-            if let Ok(token) = var(var_name) {
+            if let Ok(token_from_env) = var(var_name) {
                 eprintln!("Using GitHub Actions token from {var_name} environment variable");
-
-                // Create the token file for the rest of the test to use
-                let result = write(".github_token", &token);
-                if result.is_ok() {
-                    eprintln!("Successfully created .github_token file");
-                    github_token = Some(token);
-                    break;
-                }
-
-                eprintln!(
-                    "Failed to write .github_token file, will try to use environment variable directly"
-                );
-                github_token = Some(token);
-                break;
+                github_token = Some(token_from_env); // Assign the token found from env
+                break; // Token found, exit loop
             }
         }
     }
