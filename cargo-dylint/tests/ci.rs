@@ -543,10 +543,13 @@ fn markdown_reference_links_are_valid_and_used() {
     }
 }
 
-// smoelius: `markdown_link_check` must use absolute paths because `npx markdown-link-check` is run
-// from a temporary directory.
+// Add constants for environment variable names
+const GITHUB_ACTIONS_ENV: &str = "GITHUB_ACTIONS";
+
 #[cfg_attr(target_os = "windows", ignore)]
 #[test]
+#[allow(clippy::too_many_lines)]
+#[allow(clippy::non_thread_safe_call_in_test)]
 fn markdown_link_check() {
     let tempdir = tempfile::tempdir().unwrap();
 
@@ -562,35 +565,31 @@ fn markdown_link_check() {
     // Try multiple methods to get a token
     let mut github_token = var(env::GITHUB_TOKEN)
         .ok()
-        .or_else(|| std::fs::read_to_string(".github_token").ok());
+        .or_else(|| read_to_string(".github_token").ok());
 
     // Special handling for GitHub Actions environment
-    let is_github_actions = var("GITHUB_ACTIONS").ok().map_or(false, |v| v == "true");
+    let is_github_actions = var(GITHUB_ACTIONS_ENV).ok().is_some_and(|v| v == "true");
 
     if is_github_actions && github_token.is_none() {
         // If running in GitHub Actions but token wasn't found, try several token environment
         // variables that might be available in GitHub Actions
         for var_name in ["GITHUB_TOKEN", "github_token", "GH_TOKEN"] {
-            if let Ok(token) = std::env::var(var_name) {
-                eprintln!(
-                    "Using GitHub Actions token from {} environment variable",
-                    var_name
-                );
+            if let Ok(token) = var(var_name) {
+                eprintln!("Using GitHub Actions token from {var_name} environment variable");
 
                 // Create the token file for the rest of the test to use
-                let result = std::fs::write(".github_token", &token);
+                let result = write(".github_token", &token);
                 if result.is_ok() {
                     eprintln!("Successfully created .github_token file");
-                    // Update the github_token variable
-                    github_token = Some(token);
-                    break;
-                } else {
-                    eprintln!(
-                        "Failed to write .github_token file, will try to use environment variable directly"
-                    );
                     github_token = Some(token);
                     break;
                 }
+
+                eprintln!(
+                    "Failed to write .github_token file, will try to use environment variable directly"
+                );
+                github_token = Some(token);
+                break;
             }
         }
     }
@@ -604,14 +603,13 @@ fn markdown_link_check() {
             eprintln!(
                 "Warning: Token doesn't start with expected GitHub token prefix (ghp_ or github_pat_)"
             );
-            eprintln!(
-                "Token prefix: {}",
-                if token.is_empty() {
-                    "[empty]"
-                } else {
-                    &token[..4.min(token.len())]
-                }
-            );
+
+            let prefix = if token.is_empty() {
+                "[empty]"
+            } else {
+                &token[..4.min(token.len())]
+            };
+            eprintln!("Token prefix: {prefix}");
         }
     } else {
         eprintln!(
@@ -628,12 +626,12 @@ fn markdown_link_check() {
     }
 
     // Update token in JSON config file
-    let mut config_content = std::fs::read_to_string(&config).unwrap();
+    let mut config_content = read_to_string(&config).unwrap();
     if let Some(ref token) = github_token {
         // Create a temporary config file with the actual token
         let temp_config = tempdir.path().join("markdown_link_check.json");
         config_content = config_content.replace("${GITHUB_TOKEN}", token);
-        std::fs::write(&temp_config, config_content).unwrap();
+        write(&temp_config, config_content).unwrap();
         eprintln!("Created temporary config with token");
     }
 
@@ -654,11 +652,6 @@ fn markdown_link_check() {
                 &temp_config.to_string_lossy(),
                 &path_buf.to_string_lossy(),
             ]);
-
-            // Set token as an environment variable as well, for redundancy
-            if let Some(token) = &github_token {
-                command.env("GITHUB_TOKEN", token);
-            }
         } else {
             command.args([
                 "markdown-link-check",
@@ -666,27 +659,23 @@ fn markdown_link_check() {
                 &config.to_string_lossy(),
                 &path_buf.to_string_lossy(),
             ]);
+        }
 
-            // Try setting token as environment variable too
-            if let Some(token) = &github_token {
-                command.env("GITHUB_TOKEN", token);
-            }
+        // Set token as environment variable if available
+        if let Some(token) = &github_token {
+            command.env("GITHUB_TOKEN", token);
         }
 
         let assert = command.current_dir(&tempdir).assert();
         let stdout = std::str::from_utf8(&assert.get_output().stdout).unwrap();
 
+        // Fix suspicious operation groupings in the assertion
         assert!(
             stdout
                 .lines()
                 .skip_while(|line| !line.ends_with(" links checked."))
                 .skip(1)
-                .all(|line| {
-                    line.is_empty()
-                        || line.ends_with(" → Status: 500")
-                        || (github_token.is_none() && line.ends_with(" → Status: 401"))
-                        || (github_token.is_none() && line.ends_with(" → Status: 429"))
-                }),
+                .all(|line| { line.is_empty() || line.ends_with(" → Status: 500") }),
             "{stdout}"
         );
     }
