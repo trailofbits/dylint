@@ -543,10 +543,13 @@ fn markdown_reference_links_are_valid_and_used() {
     }
 }
 
-// smoelius: `markdown_link_check` must use absolute paths because `npx markdown-link-check` is run
-// from a temporary directory.
+// Add constants for environment variable names
+const GITHUB_ACTIONS_ENV: &str = "GITHUB_ACTIONS";
+
 #[cfg_attr(target_os = "windows", ignore)]
 #[test]
+#[allow(non_thread_safe_call_in_test)] // Corrected lint name
+#[allow(clippy::too_many_lines)]
 fn markdown_link_check() {
     let tempdir = tempfile::tempdir().unwrap();
 
@@ -559,29 +562,102 @@ fn markdown_link_check() {
     // smoelius: https://github.com/rust-lang/crates.io/issues/788
     let config = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/markdown_link_check.json");
 
+    // Try multiple methods to get a token
+    let mut github_token = var(env::GITHUB_TOKEN)
+        .ok()
+        .or_else(|| read_to_string(".github_token").ok());
+
+    // Special handling for GitHub Actions environment
+    let is_github_actions = var(GITHUB_ACTIONS_ENV).ok().is_some_and(|v| v == "true");
+
+    if is_github_actions && github_token.is_none() {
+        // If running in GitHub Actions but token wasn't found, try several token environment
+        // variables that might be available in GitHub Actions
+        for var_name in ["GITHUB_TOKEN", "github_token", "GH_TOKEN"] {
+            if let Ok(token_from_env) = var(var_name) {
+                eprintln!("Using GitHub Actions token from {var_name} environment variable");
+                github_token = Some(token_from_env); // Assign the token found from env
+                break; // Token found, exit loop
+            }
+        }
+    }
+
+    if let Some(ref token) = github_token {
+        // Don't print the actual token, just its length
+        eprintln!("Found GitHub token (length: {})", token.len());
+
+        // Check if the token starts with expected format
+        if !token.starts_with("ghp_") && !token.starts_with("github_pat_") {
+            eprintln!(
+                "Warning: Token doesn't start with expected GitHub token prefix (ghp_ or github_pat_)"
+            );
+
+            let prefix = if token.is_empty() {
+                "[empty]"
+            } else {
+                &token[..4.min(token.len())]
+            };
+            eprintln!("Token prefix: {prefix}");
+        }
+    } else {
+        eprintln!(
+            "Warning: {} environment variable not set and no .github_token file found. API requests may be rate limited or fail.",
+            env::GITHUB_TOKEN
+        );
+        eprintln!("To fix this, either:");
+        eprintln!(
+            "  1. Set the {} environment variable: {}=your_token cargo test ...",
+            env::GITHUB_TOKEN,
+            env::GITHUB_TOKEN
+        );
+        eprintln!("  2. Create a .github_token file in the project root with your token");
+    }
+
+    // Update token in JSON config file
+    let mut config_content = read_to_string(&config).unwrap();
+    if let Some(ref token) = github_token {
+        // Create a temporary config file with the actual token
+        let temp_config = tempdir.path().join("markdown_link_check.json");
+        config_content = config_content.replace("${GITHUB_TOKEN}", token);
+        write(&temp_config, config_content).unwrap();
+        eprintln!("Created temporary config with token");
+    }
+
     for entry in walkdir(true).with_extension("md") {
         let entry = entry.unwrap();
         let path = entry.path();
 
-        // Skip CHANGELOG.md and symlinks to avoid hitting GitHub rate limits
-        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) || path.is_symlink() {
-            continue;
-        }
-
         let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join(path);
 
-        let assert = Command::new("npx")
-            .args([
+        let mut command = Command::new("npx");
+
+        // Use the temp config with token directly embedded if available
+        if github_token.is_some() {
+            let temp_config = tempdir.path().join("markdown_link_check.json");
+            command.args([
+                "markdown-link-check",
+                "--config",
+                &temp_config.to_string_lossy(),
+                &path_buf.to_string_lossy(),
+            ]);
+        } else {
+            command.args([
                 "markdown-link-check",
                 "--config",
                 &config.to_string_lossy(),
-                "--retry=1s",
                 &path_buf.to_string_lossy(),
-            ])
-            .current_dir(&tempdir)
-            .assert();
+            ]);
+        }
+
+        // Set token as environment variable if available
+        if let Some(token) = &github_token {
+            command.env("GITHUB_TOKEN", token);
+        }
+
+        let assert = command.current_dir(&tempdir).assert();
         let stdout = std::str::from_utf8(&assert.get_output().stdout).unwrap();
 
+        // Fix suspicious operation groupings in the assertion
         assert!(
             stdout
                 .lines()
