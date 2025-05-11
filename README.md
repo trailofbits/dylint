@@ -121,7 +121,7 @@ You can use this feature to allow a lint when Dylint is used, but also avoid an 
 
 Note that `LIBRARY_NAME` and `LINT_NAME` may be the same. For an example involving [`non_thread_safe_call_in_test`], see [dylint/src/lib.rs] in this repository.
 
-Also note that the just described approach does not work for pre-expansion lints. The only known workaround for pre-expansion lints is allow the compiler's built-in [`unknown_lints`] lint. Specifically, you can do the following:
+Also note that the just described approach does not work for pre-expansion lints. The only known workaround for pre-expansion lints is to allow the compiler's built-in [`unknown_lints`] lint. Specifically, you can do the following:
 
 ```rust
 #[allow(unknown_lints)]
