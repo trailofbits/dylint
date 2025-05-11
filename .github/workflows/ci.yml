@@ -103,6 +103,9 @@ jobs:
       run:
         shell: bash
 
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+
     steps:
       - uses: actions/checkout@v4
         with:

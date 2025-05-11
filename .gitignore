@@ -1,4 +1,3 @@
 rust.git/
 target*/
 warnings.json
-.github_token
