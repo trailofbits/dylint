@@ -545,6 +545,8 @@ fn markdown_reference_links_are_valid_and_used() {
 
 #[cfg_attr(target_os = "windows", ignore)]
 #[test]
+#[allow(clippy::too_many_lines)]
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 fn markdown_link_check() {
     // Get GitHub token from environment variable
     let github_token = var(env::GITHUB_TOKEN).ok();
