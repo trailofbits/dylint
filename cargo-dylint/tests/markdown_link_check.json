@@ -26,6 +26,10 @@
       "replacement": "https://api.github.com/repos/$1/$2/contents/$4?ref=$3"
     },
     {
+      "pattern": "^https://github.com/([^/]+)/([^/]+)/tree/([^/]+)/(.+)",
+      "replacement": "https://api.github.com/repos/$1/$2/contents/$4?ref=$3"
+    },
+    {
       "pattern": "^https://github.com/([^/]+)/([^/]+)$",
       "replacement": "https://api.github.com/repos/$1/$2"
     }
