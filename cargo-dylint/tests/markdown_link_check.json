@@ -22,8 +22,8 @@
   ],
   "replacementPatterns": [
     {
-      "pattern": "^https://github.com/([^/]+)/([^/]+)/blob/(.+)",
-      "replacement": "https://api.github.com/repos/$1/$2/contents/$3"
+      "pattern": "^https://github.com/([^/]+)/([^/]+)/blob/([^/]+)/(.+)",
+      "replacement": "https://api.github.com/repos/$1/$2/contents/$4?ref=$3"
     },
     {
       "pattern": "^https://github.com/([^/]+)/([^/]+)$",
