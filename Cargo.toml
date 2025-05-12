@@ -17,7 +17,7 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
-ansi_term = "0.12"
+anstyle = "1.0"
 anyhow = "1.0"
 assert_cmd = "2.0"
 bitflags = "2.9"
