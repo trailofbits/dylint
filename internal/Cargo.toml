@@ -11,7 +11,7 @@ repository = "https://github.com/trailofbits/dylint"
 anyhow = { workspace = true }
 regex = { workspace = true }
 
-ansi_term = { workspace = true, optional = true }
+anstyle = { workspace = true, optional = true }
 bitflags = { workspace = true, optional = true }
 cargo-util = { workspace = true, optional = true }
 cargo_metadata = { workspace = true, optional = true }
@@ -39,7 +39,7 @@ tempfile = { workspace = true }
 toml_edit = { workspace = true }
 
 [features]
-cargo = ["ansi_term", "bitflags", "cargo_metadata", "command", "home"]
+cargo = ["anstyle", "bitflags", "cargo_metadata", "command", "home"]
 clippy_utils = ["semver", "toml_edit"]
 command = ["log"]
 config = ["cargo_metadata", "serde", "thiserror", "toml"]

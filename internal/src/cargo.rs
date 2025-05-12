@@ -1,5 +1,5 @@
 use crate::{CommandExt, home};
-use ansi_term::Style;
+use anstyle::Style;
 use anyhow::{Result, anyhow, ensure};
 use bitflags::bitflags;
 use cargo_metadata::{Metadata, MetadataCommand, Package, PackageId};
@@ -125,18 +125,14 @@ impl Builder {
     #[allow(clippy::needless_pass_by_ref_mut)]
     pub fn build(&mut self) -> Command {
         if !self.quiet.contains(Quiet::MESSAGE) {
+            let style = if std::io::stderr().is_terminal() {
+                Style::new().bold()
+            } else {
+                Style::new()
+            };
             // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
             let message = format!("{} {}", self.verb, self.description);
-            std::io::stderr()
-                .write_fmt(format_args!(
-                    "{}\n",
-                    if std::io::stderr().is_terminal() {
-                        Style::new().bold()
-                    } else {
-                        Style::new()
-                    }
-                    .paint(message)
-                ))
+            writeln!(std::io::stderr(), "{style}{message}{style:#}")
                 .expect("Could not write to stderr");
         }
         let mut command = if self.stable {

@@ -9,7 +9,7 @@ repository = "https://github.com/trailofbits/dylint"
 rust-version = "1.81"
 
 [dependencies]
-ansi_term = { workspace = true }
+anstyle = { workspace = true }
 anyhow = { workspace = true }
 # smoelius: The `cargo` dependency should be kept in sync with: dylint/src/library_packages/cargo_lib/toml/mod.rs
 cargo = { workspace = true, optional = true }
