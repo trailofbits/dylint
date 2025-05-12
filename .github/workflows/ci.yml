@@ -15,42 +15,20 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  maybe-expedite:
+  check-up-to-dateness:
     outputs:
-      value: ${{ steps.expedite.outputs.value }}
+      is-up-to-date: ${{ steps.main.outputs.is-up-to-date }}
 
     runs-on: ubuntu-latest
 
     steps:
-      - name: Log github refs
-        run: |
-          {
-            echo '```'
-            echo 'github.ref: ${{ github.ref }}'
-            echo 'github.sha: ${{ github.sha }}'
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Check if merging an up-to-date branch
-        if: ${{ github.event_name == 'merge_group' }}
-        id: expedite
-        run: |
-          N="$(expr "${{ github.ref }}" : '.*-\([0-9]\+\)-[^-]*$')"
-          BASE_SHA="$(gh api /repos/${{ github.repository }}/pulls/"$N" | jq -r '.base.sha')"
-          if git diff --quiet ${{ github.event.merge_group.base_sha }} "$BASE_SHA"; then
-            echo "value=1" >> "$GITHUB_OUTPUT"
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - id: main
+        uses: trailofbits/check-up-to-dateness@v1
 
   lint:
-    needs: [maybe-expedite]
+    needs: [check-up-to-dateness]
 
-    if: ${{ ! needs.maybe-expedite.outputs.value }}
+    if: needs.check-up-to-dateness.outputs.is-up-to-date != 'true'
 
     runs-on: ubuntu-latest
 
@@ -75,9 +53,9 @@ jobs:
         run: ./scripts/lint.sh
 
   test:
-    needs: [maybe-expedite]
+    needs: [check-up-to-dateness]
 
-    if: ${{ ! needs.maybe-expedite.outputs.value }}
+    if: needs.check-up-to-dateness.outputs.is-up-to-date != 'true'
 
     strategy:
       fail-fast: ${{ github.event_name == 'merge_group' }}
