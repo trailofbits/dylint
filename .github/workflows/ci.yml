@@ -13,6 +13,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTUP_AUTO_INSTALL: 0
 
 jobs:
   maybe-expedite:
@@ -67,6 +68,9 @@ jobs:
             ~/.dylint_drivers/
             ~/.rustup/toolchains/
           key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
+
+      - name: Rustup
+        run: rustup update
 
       - name: Install dylint-link
         run: cargo install --path ./dylint-link --force
