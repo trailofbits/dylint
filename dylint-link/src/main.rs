@@ -130,7 +130,7 @@ fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<
     File::open(path)?.read_to_end(&mut buf)?;
 
     // MinerSebas: Convert the File from UTF-16 to a Rust UTF-8 String
-    // (Only necessary for MSVC, the GNU Linker uses UTF-8 isntead.)
+    // (Only necessary for MSVC, the GNU Linker uses UTF-8 instead.)
     // Based on: https://stackoverflow.com/a/57172592
     let file: Vec<u16> = buf
         .chunks_exact(2)
