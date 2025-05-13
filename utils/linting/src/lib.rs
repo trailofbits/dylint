@@ -17,7 +17,7 @@
 //! #[allow(unused_extern_crates)]
 //! extern crate rustc_driver;
 //!
-//! #[no_mangle]
+//! #[unsafe(no_mangle)]
 //! pub extern "C" fn dylint_version() -> *mut std::os::raw::c_char {
 //!     std::ffi::CString::new($crate::DYLINT_VERSION)
 //!         .unwrap()
@@ -48,7 +48,7 @@
 //! extern crate rustc_lint;
 //! extern crate rustc_session;
 //!
-//! #[no_mangle]
+//! #[unsafe(no_mangle)]
 //! pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
 //!     dylint_linting::init_config(sess);
 //!     lint_store.register_lints(&[NAME]);
@@ -83,7 +83,7 @@
 //! Specifically, it causes them to _exclude_:
 //!
 //! - the call to `dylint_library!`
-//! - the use of `#[no_mangle]` just prior to the declaration of `register_lints`
+//! - the use of `#[unsafe(no_mangle)]` just prior to the declaration of `register_lints`
 //!
 //! Such changes facilitate inclusion of a lint declared with one of the above macros into a larger
 //! library. That is:
@@ -150,7 +150,7 @@
 //! should include a call to `dylint_linting::init_config`, as in the following example:
 //!
 //! ```rust,ignore
-//! #[no_mangle]
+//! #[unsafe(no_mangle)]
 //! pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
 //!     // `init_config` or `try_init_config` must be called before `config_or_default`, `config`,
 //!     // or `config_toml` is called.
@@ -222,7 +222,7 @@ macro_rules! dylint_library {
         extern crate rustc_driver;
 
         #[doc(hidden)]
-        #[no_mangle]
+        #[unsafe(no_mangle)]
         pub extern "C" fn dylint_version() -> *mut std::os::raw::c_char {
             std::ffi::CString::new($crate::DYLINT_VERSION)
                 .unwrap()
@@ -252,7 +252,7 @@ macro_rules! __maybe_exclude {
 #[macro_export]
 macro_rules! __maybe_mangle {
     ($item:item) => {
-        #[no_mangle]
+        #[unsafe(no_mangle)]
         $item
     };
 }

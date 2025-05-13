@@ -78,7 +78,7 @@ declare_lint! {
 impl_lint_pass!(DeriveOpportunity<'_> => [DERIVE_OPPORTUNITY]);
 
 #[expect(clippy::no_mangle_with_rust_abi)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn register_lints(sess: &Session, lint_store: &mut LintStore) {
     dylint_linting::init_config(sess);
     lint_store.register_lints(&[DERIVE_OPPORTUNITY]);

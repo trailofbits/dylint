@@ -127,7 +127,7 @@ struct Message {
 }
 
 #[allow(clippy::no_mangle_with_rust_abi)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn register_lints(_sess: &Session, lint_store: &mut LintStore) {
     lint_store.register_lints(&[OVERSCOPED_ALLOW]);
     lint_store.register_late_pass(move |_| Box::new(OverscopedAllow::new()));
