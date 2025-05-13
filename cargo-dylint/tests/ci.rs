@@ -11,9 +11,9 @@ use std::{
     env::{set_current_dir, set_var, var},
     ffi::OsStr,
     fmt::Write as _,
-    fs::{read_dir, read_to_string, remove_dir_all, write},
+    fs::{read_dir, read_to_string, write},
     io::{Write as _, stderr},
-    path::{Component, Path},
+    path::{Component, Path, PathBuf},
     sync::{LazyLock, Mutex},
 };
 
@@ -21,8 +21,6 @@ static METADATA: LazyLock<Metadata> = LazyLock::new(|| current_metadata().unwrap
 
 static DESCRIPTION_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"description\s*=\s*"([^"]*)""#).unwrap());
-
-const DYLINT_RUSTFLAGS_VAR_NAME: &str = "DYLINT_RUSTFLAGS";
 
 #[ctor::ctor]
 fn initialize() {
@@ -717,99 +715,66 @@ fn update() {
 
 #[test]
 fn lint_script_test() {
-    preserves_cleanliness("lint_script_test", false, || {
-        let cargo_dylint_path = Path::new("target/debug/cargo-dylint")
-            .canonicalize()
-            .expect("Failed to find cargo-dylint executable. Ensure it is built, e.g., with `cargo build -p cargo-dylint`.");
-
-        let example_restriction_dir = Path::new("examples/restriction");
-        let mut restriction_libs = Vec::new();
-        if example_restriction_dir.is_dir() {
-            for entry in read_dir(example_restriction_dir).unwrap() {
-                let entry = entry.unwrap();
-                if entry.path().is_dir() {
-                    let lib_name = entry.file_name().into_string().unwrap();
-                    // Exclude overscoped_allow as in the script
-                    if lib_name != "overscoped_allow" && lib_name != ".cargo" {
-                        restriction_libs.push(format!("--lib {lib_name}"));
-                    }
-                }
+    let mut restriction_libs = Vec::new();
+    for entry in read_dir("examples/restriction").unwrap() {
+        let entry = entry.unwrap();
+        if entry.path().is_dir() {
+            let lib_name = entry.file_name().into_string().unwrap();
+            // Exclude overscoped_allow as in the script
+            if lib_name != "overscoped_allow" && lib_name != ".cargo" {
+                restriction_libs.push(format!("--lib {lib_name}"));
             }
         }
-        let restrictions_as_flags = restriction_libs.join(" ");
+    }
+    let restrictions_as_flags = restriction_libs.join(" ");
 
-        let mut experimental_dirs_str = Vec::new();
-        let example_experimental_dir = Path::new("examples/experimental");
-        if example_experimental_dir.is_dir() {
-            for entry in read_dir(example_experimental_dir).unwrap() {
-                let entry = entry.unwrap();
-                let path = entry.path();
-                if path.is_dir() && path.file_name().unwrap() != ".cargo" {
-                    // Convert path to string for the DIRS array
-                    experimental_dirs_str.push(path.to_string_lossy().to_string());
-                }
-            }
+    // Initialize dirs_to_lint with static paths from an array
+    let mut dirs_to_lint: Vec<PathBuf> = [
+        PathBuf::from("."),
+        PathBuf::from("driver"),
+        PathBuf::from("utils/linting"),
+        PathBuf::from("examples/general"),
+        PathBuf::from("examples/supplementary"),
+        PathBuf::from("examples/restriction"),
+        PathBuf::from("examples/testing/clippy"),
+    ]
+    .to_vec();
+
+    // Iterate over experimental directories and push directly to dirs_to_lint
+    for entry in read_dir("examples/experimental").unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path(); // path is already a PathBuf
+        if path.is_dir() && path.file_name().unwrap() != ".cargo" {
+            dirs_to_lint.push(path);
         }
+    }
 
-        let base_flags =
-            format!("--lib general --lib supplementary {restrictions_as_flags} --lib clippy");
+    let base_flags =
+        format!("--lib general --lib supplementary {restrictions_as_flags} --lib clippy");
 
-        let mut dirs_to_lint = vec![
-            ".",
-            "driver",
-            "utils/linting",
-            "examples/general",
-            "examples/supplementary",
-            "examples/restriction",
-            "examples/testing/clippy",
-        ]
-        .into_iter()
-        .map(String::from)
-        .collect::<Vec<_>>();
+    eprintln!("Setting DYLINT_RUSTFLAGS='-D warnings' for each lint command");
 
-        dirs_to_lint.extend(experimental_dirs_str);
+    for dir_path in &dirs_to_lint {
+        eprintln!("Linting in directory: {dir_path:?}");
 
-        // Function similar to force_check in lint.sh
-        let workspace_root = Path::new("."); // current dir is workspace root
-        let target_dir = workspace_root.join("target");
-        if target_dir.exists() {
-            for entry in walkdir::WalkDir::new(&target_dir) {
-                let entry = entry.unwrap();
-                if entry.file_name().to_string_lossy() == ".fingerprint"
-                    && (entry
-                        .path()
-                        .starts_with(target_dir.join("dylint/target/nightly-"))
-                        || entry.path().starts_with(target_dir.join("nightly-")))
-                {
-                    let _ = remove_dir_all(entry.path());
-                }
-            }
+        let mut cmd = Command::cargo_bin("cargo-dylint")
+            .expect("Failed to find cargo-dylint binary. Ensure it is built (e.g. `cargo build -p cargo-dylint`) and in PATH or target/debug.");
+        cmd.env(env::DYLINT_RUSTFLAGS, "-D warnings");
+        cmd.arg("dylint");
+        cmd.args(base_flags.split_whitespace());
+        cmd.args(["--", "--all-features", "--tests", "--workspace"]);
+        cmd.current_dir(dir_path);
+
+        // Capture output for debugging if needed
+        let output = cmd.output().expect("Failed to execute command");
+
+        if !output.status.success() {
+            eprintln!("Failed to lint in {dir_path:?}");
+            eprintln!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+            eprintln!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
         }
-
-        set_var(DYLINT_RUSTFLAGS_VAR_NAME, "-D warnings");
-        eprintln!("{DYLINT_RUSTFLAGS_VAR_NAME}='-D warnings'");
-
-        for dir_path_str in &dirs_to_lint {
-            let dir_path = Path::new(dir_path_str);
-            eprintln!("Linting in directory: {dir_path:?}");
-
-            let mut cmd = Command::new(&cargo_dylint_path);
-            cmd.arg("dylint");
-            cmd.args(base_flags.split_whitespace());
-            cmd.args(["--", "--all-features", "--tests", "--workspace"]);
-            cmd.current_dir(dir_path);
-
-            // Capture output for debugging if needed
-            let output = cmd.output().expect("Failed to execute command");
-
-            if !output.status.success() {
-                eprintln!("Failed to lint in {dir_path:?}");
-                eprintln!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
-                eprintln!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
-            }
-            assert!(output.status.success(), "Linting failed in {dir_path:?}");
-        }
-    });
+        assert!(output.status.success(), "Linting failed in {dir_path:?}");
+    }
 }
 
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
