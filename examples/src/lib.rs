@@ -81,6 +81,26 @@ mod test {
     }
 
     #[test]
+    fn examples_use_edition_2024() {
+        for result in iter(false).unwrap() {
+            let manifest_dir = result.unwrap();
+            let manifest_path = manifest_dir.join("Cargo.toml");
+            let contents = read_to_string(&manifest_path).unwrap();
+            let table = toml::from_str::<toml::Table>(&contents).unwrap();
+            let Some(package) = table.get("package").and_then(|value| value.as_table()) else {
+                continue;
+            };
+            let edition = package.get("edition").and_then(toml::Value::as_str);
+            assert_eq!(
+                Some("2024"),
+                edition,
+                "failed for `{}`",
+                manifest_path.display()
+            );
+        }
+    }
+
+    #[test]
     fn examples_use_same_toolchain_channel() {
         let mut prev = None;
         for path in iter(true).unwrap() {
