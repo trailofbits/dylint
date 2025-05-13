@@ -320,7 +320,10 @@ mod test {
         assert_eq!(ARCHITECTURES, architectures);
     }
 
-    #[cfg_attr(not(all(target_arch = "x86_64", target_os = "linux")), ignore)]
+    #[cfg_attr(
+        not(all(target_arch = "x86_64", target_os = "linux")),
+        ignore = "x64_64-linux only"
+    )]
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn global_config() {

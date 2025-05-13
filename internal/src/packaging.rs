@@ -39,7 +39,7 @@ pub fn new_template(to: &Path) -> Result<()> {
             .open(&to_path)
             .with_context(|| format!("Could not open `{}`", to_path.to_string_lossy()))?;
         file.write_all(&embedded_file.data)
-            .with_context(|| format!("Could not write to {to_path:?}"))?;
+            .with_context(|| format!("Could not write to `{}`", to_path.display()))?;
     }
 
     Ok(())

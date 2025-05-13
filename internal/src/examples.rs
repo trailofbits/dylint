@@ -53,14 +53,20 @@ pub fn iter(workspace: bool) -> Result<impl Iterator<Item = Result<PathBuf>>> {
             }
             if workspace
                 && rust_toolchain_path.try_exists().with_context(|| {
-                    format!("Could not determine whether {rust_toolchain_path:?} exists")
+                    format!(
+                        "Could not determine whether `{}` exists",
+                        rust_toolchain_path.display()
+                    )
                 })?
             {
                 return Ok(Some(path.to_path_buf()));
             }
             if !workspace
                 && cargo_toml_path.try_exists().with_context(|| {
-                    format!("Could not determine whether {cargo_toml_path:?} exists")
+                    format!(
+                        "Could not determine whether `{}` exists",
+                        cargo_toml_path.display()
+                    )
                 })?
             {
                 return Ok(Some(path.to_path_buf()));
