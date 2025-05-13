@@ -348,7 +348,7 @@ pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
 
     // smoelius: I am not sure that this should be here. `RUST_LOG=debug cargo test` fails because
     // of the log messages.
-    log::debug!("{:?}", rustc_args);
+    log::debug!("{rustc_args:?}");
 
     run_compiler(&rustc_args, &mut callbacks)
 }

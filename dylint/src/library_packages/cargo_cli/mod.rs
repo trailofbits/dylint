@@ -140,10 +140,12 @@ fn git_dependency_root(url: &str, details: &TomlDetailedDependency) -> Result<Pa
     // attempt should then succeed.
     for _ in [false, true] {
         // smoelius: `checkout_path` might not exist, e.g., if the url has never been cloned.
-        let injected_dependencies = if checkout_path
-            .try_exists()
-            .with_context(|| format!("Could not determine whether {checkout_path:?} exists"))?
-        {
+        let injected_dependencies = if checkout_path.try_exists().with_context(|| {
+            format!(
+                "Could not determine whether `{}` exists",
+                checkout_path.display()
+            )
+        })? {
             inject_dummy_dependencies(dependency.path(), &dep_name, &checkout_path)?
         } else {
             BTreeMap::new()
@@ -222,16 +224,16 @@ fn create_dummy_package(dep_name: &str, details: &TomlDetailedDependency) -> Res
     let manifest_contents = manifest_contents(dep_name, details)?;
     let manifest_path = tempdir.path().join("Cargo.toml");
     write(&manifest_path, manifest_contents)
-        .with_context(|| format!("Could not write to {manifest_path:?}"))?;
+        .with_context(|| format!("Could not write to `{}`", manifest_path.display()))?;
 
     let src_path = tempdir.path().join("src");
 
     create_dir_all(&src_path)
-        .with_context(|| format!("`create_dir_all` failed for `{src_path:?}`"))?;
+        .with_context(|| format!("`create_dir_all` failed for `{}`", src_path.display()))?;
 
     let main_rs_path = src_path.join("main.rs");
     write(&main_rs_path, "fn main() {}")
-        .with_context(|| format!("Could not write to {main_rs_path:?}"))?;
+        .with_context(|| format!("Could not write to `{}`", main_rs_path.display()))?;
 
     Ok(tempdir)
 }
@@ -352,9 +354,10 @@ fn find_accessed_subdir<'a>(
             if injected_dependencies.get(subdir).is_none() {
                 #[cfg(debug_assertions)]
                 eprintln!(
-                    "{}:{:?}: pushing: {path:?}",
+                    "{}:{:?}: pushing `{}`",
                     std::process::id(),
-                    std::thread::current().id()
+                    std::thread::current().id(),
+                    path.display()
                 );
                 accessed.push(Cow::Owned(path.to_path_buf()));
             }
@@ -379,9 +382,10 @@ fn for_each_subdir(
     mut f: impl FnMut(&OsStr, &Path) -> Result<()>,
 ) -> Result<()> {
     for entry in read_dir(checkout_path)
-        .with_context(|| format!("`read_dir` failed for {checkout_path:?}"))?
+        .with_context(|| format!("`read_dir` failed for `{}`", checkout_path.display()))?
     {
-        let entry = entry.with_context(|| format!("`read_dir` failed for {checkout_path:?}"))?;
+        let entry = entry
+            .with_context(|| format!("`read_dir` failed for `{}`", checkout_path.display()))?;
         let path = entry.path();
         let file_name = path
             .file_name()
