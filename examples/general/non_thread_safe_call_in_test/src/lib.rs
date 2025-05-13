@@ -14,7 +14,7 @@ extern crate rustc_session;
 mod blacklist;
 mod late;
 
-#[cfg_attr(not(feature = "rlib"), no_mangle)]
+#[cfg_attr(not(feature = "rlib"), unsafe(no_mangle))]
 pub fn register_lints(_sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
     lint_store.register_lints(&[late::NON_THREAD_SAFE_CALL_IN_TEST]);
     lint_store.register_late_pass(|_| Box::<late::NonThreadSafeCallInTest>::default());
