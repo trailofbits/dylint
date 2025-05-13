@@ -2,11 +2,7 @@ use super::{IGNORED_INHERENTS, WATCHED_INHERENTS};
 use clippy_utils::{def_path_res, get_trait_def_id, match_def_path};
 use rustc_hir::{Safety, def_id::DefId};
 use rustc_lint::LateContext;
-use rustc_middle::ty::{
-    self,
-    fast_reject::SimplifiedType,
-    fold::{BottomUpFolder, TypeFolder},
-};
+use rustc_middle::ty::{self, TypeFolder, fast_reject::SimplifiedType};
 use rustc_span::{Symbol, symbol::sym};
 
 #[expect(clippy::too_many_lines)]
@@ -207,7 +203,7 @@ fn replace_ty_params_with_global_ty<'tcx>(
         .unwrap();
     let global_adt_def = cx.tcx.adt_def(global_def_id);
     let global_ty = ty::Ty::new_adt(cx.tcx, global_adt_def, ty::List::empty());
-    BottomUpFolder {
+    ty::BottomUpFolder {
         tcx: cx.tcx,
         ty_op: |ty| {
             if matches!(ty.kind(), ty::Param(_)) {

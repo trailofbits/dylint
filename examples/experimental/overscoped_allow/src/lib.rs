@@ -244,7 +244,7 @@ impl OverscopedAllow {
     }
 
     fn check(&mut self, cx: &LateContext<'_>, hir_id: HirId) {
-        let span = include_trailing_semicolons(cx, cx.tcx.hir().span(hir_id));
+        let span = include_trailing_semicolons(cx, cx.tcx.hir_span(hir_id));
         let mut i = 0;
         while i < self.diagnostics(cx).len() {
             let diagnostic = &self.diagnostics(cx)[i];
@@ -266,8 +266,8 @@ impl OverscopedAllow {
         let started_in_test = is_extern_crate_test(cx, hir_id);
         let mut target_hir_id = None;
 
-        for ancestor_hir_id in std::iter::once(hir_id)
-            .chain(cx.tcx.hir().parent_iter(hir_id).map(|(hir_id, _)| hir_id))
+        for ancestor_hir_id in
+            std::iter::once(hir_id).chain(cx.tcx.hir_parent_iter(hir_id).map(|(hir_id, _)| hir_id))
         {
             if !can_have_attrs(cx, ancestor_hir_id) {
                 continue;
@@ -412,8 +412,7 @@ fn local_path_from_span(cx: &LateContext<'_>, span: Span) -> Option<PathBuf> {
 fn is_extern_crate_test(cx: &LateContext<'_>, hir_id: HirId) -> bool {
     let node = cx.tcx.hir_node(hir_id);
     if let Node::Item(Item {
-        Some(ident),
-        kind: ItemKind::ExternCrate(None),
+        kind: ItemKind::ExternCrate(None, ident),
         ..
     }) = node
     {

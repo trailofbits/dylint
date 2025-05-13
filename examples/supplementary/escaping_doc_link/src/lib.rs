@@ -101,12 +101,12 @@ impl<'tcx> LateLintPass<'tcx> for EscapingDocLink {
                     span_lint(
                         cx,
                         ESCAPING_DOC_LINK,
-                        attr.span,
+                        attr.span(),
                         "link refers to files outside of the package directory",
                     );
                 }
             } else {
-                span_lint(cx, ESCAPING_DOC_LINK, attr.span, "broken link");
+                span_lint(cx, ESCAPING_DOC_LINK, attr.span(), "broken link");
             }
         }
     }

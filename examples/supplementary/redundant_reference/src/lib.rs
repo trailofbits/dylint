@@ -162,8 +162,9 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
             },
         ) in &self.field_uses
         {
-            let item = cx.tcx.hir().expect_item(*local_def_id);
-            if let ItemKind::Struct(VariantData::Struct { fields, .. }, _) = &item.kind
+            let item = cx.tcx.hir_expect_item(*local_def_id);
+            if let ItemKind::Struct(ident, VariantData::Struct { fields, .. }, _generics) =
+                &item.kind
                 && let Some(field_def) = fields.iter().find(|field_def| field_def.ident == *field)
                 && let field_def_local_def_id = field_def.def_id
                 && (!cx.tcx.visibility(*local_def_id).is_public()
@@ -192,8 +193,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                 let (lifetime_msg, lifetime_help) = if self.config.lifetime_check {
                     (
                         format!(
-                            " is the only field of `{}` that uses lifetime `{}`, and",
-                            item.ident, lifetime
+                            " is the only field of `{ident}` that uses lifetime `{lifetime}`, and",
                         ),
                         format!(" to eliminate the need for `{lifetime}`"),
                     )

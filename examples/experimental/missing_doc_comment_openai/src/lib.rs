@@ -2,12 +2,14 @@
 #![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
+extern crate rustc_attr_data_structures;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{attrs::is_doc_hidden, diagnostics::span_lint_and_then, source::snippet_opt};
-use rustc_hir::{AttrKind, FnSig, Item, ItemKind};
+use rustc_attr_data_structures::AttributeKind;
+use rustc_hir::{Attribute, FnSig, Item, ItemKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::{BytePos, SourceFileAndLine, Span};
 use serde::Deserialize;
@@ -179,9 +181,11 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
             return;
         };
 
-        if cx.tcx.hir_attrs(item.hir_id())
+        if cx
+            .tcx
+            .hir_attrs(item.hir_id())
             .iter()
-            .any(|attr| matches!(attr.kind, AttrKind::DocComment { .. }))
+            .any(|attr| matches!(attr, Attribute::Parsed(AttributeKind::DocComment { .. })))
         {
             return;
         }
@@ -363,7 +367,7 @@ fn earliest_attr_span(cx: &LateContext<'_>, item: &Item<'_>) -> Span {
     cx.tcx
         .hir_attrs(item.hir_id())
         .iter()
-        .map(|attr| attr.span)
+        .map(|attr| attr.span())
         .fold(
             item.span,
             |lhs, rhs| if lhs.lo() <= rhs.lo() { lhs } else { rhs },
