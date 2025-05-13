@@ -72,9 +72,8 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
         if !path.span.from_expansion()
             && !cx
                 .tcx
-                .hir()
-                .parent_iter(hir_id)
-                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).in_derive_expansion())
+                .hir_parent_iter(hir_id)
+                .any(|(hir_id, _)| cx.tcx.hir_span(hir_id).in_derive_expansion())
             && let node = cx.tcx.hir_node(hir_id)
             && !matches!(
                 node,
@@ -93,7 +92,7 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
             // smoelius: Iterate over all enclosing scopes.
             let mut current_hir_id = hir_id;
             loop {
-                let enclosing_scope_hir_id = cx.tcx.hir().get_enclosing_scope(current_hir_id);
+                let enclosing_scope_hir_id = cx.tcx.hir_get_enclosing_scope(current_hir_id);
                 let mut visitor = UseVisitor {
                     cx,
                     enclosing_scope_hir_id,
@@ -160,8 +159,8 @@ impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
     fn visit_item(&mut self, item: &'tcx Item) {
         if !item.span.from_expansion()
             // smoelius: Ignore underscore imports.
-            && item.ident.name.as_str() != "_"
-            && self.cx.tcx.hir().get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id
+            && item.kind.ident().is_none_or(|name| name.as_str() != "_")
+            && self.cx.tcx.hir_get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id
             && let ItemKind::Use(use_path, use_kind) = item.kind
             && let local_owner_path = if use_path.res.iter().copied().any(is_local) {
                 let local_def_id = self

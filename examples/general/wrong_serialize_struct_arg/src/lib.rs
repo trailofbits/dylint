@@ -219,34 +219,34 @@ impl<'tcx> LateLintPass<'tcx> for WrongSerializeStructArg {
 
         // Check for serialize_field or serialize_element calls based on the active serialization
         // kind
-        if let Some(last_block_states) = self.stack.last_mut() {
-            if let Some(active_serialization) = last_block_states.last_mut() {
-                let is_expected_child_call = match active_serialization.kind {
-                    SerializeKind::Struct => {
-                        match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_FIELD_STRUCT)
-                    }
-                    SerializeKind::StructVariant => match_def_path(
-                        cx,
-                        method_def_id,
-                        &paths::SERDE_SERIALIZE_FIELD_STRUCT_VARIANT,
-                    ),
-                    SerializeKind::TupleStruct => match_def_path(
-                        cx,
-                        method_def_id,
-                        &paths::SERDE_SERIALIZE_FIELD_TUPLE_STRUCT,
-                    ),
-                    SerializeKind::TupleVariant => match_def_path(
-                        cx,
-                        method_def_id,
-                        &paths::SERDE_SERIALIZE_FIELD_TUPLE_VARIANT,
-                    ),
-                    SerializeKind::Tuple => {
-                        match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_ELEMENT)
-                    }
-                };
-                if is_expected_child_call {
-                    active_serialization.child_call_spans.push(expr.span);
+        if let Some(last_block_states) = self.stack.last_mut()
+            && let Some(active_serialization) = last_block_states.last_mut()
+        {
+            let is_expected_child_call = match active_serialization.kind {
+                SerializeKind::Struct => {
+                    match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_FIELD_STRUCT)
                 }
+                SerializeKind::StructVariant => match_def_path(
+                    cx,
+                    method_def_id,
+                    &paths::SERDE_SERIALIZE_FIELD_STRUCT_VARIANT,
+                ),
+                SerializeKind::TupleStruct => match_def_path(
+                    cx,
+                    method_def_id,
+                    &paths::SERDE_SERIALIZE_FIELD_TUPLE_STRUCT,
+                ),
+                SerializeKind::TupleVariant => match_def_path(
+                    cx,
+                    method_def_id,
+                    &paths::SERDE_SERIALIZE_FIELD_TUPLE_VARIANT,
+                ),
+                SerializeKind::Tuple => {
+                    match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_ELEMENT)
+                }
+            };
+            if is_expected_child_call {
+                active_serialization.child_call_spans.push(expr.span);
             }
         }
     }
