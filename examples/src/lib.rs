@@ -5,7 +5,7 @@ mod test {
         CommandExt, clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment,
     };
     use std::{ffi::OsStr, fs::read_to_string, process::Command};
-    use toml_edit::{DocumentMut, Item, Value};
+    use toml_edit::{DocumentMut, Item};
     use walkdir::WalkDir;
 
     #[test]
@@ -123,18 +123,13 @@ mod test {
             let path = path.unwrap();
 
             let contents = read_to_string(path.join("rust-toolchain")).unwrap();
-            let document = contents.parse::<DocumentMut>().unwrap();
-            let array = document
-                .as_table()
+            let table = toml::from_str::<toml::Table>(&contents).unwrap();
+            let components = table
                 .get("toolchain")
-                .and_then(Item::as_table)
-                .and_then(|table| table.get("components"))
-                .and_then(Item::as_array)
-                .unwrap();
-            let components = array
-                .iter()
-                .map(Value::as_str)
-                .collect::<Option<Vec<_>>>()
+                .and_then(|value| value.as_table())
+                .and_then(|toolchain| toolchain.get("components"))
+                .and_then(|value| value.as_array())
+                .map(|array| array.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>())
                 .unwrap();
 
             assert!(!components.contains(&"rust-src"));

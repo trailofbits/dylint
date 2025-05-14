@@ -4,6 +4,7 @@ use std::{
     fs::{read_to_string, write},
     path::Path,
 };
+use toml;
 use toml_edit::{DocumentMut, Item, Value};
 
 #[allow(clippy::module_name_repetitions)]
@@ -22,13 +23,12 @@ pub fn clippy_utils_package_version(path: &Path) -> Result<String> {
             cargo_toml.to_string_lossy(),
         )
     })?;
-    let document = contents.parse::<DocumentMut>()?;
-    document
-        .as_table()
+    let table = toml::from_str::<toml::Table>(&contents)?;
+    table
         .get("package")
-        .and_then(Item::as_table)
+        .and_then(|value| value.as_table())
         .and_then(|table| table.get("version"))
-        .and_then(Item::as_str)
+        .and_then(|value| value.as_str())
         .map(ToOwned::to_owned)
         .ok_or_else(|| anyhow!("Could not determine `clippy_utils` version"))
 }
@@ -83,13 +83,12 @@ pub fn toolchain_channel(path: &Path) -> Result<String> {
             }
         },
     };
-    let document = contents.parse::<DocumentMut>()?;
-    document
-        .as_table()
+    let table = toml::from_str::<toml::Table>(&contents)?;
+    table
         .get("toolchain")
-        .and_then(Item::as_table)
+        .and_then(|value| value.as_table())
         .and_then(|table| table.get("channel"))
-        .and_then(Item::as_str)
+        .and_then(|value| value.as_str())
         .map(ToOwned::to_owned)
         .ok_or_else(|| anyhow!("Could not determine Rust toolchain channel"))
 }
