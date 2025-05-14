@@ -2,7 +2,7 @@
 name = "scheduled"
 description = "Scheduled tests"
 version = "4.1.0"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies]

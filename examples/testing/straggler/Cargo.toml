@@ -3,7 +3,7 @@ name = "straggler"
 version = "4.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint that uses an old toolchain for testing purposes"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [lib]
