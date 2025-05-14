@@ -20,11 +20,11 @@ use std::{
 };
 use tempfile::tempdir;
 
-const CHANNEL_A: &str = "nightly-2024-05-02";
-const CHANNEL_B: &str = "nightly-2024-06-13";
+const CHANNEL_A: &str = "nightly-2025-01-09";
+const CHANNEL_B: &str = "nightly-2025-02-20";
 
-const CLIPPY_UTILS_REV_A: &str = "80c6f8ff7bf3d16f3d05171c7fe770c9164f0140";
-const CLIPPY_UTILS_REV_B: &str = "89658ef8203328cf766bb34a6fa38a23143e4137";
+const CLIPPY_UTILS_REV_A: &str = "19e305bb57a7595f2a8d81f521c0dd8bf854e739";
+const CLIPPY_UTILS_REV_B: &str = "238edf273d195c8e472851ebd60571f77f978ac8";
 
 #[test]
 fn one_name_multiple_toolchains() {
