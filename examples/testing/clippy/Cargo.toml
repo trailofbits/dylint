@@ -3,7 +3,7 @@ name = "clippy"
 version = "4.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "All of the Clippy lints as a Dylint library"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [lib]

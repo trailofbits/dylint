@@ -2,7 +2,7 @@
 name = "dylint_examples"
 version = "4.1.0"
 description = "A dummy package for testing the example Dylint libraries"
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 publish = false
 

@@ -3,7 +3,7 @@ name = "missing_doc_comment_openai"
 version = "4.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint that suggests doc comments using OpenAI"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [lib]

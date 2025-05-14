@@ -246,7 +246,7 @@ fn manifest_contents(dep_name: &str, details: &TomlDetailedDependency) -> Result
 [package]
 name = "dummy-package"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies.{dep_name}]

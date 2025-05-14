@@ -3,6 +3,7 @@ name = "dylint"
 version = "4.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
+# smoelius: Bump `edition` to 2024 once `rust-version` is 1.85 or later.
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
