@@ -1,8 +1,8 @@
 warning: calling `std::env::set_var` in a test could affect the outcome of other tests
-  --> $DIR/interprocedural.rs:16:9
+  --> $DIR/interprocedural.rs:17:13
    |
-LL |         std::env::set_var("KEY", "VALUE");
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |             std::env::set_var("KEY", "VALUE");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: the call is reachable from at least this test
   --> $DIR/interprocedural.rs:6:8
@@ -12,25 +12,25 @@ LL |     fn foo() {
    = note: `#[warn(non_thread_safe_call_in_test)]` on by default
 
 warning: calling `std::process::Command::new` in a test could affect the outcome of other tests
-  --> $DIR/interprocedural.rs:27:9
+  --> $DIR/interprocedural.rs:29:9
    |
 LL |         std::process::Command::new("cargo")
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: the call is reachable from at least this test
-  --> $DIR/interprocedural.rs:21:8
+  --> $DIR/interprocedural.rs:23:8
    |
 LL |     fn baz() {
    |        ^^^
 
 warning: calling `std::process::Command::new` in a test could affect the outcome of other tests
-  --> $DIR/interprocedural.rs:34:9
+  --> $DIR/interprocedural.rs:36:9
    |
 LL |         std::process::Command::new("cargo")
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: the call is reachable from at least this test
-  --> $DIR/interprocedural.rs:21:8
+  --> $DIR/interprocedural.rs:23:8
    |
 LL |     fn baz() {
    |        ^^^

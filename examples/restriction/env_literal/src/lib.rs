@@ -24,7 +24,9 @@ dylint_linting::declare_late_lint! {
     ///
     /// ```rust
     /// let _ = std::env::var("RUSTFLAGS");
-    /// std::env::remove_var("RUSTFALGS"); // Oops
+    /// unsafe {
+    ///     std::env::remove_var("RUSTFALGS"); // Oops
+    /// }
     /// ```
     ///
     /// Use instead:
@@ -32,7 +34,9 @@ dylint_linting::declare_late_lint! {
     /// ```rust
     /// const RUSTFLAGS: &str = "RUSTFLAGS";
     /// let _ = std::env::var(RUSTFLAGS);
-    /// std::env::remove_var(RUSTFLAGS);
+    /// unsafe {
+    ///     std::env::remove_var(RUSTFLAGS);
+    /// }
     /// ```
     pub ENV_LITERAL,
     Warn,

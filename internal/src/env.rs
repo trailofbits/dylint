@@ -45,13 +45,19 @@ declare_const!(TARGET);
 /// use dylint_internal::env::enabled;
 /// use std::env;
 ///
-/// env::set_var("FOO", "1");
+/// unsafe {
+///     env::set_var("FOO", "1");
+/// }
 /// assert_eq!(enabled("FOO"), true);
 ///
-/// env::set_var("FOO", "0");
+/// unsafe {
+///     env::set_var("FOO", "0");
+/// }
 /// assert_eq!(enabled("FOO"), false);
 ///
-/// env::remove_var("FOO");
+/// unsafe {
+///     env::remove_var("FOO");
+/// }
 /// assert_eq!(enabled("FOO"), false);
 /// ```
 #[must_use]

@@ -532,10 +532,12 @@ mod test {
             .stdout(file)
             .assert()
             .success();
-        set_var(
-            OVERSCOPED_ALLOW_PATH,
-            temp_path.to_string_lossy().to_string(),
-        );
+        unsafe {
+            set_var(
+                OVERSCOPED_ALLOW_PATH,
+                temp_path.to_string_lossy().to_string(),
+            );
+        }
         // smoelius: Don't use `dylint_testing::ui_test_example`. That function copies the example's
         // source file to a temporary directory, so the resulting path wouldn't match what's in the
         // (temporary) `warnings.json` file.
@@ -561,10 +563,12 @@ mod test {
             .stdout(file)
             .assert()
             .success();
-        set_var(
-            OVERSCOPED_ALLOW_PATH,
-            temp_path.to_string_lossy().to_string(),
-        );
+        unsafe {
+            set_var(
+                OVERSCOPED_ALLOW_PATH,
+                temp_path.to_string_lossy().to_string(),
+            );
+        }
         dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui_test")
             .rustc_flags(["--test"])
             .run();

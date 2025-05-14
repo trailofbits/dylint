@@ -25,7 +25,9 @@ static DESCRIPTION_REGEX: LazyLock<Regex> =
 #[ctor::ctor]
 fn initialize() {
     set_current_dir("..").unwrap();
-    set_var(env::CARGO_TERM_COLOR, "never");
+    unsafe {
+        set_var(env::CARGO_TERM_COLOR, "never");
+    }
 }
 
 #[test]
