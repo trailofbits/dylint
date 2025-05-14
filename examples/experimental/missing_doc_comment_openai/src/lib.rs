@@ -411,7 +411,9 @@ mod test {
 
     #[test]
     fn ui() {
-        set_var(OPENAI_API_KEY, "test");
+        unsafe {
+            set_var(OPENAI_API_KEY, "test");
+        }
 
         let toml = format!(
             r#"

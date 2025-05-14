@@ -434,6 +434,8 @@ mod ui {
 
     // smoelius: `VarGuard` is from the following with the use of `option` added:
     // https://github.com/rust-lang/rust-clippy/blob/9cc8da222b3893bc13bc13c8827e93f8ea246854/tests/compile-test.rs
+    // smoelius: Clippy dropped `VarGuard` when it switched to `ui_test`:
+    // https://github.com/rust-lang/rust-clippy/commit/77d10ac63dae6ef0a691d9acd63d65de9b9bf88e
 
     /// Restores an env var on drop
     #[must_use]
@@ -445,7 +447,9 @@ mod ui {
     impl VarGuard {
         fn set(key: &'static str, val: impl AsRef<OsStr>) -> Self {
             let value = var_os(key);
-            set_var(option(key), val);
+            unsafe {
+                set_var(option(key), val);
+            }
             Self { key, value }
         }
     }
@@ -453,8 +457,8 @@ mod ui {
     impl Drop for VarGuard {
         fn drop(&mut self) {
             match self.value.as_deref() {
-                None => remove_var(option(self.key)),
-                Some(value) => set_var(option(self.key), value),
+                None => unsafe { remove_var(option(self.key)) },
+                Some(value) => unsafe { set_var(option(self.key), value) },
             }
         }
     }
