@@ -7,14 +7,20 @@ edition = "2021"
 publish = false
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "238edf273d195c8e472851ebd60571f77f978ac8" }
-dylint_linting = "4.0.1"
+clippy_utils = { workspace = true }
+dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-dylint_testing = "4.0.1"
+dylint_testing = { path = "../../../utils/testing" }
+
+[features]
+rlib = ["dylint_linting/constituent"]
+
+[lints]
+workspace = true
 
 [package.metadata.rust-analyzer]
 rustc_private = true

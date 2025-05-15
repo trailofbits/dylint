@@ -16,7 +16,7 @@ use clippy_utils::{
     is_expn_of,
 };
 use rustc_hir::Expr;
-use rustc_lint::{Lint, LateContext, LateLintPass, LintContext};
+use rustc_lint::{Lint, LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 use rustc_span::sym;
 
@@ -63,9 +63,6 @@ impl<'tcx> LateLintPass<'tcx> for FormatConcatArgs {
 
 #[cfg(not(feature = "rlib"))]
 #[allow(unused_extern_crates)]
-extern crate rustc_driver;
-
-#[cfg(not(feature = "rlib"))]
 #[allow(clippy::float_arithmetic, clippy::option_option, clippy::unreachable)]
 fn main() {
    dylint_linting::test(env!("CARGO_PKG_NAME"), &[]);
