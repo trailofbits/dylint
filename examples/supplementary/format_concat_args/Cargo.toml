@@ -1,0 +1,20 @@
+[package]
+name = "format_concat_args"
+version = "0.1.0"
+authors = ["Your Name <you@example.com>"]
+description = "A Dylint lint to suggest using `concat!(...)` instead of `format!(...)` for all-constant Display arguments."
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "238edf273d195c8e472851ebd60571f77f978ac8" }
+dylint_linting = "4.0.1"
+
+[dev-dependencies]
+dylint_testing = "4.0.1"
+
+[package.metadata.rust-analyzer]
+rustc_private = true
