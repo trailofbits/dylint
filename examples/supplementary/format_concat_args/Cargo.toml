@@ -10,7 +10,7 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-clippy_utils = { workspace = true }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "7bb54d91be1af212faaa078786c1d2271a67d4f9" }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
