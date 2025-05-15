@@ -16,14 +16,14 @@ use clippy_utils::{
     is_expn_of,
 };
 use rustc_hir::Expr;
-use rustc_lint::{Lint, LateContext, LateLintPass, Level};
+use rustc_lint::{Lint, LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 use rustc_span::sym;
 
 // Declare the lint directly
 pub static FORMAT_CONCAT_ARGS: &Lint = &Lint {
     name: "format_concat_args",
-    default_level: Level::Allow,
+    default_level: rustc_lint::Level::Allow,
     desc: "Checks for `format!(...)` invocations where `concat!(...)` could be used instead.",
     edition_lint_opts: None,
     report_in_external_macro: true,
@@ -40,7 +40,7 @@ declare_lint_pass!(FormatConcatArgs => [FORMAT_CONCAT_ARGS]);
 impl<'tcx> LateLintPass<'tcx> for FormatConcatArgs {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'_>) {
         // Check if the expression is a `format!` macro invocation
-        if is_expn_of(expr.span, sym::format_args.as_str()).is_some() {
+        if is_expn_of(expr.span, &sym::format_args.as_str()).is_some() {
             let expn_data = expr.span.ctxt().outer_expn_data();
 
             // Ensure this is from `std::format!` specifically
