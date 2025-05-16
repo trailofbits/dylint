@@ -21,15 +21,17 @@ git2 = { workspace = true, optional = true }
 home = { workspace = true, optional = true }
 if_chain = { workspace = true, optional = true }
 log = { workspace = true, optional = true }
-rust-embed = { workspace = true, features = [
-    "include-exclude",
-], optional = true }
 rustversion = { workspace = true, optional = true }
 semver = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
+tar = { workspace = true, optional = true }
 thiserror = { workspace = true, optional = true }
 toml = { workspace = true, optional = true }
 toml_edit = { workspace = true, optional = true }
+walkdir = { workspace = true, optional = true }
+
+[build-dependencies]
+tar = { workspace = true, optional = true }
 walkdir = { workspace = true, optional = true }
 
 [dev-dependencies]
@@ -46,7 +48,7 @@ config = ["cargo_metadata", "serde", "thiserror", "toml"]
 examples = ["cargo", "cargo-util", "rustup", "walkdir"]
 git = ["command", "git2", "if_chain"]
 home = ["dep:home", "rustversion"]
-packaging = ["cargo", "rust-embed"]
+packaging = ["cargo", "tar", "walkdir"]
 rustup = ["command"]
 sed = []
 testing = ["ctor", "env_logger", "packaging"]

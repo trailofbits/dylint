@@ -1728,30 +1728,6 @@
         "name": "Samuel Moelius"
       }
     ],
-    "rust-embed": [
-      {
-        "id": 5546,
-        "kind": "user",
-        "login": "pyrossh",
-        "name": "Peter John"
-      }
-    ],
-    "rust-embed-impl": [
-      {
-        "id": 5546,
-        "kind": "user",
-        "login": "pyrossh",
-        "name": "Peter John"
-      }
-    ],
-    "rust-embed-utils": [
-      {
-        "id": 5546,
-        "kind": "user",
-        "login": "pyrossh",
-        "name": "Peter John"
-      }
-    ],
     "rustc-demangle": [
       {
         "id": 11,
@@ -2048,6 +2024,20 @@
         "kind": "user",
         "login": "Enselic",
         "name": "Martin Nordholts"
+      }
+    ],
+    "tar": [
+      {
+        "id": 1,
+        "kind": "user",
+        "login": "alexcrichton",
+        "name": "Alex Crichton"
+      },
+      {
+        "id": 58094,
+        "kind": "user",
+        "login": "cgwalters",
+        "name": "Colin Walters"
       }
     ],
     "tempfile": [
@@ -2482,6 +2472,14 @@
         "kind": "user",
         "login": "zbraniecki",
         "name": "Zibi Braniecki"
+      }
+    ],
+    "xattr": [
+      {
+        "id": 280,
+        "kind": "user",
+        "login": "Stebalien",
+        "name": "Steven Allen"
       }
     ],
     "yoke": [

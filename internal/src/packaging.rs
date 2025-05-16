@@ -8,39 +8,15 @@
 use crate::cargo::{current_metadata, package};
 use anyhow::{Context, Result, anyhow};
 use cargo_metadata::TargetKind;
-use rust_embed::RustEmbed;
-use std::{
-    fs::{OpenOptions, create_dir_all},
-    io::Write,
-    path::Path,
-};
+use std::{fs::OpenOptions, io::Write, path::Path};
+use tar::Archive;
 
-#[derive(RustEmbed)]
-#[folder = "template"]
-#[exclude = "Cargo.lock"]
-#[exclude = "target/*"]
-struct Template;
+const TEMPLATE_TAR: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/template.tar"));
 
 pub fn new_template(to: &Path) -> Result<()> {
-    for path in Template::iter() {
-        let embedded_file = Template::get(&path)
-            .ok_or_else(|| anyhow!("Could not get embedded file `{}`", path))?;
-        let to_path = to.join(path.trim_end_matches('~'));
-        let parent = to_path
-            .parent()
-            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-        create_dir_all(parent).with_context(|| {
-            format!("`create_dir_all` failed for `{}`", parent.to_string_lossy())
-        })?;
-        let mut file = OpenOptions::new()
-            .create(true)
-            .truncate(true)
-            .write(true)
-            .open(&to_path)
-            .with_context(|| format!("Could not open `{}`", to_path.to_string_lossy()))?;
-        file.write_all(&embedded_file.data)
-            .with_context(|| format!("Could not write to `{}`", to_path.display()))?;
-    }
+    Archive::new(TEMPLATE_TAR)
+        .unpack(to)
+        .with_context(|| "Could not unpack archive")?;
 
     Ok(())
 }
@@ -133,7 +109,7 @@ mod test {
         const PATHS: [&str; 8] = [
             ".cargo/config.toml",
             ".gitignore",
-            "Cargo.toml~",
+            "Cargo.toml",
             "README.md",
             "rust-toolchain",
             "src/lib.rs",
@@ -145,8 +121,15 @@ mod test {
         paths_sorted.sort_unstable();
         assert_eq!(paths_sorted, PATHS);
 
-        let paths = Template::iter()
-            .filter(|path| PATHS.binary_search(&&**path).is_err())
+        let mut archive = Archive::new(TEMPLATE_TAR);
+        let entries = archive.entries().unwrap();
+        let paths = entries
+            .map(|result| {
+                let entry = result.unwrap();
+                let path = entry.path().unwrap();
+                path.to_str().map(ToOwned::to_owned).unwrap()
+            })
+            .filter(|path| PATHS.binary_search(&path.as_str()).is_err())
             .collect::<Vec<_>>();
 
         assert!(paths.is_empty(), "found {paths:#?}");
@@ -154,7 +137,7 @@ mod test {
 
     #[test]
     fn template_has_initial_version() {
-        let contents = read_to_string("template/Cargo.toml~").unwrap();
+        let contents = read_to_string("template/Cargo.toml").unwrap();
         let document = contents.parse::<DocumentMut>().unwrap();
         let version = document
             .as_table()
