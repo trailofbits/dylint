@@ -732,8 +732,9 @@ fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkd
     walkdir::WalkDir::new(".")
         .into_iter()
         .filter_entry(move |entry| {
-            entry.path().file_name() != Some(OsStr::new("target"))
-                && (include_examples || entry.path().file_name() != Some(OsStr::new("examples")))
+            let filename = entry.file_name();
+            filename != OsStr::new("target")
+                && (include_examples || filename != OsStr::new("examples"))
         })
 }
 
