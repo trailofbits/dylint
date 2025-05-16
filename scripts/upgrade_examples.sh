@@ -49,15 +49,7 @@ for EXAMPLE in examples/general examples/supplementary examples/restriction $EXP
         fi
     fi
 
-    if [[ "$EXAMPLE" = 'internal/template' ]]; then
-        mv "$EXAMPLE"/Cargo.toml~ "$EXAMPLE"/Cargo.toml
-    fi
-
     RUST_LOG=debug $CARGO_DYLINT upgrade "$EXAMPLE" --auto-correct
-
-    if [[ "$EXAMPLE" = 'internal/template' ]]; then
-        mv "$EXAMPLE"/Cargo.toml "$EXAMPLE"/Cargo.toml~
-    fi
 done
 
 if git diff --exit-code; then

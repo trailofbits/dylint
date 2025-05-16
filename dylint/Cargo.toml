@@ -42,7 +42,7 @@ syntect = { workspace = true, features = [
 tempfile = { workspace = true }
 toml = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
-walkdir = { workspace = true }
+walkdir = { workspace = true, optional = true }
 
 dylint_internal = { version = "=4.1.0", path = "../internal", features = [
     "config",
@@ -75,6 +75,7 @@ package_options = [
     "if_chain",
     "rewriter",
     "syntect",
+    "walkdir",
 ]
 __cargo_cli = [
     "cargo-util",
