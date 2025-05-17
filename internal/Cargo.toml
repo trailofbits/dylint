@@ -40,7 +40,7 @@ toml_edit = { workspace = true }
 
 [features]
 cargo = ["anstyle", "bitflags", "cargo_metadata", "command", "home"]
-clippy_utils = ["semver", "toml_edit"]
+clippy_utils = ["semver", "toml", "toml_edit"]
 command = ["log"]
 config = ["cargo_metadata", "serde", "thiserror", "toml"]
 examples = ["cargo", "cargo-util", "rustup", "walkdir"]
