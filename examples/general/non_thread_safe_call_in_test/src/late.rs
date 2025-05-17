@@ -1,5 +1,5 @@
 use clippy_utils::{
-    diagnostics::span_lint_and_note, is_expr_path_def_path, match_def_path, path_def_id,
+    diagnostics::span_lint_and_note, is_expr_path_def_path, path_res, sym,
 };
 use dylint_internal::paths;
 use rustc_ast::ast::LitKind;
