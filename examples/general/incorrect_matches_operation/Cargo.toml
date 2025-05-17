@@ -3,7 +3,7 @@ name = "incorrect_matches_operation"
 version = "4.1.0"
 authors = ["Dominik Czarnota <dominik.b.czarnota+dylint@gmail.com>"]
 description = "A lint to check for incorrect operators used with matches! macros"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [lib]

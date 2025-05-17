@@ -64,12 +64,13 @@ static RE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\<nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}\>").unwrap());
 
 fn collect_toolchains_for_path(path: impl AsRef<Path>) -> Result<Vec<String>> {
-    let file = File::open(&path).with_context(|| format!("Could not open {:?}", path.as_ref()))?;
+    let file = File::open(&path)
+        .with_context(|| format!("Could not open `{}`", path.as_ref().display()))?;
     BufReader::new(file)
         .lines()
         .try_fold(Vec::new(), |mut toolchains, result| -> Result<_> {
-            let line =
-                result.with_context(|| format!("Could not read from {:?}", path.as_ref()))?;
+            let line = result
+                .with_context(|| format!("Could not read from `{}`", path.as_ref().display()))?;
             let n = line.find("//").unwrap_or(line.len());
             toolchains.extend(RE.find_iter(&line[..n]).map(|m| m.as_str().to_owned()));
             Ok(toolchains)

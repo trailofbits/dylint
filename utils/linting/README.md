@@ -23,7 +23,7 @@ The `dylint_library!` macro expands to the following:
 #[allow(unused_extern_crates)]
 extern crate rustc_driver;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn dylint_version() -> *mut std::os::raw::c_char {
     std::ffi::CString::new($crate::DYLINT_VERSION)
         .unwrap()
@@ -54,7 +54,7 @@ dylint_linting::dylint_library!();
 extern crate rustc_lint;
 extern crate rustc_session;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
     dylint_linting::init_config(sess);
     lint_store.register_lints(&[NAME]);
@@ -89,7 +89,7 @@ Enabling the package-level `constituent` feature changes the way the above macro
 Specifically, it causes them to _exclude_:
 
 - the call to `dylint_library!`
-- the use of `#[no_mangle]` just prior to the declaration of `register_lints`
+- the use of `#[unsafe(no_mangle)]` just prior to the declaration of `register_lints`
 
 Such changes facilitate inclusion of a lint declared with one of the above macros into a larger
 library. That is:
@@ -156,7 +156,7 @@ relying on the above macros. If the library is configurable, then its `register_
 should include a call to `dylint_linting::init_config`, as in the following example:
 
 ```rust
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
     // `init_config` or `try_init_config` must be called before `config_or_default`, `config`,
     // or `config_toml` is called.

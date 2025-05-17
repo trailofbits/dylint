@@ -100,7 +100,7 @@ impl NonThreadSafeCallInTest {
             let item = cx.tcx.hir_item(item_id);
             // smoelius:
             // https://rustc-dev-guide.rust-lang.org/test-implementation.html#step-3-test-object-generation
-            if let ItemKind::Const(ty, _, const_body_id) = item.kind
+            if let ItemKind::Const(_ident, ty, _generics, const_body_id) = item.kind
                 && let Some(ty_def_id) = path_def_id(cx, ty)
                 && match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN)
                 && let const_body = cx.tcx.hir_body(const_body_id)
@@ -161,7 +161,7 @@ impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
                         "calling `{}` in a test could affect the outcome of other tests",
                         path.join("::")
                     ),
-                    Some(self.item.ident.span),
+                    self.item.kind.ident().map(|ident| ident.span),
                     "the call is reachable from at least this test",
                 );
                 return;
@@ -204,7 +204,7 @@ fn command_new_additional_checks(cx: &LateContext<'_>, callee: &Expr, args: &[Ex
         && let LitKind::Str(symbol, _) = lit.node
         && symbol.as_str() == "cargo"
     {
-        for (_, node) in cx.tcx.hir().parent_iter(callee.hir_id) {
+        for (_, node) in cx.tcx.hir_parent_iter(callee.hir_id) {
             if let Node::Expr(expr) = node
                 && let ExprKind::MethodCall(method, _, args, _) = expr.kind
                 // smoelius: We cannot call `LateContext::typeck_results` here because we might be

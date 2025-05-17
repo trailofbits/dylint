@@ -3,7 +3,7 @@
 use anyhow::Result;
 use assert_cmd::Command;
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
-use dylint_internal::{cargo::current_metadata, env, examples, home};
+use dylint_internal::{cargo::current_metadata, env, examples};
 use regex::Regex;
 use semver::{Op, Version};
 use similar_asserts::SimpleDiff;
@@ -25,22 +25,28 @@ static DESCRIPTION_REGEX: LazyLock<Regex> =
 #[ctor::ctor]
 fn initialize() {
     set_current_dir("..").unwrap();
-    set_var(env::CARGO_TERM_COLOR, "never");
+    unsafe {
+        set_var(env::CARGO_TERM_COLOR, "never");
+    }
 }
 
 #[test]
 fn actionlint() {
-    Command::new("go")
-        .args([
-            "install",
-            "github.com/rhysd/actionlint/cmd/actionlint@latest",
-        ])
+    if Command::new("which")
+        .arg("actionlint")
         .assert()
-        .success();
-    let home = home::home_dir().unwrap();
-    Command::new(home.join("go/bin/actionlint"))
-        .assert()
-        .success();
+        .try_success()
+        .is_err()
+    {
+        #[allow(clippy::explicit_write)]
+        writeln!(
+            stderr(),
+            "Skipping `actionlint` test as `actionlint` is unavailable"
+        )
+        .unwrap();
+        return;
+    }
+    Command::new("actionlint").assert().success();
 }
 
 #[test]
@@ -620,6 +626,7 @@ fn markdown_link_check() {
     }
 }
 
+#[ignore = "disabled until `dylint` package switches to edition 2024"]
 #[test]
 fn msrv() {
     for package in &METADATA.packages {
@@ -756,8 +763,9 @@ fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkd
     walkdir::WalkDir::new(".")
         .into_iter()
         .filter_entry(move |entry| {
-            entry.path().file_name() != Some(OsStr::new("target"))
-                && (include_examples || entry.path().file_name() != Some(OsStr::new("examples")))
+            let filename = entry.file_name();
+            filename != OsStr::new("target")
+                && (include_examples || filename != OsStr::new("examples"))
         })
 }
 

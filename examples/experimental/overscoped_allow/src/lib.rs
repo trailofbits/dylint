@@ -127,7 +127,7 @@ struct Message {
 }
 
 #[allow(clippy::no_mangle_with_rust_abi)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn register_lints(_sess: &Session, lint_store: &mut LintStore) {
     lint_store.register_lints(&[OVERSCOPED_ALLOW]);
     lint_store.register_late_pass(move |_| Box::new(OverscopedAllow::new()));
@@ -244,7 +244,7 @@ impl OverscopedAllow {
     }
 
     fn check(&mut self, cx: &LateContext<'_>, hir_id: HirId) {
-        let span = include_trailing_semicolons(cx, cx.tcx.hir().span(hir_id));
+        let span = include_trailing_semicolons(cx, cx.tcx.hir_span(hir_id));
         let mut i = 0;
         while i < self.diagnostics(cx).len() {
             let diagnostic = &self.diagnostics(cx)[i];
@@ -266,8 +266,8 @@ impl OverscopedAllow {
         let started_in_test = is_extern_crate_test(cx, hir_id);
         let mut target_hir_id = None;
 
-        for ancestor_hir_id in std::iter::once(hir_id)
-            .chain(cx.tcx.hir().parent_iter(hir_id).map(|(hir_id, _)| hir_id))
+        for ancestor_hir_id in
+            std::iter::once(hir_id).chain(cx.tcx.hir_parent_iter(hir_id).map(|(hir_id, _)| hir_id))
         {
             if !can_have_attrs(cx, ancestor_hir_id) {
                 continue;
@@ -277,7 +277,7 @@ impl OverscopedAllow {
                 target_hir_id = Some(ancestor_hir_id);
             }
 
-            for attr in cx.tcx.hir().attrs(ancestor_hir_id) {
+            for attr in cx.tcx.hir_attrs(ancestor_hir_id) {
                 if !is_lint_attr(attr) {
                     continue;
                 }
@@ -287,7 +287,7 @@ impl OverscopedAllow {
                             if target_hir_id == ancestor_hir_id {
                                 None
                             } else {
-                                Some(cx.tcx.hir().span(target_hir_id))
+                                Some(cx.tcx.hir_span(target_hir_id))
                             }
                         });
                         let meta_item_span_map = self
@@ -412,8 +412,7 @@ fn local_path_from_span(cx: &LateContext<'_>, span: Span) -> Option<PathBuf> {
 fn is_extern_crate_test(cx: &LateContext<'_>, hir_id: HirId) -> bool {
     let node = cx.tcx.hir_node(hir_id);
     if let Node::Item(Item {
-        ident,
-        kind: ItemKind::ExternCrate(None),
+        kind: ItemKind::ExternCrate(None, ident),
         ..
     }) = node
     {
@@ -532,10 +531,12 @@ mod test {
             .stdout(file)
             .assert()
             .success();
-        set_var(
-            OVERSCOPED_ALLOW_PATH,
-            temp_path.to_string_lossy().to_string(),
-        );
+        unsafe {
+            set_var(
+                OVERSCOPED_ALLOW_PATH,
+                temp_path.to_string_lossy().to_string(),
+            );
+        }
         // smoelius: Don't use `dylint_testing::ui_test_example`. That function copies the example's
         // source file to a temporary directory, so the resulting path wouldn't match what's in the
         // (temporary) `warnings.json` file.
@@ -561,10 +562,12 @@ mod test {
             .stdout(file)
             .assert()
             .success();
-        set_var(
-            OVERSCOPED_ALLOW_PATH,
-            temp_path.to_string_lossy().to_string(),
-        );
+        unsafe {
+            set_var(
+                OVERSCOPED_ALLOW_PATH,
+                temp_path.to_string_lossy().to_string(),
+            );
+        }
         dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui_test")
             .rustc_flags(["--test"])
             .run();

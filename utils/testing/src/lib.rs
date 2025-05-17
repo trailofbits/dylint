@@ -173,7 +173,9 @@ fn initialize(name: &str) -> Result<&Path> {
             // of the `name_toolchain_map` call causes a regression.
             let metadata = dylint_internal::cargo::current_metadata().unwrap();
             let dylint_library_path = metadata.target_directory.join("debug");
-            set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
+            unsafe {
+                set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
+            }
 
             let dylint_libs = dylint_libs(name)?;
             let driver = dylint::driver_builder::get(
@@ -181,8 +183,10 @@ fn initialize(name: &str) -> Result<&Path> {
                 env!("RUSTUP_TOOLCHAIN"),
             )?;
 
-            set_var(env::CLIPPY_DISABLE_DOCS_LINKS, "true");
-            set_var(env::DYLINT_LIBS, dylint_libs);
+            unsafe {
+                set_var(env::CLIPPY_DISABLE_DOCS_LINKS, "true");
+                set_var(env::DYLINT_LIBS, dylint_libs);
+            }
 
             Ok(driver)
         })
@@ -444,6 +448,8 @@ fn run_tests(driver: &Path, src_base: &Path, config: &ui::Config) {
 
 // smoelius: `VarGuard` was copied from:
 // https://github.com/rust-lang/rust-clippy/blob/9cc8da222b3893bc13bc13c8827e93f8ea246854/tests/compile-test.rs
+// smoelius: Clippy dropped `VarGuard` when it switched to `ui_test`:
+// https://github.com/rust-lang/rust-clippy/commit/77d10ac63dae6ef0a691d9acd63d65de9b9bf88e
 
 /// Restores an env var on drop
 #[must_use]
@@ -455,7 +461,9 @@ struct VarGuard {
 impl VarGuard {
     fn set(key: &'static str, val: impl AsRef<OsStr>) -> Self {
         let value = var_os(key);
-        set_var(key, val);
+        unsafe {
+            set_var(key, val);
+        }
         Self { key, value }
     }
 }
@@ -463,8 +471,8 @@ impl VarGuard {
 impl Drop for VarGuard {
     fn drop(&mut self) {
         match self.value.as_deref() {
-            None => remove_var(self.key),
-            Some(value) => set_var(self.key, value),
+            None => unsafe { remove_var(self.key) },
+            Some(value) => unsafe { set_var(self.key, value) },
         }
     }
 }

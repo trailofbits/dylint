@@ -2,12 +2,14 @@
 #![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
+extern crate rustc_attr_data_structures;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{attrs::is_doc_hidden, diagnostics::span_lint_and_then, source::snippet_opt};
-use rustc_hir::{AttrKind, FnSig, Item, ItemKind};
+use rustc_attr_data_structures::AttributeKind;
+use rustc_hir::{Attribute, FnSig, Item, ItemKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::{BytePos, SourceFileAndLine, Span};
 use serde::Deserialize;
@@ -162,9 +164,8 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
         // do not lint if any parent has `#[doc(hidden)]` attribute (#7347)
         if cx
             .tcx
-            .hir()
-            .parent_iter(owner_id.into())
-            .any(|(id, _node)| is_doc_hidden(cx.tcx.hir().attrs(id)))
+            .hir_parent_iter(owner_id.into())
+            .any(|(id, _node)| is_doc_hidden(cx.tcx.hir_attrs(id)))
         {
             return;
         }
@@ -182,10 +183,9 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentOpenai {
 
         if cx
             .tcx
-            .hir()
-            .attrs(item.hir_id())
+            .hir_attrs(item.hir_id())
             .iter()
-            .any(|attr| matches!(attr.kind, AttrKind::DocComment { .. }))
+            .any(|attr| matches!(attr, Attribute::Parsed(AttributeKind::DocComment { .. })))
         {
             return;
         }
@@ -365,10 +365,9 @@ fn extract_doc_comment(response: &str) -> Option<String> {
 
 fn earliest_attr_span(cx: &LateContext<'_>, item: &Item<'_>) -> Span {
     cx.tcx
-        .hir()
-        .attrs(item.hir_id())
+        .hir_attrs(item.hir_id())
         .iter()
-        .map(|attr| attr.span)
+        .map(|attr| attr.span())
         .fold(
             item.span,
             |lhs, rhs| if lhs.lo() <= rhs.lo() { lhs } else { rhs },
@@ -412,7 +411,9 @@ mod test {
 
     #[test]
     fn ui() {
-        set_var(OPENAI_API_KEY, "test");
+        unsafe {
+            set_var(OPENAI_API_KEY, "test");
+        }
 
         let toml = format!(
             r#"

@@ -2,7 +2,7 @@
 // https://github.com/rust-lang/cargo/blob/674e609a0ec2dc431575c48989a7bd1953ff2ab0/src/cargo/util/hex.rs
 
 #![allow(deprecated)]
-#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::large_stack_arrays, clippy::module_name_repetitions)]
 #![cfg_attr(dylint_lib = "supplementary", allow(unnamed_constant))]
 
 type StableHasher = rustc_stable_hash::StableSipHasher128;

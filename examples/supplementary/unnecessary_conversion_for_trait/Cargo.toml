@@ -3,7 +3,7 @@ name = "unnecessary_conversion_for_trait"
 version = "4.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for unnecessary trait-behavior-preserving calls"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [lib]

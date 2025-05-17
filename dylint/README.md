@@ -157,7 +157,7 @@ Then, add the following to the Cargo.toml file of each package in the workspace:
 workspace = true
 ```
 
-For an example, see commit [`c8fabc5`] in this repository.
+For an example, see commit [`bc16236`] in this repository.
 
 ### VS Code integration
 
@@ -245,7 +245,7 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 [Writing lints]: #writing-lints
 [`LateLintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
 [`abs_home_path`]: ../examples/general/abs_home_path
-[`c8fabc5`]: https://github.com/trailofbits/dylint/pull/1240/commits/c8fabc59dff5564333d4b6d4108e5f09108a0b4a
+[`bc16236`]: https://github.com/trailofbits/dylint/commit/bc16236fb34c3f98139d2dad469e6a7de179d68d
 [`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ../dylint-link

@@ -462,9 +462,13 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
 
         let exists = path
             .try_exists()
-            .with_context(|| format!("Could not determine whether {path:?} exists"))?;
+            .with_context(|| format!("Could not determine whether `{}` exists", path.display()))?;
 
-        ensure!(exists, "Could not find {path:?} despite successful build");
+        ensure!(
+            exists,
+            "Could not find `{}` despite successful build",
+            path.display()
+        );
     }
 
     Ok(path)

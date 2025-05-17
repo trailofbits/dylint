@@ -5,7 +5,9 @@ use std::{env::set_var, process::Command};
 
 #[ctor::ctor]
 fn initialize() {
-    set_var(env::CARGO_TERM_COLOR, "never");
+    unsafe {
+        set_var(env::CARGO_TERM_COLOR, "never");
+    }
 }
 
 #[test]

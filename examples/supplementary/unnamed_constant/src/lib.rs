@@ -74,16 +74,15 @@ impl<'tcx> LateLintPass<'tcx> for UnnamedConstant {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         if !cx
                 .tcx
-                .hir()
-                .parent_iter(expr.hir_id)
-                .any(|(hir_id, _)| cx.tcx.hir().span(hir_id).from_expansion())
+                .hir_parent_iter(expr.hir_id)
+                .any(|(hir_id, _)| cx.tcx.hir_span(hir_id).from_expansion())
 
             // smoelius: Only flag expressions that appear within other expressions (as opposed to,
             // e.g., array bounds).
             && matches!(cx.tcx.parent_hir_node(expr.hir_id), Node::Expr(_))
 
             // smoelius: And those other expressions must not appear within a constant declaration.
-            && let owner_id = cx.tcx.hir().get_parent_item(expr.hir_id)
+            && let owner_id = cx.tcx.hir_get_parent_item(expr.hir_id)
             && let OwnerNode::Item(item) = cx.tcx.hir_owner_node(owner_id)
             && !matches!(item.kind, ItemKind::Const(..))
 

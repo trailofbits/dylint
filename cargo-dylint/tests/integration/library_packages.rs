@@ -9,7 +9,9 @@ const REV: &str = "402fc24351c60a3c474e786fd76aa66aa8638d55";
 
 #[ctor::ctor]
 fn initialize() {
-    set_var(env::CARGO_TERM_COLOR, "never");
+    unsafe {
+        set_var(env::CARGO_TERM_COLOR, "never");
+    }
 }
 
 #[test]

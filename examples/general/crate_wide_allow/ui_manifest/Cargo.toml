@@ -1,7 +1,7 @@
 [package]
 name = "ui_manifest"
 version = "4.1.0"
-edition = "2021"
+edition = "2024"
 
 [lints.clippy]
 assertions_on_constants = "allow"

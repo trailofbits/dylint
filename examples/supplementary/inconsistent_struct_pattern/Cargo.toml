@@ -3,7 +3,7 @@ name = "inconsistent_struct_pattern"
 version = "4.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for struct patterns whose fields do not match their declared order"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [lib]

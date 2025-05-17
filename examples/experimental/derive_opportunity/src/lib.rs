@@ -78,7 +78,7 @@ declare_lint! {
 impl_lint_pass!(DeriveOpportunity<'_> => [DERIVE_OPPORTUNITY]);
 
 #[expect(clippy::no_mangle_with_rust_abi)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn register_lints(sess: &Session, lint_store: &mut LintStore) {
     dylint_linting::init_config(sess);
     lint_store.register_lints(&[DERIVE_OPPORTUNITY]);
@@ -162,7 +162,7 @@ impl<'tcx> DeriveOpportunity<'tcx> {
             return macros.clone();
         }
         if let ty::Adt(adt_def, substs) = ty.kind()
-            && let Some(span) = cx.tcx.hir().span_if_local(adt_def.did())
+            && let Some(span) = cx.tcx.hir_span_if_local(adt_def.did())
             && !span.from_expansion()
         {
             let mut macros_applicable_to_all_fields = self
@@ -300,10 +300,10 @@ fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<It
         let generic_predicates = tcx.explicit_super_predicates_of(trait_did);
 
         for (predicate, _) in generic_predicates.skip_binder() {
-            if let ty::ClauseKind::Trait(data) = predicate.kind().skip_binder() {
-                if set.insert(data.def_id()) {
-                    stack.push(data.def_id());
-                }
+            if let ty::ClauseKind::Trait(data) = predicate.kind().skip_binder()
+                && set.insert(data.def_id())
+            {
+                stack.push(data.def_id());
             }
         }
 

@@ -12,7 +12,9 @@ A typo in the string literal will result in a runtime error, not a compile time 
 
 ```rust
 let _ = std::env::var("RUSTFLAGS");
-std::env::remove_var("RUSTFALGS"); // Oops
+unsafe {
+    std::env::remove_var("RUSTFALGS"); // Oops
+}
 ```
 
 Use instead:
@@ -20,5 +22,7 @@ Use instead:
 ```rust
 const RUSTFLAGS: &str = "RUSTFLAGS";
 let _ = std::env::var(RUSTFLAGS);
-std::env::remove_var(RUSTFLAGS);
+unsafe {
+    std::env::remove_var(RUSTFLAGS);
+}
 ```

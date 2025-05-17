@@ -34,7 +34,11 @@ fn write_dylint_driver_manifest_dir() {
         let path_buf = dylint_manifest_dir.join("../driver");
 
         // smoelius: Ensure the path exists at build time.
-        assert!(path_buf.is_dir(), "{path_buf:?} is not a directory");
+        assert!(
+            path_buf.is_dir(),
+            "`{}` is not a directory",
+            path_buf.display()
+        );
 
         format!(
             r#"Some("{}")"#,
