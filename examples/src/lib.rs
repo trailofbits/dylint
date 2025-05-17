@@ -148,35 +148,33 @@ mod test {
         let allowed_dirs = ["experimental", "testing"];
         let root_dirs_with_exceptions = ["general", "supplementary", "restriction"];
 
-        for entry in WalkDir::new("examples").into_iter().flatten() {
+        for entry in WalkDir::new(".").into_iter().flatten() {
             let path = entry.path();
-            let normalized_path = path.strip_prefix("examples").unwrap_or(path);
 
-            if let Some(file_name) = normalized_path.file_name().and_then(OsStr::to_str) {
+            if let Some(file_name) = path.file_name().and_then(OsStr::to_str) {
                 if forbidden_files_general.contains(&file_name) {
                     assert!(
                         !forbidden_files_general.contains(&file_name),
                         "Forbidden file `.gitignore` found in examples directory: {}",
-                        normalized_path.display()
+                        path.display()
                     );
                 }
 
                 if forbidden_files_specific.contains(&file_name) {
                     let is_in_allowed_directory = allowed_dirs
                         .iter()
-                        .any(|&allowed| normalized_path.starts_with(allowed));
+                        .any(|&allowed| path.starts_with(allowed));
 
                     let is_in_root_of_exception_dirs =
                         root_dirs_with_exceptions.iter().any(|&exception| {
-                            normalized_path.starts_with(exception)
-                                && normalized_path.components().count() == 2
+                            path.starts_with(exception) && path.components().count() == 2
                         });
 
                     assert!(
                         !(is_in_allowed_directory || is_in_root_of_exception_dirs),
                         "Forbidden file {} found in non-allowed directory: {}",
                         file_name,
-                        normalized_path.display()
+                        path.display()
                     );
                 }
             }
