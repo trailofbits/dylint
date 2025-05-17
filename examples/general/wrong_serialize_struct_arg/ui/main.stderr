@@ -93,5 +93,106 @@ note: `serialize_field` call 1 of 1
 LL |             state.serialize_field("field", &self.field)?;
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: 7 warnings emitted
+warning: `serialize_struct_variant` call's `len` argument is 1, but number of `serialize_field` calls is 3
+  --> $DIR/main.rs:202:37
+   |
+LL |                       let mut state = serializer.serialize_struct_variant(
+   |  _____________________________________^
+LL | |                         "ColorEnum",
+LL | |                         0,
+LL | |                         "RGB",
+LL | |                         1, // Wrong length, should be 3
+LL | |                     )?;
+   | |_____________________^
+   |
+note: `serialize_field` call 1 of 3
+  --> $DIR/main.rs:208:21
+   |
+LL |                     state.serialize_field("r", r)?;
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: `serialize_field` call 2 of 3
+  --> $DIR/main.rs:209:21
+   |
+LL |                     state.serialize_field("g", g)?;
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: `serialize_field` call 3 of 3
+  --> $DIR/main.rs:210:21
+   |
+LL |                     state.serialize_field("b", b)?;
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `serialize_tuple_struct` call's `len` argument is 1, but number of `serialize_field` calls is 3
+  --> $DIR/main.rs:229:29
+   |
+LL |             let mut state = serializer.serialize_tuple_struct("RGB", 1)?; // Wrong length, should be 3
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: `serialize_field` call 1 of 3
+  --> $DIR/main.rs:230:13
+   |
+LL |             state.serialize_field(&self.0)?;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: `serialize_field` call 2 of 3
+  --> $DIR/main.rs:231:13
+   |
+LL |             state.serialize_field(&self.1)?;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: `serialize_field` call 3 of 3
+  --> $DIR/main.rs:232:13
+   |
+LL |             state.serialize_field(&self.2)?;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `serialize_tuple_variant` call's `len` argument is 1, but number of `serialize_field` calls is 3
+  --> $DIR/main.rs:253:37
+   |
+LL |                       let mut state = serializer.serialize_tuple_variant(
+   |  _____________________________________^
+LL | |                         "ColorEnum",
+LL | |                         0,
+LL | |                         "RGB",
+LL | |                         1, // Wrong length, should be 3
+LL | |                     )?;
+   | |_____________________^
+   |
+note: `serialize_field` call 1 of 3
+  --> $DIR/main.rs:259:21
+   |
+LL |                     state.serialize_field(r)?;
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^
+note: `serialize_field` call 2 of 3
+  --> $DIR/main.rs:260:21
+   |
+LL |                     state.serialize_field(g)?;
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^
+note: `serialize_field` call 3 of 3
+  --> $DIR/main.rs:261:21
+   |
+LL |                     state.serialize_field(b)?;
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `serialize_tuple` call's `len` argument is 1, but number of `serialize_element` calls is 2
+  --> $DIR/main.rs:282:27
+   |
+LL |             let mut tup = serializer.serialize_tuple(1)?;
+   |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: `serialize_element` call 1 of 2
+  --> $DIR/main.rs:283:13
+   |
+LL |             tup.serialize_element(&self.0)?;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: `serialize_element` call 2 of 2
+  --> $DIR/main.rs:284:13
+   |
+LL |             tup.serialize_element(&self.1)?;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `serialize_tuple` call's `len` argument is 1, but number of `serialize_element` calls is 0
+  --> $DIR/main.rs:296:23
+   |
+LL |             let tup = serializer.serialize_tuple(1)?; // Incorrect len: 1, but 0 elements
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: 12 warnings emitted
 

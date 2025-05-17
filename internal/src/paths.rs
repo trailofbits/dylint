@@ -10,8 +10,25 @@ pub const CAMINO_UTF8_PATH_BUF: [&str; 2] = ["camino", "Utf8PathBuf"];
 pub const CELL_REF_CELL: [&str; 3] = ["core", "cell", "RefCell"];
 pub const REF_CELL_BORROW_MUT: [&str; 4] = ["core", "cell", "RefCell", "borrow_mut"];
 
+pub const SERDE_SERIALIZE_FIELD_STRUCT: [&str; 4] =
+    ["serde", "ser", "SerializeStruct", "serialize_field"];
+pub const SERDE_SERIALIZE_FIELD_STRUCT_VARIANT: [&str; 4] =
+    ["serde", "ser", "SerializeStructVariant", "serialize_field"];
+pub const SERDE_SERIALIZE_FIELD_TUPLE_STRUCT: [&str; 4] =
+    ["serde", "ser", "SerializeTupleStruct", "serialize_field"];
+pub const SERDE_SERIALIZE_FIELD_TUPLE_VARIANT: [&str; 4] =
+    ["serde", "ser", "SerializeTupleVariant", "serialize_field"];
+pub const SERDE_SERIALIZE_ELEMENT: [&str; 4] =
+    ["serde", "ser", "SerializeTuple", "serialize_element"];
+
 pub const SERDE_SERIALIZE_STRUCT: [&str; 4] = ["serde", "ser", "Serializer", "serialize_struct"];
-pub const SERDE_SERIALIZE_FIELD: [&str; 4] = ["serde", "ser", "SerializeStruct", "serialize_field"];
+pub const SERDE_SERIALIZE_STRUCT_VARIANT: [&str; 4] =
+    ["serde", "ser", "Serializer", "serialize_struct_variant"];
+pub const SERDE_SERIALIZE_TUPLE: [&str; 4] = ["serde", "ser", "Serializer", "serialize_tuple"];
+pub const SERDE_SERIALIZE_TUPLE_STRUCT: [&str; 4] =
+    ["serde", "ser", "Serializer", "serialize_tuple_struct"];
+pub const SERDE_SERIALIZE_TUPLE_VARIANT: [&str; 4] =
+    ["serde", "ser", "Serializer", "serialize_tuple_variant"];
 
 pub const ENV_REMOVE_VAR: [&str; 3] = ["std", "env", "remove_var"];
 pub const ENV_SET_CURRENT_DIR: [&str; 3] = ["std", "env", "set_current_dir"];
