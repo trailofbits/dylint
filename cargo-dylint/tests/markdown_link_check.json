@@ -32,6 +32,18 @@
     {
       "pattern": "^https://github.com/([^/]+)/([^/]+)$",
       "replacement": "https://api.github.com/repos/$1/$2"
+    },
+    {
+      "pattern": "^https://github.com/([^/]+)/([^/]+)/commit/(.+)",
+      "replacement": "https://api.github.com/repos/$1/$2/commits/$3"
+    },
+    {
+      "pattern": "^https://github.com/([^/]+)/([^/]+)/issue/(.+)",
+      "replacement": "https://api.github.com/repos/$1/$2/issues/$3"
+    },
+    {
+      "pattern": "^https://github.com/([^/]+)/([^/]+)/pull/(.+)",
+      "replacement": "https://api.github.com/repos/$1/$2/pulls/$3"
     }
   ]
 }
