@@ -15,6 +15,46 @@ use rustc_span::{
 };
 
 dylint_linting::declare_late_lint! {
+    /// ### What it does
+    /// 
+    /// Checks for functions that take `Iterator` trait bounds when they could use
+    /// `IntoIterator` instead.
+    ///
+    /// ### Why is this bad?
+    /// 
+    /// Using `IntoIterator` makes functions more flexible by allowing them to
+    /// accept more types like arrays, slices, and `Vec` without requiring explicit
+    /// `.iter()` calls. This often makes the API easier to use.
+    ///
+    /// ### Example
+    /// 
+    /// ```rust
+    /// // Bad: Requires caller to call .iter() on Vec, slice, etc.
+    /// fn process_bad<I: Iterator<Item = u32>>(iter: I) {
+    ///     for item in iter {
+    ///         // ...
+    ///     }
+    /// }
+    ///
+    /// Good: Accepts Vec, slice, etc. directly.
+    ///
+    /// ```rust
+    /// fn process_good<I: IntoIterator<Item = u32>>(iterable: I) {
+    ///     for item in iterable { // .into_iter() is implicitly called
+    ///         // ...
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// This lint ignores cases where the parameter is also bounded by other traits
+    /// (besides the implicit `Sized`), as `IntoIterator` might not be suitable.
+    ///
+    /// ```rust
+    /// fn complex_bound<I: Iterator + Clone>(iter: I) { // Ok
+    ///     // ...
+    /// }
+    /// ```
+
     pub ARG_ITER,
     Warn,
     "functions taking `Iterator` trait bounds when `IntoIterator` would be more flexible"
@@ -42,35 +82,24 @@ impl<'tcx> LateLintPass<'tcx> for ArgIter {
             return;
         };
 
-        let generics = cx.tcx.generics_of(id);
         let predicates = cx.tcx.predicates_of(id);
-
-        if generics.own_params.is_empty() {
-            return;
-        }
 
         let fn_sig = cx.tcx.fn_sig(id).skip_binder();
 
         for (i, input_ty) in fn_sig.inputs().iter().enumerate() {
             let input_ty_skipped_binder: &ty::Ty = input_ty.skip_binder(); // Skip binder once
             if let ty::TyKind::Param(param_ty) = input_ty_skipped_binder.kind() {
-                let param_def = generics.param_at(param_ty.index as usize, cx.tcx);
-
                 // Check if this parameter is bound only by Iterator
                 if is_param_bound_only_by_iterator(
-                    cx,
                     predicates,
                     *input_ty_skipped_binder,
                     iterator_def_id,
                     sized_def_id,
-                    id,
                 ) && !is_param_used_in_other_trait_args(
-                    cx,
                     predicates,
                     *input_ty_skipped_binder,
                     iterator_def_id,
                     sized_def_id,
-                    id,
                 ) {
                     let input_hir_ty = &decl.inputs[i];
                     span_lint_and_help(
@@ -81,7 +110,7 @@ impl<'tcx> LateLintPass<'tcx> for ArgIter {
                         None,
                         format!(
                             "consider using `IntoIterator` instead of `Iterator` for parameter `{}`",
-                            param_def.name
+                            param_ty.name
                         ),
                     );
                 }
@@ -93,12 +122,10 @@ impl<'tcx> LateLintPass<'tcx> for ArgIter {
 /// Checks if a given type parameter `param_ty` is bound _only_ by `iterator_def_id`
 /// within the given `predicates`
 fn is_param_bound_only_by_iterator<'tcx>(
-    _cx: &LateContext<'tcx>,
     predicates: ty::GenericPredicates<'tcx>,
     param_ty: ty::Ty<'tcx>,
     iterator_def_id: DefId,
     sized_def_id: DefId,
-    _fn_id: LocalDefId,
 ) -> bool {
     let mut found_iterator_bound = false;
 
@@ -124,17 +151,11 @@ fn is_param_bound_only_by_iterator<'tcx>(
 
 /// Checks if the given parameter type `param_ty` is used as an argument
 fn is_param_used_in_other_trait_args<'tcx>(
-    _cx: &LateContext<'tcx>,
     predicates: ty::GenericPredicates<'tcx>,
     param_ty: ty::Ty<'tcx>,
     iterator_def_id: DefId,
     sized_def_id: DefId,
-    _fn_id: LocalDefId,
 ) -> bool {
-    if !matches!(param_ty.kind(), ty::TyKind::Param(_)) {
-        return false;
-    }
-
     for &(predicate, _) in predicates.predicates.iter() {
         if let Some(trait_pred) = predicate.as_trait_clause() {
             let bound_trait_pred = trait_pred.skip_binder();
@@ -145,12 +166,8 @@ fn is_param_used_in_other_trait_args<'tcx>(
             }
 
             for arg in bound_trait_pred.trait_ref.args.iter() {
-                if let Some(ty_arg) = arg.as_type() {
-                    if let ty::TyKind::Param(_) = ty_arg.kind() {
-                        if ty_arg == param_ty {
-                            return true;
-                        }
-                    }
+                if arg.as_type() == Some(param_ty) {
+                    return true;
                 }
             }
         }
