@@ -109,29 +109,24 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
         None => &current_dir,
     };
 
-    let rev = {
-        let revs = Revs::new(opts.quiet)?;
-        let mut iter = revs.iter()?;
-        match &upgrade_opts.rust_version {
-            Some(rust_version) => {
-                let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
-                // smoelius: The next iterative search is a bottleneck. It should be a binary
-                // search.
-                iter.find(|result| {
-                    result
-                        .as_ref()
-                        .map_or(true, |rev| rev.version == clippy_utils_version)
-                })
-                .unwrap_or_else(|| {
-                    Err(anyhow!(
-                        "Could not find `clippy_utils` version `{}`",
-                        clippy_utils_version
-                    ))
-                })?
-            }
-            None => iter.next().unwrap_or_else(|| {
-                Err(anyhow!("Could not determine latest `clippy_utils` version"))
-            })?,
+    // Instantiate Revs once
+    let revs = Revs::new(opts.quiet)?;
+
+    let rev = match &upgrade_opts.rust_version {
+        Some(rust_version) => {
+            // Find the specific version using the new find_version
+            let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
+            let found_version = revs.find_version(&clippy_utils_version)?;
+            found_version.ok_or_else(|| {
+                anyhow!(
+                    "Could not find `clippy_utils` version `{}`",
+                    clippy_utils_version
+                )
+            })?
+        }
+        None => {
+            // Find the latest version using the new find_latest_rev
+            revs.find_latest_rev()?
         }
     };
 
@@ -150,7 +145,7 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
                 rev.channel
             );
         }
-    };
+    }
 
     let rust_toolchain_path = path.join("rust-toolchain");
     let cargo_toml_path = path.join("Cargo.toml");

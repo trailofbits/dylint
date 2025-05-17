@@ -75,6 +75,7 @@ package_options = [
     "if_chain",
     "rewriter",
     "syntect",
+    "toml",
 ]
 __cargo_cli = [
     "cargo-util",
