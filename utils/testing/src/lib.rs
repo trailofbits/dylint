@@ -246,8 +246,11 @@ fn run_example_test(
             to.to_string_lossy()
         )
     })?;
-    ["fixed", "stderr", "stdout"]
-        .map(|extension| copy_with_extension(&target.src_path, &to, extension).unwrap_or_default());
+    for extension in ["fixed", "stderr", "stdout"] {
+        copy_with_extension(&target.src_path, &to, extension)
+            .map(|_| ())
+            .unwrap_or_default();
+    }
 
     let mut config = config.clone();
     config.rustc_flags.extend(linking_flags.iter().cloned());
