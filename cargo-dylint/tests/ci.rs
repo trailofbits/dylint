@@ -560,11 +560,23 @@ fn markdown_reference_links_are_valid_and_used() {
     }
 }
 
-// smoelius: `markdown_link_check` must use absolute paths because `npx markdown-link-check` is run
-// from a temporary directory.
 #[cfg_attr(target_os = "windows", ignore)]
 #[test]
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 fn markdown_link_check() {
+    // Skip the test if GITHUB_TOKEN is not available
+    let Ok(token) = var(env::GITHUB_TOKEN) else {
+        eprintln!(
+            "Skipping `markdown_link_check` test as {} environment variable is not set",
+            env::GITHUB_TOKEN
+        );
+        eprintln!(
+            "To run this test, set the token: {}=your_token cargo test ...",
+            env::GITHUB_TOKEN
+        );
+        return;
+    };
+
     let tempdir = tempfile::tempdir().unwrap();
 
     Command::new("npm")
@@ -576,30 +588,30 @@ fn markdown_link_check() {
     // smoelius: https://github.com/rust-lang/crates.io/issues/788
     let config = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/markdown_link_check.json");
 
+    // Read the original config content
+    let mut config_content = read_to_string(&config).unwrap();
+    let temp_config = tempdir.path().join("markdown_link_check.json");
+
+    // Replace ${GITHUB_TOKEN} with the actual token
+    config_content = config_content.replace("${GITHUB_TOKEN}", &token);
+    write(&temp_config, config_content).unwrap();
+
     for entry in walkdir(true).with_extension("md") {
         let entry = entry.unwrap();
         let path = entry.path();
 
-        // Skip CHANGELOG.md and symlinks to avoid hitting GitHub rate limits
-        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) || path.is_symlink() {
-            continue;
-        }
-
         let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join(path);
 
-        let assert = Command::new("npx")
-            .args([
-                "markdown-link-check",
-                "--config",
-                &config.to_string_lossy(),
-                "--retry",
-                &path_buf.to_string_lossy(),
-            ])
-            .current_dir(&tempdir)
-            .assert();
-        let stdout = std::str::from_utf8(&assert.get_output().stdout).unwrap();
+        let mut command = Command::new("npx");
+        command.args([
+            "markdown-link-check",
+            "--config",
+            &temp_config.to_string_lossy(),
+            &path_buf.to_string_lossy(),
+        ]);
 
-        print!("{stdout}");
+        let assert = command.current_dir(&tempdir).assert();
+        let stdout = std::str::from_utf8(&assert.get_output().stdout).unwrap();
 
         assert!(
             stdout
