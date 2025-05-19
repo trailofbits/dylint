@@ -1000,41 +1000,7 @@
         "name": "Shane F. Carr"
       }
     ],
-    "icu_locid": [
-      {
-        "id": 3807,
-        "kind": "team",
-        "login": "github:unicode-org:icu4x-release",
-        "name": "icu4x-release"
-      },
-      {
-        "id": 9648,
-        "kind": "user",
-        "login": "zbraniecki",
-        "name": "Zibi Braniecki"
-      }
-    ],
-    "icu_locid_transform": [
-      {
-        "id": 1139,
-        "kind": "user",
-        "login": "Manishearth",
-        "name": "Manish Goregaokar"
-      },
-      {
-        "id": 3807,
-        "kind": "team",
-        "login": "github:unicode-org:icu4x-release",
-        "name": "icu4x-release"
-      },
-      {
-        "id": 128408,
-        "kind": "user",
-        "login": "sffc",
-        "name": "Shane F. Carr"
-      }
-    ],
-    "icu_locid_transform_data": [
+    "icu_locale_core": [
       {
         "id": 3807,
         "kind": "team",
@@ -1122,26 +1088,6 @@
         "kind": "user",
         "login": "zbraniecki",
         "name": "Zibi Braniecki"
-      }
-    ],
-    "icu_provider_macros": [
-      {
-        "id": 1139,
-        "kind": "user",
-        "login": "Manishearth",
-        "name": "Manish Goregaokar"
-      },
-      {
-        "id": 3807,
-        "kind": "team",
-        "login": "github:unicode-org:icu4x-release",
-        "name": "icu4x-release"
-      },
-      {
-        "id": 128408,
-        "kind": "user",
-        "login": "sffc",
-        "name": "Shane F. Carr"
       }
     ],
     "idna": [
@@ -1584,6 +1530,26 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
+      }
+    ],
+    "potential_utf": [
+      {
+        "id": 1139,
+        "kind": "user",
+        "login": "Manishearth",
+        "name": "Manish Goregaokar"
+      },
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
       }
     ],
     "proc-macro2": [
@@ -2294,14 +2260,6 @@
         "name": "rust-url"
       }
     ],
-    "utf16_iter": [
-      {
-        "id": 4484,
-        "kind": "user",
-        "login": "hsivonen",
-        "name": "Henri Sivonen"
-      }
-    ],
     "utf8_iter": [
       {
         "id": 4484,
@@ -2426,14 +2384,6 @@
         "name": "Ed Page"
       }
     ],
-    "write16": [
-      {
-        "id": 4484,
-        "kind": "user",
-        "login": "hsivonen",
-        "name": "Henri Sivonen"
-      }
-    ],
     "writeable": [
       {
         "id": 3807,
@@ -2502,6 +2452,20 @@
         "kind": "team",
         "login": "github:unicode-org:icu4x-release",
         "name": "icu4x-release"
+      }
+    ],
+    "zerotrie": [
+      {
+        "id": 3807,
+        "kind": "team",
+        "login": "github:unicode-org:icu4x-release",
+        "name": "icu4x-release"
+      },
+      {
+        "id": 128408,
+        "kind": "user",
+        "login": "sffc",
+        "name": "Shane F. Carr"
       }
     ],
     "zerovec": [

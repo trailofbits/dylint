@@ -98,7 +98,6 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
 mod test {
     use super::*;
     use std::fs::read_to_string;
-    use toml_edit::{DocumentMut, Item};
 
     #[cfg_attr(
         dylint_lib = "assert_eq_arg_misordering",
@@ -138,13 +137,12 @@ mod test {
     #[test]
     fn template_has_initial_version() {
         let contents = read_to_string("template/Cargo.toml").unwrap();
-        let document = contents.parse::<DocumentMut>().unwrap();
+        let document = contents.parse::<toml::Table>().unwrap();
         let version = document
-            .as_table()
             .get("package")
-            .and_then(Item::as_table)
+            .and_then(toml::Value::as_table)
             .and_then(|table| table.get("version"))
-            .and_then(Item::as_str)
+            .and_then(toml::Value::as_str)
             .unwrap();
         assert_eq!("0.1.0", version);
     }

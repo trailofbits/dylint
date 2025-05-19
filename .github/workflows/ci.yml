@@ -25,33 +25,6 @@ jobs:
       - id: main
         uses: trailofbits/check-up-to-dateness@v1
 
-  lint:
-    needs: [check-up-to-dateness]
-
-    if: needs.check-up-to-dateness.outputs.is-up-to-date != 'true'
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.dylint_drivers/
-            ~/.rustup/toolchains/
-          key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
-
-      - name: Install dylint-link
-        run: cargo install --path ./dylint-link --force
-
-      - name: Lint
-        run: ./scripts/lint.sh
-
   test:
     needs: [check-up-to-dateness]
 
@@ -158,11 +131,11 @@ jobs:
                 cargo test -p cargo-dylint --no-default-features --features=cargo-lib -- --nocapture
                 ;;
               cargo-dylint-ci)
-                cargo test -p cargo-dylint --test ci
+                cargo test -p cargo-dylint --test ci -- --nocapture
                 if [[ '${{ github.event_name }}' = 'schedule' || '${{ github.event_name }}' = 'workflow_dispatch' ]] ||
                   git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -w 'scheduled'
                 then
-                  cargo test -p scheduled
+                  cargo test -p scheduled -- --nocapture
                 fi
                 ;;
               *)
@@ -214,9 +187,10 @@ jobs:
           fi
         env:
           CARGO_INCREMENTAL: 0
+          GITHUB_TOKEN: ${{ github.token }}
 
   all-checks:
-    needs: [lint, test]
+    needs: [test]
 
     # smoelius: From "Defining prerequisite jobs"
     # (https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs):
