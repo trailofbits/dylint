@@ -1,7 +1,7 @@
 #![cfg(not(coverage))]
 
 use anyhow::Result;
-use assert_cmd::Command;
+use assert_cmd::{Command, cargo::CommandCargoExt};
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::{cargo::current_metadata, env, examples};
 use regex::Regex;
@@ -13,7 +13,7 @@ use std::{
     fmt::Write as _,
     fs::{read_dir, read_to_string, write},
     io::{Write as _, stderr},
-    path::{Component, Path},
+    path::{Component, Path, PathBuf},
     sync::{LazyLock, Mutex},
 };
 
@@ -743,6 +743,62 @@ fn update() {
                 .success();
         }
     });
+}
+
+#[test]
+fn lint() {
+    let mut restriction_libs = Vec::new();
+    for entry in read_dir("examples/restriction").unwrap() {
+        let entry = entry.unwrap();
+        if entry.path().is_dir() {
+            let lib_name = entry.file_name().into_string().unwrap();
+            // Exclude overscoped_allow as in the script
+            if lib_name != "overscoped_allow" && lib_name != ".cargo" {
+                restriction_libs.push(format!("--lib {lib_name}"));
+            }
+        }
+    }
+    let restrictions_as_flags = restriction_libs.join(" ");
+
+    let base_flags =
+        format!("--lib general --lib supplementary {restrictions_as_flags} --lib clippy");
+
+    let mut dirs_to_lint: Vec<PathBuf> = [
+        ".",
+        "driver",
+        "utils/linting",
+        "examples/general",
+        "examples/supplementary",
+        "examples/restriction",
+        "examples/testing/clippy",
+    ]
+    .into_iter()
+    .map(PathBuf::from)
+    .collect::<Vec<_>>();
+
+    for entry in read_dir("examples/experimental").unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path(); // path is already a PathBuf
+        if path.is_dir() && path.file_name().unwrap() != ".cargo" {
+            dirs_to_lint.push(path);
+        }
+    }
+
+    for dir_path in &dirs_to_lint {
+        eprintln!("Linting in directory: {dir_path:?}");
+
+        let mut cmd = std::process::Command::cargo_bin("cargo-dylint")
+            .expect("Failed to find cargo-dylint binary");
+        cmd.env(env::DYLINT_RUSTFLAGS, "-D warnings");
+        cmd.arg("dylint");
+        cmd.args(base_flags.split_whitespace());
+        cmd.args(["--", "--all-features", "--tests", "--workspace"]);
+        cmd.current_dir(dir_path);
+
+        let status = cmd.status().expect("Failed to execute command");
+
+        assert!(status.success(), "Linting failed in {dir_path:?}");
+    }
 }
 
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {
