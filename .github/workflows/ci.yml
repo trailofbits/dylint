@@ -158,11 +158,11 @@ jobs:
                 cargo test -p cargo-dylint --no-default-features --features=cargo-lib -- --nocapture
                 ;;
               cargo-dylint-ci)
-                cargo test -p cargo-dylint --test ci
+                cargo test -p cargo-dylint --test ci -- --nocapture
                 if [[ '${{ github.event_name }}' = 'schedule' || '${{ github.event_name }}' = 'workflow_dispatch' ]] ||
                   git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -w 'scheduled'
                 then
-                  cargo test -p scheduled
+                  cargo test -p scheduled -- --nocapture
                 fi
                 ;;
               *)
