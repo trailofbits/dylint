@@ -592,12 +592,14 @@ fn markdown_link_check() {
                 "markdown-link-check",
                 "--config",
                 &config.to_string_lossy(),
-                "--retry=1s",
+                "--retry",
                 &path_buf.to_string_lossy(),
             ])
             .current_dir(&tempdir)
             .assert();
         let stdout = std::str::from_utf8(&assert.get_output().stdout).unwrap();
+
+        print!("{stdout}");
 
         assert!(
             stdout
