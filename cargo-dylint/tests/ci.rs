@@ -1,7 +1,7 @@
 #![cfg(not(coverage))]
 
 use anyhow::Result;
-use assert_cmd::Command;
+use assert_cmd::{Command, cargo::CommandCargoExt};
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::{cargo::current_metadata, env, examples, home};
 use regex::Regex;
@@ -714,7 +714,7 @@ fn update() {
 }
 
 #[test]
-fn lint_script_test() {
+fn lint() {
     let mut restriction_libs = Vec::new();
     for entry in read_dir("examples/restriction").unwrap() {
         let entry = entry.unwrap();
@@ -728,19 +728,19 @@ fn lint_script_test() {
     }
     let restrictions_as_flags = restriction_libs.join(" ");
 
-    // Initialize dirs_to_lint with static paths from an array
     let mut dirs_to_lint: Vec<PathBuf> = [
-        PathBuf::from("."),
-        PathBuf::from("driver"),
-        PathBuf::from("utils/linting"),
-        PathBuf::from("examples/general"),
-        PathBuf::from("examples/supplementary"),
-        PathBuf::from("examples/restriction"),
-        PathBuf::from("examples/testing/clippy"),
+        ".",
+        "driver",
+        "utils/linting",
+        "examples/general",
+        "examples/supplementary",
+        "examples/restriction",
+        "examples/testing/clippy",
     ]
-    .to_vec();
+    .into_iter()
+    .map(PathBuf::from)
+    .collect::<Vec<_>>();
 
-    // Iterate over experimental directories and push directly to dirs_to_lint
     for entry in read_dir("examples/experimental").unwrap() {
         let entry = entry.unwrap();
         let path = entry.path(); // path is already a PathBuf
@@ -752,28 +752,23 @@ fn lint_script_test() {
     let base_flags =
         format!("--lib general --lib supplementary {restrictions_as_flags} --lib clippy");
 
-    eprintln!("Setting DYLINT_RUSTFLAGS='-D warnings' for each lint command");
-
     for dir_path in &dirs_to_lint {
         eprintln!("Linting in directory: {dir_path:?}");
 
-        let mut cmd = Command::cargo_bin("cargo-dylint")
-            .expect("Failed to find cargo-dylint binary. Ensure it is built (e.g. `cargo build -p cargo-dylint`) and in PATH or target/debug.");
+        let mut cmd = std::process::Command::cargo_bin("cargo-dylint")
+            .expect("Failed to find cargo-dylint binary");
         cmd.env(env::DYLINT_RUSTFLAGS, "-D warnings");
         cmd.arg("dylint");
         cmd.args(base_flags.split_whitespace());
         cmd.args(["--", "--all-features", "--tests", "--workspace"]);
         cmd.current_dir(dir_path);
 
-        // Capture output for debugging if needed
-        let output = cmd.output().expect("Failed to execute command");
+        let status = cmd.status().expect("Failed to execute command");
 
-        if !output.status.success() {
+        if !status.success() {
             eprintln!("Failed to lint in {dir_path:?}");
-            eprintln!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
-            eprintln!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
         }
-        assert!(output.status.success(), "Linting failed in {dir_path:?}");
+        assert!(status.success(), "Linting failed in {dir_path:?}");
     }
 }
 
