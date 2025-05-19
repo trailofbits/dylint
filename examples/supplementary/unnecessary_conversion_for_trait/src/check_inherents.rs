@@ -185,7 +185,7 @@ fn implements_trait_with_item<'tcx>(
         return None;
     }
 
-    cx.get_associated_type(replace_ty_params_with_global_ty(cx, ty), trait_id, "Item")
+    cx.get_associated_type(replace_ty_params_with_global_ty(cx, ty), trait_id, sym::Item)
 }
 
 // smoelius: This is a hack. For `get_associated_type` to return `Some(..)`, all of its argument
