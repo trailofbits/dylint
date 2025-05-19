@@ -728,6 +728,9 @@ fn lint() {
     }
     let restrictions_as_flags = restriction_libs.join(" ");
 
+    let base_flags =
+        format!("--lib general --lib supplementary {restrictions_as_flags} --lib clippy");
+
     let mut dirs_to_lint: Vec<PathBuf> = [
         ".",
         "driver",
@@ -749,9 +752,6 @@ fn lint() {
         }
     }
 
-    let base_flags =
-        format!("--lib general --lib supplementary {restrictions_as_flags} --lib clippy");
-
     for dir_path in &dirs_to_lint {
         eprintln!("Linting in directory: {dir_path:?}");
 
@@ -765,9 +765,6 @@ fn lint() {
 
         let status = cmd.status().expect("Failed to execute command");
 
-        if !status.success() {
-            eprintln!("Failed to lint in {dir_path:?}");
-        }
         assert!(status.success(), "Linting failed in {dir_path:?}");
     }
 }
