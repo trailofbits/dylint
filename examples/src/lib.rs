@@ -5,7 +5,7 @@ mod test {
         CommandExt, clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment,
     };
     use std::{ffi::OsStr, fs::read_to_string, process::Command};
-    use toml_edit::{DocumentMut, Item, Value};
+    use toml_edit::{DocumentMut, Item};
     use walkdir::WalkDir;
 
     #[test]
@@ -123,17 +123,17 @@ mod test {
             let path = path.unwrap();
 
             let contents = read_to_string(path.join("rust-toolchain")).unwrap();
-            let document = contents.parse::<DocumentMut>().unwrap();
-            let array = document
-                .as_table()
+            let table = toml::from_str::<toml::Table>(&contents).unwrap();
+            let array = table
                 .get("toolchain")
-                .and_then(Item::as_table)
-                .and_then(|table| table.get("components"))
-                .and_then(Item::as_array)
+                .and_then(toml::Value::as_table)
+                .and_then(|toolchain| toolchain.get("components"))
+                .and_then(toml::Value::as_array)
                 .unwrap();
+
             let components = array
                 .iter()
-                .map(Value::as_str)
+                .map(toml::Value::as_str)
                 .collect::<Option<Vec<_>>>()
                 .unwrap();
 
