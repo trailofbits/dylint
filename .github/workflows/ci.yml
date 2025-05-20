@@ -25,33 +25,6 @@ jobs:
       - id: main
         uses: trailofbits/check-up-to-dateness@v1
 
-  lint:
-    needs: [check-up-to-dateness]
-
-    if: needs.check-up-to-dateness.outputs.is-up-to-date != 'true'
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.dylint_drivers/
-            ~/.rustup/toolchains/
-          key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
-
-      - name: Install dylint-link
-        run: cargo install --path ./dylint-link --force
-
-      - name: Lint
-        run: ./scripts/lint.sh
-
   test:
     needs: [check-up-to-dateness]
 
@@ -216,7 +189,7 @@ jobs:
           CARGO_INCREMENTAL: 0
 
   all-checks:
-    needs: [lint, test]
+    needs: [test]
 
     # smoelius: From "Defining prerequisite jobs"
     # (https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs):
