@@ -2,7 +2,7 @@
 name = "wrong_serialize_struct_arg"
 version = "4.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "A lint to check for calls to `serialize_struct` with incorrect `len` arguments"
+description = "A lint to check for calls to serialization methods with incorrect `len` arguments"
 edition = "2024"
 publish = false
 
