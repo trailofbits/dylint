@@ -1,6 +1,6 @@
 use super::common::clippy_repository;
 use anyhow::{Context, Result, anyhow};
-use dylint_internal::git2::{Commit, Oid, Repository, Sort};
+use dylint_internal::git2::{Commit, Oid, Repository, Sort, Tree};
 use if_chain::if_chain;
 use semver::Version;
 use std::{path::Path, rc::Rc, time::Instant};
@@ -17,6 +17,39 @@ pub struct Rev {
 pub struct Revs {
     repo: Rc<Repository>,
     quiet: bool,
+}
+
+fn toolchain_channel(repo: &Repository, tree: &Tree) -> Result<Option<String>> {
+    // Try both filenames
+    let entry = match tree
+        .get_path(Path::new("rust-toolchain"))
+        .or_else(|_| tree.get_path(Path::new("rust-toolchain.toml")))
+    {
+        Ok(entry) => entry,
+        Err(_) => return Ok(None),
+    };
+
+    // Load its blob
+    let blob = repo
+        .find_blob(entry.id())
+        .context("failed to load rust-toolchain blob")?;
+
+    // Read as UTF-8 and trim
+    let raw = std::str::from_utf8(blob.content())
+        .context("rust-toolchain is not valid UTF-8")?
+        .trim();
+
+    // If it's valid TOML, extract [toolchain].channel; otherwise use raw
+    let channel = toml::from_str::<Value>(raw)
+        .ok()
+        .and_then(|doc| {
+            doc.get("toolchain")
+                .and_then(|t| t.get("channel"))
+                .and_then(|c| c.as_str().map(ToString::to_string))
+        })
+        .unwrap_or_else(|| raw.to_string());
+
+    Ok(Some(channel))
 }
 
 impl Revs {
@@ -56,15 +89,9 @@ impl Revs {
         };
 
         // Try to get channel from rust-toolchain
-        let channel = if_chain! {
-            if let Ok(toolchain_entry) = tree.get_path(Path::new("rust-toolchain"));
-            if let Ok(blob) = self.repo.find_blob(toolchain_entry.id());
-            if let Ok(content) = std::str::from_utf8(blob.content());
-            then {
-                content.trim().to_string()
-            } else {
-                return Ok(None);
-            }
+        let channel = match toolchain_channel(&self.repo, &tree)? {
+            Some(chan) => chan,
+            None => return Ok(None),
         };
 
         Ok(Some(Rev {
