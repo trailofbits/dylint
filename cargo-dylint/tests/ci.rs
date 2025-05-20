@@ -612,6 +612,7 @@ fn markdown_link_check() {
 
         let assert = command.current_dir(&tempdir).assert();
         let stdout = std::str::from_utf8(&assert.get_output().stdout).unwrap();
+        print!("{stdout}");
 
         assert!(
             stdout
