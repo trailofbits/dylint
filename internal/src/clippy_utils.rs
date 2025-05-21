@@ -65,6 +65,7 @@ pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()
     write(cargo_toml, document.to_string()).map_err(Into::into)
 }
 
+/// Extracts the `toolchain.channel` setting from a `rust-toolchain` or `rust-toolchain.toml` file
 pub fn toolchain_channel(path: &Path) -> Result<String> {
     let rust_toolchain = path.join("rust-toolchain");
     let rust_toolchain_toml = path.join("rust-toolchain.toml");
@@ -92,6 +93,7 @@ pub fn toolchain_channel(path: &Path) -> Result<String> {
         .ok_or_else(|| anyhow!("Could not determine Rust toolchain channel"))
 }
 
+/// Sets `toolchain.channel` in a `rust-toolchain` or `rust-toolchain.toml` file
 pub fn set_toolchain_channel(path: &Path, channel: &str) -> Result<()> {
     let rust_toolchain = path.join("rust-toolchain");
     let contents = read_to_string(&rust_toolchain).with_context(|| {
