@@ -1,6 +1,9 @@
 use super::common::clippy_repository;
 use anyhow::{Context, Result, anyhow};
-use dylint_internal::git2::{Commit, Oid, Repository, Sort, Tree};
+use dylint_internal::{
+    clippy_utils::toolchain_channel,
+    git2::{Commit, Oid, Repository, Sort},
+};
 use if_chain::if_chain;
 use semver::Version;
 use std::{path::Path, rc::Rc, time::Instant};
@@ -17,39 +20,6 @@ pub struct Rev {
 pub struct Revs {
     repo: Rc<Repository>,
     quiet: bool,
-}
-
-fn toolchain_channel(repo: &Repository, tree: &Tree) -> Result<Option<String>> {
-    // Try both filenames
-    let entry = match tree
-        .get_path(Path::new("rust-toolchain"))
-        .or_else(|_| tree.get_path(Path::new("rust-toolchain.toml")))
-    {
-        Ok(entry) => entry,
-        Err(_) => return Ok(None),
-    };
-
-    // Load its blob
-    let blob = repo
-        .find_blob(entry.id())
-        .context("failed to load rust-toolchain blob")?;
-
-    // Read as UTF-8 and trim
-    let raw = std::str::from_utf8(blob.content())
-        .context("rust-toolchain is not valid UTF-8")?
-        .trim();
-
-    // If it's valid TOML, extract [toolchain].channel; otherwise use raw
-    let channel = toml::from_str::<Value>(raw)
-        .ok()
-        .and_then(|doc| {
-            doc.get("toolchain")
-                .and_then(|t| t.get("channel"))
-                .and_then(|c| c.as_str().map(ToString::to_string))
-        })
-        .unwrap_or_else(|| raw.to_string());
-
-    Ok(Some(channel))
 }
 
 impl Revs {
@@ -88,10 +58,34 @@ impl Revs {
             return Ok(None);
         };
 
-        // Try to get channel from rust-toolchain
-        let channel = match toolchain_channel(&self.repo, &tree)? {
-            Some(chan) => chan,
-            None => return Ok(None),
+        // Create a temporary directory to extract files for toolchain detection
+        let temp_dir = tempfile::tempdir().context("Failed to create temporary directory")?;
+        let temp_path = temp_dir.path();
+        
+        // Extract rust-toolchain files to the temporary directory
+        let mut found_toolchain_file = false;
+        for filename in &["rust-toolchain", "rust-toolchain.toml"] {
+            if_chain! {
+                if let Ok(entry) = tree.get_path(Path::new(filename));
+                if let Ok(blob) = self.repo.find_blob(entry.id());
+                if let Ok(content) = std::str::from_utf8(blob.content());
+                then {
+                    let file_path = temp_path.join(filename);
+                    std::fs::write(&file_path, content)
+                        .with_context(|| format!("Failed to write {} to temp dir", filename))?;
+                    found_toolchain_file = true;
+                }
+            }
+        }
+        
+        // If no toolchain files were found, return None
+        if !found_toolchain_file {
+            return Ok(None);
+        }
+        
+        let channel = match toolchain_channel(temp_path) {
+            Ok(chan) => chan,
+            Err(_) => return Ok(None),
         };
 
         Ok(Some(Rev {
