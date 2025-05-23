@@ -99,7 +99,7 @@ pub fn init_from_string(s: &str) -> Result<()> {
     // `get_or_try_init` stabilizes: https://github.com/rust-lang/rust/issues/109737
     CONFIG_TABLE
         .set(table)
-        .expect("`CONFIG_TABLE` was determined to be unset above");
+        .unwrap_or_else(|error| panic!("`CONFIG_TABLE` was determined to be unset above: {error}"));
 
     Ok(())
 }

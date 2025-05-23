@@ -789,14 +789,16 @@ fn lint() {
         eprintln!("Linting in directory: {dir_path:?}");
 
         let mut cmd = std::process::Command::cargo_bin("cargo-dylint")
-            .expect("Failed to find cargo-dylint binary");
+            .unwrap_or_else(|error| panic!("Failed to find cargo-dylint binary: {error}"));
         cmd.env(env::DYLINT_RUSTFLAGS, "-D warnings");
         cmd.arg("dylint");
         cmd.args(base_flags.split_whitespace());
         cmd.args(["--", "--all-features", "--tests", "--workspace"]);
         cmd.current_dir(dir_path);
 
-        let status = cmd.status().expect("Failed to execute command");
+        let status = cmd
+            .status()
+            .unwrap_or_else(|error| panic!("Failed to execute command: {error}"));
 
         assert!(status.success(), "Linting failed in {dir_path:?}");
     }

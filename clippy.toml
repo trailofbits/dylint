@@ -1,3 +1,4 @@
 disallowed-methods = [
     { path = "std::process::Command::output", reason = "use `CommandExt::logged_output`" },
+    { path = "std::result::Result::expect", reason = "hides errors; use `unwrap_or_else(|error| panic!(...))`" },
 ]

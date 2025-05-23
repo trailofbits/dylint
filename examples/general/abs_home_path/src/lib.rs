@@ -211,7 +211,7 @@ fn context_allowance() {
                 env!("CARGO_MANIFEST_DIR"),
             ])
             .logged_output(true)
-            .expect("Failed to execute cargo-dylint command");
+            .unwrap_or_else(|error| panic!("Failed to execute cargo-dylint command: {error}"));
 
         (case.assert_fn)(&output);
     }
