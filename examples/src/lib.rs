@@ -4,7 +4,14 @@ mod test {
     use dylint_internal::{
         CommandExt, clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment,
     };
-    use std::{ffi::OsStr, fs::read_to_string, process::Command};
+    use regex::Regex;
+    use std::{
+        collections::BTreeSet,
+        ffi::OsStr,
+        fs::{read_dir, read_to_string},
+        path::Path,
+        process::Command,
+    };
     use toml_edit::{DocumentMut, Item};
     use walkdir::WalkDir;
 
@@ -221,5 +228,57 @@ mod test {
                 .collect::<Vec<_>>()
                 .join("\n")
         );
+    }
+
+    #[test]
+    fn verify_registered_lints() {
+        const CATEGORIES: &[&str] = &["general", "supplementary"];
+        let register_lints_re =
+            Regex::new(r"([a-zA-Z_][a-zA-Z0-9_]*)::register_lints\s*\(").unwrap();
+
+        for category in CATEGORIES {
+            let category_path = Path::new(category);
+            let lib_rs_path = category_path.join("src/lib.rs");
+            let file_contents = read_to_string(&lib_rs_path)
+                .unwrap_or_else(|e| panic!("Failed to read {}: {}", lib_rs_path.display(), e));
+
+            let actual_lints: BTreeSet<_> = register_lints_re
+                .captures_iter(&file_contents)
+                .map(|cap| cap.get(1).unwrap().as_str().to_string())
+                .collect();
+
+            let expected_lints: BTreeSet<_> = read_dir(category_path)
+                .unwrap_or_else(|e| {
+                    panic!(
+                        "Failed to read directory {}: {}",
+                        category_path.display(),
+                        e
+                    )
+                })
+                .filter_map(|entry| {
+                    let entry = entry.ok()?;
+                    let path = entry.path();
+                    if path.is_dir() {
+                        let file_name = path.file_name()?;
+                        let dir_name = file_name.to_str()?;
+                        if dir_name != "src" && !dir_name.starts_with('.') {
+                            return Some(dir_name.to_string());
+                        }
+                    }
+                    None
+                })
+                .collect();
+
+            let missing: Vec<_> = expected_lints.difference(&actual_lints).collect();
+
+            assert!(
+                missing.is_empty(),
+                "Mismatch in {}\n\nMissing registered lints: {:?}\n\nExpected: {:?}\nActual: {:?}",
+                category_path.display(),
+                missing,
+                expected_lints,
+                actual_lints
+            );
+        }
     }
 }
