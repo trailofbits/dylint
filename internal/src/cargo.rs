@@ -133,7 +133,7 @@ impl Builder {
             // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
             let message = format!("{} {}", self.verb, self.description);
             writeln!(std::io::stderr(), "{style}{message}{style:#}")
-                .expect("Could not write to stderr");
+                .unwrap_or_else(|error| panic!("Could not write to stderr: {error}"));
         }
         let mut command = if self.stable {
             Command::new(&*STABLE_CARGO)

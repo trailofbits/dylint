@@ -199,7 +199,7 @@ mod test {
                     path.to_str().unwrap(),
                 ])
                 .logged_output(false)
-                .expect("Failed to execute rustfmt");
+                .unwrap_or_else(|error| panic!("Failed to execute rustfmt: {error}"));
 
             if !output.status.success() {
                 failed_files.push(path.to_path_buf());
