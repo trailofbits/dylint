@@ -8,7 +8,6 @@ use regex::Regex;
 use semver::{Op, Version};
 use similar_asserts::SimpleDiff;
 use std::{
-    collections::BTreeSet,
     env::{set_current_dir, set_var, var},
     ffi::OsStr,
     fmt::Write as _,
