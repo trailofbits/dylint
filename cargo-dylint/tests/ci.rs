@@ -8,7 +8,7 @@ use regex::Regex;
 use semver::{Op, Version};
 use similar_asserts::SimpleDiff;
 use std::{
-    env::{set_current_dir, set_var, var},
+    env::{remove_var, set_current_dir, var},
     ffi::OsStr,
     fmt::Write as _,
     fs::{read_dir, read_to_string, write},
@@ -26,7 +26,7 @@ static DESCRIPTION_REGEX: LazyLock<Regex> =
 fn initialize() {
     set_current_dir("..").unwrap();
     unsafe {
-        set_var(env::CARGO_TERM_COLOR, "never");
+        remove_var(env::CARGO_TERM_COLOR);
     }
 }
 

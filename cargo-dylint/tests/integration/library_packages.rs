@@ -1,7 +1,7 @@
 use assert_cmd::prelude::*;
 use dylint_internal::{CommandExt, env, packaging::isolate};
 use predicates::prelude::*;
-use std::{env::set_var, fs::OpenOptions, io::Write};
+use std::{env::remove_var, fs::OpenOptions, io::Write};
 use tempfile::tempdir;
 
 // smoelius: "Separate lints into categories" commit
@@ -10,7 +10,7 @@ const REV: &str = "402fc24351c60a3c474e786fd76aa66aa8638d55";
 #[ctor::ctor]
 fn initialize() {
     unsafe {
-        set_var(env::CARGO_TERM_COLOR, "never");
+        remove_var(env::CARGO_TERM_COLOR);
     }
 }
 

@@ -377,7 +377,7 @@ linker = "false"
 
         std::process::Command::new("cargo")
             .env(env::CARGO_HOME, cargo_home.path())
-            .env(env::CARGO_TERM_COLOR, "never")
+            .env_remove(env::CARGO_TERM_COLOR)
             .current_dir(&package)
             .arg("build")
             .assert()
