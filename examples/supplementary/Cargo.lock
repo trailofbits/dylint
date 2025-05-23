@@ -1254,6 +1254,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 name = "supplementary"
 version = "4.1.0"
 dependencies = [
+ "arg_iter",
  "commented_out_code",
  "dylint_linting",
  "escaping_doc_link",

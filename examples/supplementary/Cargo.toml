@@ -10,6 +10,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
+arg_iter = { path = "arg_iter", features = ["rlib"] }
 commented_out_code = { path = "commented_out_code", features = ["rlib"] }
 escaping_doc_link = { path = "escaping_doc_link", features = ["rlib"] }
 inconsistent_struct_pattern = { path = "inconsistent_struct_pattern", features = [
