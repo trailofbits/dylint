@@ -83,7 +83,6 @@ jobs:
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
 
-      # smoelius: This list will grow: https://github.com/trailofbits/dylint/issues/636
       - name: Install CI tools
         if: ${{ matrix.package == 'cargo-dylint-ci' }}
         run: |
