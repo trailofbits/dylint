@@ -102,10 +102,11 @@ where
 
 #[cfg(not(target_os = "windows"))]
 #[allow(clippy::unnecessary_wraps)]
-fn output_path<'a, I>(mut iter: I) -> Result<Option<PathBuf>>
+fn output_path<'a, I>(iter: I) -> Result<Option<PathBuf>>
 where
-    I: Iterator<Item = &'a String>,
+    I: IntoIterator<Item = &'a String>,
 {
+    let mut iter = iter.into_iter();
     while let Some(arg) = iter.next() {
         if arg == "-o" {
             if let Some(path) = iter.next() {
@@ -377,7 +378,7 @@ linker = "false"
 
         std::process::Command::new("cargo")
             .env(env::CARGO_HOME, cargo_home.path())
-            .env(env::CARGO_TERM_COLOR, "never")
+            .env_remove(env::CARGO_TERM_COLOR)
             .current_dir(&package)
             .arg("build")
             .assert()

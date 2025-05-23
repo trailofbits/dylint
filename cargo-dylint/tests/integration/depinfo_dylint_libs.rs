@@ -1,12 +1,12 @@
 use assert_cmd::prelude::*;
 use dylint_internal::env;
 use predicates::prelude::*;
-use std::{env::set_var, process::Command};
+use std::{env::remove_var, process::Command};
 
 #[ctor::ctor]
 fn initialize() {
     unsafe {
-        set_var(env::CARGO_TERM_COLOR, "never");
+        remove_var(env::CARGO_TERM_COLOR);
     }
 }
 

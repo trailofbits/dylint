@@ -302,7 +302,7 @@ fn collect_locals_and_constants<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
-    args: impl Iterator<Item = &'tcx Operand<'tcx>>,
+    args: impl IntoIterator<Item = &'tcx Operand<'tcx>>,
 ) -> (DenseBitSet<Local>, Vec<&'tcx ConstOperand<'tcx>>) {
     let mut locals_narrowly = DenseBitSet::new_empty(mir.local_decls.len());
     let mut locals_widely = DenseBitSet::new_empty(mir.local_decls.len());
