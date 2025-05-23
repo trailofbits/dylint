@@ -322,7 +322,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
         // say "Building `package` examples".
         dylint_internal::cargo::build(&format!("`{}` examples", package.name))
             .build()
-            .envs([(env::CARGO_TERM_COLOR, "never")])
+            .env_remove(env::CARGO_TERM_COLOR)
             .args([
                 "--manifest-path",
                 package.manifest_path.as_ref(),
