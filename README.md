@@ -164,7 +164,7 @@ For an example, see commit [`bc16236`] in this repository.
 Dylint results can be viewed in VS Code using [rust-analyzer]. To do so, add the following to your VS Code `settings.json` file:
 
 ```json
-    "rust-analyzer.checkOnSave.overrideCommand": [
+    "rust-analyzer.check.overrideCommand": [
         "cargo",
         "dylint",
         "--all",
