@@ -38,7 +38,6 @@ jobs:
           [
             cargo-dylint,
             cargo-dylint-cargo-lib,
-            dylint_examples,
             expensive-alpine,
             expensive-boundary_toolchains,
             expensive-custom_toolchain,
@@ -79,9 +78,10 @@ jobs:
 
       - name: Install tools
         run: |
-          npm install -g prettier
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
+          cargo install nested_workspace || true
+          npm install -g prettier
 
       - name: Install CI tools
         if: ${{ matrix.package == 'cargo-dylint-ci' }}
@@ -158,7 +158,9 @@ jobs:
             fi
             cargo test -p "$PACKAGE" "$TEST" -- --nocapture
           else
-            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive --exclude scheduled -- --nocapture
+            cargo nw fetch
+
+            cargo test --all-features --workspace --exclude cargo-dylint --exclude expensive --exclude scheduled -- --nocapture
 
             pushd driver
             cargo test --all-features -- --nocapture
