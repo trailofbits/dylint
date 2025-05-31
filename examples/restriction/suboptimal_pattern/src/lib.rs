@@ -122,7 +122,9 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
             }
 
             param.pat.walk(|pat| {
-                let pat_ty = if let Some([pat_ty, ..]) = cx
+                let pat_ty = if let Some([pat_ty, ..,
+
+]) = cx
                     .typeck_results()
                     .pat_adjustments()
                     .get(pat.hir_id)
@@ -130,7 +132,7 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                 {
                     *pat_ty
                 } else {
-                    cx.typeck_results().node_type(pat.hir_id)
+                    cx.typeck_results()).node_type(pat.hir_id)
                 };
                 let (referent_ty, n_refs) = peel_middle_ty_refs(pat_ty);
 
