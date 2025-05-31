@@ -939,6 +939,7 @@ dependencies = [
  "cargo-util",
  "cargo_metadata",
  "dylint_internal",
+ "nested_workspace",
  "toml",
  "toml_edit",
  "walkdir",
@@ -2639,6 +2640,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "359f76430b20a79f9e20e115b3428614e654f04fab314482fc0fda0ebd3c6044"
 dependencies = [
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "nested_workspace"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dbcc8a023b63bd5b3a076ea0722c7b8c8beb524ae4fda7a74954c7ae44297e77"
+dependencies = [
+ "anstyle",
+ "anyhow",
+ "cargo_metadata",
+ "env_logger",
+ "log",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

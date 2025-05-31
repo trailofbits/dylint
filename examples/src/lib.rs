@@ -1,28 +1,14 @@
 #[cfg(all(not(coverage), test))]
 mod test {
     use cargo_metadata::MetadataCommand;
-    use dylint_internal::{
-        CommandExt, clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment,
-    };
+    use dylint_internal::{CommandExt, clippy_utils::toolchain_channel, examples::iter};
     use std::{ffi::OsStr, fs::read_to_string, process::Command};
     use toml_edit::{DocumentMut, Item};
     use walkdir::WalkDir;
 
     #[test]
     fn examples() {
-        for path in iter(false).unwrap() {
-            let path = path.unwrap();
-            let file_name = path.file_name().unwrap();
-            // smoelius: Pass `--lib --tests` to `cargo test` to avoid the potential filename
-            // collision associated with building the examples.
-            dylint_internal::cargo::test(&format!("example `{}`", file_name.to_string_lossy()))
-                .build()
-                .sanitize_environment()
-                .current_dir(path)
-                .args(["--lib", "--tests"])
-                .success()
-                .unwrap();
-        }
+        nested_workspace::test().args(["--lib", "--tests"]).unwrap();
     }
 
     #[test]
