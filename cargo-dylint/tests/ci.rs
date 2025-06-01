@@ -14,7 +14,7 @@ use std::{
     fs::{read_dir, read_to_string, write},
     io::{Write as _, stderr},
     path::{Component, Path, PathBuf},
-    sync::{LazyLock, Mutex},
+    sync::LazyLock,
 };
 
 static METADATA: LazyLock<Metadata> = LazyLock::new(|| current_metadata().unwrap());
@@ -377,17 +377,15 @@ fn format_example_readmes() {
 
 #[test]
 fn format_util_readmes() {
-    preserves_cleanliness("format_util_readmes", false, || {
-        for entry in read_dir("utils").unwrap() {
-            let entry = entry.unwrap();
-            let path = entry.path();
-            Command::new("cargo")
-                .arg("rdme")
-                .current_dir(path)
-                .assert()
-                .success();
-        }
-    });
+    for entry in read_dir("utils").unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        Command::new("cargo")
+            .args(["rdme", "--check"])
+            .current_dir(path)
+            .assert()
+            .success();
+    }
 }
 
 #[test]
@@ -666,23 +664,19 @@ fn prettier_all_but_examples_and_template() {
 #[cfg_attr(target_os = "windows", ignore)]
 #[test]
 fn prettier_examples_and_template() {
-    preserves_cleanliness("prettier", true, || {
-        Command::new("prettier")
-            .args(["--write", "examples/**/*.md", "internal/template/**/*.md"])
-            .assert()
-            .success();
-    });
+    Command::new("prettier")
+        .args(["--check", "examples/**/*.md", "internal/template/**/*.md"])
+        .assert()
+        .success();
 }
 
 #[cfg_attr(target_os = "windows", ignore)]
 #[test]
 fn rustdoc_prettier() {
-    preserves_cleanliness("rustdoc_prettier", false, || {
-        Command::new("rustdoc-prettier")
-            .args(["./**/*.rs"])
-            .assert()
-            .success();
-    });
+    Command::new("rustdoc-prettier")
+        .args(["--check", "./**/*.rs"])
+        .assert()
+        .success();
 }
 
 #[test]
@@ -728,22 +722,21 @@ fn sort() {
 
 #[test]
 fn update() {
-    preserves_cleanliness("update", false, || {
-        for entry in walkdir(true).with_file_name("Cargo.lock") {
-            let entry = entry.unwrap();
-            let path = entry.path();
-            let manifest_path = path.with_file_name("Cargo.toml");
-            Command::new("cargo")
-                .args([
-                    "update",
-                    "--workspace",
-                    "--manifest-path",
-                    &manifest_path.to_string_lossy(),
-                ])
-                .assert()
-                .success();
-        }
-    });
+    for entry in walkdir(true).with_file_name("Cargo.lock") {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        let manifest_path = path.with_file_name("Cargo.toml");
+        Command::new("cargo")
+            .args([
+                "update",
+                "--locked",
+                "--manifest-path",
+                &manifest_path.to_string_lossy(),
+                "--workspace",
+            ])
+            .assert()
+            .success();
+    }
 }
 
 #[test]
@@ -857,54 +850,5 @@ impl<T: Iterator<Item = walkdir::Result<walkdir::DirEntry>>> IntoIterExt for T {
                 entry.path().file_name() == Some(file_name.as_ref())
             })
         })
-    }
-}
-
-static MUTEX: Mutex<()> = Mutex::new(());
-
-fn preserves_cleanliness(test_name: &str, ignore_blank_lines: bool, f: impl FnOnce()) {
-    let _lock = MUTEX.lock().unwrap();
-
-    // smoelius: Do not skip tests when running on GitHub.
-    if var(env::CI).is_err() && dirty(false).is_some() {
-        #[allow(clippy::explicit_write)]
-        writeln!(
-            stderr(),
-            "Skipping `{test_name}` test as repository is dirty"
-        )
-        .unwrap();
-        return;
-    }
-
-    f();
-
-    if let Some(stdout) = dirty(ignore_blank_lines) {
-        panic!("{}", stdout);
-    }
-
-    // smoelius: If the repository is not dirty with `ignore_blank_lines` set to true, but would be
-    // dirty otherwise, then restore the repository's contents.
-    if ignore_blank_lines && dirty(false).is_some() {
-        Command::new("git")
-            .args(["checkout", "."])
-            .assert()
-            .success();
-    }
-}
-
-fn dirty(ignore_blank_lines: bool) -> Option<String> {
-    let mut command = Command::new("git");
-    command.arg("diff");
-    if ignore_blank_lines {
-        command.arg("--ignore-blank-lines");
-    }
-    let output = command.output().unwrap();
-
-    // smoelius: `--ignore-blank-lines` does not work with `--exit-code`. So instead check whether
-    // stdout is empty.
-    if output.stdout.is_empty() {
-        None
-    } else {
-        Some(String::from_utf8(output.stdout).unwrap())
     }
 }
