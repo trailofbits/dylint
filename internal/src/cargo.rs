@@ -10,7 +10,6 @@ use std::{
     sync::LazyLock,
 };
 
-#[allow(clippy::module_name_repetitions)]
 pub use home::cargo_home;
 
 static STABLE_CARGO: LazyLock<PathBuf> = LazyLock::new(|| {

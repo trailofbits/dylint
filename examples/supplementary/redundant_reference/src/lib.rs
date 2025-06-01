@@ -176,7 +176,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                         mutbl: Mutability::Not,
                     },
                 ) = field_def.ty.kind
-                && let LifetimeName::Param(local_def_id) = lifetime.res
+                && let LifetimeKind::Param(local_def_id) = lifetime.kind
                 && (!self.config.lifetime_check || {
                     let lifetime_uses = lifetime_uses(local_def_id, item);
                     lifetime_uses.len() == 1 && {
@@ -241,7 +241,7 @@ struct LifetimeUses {
 
 impl<'tcx> Visitor<'tcx> for LifetimeUses {
     fn visit_lifetime(&mut self, lifetime: &'tcx Lifetime) {
-        if let LifetimeName::Param(local_def_id) = lifetime.res
+        if let LifetimeKind::Param(local_def_id) = lifetime.kind
             && self.local_def_id == local_def_id
         {
             self.uses.insert(lifetime.hir_id);

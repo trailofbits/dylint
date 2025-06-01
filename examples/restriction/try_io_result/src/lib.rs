@@ -6,7 +6,8 @@ extern crate rustc_hir;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_help, match_def_path};
+use clippy_utils::diagnostics::span_lint_and_help;
+use dylint_internal::{match_def_path, paths};
 use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{GenericArgKind, Ty, TyKind};
@@ -89,7 +90,7 @@ fn is_io_result(cx: &LateContext<'_>, ty: Ty) -> bool {
         && let [_, generic_arg] = substs.as_slice()
         && let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack()
         && let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind()
-        && match_def_path(cx, generic_arg_def.did(), &dylint_internal::paths::IO_ERROR)
+        && match_def_path(cx, generic_arg_def.did(), &paths::IO_ERROR)
     {
         true
     } else {

@@ -8,8 +8,8 @@ extern crate rustc_index;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_sugg, match_def_path};
-use dylint_internal::paths;
+use clippy_utils::diagnostics::span_lint_and_sugg;
+use dylint_internal::{match_def_path, paths};
 use rustc_errors::Applicability;
 use rustc_hir as hir;
 use rustc_index::bit_set::DenseBitSet;
