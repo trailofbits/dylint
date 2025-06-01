@@ -20,7 +20,10 @@ use rustc_hir::{
     intravisit::{FnKind, Visitor, walk_expr},
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{self, adjustment::Adjust};
+use rustc_middle::ty::{
+    self,
+    adjustment::{Adjust, PatAdjustment},
+};
 use rustc_span::Span;
 use serde::Deserialize;
 use std::{cmp::min, fmt::Write};
@@ -122,17 +125,15 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
             }
 
             param.pat.walk(|pat| {
-                let pat_ty = if let Some([pat_ty, ..,
-
-]) = cx
+                let pat_ty = if let Some([PatAdjustment { source, .. }, ..]) = cx
                     .typeck_results()
                     .pat_adjustments()
                     .get(pat.hir_id)
                     .map(Vec::as_slice)
                 {
-                    *pat_ty
+                    *source
                 } else {
-                    cx.typeck_results()).node_type(pat.hir_id)
+                    cx.typeck_results().node_type(pat.hir_id)
                 };
                 let (referent_ty, n_refs) = peel_middle_ty_refs(pat_ty);
 

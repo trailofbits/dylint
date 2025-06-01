@@ -1047,6 +1047,7 @@ name = "register_lints_warn"
 version = "4.1.0"
 dependencies = [
  "clippy_utils",
+ "dylint_internal",
  "dylint_linting",
  "dylint_testing",
 ]

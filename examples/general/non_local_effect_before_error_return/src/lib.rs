@@ -10,7 +10,12 @@ extern crate rustc_index;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_then, match_def_path};
+use clippy_utils::{
+    diagnostics::span_lint_and_then,
+    paths::{PathLookup, PathNS},
+    type_path,
+};
+use dylint_internal::match_def_path;
 use rustc_errors::Diag;
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind};
 use rustc_index::bit_set::DenseBitSet;
@@ -221,6 +226,8 @@ fn in_async_function(tcx: ty::TyCtxt<'_>, hir_id: rustc_hir::HirId) -> bool {
         })
 }
 
+static CORE_FMT_ERROR: PathLookup = type_path!(core::fmt::Error);
+
 fn is_lintable_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
     if let ty::Adt(adt, substs) = ty.kind() {
         if !cx.tcx.is_diagnostic_item(sym::Result, adt.did()) {
@@ -230,7 +237,7 @@ fn is_lintable_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
         // Don't lint if the error type is core::fmt::Error
         if let Some(error_ty) = substs.get(1)
             && let ty::Adt(error_adt, _) = error_ty.expect_ty().kind()
-            && match_def_path(cx, error_adt.did(), &["core", "fmt", "Error"])
+            && CORE_FMT_ERROR.matches(cx, error_adt.did())
         {
             return false;
         }
