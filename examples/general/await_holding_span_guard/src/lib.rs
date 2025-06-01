@@ -5,7 +5,7 @@ extern crate rustc_hir;
 extern crate rustc_middle;
 
 use clippy_utils::diagnostics::span_lint_and_then;
-use clippy_utils::match_def_path;
+use dylint_internal::match_def_path;
 use rustc_hir as hir;
 use rustc_hir::def_id::DefId;
 use rustc_lint::{LateContext, LateLintPass};

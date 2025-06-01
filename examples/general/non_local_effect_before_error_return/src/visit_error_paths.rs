@@ -287,7 +287,7 @@ fn is_from_residual_or_try_implementor_method_call<'tcx>(
             true
         }
         && let Some(assoc_item) = cx.tcx.opt_associated_item(def_id)
-        && assoc_item.fn_has_self_parameter
+        && assoc_item.is_method()
         && let Some(try_trait_def_id) = cx.tcx.lang_items().try_trait()
         && let arg_place_ty = arg_place.ty(&mir.local_decls, cx.tcx)
         // smoelius: It appears that all type parameters must be substituted for, or else

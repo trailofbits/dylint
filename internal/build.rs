@@ -1,8 +1,25 @@
-#[cfg(not(feature = "packaging"))]
-fn main() {}
+use std::process::{Command, Stdio};
+
+fn main() {
+    if is_nightly() {
+        println!("cargo:rustc-cfg=nightly");
+    }
+
+    #[cfg(feature = "packaging")]
+    build_template_tar();
+}
+
+fn is_nightly() -> bool {
+    Command::new("rustc")
+        .args(["-Z", "help"])
+        .stderr(Stdio::null())
+        .status()
+        .unwrap()
+        .success()
+}
 
 #[cfg(feature = "packaging")]
-fn main() {
+fn build_template_tar() {
     use std::{
         env::var,
         ffi::OsStr,

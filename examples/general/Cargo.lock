@@ -111,6 +111,7 @@ name = "await_holding_span_guard"
 version = "4.1.0"
 dependencies = [
  "clippy_utils",
+ "dylint_internal",
  "dylint_linting",
  "dylint_testing",
  "tracing",
@@ -862,6 +863,7 @@ dependencies = [
  "bitflags",
  "clippy_utils",
  "derivative",
+ "dylint_internal",
  "dylint_linting",
  "dylint_testing",
  "serde",

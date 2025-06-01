@@ -30,5 +30,4 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint
     let conf_path = clippy_config::lookup_conf_file();
     let conf = clippy_config::Conf::read(sess, &conf_path);
     clippy_lints::register_lints(lint_store, conf);
-    clippy_lints::register_pre_expansion_lints(lint_store, conf);
 }

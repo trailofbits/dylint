@@ -77,6 +77,7 @@ level = "deny"
 check-cfg = [
     "cfg(coverage)",
     "cfg(dylint_lib, values(any()))",
+    "cfg(nightly)",
     "cfg(__cargo_cli)",
     "cfg(__cargo_lib)",
     "cfg(__library_packages)",
