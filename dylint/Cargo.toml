@@ -76,6 +76,7 @@ package_options = [
     "rewriter",
     "syntect",
     "walkdir",
+    "toml",
 ]
 __cargo_cli = [
     "cargo-util",
