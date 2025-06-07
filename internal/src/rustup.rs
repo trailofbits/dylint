@@ -1,5 +1,6 @@
 use crate::{CommandExt, env};
 use anyhow::{Result, anyhow};
+use cargo_metadata::MetadataCommand;
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},
@@ -12,6 +13,15 @@ pub trait SanitizeEnvironment {
 }
 
 impl SanitizeEnvironment for Command {
+    fn sanitize_environment(&mut self) -> &mut Self {
+        self.env_remove(env::CARGO);
+        self.env_remove(env::RUSTC);
+        self.env_remove(env::RUSTUP_TOOLCHAIN);
+        self
+    }
+}
+
+impl SanitizeEnvironment for MetadataCommand {
     fn sanitize_environment(&mut self) -> &mut Self {
         self.env_remove(env::CARGO);
         self.env_remove(env::RUSTC);
