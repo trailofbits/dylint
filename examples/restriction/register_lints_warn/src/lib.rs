@@ -4,7 +4,8 @@
 
 extern crate rustc_hir;
 
-use clippy_utils::{diagnostics::span_lint, match_def_path};
+use clippy_utils::diagnostics::span_lint;
+use dylint_internal::match_def_path;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 

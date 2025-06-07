@@ -21,6 +21,7 @@ path = "ui_public_only/main.rs"
 clippy_utils = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
