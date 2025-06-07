@@ -357,8 +357,12 @@ fn library_package(
         .map(|path| {
             if path.is_dir() {
                 // smoelius: Ignore subdirectories that do not contain packages.
-                let Ok(package) = package_with_root(&path) else {
-                    return Ok(None);
+                let package = match package_with_root(&path) {
+                    Ok(package) => package,
+                    Err(error) => {
+                        warn(opts, &error.to_string());
+                        return Ok(None);
+                    }
                 };
                 // smoelius: When `__cargo_cli` is enabled, `source_id`'s type is `String`.
                 #[allow(clippy::clone_on_copy)]
@@ -407,7 +411,12 @@ fn toml_detailed_dependency(library: &Library) -> Result<&TomlDetailedDependency
 fn package_with_root(package_root: &Path) -> Result<MetadataPackage> {
     // smoelius: For the long term, we should investigate having a "cache" that maps paths to
     // `cargo_metadata::Metadata`.
+    // smoelius: Both `cargo_path` and `sanitize_environment` must be called. Without the call to
+    // `cargo_path`, `cargo_metadata` will use `$CARGO`. Without the call to `sanitize_environment`,
+    // `CARGO`, etc. will be set and the `rustup` proxy will invoke the wrong `cargo`.
     let metadata = MetadataCommand::new()
+        .cargo_path("cargo")
+        .sanitize_environment()
         .current_dir(package_root)
         .no_deps()
         .exec()?;

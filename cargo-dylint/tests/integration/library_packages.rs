@@ -29,6 +29,47 @@ fn array_pattern() {
     assert!(lines[1].starts_with("question_mark_in_expression "));
 }
 
+#[cfg(unix)]
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+#[test]
+fn edition_2021() {
+    use assert_cmd::cargo::cargo_bin;
+    use dylint_internal::rustup::SanitizeEnvironment;
+    use std::{fs::create_dir, os::unix::fs::symlink, path::PathBuf};
+
+    let cargo_home = tempdir().unwrap();
+    let cargo_home_bin = cargo_home.path().join("bin");
+    create_dir(&cargo_home_bin).unwrap();
+    let cargo_dylint = cargo_bin("cargo-dylint");
+    symlink(cargo_dylint, cargo_home_bin.join("cargo-dylint")).unwrap();
+
+    // smoelius: Sanity. Because this test is likely to have been run by `cargo test`, the
+    // environment variables `CARGO`, etc. will have already been set. Thus, we must call
+    // `sanitize_environment` to clear them.
+    std::process::Command::new("rustup")
+        .sanitize_environment()
+        .current_dir("../fixtures/edition_2021")
+        .args(["which", "cargo"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("1.84"));
+
+    let path_buf =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../examples/general/crate_wide_allow");
+
+    // smoelius: The next command must be `cargo` so that we invoke the `rustup` proxy. The command
+    // cannot be `cargo-dylint`.
+    std::process::Command::new("cargo")
+        .sanitize_environment()
+        .current_dir("../fixtures/edition_2021")
+        .env("CARGO_HOME", cargo_home.path())
+        .args(["dylint", "--path", &path_buf.to_string_lossy()])
+        .assert()
+        .success()
+        .stdout(predicate::str::is_empty())
+        .stderr(predicate::str::contains("2024").not());
+}
+
 #[test]
 fn invalid_pattern() {
     for pattern in ["/*", "../*"] {
