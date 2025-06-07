@@ -26,7 +26,7 @@ cargo = "0.81"
 cargo-platform = "0.1"
 cargo-util = "0.2"
 cargo-util-schemas = "0.7"
-cargo_metadata = "0.19"
+cargo_metadata = "0.20"
 chrono = { version = "0.4", default-features = false }
 clap = "4.5"
 compiletest_rs = "0.11"

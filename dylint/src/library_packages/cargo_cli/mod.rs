@@ -325,7 +325,7 @@ fn find_accessed_subdir<'a>(
         .map_or::<&[_], _>(&[], |metadata| &metadata.packages)
         .iter()
         .map(|package| {
-            if package.name == dep_name {
+            if package.name.as_str() == dep_name {
                 let parent = package
                     .manifest_path
                     .parent()

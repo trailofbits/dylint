@@ -50,7 +50,7 @@ examples = ["cargo", "cargo-util", "rustup", "walkdir"]
 git = ["command", "git2", "if_chain"]
 home = ["dep:home", "rustversion"]
 packaging = ["cargo", "tar", "walkdir"]
-rustup = ["command"]
+rustup = ["command", "cargo_metadata"]
 sed = []
 testing = ["ctor", "env_logger", "packaging"]
 
