@@ -12,7 +12,6 @@ tempfile = { workspace = true }
 dylint_internal = { version = "=4.1.0", path = "../internal", features = [
     "clippy_utils",
     "rustup",
-    "sed",
     "testing",
 ] }
 

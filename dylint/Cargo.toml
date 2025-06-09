@@ -49,7 +49,6 @@ dylint_internal = { version = "=4.1.0", path = "../internal", features = [
     "git",
     "packaging",
     "rustup",
-    "sed",
 ] }
 
 [build-dependencies]

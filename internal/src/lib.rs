@@ -10,9 +10,7 @@ pub mod clippy_utils;
 #[cfg(feature = "config")]
 pub mod config;
 
-#[cfg(feature = "command")]
 mod command;
-#[cfg(feature = "command")]
 pub use command::*;
 
 pub mod env;
@@ -42,9 +40,7 @@ pub mod paths;
 #[cfg(feature = "rustup")]
 pub mod rustup;
 
-#[cfg(feature = "sed")]
 mod sed;
-#[cfg(feature = "sed")]
 pub use sed::find_and_replace;
 
 #[cfg(feature = "testing")]

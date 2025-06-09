@@ -9,6 +9,7 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 anyhow = { workspace = true }
+log = { workspace = true }
 regex = { workspace = true }
 
 anstyle = { workspace = true, optional = true }
@@ -20,7 +21,6 @@ env_logger = { workspace = true, optional = true }
 git2 = { workspace = true, optional = true }
 home = { workspace = true, optional = true }
 if_chain = { workspace = true, optional = true }
-log = { workspace = true, optional = true }
 rustversion = { workspace = true, optional = true }
 semver = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
@@ -42,16 +42,14 @@ toml = { workspace = true }
 toml_edit = { workspace = true }
 
 [features]
-cargo = ["anstyle", "bitflags", "cargo_metadata", "command", "home"]
+cargo = ["anstyle", "bitflags", "cargo_metadata", "home"]
 clippy_utils = ["semver", "toml", "toml_edit"]
-command = ["log"]
 config = ["cargo_metadata", "serde", "thiserror", "toml"]
 examples = ["cargo", "cargo-util", "rustup", "walkdir"]
-git = ["command", "git2", "if_chain"]
+git = ["git2", "if_chain"]
 home = ["dep:home", "rustversion"]
 packaging = ["cargo", "tar", "walkdir"]
-rustup = ["command", "cargo_metadata"]
-sed = []
+rustup = ["cargo_metadata"]
 testing = ["ctor", "env_logger", "packaging"]
 
 [lints]
