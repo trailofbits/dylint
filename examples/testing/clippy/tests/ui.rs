@@ -79,6 +79,7 @@ fn clone_rust_clippy(path: &Path) -> Result<()> {
     let clippy_lints = clippy_lints_dependency()?;
     let source = clippy_lints.source.ok_or_else(|| anyhow!("No source"))?;
     let url = source
+        .repr
         .strip_prefix("git+")
         .ok_or_else(|| anyhow!("Wrong prefix"))?;
     let (url, refname) = url
@@ -94,7 +95,7 @@ fn clippy_lints_dependency() -> Result<Dependency> {
     let package = metadata
         .packages
         .into_iter()
-        .find(|package| package.name == env!("CARGO_PKG_NAME"))
+        .find(|package| package.name.as_str() == env!("CARGO_PKG_NAME"))
         .ok_or_else(|| anyhow!("Could not find package"))?;
     let dependency = package
         .dependencies
