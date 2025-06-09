@@ -32,7 +32,7 @@ impl Revs {
     }
 
     #[allow(clippy::iter_not_returning_iterator)]
-    pub fn iter(&self) -> Result<RevIter> {
+    pub fn iter(&self) -> Result<RevIter<'_>> {
         let path = self
             .repository
             .workdir()
