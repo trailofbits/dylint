@@ -10,6 +10,7 @@ members = [
     "examples",
     "expensive",
     "internal",
+    "nightly",
     # "internal/template",
     "scheduled",
     # "utils/linting",

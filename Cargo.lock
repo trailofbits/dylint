@@ -2685,6 +2685,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "nightly"
+version = "4.1.0"
+dependencies = [
+ "nested_workspace",
+]
+
+[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
