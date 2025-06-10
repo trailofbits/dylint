@@ -856,6 +856,12 @@
         "kind": "team",
         "login": "github:rust-lang-nursery:libs",
         "name": "libs"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
       }
     ],
     "getrandom": [
