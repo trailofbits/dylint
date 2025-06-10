@@ -1,7 +1,5 @@
-use clippy_utils::{
-    diagnostics::span_lint_and_note, is_expr_path_def_path, match_def_path, path_def_id,
-};
-use dylint_internal::paths;
+use clippy_utils::{diagnostics::span_lint_and_note, path_def_id};
+use dylint_internal::{is_expr_path_def_path, match_def_path, paths};
 use rustc_ast::ast::LitKind;
 use rustc_hir::{
     Closure, Expr, ExprKind, HirId, Item, ItemKind, Node,
@@ -179,15 +177,15 @@ impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
     }
 }
 
-fn is_blacklisted_function(
-    cx: &LateContext<'_>,
-    callee: &Expr,
-    args: &[Expr],
+fn is_blacklisted_function<'tcx>(
+    cx: &LateContext<'tcx>,
+    callee: &Expr<'tcx>,
+    args: &[Expr<'tcx>],
 ) -> Option<&'static [&'static str]> {
     let path = crate::blacklist::BLACKLIST
         .iter()
         .copied()
-        .find(|path| is_expr_path_def_path(cx, callee, path));
+        .find(|path| is_expr_path_def_path(path_def_id, cx, callee, path));
 
     // smoelius: Hack, until we can come up with a more general solution.
     if path == Some(&paths::COMMAND_NEW) && !command_new_additional_checks(cx, callee, args) {

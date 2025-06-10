@@ -1,5 +1,6 @@
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![cfg_attr(dylint_lib = "supplementary", allow(nonexistent_path_in_comment))]
+#![cfg_attr(nightly, feature(rustc_private))]
 
 #[cfg(feature = "cargo")]
 pub mod cargo;
@@ -31,6 +32,11 @@ pub use git2;
 
 #[cfg(feature = "home")]
 pub mod home;
+
+#[cfg(all(nightly, feature = "match_def_path"))]
+mod match_def_path;
+#[cfg(all(nightly, feature = "match_def_path"))]
+pub use match_def_path::{is_expr_path_def_path, match_any_def_paths, match_def_path};
 
 #[cfg(feature = "packaging")]
 pub mod packaging;

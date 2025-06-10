@@ -5,12 +5,13 @@
 extern crate rustc_ast;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint, sym};
+use clippy_utils::diagnostics::span_lint;
 use rustc_ast::{
     BinOpKind, Expr, ExprKind, MacCall, ptr::P, token::Token, token::TokenKind,
     tokenstream::TokenTree,
 };
 use rustc_lint::{EarlyContext, EarlyLintPass};
+use rustc_span::Symbol;
 
 dylint_linting::declare_pre_expansion_lint! {
     /// ### What it does
@@ -65,7 +66,7 @@ dylint_linting::declare_pre_expansion_lint! {
 
 fn is_matches_macro(expr: &P<Expr>) -> Option<&P<MacCall>> {
     if let ExprKind::MacCall(mac) = &expr.kind // must be a macro call
-        && mac.path == sym!(matches)
+        && mac.path == Symbol::intern("matches")
     // must be a matches! symbol
     {
         return Some(mac);

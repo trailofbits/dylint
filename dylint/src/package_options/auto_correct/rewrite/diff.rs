@@ -65,6 +65,7 @@ pub(super) fn patches_from_diff<'repo>(diff: &Diff<'repo>) -> Result<Vec<Patch<'
         .map(|idx| -> Result<_> {
             let patch = Patch::from_diff(diff, idx)?;
             // smoelius: Only return patches for Rust source files.
+            #[allow(clippy::nonminimal_bool)]
             if !patch
                 .as_ref()
                 .and_then(|patch| patch.delta().old_file().path())

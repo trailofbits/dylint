@@ -12,11 +12,11 @@ extern crate rustc_trait_selection;
 
 use clippy_utils::{
     diagnostics::{span_lint, span_lint_and_help, span_lint_and_sugg},
-    get_parent_expr, match_def_path,
+    get_parent_expr,
     source::snippet_opt,
     ty::is_copy,
 };
-use dylint_internal::cargo::current_metadata;
+use dylint_internal::{cargo::current_metadata, match_def_path};
 use rustc_errors::Applicability;
 use rustc_hir::{
     BorrowKind, Expr, ExprKind, Mutability,
