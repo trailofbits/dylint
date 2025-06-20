@@ -1,0 +1,16 @@
+warning: path could be constructed from a string literal
+  --> $DIR/const_expr.rs:5:65
+   |
+LL |     let _ = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src").join("lib.rs");
+   |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `.join("src/lib.rs")`
+   |
+   = note: `#[warn(const_path_join)]` on by default
+
+warning: path could be constructed from a string literal
+  --> $DIR/const_expr.rs:12:42
+   |
+LL |     let _ = std::path::PathBuf::from(dir).join("tests").join("fixtures");
+   |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `.join("tests/fixtures")`
+
+warning: 2 warnings emitted
+
