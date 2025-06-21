@@ -116,6 +116,23 @@ jobs:
       - name: Preinstall toolchains
         run: cargo run -p dylint_internal --bin preinstall-toolchains
 
+      - name: Patch cargo
+        run: |
+          for CHANNEL in stable nightly-2025-05-14; do
+            git clone https://github.com/smoelius/cargo debug-locking-"$CHANNEL"
+            pushd debug-locking-"$CHANNEL"
+            git checkout debug-locking-"$CHANNEL"
+            cargo build
+            CARGO_NEW="$PWD"/target/debug/cargo
+            file "$CARGO_NEW" # Sanity
+            CARGO_OLD="$(rustup +"$CHANNEL" which cargo)"
+            pushd "$(dirname "$CARGO_OLD")"
+            mv cargo cargo~
+            ln -s "$CARGO_NEW"
+            popd
+            popd
+          done
+
       - name: Test
         run: |
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
