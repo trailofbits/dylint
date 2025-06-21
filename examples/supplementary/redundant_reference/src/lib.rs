@@ -12,7 +12,7 @@ use clippy_utils::{
 };
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
-    Expr, ExprKind, GenericParam, GenericParamKind, HirId, Item, ItemKind, Lifetime, LifetimeName,
+    Expr, ExprKind, GenericParam, GenericParamKind, HirId, Item, ItemKind, Lifetime, LifetimeKind,
     MutTy, Mutability, TyKind, VariantData,
     def_id::LocalDefId,
     intravisit::{Visitor, walk_generic_param, walk_lifetime},
