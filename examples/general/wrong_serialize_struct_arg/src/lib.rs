@@ -8,9 +8,8 @@ extern crate rustc_span;
 use clippy_utils::{
     consts::{ConstEvalCtxt, Constant},
     diagnostics::span_lint_and_then,
-    match_def_path,
 };
-use dylint_internal::paths;
+use dylint_internal::{match_def_path, paths};
 use rustc_hir::{Block, Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Span;

@@ -9,10 +9,13 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{
-    diagnostics::span_lint_and_sugg, is_expr_path_def_path, match_any_def_paths,
+    diagnostics::span_lint_and_sugg,
+    path_def_id,
+    paths::{PathLookup, PathNS},
     source::snippet_opt,
+    value_path,
 };
-use dylint_internal::paths;
+use dylint_internal::{is_expr_path_def_path, match_any_def_paths, paths};
 use rustc_ast::LitKind;
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
@@ -60,7 +63,7 @@ enum TyOrPartialSpan {
 }
 
 impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
-    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'_>) {
+    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
         let (components, ty_or_partial_span) = collect_components(cx, expr);
         if components.len() < 2 {
             return;
@@ -84,7 +87,12 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
     }
 }
 
-fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>, TyOrPartialSpan) {
+static PATH_NEW: PathLookup = value_path!(std::path::Path::new);
+
+fn collect_components<'tcx>(
+    cx: &LateContext<'tcx>,
+    mut expr: &Expr<'tcx>,
+) -> (Vec<String>, TyOrPartialSpan) {
     let mut components_reversed = Vec::new();
     let mut partial_span = expr.span.with_lo(expr.span.hi());
 
@@ -109,14 +117,14 @@ fn collect_components(cx: &LateContext<'_>, mut expr: &Expr<'_>) -> (Vec<String>
 
     let ty_or_partial_span = if let ExprKind::Call(callee, [arg]) = expr.kind
         && let ty = is_path_buf_from(cx, callee, expr)
-        && (is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW)
-            || is_expr_path_def_path(cx, callee, &paths::PATH_NEW)
+        && (is_expr_path_def_path(path_def_id, cx, callee, &paths::CAMINO_UTF8_PATH_NEW)
+            || PATH_NEW.matches_path(cx, callee)
             || ty.is_some())
         && let Some(s) = is_lit_string(cx, arg)
     {
         components_reversed.push(s);
         TyOrPartialSpan::Ty(ty.unwrap_or_else(|| {
-            if is_expr_path_def_path(cx, callee, &paths::CAMINO_UTF8_PATH_NEW) {
+            if is_expr_path_def_path(path_def_id, cx, callee, &paths::CAMINO_UTF8_PATH_NEW) {
                 &paths::CAMINO_UTF8_PATH_BUF
             } else {
                 &paths::PATH_PATH_BUF

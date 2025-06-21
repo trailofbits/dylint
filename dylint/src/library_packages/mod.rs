@@ -458,6 +458,8 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
     let path = package.path();
 
     if !opts.library_selection().no_build {
+        dbg!();
+
         // smoelius: Clear `RUSTFLAGS` so that changes to it do not cause workspace metadata entries
         // to be rebuilt.
         dylint_internal::cargo::build(&format!("workspace metadata entry `{}`", package.id.name()))
@@ -468,6 +470,8 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
             .current_dir(&package.root)
             .args(["--release", "--target-dir", &target_dir.to_string_lossy()])
             .success()?;
+
+        dbg!();
 
         let exists = path
             .try_exists()

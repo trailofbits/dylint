@@ -191,6 +191,8 @@
 //! [supplementary]: https://github.com/trailofbits/dylint/tree/master/examples/supplementary
 
 #![feature(rustc_private)]
+#![allow(clippy::useless_attribute)]
+#![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![warn(unused_extern_crates)]
 
 #[allow(unused_extern_crates)]
