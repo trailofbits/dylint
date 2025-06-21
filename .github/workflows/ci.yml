@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  CARGO_LOG: debug
   CARGO_TERM_COLOR: always
 
 jobs:
