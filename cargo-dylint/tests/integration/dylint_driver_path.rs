@@ -25,6 +25,8 @@ fn dylint_driver_path() {
         .success()
         .unwrap();
 
+    dbg!();
+
     // smoelius: Verify that the driver can be run directly.
     // https://github.com/trailofbits/dylint/issues/54
     let toolchain_path = toolchain_path(tempdir.path()).unwrap();
