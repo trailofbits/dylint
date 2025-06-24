@@ -113,6 +113,7 @@ jobs:
           echo /Applications/Xcode* | sort | head -n1 | xargs rm -rf
           # du -sh /*/* 2>/dev/null | sort -h || true
 
+      # smoelius: The next step avoids tests having to use `rustup` concurrently.
       - name: Preinstall toolchains
         run: cargo run -p dylint_internal --bin preinstall-toolchains
 
