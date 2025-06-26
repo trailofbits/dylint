@@ -283,8 +283,8 @@ fn strip_as_ref<'tcx>(
                 predicate.kind().skip_binder()
                 && cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id)
                 && let [self_arg, subst_arg] = trait_ref.args.as_slice()
-                && self_arg.unpack() == ty::GenericArgKind::Type(ty)
-                && let ty::GenericArgKind::Type(subst_ty) = subst_arg.unpack()
+                && self_arg.kind() == ty::GenericArgKind::Type(ty)
+                && let ty::GenericArgKind::Type(subst_ty) = subst_arg.kind()
             {
                 Some(subst_ty)
             } else {
