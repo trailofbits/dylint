@@ -30,6 +30,9 @@ pub struct Lazy<'opts> {
 }
 
 impl<'opts> Lazy<'opts> {
+    /// Creates a new lazy name-toolchain map with the given options.
+    /// 
+    /// The map will be populated when first accessed via `get_or_try_init()`.
     #[must_use]
     pub const fn new(opts: &'opts crate::opts::Dylint) -> Self {
         Self {

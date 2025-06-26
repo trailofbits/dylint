@@ -53,6 +53,10 @@ static REQUIRED_FORM: LazyLock<String> = LazyLock::new(|| {
 });
 
 #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
+/// Runs the Dylint tool with the given options.
+/// 
+/// This is the main entry point for the Dylint library. It processes the options,
+/// resolves library paths, and performs the requested operation (check, list, new, or upgrade).
 pub fn run(opts: &opts::Dylint) -> Result<()> {
     let opts = {
         let opts_orig = opts;
@@ -247,6 +251,10 @@ fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result
     Ok(toolchain_map)
 }
 
+/// Attempts to resolve a library name to a specific library and toolchain.
+/// 
+/// Returns the toolchain and library path if found. If `as_lib_only` is true,
+/// only treats the name as a library name. Otherwise, may also try as a path.
 pub fn name_as_lib(
     name_toolchain_map: &NameToolchainMap,
     name: &str,

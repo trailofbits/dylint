@@ -71,6 +71,10 @@ pub fn main() -> Result<()> {
     dylint_lib = "question_mark_in_expression",
     allow(question_mark_in_expression)
 )]
+/// Gets or builds a Dylint driver for the specified toolchain.
+/// 
+/// Returns the path to the driver executable. If a driver doesn't exist or is outdated,
+/// it will be built automatically.
 pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     let dylint_drivers = dylint_drivers()?;
 

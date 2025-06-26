@@ -17,6 +17,9 @@ impl<E> ColorizedError<E>
 where
     E: std::fmt::Debug,
 {
+    /// Creates a new colorized error wrapper.
+    /// 
+    /// The error will be displayed with ANSI color codes when printed to a terminal.
     #[allow(clippy::missing_const_for_fn)]
     pub fn new(error: E) -> Self {
         Self(error)
@@ -42,6 +45,10 @@ where
 
 pub type ColorizedResult<T> = Result<T, ColorizedError<anyhow::Error>>;
 
+/// Prints a warning message to stderr with optional color formatting.
+/// 
+/// The warning is only printed if the `quiet` option is not set. When output
+/// goes to a terminal, the warning is colored yellow.
 #[allow(clippy::expect_used)]
 pub fn warn(opts: &crate::opts::Dylint, message: &str) {
     if !opts.quiet {

@@ -52,7 +52,10 @@ impl CommandExt for Command {
     }
 }
 
-#[allow(unused_variables)]
+/// Creates a Command for running a Dylint driver with the specified toolchain.
+/// 
+/// Returns a configured Command that will run the driver executable with the
+/// appropriate environment setup for the given toolchain.
 pub fn driver(toolchain: &str, driver: &Path) -> Result<Command> {
     #[allow(unused_mut)]
     let mut command = Command::new(driver);
@@ -66,6 +69,10 @@ pub fn driver(toolchain: &str, driver: &Path) -> Result<Command> {
     Ok(command)
 }
 
+/// Prepends a toolchain path to the PATH environment variable.
+/// 
+/// Returns the modified PATH that includes the toolchain's bin directory,
+/// allowing rustc and other tools from that toolchain to be found.
 pub fn prepend_toolchain_path(toolchain: impl AsRef<Path>) -> Result<OsString> {
     let rustup_home = crate::env::var(crate::env::RUSTUP_HOME)?;
     prepend_path(
@@ -76,6 +83,9 @@ pub fn prepend_toolchain_path(toolchain: impl AsRef<Path>) -> Result<OsString> {
     )
 }
 
+/// Prepends a path to the PATH environment variable.
+/// 
+/// Returns the modified PATH with the given path added to the beginning.
 pub fn prepend_path(path: impl AsRef<OsStr>) -> Result<OsString> {
     let old_path = crate::env::var(crate::env::PATH)?;
     let new_path = std::env::join_paths(

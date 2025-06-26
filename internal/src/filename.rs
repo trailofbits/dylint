@@ -1,6 +1,9 @@
 use std::{env::consts, path::Path};
 
-/// Returns the filename of a Dylint library.
+/// Constructs a library filename from a library name and toolchain.
+/// 
+/// Returns a filename in the format required by Dylint: `{DLL_PREFIX}{lib_name}@{toolchain}{DLL_SUFFIX}`.
+/// This is used when building or searching for Dylint library files.
 ///
 /// # Examples
 ///
@@ -39,7 +42,10 @@ pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
     )
 }
 
-/// Parses the filename of a Dylint library path into a tuple of (name, toolchain).
+/// Parses a library filename from a path to extract the library name and toolchain.
+/// 
+/// Returns `Some((lib_name, toolchain))` if the path's filename matches the expected
+/// Dylint library format, or `None` if it doesn't match.
 ///
 /// # Examples
 ///
@@ -81,8 +87,10 @@ pub fn parse_path_filename(path: &Path) -> Option<(String, String)> {
     parse_filename(&filename.to_string_lossy())
 }
 
-#[allow(clippy::module_name_repetitions)]
-#[must_use]
+/// Parses a library filename string to extract the library name and toolchain.
+/// 
+/// Returns `Some((lib_name, toolchain))` if the filename matches the expected
+/// Dylint library format: `{DLL_PREFIX}{lib_name}@{toolchain}{DLL_SUFFIX}`.
 pub fn parse_filename(filename: &str) -> Option<(String, String)> {
     let file_stem = filename.strip_suffix(consts::DLL_SUFFIX)?;
     let target_name = file_stem.strip_prefix(consts::DLL_PREFIX)?;

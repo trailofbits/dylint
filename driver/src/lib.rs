@@ -328,6 +328,10 @@ fn list_lints(before: &BTreeSet<Lint>, after: &BTreeSet<Lint>) {
     }
 }
 
+/// Main entry point for the Dylint driver.
+/// 
+/// Processes command-line arguments and either prints version information
+/// or runs the compiler with Dylint lints loaded.
 pub fn dylint_driver<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     if args.len() <= 1 || args.iter().any(|arg| arg.as_ref() == "-V") {
         println!("{} {}", env!("RUSTUP_TOOLCHAIN"), env!("CARGO_PKG_VERSION"));
@@ -337,6 +341,10 @@ pub fn dylint_driver<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     run(&args[1..])
 }
 
+/// Runs the Rust compiler with Dylint libraries loaded.
+/// 
+/// This function sets up the compiler with the appropriate sysroot, rustflags,
+/// and library paths, then invokes the Rust compiler with Dylint callbacks.
 pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     let sysroot = sysroot().ok();
     let rustflags = rustflags();
