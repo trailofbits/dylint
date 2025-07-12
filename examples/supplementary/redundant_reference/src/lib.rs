@@ -163,8 +163,60 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
         ) in &self.field_uses
         {
             let item = cx.tcx.hir_expect_item(*local_def_id);
-            if let ItemKind::Struct(ident, VariantData::Struct { fields, .. }, _generics) =
-                &item.kind
+            if let ItemKind::Struct(ident, _generics, VariantData::Struct { fields, .. }) =
+                e, FileAction::Rename, old_name);
+
+            }
+
+        },
+
+    }
+
+}
+
+
+
+#[expect(clippy::must_use_candidate)]
+
+pub fn try_rename_dir(old_name: &Path, new_name: &Path) -> bool {
+
+    match fs::create_dir(new_name) {
+
+        Ok(()) => {},
+
+        Err(e) if matches!(e.kind(), io::ErrorKind::AlreadyExists | io::ErrorKind::NotFound) => return false,
+
+        Err(ref e) => panic_file(e, FileAction::Create, new_name),
+
+    }
+
+    // Windows can't reliably rename to an empty directory.
+
+    #[cfg(windows)]
+
+    drop(fs::remove_dir(new_name));
+
+    match fs::rename(old_name, new_name) {
+
+        Ok(()) => true,
+
+        Err(ref e) => {
+
+            // Already dropped earlier on windows.
+
+            #[cfg(not(windows))]
+
+            drop(fs::remove_dir(new_name));
+
+            // `NotADirectory` happens on posix when renaming a file to an existing directory.
+
+            if matches!(e.kind(), io::ErrorKind::NotFound | io::ErrorKind::NotADirectory) {
+
+                false
+
+            } else {
+
+                panic_file(item.kind
                 && let Some(field_def) = fields.iter().find(|field_def| field_def.ident == *field)
                 && let field_def_local_def_id = field_def.def_id
                 && (!cx.tcx.visibility(*local_def_id).is_public()

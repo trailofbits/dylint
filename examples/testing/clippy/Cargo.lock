@@ -195,8 +195,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_config"
-version = "0.1.89"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=0450db33a5d8587f7c1d4b6d233dac963605766b#0450db33a5d8587f7c1d4b6d233dac963605766b"
+version = "0.1.90"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=c950602c01b2a68b7502388d440270d4e3ee64aa#c950602c01b2a68b7502388d440270d4e3ee64aa"
 dependencies = [
  "clippy_utils",
  "itertools",
@@ -206,13 +206,14 @@ dependencies = [
 
 [[package]]
 name = "clippy_lints"
-version = "0.1.89"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=0450db33a5d8587f7c1d4b6d233dac963605766b#0450db33a5d8587f7c1d4b6d233dac963605766b"
+version = "0.1.90"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=c950602c01b2a68b7502388d440270d4e3ee64aa#c950602c01b2a68b7502388d440270d4e3ee64aa"
 dependencies = [
  "arrayvec",
  "cargo_metadata 0.18.1",
  "clippy_config",
  "clippy_utils",
+ "declare_clippy_lint",
  "itertools",
  "quine-mc_cluskey",
  "regex-syntax",
@@ -226,8 +227,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.89"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=0450db33a5d8587f7c1d4b6d233dac963605766b#0450db33a5d8587f7c1d4b6d233dac963605766b"
+version = "0.1.90"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=c950602c01b2a68b7502388d440270d4e3ee64aa#c950602c01b2a68b7502388d440270d4e3ee64aa"
 dependencies = [
  "arrayvec",
  "itertools",
@@ -262,6 +263,11 @@ dependencies = [
  "tester",
  "windows-sys 0.59.0",
 ]
+
+[[package]]
+name = "declare_clippy_lint"
+version = "0.1.90"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=c950602c01b2a68b7502388d440270d4e3ee64aa#c950602c01b2a68b7502388d440270d4e3ee64aa"
 
 [[package]]
 name = "diff"
@@ -1313,7 +1319,7 @@ dependencies = [
  "serde_spanned",
  "toml_datetime",
  "toml_write",
- "winnow 0.7.11",
+ "winnow 0.7.12",
 ]
 
 [[package]]
@@ -1697,9 +1703,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.7.11"
+version = "0.7.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74c7b26e3480b707944fc872477815d29a8e429d2f93a1ce000f5fa84a15cbcd"
+checksum = "f3edebf492c8125044983378ecb5766203ad3b4c2f7a922bd7dd207f6d443e95"
 dependencies = [
  "memchr",
 ]

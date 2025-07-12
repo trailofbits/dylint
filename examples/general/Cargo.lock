@@ -211,8 +211,8 @@ checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.89"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=0450db33a5d8587f7c1d4b6d233dac963605766b#0450db33a5d8587f7c1d4b6d233dac963605766b"
+version = "0.1.90"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=c950602c01b2a68b7502388d440270d4e3ee64aa#c950602c01b2a68b7502388d440270d4e3ee64aa"
 dependencies = [
  "arrayvec",
  "itertools",
@@ -1789,9 +1789,9 @@ checksum = "271414315aff87387382ec3d271b52d7ae78726f5d44ac98b4f4030c91880486"
 
 [[package]]
 name = "winnow"
-version = "0.7.11"
+version = "0.7.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74c7b26e3480b707944fc872477815d29a8e429d2f93a1ce000f5fa84a15cbcd"
+checksum = "f3edebf492c8125044983378ecb5766203ad3b4c2f7a922bd7dd207f6d443e95"
 dependencies = [
  "memchr",
 ]
