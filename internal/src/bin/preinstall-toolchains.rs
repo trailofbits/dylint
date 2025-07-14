@@ -16,7 +16,7 @@ fn main() -> Result<()> {
 
     let handles = std::iter::once("nightly".to_owned())
         .chain(toolchains)
-        .map(|toolchain| (thread::spawn(move || install_toolchain(&toolchain))));
+        .map(|toolchain| thread::spawn(move || install_toolchain(&toolchain)));
 
     for handle in handles {
         let () = handle
