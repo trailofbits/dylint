@@ -1,33 +1,11 @@
 use assert_cmd::prelude::*;
 use predicates::prelude::*;
-use tempfile::tempdir;
 
 #[test]
 fn no_libraries_were_found() {
-    let tempdir = tempdir().unwrap();
-
-    std::process::Command::new("cargo")
-        .current_dir(&tempdir)
-        .args([
-            "init",
-            "--name",
-            tempdir
-                .path()
-                .file_name()
-                .unwrap()
-                .to_string_lossy()
-                .trim_start_matches('.'),
-        ])
-        .assert()
-        .success();
-
     cargo_dylint()
-        .args([
-            "dylint",
-            "--all",
-            "--manifest-path",
-            &tempdir.path().join("Cargo.toml").to_string_lossy(),
-        ])
+        .current_dir("../fixtures/empty")
+        .args(["dylint", "--all"])
         .assert()
         .success()
         .stderr(predicate::str::ends_with(
@@ -35,12 +13,8 @@ fn no_libraries_were_found() {
         ));
 
     cargo_dylint()
-        .args([
-            "dylint",
-            "list",
-            "--manifest-path",
-            &tempdir.path().join("Cargo.toml").to_string_lossy(),
-        ])
+        .current_dir("../fixtures/empty")
+        .args(["dylint", "list"])
         .assert()
         .success()
         .stderr(predicate::str::ends_with(
@@ -62,29 +36,9 @@ fn nothing_to_do() {
 /// `--all` should not be required when `--git` or `--path` is used on the command line.
 #[test]
 fn opts_library_package_no_warn() {
-    let tempdir = tempdir().unwrap();
-
-    std::process::Command::new("cargo")
-        .current_dir(&tempdir)
-        .args([
-            "init",
-            "--name",
-            tempdir
-                .path()
-                .file_name()
-                .unwrap()
-                .to_string_lossy()
-                .trim_start_matches('.'),
-        ])
-        .assert()
-        .success();
-
     cargo_dylint()
-        .args([
-            "dylint",
-            "--manifest-path",
-            &tempdir.path().join("Cargo.toml").to_string_lossy(),
-        ])
+        .current_dir("../fixtures/empty")
+        .args(["dylint"])
         .assert()
         .success()
         .stderr(predicate::str::ends_with(
@@ -92,12 +46,11 @@ fn opts_library_package_no_warn() {
         ));
 
     cargo_dylint()
+        .current_dir("../fixtures/empty")
         .args([
             "dylint",
-            "--manifest-path",
-            &tempdir.path().join("Cargo.toml").to_string_lossy(),
             "--path",
-            "../examples/general/crate_wide_allow",
+            "../../examples/general/crate_wide_allow",
         ])
         .assert()
         .success()
