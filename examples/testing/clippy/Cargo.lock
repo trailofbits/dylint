@@ -183,6 +183,7 @@ dependencies = [
  "clippy_config",
  "clippy_lints",
  "clippy_utils",
+ "declare_clippy_lint",
  "dylint",
  "dylint_internal",
  "dylint_linting",

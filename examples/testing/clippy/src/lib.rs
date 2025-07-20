@@ -6,6 +6,7 @@ dylint_linting::dylint_library!();
 extern crate rustc_lint;
 extern crate rustc_session;
 
+use declare_clippy_lint::LintListBuilder;
 use dylint_internal::env;
 use std::env::{remove_var, set_var};
 
@@ -26,6 +27,10 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint
             }
         }
     }
+
+    let mut list_builder = LintListBuilder::default();
+    list_builder.insert(clippy_lints::declared_lints::LINTS);
+    list_builder.register(lint_store);
 
     let conf_path = clippy_config::lookup_conf_file();
     let conf = clippy_config::Conf::read(sess, &conf_path);
