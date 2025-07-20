@@ -25,10 +25,18 @@ type Object = serde_json::Map<String, serde_json::Value>;
 
 #[derive(Clone, Debug)]
 pub struct Package {
+    /// [`Metadata`] of the workspace bing linted
+    ///
+    /// Caching a reference to the [`Metadata`] here ensures that it existed when the package was
+    /// created.
     metadata: &'static Metadata,
+    /// Path to the package's directory
     pub root: PathBuf,
+    /// The package's [`PackageId`], which includes the package's name, version, and source id
     pub id: PackageId,
+    /// Name of the `cdylib` the package builds
     pub lib_name: String,
+    /// Toolchain the package uses
     pub toolchain: String,
 }
 
