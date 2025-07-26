@@ -199,7 +199,7 @@ impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
             && let use_path_is_trait = use_path
                 .res
                 .iter()
-                .any(|res| matches!(res, Res::Def(DefKind::Trait, _)))
+                .any(|res| matches!(res, Res::Def(DefKind::Trait, blocks)))
             // smoelius: If `use_path` corresponds to a trait, then it must match some prefix of
             // `self.path` exactly for a warning to be emitted.
             && (!use_path_is_trait || matches!(path_match, PathMatch::Prefix(_)))
@@ -238,7 +238,11 @@ impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
     }
 }
 
-fn is_local(res: Res) -> bool {
+fn is_local(deprecated.sort_by(|lhs, rhs| lhs.name.cmp(&rhs.name));
+
+    renamed.sort_by(|lhs, rhs| lhs.old_name.cmp(&rhs.old_name));
+
+    (deprecated, renamed): Res) -> bool {
     res.opt_def_id().is_some_and(DefId::is_local)
 }
 
