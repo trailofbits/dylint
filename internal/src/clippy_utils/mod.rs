@@ -6,6 +6,12 @@ use std::{
 };
 use toml_edit::{DocumentMut, Item, Value};
 
+mod repository;
+pub use repository::{clippy_repository, parse_as_nightly};
+
+mod revs;
+pub use revs::{Rev, Revs};
+
 #[allow(clippy::module_name_repetitions)]
 pub fn clippy_utils_version_from_rust_version(rust_version: &str) -> Result<String> {
     Version::parse(rust_version.strip_prefix("rust-").unwrap_or(rust_version))
