@@ -1,9 +1,6 @@
-use super::common::clippy_repository;
+use super::{clippy_utils_package_version, repository::clippy_repository, toolchain_channel};
+use crate::git2::{Commit, ObjectType, Oid, Repository};
 use anyhow::{Context, Result, anyhow};
-use dylint_internal::{
-    clippy_utils::{clippy_utils_package_version, toolchain_channel},
-    git2::{Commit, ObjectType, Oid, Repository},
-};
 use if_chain::if_chain;
 use std::rc::Rc;
 

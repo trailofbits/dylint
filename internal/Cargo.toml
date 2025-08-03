@@ -25,6 +25,7 @@ rustversion = { workspace = true, optional = true }
 semver = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 tar = { workspace = true, optional = true }
+tempfile = { workspace = true, optional = true }
 thiserror = { workspace = true, optional = true }
 toml = { workspace = true, optional = true }
 toml_edit = { workspace = true, optional = true }
@@ -43,7 +44,7 @@ toml_edit = { workspace = true }
 
 [features]
 cargo = ["anstyle", "bitflags", "cargo_metadata", "home"]
-clippy_utils = ["semver", "toml", "toml_edit"]
+clippy_utils = ["git", "semver", "tempfile", "toml", "toml_edit"]
 config = ["cargo_metadata", "serde", "thiserror", "toml"]
 examples = ["cargo", "cargo-util", "rustup", "walkdir"]
 git = ["git2", "if_chain"]
