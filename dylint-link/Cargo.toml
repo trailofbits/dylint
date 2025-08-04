@@ -2,7 +2,7 @@
 name = "dylint-link"
 version = "4.1.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "A wrapper around Rust's default linker to help create Dyling libraries"
+description = "A wrapper around Rust's default linker to help create Dylint libraries"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
