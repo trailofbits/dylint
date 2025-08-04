@@ -107,3 +107,128 @@ mod rustup_test {
         }
     }
 }
+
+// smoelius: I do not know what the right/best way to parse a toolchain is. `parse_toolchain` does
+// so by looking for the architecture.
+#[must_use]
+pub fn parse_toolchain(toolchain: &str) -> Option<(String, String)> {
+    let split_toolchain: Vec<_> = toolchain.split('-').collect();
+    split_toolchain
+        .iter()
+        .rposition(|s| ARCHITECTURES.binary_search(s).is_ok())
+        .map(|i| {
+            (
+                split_toolchain[..i].join("-"),
+                split_toolchain[i..].join("-"),
+            )
+        })
+}
+
+// smoelius: `ARCHITECTURES` is based on: https://doc.rust-lang.org/rustc/platform-support.html
+const ARCHITECTURES: &[&str] = &[
+    "aarch64",
+    "aarch64_be",
+    "amdgcn",
+    "arm",
+    "arm64_32",
+    "arm64e",
+    "arm64ec",
+    "armeb",
+    "armebv7r",
+    "armv4t",
+    "armv5te",
+    "armv6",
+    "armv6k",
+    "armv7",
+    "armv7a",
+    "armv7k",
+    "armv7r",
+    "armv7s",
+    "armv8r",
+    "avr",
+    "bpfeb",
+    "bpfel",
+    "csky",
+    "hexagon",
+    "i386",
+    "i586",
+    "i686",
+    "loongarch64",
+    "m68k",
+    "mips",
+    "mips64",
+    "mips64el",
+    "mipsel",
+    "mipsisa32r6",
+    "mipsisa32r6el",
+    "mipsisa64r6",
+    "mipsisa64r6el",
+    "msp430",
+    "nvptx64",
+    "powerpc",
+    "powerpc64",
+    "powerpc64le",
+    "riscv32",
+    "riscv32e",
+    "riscv32em",
+    "riscv32emc",
+    "riscv32gc",
+    "riscv32i",
+    "riscv32im",
+    "riscv32ima",
+    "riscv32imac",
+    "riscv32imafc",
+    "riscv32imc",
+    "riscv64",
+    "riscv64gc",
+    "riscv64imac",
+    "s390x",
+    "sparc",
+    "sparc64",
+    "sparcv9",
+    "thumbv4t",
+    "thumbv5te",
+    "thumbv6m",
+    "thumbv7a",
+    "thumbv7em",
+    "thumbv7m",
+    "thumbv7neon",
+    "thumbv8m.base",
+    "thumbv8m.main",
+    "wasm32",
+    "wasm32v1",
+    "wasm64",
+    "x86_64",
+    "x86_64h",
+    "xtensa",
+];
+
+#[allow(clippy::unwrap_used)]
+#[cfg(test)]
+mod test {
+    use super::{ARCHITECTURES, Command};
+    use assert_cmd::prelude::*;
+
+    #[test]
+    fn architectures_are_current() {
+        let output = Command::new("rustc")
+            .args(["--print", "target-list"])
+            .unwrap();
+        let mut architectures = std::str::from_utf8(&output.stdout)
+            .unwrap()
+            .lines()
+            .filter_map(|line| line.split_once('-').map(|(architecture, _)| architecture))
+            .collect::<Vec<_>>();
+        architectures.sort_unstable();
+        architectures.dedup();
+        assert_eq!(ARCHITECTURES, architectures);
+    }
+
+    #[test]
+    fn architectures_are_sorted() {
+        let mut architectures = ARCHITECTURES.to_vec();
+        architectures.sort_unstable();
+        architectures.dedup();
+        assert_eq!(ARCHITECTURES, architectures);
+    }
+}
