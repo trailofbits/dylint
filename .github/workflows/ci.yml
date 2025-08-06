@@ -38,6 +38,7 @@ jobs:
           [
             cargo-dylint,
             cargo-dylint-cargo-lib,
+            dylint_examples,
             expensive-alpine,
             expensive-boundary_toolchains,
             expensive-custom_toolchain,
@@ -183,11 +184,12 @@ jobs:
             else
               PACKAGE='${{ matrix.package }}'
             fi
+            cargo nw fetch
             cargo test -p "$PACKAGE" "$TEST" -- --nocapture
           else
             cargo nw fetch
 
-            cargo test --all-features --workspace --exclude cargo-dylint --exclude expensive --exclude scheduled -- --nocapture
+            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive --exclude scheduled -- --nocapture
 
             # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
             for X in examples/*/*; do
