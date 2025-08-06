@@ -13,6 +13,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_TERM_QUIET: true
 
 jobs:
   check-up-to-dateness:
