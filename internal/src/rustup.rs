@@ -153,6 +153,7 @@ const ARCHITECTURES: &[&str] = &[
     "i386",
     "i586",
     "i686",
+    "loongarch32",
     "loongarch64",
     "m68k",
     "mips",
