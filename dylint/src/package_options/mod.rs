@@ -2,8 +2,8 @@ use crate::opts;
 use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
     clippy_utils::{
-        clippy_utils_version_from_rust_version, set_clippy_utils_dependency_revision,
-        set_toolchain_channel, toolchain_channel,
+        Revs, clippy_utils_version_from_rust_version, parse_as_nightly,
+        set_clippy_utils_dependency_revision, set_toolchain_channel, toolchain_channel,
     },
     find_and_replace,
     packaging::new_template,
@@ -21,12 +21,6 @@ use walkdir::WalkDir;
 
 mod auto_correct;
 use auto_correct::auto_correct;
-
-mod common;
-use common::parse_as_nightly;
-
-mod revs;
-use revs::Revs;
 
 pub fn new_package(_opts: &opts::Dylint, new_opts: &opts::New) -> Result<()> {
     let path = Path::new(&new_opts.path);

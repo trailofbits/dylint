@@ -1,4 +1,4 @@
-use super::{common, highlight::Highlight, short_id::ShortId, tokenization::tokenize_lines};
+use super::{highlight::Highlight, short_id::ShortId, tokenization::tokenize_lines};
 use crate::{error::warn, opts};
 use anyhow::Result;
 use dylint_internal::{

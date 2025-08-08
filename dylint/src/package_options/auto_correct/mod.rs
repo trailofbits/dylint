@@ -1,12 +1,9 @@
 #![allow(clippy::unwrap_used)]
 
-use super::{
-    Backup,
-    common::{self, clippy_repository},
-};
+use super::Backup;
 use crate::opts;
 use anyhow::{Context, Result};
-use dylint_internal::git2::Oid;
+use dylint_internal::{clippy_utils::clippy_repository, git2::Oid};
 use rewriter::{LineColumn, Rewriter, Span, interface::Span as _};
 use std::{
     collections::{BTreeMap, HashMap},

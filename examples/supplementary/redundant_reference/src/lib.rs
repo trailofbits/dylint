@@ -163,7 +163,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
         ) in &self.field_uses
         {
             let item = cx.tcx.hir_expect_item(*local_def_id);
-            if let ItemKind::Struct(ident, VariantData::Struct { fields, .. }, _generics) =
+            if let ItemKind::Struct(ident, _generics, VariantData::Struct { fields, .. }) =
                 &item.kind
                 && let Some(field_def) = fields.iter().find(|field_def| field_def.ident == *field)
                 && let field_def_local_def_id = field_def.def_id

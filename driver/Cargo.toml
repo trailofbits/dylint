@@ -7,6 +7,8 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
+build = "build/main.rs"
+
 [dependencies]
 anyhow = "1.0"
 libc = "0.2"
@@ -16,6 +18,19 @@ rustversion = "1.0"
 serde_json = "1.0"
 
 dylint_internal = { version = "=4.1.0", path = "../internal", features = [
+    "rustup",
+] }
+
+[build-dependencies]
+anyhow = "1.0"
+curl = "0.4"
+git2 = "0.18"
+proc-macro2 = "1.0"
+rustversion = "1.0"
+syn = { version = "2.0", features = ["full"] }
+
+dylint_internal = { version = "=4.1.0", path = "../internal", features = [
+    "clippy_utils",
     "rustup",
 ] }
 

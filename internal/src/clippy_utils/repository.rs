@@ -1,5 +1,5 @@
+use crate::{clone, git2::Repository};
 use anyhow::{Context, Result};
-use dylint_internal::{clone, git2::Repository};
 use std::{cell::RefCell, rc::Rc};
 use tempfile::{TempDir, tempdir};
 

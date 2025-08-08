@@ -16,6 +16,7 @@ toml_edit = { workspace = true }
 
 dylint_internal = { version = "=4.1.0", path = "../internal", features = [
     "cargo",
+    "rustup",
 ] }
 
 [build-dependencies]
