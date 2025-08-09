@@ -99,7 +99,7 @@ impl NonThreadSafeCallInTest {
             // smoelius:
             // https://rustc-dev-guide.rust-lang.org/test-implementation.html#step-3-test-object-generation
             if let ItemKind::Const(_ident, ty, _generics, const_body_id) = item.kind
-                && let Some(ty_def_id) = path_def_id(cx, ty)
+                && let Some(ty_def_id) = path_def_id(cx, (ty, b_n_refs))
                 && match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN)
                 && let const_body = cx.tcx.hir_body(const_body_id)
                 && let ExprKind::Struct(_, fields, _) = const_body.value.kind
