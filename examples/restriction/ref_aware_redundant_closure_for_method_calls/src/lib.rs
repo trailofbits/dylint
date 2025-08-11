@@ -1,5 +1,11 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
+//@revisions: edition2021 edition2024
+
+//@[edition2021] edition:2021
+
+//@[edition2024] edition:2024
+
+//@[edition2021] check-pass
 #![allow(unused_imports)]
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![cfg_attr(
@@ -334,7 +340,7 @@ fn has_late_bound_to_non_late_bound_regions(from_sig: FnSig<'_>, to_sig: FnSig<'
             return true;
         }
         for (from_arg, to_arg) in to_subs.iter().zip(from_subs) {
-            match (from_arg.unpack(), to_arg.unpack()) {
+            match (from_arg.kind(), to_arg.kind()) {
                 (GenericArgKind::Lifetime(from_region), GenericArgKind::Lifetime(to_region)) => {
                     if check_region(from_region, to_region) {
                         return true;

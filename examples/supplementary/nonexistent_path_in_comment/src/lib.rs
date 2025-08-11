@@ -1,5 +1,11 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
+//@revisions: edition2021 edition2024
+
+//@[edition2021] edition:2021
+
+//@[edition2024] edition:2024
+
+//@[edition2021] check-pass
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![cfg_attr(dylint_lib = "supplementary", allow(nonexistent_path_in_comment))]
 #![warn(unused_extern_crates)]

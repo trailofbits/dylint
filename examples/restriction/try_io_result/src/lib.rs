@@ -1,5 +1,11 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
+//@revisions: edition2021 edition2024
+
+//@[edition2021] edition:2021
+
+//@[edition2024] edition:2024
+
+//@[edition2021] check-pass
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
@@ -88,7 +94,7 @@ fn is_io_result(cx: &LateContext<'_>, ty: Ty) -> bool {
     if let TyKind::Adt(def, substs) = ty.kind()
         && cx.tcx.is_diagnostic_item(sym::Result, def.did())
         && let [_, generic_arg] = substs.as_slice()
-        && let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack()
+        && let GenericArgKind::Type(generic_arg_ty) = generic_arg.kind()
         && let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind()
         && match_def_path(cx, generic_arg_def.did(), &paths::IO_ERROR)
     {

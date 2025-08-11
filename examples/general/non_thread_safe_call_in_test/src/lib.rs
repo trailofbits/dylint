@@ -1,5 +1,11 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
+//@revisions: edition2021 edition2024
+
+//@[edition2021] edition:2021
+
+//@[edition2024] edition:2024
+
+//@[edition2021] check-pass
 #![warn(unused_extern_crates)]
 
 #[cfg(not(feature = "rlib"))]
