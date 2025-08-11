@@ -34,6 +34,7 @@ for EXAMPLE in examples/general examples/supplementary examples/restriction $EXP
         REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
         sed -i "s/^\(clippy_config\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
         sed -i "s/^\(clippy_lints\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
+        sed -i "s/^\(declare_clippy_lint\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
 
         # smoelius: If `clippy`'s `rust-toolchain` file changed, upgrade `straggler` to the Rust
         # version that `clippy` used previously. Note that `clippy` can be upgraded without its
