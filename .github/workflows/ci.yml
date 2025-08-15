@@ -122,28 +122,6 @@ jobs:
       - name: Preinstall toolchains
         run: cargo run -p dylint_internal --bin preinstall-toolchains
 
-      - name: Use Cargo with rust-lang/cargo#15698
-        run: |
-          # smoelius: Uninstall and reinstall nightly-2025-05-14 in case it contains a corrupt
-          # symlink.
-          rustup uninstall nightly-2025-05-14
-          rustup install nightly-2025-05-14
-          rustup component add llvm-tools-preview rustc-dev --toolchain nightly-2025-05-14
-          CARGO_OLD="$(rustup +nightly-2025-05-14 which cargo)"
-          BIN=cargo
-          if [[ '${{ runner.os }}' = 'Windows' ]]; then
-            BIN="$BIN".exe
-          fi
-          cd ..
-          git clone https://github.com/rust-lang/cargo
-          cd cargo
-          git checkout 409fed7dc1553d49cb9a8c0637d12d65571346ce
-          cargo build --release
-          CARGO_NEW="$PWD"/target/release/"$BIN"
-          cd "$(dirname "$CARGO_OLD")"
-          rm -f "$BIN"
-          ln -s "$CARGO_NEW" "$BIN"
-
       - name: Test
         run: |
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
