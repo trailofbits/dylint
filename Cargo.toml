@@ -93,14 +93,13 @@ libraries = [
 
 [workspace.metadata.unmaintained]
 ignore = [
-    "icu_locid",
-    "icu_locid_transform",
-    "icu_locid_transform_data",
-    "icu_provider_macros",
+    "bincode",
     "miow",
     "num_cpus",
     "serde-value",
     "tester",
+    # https://github.com/toml-rs/toml/blob/5a029b03dda8fa4d58e1c9a76af4d44eeaa68cc1/crates/toml_writer/CHANGELOG.md?plain=1#L12
+    "toml_write",
     # https://github.com/alacritty/vte/pull/122#issuecomment-2579278540
     "utf8parse",
 ]
