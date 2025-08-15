@@ -81,9 +81,12 @@ impl<'tcx> LateLintPass<'tcx> for EscapingDocLink {
         let parser = Parser::new_ext(&doc, Options::all());
 
         for (_, link_def) in parser.reference_definitions().iter() {
-            // smoelius: Heuristic to detect urls (`://`) and intra-doc links (`::`). Is there a
-            // better way?
-            if link_def.dest.contains("://") || link_def.dest.contains("::") {
+            // smoelius: Heuristic to detect urls (`://`), intra-doc links (`::`), and
+            // disambiguators (`@`). Is there a better way?
+            if link_def.dest.contains("://")
+                || link_def.dest.contains("::")
+                || link_def.dest.contains('@')
+            {
                 continue;
             }
 
