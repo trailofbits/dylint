@@ -304,12 +304,6 @@
     ],
     "cfg-if": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 11,
         "kind": "team",
         "login": "github:rust-lang:libs",
@@ -738,6 +732,12 @@
         "kind": "user",
         "login": "robinst",
         "name": "Robin Stocker"
+      },
+      {
+        "id": 308963,
+        "kind": "user",
+        "login": "keith-hall",
+        "name": "Keith Hall"
       }
     ],
     "fastrand": [
@@ -839,12 +839,6 @@
       }
     ],
     "getopts": [
-      {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
       {
         "id": 3,
         "kind": "user",
@@ -1454,6 +1448,14 @@
         "kind": "user",
         "login": "Frommi",
         "name": null
+      }
+    ],
+    "nested_workspace": [
+      {
+        "id": 64944,
+        "kind": "user",
+        "login": "smoelius",
+        "name": "Samuel Moelius"
       }
     ],
     "num-traits": [
@@ -2226,12 +2228,6 @@
     ],
     "unicode-width": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 3,
         "kind": "user",
         "login": "huonw",
@@ -2547,6 +2543,7 @@
       "dylint_internal",
       "dylint_testing",
       "expensive",
+      "nightly",
       "scheduled"
     ]
   }
