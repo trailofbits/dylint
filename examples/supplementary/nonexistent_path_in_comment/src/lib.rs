@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![cfg_attr(dylint_lib = "supplementary", allow(nonexistent_path_in_comment))]
 #![warn(unused_extern_crates)]
