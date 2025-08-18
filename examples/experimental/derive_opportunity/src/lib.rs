@@ -241,7 +241,7 @@ impl<'tcx> DeriveOpportunity<'tcx> {
     fn derivable_traits(&self, cx: &LateContext<'tcx>) -> &FxHashMap<Macro, FxHashSet<DefId>> {
         self.derivable_traits_map.get_or_init(|| {
             let mut derivable_traits_map = FxHashMap::<_, FxHashSet<_>>::default();
-            for trait_id in cx.tcx.all_traits() {
+            for trait_id in cx.tcx.all_traits_including_private() {
                 if let Some(mac) = is_derivable(cx, trait_id)
                     && !self.config.ignore.contains(&mac.path(cx))
                 {
