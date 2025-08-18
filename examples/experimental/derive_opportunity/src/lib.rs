@@ -19,7 +19,7 @@ use clippy_utils::{
 use once_cell::sync::OnceCell;
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_errors::Applicability;
-use rustc_hir::{Item, ItemKind, def_id::DefId};
+use rustc_hir::{Item, ItemKind, attrs::AttributeKind, def_id::DefId, find_attr};
 use rustc_lint::{LateContext, LateLintPass, LintStore};
 use rustc_middle::ty::{self, Upcast};
 use rustc_session::{Session, declare_lint, impl_lint_pass};
@@ -241,7 +241,7 @@ impl<'tcx> DeriveOpportunity<'tcx> {
     fn derivable_traits(&self, cx: &LateContext<'tcx>) -> &FxHashMap<Macro, FxHashSet<DefId>> {
         self.derivable_traits_map.get_or_init(|| {
             let mut derivable_traits_map = FxHashMap::<_, FxHashSet<_>>::default();
-            for trait_id in cx.tcx.all_traits() {
+            for trait_id in cx.tcx.all_traits_including_private() {
                 if let Some(mac) = is_derivable(cx, trait_id)
                     && !self.config.ignore.contains(&mac.path(cx))
                 {
@@ -322,14 +322,17 @@ fn is_derivable(cx: &LateContext<'_>, trait_id: DefId) -> Option<Macro> {
 }
 
 // smoelius: `is_derived` is based on `is_builtin_derived`:
-// https://github.com/rust-lang/rust/blob/90f642bb3d74ee0ba8e0faf967748f36ff78d572/compiler/rustc_middle/src/ty/mod.rs#L2439-L2452
+// https://github.com/rust-lang/rust/blob/ec637000c6d5436b165a9b9ab4b008c036d22c99/compiler/rustc_middle/src/ty/mod.rs#L2020-L2036
 fn is_derived(cx: &LateContext<'_>, def_id: DefId) -> Option<Macro> {
     if let Some(def_id) = def_id.as_local()
         && let outer = cx.tcx.def_span(def_id).ctxt().outer_expn_data()
         && matches!(outer.kind, ExpnKind::Macro(MacroKind::Derive, _))
     {
         let macro_def_id = outer.macro_def_id.unwrap();
-        if cx.tcx.has_attr(macro_def_id, sym::rustc_builtin_macro) {
+        if find_attr!(
+            cx.tcx.get_all_attrs(macro_def_id),
+            AttributeKind::RustcBuiltinMacro { .. }
+        ) {
             // smoelius: I'm not sure whether `SyntaxExtension::builtin_name` would be the right
             // thing to use here; regardless, I can't figure out how to retrieve that data:
             // https://github.com/rust-lang/rust/blob/d651fa78cefecefa87fa3d7dc1e1389d275afb63/compiler/rustc_expand/src/base.rs#L729-L731
