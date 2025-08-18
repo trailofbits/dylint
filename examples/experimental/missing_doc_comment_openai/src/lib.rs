@@ -1,14 +1,12 @@
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
 
-extern crate rustc_attr_data_structures;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{attrs::is_doc_hidden, diagnostics::span_lint_and_then, source::snippet_opt};
-use rustc_attr_data_structures::AttributeKind;
-use rustc_hir::{Attribute, FnSig, Item, ItemKind};
+use rustc_hir::{Attribute, FnSig, Item, ItemKind, attrs::AttributeKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::{BytePos, SourceFileAndLine, Span};
 use serde::Deserialize;
