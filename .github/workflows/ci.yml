@@ -81,7 +81,7 @@ jobs:
         run: |
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
-          cargo install nested_workspace || true
+          cargo install cargo-nested || true
           npm install -g prettier
 
       - name: Install CI tools
@@ -162,10 +162,10 @@ jobs:
             else
               PACKAGE='${{ matrix.package }}'
             fi
-            cargo nw fetch
+            cargo nested fetch
             cargo test -p "$PACKAGE" "$TEST" -- --nocapture
           else
-            cargo nw fetch
+            cargo nested fetch
 
             cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive --exclude scheduled -- --nocapture
 
