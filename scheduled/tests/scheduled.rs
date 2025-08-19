@@ -20,7 +20,7 @@ fn duplicate_dependencies() {
     for target in TARGETS {
         let mut command = Command::new("cargo");
         command.current_dir("..");
-        command.args(["tree", "--duplicates", "--target", target]);
+        command.args(["tree", "--duplicates", "--edges=normal", "--target", target]);
         let assert = command.assert().success();
 
         let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
