@@ -33,7 +33,7 @@ fn alpine() {
     assert!(status.success());
 
     Command::new("docker")
-        .args(["system", "prune"])
+        .args(["system", "prune", "--force"])
         .current_dir("..")
         .status()
         .unwrap();
