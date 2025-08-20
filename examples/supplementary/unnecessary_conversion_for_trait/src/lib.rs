@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_errors;
@@ -614,7 +613,7 @@ fn replace_types<'tcx>(
                 {
                     let projection = projection_predicate
                         .projection_term
-                        .with_self_ty(cx.tcx, new_ty)
+                        .with_replaced_self_ty(cx.tcx, new_ty)
                         .expect_ty(cx.tcx)
                         .to_ty(cx.tcx);
 
