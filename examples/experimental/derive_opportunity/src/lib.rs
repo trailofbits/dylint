@@ -373,7 +373,7 @@ fn implements_trait_with_bounds<'tcx>(
 // smoelius: `typing_env_with_bounds` is based on Clippy's `param_env_for_derived_eq`:
 // https://github.com/rust-lang/rust-clippy/blob/716c552632acb50a524e62284b9ca2446333a626/clippy_lints/src/derive.rs#L493-L529
 
-/// Creates the `ParamEnv` used for the give type's derived impl.
+/// Creates the `ParamEnv` used for the given type's derived impl.
 fn typing_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> ty::TypingEnv<'_> {
     // Initial map from generic index to param def.
     // Vec<(param_def, needs_bound)>
