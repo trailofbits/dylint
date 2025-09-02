@@ -22,6 +22,7 @@ mod openai;
 const OPENAI_API_KEY: &str = "OPENAI_API_KEY";
 
 const URL: &str = "https://api.openai.com/v1/completions";
+const OK: u32 = 200;
 
 const DEFAULT_PROMPT: &str = "An elaborate, high quality rustdoc comment for the above function:";
 const DEFAULT_MODEL: &str = "code-davinci-002";
@@ -281,7 +282,7 @@ fn send_request(api_key: &str, request: &openai::Request) -> Result<openai::Resp
         })
         .and_then(|(code, data)| {
             debug("response", &data);
-            if code == 200 {
+            if code == OK {
                 serde_json::from_slice(&data).map_err(IoError::from)
             } else {
                 match std::str::from_utf8(&data) {
