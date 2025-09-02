@@ -93,7 +93,7 @@ impl<'tcx> LateLintPass<'tcx> for EscapingDocLink {
             let path = link_def
                 .dest
                 .rsplit_once('#')
-                .map_or(link_def.dest.as_ref(), |(prefix, _)| prefix);
+                .map_or_else(|| link_def.dest.as_ref(), |(prefix, _)| prefix);
 
             let path = Path::new(path);
 
