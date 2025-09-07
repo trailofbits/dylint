@@ -26,7 +26,7 @@ use tempfile::tempdir;
 // smoelius: `home@0.5.11` (2024-12-16) requires rustc 1.81.
 // smoelius: `icu_collections@2.0.0` and several other packages require rustc 1.82.
 // smoelius: Edition 2024 was stabilized with Rust 1.85.
-const RUST_VERSION: &str = "1.85.0";
+const RUST_VERSION: &str = "1.86.0";
 
 #[test]
 fn new_package() {

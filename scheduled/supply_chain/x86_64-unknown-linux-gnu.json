@@ -560,6 +560,14 @@
         "name": "Matt Mastracci"
       }
     ],
+    "ctor-proc-macro": [
+      {
+        "id": 34586,
+        "kind": "user",
+        "login": "mmastrac",
+        "name": "Matt Mastracci"
+      }
+    ],
     "diff": [
       {
         "id": 297,
@@ -622,6 +630,22 @@
         "kind": "user",
         "login": "yaahc",
         "name": "Jane Losare-Lusby"
+      }
+    ],
+    "dtor": [
+      {
+        "id": 34586,
+        "kind": "user",
+        "login": "mmastrac",
+        "name": "Matt Mastracci"
+      }
+    ],
+    "dtor-proc-macro": [
+      {
+        "id": 34586,
+        "kind": "user",
+        "login": "mmastrac",
+        "name": "Matt Mastracci"
       }
     ],
     "dunce": [
@@ -760,6 +784,20 @@
         "kind": "user",
         "login": "alexcrichton",
         "name": "Alex Crichton"
+      }
+    ],
+    "find-msvc-tools": [
+      {
+        "id": 11,
+        "kind": "team",
+        "login": "github:rust-lang:libs",
+        "name": "libs"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
       }
     ],
     "flate2": [
@@ -1214,12 +1252,6 @@
     ],
     "jobserver": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 1094,
         "kind": "user",
         "login": "petrochenkov",
@@ -1636,12 +1668,6 @@
     ],
     "regex": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 11,
         "kind": "team",
         "login": "github:rust-lang:libs",
@@ -1669,12 +1695,6 @@
       }
     ],
     "regex-syntax": [
-      {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
       {
         "id": 11,
         "kind": "team",
@@ -2154,7 +2174,35 @@
         "name": null
       }
     ],
+    "toml_parser": [
+      {
+        "id": 6743,
+        "kind": "user",
+        "login": "epage",
+        "name": "Ed Page"
+      },
+      {
+        "id": 6908,
+        "kind": "team",
+        "login": "github:toml-rs:maintainers",
+        "name": "Maintainers"
+      }
+    ],
     "toml_write": [
+      {
+        "id": 6743,
+        "kind": "user",
+        "login": "epage",
+        "name": "Ed Page"
+      },
+      {
+        "id": 6908,
+        "kind": "team",
+        "login": "github:toml-rs:maintainers",
+        "name": "Maintainers"
+      }
+    ],
+    "toml_writer": [
       {
         "id": 6743,
         "kind": "user",
