@@ -391,7 +391,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-dylint"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -945,7 +945,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
 name = "dylint"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -980,7 +980,7 @@ dependencies = [
 
 [[package]]
 name = "dylint-link"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -996,7 +996,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_examples"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "cargo-util",
  "cargo_metadata 0.22.0",
@@ -1010,7 +1010,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -1039,7 +1039,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.22.0",
@@ -1179,7 +1179,7 @@ dependencies = [
 
 [[package]]
 name = "expensive"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "dylint_internal",
@@ -2739,7 +2739,7 @@ dependencies = [
 
 [[package]]
 name = "nightly"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "nested_workspace",
 ]
@@ -3329,7 +3329,7 @@ dependencies = [
 
 [[package]]
 name = "scheduled"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "assert_cmd",
