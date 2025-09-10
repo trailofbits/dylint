@@ -76,8 +76,10 @@ fn clippy_utils_has_extra_symbols(rustup_toolchain: &str) -> Result<Option<Strin
 
 fn rev_from_channel(channel: &str) -> Result<Rev> {
     let revs = Revs::new(false)?;
-    let mut iter = revs.iter()?;
-    match iter.find(|rev| rev.as_ref().map_or(true, |rev| rev.channel == channel)) {
+    let mut iter = revs.channel_iter()?;
+    // smoelius: Stop at the first channel found lexicographically at or earlier than the desired
+    // channel.
+    match iter.find(|rev| rev.as_ref().map_or(true, |rev| *rev.channel <= *channel)) {
         Some(result) => result,
         None => Err(anyhow!("Could not find revision for channel {channel}")),
     }

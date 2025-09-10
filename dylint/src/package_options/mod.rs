@@ -105,7 +105,7 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
 
     let rev = {
         let revs = Revs::new(opts.quiet)?;
-        let mut iter = revs.iter()?;
+        let mut iter = revs.version_iter()?;
         match &upgrade_opts.rust_version {
             Some(rust_version) => {
                 let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
