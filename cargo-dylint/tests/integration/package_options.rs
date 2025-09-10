@@ -64,7 +64,12 @@ fn check_dylint_dependencies(path: &Path) -> Result<()> {
     for package in metadata.packages {
         for Dependency { name: dep, req, .. } in &package.dependencies {
             if dep.starts_with("dylint") {
-                assert_eq!("^".to_owned() + env!("CARGO_PKG_VERSION"), req.to_string());
+                if package.name.as_str() == "filled_in" {
+                    let version = Version::parse(env!("CARGO_PKG_VERSION")).unwrap();
+                    assert!(req.matches(&version));
+                } else {
+                    assert_eq!("^".to_owned() + env!("CARGO_PKG_VERSION"), req.to_string());
+                }
             }
         }
     }
