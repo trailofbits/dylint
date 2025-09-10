@@ -330,13 +330,13 @@ fn list_lints(before: &BTreeSet<Lint>, after: &BTreeSet<Lint>) {
     }
 }
 
-#[rustversion::before(2025-05-06)]
+#[rustversion::before(2025-05-14)]
 fn register_extra_symbols(_config: &mut rustc_interface::Config) {}
 
-#[rustversion::since(2025-05-06)]
+#[rustversion::since(2025-05-14)]
 include!(concat!(env!("OUT_DIR"), "/extra_symbols.rs"));
 
-#[rustversion::since(2025-05-06)]
+#[rustversion::since(2025-05-14)]
 fn register_extra_symbols(config: &mut rustc_interface::Config) {
     config.extra_symbols = EXTRA_SYMBOLS.into();
 }

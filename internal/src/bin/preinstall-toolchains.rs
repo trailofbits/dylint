@@ -11,7 +11,7 @@ use std::{
 };
 
 fn main() -> Result<()> {
-    let toolchains = collect_toolchains(&["cargo-dylint", "examples", "internal"])?;
+    let toolchains = collect_toolchains(&["cargo-dylint", "examples", "expensive", "internal"])?;
 
     println!("{:#?}", &toolchains);
 
