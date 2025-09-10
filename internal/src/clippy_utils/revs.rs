@@ -15,10 +15,16 @@ pub struct Revs {
     repository: Rc<Repository>,
 }
 
+enum Filter {
+    Version,
+    Channel,
+}
+
 pub struct RevIter<'revs> {
     repository: Rc<Repository>,
     commit: Commit<'revs>,
     curr_rev: Option<Rev>,
+    filter: Filter,
 }
 
 impl Revs {
@@ -28,8 +34,16 @@ impl Revs {
         Ok(Self { repository })
     }
 
+    pub fn version_iter(&self) -> Result<RevIter<'_>> {
+        self.iter(Filter::Version)
+    }
+
+    pub fn channel_iter(&self) -> Result<RevIter<'_>> {
+        self.iter(Filter::Channel)
+    }
+
     #[allow(clippy::iter_not_returning_iterator)]
-    pub fn iter(&self) -> Result<RevIter<'_>> {
+    fn iter(&self, filter: Filter) -> Result<RevIter<'_>> {
         let path = self
             .repository
             .workdir()
@@ -53,6 +67,7 @@ impl Revs {
                 channel,
                 oid,
             }),
+            filter,
         })
     }
 }
@@ -105,7 +120,10 @@ impl Iterator for RevIter<'_> {
                 };
                 if_chain! {
                     if let Some(prev_rev) = prev_rev;
-                    if prev_rev.version != curr_rev.version;
+                    if match self.filter {
+                        Filter::Version => prev_rev.version != curr_rev.version,
+                        Filter::Channel => prev_rev.channel != curr_rev.channel,
+                    };
                     then {
                         self.curr_rev = Some(curr_rev);
                         return Ok(Some(prev_rev));
@@ -124,7 +142,7 @@ mod test {
     use super::*;
     use std::sync::LazyLock;
 
-    static EXAMPLES: LazyLock<[Rev; 6]> = LazyLock::new(|| {
+    static VERSION_EXAMPLES: LazyLock<[Rev; 6]> = LazyLock::new(|| {
         [
             Rev {
                 version: "0.1.65".to_owned(),
@@ -164,18 +182,49 @@ mod test {
     // iterative search and it is causing this test to become increasingly slow. As of this writing,
     // the test takes around two minutes. The search should be a binary search.
     #[test]
-    fn examples() {
-        for example in &*EXAMPLES {
+    fn versions() {
+        for example in &*VERSION_EXAMPLES {
             let revs = Revs::new(false).unwrap();
-            let mut iter = revs.iter().unwrap();
+            let mut iter = revs.version_iter().unwrap();
             let rev = iter
                 .find(|rev| {
                     rev.as_ref()
-                        .map_or(true, |rev| rev.version == example.version)
+                        .map_or(true, |rev| rev.version <= example.version)
                 })
                 .unwrap()
                 .unwrap();
-            assert_eq!(rev, *example);
+            assert_eq!(*example, rev);
+        }
+    }
+
+    static CHANNEL_EXAMPLES: LazyLock<[Rev; 2]> = LazyLock::new(|| {
+        [
+            Rev {
+                version: "0.1.89".to_owned(),
+                channel: "nightly-2025-05-14".to_owned(),
+                oid: Oid::from_str("0450db33a5d8587f7c1d4b6d233dac963605766b").unwrap(),
+            },
+            Rev {
+                version: "0.1.88".to_owned(),
+                channel: "nightly-2025-05-01".to_owned(),
+                oid: Oid::from_str("03a5b6b976ac121f4233775c49a4bce026065b47").unwrap(),
+            },
+        ]
+    });
+
+    #[test]
+    fn channels() {
+        for example in &*CHANNEL_EXAMPLES {
+            let revs = Revs::new(false).unwrap();
+            let mut iter = revs.channel_iter().unwrap();
+            let rev = iter
+                .find(|rev| {
+                    rev.as_ref()
+                        .map_or(true, |rev| rev.channel <= example.channel)
+                })
+                .unwrap()
+                .unwrap();
+            assert_eq!(*example, rev);
         }
     }
 }
