@@ -9,8 +9,8 @@ use toml_edit::{DocumentMut, Item, Value};
 mod repository;
 pub use repository::{clippy_repository, parse_as_nightly};
 
-mod revs;
-pub use revs::{Rev, Revs};
+mod revs_no_preinstall;
+pub use revs_no_preinstall::{Rev, Revs};
 
 #[allow(clippy::module_name_repetitions)]
 pub fn clippy_utils_version_from_rust_version(rust_version: &str) -> Result<String> {
