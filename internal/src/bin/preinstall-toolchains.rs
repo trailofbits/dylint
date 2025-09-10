@@ -1,9 +1,10 @@
 use anyhow::{Context, Result, anyhow, ensure};
 use regex::Regex;
 use std::{
+    ffi::OsStr,
     fs::File,
     io::{BufRead, BufReader},
-    path::Path,
+    path::{Path, PathBuf},
     process::{Command, Stdio},
     sync::LazyLock,
     thread,
@@ -53,7 +54,16 @@ fn collect_toolchains_for_dir(dir: &str) -> Result<Vec<String>> {
     BufReader::new(stdout)
         .lines()
         .try_fold(Vec::new(), |mut toolchains, result| -> Result<_> {
-            let path = result.with_context(|| "Could not read from `git ls-files`")?;
+            let path = result
+                .map(PathBuf::from)
+                .with_context(|| "Could not read from `git ls-files`")?;
+            if path
+                .file_stem()
+                .and_then(OsStr::to_str)
+                .is_some_and(|file_stem| file_stem.ends_with("_no_preinstall"))
+            {
+                return Ok(toolchains);
+            }
             let toolchains_for_path = collect_toolchains_for_path(path)?;
             toolchains.extend(toolchains_for_path);
             Ok(toolchains)
