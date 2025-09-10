@@ -99,12 +99,8 @@ fn clippy_utils_sym_rs(rev: Oid) -> Result<String> {
     assert!(status.success());
 
     let sym_path = workdir.join("clippy_utils/src/sym.rs");
-    read_to_string(sym_path).with_context(|| {
-        format!(
-            "`read_to_string` failed for `{}`",
-            repository.path().display()
-        )
-    })
+    read_to_string(&sym_path)
+        .with_context(|| format!("`read_to_string` failed for `{}`", sym_path.display()))
 }
 
 fn quoted_symbols(sym_rs: &str) -> Result<Vec<String>> {
