@@ -1083,6 +1083,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
 
 [[package]]
+name = "elaborate"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7be532131e43b399e289765d3a429fc6422f62b14c1cfcb784635053c188c9d1"
+dependencies = [
+ "anyhow",
+]
+
+[[package]]
 name = "elliptic-curve"
 version = "0.13.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2713,13 +2722,14 @@ dependencies = [
 
 [[package]]
 name = "nested_workspace"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ceef7ca204e87ad477c2d53340dadfa5e4a7f583fabea009c9aa7f19deb2830f"
+checksum = "accb7481574f36c6896516fc06b27e62e231b139c12e6ea6c9b8baf3096e6c90"
 dependencies = [
  "anstyle",
  "anyhow",
  "cargo_metadata 0.19.2",
+ "elaborate",
  "env_logger",
  "log",
  "serde",
