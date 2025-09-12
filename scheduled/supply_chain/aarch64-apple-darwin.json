@@ -702,6 +702,14 @@
         "name": "Kornel"
       }
     ],
+    "elaborate": [
+      {
+        "id": 64944,
+        "kind": "user",
+        "login": "smoelius",
+        "name": "Samuel Moelius"
+      }
+    ],
     "env_filter": [
       {
         "id": 460,

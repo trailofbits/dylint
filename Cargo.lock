@@ -391,7 +391,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-dylint"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -550,9 +550,9 @@ checksum = "2fd1289c04a9ea8cb22300a459a72a385d7c73d3259e2ed7dcb2af674838cfa9"
 
 [[package]]
 name = "chrono"
-version = "0.4.41"
+version = "0.4.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c469d952047f47f91b68d1cba3f10d63c11d73e4636f24f08daf0278abf01c4d"
+checksum = "145052bdd345b87320e369255277e3fb5152762ad123a901ef5c262dd38fe8d2"
 dependencies = [
  "num-traits",
 ]
@@ -945,7 +945,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
 name = "dylint"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -980,7 +980,7 @@ dependencies = [
 
 [[package]]
 name = "dylint-link"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -996,7 +996,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_examples"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "cargo-util",
  "cargo_metadata 0.22.0",
@@ -1010,7 +1010,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -1039,7 +1039,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.22.0",
@@ -1178,7 +1178,7 @@ dependencies = [
 
 [[package]]
 name = "expensive"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "dylint_internal",
@@ -2738,7 +2738,7 @@ dependencies = [
 
 [[package]]
 name = "nightly"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "nested_workspace",
 ]
@@ -3328,7 +3328,7 @@ dependencies = [
 
 [[package]]
 name = "scheduled"
-version = "4.1.0"
+version = "4.1.1"
 dependencies = [
  "anyhow",
  "assert_cmd",
