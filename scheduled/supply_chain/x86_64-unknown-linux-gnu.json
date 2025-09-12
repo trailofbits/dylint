@@ -656,6 +656,14 @@
         "name": "Kornel"
       }
     ],
+    "elaborate": [
+      {
+        "id": 64944,
+        "kind": "user",
+        "login": "smoelius",
+        "name": "Samuel Moelius"
+      }
+    ],
     "env_filter": [
       {
         "id": 460,
@@ -1844,6 +1852,20 @@
         "kind": "user",
         "login": "arcnmx",
         "name": null
+      }
+    ],
+    "serde_core": [
+      {
+        "id": 3618,
+        "kind": "user",
+        "login": "dtolnay",
+        "name": "David Tolnay"
+      },
+      {
+        "id": 8138,
+        "kind": "team",
+        "login": "github:serde-rs:publish",
+        "name": "publish"
       }
     ],
     "serde_derive": [
