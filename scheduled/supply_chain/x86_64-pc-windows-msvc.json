@@ -656,6 +656,14 @@
         "name": "Kornel"
       }
     ],
+    "elaborate": [
+      {
+        "id": 64944,
+        "kind": "user",
+        "login": "smoelius",
+        "name": "Samuel Moelius"
+      }
+    ],
     "env_filter": [
       {
         "id": 460,
@@ -1448,12 +1456,6 @@
     ],
     "miow": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 1459,
         "kind": "user",
         "login": "faern",
@@ -1464,6 +1466,12 @@
         "kind": "user",
         "login": "yoshuawuyts",
         "name": "Yosh"
+      },
+      {
+        "id": 201572,
+        "kind": "user",
+        "login": "dpaoliello",
+        "name": "Daniel Paoliello"
       }
     ],
     "nested_workspace": [
@@ -1786,6 +1794,20 @@
         "kind": "user",
         "login": "arcnmx",
         "name": null
+      }
+    ],
+    "serde_core": [
+      {
+        "id": 3618,
+        "kind": "user",
+        "login": "dtolnay",
+        "name": "David Tolnay"
+      },
+      {
+        "id": 8138,
+        "kind": "team",
+        "login": "github:serde-rs:publish",
+        "name": "publish"
       }
     ],
     "serde_derive": [
