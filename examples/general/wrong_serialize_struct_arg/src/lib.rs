@@ -177,27 +177,33 @@ impl<'tcx> LateLintPass<'tcx> for WrongSerializeStructArg {
 
         // Check for all serialization method types
         if let Some((kind, len)) =
-            if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_STRUCT)
+            if match_def_path(cx, method_def_id, &paths::SERDE_CORE_SERIALIZE_STRUCT)
                 && let [_, arg] = args
                 && let Some(Constant::Int(len)) = ConstEvalCtxt::new(cx).eval(arg)
             {
                 Some((SerializeKind::Struct, len))
-            } else if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_STRUCT_VARIANT)
-                && let [_, _, _, arg] = args
+            } else if match_def_path(
+                cx,
+                method_def_id,
+                &paths::SERDE_CORE_SERIALIZE_STRUCT_VARIANT,
+            ) && let [_, _, _, arg] = args
                 && let Some(Constant::Int(len)) = ConstEvalCtxt::new(cx).eval(arg)
             {
                 Some((SerializeKind::StructVariant, len))
-            } else if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_TUPLE_STRUCT)
+            } else if match_def_path(cx, method_def_id, &paths::SERDE_CORE_SERIALIZE_TUPLE_STRUCT)
                 && let [_, arg] = args
                 && let Some(Constant::Int(len)) = ConstEvalCtxt::new(cx).eval(arg)
             {
                 Some((SerializeKind::TupleStruct, len))
-            } else if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_TUPLE_VARIANT)
-                && let [_, _, _, arg] = args
+            } else if match_def_path(
+                cx,
+                method_def_id,
+                &paths::SERDE_CORE_SERIALIZE_TUPLE_VARIANT,
+            ) && let [_, _, _, arg] = args
                 && let Some(Constant::Int(len)) = ConstEvalCtxt::new(cx).eval(arg)
             {
                 Some((SerializeKind::TupleVariant, len))
-            } else if match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_TUPLE)
+            } else if match_def_path(cx, method_def_id, &paths::SERDE_CORE_SERIALIZE_TUPLE)
             && let [arg] = args // serialize_tuple(len) -> only one argument after self
             && let Some(Constant::Int(len)) = ConstEvalCtxt::new(cx).eval(arg)
             {
@@ -222,25 +228,25 @@ impl<'tcx> LateLintPass<'tcx> for WrongSerializeStructArg {
         {
             let is_expected_child_call = match active_serialization.kind {
                 SerializeKind::Struct => {
-                    match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_FIELD_STRUCT)
+                    match_def_path(cx, method_def_id, &paths::SERDE_CORE_SERIALIZE_FIELD_STRUCT)
                 }
                 SerializeKind::StructVariant => match_def_path(
                     cx,
                     method_def_id,
-                    &paths::SERDE_SERIALIZE_FIELD_STRUCT_VARIANT,
+                    &paths::SERDE_CORE_SERIALIZE_FIELD_STRUCT_VARIANT,
                 ),
                 SerializeKind::TupleStruct => match_def_path(
                     cx,
                     method_def_id,
-                    &paths::SERDE_SERIALIZE_FIELD_TUPLE_STRUCT,
+                    &paths::SERDE_CORE_SERIALIZE_FIELD_TUPLE_STRUCT,
                 ),
                 SerializeKind::TupleVariant => match_def_path(
                     cx,
                     method_def_id,
-                    &paths::SERDE_SERIALIZE_FIELD_TUPLE_VARIANT,
+                    &paths::SERDE_CORE_SERIALIZE_FIELD_TUPLE_VARIANT,
                 ),
                 SerializeKind::Tuple => {
-                    match_def_path(cx, method_def_id, &paths::SERDE_SERIALIZE_ELEMENT)
+                    match_def_path(cx, method_def_id, &paths::SERDE_CORE_SERIALIZE_ELEMENT)
                 }
             };
             if is_expected_child_call {
