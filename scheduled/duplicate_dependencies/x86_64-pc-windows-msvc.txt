@@ -14,14 +14,10 @@ toml_datetime v0.6.11
 toml_datetime v0.7.0
 toml_edit v0.22.27
 toml_edit v0.23.4
-windows-sys v0.48.0
 windows-sys v0.52.0
 windows-sys v0.59.0
 windows-sys v0.60.2
-windows-sys v0.61.0
-windows-targets v0.48.5
 windows-targets v0.52.6
 windows-targets v0.53.3
-windows_x86_64_msvc v0.48.5
 windows_x86_64_msvc v0.52.6
 windows_x86_64_msvc v0.53.0
