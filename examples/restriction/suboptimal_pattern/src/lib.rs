@@ -8,7 +8,7 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{
-    diagnostics::span_lint_and_sugg, path_to_local_id, peel_middle_ty_refs, source::snippet,
+    diagnostics::span_lint_and_sugg, path_to_local_id, peel_and_count_ty_refs, source::snippet,
     ty::is_copy,
 };
 use rustc_data_structures::fx::FxHashSet;
@@ -134,7 +134,7 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                 } else {
                     cx.typeck_results().node_type(pat.hir_id)
                 };
-                let (referent_ty, n_refs) = peel_middle_ty_refs(pat_ty);
+                let (referent_ty, n_refs, _) = peel_and_count_ty_refs(pat_ty);
 
                 let mut is_tuple = false;
 

@@ -7,7 +7,7 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{
-    diagnostics::span_lint_hir_and_then, get_parent_expr, peel_middle_ty_refs, ty::is_copy,
+    diagnostics::span_lint_hir_and_then, get_parent_expr, peel_and_count_ty_refs, ty::is_copy,
 };
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
