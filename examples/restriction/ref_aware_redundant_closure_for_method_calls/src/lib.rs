@@ -386,8 +386,8 @@ fn get_ufcs_type_name<'tcx>(
     let assoc_item = cx.tcx.associated_item(method_def_id);
     let def_id = assoc_item.container_id(cx.tcx);
     match assoc_item.container {
-        ty::AssocItemContainer::Trait => cx.tcx.def_path_str(def_id),
-        ty::AssocItemContainer::Impl => {
+        ty::AssocContainer::Trait => cx.tcx.def_path_str(def_id),
+        ty::AssocContainer::InherentImpl | rustc_ty::AssocContainer::TraitImpl(_)=> {
             let ty = cx.tcx.type_of(def_id).instantiate_identity();
             match ty.kind() {
                 ty::Adt(adt, _) => cx.tcx.def_path_str(adt.did()),
