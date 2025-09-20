@@ -8,8 +8,10 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{
-    diagnostics::span_lint_and_sugg, path_to_local_id, peel_and_count_ty_refs, source::snippet,
-    ty::is_copy,
+    diagnostics::span_lint_and_sugg,
+    path_to_local_id,
+    source::snippet,
+    ty::{is_copy, peel_and_count_ty_refs},
 };
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;

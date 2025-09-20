@@ -7,7 +7,9 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{
-    diagnostics::span_lint_hir_and_then, get_parent_expr, peel_and_count_ty_refs, ty::is_copy,
+    diagnostics::span_lint_hir_and_then,
+    get_parent_expr,
+    ty::{is_copy, peel_and_count_ty_refs},
 };
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
@@ -128,7 +130,7 @@ impl RedundantReference {
 impl<'tcx> LateLintPass<'tcx> for RedundantReference {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         if let ExprKind::Field(operand, field) = expr.kind
-            && let (operand_ty, _) = peel_middle_ty_refs(cx.typeck_results().expr_ty(operand))
+            && let (operand_ty, _, _) = peel_and_count_ty_refs(cx.typeck_results().expr_ty(operand))
             && let ty::Adt(adt_def, _) = operand_ty.kind()
             && let Some(local_def_id) = adt_def.did().as_local()
             && let Some(parent) = get_parent_expr(cx, expr)
