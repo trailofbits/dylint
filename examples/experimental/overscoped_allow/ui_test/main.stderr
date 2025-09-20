@@ -8,7 +8,7 @@ help: `allow` could be moved here
   --> $DIR/main.rs:10:5
    |
 LL |     #[test]
-   |     ------- in this procedural macro expansion
+   |     ------- in this attribute macro expansion
 LL |     fn panic() {
    |     ^
    = note: `#[warn(overscoped_allow)]` on by default
