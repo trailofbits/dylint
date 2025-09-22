@@ -253,7 +253,7 @@ pub fn name_as_lib(
     as_lib_only: bool,
 ) -> Result<Option<(String, MaybeLibrary)>> {
     if !is_valid_lib_name(name) {
-        ensure!(!as_lib_only, "`{}` is not a valid library name", name);
+        ensure!(!as_lib_only, "`{name}` is not a valid library name");
         return Ok(None);
     }
 
@@ -276,7 +276,7 @@ pub fn name_as_lib(
         };
     }
 
-    ensure!(!as_lib_only, "Could not find `--lib {}`", name);
+    ensure!(!as_lib_only, "Could not find `--lib {name}`");
 
     Ok(None)
 }
@@ -309,8 +309,7 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
 
         ensure!(
             !as_path_only,
-            "`--lib-path {}` was used, but the filename does not have the required form: {}",
-            name,
+            "`--lib-path {name}` was used, but the filename does not have the required form: {}",
             *REQUIRED_FORM
         );
 
@@ -318,19 +317,17 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
         // path.
         ensure!(
             !name.contains(MAIN_SEPARATOR),
-            "`{}` is a valid path, but the filename does not have the required form: {}",
-            name,
+            "`{name}` is a valid path, but the filename does not have the required form: {}",
             *REQUIRED_FORM
         );
 
         ensure!(
             !as_path_only,
-            "`--lib-path {}` was used, but it is invalid",
-            name
+            "`--lib-path {name}` was used, but it is invalid"
         );
     }
 
-    ensure!(!as_path_only, "Could not find `--path {}`", name);
+    ensure!(!as_path_only, "Could not find `--path {name}`");
 
     Ok(None)
 }
@@ -493,8 +490,7 @@ fn check_or_fix(
         Ok(())
     } else {
         Err(anyhow!(
-            "Compilation failed with the following toolchains: {:?}",
-            failures
+            "Compilation failed with the following toolchains: {failures:?}"
         ))
     }
 }

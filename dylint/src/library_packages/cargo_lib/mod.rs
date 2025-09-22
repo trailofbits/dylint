@@ -51,12 +51,12 @@ fn dependency_root(gctx: &GlobalContext, dep: &Dependency) -> Result<PathBuf> {
         if let Some(path) = source_id.local_path() {
             Ok(path)
         } else {
-            bail!("Path source should have a local path: {}", source_id)
+            bail!("Path source should have a local path: {source_id}")
         }
     } else if source_id.is_git() {
         git_dependency_root(gctx, dep)
     } else {
-        bail!("Only git and path entries are supported: {}", source_id)
+        bail!("Only git and path entries are supported: {source_id}")
     }
 }
 
