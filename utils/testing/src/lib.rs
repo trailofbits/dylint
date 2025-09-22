@@ -209,7 +209,7 @@ fn example_target(package: &Package, example: &str) -> Result<Target> {
         .iter()
         .find(|target| target.kind == [TargetKind::Example] && target.name == example)
         .cloned()
-        .ok_or_else(|| anyhow!("Could not find example `{}`", example))
+        .ok_or_else(|| anyhow!("Could not find example `{example}`"))
 }
 
 #[allow(clippy::unnecessary_wraps)]
@@ -398,7 +398,7 @@ where
     I: Iterator<Item = T>,
 {
     iter.next()
-        .ok_or_else(|| anyhow!("Missing argument for `{}`", flag))
+        .ok_or_else(|| anyhow!("Missing argument for `{flag}`"))
 }
 
 fn copy_with_extension<P: AsRef<Path>, Q: AsRef<Path>>(

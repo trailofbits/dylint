@@ -28,7 +28,7 @@ pub fn new_package(_opts: &opts::Dylint, new_opts: &opts::New) -> Result<()> {
     let name = path
         .file_name()
         .map(|s| s.to_string_lossy().to_string())
-        .ok_or_else(|| anyhow!("Could not determine library name from {:?}", path))?;
+        .ok_or_else(|| anyhow!("Could not determine library name from `{}`", path.display()))?;
 
     let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
 
@@ -118,8 +118,7 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
                 })
                 .unwrap_or_else(|| {
                     Err(anyhow!(
-                        "Could not find `clippy_utils` version `{}`",
-                        clippy_utils_version
+                        "Could not find `clippy_utils` version `{clippy_utils_version}`"
                     ))
                 })?
             }

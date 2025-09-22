@@ -46,7 +46,7 @@ impl CommandExt for Command {
             .status()
             .with_context(|| format!("Could not get status of `{self:?}`"))?;
 
-        ensure!(status.success(), "command failed: {:?}", self);
+        ensure!(status.success(), "command failed: {self:?}");
 
         Ok(())
     }

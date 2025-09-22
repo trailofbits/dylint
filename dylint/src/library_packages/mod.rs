@@ -220,7 +220,7 @@ fn library_packages_from_dylint_metadata(
                 let libraries = serde_json::from_value::<Vec<Library>>(value.clone())?;
                 library_packages(opts, metadata, &libraries)
             } else {
-                bail!("Unknown key `{}`", key)
+                bail!("Unknown key `{key}`")
             }
         })
         .collect::<Result<Vec<_>>>()?;
@@ -266,7 +266,7 @@ fn library_packages_from_dylint_toml(
                 let libraries = Vec::<Library>::deserialize(value.clone().into_deserializer())?;
                 library_packages(opts, metadata, &libraries)
             } else {
-                bail!("Unknown key `{}`", key)
+                bail!("Unknown key `{key}`")
             }
         })
         .collect::<Result<Vec<_>>>()?;
@@ -345,7 +345,7 @@ fn library_package(
             matched = true;
         }
 
-        ensure!(matched, "No paths matched `{}`", pattern);
+        ensure!(matched, "No paths matched `{pattern}`");
     }
 
     // smoelius: Collecting the package ids before building reveals missing/unparsable `Cargo.toml`
