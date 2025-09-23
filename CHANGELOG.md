@@ -2,6 +2,10 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 4.1.2
+
+- Hot fix for a failed `cargo publish` ([#1737](https://github.com/trailofbits/dylint/pull/1737))
+
 ## 4.1.1
 
 - Correct error messages associated with `Cargo.toml` and `rust-toolchain` backups ([#1606](https://github.com/trailofbits/dylint/pull/1606))&mdash;thanks [@suratkhan](https://github.com/suratkhan)
