@@ -1,5 +1,23 @@
 # Changelog
 
+This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
+
+## 4.1.1
+
+- Correct error messages associated with `Cargo.toml` and `rust-toolchain` backups ([#1606](https://github.com/trailofbits/dylint/pull/1606))&mdash;thanks [@suratkhan](https://github.com/suratkhan)
+- Fix typo in conditional compilation documentation ([#1627](https://github.com/trailofbits/dylint/pull/1627))&mdash;thanks [@markopiers](https://github.com/markopiers)
+- Use `anstyle` instead of `ansi_term` ([#1630](https://github.com/trailofbits/dylint/pull/1630))
+- Fix link in README.md ([#1642](https://github.com/trailofbits/dylint/pull/1642))
+- Use `tar-fs` ([#1639](https://github.com/trailofbits/dylint/pull/1639))
+- Correct instructions for using Rust Analyzer ([#1658](https://github.com/trailofbits/dylint/pull/1658))&mdash;thanks [@mondeja](https://github.com/mondeja)
+- Ensure correct `cargo` is called when determining package metadata ([#1671](https://github.com/trailofbits/dylint/pull/1671))
+- Fix typo in `dylint-link` description ([#1700](https://github.com/trailofbits/dylint/pull/1700))
+- Upgrade dependencies ([#1728](https://github.com/trailofbits/dylint/pull/1728)), including:
+  - `cargo_metadata` to version 0.22
+  - `rewriter` to version 0.2
+  - `toml` to version 0.9
+  - `toml_edit` to version 0.23
+
 ## 4.1.0
 
 - Bump `dylint`'s MSRV to 1.81 ([b371376](https://github.com/trailofbits/dylint/commit/b371376f293a1effdb17e17e575c6529671a2d32))

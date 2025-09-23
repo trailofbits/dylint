@@ -5,7 +5,7 @@ fn main() {
         println!("cargo:rustc-cfg=nightly");
     }
 
-    #[cfg(feature = "packaging")]
+    #[cfg(all(any(), feature = "packaging"))]
     build_template_tar();
 
     // smoelius: This fix exists in `git2`'s master branch, but we are using version 0.18. See:
@@ -23,7 +23,7 @@ fn is_nightly() -> bool {
         .success()
 }
 
-#[cfg(feature = "packaging")]
+#[cfg(all(any(), feature = "packaging"))]
 fn build_template_tar() {
     use std::{
         env::var,

@@ -11,7 +11,7 @@ use cargo_metadata::TargetKind;
 use std::{fs::OpenOptions, io::Write, path::Path};
 use tar::Archive;
 
-const TEMPLATE_TAR: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/template.tar"));
+const TEMPLATE_TAR: &[u8] = include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/template.tar"));
 
 pub fn new_template(to: &Path) -> Result<()> {
     Archive::new(TEMPLATE_TAR)

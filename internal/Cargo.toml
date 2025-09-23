@@ -58,4 +58,5 @@ testing = ["ctor", "env_logger", "packaging"]
 workspace = true
 
 [package.metadata.cargo-udeps.ignore]
-normal = ["home"]
+normal = ["home", "walkdir"]
+build = ["walkdir"]
