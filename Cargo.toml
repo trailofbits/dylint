@@ -2,18 +2,16 @@
 # because they require specific Rust components.
 
 [workspace]
+exclude = ["driver", "internal/template", "utils/linting"]
 members = [
     "cargo-dylint",
-    # "driver",
     "dylint",
     "dylint-link",
     "examples",
     "expensive",
     "internal",
     "nightly",
-    # "internal/template",
     "scheduled",
-    # "utils/linting",
     "utils/testing",
 ]
 resolver = "2"
