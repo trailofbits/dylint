@@ -31,10 +31,6 @@ toml = { workspace = true, optional = true }
 toml_edit = { workspace = true, optional = true }
 walkdir = { workspace = true, optional = true }
 
-[build-dependencies]
-tar = { workspace = true, optional = true }
-walkdir = { workspace = true, optional = true }
-
 [dev-dependencies]
 assert_cmd = { workspace = true }
 predicates = { workspace = true }
@@ -50,7 +46,7 @@ examples = ["cargo", "cargo-util", "rustup", "walkdir"]
 git = ["git2", "if_chain"]
 home = ["dep:home", "rustversion"]
 match_def_path = []
-packaging = ["cargo", "tar", "walkdir"]
+packaging = ["cargo", "tar"]
 rustup = ["cargo_metadata"]
 testing = ["ctor", "env_logger", "packaging"]
 
@@ -58,5 +54,4 @@ testing = ["ctor", "env_logger", "packaging"]
 workspace = true
 
 [package.metadata.cargo-udeps.ignore]
-normal = ["home", "walkdir"]
-build = ["walkdir"]
+normal = ["home"]

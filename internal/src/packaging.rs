@@ -97,7 +97,9 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::fs::read_to_string;
+    use crate::env;
+    use std::fs::{copy, read, read_to_string};
+    use tempfile::TempDir;
 
     #[cfg_attr(
         dylint_lib = "assert_eq_arg_misordering",
@@ -145,5 +147,53 @@ mod test {
             .and_then(toml::Value::as_str)
             .unwrap();
         assert_eq!("0.1.0", version);
+    }
+
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    #[test]
+    fn check_template_tar() {
+        let dir = build_template_tar();
+        let path_buf = dir.path().join("template.tar");
+        if env::enabled("BLESS") {
+            copy(
+                path_buf,
+                concat!(env!("CARGO_MANIFEST_DIR"), "/template.tar"),
+            )
+            .unwrap();
+        } else {
+            let contents = read(dir.path().join("template.tar")).unwrap();
+            assert_eq!(TEMPLATE_TAR, contents);
+        }
+    }
+
+    fn build_template_tar() -> TempDir {
+        use std::{ffi::OsStr, fs::File, path::Path};
+        use tar::{Builder, HeaderMode};
+        use walkdir::WalkDir;
+
+        let tempdir = TempDir::new().unwrap();
+        let path_buf = tempdir.path().join("template.tar");
+        let file = File::create(path_buf).unwrap();
+        let mut archive = Builder::new(file);
+        archive.mode(HeaderMode::Deterministic);
+        let root = Path::new("template");
+        for result in WalkDir::new(root)
+            .sort_by_file_name()
+            .into_iter()
+            .filter_entry(|entry| {
+                let filename = entry.file_name();
+                filename != OsStr::new("Cargo.lock") && filename != OsStr::new("target")
+            })
+        {
+            let entry = result.unwrap();
+            let path = entry.path();
+            if !path.is_file() {
+                continue;
+            }
+            let mut file = File::open(path).unwrap();
+            let path_stripped = path.strip_prefix(root).unwrap();
+            archive.append_file(path_stripped, &mut file).unwrap();
+        }
+        tempdir
     }
 }
