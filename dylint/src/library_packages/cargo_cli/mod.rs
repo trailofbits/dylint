@@ -19,7 +19,7 @@ use crate::opts;
 use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::{Metadata, MetadataCommand};
 use cargo_util_schemas::manifest::TomlDetailedDependency;
-use dylint_internal::{CommandExt, cargo::stable_cargo_path, home::cargo_home, packaging::isolate};
+use dylint_internal::{CommandExt, home::cargo_home, packaging::isolate};
 use semver::Version;
 use serde::Serialize;
 use std::{
@@ -290,7 +290,7 @@ fn cargo_fetch(path: &Path) -> Result<std::process::Output> {
 
 fn cargo_metadata(path: &Path) -> Result<Metadata> {
     MetadataCommand::new()
-        .cargo_path(stable_cargo_path())
+        .cargo_path(dylint_internal::cargo::stable_cargo_path())
         .current_dir(path)
         .exec()
         .map_err(Into::into)
@@ -367,8 +367,7 @@ fn find_accessed_subdir<'a>(
 
     ensure!(
         accessed.len() <= 1,
-        "Multiple subdirectories were accessed: {:#?}",
-        accessed
+        "Multiple subdirectories were accessed: {accessed:#?}"
     );
 
     accessed
