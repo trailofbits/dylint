@@ -103,11 +103,11 @@ jobs:
         run: |
           # https://github.com/actions/runner-images/issues/2606#issuecomment-772683150
           # du -sh /usr/*/* 2>/dev/null | sort -h || true
-          sudo rm -rfv /usr/lib/dotnet           | grep . >/dev/null
           sudo rm -rfv /usr/lib/google-cloud-sdk | grep . >/dev/null
           sudo rm -rfv /usr/lib/jvm              | grep . >/dev/null
           sudo rm -rfv /usr/local/julia*         | grep . >/dev/null
           sudo rm -rfv /usr/share/az_*           | grep . >/dev/null
+          sudo rm -rfv /usr/share/dotnet           | grep .
           sudo rm -rfv /usr/share/miniconda      | grep . >/dev/null
           sudo rm -rfv /usr/share/swift          | grep . >/dev/null
 
