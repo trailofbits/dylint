@@ -9,14 +9,8 @@ use once_cell::sync::OnceCell;
 use serde::{Deserialize, de::IntoDeserializer};
 use std::path::{Path, PathBuf};
 
-// smoelius: If both `__cargo_cli` and `__cargo_lib` are enabled, assume the user built
-// `cargo-dylint` with `--features=cargo-lib` and forgot `--no-default-features`.
-#[cfg(all(feature = "__cargo_cli", not(feature = "__cargo_lib")))]
+#[cfg(feature = "__cargo_cli")]
 #[path = "cargo_cli/mod.rs"]
-mod impl_;
-
-#[cfg(feature = "__cargo_lib")]
-#[path = "cargo_lib/mod.rs"]
 mod impl_;
 
 use impl_::{GlobalContext, PackageId, SourceId, dependency_source_id_and_root};
