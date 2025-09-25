@@ -21,8 +21,6 @@ anstyle = "1.0"
 anyhow = "1.0"
 assert_cmd = "2.0"
 bitflags = "2.9"
-cargo = "0.81"
-cargo-platform = "0.1"
 cargo-util = "0.2"
 cargo-util-schemas = "0.7"
 cargo_metadata = "0.22"
@@ -77,7 +75,6 @@ check-cfg = [
     "cfg(dylint_lib, values(any()))",
     "cfg(nightly)",
     "cfg(__cargo_cli)",
-    "cfg(__cargo_lib)",
     "cfg(__library_packages)",
 ]
 
