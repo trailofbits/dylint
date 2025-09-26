@@ -167,5 +167,22 @@ note: error is determined here
 LL |         Err(VarError::NotPresent)
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: 15 warnings emitted
+warning: assignment to dereference before error return
+  --> $DIR/main.rs:294:9
+   |
+LL |         *x = 0;
+   |         ^^^^^^
+   |
+note: error is determined here
+  --> $DIR/main.rs:297:20
+   |
+LL |             return Err(std::io::Error::other("y"));
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: error is determined here
+  --> $DIR/main.rs:301:20
+   |
+LL |             return Err(std::io::Error::other("z"));
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: 16 warnings emitted
 

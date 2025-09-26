@@ -3,6 +3,7 @@
 #![warn(unused_extern_crates)]
 
 extern crate rustc_abi;
+extern crate rustc_data_structures;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
@@ -15,6 +16,7 @@ use clippy_utils::{
     type_path,
 };
 use dylint_internal::match_def_path;
+use rustc_data_structures::fx::FxHashMap;
 use rustc_errors::Diag;
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind};
 use rustc_index::bit_set::DenseBitSet;
@@ -28,6 +30,7 @@ use rustc_middle::{
 };
 use rustc_span::{Span, sym};
 use serde::Deserialize;
+use std::cell::RefCell;
 
 mod visit_error_paths;
 use visit_error_paths::visit_error_paths;
@@ -126,6 +129,7 @@ impl NonLocalEffectBeforeErrorReturn {
 }
 
 impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
+    #[cfg_attr(dylint_lib = "supplementary", allow(local_ref_cell))]
     fn check_fn(
         &mut self,
         cx: &LateContext<'tcx>,
@@ -166,6 +170,11 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
             writer.write_mir_fn(mir, &mut std::io::stdout()).unwrap();
         }
 
+        // smoelius: Accumulate all spans and output them at the end to make the output less
+        // cluttered. See: https://github.com/trailofbits/dylint/issues/1667
+        let call_with_mut_ref_spans = RefCell::new(FxHashMap::<_, Vec<_>>::default());
+        let deref_assign_spans = RefCell::new(FxHashMap::<_, Vec<_>>::default());
+
         visit_error_paths(
             self.config
                 .work_limit
@@ -179,32 +188,48 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
                     if !contributing_calls.contains(index)
                         && let Some((func, func_span)) = is_call_with_mut_ref(cx, mir, &path[i..])
                     {
-                        span_lint_and_then(
-                            cx,
-                            NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                            func_span,
-                            format!(
-                                "call to `{func:?}` with mutable reference before error return"
-                            ),
-                            error_note(span),
-                        );
+                        let mut call_with_mut_ref_spans = call_with_mut_ref_spans.borrow_mut();
+                        let spans = call_with_mut_ref_spans
+                            .entry((format!("{func:?}"), func_span))
+                            .or_default();
+                        if let Some(span) = span {
+                            spans.push(span);
+                        }
                     }
 
                     let basic_block = &mir.basic_blocks[index];
                     for statement in basic_block.statements.iter().rev() {
                         if let Some(assign_span) = is_deref_assign(statement) {
-                            span_lint_and_then(
-                                cx,
-                                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                                assign_span,
-                                "assignment to dereference before error return",
-                                error_note(span),
-                            );
+                            let mut deref_assign_spans = deref_assign_spans.borrow_mut();
+                            let spans = deref_assign_spans.entry(assign_span).or_default();
+                            if let Some(span) = span {
+                                spans.push(span);
+                            }
                         }
                     }
                 }
             },
         );
+
+        for ((func, func_span), spans) in call_with_mut_ref_spans.borrow().iter() {
+            span_lint_and_then(
+                cx,
+                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
+                *func_span,
+                format!("call to `{func}` with mutable reference before error return"),
+                error_note(spans),
+            );
+        }
+
+        for (assign_span, spans) in deref_assign_spans.borrow().iter() {
+            span_lint_and_then(
+                cx,
+                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
+                *assign_span,
+                "assignment to dereference before error return",
+                error_note(spans),
+            );
+        }
     }
 }
 
@@ -434,10 +459,10 @@ fn is_deref_assign(statement: &Statement) -> Option<Span> {
     }
 }
 
-fn error_note(span: Option<Span>) -> impl FnOnce(&mut Diag<'_, ()>) {
+fn error_note(spans: &[Span]) -> impl FnOnce(&mut Diag<'_, ()>) {
     move |diag| {
-        if let Some(span) = span {
-            diag.span_note(span, "error is determined here");
+        for span in spans {
+            diag.span_note(*span, "error is determined here");
         }
     }
 }
