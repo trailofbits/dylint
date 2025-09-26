@@ -288,3 +288,19 @@ pub mod fmt_result_test {
         Err(fmt::Error)
     }
 }
+
+pub mod consolidate_warnings {
+    pub fn foo(x: &mut u32, y: bool, z: bool) -> std::io::Result<()> {
+        *x = 0;
+
+        if y {
+            return Err(std::io::Error::other("y"));
+        }
+
+        if z {
+            return Err(std::io::Error::other("z"));
+        }
+
+        Ok(())
+    }
+}
