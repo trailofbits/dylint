@@ -38,10 +38,7 @@ impl CanonicalUrl {
         // cannot-be-a-base-urls (e.g., `github.com:rust-lang/rustfmt.git`)
         // are not supported.
         if url.cannot_be_a_base() {
-            anyhow::bail!(
-                "invalid url `{}`: cannot-be-a-base-URLs are not supported",
-                url
-            )
+            anyhow::bail!("invalid url `{url}`: cannot-be-a-base-URLs are not supported")
         }
 
         // Strip a trailing slash.

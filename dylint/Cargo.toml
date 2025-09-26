@@ -12,9 +12,6 @@ rust-version = "1.81"
 [dependencies]
 anstyle = { workspace = true }
 anyhow = { workspace = true }
-# smoelius: The `cargo` dependency should be kept in sync with: dylint/src/library_packages/cargo_lib/toml/mod.rs
-cargo = { workspace = true, optional = true }
-cargo-platform = { workspace = true, optional = true }
 cargo-util = { workspace = true, optional = true }
 cargo-util-schemas = { workspace = true, optional = true }
 cargo_metadata = { workspace = true }
@@ -90,23 +87,6 @@ __cargo_cli = [
     "toml",
     "url",
 ]
-__cargo_lib = [
-    "cargo",
-    "cargo-platform",
-    "cargo-util",
-    "cargo-util-schemas",
-    "dunce",
-    "glob",
-    "if_chain",
-    "serde-untagged",
-    "toml",
-]
 
 [lints]
 workspace = true
-
-# smoelius: When both `__cargo_cli` and `__cargo_lib` are enabled, we treat it as though
-# `--features=cargo-lib` was passed but the user forgot to pass `--no-default-features`. This
-# approach causes `fs_extra` and `rustc-stable-hash` to look like unused dependencies.
-[package.metadata.cargo-udeps.ignore]
-normal = ["fs_extra", "rustc-stable-hash"]
