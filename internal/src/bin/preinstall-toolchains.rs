@@ -15,7 +15,9 @@ fn main() -> Result<()> {
 
     println!("{:#?}", &toolchains);
 
-    let handles = std::iter::once("nightly".to_owned())
+    let handles = ["stable", "nightly"]
+        .into_iter()
+        .map(ToOwned::to_owned)
         .chain(toolchains)
         .map(|toolchain| thread::spawn(move || install_toolchain(&toolchain)));
 
