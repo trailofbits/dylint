@@ -10,6 +10,7 @@ fn channel_is_nightly() {
 }
 
 #[test]
+#[ignore = "recent nightlies started rejecting Cargo feature `doc_auto_cfg`, which some of `dylint_linting`'s dependencies use"]
 fn builds_with_cfg_docsrs() {
     update_nightly().unwrap();
 
