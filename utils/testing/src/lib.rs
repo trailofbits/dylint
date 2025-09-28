@@ -126,7 +126,7 @@ use std::{
 
 pub mod ui;
 
-static DRIVER: OnceCell<PathBuf> = OnceCell::new();
+static DRIVER: OnceCell<Result<PathBuf>> = OnceCell::new();
 static LINKING_FLAGS: OnceCell<Vec<String>> = OnceCell::new();
 
 /// Test a library on all source files in a directory.
@@ -155,42 +155,40 @@ pub fn ui_test_examples(name: &str) {
     ui::Test::examples(name).run();
 }
 
-fn initialize(name: &str) -> Result<&Path> {
-    DRIVER
-        .get_or_try_init(|| {
-            let _ = env_logger::try_init();
+fn initialize(name: &str) -> &Result<PathBuf> {
+    DRIVER.get_or_init(|| {
+        let _ = env_logger::try_init();
 
-            // smoelius: Try to order failures by how informative they are: failure to build the
-            // library, failure to find the library, failure to build/find the driver.
+        // smoelius: Try to order failures by how informative they are: failure to build the
+        // library, failure to find the library, failure to build/find the driver.
 
-            dylint_internal::cargo::build(&format!("library `{name}`"))
-                .build()
-                .success()?;
+        dylint_internal::cargo::build(&format!("library `{name}`"))
+            .build()
+            .success()?;
 
-            // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-            // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is
-            // no longer the case. I am leaving the comment here for now in case removal
-            // of the `name_toolchain_map` call causes a regression.
-            let metadata = dylint_internal::cargo::current_metadata().unwrap();
-            let dylint_library_path = metadata.target_directory.join("debug");
-            unsafe {
-                set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-            }
+        // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
+        // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is
+        // no longer the case. I am leaving the comment here for now in case removal
+        // of the `name_toolchain_map` call causes a regression.
+        let metadata = dylint_internal::cargo::current_metadata().unwrap();
+        let dylint_library_path = metadata.target_directory.join("debug");
+        unsafe {
+            set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
+        }
 
-            let dylint_libs = dylint_libs(name)?;
-            let driver = dylint::driver_builder::get(
-                &dylint::opts::Dylint::default(),
-                env!("RUSTUP_TOOLCHAIN"),
-            )?;
+        let dylint_libs = dylint_libs(name)?;
+        let driver = dylint::driver_builder::get(
+            &dylint::opts::Dylint::default(),
+            env!("RUSTUP_TOOLCHAIN"),
+        )?;
 
-            unsafe {
-                set_var(env::CLIPPY_DISABLE_DOCS_LINKS, "true");
-                set_var(env::DYLINT_LIBS, dylint_libs);
-            }
+        unsafe {
+            set_var(env::CLIPPY_DISABLE_DOCS_LINKS, "true");
+            set_var(env::DYLINT_LIBS, dylint_libs);
+        }
 
-            Ok(driver)
-        })
-        .map(PathBuf::as_path)
+        Ok(driver)
+    })
 }
 
 #[doc(hidden)]
