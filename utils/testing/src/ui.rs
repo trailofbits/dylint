@@ -80,7 +80,7 @@ impl Test {
     }
 
     fn run_immutable(&self) {
-        let driver = initialize(&self.name).unwrap();
+        let driver = initialize(&self.name).as_ref().unwrap();
 
         match &self.target {
             Target::SrcBase(src_base) => {
