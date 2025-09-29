@@ -1982,6 +1982,12 @@
         "kind": "user",
         "login": "Enselic",
         "name": "Martin Nordholts"
+      },
+      {
+        "id": 308963,
+        "kind": "user",
+        "login": "keith-hall",
+        "name": "Keith Hall"
       }
     ],
     "tar": [
