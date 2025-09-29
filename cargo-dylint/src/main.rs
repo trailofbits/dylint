@@ -1,8 +1,5 @@
 use clap::{ArgAction, Parser, crate_version};
-use std::{
-    ffi::{OsStr, OsString},
-    fmt::Debug,
-};
+use std::{ffi::OsStr, fmt::Debug};
 
 #[derive(Debug, Parser)]
 #[clap(bin_name = "cargo", display_name = "cargo")]
@@ -389,7 +386,7 @@ fn main() -> dylint::ColorizedResult<()> {
         );
     });
 
-    let args: Vec<_> = std::env::args().map(OsString::from).collect();
+    let args: Vec<_> = std::env::args_os().collect();
 
     cargo_dylint(&args)
 }
