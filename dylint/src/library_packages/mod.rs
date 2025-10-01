@@ -339,7 +339,15 @@ fn library_package(
             matched = true;
         }
 
-        ensure!(matched, "No paths matched `{pattern}`");
+        if !matched {
+            if library.pattern.is_some() {
+                bail!("No paths matched `{pattern}`");
+            }
+            bail!(
+                "No library packages found in `{}`",
+                dependency_root.display()
+            );
+        }
     }
 
     // smoelius: Collecting the package ids before building reveals missing/unparsable `Cargo.toml`
