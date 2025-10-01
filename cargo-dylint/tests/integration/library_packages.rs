@@ -354,7 +354,7 @@ path = "{}/../examples/general/nonexistent_library"
         .args(["dylint", "--all"])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("No paths matched"));
+        .stderr(predicate::str::contains("No library packages found in"));
 }
 
 /// Verify that changes to `RUSTFLAGS` do not cause workspace metadata entries to be rebuilt.
