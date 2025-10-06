@@ -22,7 +22,7 @@ anyhow = "1.0"
 assert_cmd = "2.0"
 bitflags = "2.9"
 cargo-util = "0.2"
-cargo-util-schemas = "0.7"
+cargo-util-schemas = "0.8"
 cargo_metadata = "0.22"
 chrono = { version = "0.4", default-features = false }
 clap = "4.5"
