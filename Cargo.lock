@@ -247,22 +247,6 @@ dependencies = [
 
 [[package]]
 name = "cargo-util-schemas"
-version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f905f68f8cb8a8182592d9858a5895360f0a5b08b6901fdb10498fb91829804"
-dependencies = [
- "semver",
- "serde",
- "serde-untagged",
- "serde-value",
- "thiserror 1.0.69",
- "toml 0.8.23",
- "unicode-xid",
- "url",
-]
-
-[[package]]
-name = "cargo-util-schemas"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dc1a6f7b5651af85774ae5a34b4e8be397d9cf4bc063b7e6dbd99a841837830"
@@ -299,7 +283,7 @@ checksum = "0c3f56c207c76c07652489840ff98687dcf213de178ac0974660d6fefeaf5ec6"
 dependencies = [
  "camino",
  "cargo-platform 0.3.1",
- "cargo-util-schemas 0.8.2",
+ "cargo-util-schemas",
  "semver",
  "serde",
  "serde_json",
@@ -587,7 +571,7 @@ dependencies = [
  "anstyle",
  "anyhow",
  "cargo-util",
- "cargo-util-schemas 0.7.2",
+ "cargo-util-schemas",
  "cargo_metadata 0.22.0",
  "chrono",
  "dunce",
