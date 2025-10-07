@@ -106,7 +106,7 @@ jobs:
           sudo rm -rfv /usr/lib/jvm              | grep . >/dev/null
           sudo rm -rfv /usr/local/julia*         | grep . >/dev/null
           sudo rm -rfv /usr/share/az_*           | grep . >/dev/null
-          sudo rm -rfv /usr/share/dotnet           | grep .
+          sudo rm -rfv /usr/share/dotnet         | grep . >/dev/null
           sudo rm -rfv /usr/share/miniconda      | grep . >/dev/null
           sudo rm -rfv /usr/share/swift          | grep . >/dev/null
 
