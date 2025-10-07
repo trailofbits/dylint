@@ -13,7 +13,7 @@ use std::{
     collections::BTreeMap,
     env::{consts, current_dir},
     ffi::OsStr,
-    fs::{OpenOptions, metadata},
+    fs::OpenOptions,
     path::{MAIN_SEPARATOR, Path, PathBuf},
     sync::LazyLock,
 };
@@ -51,8 +51,6 @@ static REQUIRED_FORM: LazyLock<String> = LazyLock::new(|| {
 #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
 pub fn run(opts: &opts::Dylint) -> Result<()> {
     let opts = {
-        let opts_orig = opts;
-
         let mut opts = opts.clone();
 
         if matches!(
@@ -60,24 +58,6 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
             opts::Operation::Check(_) | opts::Operation::List(_)
         ) {
             let lib_sel = opts.library_selection_mut();
-
-            let path_refers_to_libraries =
-                lib_sel
-                    .paths
-                    .iter()
-                    .try_fold(false, |is_file, path| -> Result<_> {
-                        let metadata =
-                            metadata(path).with_context(|| "Could not read file metadata")?;
-                        Ok(is_file || metadata.is_file())
-                    })?;
-
-            if path_refers_to_libraries {
-                warn(
-                    opts_orig,
-                    "Referring to libraries with `--path` is deprecated. Use `--lib-path`.",
-                );
-                lib_sel.lib_paths.extend(lib_sel.paths.split_off(0));
-            }
 
             // smoelius: Use of `--git` or `--path` implies `--all`.
             //
