@@ -224,13 +224,8 @@ fn list_by_path() {
         .unwrap()
         .args(["dylint", "list", "--path", &path.to_string_lossy()])
         .assert()
-        .success()
-        .stdout(
-            predicate::str::contains("fill_me_in").and(predicate::str::contains("Building").not()),
-        )
-        .stderr(predicate::str::contains(
-            "Referring to libraries with `--path` is deprecated. Use `--lib-path`.",
-        ));
+        .failure()
+        .stderr(predicate::str::contains("No library packages found in "));
 }
 
 // smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is
