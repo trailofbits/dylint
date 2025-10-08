@@ -2,6 +2,17 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 5.0.0
+
+- Fix a bug causing `dylint_testing` to make repeated failed attempts to build a driver ([#1744](https://github.com/trailofbits/dylint/pull/1744))
+- BREAKING: Remove `cargo-lib` feature and support for linking Cargo as a library ([#1741](https://github.com/trailofbits/dylint/pull/1741))
+- Change "No paths matched" error to "No library packages found in" when a pattern is not used ([#1748](https://github.com/trailofbits/dylint/pull/1748))
+- BREAKING: Remove ability to refer to libraries with `--path` ([#1754](https://github.com/trailofbits/dylint/pull/1754))
+- Upgrade dependencies ([#1728](https://github.com/trailofbits/dylint/pull/1728)), including:
+  - `cargo_metadata` to version 0.23
+  - `cargo-util-schema` to version 0.10
+  - `git2` to version 0.20
+
 ## 4.1.2
 
 - Hot fix for a failed `cargo publish` ([#1737](https://github.com/trailofbits/dylint/pull/1737))
