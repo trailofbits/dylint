@@ -1952,6 +1952,14 @@
         "name": "Fenhl"
       }
     ],
+    "simd-adler32": [
+      {
+        "id": 100904,
+        "kind": "user",
+        "login": "mcountryman",
+        "name": "Marvin Countryman"
+      }
+    ],
     "smallvec": [
       {
         "id": 5,
@@ -2046,6 +2054,14 @@
         "kind": "user",
         "login": "keith-hall",
         "name": "Keith Hall"
+      }
+    ],
+    "sysinfo": [
+      {
+        "id": 111,
+        "kind": "user",
+        "login": "GuillaumeGomez",
+        "name": "Guillaume Gomez"
       }
     ],
     "tar": [
@@ -2203,20 +2219,6 @@
       }
     ],
     "toml_parser": [
-      {
-        "id": 6743,
-        "kind": "user",
-        "login": "epage",
-        "name": "Ed Page"
-      },
-      {
-        "id": 6908,
-        "kind": "team",
-        "login": "github:toml-rs:maintainers",
-        "name": "Maintainers"
-      }
-    ],
-    "toml_write": [
       {
         "id": 6743,
         "kind": "user",
