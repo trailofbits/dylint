@@ -56,7 +56,6 @@ const MAIN_RS: &str = r"
 
 use anyhow::Result;
 use std::env;
-use std::ffi::OsString;
 
 pub fn main() -> Result<()> {
     env_logger::init();
