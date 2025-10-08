@@ -414,6 +414,10 @@ fn license() {
     for entry in walkdir(false).with_file_name("Cargo.toml") {
         let entry = entry.unwrap();
         let path = entry.path();
+        // smoelius: Skip the library template.
+        if path.parent().and_then(Path::file_name) == Some(OsStr::new("template")) {
+            continue;
+        }
         for line in std::str::from_utf8(
             &Command::new("cargo")
                 .args(["license", "--manifest-path", &path.to_string_lossy()])
@@ -425,24 +429,12 @@ fn license() {
         .unwrap()
         .lines()
         {
-            // smoelius: Exception for Cargo dependencies.
-            if line == "MPL-2.0+ (3): bitmaps, im-rc, sized-chunks" {
-                continue;
-            }
             // smoelius: Exceptions for `idna` dependencies.
-            // smoelius: The first case is for the library template; the second is for the other
-            // packages in the workspace.
-            if [
-                "Unicode-3.0 (18): icu_collections, icu_locale_core, icu_normalizer, \
-                 icu_normalizer_data, icu_properties, icu_properties_data, icu_provider, litemap, \
-                 potential_utf, tinystr, writeable, yoke, yoke-derive, zerofrom, zerofrom-derive, \
-                 zerotrie, zerovec, zerovec-derive",
-                "Unicode-3.0 (19): icu_collections, icu_locid, icu_locid_transform, \
-                 icu_locid_transform_data, icu_normalizer, icu_normalizer_data, icu_properties, \
-                 icu_properties_data, icu_provider, icu_provider_macros, litemap, tinystr, \
-                 writeable, yoke, yoke-derive, zerofrom, zerofrom-derive, zerovec, zerovec-derive",
-            ]
-            .contains(&line)
+            if line
+                == "Unicode-3.0 (18): icu_collections, icu_locale_core, icu_normalizer, \
+                    icu_normalizer_data, icu_properties, icu_properties_data, icu_provider, \
+                    litemap, potential_utf, tinystr, writeable, yoke, yoke-derive, zerofrom, \
+                    zerofrom-derive, zerotrie, zerovec, zerovec-derive"
             {
                 continue;
             }

@@ -123,6 +123,7 @@ jobs:
 
       - name: Test
         run: |
+          cargo nested fetch
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
             case '${{ matrix.package }}' in
               cargo-dylint)
@@ -155,11 +156,8 @@ jobs:
             else
               PACKAGE='${{ matrix.package }}'
             fi
-            cargo nested fetch
             cargo test -p "$PACKAGE" "$TEST" -- --nocapture
           else
-            cargo nested fetch
-
             cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive --exclude scheduled -- --nocapture
 
             # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
