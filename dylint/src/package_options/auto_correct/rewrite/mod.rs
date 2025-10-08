@@ -248,7 +248,7 @@ fn rewrites_from_patch(
 }
 
 fn hunk_lines<'repo>(
-    patch: &Patch<'repo>,
+    patch: &'repo Patch<'repo>,
     hunk_idx: usize,
     hunk_lines: Range<u32>,
 ) -> Result<Vec<&'repo str>> {
