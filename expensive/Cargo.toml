@@ -1,7 +1,7 @@
 [package]
 name = "expensive"
 description = "Expensive tests"
-version = "4.1.2"
+version = "5.0.0"
 edition = "2024"
 publish = false
 
@@ -9,7 +9,7 @@ publish = false
 anyhow = { workspace = true }
 tempfile = { workspace = true }
 
-dylint_internal = { version = "=4.1.2", path = "../internal", features = [
+dylint_internal = { version = "=5.0.0", path = "../internal", features = [
     "clippy_utils",
     "rustup",
     "testing",
