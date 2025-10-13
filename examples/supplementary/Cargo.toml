@@ -44,7 +44,7 @@ cargo_metadata = "0.23"
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "20ce69b9a63bcd2756cd906fe0964d1e901e042a" }
 once_cell = "1.21"
 pulldown-cmark = "0.13"
-regex = "1.11"
+regex = "1.12"
 serde = "1.0"
 syn = "2.0"
 tempfile = "3.23"
