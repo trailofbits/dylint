@@ -7,7 +7,7 @@ resolver = "2"
 anyhow = "1.0"
 assert_cmd = "2.0"
 camino = "1.2"
-cargo_metadata = "0.22"
+cargo_metadata = "0.23"
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "20ce69b9a63bcd2756cd906fe0964d1e901e042a" }
 diesel = "2.3"
 git2 = "0.20"
