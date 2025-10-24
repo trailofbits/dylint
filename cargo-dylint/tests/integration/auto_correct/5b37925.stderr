@@ -1,0 +1,117 @@
+Warning: `env_logger` already initialized: attempted to set a logger after the logging system was already initialized
+Cloning into '[..]'...
+Checking upgraded library package
+Warning: Found diagnostic error with no spans: aborting due to 1 previous error
+Warning: Found diagnostic error with no spans: aborting due to 1 previous error
+Found 2 highlights in [..] seconds
+Found 127 commits in [..] seconds
+Found 621 patches in [..] seconds
+Extracted 293 rewrite rules in [..] seconds (discarded 370 insertions and 58 refactors)
+Rewriting with score 17 rewrite from 1325425: Rewrite {
+    before_tokens: "[/"use/", /"rustc_hir/", /"::/", /"{/"]",
+    rewrite: "[/"BindingAnnotation/"] -> [/"BindingMode/"]",
+    after_tokens: "[/",/", /"Expr/", /",/", /"ExprKind/", /",/", /"FnRetTy/", /",/", /"Param/", /",/", /"PatKind/", /",/", /"QPath/", /",/", /"TyKind/", /",/", /"Unsafety/", /"}/", /";/"]",
+} Highlight {
+    message: "unresolved import `rustc_hir::BindingAnnotation`",
+    file_name: "ref_aware_redundant_closure_for_method_calls/src/lib.rs",
+    line_start: 28,
+    line_end: 28,
+    lines: [
+        "    BindingAnnotation, Expr, ExprKind, FnRetTy, Param, PatKind, QPath, TyKind, Unsafety,",
+    ],
+    highlight_start: 0,
+    highlight_end: 1,
+    is_primary: true,
+    ..
+}
+Rewriting with score 12 rewrite from 1325425: Rewrite {
+    before_tokens: "[/"BinOpKind/", /",/"]",
+    rewrite: "[/"BindingAnnotation/"] -> [/"BindingMode/"]",
+    after_tokens: "[/",/", /"Body/", /",/", /"ByRef/", /",/", /"Expr/", /",/", /"ExprKind/", /",/", /"FnDecl/", /",/", /"Mutability/", /",/", /"PatKind/", /",/", /"QPath/", /",/", /"Stmt/", /",/", /"StmtKind/", /",/"]",
+} Highlight {
+    message: "unresolved import `rustc_hir::BindingAnnotation`",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 22,
+    line_end: 22,
+    lines: [
+        "    BindingAnnotation, Body, ByRef, Expr, ExprKind, FnDecl, HirId, Node, Pat, PatKind, UnOp,",
+    ],
+    highlight_start: 0,
+    highlight_end: 1,
+    is_primary: true,
+    ..
+}
+Checking upgraded library package
+Warning: Found diagnostic error with no spans: aborting due to 3 previous errors; 1 warning emitted
+Warning: Found diagnostic error with no spans: aborting due to 2 previous errors
+Found 6 highlights in [..] seconds
+Rewriting with score 13 rewrite from 1325425: Rewrite {
+    before_tokens: "[/"&/", /"&/", /"let/", /"PatKind/", /"::/", /"Binding/", /"(/"]",
+    rewrite: "[/"BindingAnnotation/"] -> [/"BindingMode/"]",
+    after_tokens: "[/"(/", /"ByRef/", /"::/", /"No/", /",/", /"mutability/", /")/", /",/", /"_/", /",/", /"ident/", /",/", /"None/", /")/", /"=/", /"local.pat.kind/"]",
+} Highlight {
+    message: "cannot find tuple struct or tuple variant `BindingAnnotation` in this scope",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 124,
+    line_end: 124,
+    lines: [
+        "                    && let PatKind::Binding(BindingAnnotation(ByRef::No, _), hir_id, ident, None) =",
+    ],
+    highlight_start: 7,
+    highlight_end: 8,
+    is_primary: true,
+    ..
+}
+Rewriting with score 6 rewrite from 1325425: Rewrite {
+    before_tokens: "[[..]]",
+    rewrite: "[/"BindingAnnotation/"] -> [/"BindingMode/"]",
+    after_tokens: "[[..]]",
+} Highlight {
+    message: "cannot find tuple struct or tuple variant `BindingAnnotation` in this scope",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 256,
+    line_end: 256,
+    lines: [
+        "                BindingAnnotation(ByRef::No, _) => {",
+    ],
+    highlight_start: 0,
+    highlight_end: 1,
+    is_primary: true,
+    ..
+}
+Rewriting with score 11 rewrite from 1325425: Rewrite {
+    before_tokens: "[[..]]",
+    rewrite: "[/"BindingAnnotation/"] -> [/"BindingMode/"]",
+    after_tokens: "[[..]]",
+} Highlight {
+    message: "cannot find tuple struct or tuple variant `BindingAnnotation` in this scope",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 259,
+    line_end: 259,
+    lines: [
+        "                BindingAnnotation(ByRef::Yes(_), _) => {",
+    ],
+    highlight_start: 0,
+    highlight_end: 1,
+    is_primary: true,
+    ..
+}
+Rewriting with score 10 rewrite from 1325425: Rewrite {
+    before_tokens: "[/"if/", /"let/", /"PatKind/", /"::/", /"Binding/", /"(/"]",
+    rewrite: "[/"BindingAnnotation/", /"::/", /"NONE/", /"|/", /"BindingAnnotation/"] -> [/"BindingMode/", /"::/", /"NONE/", /"|/", /"BindingMode/"]",
+    after_tokens: "[/"::/", /"MUT/", /",/", /"id/", /",/", /"_/", /",/", /"None/", /")/", /"=/", /"l.pat.kind/"]",
+} Highlight {
+    message: "failed to resolve: use of undeclared type `BindingAnnotation`",
+    file_name: "ref_aware_redundant_closure_for_method_calls/src/lib.rs",
+    line_start: 250,
+    line_end: 250,
+    lines: [
+        "                    PatKind::Binding(BindingAnnotation::NONE | BindingAnnotation::MUT, id, _, None)",
+    ],
+    highlight_start: 4,
+    highlight_end: 5,
+    is_primary: true,
+    ..
+}
+Checking upgraded library package
+Found 0 highlights in [..] seconds

@@ -1,0 +1,86 @@
+Warning: `env_logger` already initialized: attempted to set a logger after the logging system was already initialized
+Cloning into '[..]'...
+Checking upgraded library package
+Warning: Found diagnostic error with no spans: aborting due to 1 previous error
+Warning: Found diagnostic error with no spans: aborting due to 1 previous error
+Warning: Found diagnostic error with no spans: aborting due to 2 previous errors
+Found 6 highlights in [..] seconds
+Found 460 commits in [..] seconds
+Found 2251 patches in [..] seconds
+Extracted 841 rewrite rules in [..] seconds (discarded 1951 insertions and 429 refactors)
+Rewriting with score 5 rewrite from 379342c: Rewrite {
+    before_tokens: "[[..]]",
+    rewrite: "[/"hir/", /"(/", /")/", /"./", /"get_parent/"] -> [/"parent_hir_node/"]",
+    after_tokens: "[[..]]",
+} Highlight {
+    message: "no method named `get_parent` found for struct `rustc_middle::hir::map::Map` in the current scope",
+    file_name: "overscoped_allow/src/lib.rs",
+    line_start: 206,
+    line_end: 209,
+    lines: [
+        "        if let Node::TraitItem(trait_item) = cx",
+        "            .tcx",
+        "            .hir()",
+        "            .get_parent(cx.tcx.hir().parent_id(block.hir_id))",
+    ],
+    highlight_start: 9,
+    highlight_end: 16,
+    is_primary: false,
+    ..
+}
+Rewriting with score 9 rewrite from 379342c: Rewrite {
+    before_tokens: "[/"let/", /"parent /", /"=/", /"cx.tcx./"]",
+    rewrite: "[/"hir/", /"(/", /")/", /"./", /"get_parent/"] -> [/"parent_hir_node/"]",
+    after_tokens: "[/"(/", /"expr.hir_id/", /")/", /";/"]",
+} Highlight {
+    message: "no method named `get_parent` found for struct `rustc_middle::hir::map::Map` in the current scope",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 206,
+    line_end: 206,
+    lines: [
+        "            let node = self.tcx.hir().get_parent(expr.hir_id);",
+    ],
+    highlight_start: 9,
+    highlight_end: 10,
+    is_primary: true,
+    ..
+}
+Rewriting with score 8 rewrite from 9d6f416: Rewrite {
+    before_tokens: "[/"if/", /"let/", /"StmtKind/", /"::/"]",
+    rewrite: "[/"Local/"] -> [/"Let/"]",
+    after_tokens: "[/"(/", /"Local /", /"{/"]",
+} Highlight {
+    message: "no variant or associated item named `Local` found for enum `rustc_hir::StmtKind` in the current scope",
+    file_name: "misleading_variable_name/src/lib.rs",
+    line_start: 55,
+    line_end: 55,
+    lines: [
+        "        if let StmtKind::Local(Local {",
+    ],
+    highlight_start: 4,
+    highlight_end: 5,
+    is_primary: true,
+    ..
+}
+Checking upgraded library package
+Warning: Found diagnostic error with no spans: aborting due to 1 previous error
+Found 1 highlights in [..] seconds
+Rewriting with score 6 rewrite from 379342c: Rewrite {
+    before_tokens: "[[..]]",
+    rewrite: "[/"hir/", /"(/", /")/", /"./", /"parent_id/"] -> [/"parent_hir_id/"]",
+    after_tokens: "[[..]]",
+} Highlight {
+    message: "no method named `parent_id` found for struct `rustc_middle::hir::map::Map` in the current scope",
+    file_name: "overscoped_allow/src/lib.rs",
+    line_start: 208,
+    line_end: 208,
+    lines: [
+        "            .parent_hir_node(cx.tcx.hir().parent_id(block.hir_id))",
+    ],
+    highlight_start: 8,
+    highlight_end: 9,
+    is_primary: true,
+    ..
+}
+Checking upgraded library package
+Found 0 highlights in [..] seconds

@@ -1,0 +1,299 @@
+Warning: `env_logger` already initialized: attempted to set a logger after the logging system was already initialized
+Cloning into '[..]'...
+Checking upgraded library package
+Found 10 highlights in [..] seconds
+Found 301 commits in [..] seconds
+Found 3320 patches in [..] seconds
+Warning: Malformed hunk: old lines (0) + new lines (22) != line count (23)
+Warning: Malformed hunk: old lines (0) + new lines (22) != line count (23)
+Warning: Malformed hunk: old lines (0) + new lines (22) != line count (23)
+Warning: Malformed hunk: old lines (0) + new lines (22) != line count (23)
+Extracted 1149 rewrite rules in [..] seconds (discarded 2311 insertions and 1548 refactors)
+Rewriting with score 3 rewrite from ff428d9: Rewrite {
+    before_tokens: "[/"declare_lint_pass!/", /"(/", /"Pass2 /", /"=>/", /"[/", /"VALID_ONE/", /",/", /"VALID_TWO/", /",/", /"VALID_THREE/", /",/", /"INVALID_ONE/", /",/", /"INVALID_TWO/", /",/", /"MISSING_ATTRIBUTE_ONE/", /",/", /"MISSING_ATTRIBUTE_TWO/", /",/", /"ALLOW_MISSING_ATTRIBUTE_ONE/"]",
+    rewrite: "[/"]/", /")/"] -> [/",/", /"])/"]",
+    after_tokens: "[/";/"]",
+} Highlight {
+    message: "`if` and `else` have incompatible types",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 125,
+    line_end: 134,
+    lines: [
+        "                let pat_ty = if let Some([pat_ty, ..]) = cx",
+        "                    .typeck_results()",
+        "                    .pat_adjustments()",
+        "                    .get(pat.hir_id)",
+        "                    .map(Vec::as_slice)",
+        "                {",
+        "                    *pat_ty",
+        "                } else {",
+        "                    cx.typeck_results().node_type(pat.hir_id)",
+        "                };",
+    ],
+    highlight_start: 3,
+    highlight_end: 51,
+    is_primary: false,
+    ..
+}
+Rewriting with score 1 rewrite from ff428d9: Rewrite {
+    before_tokens: "[]",
+    rewrite: "[/")/"] -> [/"))/"]",
+    after_tokens: "[]",
+} Highlight {
+    message: "`if` and `else` have incompatible types",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 133,
+    line_end: 133,
+    lines: [
+        "                    cx.typeck_results().node_type(pat.hir_id)",
+    ],
+    highlight_start: 0,
+    highlight_end: 9,
+    is_primary: true,
+    ..
+}
+Found no applicable rewrites for Highlight {
+    message: "mismatched types",
+    file_name: "const_path_join/src/lib.rs",
+    line_start: 97,
+    line_end: 97,
+    lines: [
+        "                &[&paths::CAMINO_UTF8_PATH_JOIN, &paths::PATH_JOIN],",
+    ],
+    highlight_start: 7,
+    highlight_end: 11,
+    is_primary: true,
+    ..
+}
+Found no applicable rewrites for Highlight {
+    message: "mismatched types",
+    file_name: "const_path_join/src/lib.rs",
+    line_start: 147,
+    line_end: 147,
+    lines: [
+        "            &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_PATH_BUF],",
+    ],
+    highlight_start: 7,
+    highlight_end: 11,
+    is_primary: true,
+    ..
+}
+Found no applicable rewrites for Highlight {
+    message: "unresolved import `clippy_utils::is_expr_path_def_path`",
+    file_name: "env_literal/src/lib.rs",
+    line_start: 8,
+    line_end: 8,
+    lines: [
+        "use clippy_utils::{diagnostics::span_lint_and_help, is_expr_path_def_path};",
+    ],
+    highlight_start: 8,
+    highlight_end: 9,
+    is_primary: true,
+    ..
+}
+Found multiple rewrites with score 1 for Highlight {
+    message: "unresolved import `clippy_utils::match_def_path`",
+    file_name: "register_lints_warn/src/lib.rs",
+    line_start: 7,
+    line_end: 7,
+    lines: [
+        "use clippy_utils::{diagnostics::span_lint, match_def_path};",
+    ],
+    highlight_start: 8,
+    highlight_end: 9,
+    is_primary: true,
+    ..
+}: {
+    "PathNS": ReplacementSource {
+        score: 1,
+        span: Span {
+            start: LineColumn {
+                line: 7,
+                column: 43,
+            },
+            end: LineColumn {
+                line: 7,
+                column: 57,
+            },
+        },
+        oid: b768fbe4bccbfd4c4ecbd4726805facb6769eb4f,
+        rewrite: Rewrite {
+            before_tokens: "[/"use/", /"clippy_utils/", /"::/", /"{/"]",
+            rewrite: "[/"match_def_path/"] -> [/"PathNS/"]",
+            after_tokens: "[/",/", /"paths/", /"}/", /";/"]",
+        },
+    },
+    "is_in_const_context, paths": ReplacementSource {
+        score: 1,
+        span: Span {
+            start: LineColumn {
+                line: 7,
+                column: 43,
+            },
+            end: LineColumn {
+                line: 7,
+                column: 57,
+            },
+        },
+        oid: 0bb1b5bd3b7eecd248ae709fb43826bd6f89a4ab,
+        rewrite: Rewrite {
+            before_tokens: "[/"use/", /"clippy_utils/", /"::/", /"{/"]",
+            rewrite: "[/"match_def_path/"] -> [/"is_in_const_context/", /",/", /"paths/"]",
+            after_tokens: "[/",/", /"sym/", /"}/", /";/"]",
+        },
+    },
+    "is_path_diagnostic_item": ReplacementSource {
+        score: 1,
+        span: Span {
+            start: LineColumn {
+                line: 7,
+                column: 43,
+            },
+            end: LineColumn {
+                line: 7,
+                column: 57,
+            },
+        },
+        oid: 0bb1b5bd3b7eecd248ae709fb43826bd6f89a4ab,
+        rewrite: Rewrite {
+            before_tokens: "[/"use/", /"clippy_utils/", /"::/", /"{/"]",
+            rewrite: "[/"match_def_path/"] -> [/"is_path_diagnostic_item/"]",
+            after_tokens: "[/",/", /"path_to_local_id/", /",/", /"peel_blocks/", /",/", /"sym/", /"}/", /";/"]",
+        },
+    },
+    "paths": ReplacementSource {
+        score: 1,
+        span: Span {
+            start: LineColumn {
+                line: 7,
+                column: 43,
+            },
+            end: LineColumn {
+                line: 7,
+                column: 57,
+            },
+        },
+        oid: c1586e141fcba29135cbb96929250dea933812d0,
+        rewrite: Rewrite {
+            before_tokens: "[/"use/", /"clippy_utils/", /"::/", /"{/"]",
+            rewrite: "[/"match_def_path/"] -> [/"paths/"]",
+            after_tokens: "[/",/", /"sym/", /"}/", /";/"]",
+        },
+    },
+}
+Found multiple rewrites with score 1 for Highlight {
+    message: "unresolved import `clippy_utils::match_def_path`",
+    file_name: "try_io_result/src/lib.rs",
+    line_start: 9,
+    line_end: 9,
+    lines: [
+        "use clippy_utils::{diagnostics::span_lint_and_help, match_def_path};",
+    ],
+    highlight_start: 8,
+    highlight_end: 9,
+    is_primary: true,
+    ..
+}: {
+    "PathNS": ReplacementSource {
+        score: 1,
+        span: Span {
+            start: LineColumn {
+                line: 9,
+                column: 52,
+            },
+            end: LineColumn {
+                line: 9,
+                column: 66,
+            },
+        },
+        oid: b768fbe4bccbfd4c4ecbd4726805facb6769eb4f,
+        rewrite: Rewrite {
+            before_tokens: "[/"use/", /"clippy_utils/", /"::/", /"{/"]",
+            rewrite: "[/"match_def_path/"] -> [/"PathNS/"]",
+            after_tokens: "[/",/", /"paths/", /"}/", /";/"]",
+        },
+    },
+    "is_in_const_context, paths": ReplacementSource {
+        score: 1,
+        span: Span {
+            start: LineColumn {
+                line: 9,
+                column: 52,
+            },
+            end: LineColumn {
+                line: 9,
+                column: 66,
+            },
+        },
+        oid: 0bb1b5bd3b7eecd248ae709fb43826bd6f89a4ab,
+        rewrite: Rewrite {
+            before_tokens: "[/"use/", /"clippy_utils/", /"::/", /"{/"]",
+            rewrite: "[/"match_def_path/"] -> [/"is_in_const_context/", /",/", /"paths/"]",
+            after_tokens: "[/",/", /"sym/", /"}/", /";/"]",
+        },
+    },
+    "is_path_diagnostic_item": ReplacementSource {
+        score: 1,
+        span: Span {
+            start: LineColumn {
+                line: 9,
+                column: 52,
+            },
+            end: LineColumn {
+                line: 9,
+                column: 66,
+            },
+        },
+        oid: 0bb1b5bd3b7eecd248ae709fb43826bd6f89a4ab,
+        rewrite: Rewrite {
+            before_tokens: "[/"use/", /"clippy_utils/", /"::/", /"{/"]",
+            rewrite: "[/"match_def_path/"] -> [/"is_path_diagnostic_item/"]",
+            after_tokens: "[/",/", /"path_to_local_id/", /",/", /"peel_blocks/", /",/", /"sym/", /"}/", /";/"]",
+        },
+    },
+    "paths": ReplacementSource {
+        score: 1,
+        span: Span {
+            start: LineColumn {
+                line: 9,
+                column: 52,
+            },
+            end: LineColumn {
+                line: 9,
+                column: 66,
+            },
+        },
+        oid: c1586e141fcba29135cbb96929250dea933812d0,
+        rewrite: Rewrite {
+            before_tokens: "[/"use/", /"clippy_utils/", /"::/", /"{/"]",
+            rewrite: "[/"match_def_path/"] -> [/"paths/"]",
+            after_tokens: "[/",/", /"sym/", /"}/", /";/"]",
+        },
+    },
+}
+Found no applicable rewrites for Highlight {
+    message: "unresolved imports `clippy_utils::is_expr_path_def_path`, `clippy_utils::match_any_def_paths`",
+    file_name: "const_path_join/src/lib.rs",
+    line_start: 12,
+    line_end: 12,
+    lines: [
+        "    diagnostics::span_lint_and_sugg, is_expr_path_def_path, match_any_def_paths,",
+    ],
+    highlight_start: 4,
+    highlight_end: 5,
+    is_primary: true,
+    ..
+}
+Found no applicable rewrites for Highlight {
+    message: "unresolved imports `clippy_utils::is_expr_path_def_path`, `clippy_utils::match_any_def_paths`",
+    file_name: "const_path_join/src/lib.rs",
+    line_start: 12,
+    line_end: 12,
+    lines: [
+        "    diagnostics::span_lint_and_sugg, is_expr_path_def_path, match_any_def_paths,",
+    ],
+    highlight_start: 6,
+    highlight_end: 7,
+    is_primary: true,
+    ..
+}
