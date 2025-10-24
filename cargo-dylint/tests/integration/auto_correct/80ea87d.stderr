@@ -1,0 +1,106 @@
+Warning: `env_logger` already initialized: attempted to set a logger after the logging system was already initialized
+Cloning into '[..]'...
+Checking upgraded library package
+Found 10 highlights in [..] seconds
+Found 352 commits in [..] seconds
+Found 2631 patches in [..] seconds
+Warning: Malformed hunk: old lines (1) + new lines (7) != line count (9)
+Warning: Malformed hunk: old lines (1) + new lines (7) != line count (9)
+Warning: Malformed hunk: old lines (1) + new lines (7) != line count (9)
+Warning: Malformed hunk: old lines (1) + new lines (7) != line count (9)
+Warning: Malformed hunk: old lines (1) + new lines (7) != line count (9)
+Extracted 1265 rewrite rules in [..] seconds (discarded 2471 insertions and 830 refactors)
+Rewriting with score 3 rewrite from 7debaf6: Rewrite {
+    before_tokens: "[/"let/", /"(/", /"conds/", /",/"]",
+    rewrite: "[/"_/"] -> [/"blocks/"]",
+    after_tokens: "[/")/", /"=/", /"if_sequence/", /"(/", /"expr/", /")/", /";/"]",
+} Highlight {
+    message: "mismatched types",
+    file_name: "inconsistent_qualification/src/lib.rs",
+    line_start: 202,
+    line_end: 202,
+    lines: [
+        "                .any(|res| matches!(res, Res::Def(DefKind::Trait, _)))",
+    ],
+    highlight_start: 10,
+    highlight_end: 21,
+    is_primary: true,
+    ..
+}
+Rewriting with score 11 rewrite from 57cbadd: Rewrite {
+    before_tokens: "[/"match/", /"(/", /"from_arg./"]",
+    rewrite: "[/"unpack/", /"(/", /")/", /",/", /"to_arg./", /"unpack/"] -> [/"kind/", /"(/", /")/", /",/", /"to_arg./", /"kind/"]",
+    after_tokens: "[/"(/", /")/", /")/", /"{/"]",
+} Highlight {
+    message: "no method named `unpack` found for reference `&rustc_middle::ty::GenericArg<'_>` in the current scope",
+    file_name: "ref_aware_redundant_closure_for_method_calls/src/lib.rs",
+    line_start: 337,
+    line_end: 337,
+    lines: [
+        "            match (from_arg.unpack(), to_arg.unpack()) {",
+    ],
+    highlight_start: 3,
+    highlight_end: 4,
+    is_primary: true,
+    ..
+}
+Rewriting with score 6 rewrite from 57cbadd: Rewrite {
+    before_tokens: "[[..]]",
+    rewrite: "[/"unpack/"] -> [/"kind/"]",
+    after_tokens: "[/"(/", /")/"]",
+} Highlight {
+    message: "no method named `unpack` found for reference `&rustc_middle::ty::GenericArg<'_>` in the current scope",
+    file_name: "try_io_result/src/lib.rs",
+    line_start: 91,
+    line_end: 91,
+    lines: [
+        "        && let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack()",
+    ],
+    highlight_start: 11,
+    highlight_end: 12,
+    is_primary: true,
+    ..
+}
+Rewriting with score 1 rewrite from 7debaf6: Rewrite {
+    before_tokens: "[]",
+    rewrite: "[/"res/"] -> [/"deprecated./", /"sort_by/", /"(/", /"|/", /"lhs/", /",/", /"rhs/", /"|/", /"lhs.name./", /"cmp/", /"(/", /"&/", /"rhs.name/", /")/", /")/", /";/", /"renamed./", /"sort_by/", /"(/", /"|/", /"lhs/", /",/", /"rhs/", /"|/", /"lhs.old_name./", /"cmp/", /"(/", /"&/", /"rhs.old_name/", /")/", /")/", /";/", /"(/", /"deprecated/", /",/", /"renamed/", /")/"]",
+    after_tokens: "[]",
+} Highlight {
+    message: "type mismatch in function arguments",
+    file_name: "inconsistent_qualification/src/lib.rs",
+    line_start: 241,
+    line_end: 241,
+    lines: [
+        "fn is_local(res: Res) -> bool {",
+    ],
+    highlight_start: 0,
+    highlight_end: 9,
+    is_primary: false,
+    ..
+}
+Found no applicable rewrites for Highlight {
+    message: "no method named `opt_def_id` found for reference `&std::option::Option<Res>` in the current scope",
+    file_name: "inconsistent_qualification/src/lib.rs",
+    line_start: 260,
+    line_end: 260,
+    lines: [
+        "            .any(|res| res.opt_def_id().is_some() && res.opt_def_id() == segment.res.opt_def_id())",
+    ],
+    highlight_start: 7,
+    highlight_end: 8,
+    is_primary: true,
+    ..
+}
+Found no applicable rewrites for Highlight {
+    message: "no method named `opt_def_id` found for reference `&std::option::Option<Res>` in the current scope",
+    file_name: "inconsistent_qualification/src/lib.rs",
+    line_start: 260,
+    line_end: 260,
+    lines: [
+        "            .any(|res| res.opt_def_id().is_some() && res.opt_def_id() == segment.res.opt_def_id())",
+    ],
+    highlight_start: 17,
+    highlight_end: 18,
+    is_primary: true,
+    ..
+}
