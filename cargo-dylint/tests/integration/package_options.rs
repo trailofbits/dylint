@@ -5,12 +5,11 @@ use dylint_internal::{CommandExt, clone, env::enabled, rustup::SanitizeEnvironme
 use predicates::prelude::*;
 use regex::Regex;
 use semver::Version;
-use std::{
-    fs::read_to_string,
-    io::{Write, stderr},
-    path::Path,
-};
+use snapbox::assert_data_eq;
+use std::{fs::read_to_string, path::Path, process::Stdio};
 use tempfile::tempdir;
+
+const SHORT_ID_LEN: usize = 7;
 
 // smoelius: I expected `git2-0.17.2` to build with nightly-2022-06-30, which corresponds to
 // `--rust-version 1.64.0`. I'm not sure why it doesn't.
@@ -153,20 +152,38 @@ fn downgrade_upgrade_package() {
 const DYLINT_URL: &str = "https://github.com/trailofbits/dylint";
 
 // smoelius: Each of the following commits is just before an "Upgrade examples" commit. In the
-// upgrades, the changes to the `restriction` lints are small. Thus, the auto-correct option should
-// be able to generate fixes for them.
-const REVS_AND_RUST_VERSIONS: &[(&str, &str)] = &[
+// upgrades, the changes to the `restriction` lints tend to be small. Thus, the auto-correct option
+// should be able to generate fixes for many of them.
+const REVS_AND_RUST_VERSIONS: &[(&str, &str, bool)] = &[
+    // smoelius: "Upgrade examples" commit:
+    // https://github.com/trailofbits/dylint/commit/53e617e844b1f2c0d953d67b47a525381ec094c7
+    ("5343770f654d2bcd0fe246bb333e1a2b63048df0", "1.92.0", false),
+    // smoelius: "Upgrade examples" commit:
+    // https://github.com/trailofbits/dylint/commit/5d5717e3e314c8bdb1f6d0bcd3852d1059a2b482
+    ("1e03ecf75981d94a7917866454b7bd0214916165", "1.91.0", true),
+    // smoelius: "Upgrade examples" commit:
+    // https://github.com/trailofbits/dylint/commit/c45f27a8068ff9de1efa88f7fde1574dd04ed8c2
+    ("80ea87d485a80c61efc65ab49dd7b28b54554969", "1.90.0", false),
+    // smoelius: "Upgrade examples" commit:
+    // https://github.com/trailofbits/dylint/commit/24407a3d328ad0d2f6318ba186b2ac126713622f
+    ("a93c166d88662b6bfc29ca7c31177a6c6f2b897b", "1.89.0", false),
     // smoelius: "Upgrade examples" commit:
     // https://github.com/trailofbits/dylint/commit/33969746aef6947c68d7adb55137ce8a13d9cc47
-    ("5b3792515ac255fdb06a31b10eb3c9f7949a3ed5", "1.80.0"),
+    ("5b3792515ac255fdb06a31b10eb3c9f7949a3ed5", "1.80.0", true),
     // smoelius: "Upgrade examples" commit:
     // https://github.com/trailofbits/dylint/commit/7bc453f0778dee3b13bc1063773774304ac96cad
-    ("23c08c8a0b043d26f66653bf173a0e6722a2d699", "1.79.0"),
+    ("23c08c8a0b043d26f66653bf173a0e6722a2d699", "1.79.0", true),
 ];
 
 #[test]
 fn upgrade_with_auto_correct() {
-    for (rev, rust_version) in REVS_AND_RUST_VERSIONS {
+    for &(rev, rust_version, should_succeed) in REVS_AND_RUST_VERSIONS {
+        let short_id = &rev[..SHORT_ID_LEN];
+        let stderr_path = Path::new("tests/integration/auto_correct")
+            .join(short_id)
+            .with_extension("stderr");
+        let expected_stderr = read_to_string(stderr_path).unwrap();
+
         let tempdir = tempdir().unwrap();
 
         clone(DYLINT_URL, rev, tempdir.path(), false).unwrap();
@@ -183,7 +200,12 @@ fn upgrade_with_auto_correct() {
             "--rust-version",
             rust_version,
         ]);
-        command.success().unwrap();
+        command.stdout(Stdio::inherit());
+        command.stderr(Stdio::piped());
+
+        let output = command.output().unwrap();
+
+        assert_data_eq!(output.stderr, expected_stderr);
 
         if enabled("DEBUG_DIFF") {
             let mut command = std::process::Command::new("git");
@@ -192,17 +214,16 @@ fn upgrade_with_auto_correct() {
             command.success().unwrap();
         }
 
-        dylint_internal::cargo::check("auto-corrected, upgraded library package")
+        let status = dylint_internal::cargo::check("auto-corrected, upgraded library package")
             .build()
             .sanitize_environment()
             .current_dir(tempdir.path().join("examples/restriction"))
             .env("RUSTFLAGS", "--allow=warnings")
             .arg("--quiet")
-            .success()
+            .status()
             .unwrap();
 
-        #[allow(clippy::explicit_write)]
-        writeln!(stderr(), "Success").unwrap();
+        assert_eq!(should_succeed, status.success());
     }
 }
 
