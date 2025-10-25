@@ -153,6 +153,8 @@ pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highli
             }
         }
 
+        dbg!(&highlights);
+
         highlights.sort();
     }
 

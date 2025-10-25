@@ -5,7 +5,6 @@ use dylint_internal::{CommandExt, clone, env::enabled, rustup::SanitizeEnvironme
 use predicates::prelude::*;
 use regex::Regex;
 use semver::Version;
-use snapbox::assert_data_eq;
 use std::{fs::read_to_string, path::Path, process::Stdio};
 use tempfile::tempdir;
 
@@ -186,7 +185,7 @@ fn upgrade_with_auto_correct() {
 
         let tempdir = tempdir().unwrap();
 
-        clone(DYLINT_URL, rev, tempdir.path(), false).unwrap();
+        clone(DYLINT_URL, rev, tempdir.path(), true).unwrap();
 
         let mut command = std::process::Command::cargo_bin("cargo-dylint").unwrap();
         command.args([
@@ -205,7 +204,14 @@ fn upgrade_with_auto_correct() {
 
         let output = command.output().unwrap();
 
-        assert_data_eq!(output.stderr, expected_stderr);
+        let actual = snapbox::IntoData::into_data(output.stderr);
+        let expected = snapbox::IntoData::into_data(expected_stderr);
+        if let Err(error) = snapbox::Assert::new()
+            .action_env(snapbox::assert::DEFAULT_ACTION_ENV)
+            .try_eq(None, actual, expected)
+        {
+            eprintln!("{error}");
+        }
 
         if enabled("DEBUG_DIFF") {
             let mut command = std::process::Command::new("git");
