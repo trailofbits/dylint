@@ -4,6 +4,10 @@
 #![allow(deprecated)]
 #![allow(clippy::large_stack_arrays, clippy::module_name_repetitions)]
 #![cfg_attr(dylint_lib = "supplementary", allow(unnamed_constant))]
+#![cfg_attr(
+    dylint_lib = "non_topologically_sorted_functions",
+    allow(non_topologically_sorted_functions)
+)]
 
 type StableHasher = rustc_stable_hash::StableSipHasher128;
 

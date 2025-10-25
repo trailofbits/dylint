@@ -80,6 +80,33 @@ mod test {
         sync::{LazyLock, Mutex, MutexGuard},
     };
 
+    /// Verify that `allow`ing a lint in the manifest does not silently override `--deny`.
+    #[test]
+    fn premise_manifest_deny() {
+        mutex::<maybe_return::No>();
+
+        let mut command = Command::new("cargo");
+        command.args(["clippy", "--", "--deny=clippy::assertions-on-constants"]);
+        command.current_dir("ui_manifest");
+        command
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING));
+    }
+
+    #[test]
+    fn premise_manifest_sanity() {
+        mutex::<maybe_return::No>();
+
+        let mut command = Command::new("cargo");
+        command.args(["clippy"]);
+        command.current_dir("ui_manifest");
+        command
+            .assert()
+            .success()
+            .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING).not());
+    }
+
     #[test]
     fn ui() {
         let _lock = mutex::<maybe_return::Yes>();
