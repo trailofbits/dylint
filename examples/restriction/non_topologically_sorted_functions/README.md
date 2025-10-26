@@ -1,4 +1,4 @@
-# NON_TOPOLOGICALLY_SORTED_FUNCTIONS
+# non_topologically_sorted_functions
 
 ### What it does
 
@@ -27,5 +27,5 @@ fn foo() {
     bar();
 }
 
-fn bar() { ... }
+fn bar() { }
 ```
