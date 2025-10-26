@@ -24,7 +24,7 @@ dylint_linting::declare_late_lint! {
     ///  ### Example
     ///
     ///  ```rust
-    ///  fn bar() { ... }
+    ///  fn bar() { .. }
     ///
     ///  fn foo() {
     ///      bar();
@@ -38,7 +38,8 @@ dylint_linting::declare_late_lint! {
     ///      bar();
     ///  }
     ///
-    ///  fn bar() { ... }
+    ///  fn bar() { .. }
+    ///  ```
     pub NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
     Warn,
     "Enforce callers before callees and consistent order of callees (module-local functions)"
@@ -137,7 +138,7 @@ impl<'tcx> NonTopologicallySortedFunctions {
     }
 
     /// Check inner order rule.
-    /// 
+    ///
     /// The earlier order is preferred and is considered the main one.
     fn build_multiple_precedence_rule(
         callees: &[LocalDefId],
