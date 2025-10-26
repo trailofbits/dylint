@@ -24,7 +24,7 @@ dylint_linting::declare_late_lint! {
     ///  ### Example
     ///
     ///  ```rust
-    ///  fn bar() { .. }
+    ///  fn bar() { }
     ///
     ///  fn foo() {
     ///      bar();
@@ -38,7 +38,7 @@ dylint_linting::declare_late_lint! {
     ///      bar();
     ///  }
     ///
-    ///  fn bar() { .. }
+    ///  fn bar() { }
     ///  ```
     pub NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
     Warn,
