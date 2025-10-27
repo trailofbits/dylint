@@ -113,12 +113,12 @@ impl Highlight {
 pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highlight>> {
     let start = Instant::now();
 
-    let _: Result<_> = cargo::check("upgraded library package")
-        .quiet(opts.quiet)
+    let _ = cargo::check("upgraded library package")
+        .quiet(false)
         .build()
         .sanitize_environment()
         .current_dir(path)
-        .logged_output(false);
+        .status();
 
     let output = cargo::check("upgraded library package")
         .quiet(opts.quiet)
