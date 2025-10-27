@@ -275,10 +275,10 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
         let mut warned: HashSet<LocalDefId> = HashSet::new();
 
         for Violation {
-            fn_meta,
-            id_first_fn,
             name_first_fn,
             name_second_fn,
+            id_first_fn,
+            fn_meta,
             ..
         } in violations
         {
