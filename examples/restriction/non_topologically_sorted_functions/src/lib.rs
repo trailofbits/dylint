@@ -161,14 +161,16 @@ impl<'tcx> NonTopologicallySortedFunctions {
 
     fn find_violations(
         cx: &LateContext<'_>,
-        must_come_before: HashSet<(LocalDefId, LocalDefId)>,
-        functions: HashMap<LocalDefId, FnMeta>,
+        must_come_before: &HashSet<(LocalDefId, LocalDefId)>,
+        functions: &HashMap<LocalDefId, FnMeta>,
     ) -> Vec<Violation> {
         let mut violations: Vec<Violation> = must_come_before
             .iter()
             .filter_map(|&(a, b)| {
-                let idx_a = functions.get(&a)?.position_number;
-                let idx_b = functions.get(&b)?.position_number;
+                let func_meta_a = functions.get(&a)?;
+                let idx_a = func_meta_a.position_number;
+                let func_meta_b = functions.get(&b)?;
+                let idx_b = func_meta_b.position_number;
                 if idx_a > idx_b {
                     let fn_meta = functions
                         .get(&a)
@@ -269,7 +271,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
             }
         }
 
-        let violations = Self::find_violations(cx, must_come_before, functions);
+        let violations = Self::find_violations(cx, &must_come_before, &functions);
         let mut warned: HashSet<LocalDefId> = HashSet::new();
 
         for Violation {

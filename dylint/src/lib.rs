@@ -308,57 +308,6 @@ fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBu
     Ok(None)
 }
 
-fn list_lints(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
-    for (toolchain, paths) in resolved {
-        for path in paths {
-            let driver = driver_builder::get(opts, toolchain)?;
-            let dylint_libs = serde_json::to_string(&[path])?;
-            let (name, _) =
-                parse_path_filename(path).ok_or_else(|| anyhow!("Could not parse path"))?;
-
-            print!("{name}");
-            if resolved.keys().len() >= 2 {
-                print!("@{toolchain}");
-            }
-            if paths.len() >= 2 {
-                let location = display_location(path)?;
-                print!(" ({location})");
-            }
-            println!();
-
-            // smoelius: `-W help` is the normal way to list lints, so we can be sure it
-            // gets the lints loaded. However, we don't actually use it to list the lints.
-            let mut command = dylint_driver(toolchain, &driver)?;
-            command
-                .envs([
-                    (env::DYLINT_LIBS, dylint_libs.as_str()),
-                    (env::DYLINT_LIST, "1"),
-                ])
-                .args(["rustc", "-W", "help"])
-                .success()?;
-
-            println!();
-        }
-    }
-
-    Ok(())
-}
-
-fn display_location(path: &Path) -> Result<String> {
-    let current_dir = current_dir().with_context(|| "Could not get current directory")?;
-    let Ok(path_buf) = path.canonicalize() else {
-        return Ok("<unbuilt>".to_owned());
-    };
-    let parent = path_buf
-        .parent()
-        .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-    Ok(parent
-        .strip_prefix(&current_dir)
-        .unwrap_or(parent)
-        .to_string_lossy()
-        .to_string())
-}
-
 fn check_or_fix(
     opts: &opts::Dylint,
     check_opts: &opts::Check,
@@ -471,6 +420,62 @@ fn check_or_fix(
     }
 }
 
+fn list_lints(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
+    for (toolchain, paths) in resolved {
+        for path in paths {
+            let driver = driver_builder::get(opts, toolchain)?;
+            let dylint_libs = serde_json::to_string(&[path])?;
+            let (name, _) =
+                parse_path_filename(path).ok_or_else(|| anyhow!("Could not parse path"))?;
+
+            print!("{name}");
+            if resolved.keys().len() >= 2 {
+                print!("@{toolchain}");
+            }
+            if paths.len() >= 2 {
+                let location = display_location(path)?;
+                print!(" ({location})");
+            }
+            println!();
+
+            // smoelius: `-W help` is the normal way to list lints, so we can be sure it
+            // gets the lints loaded. However, we don't actually use it to list the lints.
+            let mut command = dylint_driver(toolchain, &driver)?;
+            command
+                .envs([
+                    (env::DYLINT_LIBS, dylint_libs.as_str()),
+                    (env::DYLINT_LIST, "1"),
+                ])
+                .args(["rustc", "-W", "help"])
+                .success()?;
+
+            println!();
+        }
+    }
+
+    Ok(())
+}
+
+fn display_location(path: &Path) -> Result<String> {
+    let current_dir = current_dir().with_context(|| "Could not get current directory")?;
+    let Ok(path_buf) = path.canonicalize() else {
+        return Ok("<unbuilt>".to_owned());
+    };
+    let parent = path_buf
+        .parent()
+        .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+    Ok(parent
+        .strip_prefix(&current_dir)
+        .unwrap_or(parent)
+        .to_string_lossy()
+        .to_string())
+}
+
+fn clippy_disable_docs_links() -> Result<String> {
+    let val = env::var(env::CLIPPY_DISABLE_DOCS_LINKS).ok();
+    serde_json::to_string(&val).map_err(Into::into)
+}
+
 fn target_dir(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     let mut command = MetadataCommand::new();
     if let Some(path) = &opts.library_selection().manifest_path {
@@ -482,11 +487,6 @@ fn target_dir(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
         .join("dylint/target")
         .join(toolchain)
         .into())
-}
-
-fn clippy_disable_docs_links() -> Result<String> {
-    let val = env::var(env::CLIPPY_DISABLE_DOCS_LINKS).ok();
-    serde_json::to_string(&val).map_err(Into::into)
 }
 
 #[allow(clippy::unwrap_used)]
@@ -510,10 +510,6 @@ mod test {
         }),
         ..Default::default()
     });
-
-    fn name_toolchain_map() -> NameToolchainMap<'static> {
-        NameToolchainMap::new(&OPTS)
-    }
 
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
@@ -599,5 +595,9 @@ mod test {
         };
 
         run_with_name_toolchain_map(&opts, &name_toolchain_map).unwrap();
+    }
+
+    fn name_toolchain_map() -> NameToolchainMap<'static> {
+        NameToolchainMap::new(&OPTS)
     }
 }

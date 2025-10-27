@@ -201,6 +201,14 @@ pub fn collect_rewrites(
     Ok(rewrites)
 }
 
+fn display_commits(commits: &[Commit]) {
+    for commit in commits {
+        let short_id = commit.short_id();
+        let summary = commit.summary().unwrap_or_default();
+        eprintln!("{short_id}: {summary}");
+    }
+}
+
 // smoelius: You need a `Patch` to get a `DiffHunk`'s lines. So there would be no easy way to write
 // a `hunks_from_patch` function. See, for example, `hunk_lines` below.
 fn rewrites_from_patch(
@@ -247,21 +255,6 @@ fn rewrites_from_patch(
     Ok(rewrites)
 }
 
-fn hunk_lines<'repo>(
-    patch: &'repo Patch<'repo>,
-    hunk_idx: usize,
-    hunk_lines: Range<u32>,
-) -> Result<Vec<&'repo str>> {
-    hunk_lines
-        .map(|line_of_hunk_u32| -> Result<_> {
-            let line_of_hunk = usize::try_from(line_of_hunk_u32)?;
-            let diff_line = patch.line_in_hunk(hunk_idx, line_of_hunk)?;
-            let line = std::str::from_utf8(diff_line.content())?;
-            Ok(line)
-        })
-        .collect()
-}
-
 /// Returns true if, for any hunk in any patch in the diff, both the number of old lines and the
 /// number of new lines is three or more.
 #[allow(dead_code)]
@@ -295,10 +288,17 @@ fn hunk_is_refactor(hunk: &DiffHunk) -> bool {
     hunk.old_lines() >= REFACTOR_THRESHOLD && hunk.new_lines() >= REFACTOR_THRESHOLD
 }
 
-fn display_commits(commits: &[Commit]) {
-    for commit in commits {
-        let short_id = commit.short_id();
-        let summary = commit.summary().unwrap_or_default();
-        eprintln!("{short_id}: {summary}");
-    }
+fn hunk_lines<'repo>(
+    patch: &'repo Patch<'repo>,
+    hunk_idx: usize,
+    hunk_lines: Range<u32>,
+) -> Result<Vec<&'repo str>> {
+    hunk_lines
+        .map(|line_of_hunk_u32| -> Result<_> {
+            let line_of_hunk = usize::try_from(line_of_hunk_u32)?;
+            let diff_line = patch.line_in_hunk(hunk_idx, line_of_hunk)?;
+            let line = std::str::from_utf8(diff_line.content())?;
+            Ok(line)
+        })
+        .collect()
 }
