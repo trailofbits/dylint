@@ -13,33 +13,33 @@ use rustc_span::Span;
 use std::collections::{HashMap, HashSet};
 
 dylint_linting::declare_late_lint! {
-    ///  ### What it does
+    /// ### What it does
     ///
-    ///  It enforces a certain relative order among functions defined within a module.
+    /// It enforces a certain relative order among functions defined within a module.
     ///
-    ///  ### Why is this bad?
+    /// ### Why is this bad?
     ///
-    ///  Without a certain order it's really bad to navigate through the modules.
+    /// Without a certain order it's really bad to navigate through the modules.
     ///
-    ///  ### Example
+    /// ### Example
     ///
-    ///  ```rust
-    ///  fn bar() { }
+    /// ```rust
+    /// fn bar() { }
     ///
-    ///  fn foo() {
-    ///      bar();
-    ///  }
-    ///  ```
+    /// fn foo() {
+    ///     bar();
+    /// }
+    /// ```
     ///
-    ///  Use instead:
+    /// Use instead:
     ///
-    ///  ```rust
-    ///  fn foo() {
-    ///      bar();
-    ///  }
+    /// ```rust
+    /// fn foo() {
+    ///     bar();
+    /// }
     ///
-    ///  fn bar() { }
-    ///  ```
+    /// fn bar() { }
+    /// ```
     pub NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
     Warn,
     "Enforce callers before callees and consistent order of callees (module-local functions)"
