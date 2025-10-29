@@ -1,29 +1,29 @@
 # non_topologically_sorted_functions
 
- ### What it does
+### What it does
 
- It enforces a certain relative order among functions defined within a module.
+It enforces a certain relative order among functions defined within a module.
 
- ### Why is this bad?
+### Why is this bad?
 
- Without a certain order it's really bad to navigate through the modules.
+Without a certain order it's really bad to navigate through the modules.
 
- ### Example
+### Example
 
- ```rust
- fn bar() { }
+```rust
+fn bar() { }
 
- fn foo() {
-     bar();
- }
- ```
+fn foo() {
+    bar();
+}
+```
 
- Use instead:
+Use instead:
 
- ```rust
- fn foo() {
-     bar();
- }
+```rust
+fn foo() {
+    bar();
+}
 
- fn bar() { }
- ```
+fn bar() { }
+```
