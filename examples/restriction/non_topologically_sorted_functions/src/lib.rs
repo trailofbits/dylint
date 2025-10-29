@@ -47,38 +47,30 @@ dylint_linting::declare_late_lint! {
 
 struct Finder<'a, 'tcx> {
     cx: &'a LateContext<'tcx>,
-    local_defs: &'a HashMap<LocalDefId, FnMeta>,
+    local_defs: &'a HashMap<LocalDefId, Span>,
     seen: HashSet<LocalDefId>,
     order: Vec<LocalDefId>,
 }
 
 impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
     fn visit_expr(&mut self, ex: &'tcx Expr<'tcx>) {
-        if let ExprKind::Call(callee, _args) = &ex.kind {
-            if let ExprKind::Path(ref qpath) = callee.kind {
-                let res = self.cx.qpath_res(qpath, callee.hir_id);
-                if let Res::Def(_, def_id) = res {
-                    if let Some(local_def_id) = def_id.as_local() {
-                        if self.local_defs.contains_key(&local_def_id)
-                            && !self.seen.contains(&local_def_id)
-                        {
-                            self.seen.insert(local_def_id);
-                            self.order.push(local_def_id);
-                        }
-                    }
-                }
+        if let ExprKind::Call(callee, _args) = &ex.kind
+            && let ExprKind::Path(ref qpath) = callee.kind
+        {
+            let res = self.cx.qpath_res(qpath, callee.hir_id);
+            if let Res::Def(_, def_id) = res
+                && let Some(local_def_id) = def_id.as_local()
+                && self.local_defs.contains_key(&local_def_id)
+                && !self.seen.contains(&local_def_id)
+            {
+                self.seen.insert(local_def_id);
+                self.order.push(local_def_id);
             }
         }
 
         // keep traversing
         intravisit::walk_expr(self, ex);
     }
-}
-
-#[derive(Clone, Copy)]
-struct FnMeta {
-    position_number: usize,
-    span: Span,
 }
 
 impl<'tcx> NonTopologicallySortedFunctions {
@@ -91,11 +83,11 @@ impl<'tcx> NonTopologicallySortedFunctions {
 
         for item_id in module.item_ids {
             let item = cx.tcx.hir_item(*item_id);
-            if let ItemKind::Fn { body, .. } = item.kind {
-                if item.owner_id.def_id == caller_id {
-                    caller_body = Some(body);
-                    break;
-                }
+            if let ItemKind::Fn { body, .. } = item.kind
+                && item.owner_id.def_id == caller_id
+            {
+                caller_body = Some(body);
+                break;
             }
         }
 
@@ -105,7 +97,7 @@ impl<'tcx> NonTopologicallySortedFunctions {
     fn collect_callees_in_body(
         cx: &LateContext<'_>,
         body_id: BodyId,
-        local_defs: &HashMap<LocalDefId, FnMeta>,
+        local_defs: &HashMap<LocalDefId, Span>,
     ) -> Vec<LocalDefId> {
         let body = cx.tcx.hir_body(body_id);
         let mut finder = Finder {
@@ -162,27 +154,23 @@ impl<'tcx> NonTopologicallySortedFunctions {
     fn find_violations(
         cx: &LateContext<'_>,
         must_come_before: &HashSet<(LocalDefId, LocalDefId)>,
-        functions: &HashMap<LocalDefId, FnMeta>,
+        spans: &HashMap<LocalDefId, Span>,
     ) -> Vec<Violation> {
         let mut violations: Vec<Violation> = must_come_before
             .iter()
             .filter_map(|&(a, b)| {
-                let func_meta_a = functions.get(&a)?;
-                let idx_a = func_meta_a.position_number;
-                let func_meta_b = functions.get(&b)?;
-                let idx_b = func_meta_b.position_number;
-                if idx_a > idx_b {
-                    let fn_meta = functions
+                let span_a = spans.get(&a)?;
+                let span_b = spans.get(&b)?;
+                if span_a.lo() > span_b.hi() {
+                    let span = spans
                         .get(&a)
                         .copied()
                         .expect("Has to be fn meta for function in module");
                     let name_a = cx.tcx.def_path_str(a.to_def_id());
                     let name_b = cx.tcx.def_path_str(b.to_def_id());
                     let violation = Violation {
-                        fn_meta,
+                        span,
                         id_first_fn: a,
-                        idx_first_fn: idx_a,
-                        idx_second_fn: idx_b,
                         name_first_fn: name_a,
                         name_second_fn: name_b,
                     };
@@ -196,20 +184,21 @@ impl<'tcx> NonTopologicallySortedFunctions {
         // keep the same order
         violations.sort_by(
             |Violation {
-                 idx_first_fn: ia1,
-                 idx_second_fn: ib1,
-                 name_first_fn: name_a1,
+                 name_first_fn: name_a,
+                 span: span_a,
                  ..
              },
              Violation {
-                 idx_first_fn: ia2,
-                 idx_second_fn: ib2,
-                 name_first_fn: name_a2,
+                 name_first_fn: name_b,
+                 span: span_b,
                  ..
              }| {
-                ia1.cmp(ia2)
-                    .then(ib1.cmp(ib2))
-                    .then(name_a1.as_str().cmp(name_a2.as_str()))
+                // ia1.cmp(ia2)
+                span_a
+                    .lo()
+                    .cmp(&span_b.lo())
+                    .then(span_a.hi().cmp(&span_b.hi()))
+                    .then(name_a.as_str().cmp(name_b.as_str()))
             },
         );
 
@@ -218,12 +207,10 @@ impl<'tcx> NonTopologicallySortedFunctions {
 }
 
 struct Violation {
-    idx_first_fn: usize,
-    idx_second_fn: usize,
     name_first_fn: String,
     name_second_fn: String,
     id_first_fn: LocalDefId,
-    fn_meta: FnMeta,
+    span: Span,
 }
 
 impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
@@ -233,22 +220,15 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
     fn check_mod(&mut self, cx: &LateContext<'tcx>, module: &'tcx Mod<'tcx>, _module_id: HirId) {
         // Collect top-level functions
         let mut def_order: Vec<LocalDefId> = vec![];
-        let mut functions: HashMap<LocalDefId, FnMeta> = HashMap::new();
-        let mut idx = 0;
+        let mut spans: HashMap<LocalDefId, Span> = HashMap::new();
 
         for item_id in module.item_ids {
             let item: &Item<'tcx> = cx.tcx.hir_item(*item_id);
             if let ItemKind::Fn { .. } = item.kind {
                 let local_def_id = item.owner_id.def_id;
-                let fn_meta = FnMeta {
-                    position_number: idx,
-                    span: item.span,
-                };
 
                 def_order.push(local_def_id);
-                functions.insert(local_def_id, fn_meta);
-
-                idx += 1;
+                spans.insert(local_def_id, item.span);
             }
         }
 
@@ -263,7 +243,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
 
             if let Some(caller_body_id) = caller_body {
                 let callees: Vec<LocalDefId> =
-                    Self::collect_callees_in_body(cx, caller_body_id, &functions);
+                    Self::collect_callees_in_body(cx, caller_body_id, &spans);
 
                 must_come_before =
                     Self::build_caller_callee_constraint(caller_id, &callees, must_come_before);
@@ -271,20 +251,20 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
             }
         }
 
-        let violations = Self::find_violations(cx, &must_come_before, &functions);
+        let violations = Self::find_violations(cx, &must_come_before, &spans);
         let mut warned: HashSet<LocalDefId> = HashSet::new();
 
         for Violation {
             name_first_fn,
             name_second_fn,
             id_first_fn,
-            fn_meta,
+            span,
             ..
         } in violations
         {
             if warned.insert(id_first_fn) {
-                cx.span_lint(NON_TOPOLOGICALLY_SORTED_FUNCTIONS, fn_meta.span, |diag| {
-                    diag.span_label(fn_meta.span, format!("function `{name_first_fn}` should be defined before `{name_second_fn}`"));
+                cx.span_lint(NON_TOPOLOGICALLY_SORTED_FUNCTIONS, span, |diag| {
+                    diag.span_label(span, format!("function `{name_first_fn}` should be defined before `{name_second_fn}`"));
                     diag.help("move the function earlier in the module so callers and callee ordering is respected");
                 });
             }
