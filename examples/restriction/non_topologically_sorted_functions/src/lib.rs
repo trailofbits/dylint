@@ -193,7 +193,6 @@ impl<'tcx> NonTopologicallySortedFunctions {
                  span: span_b,
                  ..
              }| {
-                // ia1.cmp(ia2)
                 span_a
                     .lo()
                     .cmp(&span_b.lo())
