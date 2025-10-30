@@ -47,6 +47,7 @@ The example libraries are separated into the following three categories:
 | [`env_literal`](./restriction/env_literal)                                                                   | Environment variables referred to with string literals                                |
 | [`inconsistent_qualification`](./restriction/inconsistent_qualification)                                     | Inconsistent qualification of module items                                            |
 | [`misleading_variable_name`](./restriction/misleading_variable_name)                                         | Variables whose names suggest they have types other than the ones they have           |
+| [`non_topologically_sorted_functions`](./restriction/non_topologically_sorted_functions)                     | A lint to check the function order                                                    |
 | [`question_mark_in_expression`](./restriction/question_mark_in_expression)                                   | The `?` operator in expressions                                                       |
 | [`ref_aware_redundant_closure_for_method_calls`](./restriction/ref_aware_redundant_closure_for_method_calls) | A ref-aware fork of `redundant_closure_for_method_calls`                              |
 | [`register_lints_warn`](./restriction/register_lints_warn)                                                   | Calls to `rustc_errors::DiagCtxtHandle::warn` from within a `register_lints` function |
