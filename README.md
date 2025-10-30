@@ -92,6 +92,19 @@ libraries = [
 ]
 ```
 
+The `git` field can be accompanied by `branch`, `tag`, or `rev` option.
+
+```toml
+[workspace.metadata.dylint]
+libraries = [
+    # All of these are valid ways to load lints from a remote git repository
+    { git = "https://github.com/trailofbits/dylint", tag = "v5.0.0", pattern = "examples/general" },
+    { git = "https://github.com/trailofbits/dylint", branch = "master", pattern = "examples/general" },
+    { git = "https://github.com/trailofbits/dylint", rev = "76b73b33dffa2505ad179bd5fce0134a90a055e4", pattern = "examples/general" }
+    # WARNING: Don't include all three or else you'll lint your code 3x times ;)
+]
+```
+
 ### Configurable libraries
 
 Libraries can be configured by including a `dylint.toml` file in a linted workspace's root directory. The file should encode a [toml table] whose keys are library names. A library determines how its value in the table (if any) is interpreted.
