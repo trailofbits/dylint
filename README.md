@@ -3,7 +3,7 @@
 Run Rust lints from dynamic libraries (EuroRust 2024 [slides] and [video])
 
 ```sh
-cargo install cargo-dylint dylint-link
+cargo install cargo-dylint dylint-link --locked
 ```
 
 Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a predetermined, static set of lints, Dylint runs lints from user-specified, dynamic libraries. Thus, Dylint allows developers to maintain their own personal lint collections.
@@ -33,7 +33,7 @@ The next two steps install Dylint and run all of this repository's [general-purp
 1. Install `cargo-dylint` and `dylint-link`:
 
    ```sh
-   cargo install cargo-dylint dylint-link
+   cargo install cargo-dylint dylint-link --locked
    ```
 
 2. Run `cargo-dylint`:
