@@ -92,7 +92,7 @@ libraries = [
 ]
 ```
 
-The `git` field can be accompanied by `branch`, `tag`, or `rev` option.
+The `git` field can be accompanied by a `branch`, `tag`, or `rev` option.
 
 ```toml
 [workspace.metadata.dylint]
