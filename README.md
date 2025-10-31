@@ -101,7 +101,6 @@ libraries = [
     { git = "https://github.com/trailofbits/dylint", tag = "v5.0.0", pattern = "examples/general" },
     { git = "https://github.com/trailofbits/dylint", branch = "master", pattern = "examples/general" },
     { git = "https://github.com/trailofbits/dylint", rev = "76b73b33dffa2505ad179bd5fce0134a90a055e4", pattern = "examples/general" }
-    # WARNING: Don't include all three or else you'll lint your code 3x times ;)
 ]
 ```
 
