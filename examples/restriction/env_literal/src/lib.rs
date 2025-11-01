@@ -6,7 +6,7 @@ extern crate rustc_hir;
 
 use clippy_utils::{
     diagnostics::span_lint_and_help,
-    path_def_id,
+    is_in_test,
     paths::{PathLookup, PathNS},
     sym, value_path,
 };
