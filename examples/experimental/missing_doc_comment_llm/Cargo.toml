@@ -10,7 +10,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "20ce69b9a63bcd2756cd906fe0964d1e901e042a" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "c936595d17413c1f08e162e117e504fb4ed126e4" }
 # smoelius: Commit 438e029 is a bug fix. See: https://github.com/majiayu000/litellm-rs/pull/3
 litellm-rs = { git = "https://github.com/majiayu000/litellm-rs", rev = "438e02998f63efa904f93b1924e87073070399b0", default-features = false, features = [
     "redis",
