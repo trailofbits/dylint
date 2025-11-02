@@ -19,7 +19,7 @@ resolver = "2"
 [workspace.dependencies]
 anstyle = "1.0"
 anyhow = "1.0"
-assert_cmd = "2.0"
+assert_cmd = "2.1"
 bitflags = "2.10"
 cargo-util = "0.2"
 cargo-util-schemas = "0.10"
