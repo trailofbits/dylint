@@ -29,7 +29,7 @@ dylint_internal = { path = "../../../internal" }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-assert_cmd = "2.0"
+assert_cmd = "2.1"
 tempfile = "3.23"
 
 dylint_testing = { path = "../../../utils/testing" }
