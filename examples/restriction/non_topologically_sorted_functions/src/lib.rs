@@ -56,16 +56,14 @@ impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
     fn visit_expr(&mut self, ex: &'tcx Expr<'tcx>) {
         if let ExprKind::Call(callee, _args) = &ex.kind
             && let ExprKind::Path(ref qpath) = callee.kind
+            && let res = self.cx.qpath_res(qpath, callee.hir_id)
+            && let Res::Def(_, def_id) = res
+            && let Some(local_def_id) = def_id.as_local()
+            && self.local_defs.contains_key(&local_def_id)
+            && !self.seen.contains(&local_def_id)
         {
-            let res = self.cx.qpath_res(qpath, callee.hir_id);
-            if let Res::Def(_, def_id) = res
-                && let Some(local_def_id) = def_id.as_local()
-                && self.local_defs.contains_key(&local_def_id)
-                && !self.seen.contains(&local_def_id)
-            {
-                self.seen.insert(local_def_id);
-                self.order.push(local_def_id);
-            }
+            self.seen.insert(local_def_id);
+            self.order.push(local_def_id);
         }
 
         // keep traversing
@@ -182,24 +180,24 @@ impl<'tcx> NonTopologicallySortedFunctions {
             .collect();
 
         // keep the same order
-        violations.sort_by(
-            |Violation {
-                 name_first_fn: name_a,
-                 span: span_a,
-                 ..
-             },
-             Violation {
-                 name_first_fn: name_b,
-                 span: span_b,
-                 ..
-             }| {
-                span_a
-                    .lo()
-                    .cmp(&span_b.lo())
-                    .then(span_a.hi().cmp(&span_b.hi()))
-                    .then(name_a.as_str().cmp(name_b.as_str()))
-            },
-        );
+        // violations.sort_by(
+        //     |Violation {
+        //          name_first_fn: name_a,
+        //          span: span_a,
+        //          ..
+        //      },
+        //      Violation {
+        //          name_first_fn: name_b,
+        //          span: span_b,
+        //          ..
+        //      }| {
+        //         span_a
+        //             .lo()
+        //             .cmp(&span_b.lo())
+        //             .then(span_a.hi().cmp(&span_b.hi()))
+        //             .then(name_a.as_str().cmp(name_b.as_str()))
+        //     },
+        // );
 
         violations
     }
