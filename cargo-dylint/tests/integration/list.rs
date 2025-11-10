@@ -3,7 +3,7 @@
 // #![cfg(not(coverage))]
 
 use anyhow::{Context, Result};
-use assert_cmd::prelude::*;
+use assert_cmd::cargo::cargo_bin_cmd;
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     CommandExt,
@@ -48,8 +48,7 @@ fn one_name_multiple_toolchains() {
         .success()
         .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .envs([(
             env::DYLINT_LIBRARY_PATH,
             target_debug(tempdir.path()).unwrap(),
@@ -96,8 +95,7 @@ fn one_name_multiple_paths() {
     ])
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .envs([(env::DYLINT_LIBRARY_PATH, paths)])
         .args(["dylint", "list", "--all", "--no-metadata"])
         .assert()
@@ -130,16 +128,14 @@ fn opts_library_package() {
     let paths = join_paths([&target_debug(tempdir.path()).unwrap()]).unwrap();
 
     // smoelius: Sanity.
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .envs([(env::DYLINT_LIBRARY_PATH, &paths)])
         .args(["dylint", "list", "--all", "--no-metadata"])
         .assert()
         .success()
         .stdout(predicate::str::contains("fill_me_in"));
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .envs([(env::DYLINT_LIBRARY_PATH, paths)])
         .args([
             "dylint",
@@ -183,8 +179,7 @@ fn relative_path() {
             .strip_prefix(tempdir.path().canonicalize().unwrap())
             .unwrap();
 
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
+        cargo_bin_cmd!("cargo-dylint")
             .current_dir(&tempdir)
             .envs([(env::DYLINT_LIBRARY_PATH, &path)])
             .args(["dylint", "list"])
@@ -220,8 +215,7 @@ fn list_by_path() {
     .unwrap()
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .args(["dylint", "list", "--path", &path.to_string_lossy()])
         .assert()
         .failure()

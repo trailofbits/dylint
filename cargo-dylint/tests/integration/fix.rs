@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use assert_cmd::prelude::*;
+use assert_cmd::{cargo::cargo_bin_cmd, prelude::*};
 use std::{
     fs::{OpenOptions, read_to_string, write},
     io::Write,
@@ -60,8 +60,7 @@ fn fix() {
 
     write(tempdir.path().join("src/main.rs"), MAIN_RS).unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--lib", LIB_NAME, "--fix", "--", "--allow-dirty"])
         .assert()

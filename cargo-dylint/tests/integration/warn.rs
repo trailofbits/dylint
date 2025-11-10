@@ -1,4 +1,4 @@
-use assert_cmd::prelude::*;
+use assert_cmd::cargo::cargo_bin_cmd;
 use predicates::prelude::*;
 
 #[test]
@@ -65,10 +65,11 @@ fn opts_library_package_no_warn() {
 // understand why the difference.
 //
 // This problem was encountered in the `no_env_logger_warning` test as well.
+#[cfg_attr(dylint_lib = "general", allow(abs_home_path))]
 #[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
-fn cargo_dylint() -> std::process::Command {
+fn cargo_dylint() -> assert_cmd::Command {
     /* let mut command = std::process::Command::new("cargo");
     command.args(["run", "--quiet", "--bin", "cargo-dylint"]);
     command */
-    std::process::Command::cargo_bin("cargo-dylint").unwrap()
+    cargo_bin_cmd!("cargo-dylint")
 }
