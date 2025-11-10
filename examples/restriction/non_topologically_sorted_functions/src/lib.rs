@@ -154,7 +154,7 @@ impl<'tcx> NonTopologicallySortedFunctions {
         must_come_before: &HashSet<(LocalDefId, LocalDefId)>,
         spans: &HashMap<LocalDefId, Span>,
     ) -> Vec<Violation> {
-        let mut violations: Vec<Violation> = must_come_before
+        let violations: Vec<Violation> = must_come_before
             .iter()
             .filter_map(|&(a, b)| {
                 let span_a = spans.get(&a)?;
@@ -180,24 +180,24 @@ impl<'tcx> NonTopologicallySortedFunctions {
             .collect();
 
         // keep the same order
-        // violations.sort_by(
-        //     |Violation {
-        //          name_first_fn: name_a,
-        //          span: span_a,
-        //          ..
-        //      },
-        //      Violation {
-        //          name_first_fn: name_b,
-        //          span: span_b,
-        //          ..
-        //      }| {
-        //         span_a
-        //             .lo()
-        //             .cmp(&span_b.lo())
-        //             .then(span_a.hi().cmp(&span_b.hi()))
-        //             .then(name_a.as_str().cmp(name_b.as_str()))
-        //     },
-        // );
+        violations.sort_by(
+            |Violation {
+                 name_first_fn: name_a,
+                 span: span_a,
+                 ..
+             },
+             Violation {
+                 name_first_fn: name_b,
+                 span: span_b,
+                 ..
+             }| {
+                span_a
+                    .lo()
+                    .cmp(&span_b.lo())
+                    .then(span_a.hi().cmp(&span_b.hi()))
+                    .then(name_a.as_str().cmp(name_b.as_str()))
+            },
+        );
 
         violations
     }
