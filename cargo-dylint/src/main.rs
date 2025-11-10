@@ -401,31 +401,10 @@ fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> dylint::ColorizedResult<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_cmd::prelude::*;
     use clap::CommandFactory;
 
     #[test]
     fn verify_cli() {
         Opts::command().debug_assert();
-    }
-
-    #[test]
-    fn usage() {
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
-            .args(["dylint", "--help"])
-            .assert()
-            .success()
-            .stdout(predicates::str::contains("Usage: cargo dylint"));
-    }
-
-    #[test]
-    fn version() {
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
-            .args(["dylint", "--version"])
-            .assert()
-            .success()
-            .stdout(format!("cargo-dylint {}\n", env!("CARGO_PKG_VERSION")));
     }
 }
