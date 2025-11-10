@@ -213,9 +213,6 @@ struct Violation {
 }
 
 impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
-    // A list of things you might check can be found here:
-    // https://doc.rust-lang.org/stable/nightly-rustc/rustc_lint/trait.LateLintPass.html
-
     fn check_mod(&mut self, cx: &LateContext<'tcx>, module: &'tcx Mod<'tcx>, _module_id: HirId) {
         // Collect top-level functions
         let mut def_order: Vec<LocalDefId> = vec![];
