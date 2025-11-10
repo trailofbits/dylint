@@ -23,7 +23,7 @@ dylint_internal = { version = "=5.0.0", path = "../../internal", features = [
 toml = "0.9"
 
 [dev-dependencies]
-assert_cmd = "2.0"
+assert_cmd = "2.1"
 rustc_version = "0.4"
 tempfile = "3.23"
 
