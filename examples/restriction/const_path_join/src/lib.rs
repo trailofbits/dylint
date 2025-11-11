@@ -137,6 +137,21 @@ fn collect_components<'tcx>(
     (components_reversed, ty_or_partial_span)
 }
 
+fn is_lit_string(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<String> {
+    if !expr.span.from_expansion()
+        && let ExprKind::Lit(lit) = &expr.kind
+        && let LitKind::Str(symbol, _) = lit.node
+        // smoelius: I don't think the next line should be necessary. But following the upgrade to
+        // nightly-2023-08-24, `expr.span.from_expansion()` above started returning false for
+        // `env!(...)`.
+        && snippet_opt(cx, expr.span) == Some(format!(r#""{}""#, symbol.as_str()))
+    {
+        Some(symbol.to_ident_string())
+    } else {
+        None
+    }
+}
+
 fn is_path_buf_from(
     cx: &LateContext<'_>,
     callee: &Expr<'_>,
@@ -154,21 +169,6 @@ fn is_path_buf_from(
             &[&paths::CAMINO_UTF8_PATH_BUF, &paths::PATH_PATH_BUF],
         )
         .map(|i| paths[i])
-    } else {
-        None
-    }
-}
-
-fn is_lit_string(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<String> {
-    if !expr.span.from_expansion()
-        && let ExprKind::Lit(lit) = &expr.kind
-        && let LitKind::Str(symbol, _) = lit.node
-        // smoelius: I don't think the next line should be necessary. But following the upgrade to
-        // nightly-2023-08-24, `expr.span.from_expansion()` above started returning false for
-        // `env!(...)`.
-        && snippet_opt(cx, expr.span) == Some(format!(r#""{}""#, symbol.as_str()))
-    {
-        Some(symbol.to_ident_string())
     } else {
         None
     }

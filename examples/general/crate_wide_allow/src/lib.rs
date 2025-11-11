@@ -80,18 +80,31 @@ mod test {
         sync::{LazyLock, Mutex, MutexGuard},
     };
 
-    fn mutex<T: maybe_return::MaybeReturn<MutexGuard<'static, ()>>>() -> T::Output {
-        static MUTEX: Mutex<()> = Mutex::new(());
+    /// Verify that `allow`ing a lint in the manifest does not silently override `--deny`.
+    #[test]
+    fn premise_manifest_deny() {
+        mutex::<maybe_return::No>();
 
-        let lock = MUTEX.lock().unwrap();
-
-        // smoelius: Ensure the `clippy` component is installed.
-        Command::new("rustup")
-            .args(["component", "add", "clippy"])
+        let mut command = Command::new("cargo");
+        command.args(["clippy", "--", "--deny=clippy::assertions-on-constants"]);
+        command.current_dir("ui_manifest");
+        command
             .assert()
-            .success();
+            .failure()
+            .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING));
+    }
 
-        T::maybe_return(lock)
+    #[test]
+    fn premise_manifest_sanity() {
+        mutex::<maybe_return::No>();
+
+        let mut command = Command::new("cargo");
+        command.args(["clippy"]);
+        command.current_dir("ui_manifest");
+        command
+            .assert()
+            .success()
+            .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING).not());
     }
 
     #[test]
@@ -160,19 +173,6 @@ mod test {
     const ASSERTIONS_ON_CONSTANTS_WARNING: &str =
         "`assert!(true)` will be optimized out by the compiler";
 
-    #[test]
-    fn premise_manifest_sanity() {
-        mutex::<maybe_return::No>();
-
-        let mut command = Command::new("cargo");
-        command.args(["clippy"]);
-        command.current_dir("ui_manifest");
-        command
-            .assert()
-            .success()
-            .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING).not());
-    }
-
     /// Verify that `allow`ing a lint in the manifest does not silently override `--warn`.
     #[test]
     fn premise_manifest_warn() {
@@ -187,18 +187,18 @@ mod test {
             .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING));
     }
 
-    /// Verify that `allow`ing a lint in the manifest does not silently override `--deny`.
-    #[test]
-    fn premise_manifest_deny() {
-        mutex::<maybe_return::No>();
+    fn mutex<T: maybe_return::MaybeReturn<MutexGuard<'static, ()>>>() -> T::Output {
+        static MUTEX: Mutex<()> = Mutex::new(());
 
-        let mut command = Command::new("cargo");
-        command.args(["clippy", "--", "--deny=clippy::assertions-on-constants"]);
-        command.current_dir("ui_manifest");
-        command
+        let lock = MUTEX.lock().unwrap();
+
+        // smoelius: Ensure the `clippy` component is installed.
+        Command::new("rustup")
+            .args(["component", "add", "clippy"])
             .assert()
-            .failure()
-            .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING));
+            .success();
+
+        T::maybe_return(lock)
     }
 
     mod maybe_return {
