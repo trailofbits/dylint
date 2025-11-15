@@ -1,4 +1,4 @@
-use clippy_utils::{diagnostics::span_lint_and_note, path_def_id};
+use clippy_utils::{diagnostics::span_lint_and_note, is_in_test};
 use dylint_internal::{is_expr_path_def_path, match_def_path, paths};
 use rustc_ast::ast::LitKind;
 use rustc_hir::{
