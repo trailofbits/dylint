@@ -1,0 +1,25 @@
+[package]
+name = "non_topologically_sorted_functions"
+version = "5.0.0"
+authors = ["J4CK VVH173 <i78901234567890@gmail.com>"]
+description = "A lint to check the function order"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { workspace = true }
+
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[lints]
+workspace = true
+
+[package.metadata.rust-analyzer]
+rustc_private = true
