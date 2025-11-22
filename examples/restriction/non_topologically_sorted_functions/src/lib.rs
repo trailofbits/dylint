@@ -71,27 +71,7 @@ impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
     }
 }
 
-impl<'tcx> NonTopologicallySortedFunctions {
-    fn find_caller_body(
-        cx: &LateContext<'tcx>,
-        module: &'tcx Mod<'tcx>,
-        caller_id: LocalDefId,
-    ) -> Option<BodyId> {
-        let mut caller_body: Option<BodyId> = None;
-
-        for item_id in module.item_ids {
-            let item = cx.tcx.hir_item(*item_id);
-            if let ItemKind::Fn { body, .. } = item.kind
-                && item.owner_id.def_id == caller_id
-            {
-                caller_body = Some(body);
-                break;
-            }
-        }
-
-        caller_body
-    }
-
+impl NonTopologicallySortedFunctions {
     fn collect_callees_in_body(
         cx: &LateContext<'_>,
         body_id: BodyId,
@@ -154,7 +134,7 @@ impl<'tcx> NonTopologicallySortedFunctions {
         must_come_before: &HashSet<(LocalDefId, LocalDefId)>,
         spans: &HashMap<LocalDefId, Span>,
     ) -> Vec<Violation> {
-        let violations: Vec<Violation> = must_come_before
+        let mut violations: Vec<Violation> = must_come_before
             .iter()
             .filter_map(|&(a, b)| {
                 let span_a = spans.get(&a)?;
@@ -233,9 +213,10 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
         let mut must_come_before: HashSet<(LocalDefId, LocalDefId)> = HashSet::new();
 
         for caller_id in def_order {
-            let caller_body = Self::find_caller_body(cx, module, caller_id);
+            let caller_body = cx.tcx.hir_maybe_body_owned_by(caller_id);
 
-            if let Some(caller_body_id) = caller_body {
+            if let Some(caller_body) = caller_body {
+                let caller_body_id = caller_body.id();
                 let callees: Vec<LocalDefId> =
                     Self::collect_callees_in_body(cx, caller_body_id, &spans);
 
