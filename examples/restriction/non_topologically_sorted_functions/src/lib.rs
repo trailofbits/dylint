@@ -82,7 +82,7 @@ impl NonTopologicallySortedFunctions {
         finder.order
     }
 
-    /// Collect all funcs in caller's body and place them like (caller -> (callee, call_span))
+    /// Collect all funcs in caller's body and place them like (caller -> (callee, `call_span`))
     fn build_caller_callee_constraint(
         caller_id: LocalDefId,
         callees: &[(LocalDefId, Span)],
@@ -254,8 +254,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                     diag.span_label(
                         span,
                         format!(
-                            "function `{}` should be defined before `{}`",
-                            name_first_fn, name_second_fn
+                            "function `{name_first_fn}` should be defined before `{name_second_fn}`"
                         ),
                     );
 
@@ -276,10 +275,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                             // НОВОЕ: extra block with double info
                             diag.span_note(
                                 *call_span,
-                                format!(
-                                    "`{}` is called from `{}` here",
-                                    name_second_fn, name_first_fn
-                                ),
+                                format!("`{name_second_fn}` is called from `{name_first_fn}` here"),
                             );
                         }
                     } else {
