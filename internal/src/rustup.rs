@@ -181,6 +181,7 @@ const ARCHITECTURES: &[&str] = &[
     "riscv32imafc",
     "riscv32imc",
     "riscv64",
+    "riscv64a23",
     "riscv64gc",
     "riscv64imac",
     "s390x",

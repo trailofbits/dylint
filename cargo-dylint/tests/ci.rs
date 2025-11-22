@@ -1,7 +1,7 @@
 #![cfg(not(coverage))]
 
 use anyhow::Result;
-use assert_cmd::{Command, cargo::CommandCargoExt};
+use assert_cmd::{Command, cargo::cargo_bin_cmd};
 use cargo_metadata::{Dependency, Metadata, MetadataCommand};
 use dylint_internal::{cargo::current_metadata, env, examples};
 use regex::Regex;
@@ -773,20 +773,35 @@ fn lint() {
     for dir_path in &dirs_to_lint {
         eprintln!("Linting in directory: {dir_path:?}");
 
-        let mut cmd = std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap_or_else(|error| panic!("Failed to find cargo-dylint binary: {error}"));
+        let mut cmd = cargo_bin_cmd!("cargo-dylint");
         cmd.env(env::DYLINT_RUSTFLAGS, "-D warnings");
         cmd.arg("dylint");
         cmd.args(base_flags.split_whitespace());
         cmd.args(["--", "--all-features", "--tests", "--workspace"]);
         cmd.current_dir(dir_path);
 
-        let status = cmd
-            .status()
-            .unwrap_or_else(|error| panic!("Failed to execute command: {error}"));
-
-        assert!(status.success(), "Linting failed in {dir_path:?}");
+        cmd.assert()
+            .try_success()
+            .unwrap_or_else(|error| panic!("Linting failed in {dir_path:?}: {error}"));
     }
+}
+
+#[test]
+fn usage() {
+    cargo_bin_cmd!("cargo-dylint")
+        .args(["dylint", "--help"])
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("Usage: cargo dylint"));
+}
+
+#[test]
+fn version() {
+    cargo_bin_cmd!("cargo-dylint")
+        .args(["dylint", "--version"])
+        .assert()
+        .success()
+        .stdout(format!("cargo-dylint {}\n", env!("CARGO_PKG_VERSION")));
 }
 
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {

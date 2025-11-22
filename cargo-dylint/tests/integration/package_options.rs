@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use assert_cmd::prelude::*;
+use assert_cmd::cargo::cargo_bin_cmd;
 use cargo_metadata::{Dependency, MetadataCommand};
 use dylint_internal::{CommandExt, clone, env::enabled, rustup::SanitizeEnvironment};
 use predicates::prelude::*;
@@ -34,8 +34,7 @@ fn new_package() {
 
     let path_buf = tempdir.path().join("filled_in");
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .args(["dylint", "new", &path_buf.to_string_lossy(), "--isolate"])
         .assert()
         .success();
@@ -91,7 +90,7 @@ fn downgrade_upgrade_package() {
     let rust_version = Version::parse(RUST_VERSION).unwrap();
 
     let upgrade = || {
-        let mut command = std::process::Command::cargo_bin("cargo-dylint").unwrap();
+        let mut command = cargo_bin_cmd!("cargo-dylint");
         command.args([
             "dylint",
             "upgrade",
@@ -123,8 +122,7 @@ fn downgrade_upgrade_package() {
         .success()
         .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .args(["dylint", "upgrade", &tempdir.path().to_string_lossy()])
         .assert()
         .success();
@@ -171,7 +169,7 @@ fn upgrade_with_auto_correct() {
 
         clone(DYLINT_URL, rev, tempdir.path(), false).unwrap();
 
-        let mut command = std::process::Command::cargo_bin("cargo-dylint").unwrap();
+        let mut command = cargo_bin_cmd!("cargo-dylint");
         command.args([
             "dylint",
             "upgrade",
@@ -183,7 +181,7 @@ fn upgrade_with_auto_correct() {
             "--rust-version",
             rust_version,
         ]);
-        command.success().unwrap();
+        command.assert().success();
 
         if enabled("DEBUG_DIFF") {
             let mut command = std::process::Command::new("git");
