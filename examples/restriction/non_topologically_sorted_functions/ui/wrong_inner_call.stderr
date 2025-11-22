@@ -10,6 +10,11 @@ LL | | }
    | |_^ function `foo` should be defined before `baz`
    |
    = help: move the function earlier in the module so callers and callee ordering is respected
+note: `baz` is called from `foo` here
+  --> $DIR/wrong_inner_call.rs:10:9
+   |
+LL |         baz();
+   |         ^^^^^
    = note: `#[warn(non_topologically_sorted_functions)]` on by default
 
 warning: 
@@ -19,6 +24,7 @@ LL | fn bar() {}
    | ^^^^^^^^^^^ function `bar` should be defined before `baz`
    |
    = help: move the function earlier in the module so callers and callee ordering is respected
+   = note: no call site recorded (internal)
 
 warning: 2 warnings emitted
 
