@@ -1,13 +1,8 @@
 warning: 
   --> $DIR/wrong_inner_call.rs:7:1
    |
-LL | / fn foo() {
-LL | |     bar();
-LL | |     {
-LL | |         baz();
-LL | |     }
-LL | | }
-   | |_^ function `foo` should be defined before `baz`
+LL | fn foo() {
+   | ^^^^^^^^ function `foo` should be defined before `baz`
    |
    = help: move the function earlier in the module so callers and callee ordering is respected
    = note: `#[warn(non_topologically_sorted_functions)]` on by default
@@ -16,7 +11,7 @@ warning:
   --> $DIR/wrong_inner_call.rs:14:1
    |
 LL | fn bar() {}
-   | ^^^^^^^^^^^ function `bar` should be defined before `baz`
+   | ^^^^^^^^ function `bar` should be defined before `baz`
    |
    = help: move the function earlier in the module so callers and callee ordering is respected
 
