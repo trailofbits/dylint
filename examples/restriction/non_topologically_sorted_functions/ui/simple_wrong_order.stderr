@@ -1,8 +1,10 @@
 warning: 
   --> $DIR/simple_wrong_order.rs:7:1
    |
-LL | fn foo() {
-   | ^^^^^^^^ function `foo` should be defined before `bar`
+LL | / fn foo() {
+LL | |     bar();
+LL | | }
+   | |_^ function `foo` should be defined before `bar`
    |
    = help: move the function earlier in the module so callers and callee ordering is respected
    = note: `#[warn(non_topologically_sorted_functions)]` on by default

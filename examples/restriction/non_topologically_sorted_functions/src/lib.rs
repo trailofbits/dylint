@@ -10,7 +10,7 @@ use rustc_hir::intravisit::{self, Visitor};
 use rustc_hir::{BodyId, Expr, ExprKind, HirId, Item, ItemKind, Mod};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::Span;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
@@ -125,17 +125,22 @@ impl NonTopologicallySortedFunctions {
     fn find_violations(
         cx: &LateContext<'_>,
         must_come_before: &HashSet<(LocalDefId, LocalDefId)>,
+        spans: &HashMap<LocalDefId, Span>,
     ) -> Vec<Violation> {
         let mut violations: Vec<Violation> = must_come_before
             .iter()
             .filter_map(|&(a, b)| {
-                let span_a = cx.tcx.def_span(a);
-                let span_b = cx.tcx.def_span(b);
+                let span_a = spans.get(&a)?;
+                let span_b = spans.get(&b)?;
                 if span_a.lo() > span_b.hi() {
+                    let span = spans
+                        .get(&a)
+                        .copied()
+                        .expect("Has to be fn meta for function in module");
                     let name_a = cx.tcx.def_path_str(a.to_def_id());
                     let name_b = cx.tcx.def_path_str(b.to_def_id());
                     let violation = Violation {
-                        span: span_a,
+                        span,
                         id_first_fn: a,
                         name_first_fn: name_a,
                         name_second_fn: name_b,
@@ -182,6 +187,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
     fn check_mod(&mut self, cx: &LateContext<'tcx>, module: &'tcx Mod<'tcx>, _module_id: HirId) {
         // Collect top-level functions
         let mut def_order: Vec<LocalDefId> = vec![];
+        let mut spans: HashMap<LocalDefId, Span> = HashMap::new();
 
         for item_id in module.item_ids {
             let item: &Item<'tcx> = cx.tcx.hir_item(*item_id);
@@ -189,6 +195,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                 let local_def_id = item.owner_id.def_id;
 
                 def_order.push(local_def_id);
+                spans.insert(local_def_id, item.span);
             }
         }
 
@@ -211,7 +218,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
             }
         }
 
-        let violations = Self::find_violations(cx, &must_come_before);
+        let violations = Self::find_violations(cx, &must_come_before, &spans);
         let mut warned: HashSet<LocalDefId> = HashSet::new();
 
         for Violation {
