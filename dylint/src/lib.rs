@@ -266,15 +266,13 @@ where
     for<'a> &'a I: IntoIterator<Item = &'a T>,
     T: Clone,
 {
-    toolchain_map
-        .iter()
-        .flat_map(|(toolchain, values)| {
-            values
-                .into_iter()
-                .map(|value| (toolchain.clone(), value.clone()))
-                .collect::<Vec<_>>()
-        })
-        .collect()
+    let mut result = Vec::new();
+    for (toolchain, values) in toolchain_map {
+        for value in values {
+            result.push((toolchain.clone(), value.clone()));
+        }
+    }
+    result
 }
 
 fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBuf)>> {
