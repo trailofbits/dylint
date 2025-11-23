@@ -91,11 +91,18 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
             span_lint(
                 cx,
                 ABS_HOME_PATH,
-                Span::with_root_ctxt(expr.span.lo(), expr.span.hi()),
+                get_nearest_root_span(expr.span),
                 "this path might not exist in production",
             );
         }
     }
+}
+
+fn get_nearest_root_span(mut span: Span) -> Span {
+    while !span.ctxt().is_root() {
+        span = span.source_callsite();
+    }
+    span
 }
 
 #[test]
@@ -208,6 +215,8 @@ fn context_allowance() {
                 case.manifest_path,
                 "--path",
                 env!("CARGO_MANIFEST_DIR"),
+                "--",
+                "--all-targets",
             ])
             .logged_output(true)
             .unwrap_or_else(|error| panic!("Failed to execute cargo-dylint command: {error}"));

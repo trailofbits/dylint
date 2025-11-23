@@ -1,4 +1,4 @@
-use assert_cmd::prelude::*;
+use assert_cmd::{cargo::cargo_bin_cmd, prelude::*};
 use dylint_internal::{CommandExt, env, packaging::isolate};
 use predicates::prelude::*;
 use std::{env::remove_var, fs::OpenOptions, io::Write};
@@ -16,8 +16,7 @@ fn initialize() {
 
 #[test]
 fn array_pattern() {
-    let assert = std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    let assert = cargo_bin_cmd!("cargo-dylint")
         .current_dir("../fixtures/array_pattern")
         .args(["dylint", "list"])
         .assert()
@@ -33,14 +32,13 @@ fn array_pattern() {
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn edition_2021() {
-    use assert_cmd::cargo::cargo_bin;
     use dylint_internal::rustup::SanitizeEnvironment;
     use std::{fs::create_dir, os::unix::fs::symlink, path::PathBuf};
 
     let cargo_home = tempdir().unwrap();
     let cargo_home_bin = cargo_home.path().join("bin");
     create_dir(&cargo_home_bin).unwrap();
-    let cargo_dylint = cargo_bin("cargo-dylint");
+    let cargo_dylint = env!("CARGO_BIN_EXE_cargo-dylint");
     symlink(cargo_dylint, cargo_home_bin.join("cargo-dylint")).unwrap();
 
     // smoelius: Sanity. Because this test is likely to have been run by `cargo test`, the
@@ -101,8 +99,7 @@ libraries = [
         )
         .unwrap();
 
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
+        cargo_bin_cmd!("cargo-dylint")
             .current_dir(&tempdir)
             .args(["dylint", "--all"])
             .assert()
@@ -120,8 +117,7 @@ libraries = [
 
 #[test]
 fn library_packages_in_dylint_toml() {
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir("../fixtures/library_packages_in_dylint_toml")
         .args(["dylint", "--all"])
         .assert()
@@ -133,8 +129,7 @@ fn library_packages_in_dylint_toml() {
 
 #[test]
 fn library_packages_with_rust_toolchain() {
-    let assert = std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    let assert = cargo_bin_cmd!("cargo-dylint")
         .current_dir("../fixtures/library_packages_with_rust_toolchain")
         .env(env::RUST_LOG, "debug")
         .args(["dylint", "--all"])
@@ -178,8 +173,7 @@ pattern = "examples/general/crate_wide_allow"
     )
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "list"])
         .assert()
@@ -216,16 +210,14 @@ fn metadata_change() {
     )
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
         .success()
         .stderr(predicate::str::contains("Checking metadata_change_test"));
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
@@ -242,8 +234,7 @@ fn metadata_change() {
     )
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
@@ -277,8 +268,7 @@ pattern = "examples/general/crate_wide_allow"
     )
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
@@ -294,8 +284,7 @@ pattern = "examples/general/nonexistent_library"
     )
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
@@ -331,8 +320,7 @@ path = "{}/../examples/general/crate_wide_allow"
     )
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
@@ -348,8 +336,7 @@ path = "{}/../examples/general/nonexistent_library"
     )
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
@@ -386,16 +373,14 @@ path = "{}/../examples/general/crate_wide_allow"
     )
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
         .success()
         .stderr(predicate::str::contains("Compiling"));
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .env(env::RUSTFLAGS, "--verbose")
         .args(["dylint", "--all"])
@@ -430,8 +415,7 @@ pattern = "examples/general/crate_wide_allow"
     )
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
@@ -439,8 +423,7 @@ pattern = "examples/general/crate_wide_allow"
 
     writeln!(file, r#"revision = "{REV}""#,).unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()

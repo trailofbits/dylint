@@ -1,6 +1,5 @@
-use assert_cmd::prelude::*;
+use assert_cmd::{Command, cargo::cargo_bin_cmd};
 use dylint_internal::env;
-use std::process::Command;
 
 #[test]
 fn current_dir() {
@@ -42,7 +41,8 @@ fn test(f: impl Fn(&mut Command)) {
 }
 
 fn base_command() -> Command {
-    let mut command = Command::cargo_bin("cargo-dylint").unwrap();
+    #[cfg_attr(dylint_lib = "general", allow(abs_home_path))]
+    let mut command = cargo_bin_cmd!("cargo-dylint");
     command.env(env::RUSTFLAGS, "-D warnings").args([
         "dylint",
         "--lib",
