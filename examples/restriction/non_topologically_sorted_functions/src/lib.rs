@@ -45,11 +45,15 @@ dylint_linting::declare_late_lint! {
     "Enforce callers before callees and consistent order of callees (module-local functions)"
 }
 
+struct Callee {
+    pub caller_local_def_id: LocalDefId,
+    pub call_span: Span,
+}
+
 struct Finder<'a, 'tcx> {
     cx: &'a LateContext<'tcx>,
     seen: HashSet<LocalDefId>,
-    // order is (callee_local_def_id, call_span)
-    order: Vec<(LocalDefId, Span)>,
+    order: Vec<Callee>,
 }
 
 impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
@@ -62,7 +66,10 @@ impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
             && !self.seen.contains(&local_def_id)
         {
             self.seen.insert(local_def_id);
-            self.order.push((local_def_id, ex.span)); // capture call span
+            self.order.push(Callee {
+                caller_local_def_id: local_def_id,
+                call_span: ex.span,
+            }); // capture call span
         }
 
         // keep traversing
@@ -71,7 +78,7 @@ impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
 }
 
 impl NonTopologicallySortedFunctions {
-    fn collect_callees_in_body(cx: &LateContext<'_>, body_id: BodyId) -> Vec<(LocalDefId, Span)> {
+    fn collect_callees_in_body(cx: &LateContext<'_>, body_id: BodyId) -> Vec<Callee> {
         let body = cx.tcx.hir_body(body_id);
         let mut finder = Finder {
             cx,
@@ -85,23 +92,27 @@ impl NonTopologicallySortedFunctions {
     /// Collect all funcs in caller's body and place them like (caller -> (callee, `call_span`))
     fn build_caller_callee_constraint(
         caller_id: LocalDefId,
-        callees: &[(LocalDefId, Span)],
+        callees: &[Callee],
         mut must_come_before: HashSet<(LocalDefId, LocalDefId)>,
         call_sites: &mut HashMap<(LocalDefId, LocalDefId), Vec<Span>>,
     ) -> HashSet<(LocalDefId, LocalDefId)> {
-        for &(callee_id, call_span) in callees {
+        for &Callee {
+            caller_local_def_id,
+            call_span,
+        } in callees
+        {
             // (caller -> callee) constraint
             // If the reverse constraint already exists (added by an earlier caller),
             // we keep the earlier constraint (because we iterate callers in module order).
-            if must_come_before.contains(&(callee_id, caller_id)) {
+            if must_come_before.contains(&(caller_local_def_id, caller_id)) {
                 // reversed constraint exists; skip adding (precedence kept)
             } else {
-                must_come_before.insert((caller_id, callee_id));
+                must_come_before.insert((caller_id, caller_local_def_id));
             }
 
             // record call site (we still keep all call sites, they may be useful)
             call_sites
-                .entry((caller_id, callee_id))
+                .entry((caller_id, caller_local_def_id))
                 .or_default()
                 .push(call_span);
         }
@@ -112,11 +123,19 @@ impl NonTopologicallySortedFunctions {
     ///
     /// The earlier order is preferred and is considered the main one.
     fn build_multiple_precedence_rule(
-        callees: &[(LocalDefId, Span)],
+        callees: &[Callee],
         mut must_come_before: HashSet<(LocalDefId, LocalDefId)>,
     ) -> HashSet<(LocalDefId, LocalDefId)> {
         // We only need the LocalDefId ordering here (ignore spans)
-        let ids: Vec<LocalDefId> = callees.iter().map(|(id, _)| *id).collect();
+        let ids: Vec<LocalDefId> = callees
+            .iter()
+            .map(
+                |&Callee {
+                     caller_local_def_id,
+                     ..
+                 }| caller_local_def_id,
+            )
+            .collect();
         for i in 0..ids.len() {
             for j in (i + 1)..ids.len() {
                 let a = ids[i];
@@ -135,13 +154,13 @@ impl NonTopologicallySortedFunctions {
     fn find_violations(
         cx: &LateContext<'_>,
         must_come_before: &HashSet<(LocalDefId, LocalDefId)>,
-        spans: &HashMap<LocalDefId, Span>,
+        functions: &HashMap<LocalDefId, Span>,
     ) -> Vec<Violation> {
         let mut violations: Vec<Violation> = must_come_before
             .iter()
             .filter_map(|&(a, b)| {
-                let span_a = spans.get(&a)?;
-                let span_b = spans.get(&b)?;
+                let span_a = functions.get(&a)?;
+                let span_b = functions.get(&b)?;
                 if span_a.lo() > span_b.hi() {
                     let span = *span_a;
                     let name_a = cx.tcx.def_path_str(a.to_def_id());
@@ -197,7 +216,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
     fn check_mod(&mut self, cx: &LateContext<'tcx>, module: &'tcx Mod<'tcx>, _module_id: HirId) {
         // Collect top-level functions
         let mut def_order: Vec<LocalDefId> = vec![];
-        let mut spans: HashMap<LocalDefId, Span> = HashMap::new();
+        let mut functions: HashMap<LocalDefId, Span> = HashMap::new();
 
         for item_id in module.item_ids {
             let item: &Item<'tcx> = cx.tcx.hir_item(*item_id);
@@ -205,7 +224,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                 let local_def_id = item.owner_id.def_id;
 
                 def_order.push(local_def_id);
-                spans.insert(local_def_id, item.span);
+                functions.insert(local_def_id, item.span);
             }
         }
 
@@ -223,8 +242,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
 
             if let Some(caller_body) = caller_body {
                 let caller_body_id = caller_body.id();
-                let callees: Vec<(LocalDefId, Span)> =
-                    Self::collect_callees_in_body(cx, caller_body_id);
+                let callees: Vec<Callee> = Self::collect_callees_in_body(cx, caller_body_id);
 
                 must_come_before = Self::build_caller_callee_constraint(
                     caller_id,
@@ -236,7 +254,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
             }
         }
 
-        let violations = Self::find_violations(cx, &must_come_before, &spans);
+        let violations = Self::find_violations(cx, &must_come_before, &functions);
         let mut warned: HashSet<LocalDefId> = HashSet::new();
 
         for violation in violations {
