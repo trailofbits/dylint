@@ -2,12 +2,12 @@ use crate::{error::warn, opts};
 use anyhow::{Context, Result, anyhow, ensure};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    CommandExt, driver as dylint_driver, env, home,
+    CommandExt, driver as dylint_driver, env,
     rustup::{SanitizeEnvironment, toolchain_path},
 };
 use semver::Version;
 use std::{
-    env::consts,
+    env::{consts, home_dir},
     fs::{copy, create_dir_all, rename, write},
     path::{Path, PathBuf},
 };
@@ -97,7 +97,7 @@ fn dylint_drivers() -> Result<PathBuf> {
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())
     } else {
-        let home = home::home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
+        let home = home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
         let dylint_drivers = Path::new(&home).join(".dylint_drivers");
         if !dylint_drivers.is_dir() {
             create_dir_all(&dylint_drivers).with_context(|| {
