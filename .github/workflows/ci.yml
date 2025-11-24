@@ -63,7 +63,6 @@ jobs:
 
       # smoelius: The `nightly_toolchain` test makes sense only if the nightly driver is cached.
       - uses: actions/cache@v4
-        if: ${{ matrix.environment != 'macos-latest' }}
         with:
           path: |
             ~/.cargo/bin/
