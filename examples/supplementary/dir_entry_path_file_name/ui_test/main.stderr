@@ -1,0 +1,34 @@
+warning: file name can be obtained more directly from DirEntry
+  --> $DIR/main.rs:19:17
+   |
+LL |         let _ = entry.path().file_name();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `entry.file_name()`
+   |
+   = note: `#[warn(dir_entry_path_file_name)]` on by default
+
+warning: file name can be obtained more directly from DirEntry
+  --> $DIR/main.rs:27:17
+   |
+LL |         let _ = entry.path().file_name();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `entry.file_name()`
+
+warning: file name can be obtained more directly from DirEntry
+  --> $DIR/main.rs:36:17
+   |
+LL |         let f = _p.file_name();
+   |                 ^^^^^^^^^^^^^^ help: try: `entry.file_name()`
+
+warning: file name can be obtained more directly from DirEntry
+  --> $DIR/main.rs:45:12
+   |
+LL |         if entry.path().file_name() == Some("foo.txt".as_ref()) {
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `entry.file_name()`
+
+warning: file name can be obtained more directly from DirEntry
+  --> $DIR/main.rs:55:17
+   |
+LL |         let _ = entry.path().file_name();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `entry.file_name()`
+
+warning: 5 warnings emitted
+
