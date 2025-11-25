@@ -7,6 +7,7 @@ description = "A tool for running Rust lints from dynamic libraries"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
+# This should match dylint_internal::msrv::MSRV
 rust-version = "1.88"
 
 [dependencies]
