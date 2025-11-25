@@ -5,14 +5,14 @@ use dylint_internal::{
     env,
     git2::{Commit, Diff, DiffHunk, Oid, Patch, Repository},
 };
-use std::{cmp::min, collections::HashMap, ops::Range, time::Instant};
+use std::{cmp::min, collections::BTreeMap, ops::Range, time::Instant};
 
 mod diff;
 use diff::{collect_commits, diff_from_commit, patches_from_diff};
 
 const REFACTOR_THRESHOLD: u32 = 3;
 
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct Rewrite {
     pub old_lines: Vec<String>,
     pub new_lines: Vec<String>,
@@ -147,7 +147,7 @@ pub fn collect_rewrites(
     old_channel: &str,
     new_oid: Oid,
     repository: &Repository,
-) -> Result<HashMap<Rewrite, Oid>> {
+) -> Result<BTreeMap<Rewrite, Oid>> {
     let start = Instant::now();
     let commits = collect_commits(old_channel, new_oid, repository)?;
     let elapsed = start.elapsed();
@@ -181,7 +181,7 @@ pub fn collect_rewrites(
     let start = Instant::now();
     let mut n_insertions = 0;
     let mut n_refactors = 0;
-    let mut rewrites = HashMap::new();
+    let mut rewrites = BTreeMap::new();
     for (patch, oid) in patches_with_oids {
         let rewrites_unflattened =
             rewrites_from_patch(opts, &patch, &mut n_insertions, &mut n_refactors)?;
