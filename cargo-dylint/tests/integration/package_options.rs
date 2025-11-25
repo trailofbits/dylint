@@ -1,7 +1,7 @@
 use anyhow::{Context, Result, anyhow};
 use assert_cmd::cargo::cargo_bin_cmd;
 use cargo_metadata::{Dependency, MetadataCommand};
-use dylint_internal::{CommandExt, clone, env::enabled, rustup::SanitizeEnvironment};
+use dylint_internal::{CommandExt, clone, env::enabled, msrv, rustup::SanitizeEnvironment};
 use predicates::prelude::*;
 use regex::Regex;
 use semver::Version;
@@ -9,6 +9,7 @@ use std::{
     fs::read_to_string,
     io::{Write, stderr},
     path::Path,
+    sync::LazyLock,
 };
 use tempfile::tempdir;
 
@@ -26,7 +27,7 @@ use tempfile::tempdir;
 // smoelius: `home@0.5.11` (2024-12-16) requires rustc 1.81.
 // smoelius: `icu_collections@2.0.0` and several other packages require rustc 1.82.
 // smoelius: Edition 2024 was stabilized with Rust 1.85.
-const RUST_VERSION: &str = "1.88.0";
+static RUST_VERSION: LazyLock<String> = LazyLock::new(|| format!("{}.0", msrv::MSRV));
 
 #[test]
 fn new_package() {
@@ -87,7 +88,7 @@ fn downgrade_upgrade_package() {
     /* let mut rust_version = rust_version(tempdir.path()).unwrap();
     assert!(rust_version.minor != 0);
     rust_version.minor -= 1; */
-    let rust_version = Version::parse(RUST_VERSION).unwrap();
+    let rust_version = Version::parse(&RUST_VERSION).unwrap();
 
     let upgrade = || {
         let mut command = cargo_bin_cmd!("cargo-dylint");
