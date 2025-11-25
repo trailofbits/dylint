@@ -17,6 +17,10 @@ updates:
       - /examples/supplementary
       - /examples/testing
       - /utils/linting
+    groups:
+      rust:
+        patterns:
+          - "*"
     schedule:
       interval: weekly
       day: sunday
