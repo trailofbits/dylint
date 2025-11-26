@@ -22,9 +22,10 @@ const BOUNDARIES: &[(&str, &str)] = &[
     // https://github.com/rust-lang/rust/commit/0abc6c6e9859bc6915ddc76d484117ff626481c6
     // smoelius: 2025-05-15 is skipped because there is no release for that date.
     ("nightly-2025-05-14", "nightly-2025-05-16"),
+    // smoelius: `libloading-0.9.0` requires rustc 1.88.
     // https://github.com/rust-lang/rust/pull/135880
     // https://github.com/rust-lang/rust/commit/7d31ae7f351b4aa0fcb47d1d22e04c275bef0653
-    ("nightly-2025-01-24", "nightly-2025-01-25"),
+    // ("nightly-2025-01-24", "nightly-2025-01-25"),
     // smoelius: `cargo-util-schemas@0.8.2` and `cargo_metadata@0.22.0` require rustc 1.86.
     // nightly-2024-03-17 is Rust 1.85.
     // https://github.com/rust-lang/rust/pull/133567

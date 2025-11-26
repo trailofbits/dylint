@@ -12,7 +12,7 @@ build = "build/main.rs"
 [dependencies]
 anyhow = "1.0"
 libc = "0.2"
-libloading = "0.8"
+libloading = "0.9"
 log = "0.4"
 rustversion = "1.0"
 serde_json = "1.0"

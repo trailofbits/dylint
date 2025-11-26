@@ -615,7 +615,6 @@ fn markdown_link_check() {
     }
 }
 
-#[ignore = "disabled until `dylint` package switches to edition 2024"]
 #[test]
 fn msrv() {
     for package in &METADATA.packages {

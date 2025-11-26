@@ -6,13 +6,15 @@ extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint, is_in_test};
-use dylint_internal::home;
 use once_cell::unsync::OnceCell;
 use rustc_ast::ast::LitKind;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::Span;
-use std::path::{Path, PathBuf};
+use std::{
+    env::home_dir,
+    path::{Path, PathBuf},
+};
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
@@ -84,7 +86,7 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
             && path.is_absolute()
             && self
                 .home
-                .get_or_init(home::home_dir)
+                .get_or_init(home_dir)
                 .as_ref()
                 .is_some_and(|dir| path.starts_with(dir))
         {
@@ -114,7 +116,7 @@ fn ui() {
 
     // smoelius: On GitHub, `dylint` is stored on the D drive, not in the user's home directory on
     // the C drive.
-    if let Some(home) = home::home_dir()
+    if let Some(home) = home_dir()
         && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
     {
         #[expect(clippy::explicit_write)]
@@ -189,7 +191,7 @@ fn context_allowance() {
     ];
 
     // Skip tests if repository is not stored in the user's home directory
-    if let Some(home) = home::home_dir()
+    if let Some(home) = home_dir()
         && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
     {
         #[expect(clippy::explicit_write)]
