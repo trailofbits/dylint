@@ -55,20 +55,14 @@ pub fn check_inherents(cx: &LateContext<'_>) {
         })
     };
 
-    let type_path_impl_def_ids = type_paths
-        .iter()
-        .flat_map(|type_path| {
-            lookup_path(
-                cx.tcx,
-                PathNS::Type,
-                &type_path
-                    .iter()
-                    .copied()
-                    .map(Symbol::intern)
-                    .collect::<Vec<_>>(),
-            )
-        })
-        .flat_map(|def_id| cx.tcx.inherent_impls(def_id));
+    let mut type_path_impl_def_ids = Vec::new();
+    for type_path in &type_paths {
+        let symbols: Vec<_> = type_path.iter().copied().map(Symbol::intern).collect();
+        let def_ids = lookup_path(cx.tcx, PathNS::Type, &symbols);
+        for def_id in def_ids {
+            type_path_impl_def_ids.extend(cx.tcx.inherent_impls(def_id).iter().copied());
+        }
+    }
 
     let slice_incoherent_impl_def_ids = cx
         .tcx
