@@ -125,14 +125,14 @@ fn dylint_libraries_in(
     let iter = read_dir(path)
         .with_context(|| format!("`read_dir` failed for `{}`", path.to_string_lossy()))?;
     let path_buf = path.to_path_buf();
-    Ok(iter
-        .map(move |entry| -> Result<Option<(String, String, PathBuf)>> {
-            let entry = entry.with_context(|| {
-                format!("`read_dir` failed for `{}`", path_buf.to_string_lossy())
-            })?;
-            let path = entry.path();
-
-            Ok(parse_path_filename(&path).map(|(lib_name, toolchain)| (lib_name, toolchain, path)))
-        })
-        .filter_map(Result::transpose))
+    let mut libraries = Vec::new();
+    for entry in iter {
+        let entry = entry
+            .with_context(|| format!("`read_dir` failed for `{}`", path_buf.to_string_lossy()))?;
+        let entry_path = entry.path();
+        if let Some((lib_name, toolchain)) = parse_path_filename(&entry_path) {
+            libraries.push(Ok((lib_name, toolchain, entry_path)));
+        }
+    }
+    Ok(libraries.into_iter())
 }
