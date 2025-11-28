@@ -198,17 +198,16 @@ mod test {
     }
 
     static CHANNEL_EXAMPLES: LazyLock<[Rev; 2]> = LazyLock::new(|| {
-        use crate::msrv;
         [
             Rev {
-                version: msrv::MSRV_PLUS_1_CLIPPY_UTILS_VERSION.to_owned(),
-                channel: msrv::MSRV_PLUS_1_CLIPPY_UTILS_CHANNEL.to_owned(),
-                oid: Oid::from_str(msrv::MSRV_PLUS_1_CLIPPY_UTILS_REV).unwrap(),
+                version: "0.1.89".to_owned(),
+                channel: "nightly-2025-05-14".to_owned(),
+                oid: Oid::from_str("0450db33a5d8587f7c1d4b6d233dac963605766b").unwrap(),
             },
             Rev {
-                version: msrv::MSRV_CLIPPY_UTILS_VERSION.to_owned(),
-                channel: msrv::MSRV_CLIPPY_UTILS_CHANNEL.to_owned(),
-                oid: Oid::from_str(msrv::MSRV_CLIPPY_UTILS_REV).unwrap(),
+                version: "0.1.88".to_owned(),
+                channel: "nightly-2025-05-01".to_owned(),
+                oid: Oid::from_str("03a5b6b976ac121f4233775c49a4bce026065b47").unwrap(),
             },
         ]
     });

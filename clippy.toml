@@ -2,6 +2,3 @@ disallowed-methods = [
     { path = "std::process::Command::output", reason = "use `CommandExt::logged_output`" },
     { path = "std::result::Result::expect", reason = "hides errors; use `unwrap_or_else(|error| panic!(...))`" },
 ]
-# smoelius: Dylint's MSRV is actually 1.88 (see dylint_internal::msrv::MSRV). But some of the
-# lints need 1.82 for `is_none_or` and `is_some_and`.
-msrv = "1.82"

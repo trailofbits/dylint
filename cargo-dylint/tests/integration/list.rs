@@ -8,7 +8,7 @@ use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
-    env, library_filename,
+    env, library_filename, msrv,
     rustup::SanitizeEnvironment,
     testing::new_template,
 };
@@ -20,33 +20,43 @@ use std::{
 };
 use tempfile::tempdir;
 
-const CHANNEL_A: &str = "nightly-2025-04-22";
-const CHANNEL_B: &str = "nightly-2025-05-14";
-
-const CLIPPY_UTILS_REV_A: &str = "ff428d91c2b690b8dbd8cc1e48274870c24fe1e2";
-const CLIPPY_UTILS_REV_B: &str = "93bd4d893122417b9265563c037f11a158a8e37c";
-
 #[test]
 fn one_name_multiple_toolchains() {
     let tempdir = tempdir().unwrap();
 
     new_template(tempdir.path()).unwrap();
 
-    patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_REV_A).unwrap();
-    dylint_internal::cargo::build(&format!("dylint-template with channel `{CHANNEL_A}`"))
-        .build()
-        .sanitize_environment()
-        .current_dir(&tempdir)
-        .success()
-        .unwrap();
+    patch_dylint_template(
+        tempdir.path(),
+        msrv::MSRV_CHANNEL,
+        msrv::MSRV_CLIPPY_UTILS_REV,
+    )
+    .unwrap();
+    dylint_internal::cargo::build(&format!(
+        "dylint-template with channel `{}`",
+        msrv::MSRV_CHANNEL
+    ))
+    .build()
+    .sanitize_environment()
+    .current_dir(&tempdir)
+    .success()
+    .unwrap();
 
-    patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_REV_B).unwrap();
-    dylint_internal::cargo::build(&format!("dylint-template with channel `{CHANNEL_B}`"))
-        .build()
-        .sanitize_environment()
-        .current_dir(&tempdir)
-        .success()
-        .unwrap();
+    patch_dylint_template(
+        tempdir.path(),
+        msrv::MSRV_PLUS_1_CHANNEL,
+        msrv::MSRV_PLUS_1_CLIPPY_UTILS_REV,
+    )
+    .unwrap();
+    dylint_internal::cargo::build(&format!(
+        "dylint-template with channel `{}`",
+        msrv::MSRV_PLUS_1_CHANNEL
+    ))
+    .build()
+    .sanitize_environment()
+    .current_dir(&tempdir)
+    .success()
+    .unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         .envs([(
@@ -57,8 +67,9 @@ fn one_name_multiple_toolchains() {
         .assert()
         .success()
         .stdout(
-            predicate::str::contains(format!("fill_me_in@{CHANNEL_A}"))
-                .and(predicate::str::contains(format!("fill_me_in@{CHANNEL_B}"))),
+            predicate::str::contains(format!("fill_me_in@{}", msrv::MSRV_CHANNEL)).and(
+                predicate::str::contains(format!("fill_me_in@{}", msrv::MSRV_PLUS_1_CHANNEL)),
+            ),
         );
 }
 
