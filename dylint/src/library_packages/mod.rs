@@ -360,39 +360,36 @@ fn library_package(
     // (https://github.com/rust-lang/rustup/issues/1399#issuecomment-383376082).
 
     // smoelius: Experiments suggest that a considerable amount of Dylint's start up time is spent
-    // in the following "loop," and a considerable (though not necessarily dominant) fraction of
-    // that is spent in `active_toolchain`.
-    let packages = paths
-        .into_iter()
-        .map(|path| {
-            if path.is_dir() {
-                // smoelius: Ignore subdirectories that do not contain packages.
-                let package = match package_with_root(&path) {
-                    Ok(package) => package,
-                    Err(error) => {
-                        warn(opts, &error.to_string());
-                        return Ok(None);
-                    }
-                };
-                // smoelius: When `__cargo_cli` is enabled, `source_id`'s type is `String`.
-                #[allow(clippy::clone_on_copy)]
-                let package_id = package_id(&package, source_id.clone());
-                let lib_name = package_library_name(&package)?;
-                let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
-                Ok(Some(Package {
-                    metadata,
-                    root: path,
-                    id: package_id,
-                    lib_name,
-                    toolchain,
-                }))
-            } else {
-                Ok(None)
+    // in the following loop, and a considerable (though not necessarily dominant) fraction of that
+    // is spent in `active_toolchain`.
+    let mut packages = Vec::new();
+    for path in paths {
+        if !path.is_dir() {
+            continue;
+        }
+        // smoelius: Ignore subdirectories that do not contain packages.
+        let package = match package_with_root(&path) {
+            Ok(package) => package,
+            Err(error) => {
+                warn(opts, &error.to_string());
+                continue;
             }
-        })
-        .collect::<Result<Vec<_>>>()?;
+        };
+        // smoelius: When `__cargo_cli` is enabled, `source_id`'s type is `String`.
+        #[allow(clippy::clone_on_copy)]
+        let package_id = package_id(&package, source_id.clone());
+        let lib_name = package_library_name(&package)?;
+        let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
+        packages.push(Package {
+            metadata,
+            root: path,
+            id: package_id,
+            lib_name,
+            toolchain,
+        });
+    }
 
-    Ok(packages.into_iter().flatten().collect())
+    Ok(packages)
 }
 
 fn toml_detailed_dependency(library: &Library) -> Result<&TomlDetailedDependency> {
