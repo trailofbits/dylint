@@ -33,12 +33,12 @@ pub use git2;
 #[cfg(feature = "home")]
 pub mod home;
 
-pub mod msrv;
-
 #[cfg(all(nightly, feature = "match_def_path"))]
 mod match_def_path;
 #[cfg(all(nightly, feature = "match_def_path"))]
 pub use match_def_path::{is_expr_path_def_path, match_any_def_paths, match_def_path};
+
+pub mod msrv;
 
 #[cfg(feature = "packaging")]
 pub mod packaging;
