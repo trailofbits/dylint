@@ -9,7 +9,7 @@ extern crate rustc_span;
 
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
-    path_def_id,
+    is_in_test,
     paths::{PathLookup, PathNS},
     source::snippet_opt,
     value_path,
