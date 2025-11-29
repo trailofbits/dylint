@@ -251,10 +251,10 @@ fn collect_examples_from_category(examples_dir: &Path, category: &str) -> Vec<(S
         let metadata = entry.metadata().unwrap();
         if metadata.is_dir() {
             let cargo_toml_path = entry.path().join("Cargo.toml");
-            if cargo_toml_path.exists() {
-                if let Some((name, desc)) = extract_name_and_description(&cargo_toml_path) {
-                    examples.push((name, desc));
-                }
+            if cargo_toml_path.exists()
+                && let Some((name, desc)) = extract_name_and_description(&cargo_toml_path)
+            {
+                examples.push((name, desc));
             }
         }
     }

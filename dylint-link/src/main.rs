@@ -110,10 +110,10 @@ where
 {
     let mut iter = iter.into_iter();
     while let Some(arg) = iter.next() {
-        if arg == "-o" {
-            if let Some(path) = iter.next() {
-                return Ok(Some(path.into()));
-            }
+        if arg == "-o"
+            && let Some(path) = iter.next()
+        {
+            return Ok(Some(path.into()));
         }
     }
 
