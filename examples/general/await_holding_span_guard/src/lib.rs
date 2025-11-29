@@ -101,10 +101,9 @@ impl LateLintPass<'_> for AwaitHoldingSpanGuard {
                 )),
             ..
         }) = expr.kind
+            && let Some(coroutine_layout) = cx.tcx.mir_coroutine_witnesses(*def_id)
         {
-            if let Some(coroutine_layout) = cx.tcx.mir_coroutine_witnesses(*def_id) {
-                check_interior_types(cx, coroutine_layout);
-            }
+            check_interior_types(cx, coroutine_layout);
         }
     }
 }

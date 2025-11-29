@@ -133,7 +133,7 @@ impl Dylint {
 }
 
 impl LibrarySelection {
-    pub(crate) fn git_or_path(&self) -> bool {
+    pub(crate) const fn git_or_path(&self) -> bool {
         self.git.is_some() || !self.paths.is_empty()
     }
 }
