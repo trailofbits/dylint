@@ -28,6 +28,8 @@ use error::warn;
 pub use error::warn as __warn;
 pub use error::{ColorizedError, ColorizedResult};
 
+pub use dylint_internal::msrv;
+
 mod name_toolchain_map;
 pub use name_toolchain_map::{Lazy as NameToolchainMap, ToolchainMap};
 use name_toolchain_map::{LazyToolchainMap, MaybeLibrary};

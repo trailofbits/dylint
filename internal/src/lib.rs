@@ -33,6 +33,8 @@ pub use git2;
 #[cfg(feature = "home")]
 pub mod home;
 
+pub mod msrv;
+
 #[cfg(all(nightly, feature = "match_def_path"))]
 mod match_def_path;
 #[cfg(all(nightly, feature = "match_def_path"))]

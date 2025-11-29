@@ -6,7 +6,7 @@ use anyhow::{Context, Result};
 use dylint_internal::{clippy_utils::clippy_repository, git2::Oid};
 use rewriter::{LineColumn, Rewriter, Span, interface::Span as _};
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::BTreeMap,
     env::current_dir,
     fs::{read_to_string, write},
     ops::Range,
@@ -180,7 +180,7 @@ pub fn auto_correct_revertible(
 }
 
 fn applicable_rewrites<'rewrite>(
-    rewrites: &'rewrite HashMap<Rewrite, Oid>,
+    rewrites: &'rewrite BTreeMap<Rewrite, Oid>,
     highlight: &Highlight,
 ) -> Result<ReplacementSourceMap<'rewrite>> {
     let mut replacement_source_map = ReplacementSourceMap::new();
