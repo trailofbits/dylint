@@ -199,6 +199,7 @@ dependencies = [
  "semver",
  "serde_json",
  "similar-asserts",
+ "snapbox",
  "tempfile",
  "walkdir",
 ]
@@ -1678,6 +1679,28 @@ name = "smallvec"
 version = "1.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
+
+[[package]]
+name = "snapbox"
+version = "0.6.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96dcfc4581e3355d70ac2ee14cfdf81dce3d85c85f1ed9e2c1d3013f53b3436b"
+dependencies = [
+ "anstream",
+ "anstyle",
+ "normalize-line-endings",
+ "similar",
+ "snapbox-macros",
+]
+
+[[package]]
+name = "snapbox-macros"
+version = "0.3.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16569f53ca23a41bb6f62e0a5084aa1661f4814a67fa33696a79073e03a664af"
+dependencies = [
+ "anstream",
+]
 
 [[package]]
 name = "stable_deref_trait"
