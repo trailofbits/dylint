@@ -14,17 +14,16 @@ use std::env::{remove_var, set_var};
 #[expect(clippy::no_mangle_with_rust_abi)]
 #[unsafe(no_mangle)]
 pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
-    if let Ok(clippy_disable_docs_links) = env::var(env::CLIPPY_DISABLE_DOCS_LINKS) {
-        if let Ok(val) = serde_json::from_str::<Option<String>>(&clippy_disable_docs_links) {
-            if let Some(val) = val {
-                unsafe {
-                    set_var(env::CLIPPY_DISABLE_DOCS_LINKS, val);
-                }
-            } else {
-                unsafe {
-                    remove_var(env::CLIPPY_DISABLE_DOCS_LINKS);
-                }
-            }
+    if let Ok(clippy_disable_docs_links) = env::var(env::CLIPPY_DISABLE_DOCS_LINKS)
+        && let Ok(val) = serde_json::from_str::<Option<String>>(&clippy_disable_docs_links)
+        && let Some(val) = val
+    {
+        unsafe {
+            set_var(env::CLIPPY_DISABLE_DOCS_LINKS, val);
+        }
+    } else {
+        unsafe {
+            remove_var(env::CLIPPY_DISABLE_DOCS_LINKS);
         }
     }
 

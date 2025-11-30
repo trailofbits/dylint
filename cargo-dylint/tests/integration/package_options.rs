@@ -1,7 +1,7 @@
 use anyhow::{Context, Result, anyhow};
 use assert_cmd::cargo::cargo_bin_cmd;
 use cargo_metadata::{Dependency, MetadataCommand};
-use dylint_internal::{CommandExt, clone, env::enabled, rustup::SanitizeEnvironment};
+use dylint_internal::{CommandExt, clone, env::enabled, msrv, rustup::SanitizeEnvironment};
 use predicates::prelude::*;
 use regex::Regex;
 use semver::Version;
@@ -11,22 +11,6 @@ use std::{
     path::Path,
 };
 use tempfile::tempdir;
-
-// smoelius: I expected `git2-0.17.2` to build with nightly-2022-06-30, which corresponds to
-// `--rust-version 1.64.0`. I'm not sure why it doesn't.
-// smoelius: Dylint's MSRV was recently bumped to 1.68.
-// smoelius: `home v0.5.9` (2013-12-15) requires rustc 1.70.0 or newer.
-// smoelius: `cargo-util v0.2.7` requires rustc 1.72.0 or newer.
-// smoelius: `cargo-platform v0.1.8` requires rustc 1.73 or newer.
-// smoelius: `rustfix v0.8.4` requires rustc 1.75 or newer.
-// smoelius: `rustfix v0.8.5` requires rustc 1.77 or newer.
-// smoelius: `rustfix v0.8.6` requires rustc 1.78 or newer. However, I get errors building
-// `serde` 1.0.210 with rustc 1.78, and `proc_macro2` 1.0.87 with rustc 1.79. So I am bumping
-// `RUSTC_VERSION` to 1.80.
-// smoelius: `home@0.5.11` (2024-12-16) requires rustc 1.81.
-// smoelius: `icu_collections@2.0.0` and several other packages require rustc 1.82.
-// smoelius: Edition 2024 was stabilized with Rust 1.85.
-const RUST_VERSION: &str = "1.88.0";
 
 #[test]
 fn new_package() {
@@ -87,7 +71,7 @@ fn downgrade_upgrade_package() {
     /* let mut rust_version = rust_version(tempdir.path()).unwrap();
     assert!(rust_version.minor != 0);
     rust_version.minor -= 1; */
-    let rust_version = Version::parse(RUST_VERSION).unwrap();
+    let rust_version = Version::parse(msrv::MSRV).unwrap();
 
     let upgrade = || {
         let mut command = cargo_bin_cmd!("cargo-dylint");
