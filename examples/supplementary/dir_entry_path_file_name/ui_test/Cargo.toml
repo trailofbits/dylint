@@ -1,9 +1,0 @@
-[package]
-name = "ui_test"
-version = "5.0.0"
-edition = "2024"
-
-[dependencies]
-walkdir = "2.5"
-
-[workspace]
