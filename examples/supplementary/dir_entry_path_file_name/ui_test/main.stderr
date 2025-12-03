@@ -15,8 +15,8 @@ LL |         let _ = entry.path().file_name();
 warning: file name can be obtained more directly from DirEntry
   --> $DIR/main.rs:36:17
    |
-LL |         let f = _p.file_name();
-   |                 ^^^^^^^^^^^^^^ help: try: `entry.file_name()`
+LL |         let f = p.file_name();
+   |                 ^^^^^^^^^^^^^ help: try: `entry.file_name()`
 
 warning: file name can be obtained more directly from DirEntry
   --> $DIR/main.rs:45:12
