@@ -5,7 +5,9 @@ extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_middle;
 
-use clippy_utils::{diagnostics::span_lint_and_sugg, expr_or_init, source::snippet_with_applicability};
+use clippy_utils::{
+    diagnostics::span_lint_and_sugg, expr_or_init, source::snippet_with_applicability,
+};
 use dylint_internal::{match_any_def_paths, paths};
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
