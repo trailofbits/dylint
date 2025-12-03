@@ -20,7 +20,6 @@ ctor = { workspace = true, optional = true }
 env_logger = { workspace = true, optional = true }
 git2 = { workspace = true, optional = true }
 home = { workspace = true, optional = true }
-if_chain = { workspace = true, optional = true }
 semver = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 tar = { workspace = true, optional = true }
@@ -42,7 +41,7 @@ cargo = ["anstyle", "bitflags", "cargo_metadata", "home"]
 clippy_utils = ["git", "semver", "tempfile", "toml", "toml_edit"]
 config = ["cargo_metadata", "serde", "thiserror", "toml"]
 examples = ["cargo", "cargo-util", "rustup", "walkdir"]
-git = ["git2", "if_chain"]
+git = ["git2"]
 home = ["dep:home"]
 match_def_path = []
 packaging = ["cargo", "tar"]

@@ -9,7 +9,6 @@ use dylint_internal::{
     packaging::new_template,
 };
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
-use if_chain::if_chain;
 use rewriter::Backup;
 use std::{
     env::current_dir,
@@ -130,20 +129,18 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
 
     let old_channel = toolchain_channel(path)?;
 
-    if_chain! {
-        if !upgrade_opts.allow_downgrade;
-        if let Some(new_nightly) = parse_as_nightly(&rev.channel);
-        if let Some(old_nightly) = parse_as_nightly(&old_channel);
-        if new_nightly < old_nightly;
-        then {
-            bail!(
-                "Refusing to downgrade toolchain from `{}` to `{}`. \
-                Use `--allow-downgrade` to override.",
-                old_channel,
-                rev.channel
-            );
-        }
-    };
+    if !upgrade_opts.allow_downgrade
+        && let Some(new_nightly) = parse_as_nightly(&rev.channel)
+        && let Some(old_nightly) = parse_as_nightly(&old_channel)
+        && new_nightly < old_nightly
+    {
+        bail!(
+            "Refusing to downgrade toolchain from `{}` to `{}`. \
+            Use `--allow-downgrade` to override.",
+            old_channel,
+            rev.channel
+        );
+    }
 
     let rust_toolchain_path = path.join("rust-toolchain");
     let cargo_toml_path = path.join("Cargo.toml");

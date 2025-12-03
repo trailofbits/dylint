@@ -10,7 +10,6 @@ repository = "https://github.com/trailofbits/dylint"
 [dependencies]
 anyhow = { workspace = true }
 env_logger = { workspace = true }
-if_chain = { workspace = true }
 toml = { workspace = true }
 
 dylint_internal = { version = "=5.0.0", path = "../internal", features = [

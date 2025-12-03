@@ -3,8 +3,7 @@ name = "dylint"
 version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
-# smoelius: Bump `edition` to 2024 once `rust-version` is 1.85 or later.
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 # This should match `dylint_internal::msrv::MSRV`.
@@ -22,7 +21,6 @@ fs_extra = { workspace = true, optional = true }
 glob = { workspace = true, optional = true }
 heck = { workspace = true, optional = true }
 hex = { workspace = true, optional = true }
-if_chain = { workspace = true, optional = true }
 log = { workspace = true }
 once_cell = { workspace = true }
 rewriter = { workspace = true, optional = true }
@@ -69,7 +67,6 @@ package_options = [
     "dylint_internal/clippy_utils",
     "dylint_internal/git",
     "heck",
-    "if_chain",
     "rewriter",
     "syntect",
     "walkdir",
@@ -82,7 +79,6 @@ __cargo_cli = [
     "fs_extra",
     "glob",
     "hex",
-    "if_chain",
     "rustc-stable-hash",
     "serde-untagged",
     "toml",

@@ -8,7 +8,6 @@ use anyhow::{Context, Result, anyhow};
 use dylint_internal::{
     CommandExt, cargo::cargo_home, env, library_filename, rustup::parse_toolchain,
 };
-use if_chain::if_chain;
 use std::{
     env::{args, consts},
     ffi::OsStr,
@@ -152,11 +151,9 @@ fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<
 }
 
 fn copy_library(path: &Path) -> Result<()> {
-    if_chain! {
-        if let Some(lib_name) = parse_path_plain_filename(path);
+    if let Some(lib_name) = parse_path_plain_filename(path) {
         let cargo_pkg_name = env::var(env::CARGO_PKG_NAME)?;
-        if lib_name == cargo_pkg_name.replace('-', "_");
-        then {
+        if lib_name == cargo_pkg_name.replace('-', "_") {
             let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
             let filename_with_toolchain = library_filename(&lib_name, &rustup_toolchain);
             let parent = path
