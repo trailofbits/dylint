@@ -456,7 +456,7 @@ fn markdown_does_not_use_inline_links() {
     for entry in walkdir(false).with_extension("md") {
         let entry = entry.unwrap();
         let path = entry.path();
-        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) {
+        if entry.file_name() == "CHANGELOG.md" {
             continue;
         }
         let markdown = read_to_string(path).unwrap();
@@ -474,7 +474,7 @@ fn markdown_reference_links_are_sorted() {
     for entry in walkdir(true).with_extension("md") {
         let entry = entry.unwrap();
         let path = entry.path();
-        if path.file_name() == Some(OsStr::new("CHANGELOG.md")) {
+        if entry.file_name() == "CHANGELOG.md" {
             continue;
         }
         let markdown = read_to_string(path).unwrap();
@@ -504,7 +504,7 @@ fn markdown_reference_links_are_valid_and_used() {
         let path = entry.path();
         // smoelius: The ` ["\n```"] ` in `missing_doc_comment_openai`'s readme causes problems, and
         // I haven't found a good solution/workaround.
-        if path.file_name() == Some(OsStr::new("CHANGELOG.md"))
+        if entry.file_name() == "CHANGELOG.md"
             || path.ends_with("examples/README.md")
             || path
                 .components()
@@ -764,7 +764,7 @@ fn lint() {
     for entry in read_dir("examples/experimental").unwrap() {
         let entry = entry.unwrap();
         let path = entry.path(); // path is already a PathBuf
-        if path.is_dir() && path.file_name().unwrap() != ".cargo" {
+        if path.is_dir() && entry.file_name() != ".cargo" {
             dirs_to_lint.push(path);
         }
     }
@@ -820,8 +820,7 @@ fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkd
         .into_iter()
         .filter_entry(move |entry| {
             let filename = entry.file_name();
-            filename != OsStr::new("target")
-                && (include_examples || filename != OsStr::new("examples"))
+            filename != "target" && (include_examples || filename != "examples")
         })
 }
 
@@ -852,9 +851,9 @@ impl<T: Iterator<Item = walkdir::Result<walkdir::DirEntry>>> IntoIterExt for T {
         file_name: impl AsRef<OsStr> + 'static,
     ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
         self.filter(move |entry| {
-            entry.as_ref().map_or(true, |entry| {
-                entry.path().file_name() == Some(file_name.as_ref())
-            })
+            entry
+                .as_ref()
+                .map_or(true, |entry| entry.file_name() == file_name.as_ref())
         })
     }
 }

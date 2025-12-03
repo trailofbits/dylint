@@ -144,34 +144,33 @@ mod test {
         let root_dirs_with_exceptions = ["general", "supplementary", "restriction"];
 
         for entry in WalkDir::new(".").into_iter().flatten() {
+            let file_name = entry.file_name().to_str().unwrap();
             let path = entry.path();
 
-            if let Some(file_name) = path.file_name().and_then(OsStr::to_str) {
-                if forbidden_files_general.contains(&file_name) {
-                    assert!(
-                        !forbidden_files_general.contains(&file_name),
-                        "Forbidden file `.gitignore` found in examples directory: {}",
-                        path.display()
-                    );
-                }
+            if forbidden_files_general.contains(&file_name) {
+                assert!(
+                    !forbidden_files_general.contains(&file_name),
+                    "Forbidden file `.gitignore` found in examples directory: {}",
+                    path.display()
+                );
+            }
 
-                if forbidden_files_specific.contains(&file_name) {
-                    let is_in_allowed_directory = allowed_dirs
-                        .iter()
-                        .any(|&allowed| path.starts_with(allowed));
+            if forbidden_files_specific.contains(&file_name) {
+                let is_in_allowed_directory = allowed_dirs
+                    .iter()
+                    .any(|&allowed| path.starts_with(allowed));
 
-                    let is_in_root_of_exception_dirs =
-                        root_dirs_with_exceptions.iter().any(|&exception| {
-                            path.starts_with(exception) && path.components().count() == 2
-                        });
+                let is_in_root_of_exception_dirs =
+                    root_dirs_with_exceptions.iter().any(|&exception| {
+                        path.starts_with(exception) && path.components().count() == 2
+                    });
 
-                    assert!(
-                        !(is_in_allowed_directory || is_in_root_of_exception_dirs),
-                        "Forbidden file {} found in non-allowed directory: {}",
-                        file_name,
-                        path.display()
-                    );
-                }
+                assert!(
+                    !(is_in_allowed_directory || is_in_root_of_exception_dirs),
+                    "Forbidden file {} found in non-allowed directory: {}",
+                    file_name,
+                    path.display()
+                );
             }
         }
     }
@@ -247,7 +246,7 @@ mod test {
                     let entry = entry.ok()?;
                     let path = entry.path();
                     if path.is_dir() {
-                        let file_name = path.file_name()?;
+                        let file_name = entry.file_name();
                         let dir_name = file_name.to_str()?;
                         if dir_name != "src" && !dir_name.starts_with('.') {
                             return Some(dir_name.to_string());
