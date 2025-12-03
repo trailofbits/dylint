@@ -32,8 +32,8 @@ fn test_walkdir_direct_chain() {
 fn test_variable_flow() {
     for entry in fs::read_dir(".").unwrap() {
         let entry = entry.unwrap();
-        let _p = entry.path();
-        let f = _p.file_name();
+        let p = entry.path();
+        let f = p.file_name();
         println!("{:?}", f);
     }
 }
