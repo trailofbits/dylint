@@ -1265,6 +1265,7 @@ version = "5.0.0"
 dependencies = [
  "arg_iter",
  "commented_out_code",
+ "dir_entry_path_file_name",
  "dylint_linting",
  "escaping_doc_link",
  "inconsistent_struct_pattern",
