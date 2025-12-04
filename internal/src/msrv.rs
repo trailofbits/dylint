@@ -21,7 +21,7 @@
 pub const MSRV: &str = "1.88.0";
 
 /// The nightly channel date corresponding to MSRV.
-pub const MSRV_CHANNEL: &str = "nightly-2025-05-09";
+pub const MSRV_CHANNEL: &str = "nightly-2025-04-22";
 
 /// The `clippy_utils` Git OID (commit hash) for MSRV.
 pub const MSRV_CLIPPY_UTILS_REV: &str = "ff428d91c2b690b8dbd8cc1e48274870c24fe1e2";
@@ -30,7 +30,7 @@ pub const MSRV_CLIPPY_UTILS_REV: &str = "ff428d91c2b690b8dbd8cc1e48274870c24fe1e
 pub const MSRV_PLUS_1: &str = "1.89.0";
 
 /// The nightly channel date corresponding to MSRV+1.
-pub const MSRV_PLUS_1_CHANNEL: &str = "nightly-2025-06-20";
+pub const MSRV_PLUS_1_CHANNEL: &str = "nightly-2025-05-14";
 
 /// The `clippy_utils` Git OID (commit hash) for MSRV+1.
 pub const MSRV_PLUS_1_CLIPPY_UTILS_REV: &str = "93bd4d893122417b9265563c037f11a158a8e37c";
