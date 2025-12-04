@@ -268,10 +268,10 @@ fn hunk_lines<'repo>(
 fn diff_is_refactor(diff: &Diff) -> Result<bool> {
     let stats = diff.stats()?;
     for idx in 0..stats.files_changed() {
-        if let Some(patch) = Patch::from_diff(diff, idx)? {
-            if patch_is_refactor(&patch)? {
-                return Ok(true);
-            }
+        if let Some(patch) = Patch::from_diff(diff, idx)?
+            && patch_is_refactor(&patch)?
+        {
+            return Ok(true);
         }
     }
     Ok(false)
