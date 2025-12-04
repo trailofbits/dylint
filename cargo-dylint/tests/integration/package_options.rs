@@ -229,7 +229,7 @@ mod test {
         }
     }
 
-    static EXCEPTION_RE: LazyLock<Regex> =
+    static FOUND_N_HIGHLIGHTS_RE: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^Found [0-9]+ highlights in [0-9]+ seconds$").unwrap());
 
     fn assert_expected_is_superset_of_actual(expected: &str, actual: &str) {
@@ -261,7 +261,9 @@ mod test {
             }
             // smoelius: There are still actual lines but there are no more expected lines.
             let actual_line = actual_iter.next().unwrap();
-            if EXCEPTION_RE.is_match(actual_line) {
+            if actual_line.starts_with("Warning: Found diagnostic error with no spans: ")
+                || FOUND_N_HIGHLIGHTS_RE.is_match(actual_line)
+            {
                 #[allow(clippy::explicit_write)]
                 writeln!(
                     std::io::stderr(),
