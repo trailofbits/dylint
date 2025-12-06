@@ -9,7 +9,7 @@ extern crate rustc_span;
 
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
-    path_to_local_id,
+    res::MaybeResPath,
     source::snippet,
     ty::{is_copy, peel_and_count_ty_refs},
 };
