@@ -34,6 +34,6 @@ roots = [
     "testing/clippy",
     "testing/straggler",
     "experimental/derive_opportunity",
-    "experimental/missing_doc_comment_openai",
+    "experimental/missing_doc_comment_llm",
     "experimental/overscoped_allow",
 ]
