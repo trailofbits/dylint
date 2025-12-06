@@ -3,3 +3,6 @@ public_only = false
 
 [redundant_reference]
 lifetime_check = false
+
+[missing_doc_comment_llm]
+model = "anthropic/claude-opus-4-5-20251101"
