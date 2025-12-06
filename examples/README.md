@@ -56,11 +56,11 @@ The example libraries are separated into the following three categories:
 
 ## Experimental
 
-| Example                                                                   | Description/check                               |
-| ------------------------------------------------------------------------- | ----------------------------------------------- |
-| [`derive_opportunity`](./experimental/derive_opportunity)                 | Traits that could be derived                    |
-| [`missing_doc_comment_openai`](./experimental/missing_doc_comment_openai) | A lint that suggests doc comments using OpenAI  |
-| [`overscoped_allow`](./experimental/overscoped_allow)                     | `allow` attributes whose scope could be reduced |
+| Example                                                             | Description/check                               |
+| ------------------------------------------------------------------- | ----------------------------------------------- |
+| [`derive_opportunity`](./experimental/derive_opportunity)           | Traits that could be derived                    |
+| [`missing_doc_comment_llm`](./experimental/missing_doc_comment_llm) | A lint that suggests doc comments using an LLM  |
+| [`overscoped_allow`](./experimental/overscoped_allow)               | `allow` attributes whose scope could be reduced |
 
 ## Testing
 

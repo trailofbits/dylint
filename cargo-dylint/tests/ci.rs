@@ -502,13 +502,13 @@ fn markdown_reference_links_are_valid_and_used() {
     for entry in walkdir(true).with_extension("md") {
         let entry = entry.unwrap();
         let path = entry.path();
-        // smoelius: The ` ["\n```"] ` in `missing_doc_comment_openai`'s readme causes problems, and
-        // I haven't found a good solution/workaround.
+        // smoelius: The ` ["\n```"] ` in `missing_doc_comment_llm`'s readme causes problems, and I
+        // haven't found a good solution/workaround.
         if entry.file_name() == "CHANGELOG.md"
             || path.ends_with("examples/README.md")
             || path
                 .components()
-                .any(|c| c == Component::Normal(OsStr::new("missing_doc_comment_openai")))
+                .any(|c| c == Component::Normal(OsStr::new("missing_doc_comment_llm")))
         {
             continue;
         }
