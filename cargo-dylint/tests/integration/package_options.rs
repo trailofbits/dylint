@@ -66,7 +66,7 @@ fn downgrade_upgrade_package() {
     /* let mut rust_version = rust_version(tempdir.path()).unwrap();
     assert!(rust_version.minor != 0);
     rust_version.minor -= 1; */
-    let rust_version = Version::parse(msrv::MSRV).unwrap();
+    let rust_version = Version::parse(msrv::MSRV_PLUS_1).unwrap();
 
     let upgrade = || {
         let mut command = cargo_bin_cmd!("cargo-dylint");
