@@ -23,32 +23,6 @@ Deleting this directory will cause Dylint to rebuild the drivers
 the next time it needs them, but will have no ill effects.
 ";
 
-fn cargo_toml(toolchain: &str, dylint_driver_spec: &str) -> String {
-    format!(
-        r#"
-[package]
-name = "dylint_driver-{toolchain}"
-version = "0.1.0"
-edition = "2018"
-
-[dependencies]
-anyhow = "1.0"
-env_logger = "0.11"
-dylint_driver = {{ {dylint_driver_spec} }}
-"#,
-    )
-}
-
-fn rust_toolchain(toolchain: &str) -> String {
-    format!(
-        r#"
-[toolchain]
-channel = "{toolchain}"
-components = ["llvm-tools-preview", "rustc-dev"]
-"#,
-    )
-}
-
 // smoelius: We need `#![feature(rustc_private)]` as it changes `dylib` linking behavior and allows
 // us to link to `rustc_driver`. See: https://github.com/rust-lang/rust/pull/122362
 const MAIN_RS: &str = r"
@@ -236,6 +210,32 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
         .with_context(|| format!("`write` failed for `{}`", main_rs.to_string_lossy()))?;
 
     Ok(())
+}
+
+fn cargo_toml(toolchain: &str, dylint_driver_spec: &str) -> String {
+    format!(
+        r#"
+[package]
+name = "dylint_driver-{toolchain}"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0"
+env_logger = "0.11"
+dylint_driver = {{ {dylint_driver_spec} }}
+"#,
+    )
+}
+
+fn rust_toolchain(toolchain: &str) -> String {
+    format!(
+        r#"
+[toolchain]
+channel = "{toolchain}"
+components = ["llvm-tools-preview", "rustc-dev"]
+"#,
+    )
 }
 
 #[allow(clippy::unwrap_used)]
