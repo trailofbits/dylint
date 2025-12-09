@@ -168,7 +168,7 @@ mod test {
     }
 
     fn build_template_tar() -> TempDir {
-        use std::{ffi::OsStr, fs::File, path::Path};
+        use std::{fs::File, path::Path};
         use tar::{Builder, HeaderMode};
         use walkdir::WalkDir;
 
@@ -183,7 +183,7 @@ mod test {
             .into_iter()
             .filter_entry(|entry| {
                 let filename = entry.file_name();
-                filename != OsStr::new("Cargo.lock") && filename != OsStr::new("target")
+                filename != "Cargo.lock" && filename != "target"
             })
         {
             let entry = result.unwrap();

@@ -10,17 +10,6 @@ use tempfile::tempdir;
 const CATEGORY: &str = "restriction";
 const LIB_NAME: &str = "const_path_join";
 
-fn workspace_metadata(path_spec: &str) -> String {
-    format!(
-        r#"
-[workspace.metadata.dylint]
-libraries = [
-    {{ path = "{path_spec}" }},
-]
-"#,
-    )
-}
-
 const MAIN_RS: &str = r#"
 fn main() {
     let _ = std::path::Path::new("..").join("target");
@@ -94,4 +83,15 @@ fn append_workspace_metadata(path: &Path) -> Result<()> {
         .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
 
     Ok(())
+}
+
+fn workspace_metadata(path_spec: &str) -> String {
+    format!(
+        r#"
+[workspace.metadata.dylint]
+libraries = [
+    {{ path = "{path_spec}" }},
+]
+"#,
+    )
 }
