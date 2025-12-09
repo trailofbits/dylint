@@ -127,10 +127,7 @@ fn downgrade_upgrade_package() {
         .unwrap();
 }
 
-// smoelius: On macOS and Windows, I see "Updating files <percentage>%" in the logs and I cannot
-// figure out how to disable them. Googling suggests that git generates those messages when it
-// checks out the HEAD branch.
-#[cfg(all(target_os = "linux", test))]
+#[cfg(test)]
 mod test {
     use super::*;
     use anyhow::{Context, anyhow};
@@ -241,10 +238,23 @@ mod test {
                 && let Some(&actual_line) = actual_iter.peek()
                 && Assert::new()
                     .action_env(DEFAULT_ACTION_ENV)
+                    .normalize_paths(true)
                     .try_eq(None, Data::from(actual_line), Data::from(expected_line))
                     .is_ok()
             {
                 let _ = expected_iter.next();
+                let _ = actual_iter.next();
+                actual_index += 1;
+                continue;
+            }
+            // smoelius: On Linux, macOS, and Windows, I see "Updating files: <percentage>%" in the
+            // logs. Googling suggests that git generates these messages when it checks out the HEAD
+            // branch. I cannot figure out how to prevent git from generating these messages. So if
+            // the actual line starts with "Updating files: ", throw it away.
+            if actual_iter
+                .peek()
+                .is_some_and(|actual_line| actual_line.starts_with("Updating files: "))
+            {
                 let _ = actual_iter.next();
                 actual_index += 1;
                 continue;
