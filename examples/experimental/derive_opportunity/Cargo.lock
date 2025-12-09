@@ -246,7 +246,6 @@ dependencies = [
  "cargo_metadata",
  "git2",
  "home",
- "if_chain",
  "log",
  "regex",
  "serde",
@@ -531,12 +530,6 @@ dependencies = [
  "icu_normalizer",
  "icu_properties",
 ]
-
-[[package]]
-name = "if_chain"
-version = "1.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd62e6b5e86ea8eeeb8db1de02880a6abc01a397b2ebb64b5d74ac255318f5cb"
 
 [[package]]
 name = "indexmap"
