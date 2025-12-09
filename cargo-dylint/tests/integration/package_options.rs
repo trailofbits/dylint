@@ -136,7 +136,7 @@ mod test {
     use anyhow::{Context, anyhow};
     use dylint_internal::{clone, env::enabled};
     use regex::Regex;
-    use snapbox::{Assert, Data, assert::DEFAULT_ACTION_ENV, cmd::cargo_bin};
+    use snapbox::{Assert, Data, assert::DEFAULT_ACTION_ENV};
     use std::{
         fs::read_to_string,
         io::Write,
@@ -187,7 +187,7 @@ mod test {
             clone(DYLINT_URL, rev, tempdir.path(), true).unwrap();
 
             #[cfg_attr(dylint_lib = "general", allow(unnecessary_conversion_for_trait))]
-            let mut command = Command::new(cargo_bin!("cargo-dylint"));
+            let mut command = Command::new(env!("CARGO_BIN_EXE_cargo-dylint"));
             command.args([
                 "dylint",
                 "upgrade",
