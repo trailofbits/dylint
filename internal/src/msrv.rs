@@ -21,7 +21,7 @@
 pub const MSRV: &str = "1.88.0";
 
 /// The nightly channel date corresponding to MSRV.
-pub const MSRV_CHANNEL: &str = "nightly-2025-04-22";
+pub const MSRV_CHANNEL: &str = "nightly-2025-04-23";
 
 /// The `clippy_utils` Git OID (commit hash) for MSRV.
 pub const MSRV_CLIPPY_UTILS_REV: &str = "ff428d91c2b690b8dbd8cc1e48274870c24fe1e2";
