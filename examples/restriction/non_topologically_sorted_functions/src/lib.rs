@@ -53,6 +53,20 @@ struct Callee {
 struct Finder<'a, 'tcx> {
     cx: &'a LateContext<'tcx>,
     seen: HashSet<LocalDefId>,
+    /// The list of callees encountered during a preorder traversal of the body.
+    ///
+    /// Each element stores:
+    /// - The `LocalDefId` of the callee
+    /// - The `Span` of the call site
+    ///
+    /// This ordering is significant: the first occurrence of a callee defines
+    /// how constraints between callees are derived. For example, if calls appear
+    /// in the order `bar()`, then `baz()`, this produces the ordering constraint
+    /// `bar` must come before `baz` when functions are arranged in the module.
+    ///
+    /// The `Span` is later used to produce more precise diagnostics; if a
+    /// function is out of order, we can point to the exact call site that
+    /// implies the constraint.
     order: Vec<Callee>,
 }
 
