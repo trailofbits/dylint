@@ -94,27 +94,24 @@ impl NonTopologicallySortedFunctions {
         caller_id: LocalDefId,
         callees: &[Callee],
         mut must_come_before: HashSet<(LocalDefId, LocalDefId)>,
-        call_sites: &mut HashMap<(LocalDefId, LocalDefId), Vec<Span>>,
+        call_sites: &mut HashMap<(LocalDefId, LocalDefId), Option<Span>>,
     ) -> HashSet<(LocalDefId, LocalDefId)> {
         for &Callee {
             caller_local_def_id,
             call_span,
         } in callees
         {
+            let key = (caller_id, caller_local_def_id);
             // (caller -> callee) constraint
             // If the reverse constraint already exists (added by an earlier caller),
             // we keep the earlier constraint (because we iterate callers in module order).
             if must_come_before.contains(&(caller_local_def_id, caller_id)) {
                 // reversed constraint exists; skip adding (precedence kept)
             } else {
-                must_come_before.insert((caller_id, caller_local_def_id));
+                must_come_before.insert(key);
             }
 
-            // record call site (we still keep all call sites, they may be useful)
-            call_sites
-                .entry((caller_id, caller_local_def_id))
-                .or_default()
-                .push(call_span);
+            call_sites.entry(key).or_insert(Some(call_span));
         }
         must_come_before
     }
@@ -234,7 +231,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
 
         let mut must_come_before: HashSet<(LocalDefId, LocalDefId)> = HashSet::new();
         // stores all call sites for (caller, callee)
-        let mut call_sites: HashMap<(LocalDefId, LocalDefId), Vec<Span>> = HashMap::new();
+        let mut call_sites: HashMap<(LocalDefId, LocalDefId), Option<Span>> = HashMap::new();
 
         for caller_id in def_order {
             // use hir_maybe_body_owned_by — works for functions and methods etc.
@@ -276,26 +273,19 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                         ),
                     );
 
-                    diag.help(
-        "move {name_first_fn}'s definition to earlier in the module",
-    );
+                    diag.help(format!(
+                        "move {name_first_fn}'s definition to earlier in the module"
+                    ));
 
                     // search call sites
-                    if let Some(sites) = call_sites.get(&(id_first_fn, id_second_fn)) {
-                        let sm = cx.sess().source_map();
-                        let good_sites: Vec<Span> = sites
-                            .iter()
-                            .copied()
-                            .filter(|s| !s.from_expansion() && !s.in_external_macro(sm))
-                            .collect();
-
-                        if let Some(call_span) = good_sites.first() {
-                            // extra block with double info
-                            diag.span_note(
-                                *call_span,
-                                format!("`{name_second_fn}` is called from `{name_first_fn}` here"),
-                            );
-                        }
+                    if let Some(sites) = call_sites.get(&(id_first_fn, id_second_fn))
+                        && let Some(call_span) = sites
+                    {
+                        // extra block with double info
+                        diag.span_note(
+                            *call_span,
+                            format!("`{name_second_fn}` is called from `{name_first_fn}` here"),
+                        );
                     }
                 });
             }
