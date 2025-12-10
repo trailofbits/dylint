@@ -6,7 +6,7 @@ It enforces a certain relative order among functions defined within a module.
 
 ### Why is this bad?
 
-Without a certain order it's really bad to navigate through the modules.
+Without a certain order, it can be difficult to navigate through the module's functions.
 
 ### Example
 
