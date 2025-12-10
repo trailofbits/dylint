@@ -6,7 +6,7 @@ LL | |     bar();
 LL | | }
    | |_^ function `foo` should be defined before `bar`
    |
-   = help: move the function earlier in the module so callers and callee ordering is respected
+   = help: move {name_first_fn}'s definition to earlier in the module
 note: `bar` is called from `foo` here
   --> $DIR/simple_wrong_order.rs:8:5
    |

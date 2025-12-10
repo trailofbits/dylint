@@ -9,7 +9,7 @@ LL | |     }
 LL | | }
    | |_^ function `foo` should be defined before `baz`
    |
-   = help: move the function earlier in the module so callers and callee ordering is respected
+   = help: move {name_first_fn}'s definition to earlier in the module
 note: `baz` is called from `foo` here
   --> $DIR/wrong_inner_call.rs:10:9
    |
@@ -23,8 +23,7 @@ warning:
 LL | fn bar() {}
    | ^^^^^^^^^^^ function `bar` should be defined before `baz`
    |
-   = help: move the function earlier in the module so callers and callee ordering is respected
-   = note: no call site recorded (internal)
+   = help: move {name_first_fn}'s definition to earlier in the module
 
 warning: 2 warnings emitted
 

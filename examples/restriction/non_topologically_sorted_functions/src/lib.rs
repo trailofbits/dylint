@@ -290,15 +290,12 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                             .collect();
 
                         if let Some(call_span) = good_sites.first() {
-                            // НОВОЕ: extra block with double info
+                            // extra block with double info
                             diag.span_note(
                                 *call_span,
                                 format!("`{name_second_fn}` is called from `{name_first_fn}` here"),
                             );
                         }
-                    } else {
-                        // if the second rule
-                        diag.note("no call site recorded (internal)");
                     }
                 });
             }
