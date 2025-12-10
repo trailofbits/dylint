@@ -122,7 +122,7 @@ impl NonTopologicallySortedFunctions {
     /// Check inner order rule.
     ///
     /// The earlier order is preferred and is considered the main one.
-    fn build_multiple_precedence_rule(
+    fn transitive_closure(
         callees: &[Callee],
         mut must_come_before: HashSet<(LocalDefId, LocalDefId)>,
     ) -> HashSet<(LocalDefId, LocalDefId)> {
@@ -250,7 +250,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                     must_come_before,
                     &mut call_sites,
                 );
-                must_come_before = Self::build_multiple_precedence_rule(&callees, must_come_before);
+                must_come_before = Self::transitive_closure(&callees, must_come_before);
             }
         }
 
