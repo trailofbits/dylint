@@ -277,7 +277,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                     );
 
                     diag.help(
-        "move the function earlier in the module so callers and callee ordering is respected",
+        "move {name_first_fn}'s definition to earlier in the module",
     );
 
                     // search call sites
