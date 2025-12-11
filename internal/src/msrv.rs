@@ -21,10 +21,10 @@
 pub const MSRV: &str = "1.88.0";
 
 /// The nightly channel date corresponding to MSRV.
-pub const MSRV_CHANNEL: &str = "nightly-2025-04-23";
+pub const MSRV_CHANNEL: &str = "nightly-2025-04-22";
 
 /// The `clippy_utils` Git OID (commit hash) for MSRV.
-pub const MSRV_CLIPPY_UTILS_REV: &str = "36c3617bb13b3608170a617eb173e4df96ad3e52";
+pub const MSRV_CLIPPY_UTILS_REV: &str = "ff428d91c2b690b8dbd8cc1e48274870c24fe1e2";
 
 /// The minimum supported Rust version plus one minor version.
 pub const MSRV_PLUS_1: &str = "1.89.0";

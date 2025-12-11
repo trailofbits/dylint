@@ -117,14 +117,15 @@ impl Iterator for RevIter<'_> {
                         oid,
                     }
                 };
-                if let Some(prev_rev) = prev_rev
-                    && match self.filter {
+                #[allow(clippy::collapsible_if)]
+                if let Some(prev_rev) = prev_rev {
+                    if match self.filter {
                         Filter::Version => prev_rev.version != curr_rev.version,
                         Filter::Channel => prev_rev.channel != curr_rev.channel,
+                    } {
+                        self.curr_rev = Some(curr_rev);
+                        return Ok(Some(prev_rev));
                     }
-                {
-                    self.curr_rev = Some(curr_rev);
-                    return Ok(Some(prev_rev));
                 }
                 prev_rev = Some(curr_rev);
             }
