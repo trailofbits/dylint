@@ -658,6 +658,12 @@
     ],
     "elaborate": [
       {
+        "id": 13063,
+        "kind": "team",
+        "login": "github:trailofbits:rust-crates",
+        "name": "rust-crates"
+      },
+      {
         "id": 64944,
         "kind": "user",
         "login": "smoelius",
@@ -1174,14 +1180,6 @@
         "kind": "user",
         "login": "valenting",
         "name": "Valentin Gosu"
-      }
-    ],
-    "if_chain": [
-      {
-        "id": 684,
-        "kind": "user",
-        "login": "lambda-fairy",
-        "name": "Chris Wong"
       }
     ],
     "ignore": [

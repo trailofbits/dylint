@@ -704,6 +704,12 @@
     ],
     "elaborate": [
       {
+        "id": 13063,
+        "kind": "team",
+        "login": "github:trailofbits:rust-crates",
+        "name": "rust-crates"
+      },
+      {
         "id": 64944,
         "kind": "user",
         "login": "smoelius",
@@ -1248,14 +1254,6 @@
         "kind": "user",
         "login": "valenting",
         "name": "Valentin Gosu"
-      }
-    ],
-    "if_chain": [
-      {
-        "id": 684,
-        "kind": "user",
-        "login": "lambda-fairy",
-        "name": "Chris Wong"
       }
     ],
     "ignore": [
@@ -1848,14 +1846,6 @@
         "kind": "user",
         "login": "sunfishcode",
         "name": "Dan Gohman"
-      }
-    ],
-    "rustversion": [
-      {
-        "id": 3618,
-        "kind": "user",
-        "login": "dtolnay",
-        "name": "David Tolnay"
       }
     ],
     "ryu": [
