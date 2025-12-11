@@ -2,7 +2,6 @@ thiserror v1.0.69
 thiserror v2.0.17
 thiserror-impl v1.0.69
 thiserror-impl v2.0.17
-windows-sys v0.52.0
 windows-sys v0.59.0
 windows-sys v0.60.2
 windows-sys v0.61.2

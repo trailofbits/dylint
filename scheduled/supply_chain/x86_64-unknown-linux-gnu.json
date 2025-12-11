@@ -658,6 +658,12 @@
     ],
     "elaborate": [
       {
+        "id": 13063,
+        "kind": "team",
+        "login": "github:trailofbits:rust-crates",
+        "name": "rust-crates"
+      },
+      {
         "id": 64944,
         "kind": "user",
         "login": "smoelius",
@@ -1204,14 +1210,6 @@
         "name": "Valentin Gosu"
       }
     ],
-    "if_chain": [
-      {
-        "id": 684,
-        "kind": "user",
-        "login": "lambda-fairy",
-        "name": "Chris Wong"
-      }
-    ],
     "ignore": [
       {
         "id": 189,
@@ -1548,6 +1546,12 @@
         "kind": "user",
         "login": "alexcrichton",
         "name": "Alex Crichton"
+      },
+      {
+        "id": 4556,
+        "kind": "user",
+        "login": "djc",
+        "name": "Dirkjan Ochtman"
       }
     ],
     "openssl-sys": [
@@ -1790,14 +1794,6 @@
         "kind": "user",
         "login": "sunfishcode",
         "name": "Dan Gohman"
-      }
-    ],
-    "rustversion": [
-      {
-        "id": 3618,
-        "kind": "user",
-        "login": "dtolnay",
-        "name": "David Tolnay"
       }
     ],
     "ryu": [

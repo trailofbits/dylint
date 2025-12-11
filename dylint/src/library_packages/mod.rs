@@ -4,7 +4,6 @@ use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackag
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
 use dylint_internal::{CommandExt, config, env, library_filename, rustup::SanitizeEnvironment};
 use glob::glob;
-use if_chain::if_chain;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, de::IntoDeserializer};
 use std::path::{Path, PathBuf};
@@ -134,32 +133,28 @@ fn to_map_entry(key: &str, value: Option<&String>) -> Option<(String, toml::Valu
 }
 
 pub fn from_workspace_metadata(opts: &opts::Dylint) -> Result<Vec<Package>> {
-    if_chain! {
-        if let Some(metadata) = cargo_metadata(opts)?;
-        if let Some(object) = dylint_metadata(opts)?;
-        then {
-            library_packages_from_dylint_metadata(opts, metadata, object)
-        } else {
-            Ok(vec![])
-        }
+    if let Some(metadata) = cargo_metadata(opts)?
+        && let Some(object) = dylint_metadata(opts)?
+    {
+        library_packages_from_dylint_metadata(opts, metadata, object)
+    } else {
+        Ok(vec![])
     }
 }
 
 #[allow(clippy::module_name_repetitions)]
 pub fn dylint_metadata(opts: &opts::Dylint) -> Result<Option<&'static Object>> {
-    if_chain! {
-        if let Some(metadata) = cargo_metadata(opts)?;
-        if let serde_json::Value::Object(object) = &metadata.workspace_metadata;
-        if let Some(value) = object.get("dylint");
-        then {
-            if let serde_json::Value::Object(subobject) = value {
-                Ok(Some(subobject))
-            } else {
-                bail!("`dylint` value must be a map")
-            }
+    if let Some(metadata) = cargo_metadata(opts)?
+        && let serde_json::Value::Object(object) = &metadata.workspace_metadata
+        && let Some(value) = object.get("dylint")
+    {
+        if let serde_json::Value::Object(subobject) = value {
+            Ok(Some(subobject))
         } else {
-            Ok(None)
+            bail!("`dylint` value must be a map")
         }
+    } else {
+        Ok(None)
     }
 }
 
@@ -184,13 +179,11 @@ fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
                 Ok(metadata) => Ok(Some(metadata)),
                 Err(err) => {
                     if lib_sel.manifest_path.is_none() {
-                        if_chain! {
-                            if let Error::CargoMetadata { stderr } = err;
-                            if let Some(line) = stderr.lines().next();
-                            if !line.starts_with("error: could not find `Cargo.toml`");
-                            then {
-                                warn(opts, line.strip_prefix("error: ").unwrap_or(line));
-                            }
+                        if let Error::CargoMetadata { stderr } = err
+                            && let Some(line) = stderr.lines().next()
+                            && !line.starts_with("error: could not find `Cargo.toml`")
+                        {
+                            warn(opts, line.strip_prefix("error: ").unwrap_or(line));
                         }
                         Ok(None)
                     } else {
@@ -222,15 +215,15 @@ fn library_packages_from_dylint_metadata(
 }
 
 pub fn from_dylint_toml(opts: &opts::Dylint) -> Result<Vec<Package>> {
-    if_chain! {
-        if let Some(metadata) = cargo_metadata(opts)?;
+    if let Some(metadata) = cargo_metadata(opts)? {
         let _ = config::try_init_with_metadata(metadata)?;
-        if let Some(table) = config::get();
-        then {
+        if let Some(table) = config::get() {
             library_packages_from_dylint_toml(opts, metadata, table)
         } else {
             Ok(vec![])
         }
+    } else {
+        Ok(vec![])
     }
 }
 
