@@ -1,0 +1,122 @@
+Warning: `env_logger` already initialized: attempted to set a logger after the logging system was already initialized
+Cloning into '[..]'...
+Checking upgraded library package
+Found 3 highlights in [..] seconds
+Found 422 commits in [..] seconds
+Found 1802 patches in [..] seconds
+Extracted 722 rewrite rules in [..] seconds (discarded 1275 insertions and 524 refactors)
+Rewriting with score 3 rewrite from 20ce69b: Rewrite {
+    before_tokens: "[/"use/", /"rustc_middle/", /"::/", /"ty/", /"::/"]",
+    rewrite: "[/"AssocItemContainer/"] -> [/"AssocContainer/"]",
+    after_tokens: "[/";/"]",
+} Highlight {
+    message: "failed to resolve: could not find `AssocItemContainer` in `ty`",
+    file_name: "ref_aware_redundant_closure_for_method_calls/src/lib.rs",
+    line_start: 389,
+    line_end: 389,
+    lines: [
+        "        ty::AssocItemContainer::Trait => cx.tcx.def_path_str(def_id),",
+    ],
+    highlight_start: 2,
+    highlight_end: 3,
+    is_primary: true,
+    ..
+}
+Rewriting with score 3 rewrite from 20ce69b: Rewrite {
+    before_tokens: "[/"use/", /"rustc_middle/", /"::/", /"ty/", /"::/"]",
+    rewrite: "[/"AssocItemContainer/"] -> [/"AssocContainer/"]",
+    after_tokens: "[/";/"]",
+} Highlight {
+    message: "failed to resolve: could not find `AssocItemContainer` in `ty`",
+    file_name: "ref_aware_redundant_closure_for_method_calls/src/lib.rs",
+    line_start: 390,
+    line_end: 390,
+    lines: [
+        "        ty::AssocItemContainer::Impl => {",
+    ],
+    highlight_start: 2,
+    highlight_end: 3,
+    is_primary: true,
+    ..
+}
+Rewriting with score 1 rewrite from 2d3efb0: Rewrite {
+    before_tokens: "[/"&/", /"&/"]",
+    rewrite: "[/"peel_middle_ty_refs/"] -> [/"peel_and_count_ty_refs/"]",
+    after_tokens: "[/"(/", /"arg_ty/", /")/", /"./", /"1/", /">/", /"1/"]",
+} Highlight {
+    message: "unresolved import `clippy_utils::peel_middle_ty_refs`",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 11,
+    line_end: 11,
+    lines: [
+        "    diagnostics::span_lint_and_sugg, path_to_local_id, peel_middle_ty_refs, source::snippet,",
+    ],
+    highlight_start: 6,
+    highlight_end: 7,
+    is_primary: true,
+    ..
+}
+Checking upgraded library package
+Found 3 highlights in [..] seconds
+Rewriting with score 4 rewrite from 2d3efb0: Rewrite {
+    before_tokens: "[[..]]",
+    rewrite: "[/")/", /"=/", /"peel_middle_ty_refs/"] -> [/",/", /"_/", /")/", /"=/", /"peel_and_count_ty_refs/"]",
+    after_tokens: "[[..]]",
+} Highlight {
+    message: "cannot find function `peel_middle_ty_refs` in this scope",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 137,
+    line_end: 137,
+    lines: [
+        "                let (referent_ty, n_refs) = peel_middle_ty_refs(pat_ty);",
+    ],
+    highlight_start: 7,
+    highlight_end: 8,
+    is_primary: true,
+    ..
+}
+Rewriting with score 6 rewrite from 324c214: Rewrite {
+    before_tokens: "[/"rustc_ty/", /"::/", /"AssocContainer/", /"::/"]",
+    rewrite: "[/"Impl /"] -> [/"InherentImpl /", /"|/", /"rustc_ty/", /"::/", /"AssocContainer/", /"::/", /"TraitImpl/", /"(/", /"_/", /")/"]",
+    after_tokens: "[/"=>/", /"{/"]",
+} Highlight {
+    message: "no variant or associated item named `Impl` found for enum `AssocContainer` in the current scope",
+    file_name: "ref_aware_redundant_closure_for_method_calls/src/lib.rs",
+    line_start: 390,
+    line_end: 390,
+    lines: [
+        "        ty::AssocContainer::Impl => {",
+    ],
+    highlight_start: 4,
+    highlight_end: 5,
+    is_primary: true,
+    ..
+}
+Checking upgraded library package
+Found 2 highlights in [..] seconds
+Found no applicable rewrites for Highlight {
+    message: "failed to resolve: use of unresolved module or unlinked crate `rustc_ty`",
+    file_name: "ref_aware_redundant_closure_for_method_calls/src/lib.rs",
+    line_start: 390,
+    line_end: 390,
+    lines: [
+        "        ty::AssocContainer::InherentImpl | rustc_ty::AssocContainer::TraitImpl(_)=> {",
+    ],
+    highlight_start: 6,
+    highlight_end: 7,
+    is_primary: true,
+    ..
+}
+Found no applicable rewrites for Highlight {
+    message: "unresolved import `clippy_utils::peel_and_count_ty_refs`",
+    file_name: "suboptimal_pattern/src/lib.rs",
+    line_start: 11,
+    line_end: 11,
+    lines: [
+        "    diagnostics::span_lint_and_sugg, path_to_local_id, peel_and_count_ty_refs, source::snippet,",
+    ],
+    highlight_start: 6,
+    highlight_end: 7,
+    is_primary: true,
+    ..
+}

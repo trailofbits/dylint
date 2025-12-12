@@ -216,11 +216,12 @@ mod test {
         let output = Command::new("rustc")
             .args(["--print", "target-list"])
             .unwrap();
-        let mut architectures = std::str::from_utf8(&output.stdout)
-            .unwrap()
-            .lines()
-            .filter_map(|line| line.split_once('-').map(|(architecture, _)| architecture))
-            .collect::<Vec<_>>();
+        let mut architectures = Vec::new();
+        for line in std::str::from_utf8(&output.stdout).unwrap().lines() {
+            if let Some((architecture, _)) = line.split_once('-') {
+                architectures.push(architecture);
+            }
+        }
         architectures.sort_unstable();
         architectures.dedup();
         assert_eq!(ARCHITECTURES, architectures);

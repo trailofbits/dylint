@@ -138,18 +138,17 @@ mod unused {
         let (fourth_error, rest) = rest.split_at(ERROR_LINES);
         let (blank_line, summary) = rest.split_at(rest.len() - 2);
 
-        let permuted: Vec<String> = std::iter::empty()
-            .chain(first_error.iter().cloned())
-            .chain(note.iter().cloned())
-            .chain(blank_line.iter().cloned())
-            .chain(second_error.iter().cloned())
-            .chain(blank_line.iter().cloned())
-            .chain(third_error.iter().cloned())
-            .chain(blank_line.iter().cloned())
-            .chain(fourth_error.iter().cloned())
-            .chain(blank_line.iter().cloned())
-            .chain(summary.iter().cloned())
-            .collect();
+        let mut permuted = Vec::new();
+        permuted.extend(first_error.iter().cloned());
+        permuted.extend(note.iter().cloned());
+        permuted.extend(blank_line.iter().cloned());
+        permuted.extend(second_error.iter().cloned());
+        permuted.extend(blank_line.iter().cloned());
+        permuted.extend(third_error.iter().cloned());
+        permuted.extend(blank_line.iter().cloned());
+        permuted.extend(fourth_error.iter().cloned());
+        permuted.extend(blank_line.iter().cloned());
+        permuted.extend(summary.iter().cloned());
 
         let mut lines_sorted = lines.clone();
         let mut permuted_sorted = permuted.clone();

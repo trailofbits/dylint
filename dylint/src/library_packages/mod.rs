@@ -4,7 +4,6 @@ use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackag
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
 use dylint_internal::{CommandExt, config, env, library_filename, rustup::SanitizeEnvironment};
 use glob::glob;
-use if_chain::if_chain;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, de::IntoDeserializer};
 use std::path::{Path, PathBuf};
@@ -127,28 +126,35 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
     library_packages(opts, metadata, &[library])
 }
 
-pub fn from_dylint_toml(opts: &opts::Dylint) -> Result<Vec<Package>> {
-    if_chain! {
-        if let Some(metadata) = cargo_metadata(opts)?;
-        let _ = config::try_init_with_metadata(metadata)?;
-        if let Some(table) = config::get();
-        then {
-            library_packages_from_dylint_toml(opts, metadata, table)
-        } else {
-            Ok(vec![])
-        }
-    }
+fn to_map_entry(key: &str, value: Option<&String>) -> Option<(String, toml::Value)> {
+    value
+        .cloned()
+        .map(|s| (String::from(key), toml::Value::from(s)))
 }
 
 pub fn from_workspace_metadata(opts: &opts::Dylint) -> Result<Vec<Package>> {
-    if_chain! {
-        if let Some(metadata) = cargo_metadata(opts)?;
-        if let Some(object) = dylint_metadata(opts)?;
-        then {
-            library_packages_from_dylint_metadata(opts, metadata, object)
+    if let Some(metadata) = cargo_metadata(opts)?
+        && let Some(object) = dylint_metadata(opts)?
+    {
+        library_packages_from_dylint_metadata(opts, metadata, object)
+    } else {
+        Ok(vec![])
+    }
+}
+
+#[allow(clippy::module_name_repetitions)]
+pub fn dylint_metadata(opts: &opts::Dylint) -> Result<Option<&'static Object>> {
+    if let Some(metadata) = cargo_metadata(opts)?
+        && let serde_json::Value::Object(object) = &metadata.workspace_metadata
+        && let Some(value) = object.get("dylint")
+    {
+        if let serde_json::Value::Object(subobject) = value {
+            Ok(Some(subobject))
         } else {
-            Ok(vec![])
+            bail!("`dylint` value must be a map")
         }
+    } else {
+        Ok(None)
     }
 }
 
@@ -171,13 +177,11 @@ fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
                 Ok(metadata) => Ok(Some(metadata)),
                 Err(err) => {
                     if lib_sel.manifest_path.is_none() {
-                        if_chain! {
-                            if let Error::CargoMetadata { stderr } = err;
-                            if let Some(line) = stderr.lines().next();
-                            if !line.starts_with("error: could not find `Cargo.toml`");
-                            then {
-                                warn(opts, line.strip_prefix("error: ").unwrap_or(line));
-                            }
+                        if let Error::CargoMetadata { stderr } = err
+                            && let Some(line) = stderr.lines().next()
+                            && !line.starts_with("error: could not find `Cargo.toml`")
+                        {
+                            warn(opts, line.strip_prefix("error: ").unwrap_or(line));
                         }
                         Ok(None)
                     } else {
@@ -232,6 +236,19 @@ fn library_packages_from_dylint_metadata(
         })
         .collect::<Result<Vec<_>>>()?;
     Ok(libraries.into_iter().flatten().collect())
+}
+
+pub fn from_dylint_toml(opts: &opts::Dylint) -> Result<Vec<Package>> {
+    if let Some(metadata) = cargo_metadata(opts)? {
+        let _ = config::try_init_with_metadata(metadata)?;
+        if let Some(table) = config::get() {
+            library_packages_from_dylint_toml(opts, metadata, table)
+        } else {
+            Ok(vec![])
+        }
+    } else {
+        Ok(vec![])
+    }
 }
 
 fn library_packages_from_dylint_toml(
@@ -360,39 +377,36 @@ fn library_package(
     // (https://github.com/rust-lang/rustup/issues/1399#issuecomment-383376082).
 
     // smoelius: Experiments suggest that a considerable amount of Dylint's start up time is spent
-    // in the following "loop," and a considerable (though not necessarily dominant) fraction of
-    // that is spent in `active_toolchain`.
-    let packages = paths
-        .into_iter()
-        .map(|path| {
-            if path.is_dir() {
-                // smoelius: Ignore subdirectories that do not contain packages.
-                let package = match package_with_root(&path) {
-                    Ok(package) => package,
-                    Err(error) => {
-                        warn(opts, &error.to_string());
-                        return Ok(None);
-                    }
-                };
-                // smoelius: When `__cargo_cli` is enabled, `source_id`'s type is `String`.
-                #[allow(clippy::clone_on_copy)]
-                let package_id = package_id(&package, source_id.clone());
-                let lib_name = package_library_name(&package)?;
-                let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
-                Ok(Some(Package {
-                    metadata,
-                    root: path,
-                    id: package_id,
-                    lib_name,
-                    toolchain,
-                }))
-            } else {
-                Ok(None)
+    // in the following loop, and a considerable (though not necessarily dominant) fraction of that
+    // is spent in `active_toolchain`.
+    let mut packages = Vec::new();
+    for path in paths {
+        if !path.is_dir() {
+            continue;
+        }
+        // smoelius: Ignore subdirectories that do not contain packages.
+        let package = match package_with_root(&path) {
+            Ok(package) => package,
+            Err(error) => {
+                warn(opts, &error.to_string());
+                continue;
             }
-        })
-        .collect::<Result<Vec<_>>>()?;
+        };
+        // smoelius: When `__cargo_cli` is enabled, `source_id`'s type is `String`.
+        #[allow(clippy::clone_on_copy)]
+        let package_id = package_id(&package, source_id.clone());
+        let lib_name = package_library_name(&package)?;
+        let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
+        packages.push(Package {
+            metadata,
+            root: path,
+            id: package_id,
+            lib_name,
+            toolchain,
+        });
+    }
 
-    Ok(packages.into_iter().flatten().collect())
+    Ok(packages)
 }
 
 fn toml_detailed_dependency(library: &Library) -> Result<&TomlDetailedDependency> {

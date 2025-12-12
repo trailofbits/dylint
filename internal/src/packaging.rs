@@ -124,14 +124,15 @@ mod test {
 
         let mut archive = Archive::new(TEMPLATE_TAR);
         let entries = archive.entries().unwrap();
-        let paths = entries
-            .map(|result| {
-                let entry = result.unwrap();
-                let path = entry.path().unwrap();
-                path.to_str().map(ToOwned::to_owned).unwrap()
-            })
-            .filter(|path| PATHS.binary_search(&path.as_str()).is_err())
-            .collect::<Vec<_>>();
+        let mut paths = Vec::new();
+        for result in entries {
+            let entry = result.unwrap();
+            let path = entry.path().unwrap();
+            let path_str = path.to_str().map(ToOwned::to_owned).unwrap();
+            if PATHS.binary_search(&path_str.as_str()).is_err() {
+                paths.push(path_str);
+            }
+        }
 
         assert!(paths.is_empty(), "found {paths:#?}");
     }
@@ -167,7 +168,7 @@ mod test {
     }
 
     fn build_template_tar() -> TempDir {
-        use std::{ffi::OsStr, fs::File, path::Path};
+        use std::{fs::File, path::Path};
         use tar::{Builder, HeaderMode};
         use walkdir::WalkDir;
 
@@ -182,7 +183,7 @@ mod test {
             .into_iter()
             .filter_entry(|entry| {
                 let filename = entry.file_name();
-                filename != OsStr::new("Cargo.lock") && filename != OsStr::new("target")
+                filename != "Cargo.lock" && filename != "target"
             })
         {
             let entry = result.unwrap();

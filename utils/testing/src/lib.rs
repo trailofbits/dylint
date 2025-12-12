@@ -375,16 +375,15 @@ fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> R
         let entry = entry.with_context(|| format!("`read_dir` failed for `{examples}`"))?;
         let path = entry.path();
 
-        if let Some(file_name) = path.file_name() {
-            let s = file_name.to_string_lossy();
-            let target_name = snake_case(&target.name);
-            if s == target_name.clone() + consts::EXE_SUFFIX
-                || s.starts_with(&(target_name.clone() + "-"))
-            {
-                remove_file(&path).with_context(|| {
-                    format!("`remove_file` failed for `{}`", path.to_string_lossy())
-                })?;
-            }
+        let file_name = entry.file_name();
+        let s = file_name.to_string_lossy();
+        let target_name = snake_case(&target.name);
+        if s == target_name.clone() + consts::EXE_SUFFIX
+            || s.starts_with(&(target_name.clone() + "-"))
+        {
+            remove_file(&path).with_context(|| {
+                format!("`remove_file` failed for `{}`", path.to_string_lossy())
+            })?;
         }
     }
 

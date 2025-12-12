@@ -160,22 +160,16 @@ pub fn current_metadata() -> Result<Metadata> {
 }
 
 pub fn package_with_root(metadata: &Metadata, package_root: &Path) -> Result<Package> {
-    let packages = metadata
-        .packages
-        .iter()
-        .map(|package| {
-            let path = package
-                .manifest_path
-                .parent()
-                .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-            Ok(if path == package_root {
-                Some(package)
-            } else {
-                None
-            })
-        })
-        .filter_map(Result::transpose)
-        .collect::<Result<Vec<_>>>()?;
+    let mut packages = Vec::new();
+    for package in &metadata.packages {
+        let path = package
+            .manifest_path
+            .parent()
+            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+        if path == package_root {
+            packages.push(package);
+        }
+    }
 
     ensure!(
         packages.len() <= 1,

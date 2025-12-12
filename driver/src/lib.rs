@@ -1,4 +1,6 @@
 #![feature(rustc_private)]
+#![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
+#![allow(clippy::collapsible_if)]
 #![deny(clippy::expect_used)]
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]

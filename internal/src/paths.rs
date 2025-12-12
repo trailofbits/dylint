@@ -54,6 +54,7 @@ pub const ENV_SET_VAR: [&str; 3] = ["std", "env", "set_var"];
 pub const ENV_VAR: [&str; 3] = ["std", "env", "var"];
 
 pub const FS_COPY: [&str; 3] = ["std", "fs", "copy"];
+pub const FS_DIR_ENTRY: [&str; 3] = ["std", "fs", "DirEntry"];
 pub const FS_CREATE_DIR: [&str; 3] = ["std", "fs", "create_dir"];
 pub const FS_CREATE_DIR_ALL: [&str; 3] = ["std", "fs", "create_dir_all"];
 pub const FS_HARD_LINK: [&str; 3] = ["std", "fs", "hard_link"];
@@ -76,3 +77,5 @@ pub const COMMAND_ARG: [&str; 4] = ["std", "process", "Command", "arg"];
 pub const COMMAND_ARGS: [&str; 4] = ["std", "process", "Command", "args"];
 
 pub const TEST_DESC_AND_FN: [&str; 3] = ["test", "types", "TestDescAndFn"];
+
+pub const WALKDIR_DIR_ENTRY: [&str; 3] = ["walkdir", "dent", "DirEntry"];

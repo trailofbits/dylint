@@ -1,7 +1,6 @@
 use super::{clippy_utils_package_version, repository::clippy_repository, toolchain_channel};
 use crate::git2::{Commit, ObjectType, Oid, Repository};
 use anyhow::{Context, Result, anyhow};
-use if_chain::if_chain;
 use std::rc::Rc;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -118,13 +117,12 @@ impl Iterator for RevIter<'_> {
                         oid,
                     }
                 };
-                if_chain! {
-                    if let Some(prev_rev) = prev_rev;
+                #[allow(clippy::collapsible_if)]
+                if let Some(prev_rev) = prev_rev {
                     if match self.filter {
                         Filter::Version => prev_rev.version != curr_rev.version,
                         Filter::Channel => prev_rev.channel != curr_rev.channel,
-                    };
-                    then {
+                    } {
                         self.curr_rev = Some(curr_rev);
                         return Ok(Some(prev_rev));
                     }

@@ -385,14 +385,12 @@ fn for_each_subdir(
     {
         let entry = entry
             .with_context(|| format!("`read_dir` failed for `{}`", checkout_path.display()))?;
+        let file_name = entry.file_name();
         let path = entry.path();
-        let file_name = path
-            .file_name()
-            .ok_or_else(|| anyhow!("Could not get file name"))?;
         if !path.is_dir() {
             continue;
         }
-        f(file_name, &path)?;
+        f(&file_name, &path)?;
     }
     Ok(())
 }

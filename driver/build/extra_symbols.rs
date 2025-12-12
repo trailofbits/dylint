@@ -107,32 +107,33 @@ fn clippy_utils_sym_rs(rev: Oid) -> Result<String> {
 
 fn quoted_symbols(sym_rs: &str) -> Result<Vec<String>> {
     let file = parse_file(sym_rs)?;
-    let stream = file
-        .items
-        .into_iter()
-        .find_map(|item| {
-            if let Item::Macro(ItemMacro {
-                mac: Macro { path, tokens, .. },
-                ..
-            }) = item
-                && path.is_ident("generate")
-            {
-                Some(tokens)
-            } else {
-                None
-            }
-        })
-        .ok_or_else(|| anyhow!("Could not find `generate!` macro invocation"))?;
+    let mut stream = None;
+    for item in file.items {
+        if let Item::Macro(ItemMacro {
+            mac: Macro { path, tokens, .. },
+            ..
+        }) = item
+            && path.is_ident("generate")
+        {
+            stream = Some(tokens);
+            break;
+        }
+    }
+    let stream = stream.ok_or_else(|| anyhow!("Could not find `generate!` macro invocation"))?;
     let tokens = stream.into_iter().collect::<Vec<_>>();
     let subslices =
         tokens.split(|tt| matches!(tt, TokenTree::Punct(punct) if punct.as_char() == ','));
-    let quoted_symbols = subslices
-        .filter_map(|subslice| subslice.last())
-        .map(|tt| match tt {
+    let mut quoted_symbols = Vec::new();
+    for subslice in subslices {
+        let Some(tt) = subslice.last() else {
+            continue;
+        };
+        let quoted = match tt {
             TokenTree::Ident(ident) => format!(r#""{ident}""#),
             TokenTree::Literal(lit) => lit.to_string(),
             _ => panic!("unexpected token: {tt:?}"),
-        })
-        .collect();
+        };
+        quoted_symbols.push(quoted);
+    }
     Ok(quoted_symbols)
 }
