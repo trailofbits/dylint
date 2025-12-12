@@ -80,20 +80,6 @@ mod test {
         sync::{LazyLock, Mutex, MutexGuard},
     };
 
-    fn mutex<T: maybe_return::MaybeReturn<MutexGuard<'static, ()>>>() -> T::Output {
-        static MUTEX: Mutex<()> = Mutex::new(());
-
-        let lock = MUTEX.lock().unwrap();
-
-        // smoelius: Ensure the `clippy` component is installed.
-        Command::new("rustup")
-            .args(["component", "add", "clippy"])
-            .assert()
-            .success();
-
-        T::maybe_return(lock)
-    }
-
     #[test]
     fn ui() {
         let _lock = mutex::<maybe_return::Yes>();
@@ -199,6 +185,20 @@ mod test {
             .assert()
             .failure()
             .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING));
+    }
+
+    fn mutex<T: maybe_return::MaybeReturn<MutexGuard<'static, ()>>>() -> T::Output {
+        static MUTEX: Mutex<()> = Mutex::new(());
+
+        let lock = MUTEX.lock().unwrap();
+
+        // smoelius: Ensure the `clippy` component is installed.
+        Command::new("rustup")
+            .args(["component", "add", "clippy"])
+            .assert()
+            .success();
+
+        T::maybe_return(lock)
     }
 
     mod maybe_return {
