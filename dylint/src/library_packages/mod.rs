@@ -142,22 +142,6 @@ pub fn from_workspace_metadata(opts: &opts::Dylint) -> Result<Vec<Package>> {
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub fn dylint_metadata(opts: &opts::Dylint) -> Result<Option<&'static Object>> {
-    if let Some(metadata) = cargo_metadata(opts)?
-        && let serde_json::Value::Object(object) = &metadata.workspace_metadata
-        && let Some(value) = object.get("dylint")
-    {
-        if let serde_json::Value::Object(subobject) = value {
-            Ok(Some(subobject))
-        } else {
-            bail!("`dylint` value must be a map")
-        }
-    } else {
-        Ok(None)
-    }
-}
-
 static CARGO_METADATA: OnceCell<Option<Metadata>> = OnceCell::new();
 
 fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
@@ -193,6 +177,22 @@ fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
             }
         })
         .map(Option::as_ref)
+}
+
+#[allow(clippy::module_name_repetitions)]
+pub fn dylint_metadata(opts: &opts::Dylint) -> Result<Option<&'static Object>> {
+    if let Some(metadata) = cargo_metadata(opts)?
+        && let serde_json::Value::Object(object) = &metadata.workspace_metadata
+        && let Some(value) = object.get("dylint")
+    {
+        if let serde_json::Value::Object(subobject) = value {
+            Ok(Some(subobject))
+        } else {
+            bail!("`dylint` value must be a map")
+        }
+    } else {
+        Ok(None)
+    }
 }
 
 fn library_packages_from_dylint_metadata(
