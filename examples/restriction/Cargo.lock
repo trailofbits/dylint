@@ -847,6 +847,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "non_topologically_sorted_functions"
+version = "5.0.0"
+dependencies = [
+ "clippy_utils",
+ "dylint_internal",
+ "dylint_linting",
+ "dylint_testing",
+]
+
+[[package]]
 name = "num_cpus"
 version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,0 +1,11 @@
+warning: 
+  --> $DIR/multiple_incorrect.rs:15:1
+   |
+LL | fn bar() {}
+   | ^^^^^^^^^^^ function `bar` should be defined before `baz`
+   |
+   = help: move bar's definition to earlier in the module
+   = note: `#[warn(non_topologically_sorted_functions)]` on by default
+
+warning: 1 warning emitted
+
