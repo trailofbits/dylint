@@ -3,22 +3,20 @@ warning:
    |
 LL | / fn foo() {
 LL | |     bar();
-LL | |     {
-LL | |         baz();
-LL | |     }
+...  |
 LL | | }
    | |_^ function `foo` should be defined before `baz`
    |
    = help: move foo's definition to earlier in the module
 note: `baz` is called from `foo` here
-  --> $DIR/wrong_inner_call.rs:10:9
+  --> $DIR/wrong_inner_call.rs:12:9
    |
 LL |         baz();
    |         ^^^^^
    = note: `#[warn(non_topologically_sorted_functions)]` on by default
 
 warning: 
-  --> $DIR/wrong_inner_call.rs:14:1
+  --> $DIR/wrong_inner_call.rs:16:1
    |
 LL | fn bar() {}
    | ^^^^^^^^^^^ function `bar` should be defined before `baz`
