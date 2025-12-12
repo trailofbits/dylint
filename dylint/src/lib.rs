@@ -469,6 +469,11 @@ fn display_location(path: &Path) -> Result<String> {
         .to_string())
 }
 
+fn clippy_disable_docs_links() -> Result<String> {
+    let val = env::var(env::CLIPPY_DISABLE_DOCS_LINKS).ok();
+    serde_json::to_string(&val).map_err(Into::into)
+}
+
 fn target_dir(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     let mut command = MetadataCommand::new();
     if let Some(path) = &opts.library_selection().manifest_path {
@@ -480,11 +485,6 @@ fn target_dir(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
         .join("dylint/target")
         .join(toolchain)
         .into())
-}
-
-fn clippy_disable_docs_links() -> Result<String> {
-    let val = env::var(env::CLIPPY_DISABLE_DOCS_LINKS).ok();
-    serde_json::to_string(&val).map_err(Into::into)
 }
 
 #[allow(clippy::unwrap_used)]
@@ -508,10 +508,6 @@ mod test {
         }),
         ..Default::default()
     });
-
-    fn name_toolchain_map() -> NameToolchainMap<'static> {
-        NameToolchainMap::new(&OPTS)
-    }
 
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
@@ -597,5 +593,9 @@ mod test {
         };
 
         run_with_name_toolchain_map(&opts, &name_toolchain_map).unwrap();
+    }
+
+    fn name_toolchain_map() -> NameToolchainMap<'static> {
+        NameToolchainMap::new(&OPTS)
     }
 }
