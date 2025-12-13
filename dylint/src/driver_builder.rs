@@ -242,7 +242,6 @@ components = ["llvm-tools-preview", "rustc-dev"]
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::process::{Command, ExitStatus};
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
@@ -255,8 +254,14 @@ mod test {
     // smoelius: As mentioned above, `tempdir` is a temporary directory. So there should be no race
     // here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    // smoelius: This test passes on macOS but for the wrong reason. On recent macOS versions (e.g.,
+    // Tahoe), if you copy `/bin/sleep` to you local directory and run it, it will be killed, even
+    // without `child.kill()`. I haven't yet figured out how best to address this.
+    #[cfg(not(target_os = "macos"))]
     #[test]
     fn can_install_while_driver_is_running() {
+        use std::process::{Command, ExitStatus};
+
         const WHICH: &str = if cfg!(target_os = "windows") {
             "where"
         } else {
