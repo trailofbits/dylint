@@ -15,12 +15,12 @@ jobs:
   upgrade:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
       - uses: actions/checkout@v6
-        with:
-          # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
-          # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-using-ssh-deploy-keys
-          ssh-key: ${{ secrets.SSH_KEY }}
 
       - name: Rustup
         run: rustup update
@@ -40,4 +40,4 @@ jobs:
           branch: upgrade-examples
           branch-suffix: random
           commit-message: Upgrade examples
-          token: ${{ secrets.REPO_TOKEN }}
+          token: ${{ github.token }}
