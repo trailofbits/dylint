@@ -229,23 +229,37 @@ mod test {
     static FOUND_N_HIGHLIGHTS_RE: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^Found [0-9]+ highlights in [0-9]+ seconds$").unwrap());
 
+    #[allow(clippy::format_collect)]
     fn assert_expected_is_superset_of_actual(expected: &str, actual: &str) {
         let mut expected_iter = expected.lines().peekable();
+        let mut expected_index = 1;
         let mut actual_iter = actual.lines().peekable();
         let mut actual_index = 1;
+        let mut last_expected_index_and_line = None;
         loop {
-            if let Some(&expected_line) = expected_iter.peek()
-                && let Some(&actual_line) = actual_iter.peek()
-                && Assert::new()
-                    .action_env(DEFAULT_ACTION_ENV)
-                    .normalize_paths(true)
-                    .try_eq(None, Data::from(actual_line), Data::from(expected_line))
-                    .is_ok()
-            {
-                let _ = expected_iter.next();
-                let _ = actual_iter.next();
-                actual_index += 1;
-                continue;
+            if let Some(&expected_line) = expected_iter.peek() {
+                if let Some(&actual_line) = actual_iter.peek()
+                    && Assert::new()
+                        .action_env(DEFAULT_ACTION_ENV)
+                        .try_eq(
+                            None,
+                            Data::from(actual_line.replace('\\', "/")),
+                            Data::from(expected_line),
+                        )
+                        .is_ok()
+                {
+                    let _ = expected_iter.next();
+                    expected_index += 1;
+                    let _ = actual_iter.next();
+                    actual_index += 1;
+                    last_expected_index_and_line = None;
+                    continue;
+                }
+                // smoelius: The expected line and actual lines do not match, but there _is_ an
+                // expected line. Record it for diagnostic purposes.
+                if last_expected_index_and_line.is_none() {
+                    last_expected_index_and_line = Some((expected_index, expected_line));
+                }
             }
             // smoelius: On Linux, macOS, and Windows, I see "Updating files: <percentage>%" in the
             // logs. Googling suggests that git generates these messages when it checks out the HEAD
@@ -263,6 +277,7 @@ mod test {
             // not in actual.
             if expected_iter.peek().is_some() {
                 let _ = expected_iter.next();
+                expected_index += 1;
                 continue;
             }
             // smoelius: If there are no more actual lines, break.
@@ -282,13 +297,23 @@ mod test {
                 .unwrap();
                 return;
             }
+            let (last_expected_index, last_expected_line) =
+                last_expected_index_and_line.unwrap_or((0, "??"));
             panic!(
-                "failed to match actual line {actual_index}: {actual_line}
-full stderr follows:\n```\n{}```",
+                "\
+mismatch between expected line at {last_expected_index}: {last_expected_line}
+                   actual line at {actual_index}: {actual_line}
+expected stderr:\n```\n{}```
+  actual stderr:\n```\n{}```",
+                expected
+                    .lines()
+                    .enumerate()
+                    .map(|(i, line)| format!("{:>4}: {}\n", i + 1, line))
+                    .collect::<String>(),
                 actual
                     .lines()
                     .enumerate()
-                    .map(|(i, line)| format!("{}: {}\n", i + 1, line))
+                    .map(|(i, line)| format!("{:>4}: {}\n", i + 1, line))
                     .collect::<String>()
             );
         }
