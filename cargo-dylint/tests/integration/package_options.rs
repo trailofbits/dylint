@@ -284,7 +284,12 @@ mod test {
             }
             panic!(
                 "failed to match actual line {actual_index}: {actual_line}
-full stderr follows:\n```\n{actual}```"
+full stderr follows:\n```\n{}```",
+                actual
+                    .lines()
+                    .enumerate()
+                    .map(|(i, line)| format!("{}: {}\n", i + 1, line))
+                    .collect::<String>()
             );
         }
     }
