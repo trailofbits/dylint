@@ -62,7 +62,7 @@ jobs:
           fetch-depth: 0
 
       # smoelius: The `nightly_toolchain` test makes sense only if the nightly driver is cached.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/bin/
