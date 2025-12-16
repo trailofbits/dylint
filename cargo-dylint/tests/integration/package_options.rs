@@ -273,24 +273,12 @@ mod test {
                 actual_index += 1;
                 continue;
             }
-            // smoelius: Actual only has to be a subset of expected. So expected can contain lines
-            // not in actual.
-            if expected_iter.peek().is_some() {
-                let _ = expected_iter.next();
-                expected_index += 1;
-                continue;
-            }
-            // smoelius: If there are no more actual lines, break.
-            if actual_iter.peek().is_none() {
-                break;
-            }
-            // smoelius: There are still actual lines but there are no more expected lines.
-            let actual_line = actual_iter
-                .next()
-                .map(|line| line.replace("\\\\", "/"))
-                .unwrap();
-            if actual_line.starts_with("Warning: Found diagnostic error with no spans: ")
-                || FOUND_N_HIGHLIGHTS_RE.is_match(&actual_line)
+            // smoelius: Check for actual lines that require the comparison to be aborted. This
+            // check must be performed before the check of whether expected lines remain. Otherwise
+            // a "Found N highlights" line could be carried to the end and produce a failed match.
+            if let Some(actual_line) = actual_iter.peek()
+                && (actual_line.starts_with("Warning: Found diagnostic error with no spans: ")
+                    || FOUND_N_HIGHLIGHTS_RE.is_match(actual_line))
             {
                 #[allow(clippy::explicit_write)]
                 writeln!(
@@ -300,6 +288,18 @@ mod test {
                 .unwrap();
                 return;
             }
+            // smoelius: Actual only has to be a subset of expected. So expected can contain lines
+            // not in actual.
+            if expected_iter.peek().is_some() {
+                let _ = expected_iter.next();
+                expected_index += 1;
+                continue;
+            }
+            // smoelius: If there are no more actual lines, break.
+            let actual_line = match actual_iter.next() {
+                Some(actual_line) => actual_line.replace("\\\\", "/"),
+                None => break,
+            };
             let (last_expected_index, last_expected_line) =
                 last_expected_index_and_line.unwrap_or((0, "??"));
             panic!(
