@@ -553,6 +553,7 @@ fn markdown_reference_links_are_valid_and_used() {
 #[cfg_attr(target_os = "windows", ignore)]
 #[test]
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+#[cfg_attr(dylint_lib = "supplementary", expect(commented_out_code))]
 fn markdown_link_check() {
     // Skip the test if GITHUB_TOKEN is not available
     let Ok(token) = var(env::GITHUB_TOKEN) else {
@@ -602,7 +603,7 @@ fn markdown_link_check() {
 
         let assert = command.current_dir(&tempdir).assert();
         let stdout = std::str::from_utf8(&assert.get_output().stdout).unwrap();
-        print!("{stdout}");
+        // print!("{stdout}");
 
         assert!(
             stdout
