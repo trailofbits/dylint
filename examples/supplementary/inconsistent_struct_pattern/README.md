@@ -2,7 +2,7 @@
 
 ### What it does
 
-Checks for struct patterns whose fields whose fields do not match their declared order.
+Checks for struct patterns whose fields do not match their declared order.
 
 ### Why is this bad?
 
