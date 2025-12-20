@@ -37,7 +37,7 @@ use rustc_trait_selection::error_reporting::InferCtxtErrorExt as _;
 use clippy_utils::{
     get_parent_expr,
     source::trim_span,
-    ty::{is_copy, is_type_diagnostic_item},
+    ty::is_copy,
 };
 use rustc_lint::LintContext;
 use rustc_middle::ty::adjustment::{
