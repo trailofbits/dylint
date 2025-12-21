@@ -1,0 +1,12 @@
+...
+name: "build_script_main"
+errors: 0
+name: "match_hir"
+errors: 4
+src/error.rs:62:13: 62:49 (#0): `HirId`s do not match
+     snippet: "/"found no `HirId` for `{type_name}`/""
+    expected: HirId(DefId(0:[..] ~ match_hir[[..]]::error::{impl#6}::fmt).[..])
+      actual: HirId(DefId(0:[..] ~ match_hir[[..]]::error::{impl#6}::fmt).[..])
+src/error.rs:48:14: 48:21 (#0): parse error: unexpected end of input, expected an expression
+src/error.rs:51:16: 51:23 (#0): parse error: unexpected end of input, expected an expression
+src/error.rs:66:11: 66:18 (#0): parse error: unexpected end of input, expected an expression
