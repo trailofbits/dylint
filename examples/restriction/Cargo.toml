@@ -14,7 +14,7 @@ git2 = "0.20"
 heck = "0.5"
 serde = "1.0"
 serde_json = "1.0"
-tempfile = "3.23"
+tempfile = "3.24"
 thiserror = "2.0"
 toml = "0.9"
 
