@@ -708,6 +708,9 @@ version = "5.0.0"
 dependencies = [
  "anyhow",
  "dylint_internal",
+ "regex",
+ "semver",
+ "snapbox",
  "tempfile",
 ]
 
