@@ -94,7 +94,6 @@ jobs:
           cargo install cargo-license        || true
           cargo install cargo-msrv           || true
           cargo install cargo-rdme           || true
-          cargo install cargo-sort@1.0.9     || true
           cargo install cargo-supply-chain   || true
           cargo install cargo-udeps --locked || true
           cargo install cargo-unmaintained   || true

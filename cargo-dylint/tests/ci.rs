@@ -13,6 +13,7 @@ use std::{
     fmt::Write as _,
     fs::{read_dir, read_to_string, write},
     io::{Write as _, stderr},
+    ops::Range,
     path::{Component, Path, PathBuf},
     sync::LazyLock,
 };
@@ -699,17 +700,83 @@ fn shellcheck() {
 }
 
 #[test]
-fn sort() {
-    for entry in walkdir(true).with_file_name("Cargo.toml") {
-        let entry = entry.unwrap();
+fn dependencies_are_sorted() {
+    for entry in walkdir::WalkDir::new(".")
+        .into_iter()
+        .filter_map(Result::ok)
+        .filter(|e| e.file_name() == "Cargo.toml")
+    {
         let path = entry.path();
-        let parent = path.parent().unwrap();
-        Command::new("cargo")
-            .current_dir(parent)
-            .args(["sort", "--check", "--grouped"])
-            .assert()
-            .success();
+        let contents = read_to_string(path).unwrap();
+        let document = contents.parse::<toml_edit::Document<_>>().unwrap();
+        for table_name in ["dependencies", "dev-dependencies", "build-dependencies"] {
+            let Some(span) = key_value_pair_span(&document, table_name) else {
+                continue;
+            };
+            assert!(
+                key_value_pairs_are_sorted(&document, span),
+                "`{table_name}` in `{}` are not sorted",
+                path.display()
+            );
+        }
     }
+}
+
+fn key_value_pair_span<S>(
+    document: &toml_edit::Document<S>,
+    table_name: &str,
+) -> Option<Range<usize>> {
+    // smoelius: The table might not exist.
+    let item = document.get(table_name)?;
+    let table = item.as_table().unwrap();
+    // smoelius: The table might exist but be empty.
+    let (_, last_item) = table.iter().last()?;
+    let header_span = table.span().unwrap();
+    let last_item_span = last_item.span().unwrap();
+    Some(header_span.end..last_item_span.end)
+}
+
+fn key_value_pairs_are_sorted<S: AsRef<str>>(
+    document: &toml_edit::Document<S>,
+    span: Range<usize>,
+) -> bool {
+    for group in groups(document, span) {
+        let pairs = &document.raw()[group]
+            .parse::<toml_edit::Document<_>>()
+            .unwrap();
+        if !pairs.iter().map(|(k, _)| k).is_sorted() {
+            return false;
+        }
+    }
+    true
+}
+
+fn groups<S: AsRef<str>>(
+    document: &toml_edit::Document<S>,
+    span: Range<usize>,
+) -> Vec<Range<usize>> {
+    let group_starts = group_starts(document, &span);
+    let mut groups = Vec::with_capacity(group_starts.len() + 1);
+    let mut start = span.start;
+    for partition in group_starts {
+        groups.push(start..partition);
+        start = partition;
+    }
+    groups.push(start..span.end);
+    groups
+}
+
+/// Find the offsets in `span` that are not newlines, but that are preceded by two (or more)
+/// newlines.
+fn group_starts<S: AsRef<str>>(
+    document: &toml_edit::Document<S>,
+    span: &Range<usize>,
+) -> Vec<usize> {
+    let raw = &document.raw()[span.clone()].as_bytes();
+    (2..raw.len())
+        .filter(|&i| raw[i - 2] == b'\n' && raw[i - 1] == b'\n' && raw[i] != b'\n')
+        .map(|i| span.start + i)
+        .collect()
 }
 
 #[test]

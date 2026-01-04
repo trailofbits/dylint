@@ -34,6 +34,7 @@ serde_json = { workspace = true }
 similar-asserts = { workspace = true }
 snapbox = { workspace = true }
 tempfile = { workspace = true }
+toml_edit = { workspace = true }
 walkdir = { workspace = true }
 
 dylint_internal = { version = "=5.0.0", path = "../internal", features = [

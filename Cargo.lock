@@ -201,6 +201,7 @@ dependencies = [
  "similar-asserts",
  "snapbox",
  "tempfile",
+ "toml_edit",
  "walkdir",
 ]
 
