@@ -41,6 +41,7 @@ jobs:
           [
             cargo-dylint,
             dylint_examples,
+            expensive-auto_correct,
             expensive-alpine,
             expensive-boundary_toolchains,
             expensive-custom_toolchain,
