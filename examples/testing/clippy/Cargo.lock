@@ -174,8 +174,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_config"
-version = "0.1.92"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=20ce69b9a63bcd2756cd906fe0964d1e901e042a#20ce69b9a63bcd2756cd906fe0964d1e901e042a"
+version = "0.1.93"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=c936595d17413c1f08e162e117e504fb4ed126e4#c936595d17413c1f08e162e117e504fb4ed126e4"
 dependencies = [
  "clippy_utils",
  "itertools",
@@ -185,8 +185,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_lints"
-version = "0.1.92"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=20ce69b9a63bcd2756cd906fe0964d1e901e042a#20ce69b9a63bcd2756cd906fe0964d1e901e042a"
+version = "0.1.93"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=c936595d17413c1f08e162e117e504fb4ed126e4#c936595d17413c1f08e162e117e504fb4ed126e4"
 dependencies = [
  "arrayvec",
  "cargo_metadata 0.18.1",
@@ -198,7 +198,7 @@ dependencies = [
  "regex-syntax",
  "semver",
  "serde",
- "toml 0.7.8",
+ "toml 0.9.8",
  "unicode-normalization",
  "unicode-script",
  "url",
@@ -206,8 +206,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.92"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=20ce69b9a63bcd2756cd906fe0964d1e901e042a#20ce69b9a63bcd2756cd906fe0964d1e901e042a"
+version = "0.1.93"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=c936595d17413c1f08e162e117e504fb4ed126e4#c936595d17413c1f08e162e117e504fb4ed126e4"
 dependencies = [
  "arrayvec",
  "itertools",
@@ -245,8 +245,8 @@ dependencies = [
 
 [[package]]
 name = "declare_clippy_lint"
-version = "0.1.92"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=20ce69b9a63bcd2756cd906fe0964d1e901e042a#20ce69b9a63bcd2756cd906fe0964d1e901e042a"
+version = "0.1.93"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=c936595d17413c1f08e162e117e504fb4ed126e4#c936595d17413c1f08e162e117e504fb4ed126e4"
 
 [[package]]
 name = "diff"
