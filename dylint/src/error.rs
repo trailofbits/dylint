@@ -53,6 +53,6 @@ pub fn warn(opts: &crate::opts::Dylint, message: &str) {
         // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
         #[allow(clippy::panic)]
         writeln!(std::io::stderr(), "{style}Warning{style:#}: {message}")
-            .unwrap_or_else(|error| panic!("Could not write to stderr: {error})"));
+            .unwrap_or_else(|error| panic!("Could not write to stderr: {error}"));
     }
 }
