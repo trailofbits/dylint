@@ -4,7 +4,7 @@
 extern crate rustc_hir;
 
 use clippy_utils::diagnostics::span_lint_and_help;
-use rustc_hir::{Expr, ExprKind, HirId, LangItem, MatchSource, Node, QPath};
+use rustc_hir::{Expr, ExprKind, HirId, LangItem, MatchSource, Node};
 use rustc_lint::{LateContext, LateLintPass};
 
 dylint_linting::declare_late_lint! {
@@ -88,8 +88,8 @@ fn get_filtered_ancestor<'hir>(
             }
 
             if let ExprKind::Call(callee, _) = expr.kind
-                && let ExprKind::Path(path) = &callee.kind
-                && let QPath::LangItem(LangItem::IntoIterIntoIter, _) = path
+                && let ExprKind::Path(qpath) = callee.kind
+                && cx.tcx.qpath_is_lang_item(qpath, LangItem::IntoIterIntoIter)
             {
                 child_hir_id = hir_id;
                 continue;

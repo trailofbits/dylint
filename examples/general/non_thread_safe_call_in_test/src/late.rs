@@ -1,9 +1,12 @@
-use clippy_utils::{diagnostics::span_lint_and_note, is_in_test};
-use dylint_internal::{is_expr_path_def_path, match_def_path, paths};
+use clippy_utils::{
+    diagnostics::span_lint_and_note,
+    res::{MaybeDef, MaybeQPath, MaybeResPath},
+};
+use dylint_internal::{match_def_path, paths};
 use rustc_ast::ast::LitKind;
 use rustc_hir::{
     Closure, Expr, ExprKind, HirId, Item, ItemKind, Node,
-    def_id::DefId,
+    def_id::{DefId, LocalDefId},
     intravisit::{Visitor, walk_body, walk_expr},
 };
 use rustc_lint::{LateContext, LateLintPass, LintContext};
@@ -86,6 +89,7 @@ impl<'tcx> LateLintPass<'tcx> for NonThreadSafeCallInTest {
                 lint: self,
                 cx,
                 item,
+                body_owner: item.owner_id.def_id,
             }
             .visit_item(item);
         }
@@ -99,7 +103,7 @@ impl NonThreadSafeCallInTest {
             // smoelius:
             // https://rustc-dev-guide.rust-lang.org/test-implementation.html#step-3-test-object-generation
             if let ItemKind::Const(_ident, _generics, ty, const_body_id) = item.kind
-                && let Some(ty_def_id) = path_def_id(cx, ty)
+                && let Some(ty_def_id) = ty.basic_res().opt_def_id()
                 && match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN)
                 && let const_body = cx.tcx.hir_body(const_body_id)
                 && let ExprKind::Struct(_, fields, _) = const_body.value.kind
@@ -115,7 +119,7 @@ impl NonThreadSafeCallInTest {
                 && let ExprKind::Call(_, [arg]) = closure_body.value.kind
                 // smoelius: Callee is test function.
                 && let ExprKind::Call(callee, _) = arg.kind
-                && let Some(callee_def_id) = path_def_id(cx, callee)
+                && let Some(callee_def_id) = callee.basic_res().opt_def_id()
             {
                 self.test_fns.push(callee_def_id);
             }
@@ -133,6 +137,7 @@ pub struct Checker<'cx, 'tcx> {
     lint: &'cx mut NonThreadSafeCallInTest,
     cx: &'cx LateContext<'tcx>,
     item: &'tcx Item<'tcx>,
+    body_owner: LocalDefId,
 }
 
 impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
@@ -150,7 +155,13 @@ impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
 
             let _ = self.lint.visited_calls.insert(expr.hir_id);
 
-            if let Some(path) = is_blacklisted_function(self.cx, callee, args) {
+            let typeck = self.cx.tcx.typeck(self.body_owner);
+
+            let Some(callee_def_id) = callee.res(typeck).opt_def_id() else {
+                return;
+            };
+
+            if let Some(path) = is_blacklisted_function(self.cx, callee_def_id, callee, args) {
                 span_lint_and_note(
                     self.cx,
                     NON_THREAD_SAFE_CALL_IN_TEST,
@@ -165,11 +176,13 @@ impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
                 return;
             }
 
-            if let Some(callee_def_id) = path_def_id(self.cx, callee)
-                && let Some(local_def_id) = callee_def_id.as_local()
+            if let Some(local_def_id) = callee_def_id.as_local()
                 && let Some(body) = self.cx.tcx.hir_maybe_body_owned_by(local_def_id)
             {
+                let prev_body_owner = self.body_owner;
+                self.body_owner = local_def_id;
                 walk_body(self, body);
+                self.body_owner = prev_body_owner;
                 return;
             }
         }
@@ -179,13 +192,14 @@ impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
 
 fn is_blacklisted_function<'tcx>(
     cx: &LateContext<'tcx>,
+    callee_def_id: DefId,
     callee: &Expr<'tcx>,
     args: &[Expr<'tcx>],
 ) -> Option<&'static [&'static str]> {
     let path = crate::blacklist::BLACKLIST
         .iter()
         .copied()
-        .find(|path| is_expr_path_def_path(path_def_id, cx, callee, path));
+        .find(|path| match_def_path(cx, callee_def_id, path));
 
     // smoelius: Hack, until we can come up with a more general solution.
     if path == Some(&paths::COMMAND_NEW) && !command_new_additional_checks(cx, callee, args) {

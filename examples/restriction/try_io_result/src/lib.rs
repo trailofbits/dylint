@@ -7,7 +7,7 @@ extern crate rustc_span;
 
 use clippy_utils::diagnostics::span_lint_and_help;
 use dylint_internal::{match_def_path, paths};
-use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
+use rustc_hir::{Expr, ExprKind, LangItem, MatchSource};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{GenericArgKind, Ty, TyKind};
 use rustc_span::sym;
@@ -59,8 +59,8 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'_>) {
         if let ExprKind::Match(scrutinee, _, MatchSource::TryDesugar(_)) = expr.kind
             && let ExprKind::Call(callee, [arg]) = scrutinee.kind
-            && let ExprKind::Path(path) = &callee.kind
-            && matches!(path, QPath::LangItem(LangItem::TryTraitBranch, _))
+            && let ExprKind::Path(qpath) = callee.kind
+            && cx.tcx.qpath_is_lang_item(qpath, LangItem::TryTraitBranch)
             && let arg_ty = cx.typeck_results().node_type(arg.hir_id)
             && is_io_result(cx, arg_ty)
             && let local_def_id = cx.tcx.hir_enclosing_body_owner(expr.hir_id)
