@@ -143,8 +143,7 @@ mod test {
         assert(cargo_dylint(Some(rustflags)));
     }
 
-    const ASSERTIONS_ON_CONSTANTS_WARNING: &str =
-        "`assert!(true)` will be optimized out by the compiler";
+    const ASSERTIONS_ON_CONSTANTS_WARNING: &str = "this assertion is always `true`";
 
     #[test]
     fn premise_manifest_sanity() {

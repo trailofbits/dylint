@@ -156,6 +156,7 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["std", "ffi", "os_str", "OsStr", "to_ascii_lowercase"],
     &["std", "ffi", "os_str", "OsStr", "to_ascii_uppercase"],
     &["std", "ffi", "os_str", "OsString", "leak"],
+    &["std", "path", "Path", "trim_trailing_sep"],
     &["std", "path", "PathBuf", "leak"],
 ];
 

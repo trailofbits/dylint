@@ -228,7 +228,7 @@ struct ProjectionVisitor<'tcx> {
 
 impl<'tcx> Visitor<'tcx> for ProjectionVisitor<'tcx> {
     fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
-        if path_to_local_id(expr, self.hir_id) {
+        if expr.res_local_id() == Some(self.hir_id) {
             let node = self.tcx.parent_hir_node(expr.hir_id);
             if let Node::Expr(Expr {
                 kind: ExprKind::Field(_, ident),
@@ -324,7 +324,7 @@ impl<'tcx> Visitor<'tcx> for DereferenceVisitor<'_, 'tcx> {
         if self
             .hir_ids
             .iter()
-            .any(|&hir_id| path_to_local_id(expr, hir_id))
+            .any(|&hir_id| expr.res_local_id() == Some(hir_id))
         {
             let (n_derefs, explicit_deref) = count_derefs(self.cx, expr);
             self.n_derefs = min(self.n_derefs, n_derefs);

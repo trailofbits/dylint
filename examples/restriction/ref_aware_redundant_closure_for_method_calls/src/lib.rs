@@ -16,10 +16,10 @@ extern crate rustc_trait_selection;
 
 use clippy_utils::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use clippy_utils::higher::VecArgs;
+use clippy_utils::res::{MaybeDef, MaybeResPath};
 use clippy_utils::source::snippet_opt;
-use clippy_utils::ty::get_type_diagnostic_name;
 use clippy_utils::usage::{local_used_after_expr, local_used_in};
-use clippy_utils::{higher, is_adjusted, path_to_local, path_to_local_id};
+use clippy_utils::{higher, is_adjusted};
 use rustc_errors::Applicability;
 use rustc_hir::def_id::DefId;
 use rustc_hir::{BindingMode, Expr, ExprKind, FnRetTy, Param, PatKind, QPath, Safety, TyKind};
@@ -34,11 +34,7 @@ use rustc_session::declare_lint_pass;
 use rustc_span::symbol::sym;
 use rustc_trait_selection::error_reporting::InferCtxtErrorExt as _;
 
-use clippy_utils::{
-    get_parent_expr,
-    source::trim_span,
-    ty::{is_copy, is_type_diagnostic_item},
-};
+use clippy_utils::{get_parent_expr, source::trim_span, ty::is_copy};
 use rustc_lint::LintContext;
 use rustc_middle::ty::adjustment::{
     Adjust, Adjustment, AutoBorrow, AutoBorrowMutability, OverloadedDeref,
@@ -197,7 +193,7 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
                     && let ExprKind::MethodCall(parent_path, parent_receiver, _, span) =
                         parent_expr.kind
                     && let parent_receiver_ty = cx.typeck_results().expr_ty(parent_receiver)
-                    && is_type_diagnostic_item(cx, parent_receiver_ty, sym::Option)
+                    && parent_receiver_ty.is_diag_item(cx, sym::Option)
                     && let Some(method_def_id) = typeck.type_dependent_def_id(body.value.hir_id)
                     && check_sig(
                         cx,
@@ -249,7 +245,7 @@ fn check_inputs(
                 if matches!(
                     p.pat.kind,
                     PatKind::Binding(BindingMode::NONE | BindingMode::MUT, id, _, None)
-                    if path_to_local_id(arg, id)
+                    if arg.res_local_id() == Some(id)
                 ) {
                     method_name_from_adjustments(cx, cx.typeck_results().expr_adjustments(arg))
                 } else {

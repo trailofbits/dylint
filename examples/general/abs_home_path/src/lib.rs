@@ -119,7 +119,6 @@ fn ui() {
     if let Some(home) = home_dir()
         && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
     {
-        #[expect(clippy::explicit_write)]
         writeln!(
             stderr(),
             "Skipping `ui` test as repository is not stored in the user's home directory"
@@ -194,7 +193,6 @@ fn context_allowance() {
     if let Some(home) = home_dir()
         && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
     {
-        #[expect(clippy::explicit_write)]
         writeln!(
             stderr(),
             "Skipping `context_allowance` tests as repository is not stored in the user's home directory"

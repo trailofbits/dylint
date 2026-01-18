@@ -6,11 +6,11 @@ extern crate rustc_hir;
 
 use clippy_utils::{
     diagnostics::span_lint_and_help,
-    is_in_test,
-    paths::{PathLookup, PathNS},
+    paths::{PathLookup, PathNS, lookup_path_str},
+    res::MaybeResPath,
     sym, value_path,
 };
-use dylint_internal::{is_expr_path_def_path, paths};
+use dylint_internal::paths;
 use rustc_ast::LitKind;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
@@ -52,8 +52,11 @@ static ENV_VAR: PathLookup = value_path!(std::env::var);
 impl<'tcx> LateLintPass<'tcx> for EnvLiteral {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
         if let ExprKind::Call(callee, args) = expr.kind
-            && (is_expr_path_def_path(path_def_id, cx, callee, &paths::ENV_REMOVE_VAR)
-                || is_expr_path_def_path(path_def_id, cx, callee, &paths::ENV_SET_VAR)
+            && let Some(def_id) = callee.basic_res().opt_def_id()
+            && (lookup_path_str(cx.tcx, PathNS::Value, &paths::ENV_REMOVE_VAR.join("::"))
+                == [def_id]
+                || lookup_path_str(cx.tcx, PathNS::Value, &paths::ENV_SET_VAR.join("::"))
+                    == [def_id]
                 || ENV_VAR.matches_path(cx, callee))
             && !args.is_empty()
             && let ExprKind::Lit(lit) = &args[0].kind
