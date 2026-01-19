@@ -805,8 +805,7 @@ fn lint() {
         let entry = entry.unwrap();
         if entry.path().is_dir() {
             let lib_name = entry.file_name().into_string().unwrap();
-            // Exclude overscoped_allow as in the script
-            if lib_name != "overscoped_allow" && lib_name != ".cargo" {
+            if lib_name != ".cargo" {
                 restriction_libs.push(format!("--lib {lib_name}"));
             }
         }
