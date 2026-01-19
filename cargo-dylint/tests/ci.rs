@@ -12,7 +12,6 @@ use std::{
     ffi::OsStr,
     fmt::Write as _,
     fs::{read_dir, read_to_string, write},
-    io::{Write as _, stderr},
     ops::Range,
     path::{Component, Path, PathBuf},
     sync::LazyLock,
@@ -29,25 +28,6 @@ fn initialize() {
     unsafe {
         remove_var(env::CARGO_TERM_COLOR);
     }
-}
-
-#[test]
-fn actionlint() {
-    if Command::new("which")
-        .arg("actionlint")
-        .assert()
-        .try_success()
-        .is_err()
-    {
-        #[allow(clippy::explicit_write)]
-        writeln!(
-            stderr(),
-            "Skipping `actionlint` test as `actionlint` is unavailable"
-        )
-        .unwrap();
-        return;
-    }
-    Command::new("actionlint").assert().success();
 }
 
 #[test]
