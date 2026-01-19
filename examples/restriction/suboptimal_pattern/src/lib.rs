@@ -282,7 +282,7 @@ fn collect_non_ref_idents(pat: &Pat<'_>) -> Option<FxHashSet<HirId>> {
                 BindingMode(ByRef::No, _) => {
                     hir_ids.as_mut().map(|hir_ids| hir_ids.insert(pat.hir_id));
                 }
-                BindingMode(ByRef::Yes(_), _) => {
+                BindingMode(ByRef::Yes(..), _) => {
                     hir_ids = None;
                 }
             }
