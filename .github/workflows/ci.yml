@@ -98,7 +98,6 @@ jobs:
           cargo install cargo-udeps --locked || true
           cargo install cargo-unmaintained   || true
           cargo install rustdoc-prettier     || true
-          go install github.com/rhysd/actionlint/cmd/actionlint@latest
 
       - name: Free up space on Ubuntu
         if: ${{ matrix.environment == 'ubuntu-latest' }}
