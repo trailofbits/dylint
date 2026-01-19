@@ -37,5 +37,4 @@ roots = [
     # smoelius: Disabling testing of `missing_doc_comment_llm` until the space issue is resolved.
     # See: https://github.com/majiayu000/litellm-rs/issues/5
     # "experimental/missing_doc_comment_llm",
-    "experimental/overscoped_allow",
 ]
