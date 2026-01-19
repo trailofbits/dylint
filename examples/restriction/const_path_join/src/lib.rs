@@ -9,12 +9,12 @@ extern crate rustc_span;
 
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
-    path_def_id,
-    paths::{PathLookup, PathNS},
+    paths::{PathLookup, PathNS, lookup_path_str},
+    res::MaybeQPath,
     source::snippet_opt,
     value_path,
 };
-use dylint_internal::{is_expr_path_def_path, match_any_def_paths, paths};
+use dylint_internal::{match_any_def_paths, paths};
 use rustc_ast::LitKind;
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
@@ -116,14 +116,25 @@ fn collect_components<'tcx>(
 
     let ty_or_partial_span = if let ExprKind::Call(callee, [arg]) = expr.kind
         && let ty = is_path_buf_from(cx, callee, expr)
-        && (is_expr_path_def_path(path_def_id, cx, callee, &paths::CAMINO_UTF8_PATH_NEW)
-            || PATH_NEW.matches_path(cx, callee)
+        && (callee.res(cx).opt_def_id().is_some_and(|def_id| {
+            lookup_path_str(
+                cx.tcx,
+                PathNS::Value,
+                &paths::CAMINO_UTF8_PATH_NEW.join("::"),
+            ) == [def_id]
+        }) || PATH_NEW.matches_path(cx, callee)
             || ty.is_some())
         && let Some(s) = is_lit_string(cx, arg)
     {
         components_reversed.push(s);
         TyOrPartialSpan::Ty(ty.unwrap_or_else(|| {
-            if is_expr_path_def_path(path_def_id, cx, callee, &paths::CAMINO_UTF8_PATH_NEW) {
+            if callee.res(cx).opt_def_id().is_some_and(|def_id| {
+                lookup_path_str(
+                    cx.tcx,
+                    PathNS::Value,
+                    &paths::CAMINO_UTF8_PATH_NEW.join("::"),
+                ) == [def_id]
+            }) {
                 &paths::CAMINO_UTF8_PATH_BUF
             } else {
                 &paths::PATH_PATH_BUF

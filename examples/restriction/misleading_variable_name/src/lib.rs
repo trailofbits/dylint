@@ -5,13 +5,10 @@ extern crate rustc_hir;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{
-    diagnostics::span_lint_and_help,
-    ty::{implements_trait, is_type_diagnostic_item},
-};
+use clippy_utils::{diagnostics::span_lint_and_help, res::MaybeDef, ty::implements_trait};
 use heck::ToSnakeCase;
 use rustc_hir::{
-    Expr, ExprKind, LangItem, LetStmt, MatchSource, Pat, PatKind, QPath, Stmt, StmtKind,
+    Expr, ExprKind, LangItem, LetStmt, MatchSource, Pat, PatKind, Stmt, StmtKind,
     def::{DefKind, Res},
     def_id::{DefId, ModDefId},
 };
@@ -139,8 +136,7 @@ fn peel_refs_and_rcs<'tcx>(
             // peel them.
             ty::Adt(adt_def, substs)
                 if module_def_id != parent_module(cx.tcx, adt_def.did())
-                    && (is_type_diagnostic_item(cx, ty, sym::Arc)
-                        || is_type_diagnostic_item(cx, ty, sym::Rc)) =>
+                    && (ty.is_diag_item(cx, sym::Arc) || ty.is_diag_item(cx, sym::Rc)) =>
             {
                 ty = substs[0].expect_ty();
             }
@@ -162,11 +158,12 @@ fn peel_try_unwrap_and_similar<'tcx>(
             ExprKind::Match(scrutinee, _, MatchSource::TryDesugar(_)) => {
                 if let ExprKind::Call(
                     Expr {
-                        kind: ExprKind::Path(QPath::LangItem(LangItem::TryTraitBranch, _)),
+                        kind: ExprKind::Path(qpath),
                         ..
                     },
                     [arg],
                 ) = scrutinee.kind
+                    && cx.tcx.qpath_is_lang_item(*qpath, LangItem::TryTraitBranch)
                 {
                     expr = arg;
                 } else {

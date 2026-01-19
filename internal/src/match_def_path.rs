@@ -7,26 +7,14 @@ extern crate rustc_hir;
 extern crate rustc_lint;
 extern crate rustc_span;
 
-use rustc_hir::{Expr, def_id::DefId};
+use rustc_hir::def_id::DefId;
 use rustc_lint::LateContext;
 use rustc_span::symbol::Symbol;
 
-// smoelius: `is_expr_path_def_path` is based on:
-// https://github.com/rust-lang/rust-clippy/blob/f62f26965817f2573c2649288faa489a03ed1665/clippy_utils/src/lib.rs#L472-L477
-// It has been modified to take `path_def_id` as an argument so that `dylint_internal` does not have
-// to rely on `clippy_utils`.
-
-/// If the expression is a path, resolves it to a `DefId` and checks if it matches the given path.
-///
-/// Please use `is_path_diagnostic_item` if the target is a diagnostic item.
-pub fn is_expr_path_def_path<'tcx>(
-    path_def_id: impl Fn(&LateContext<'tcx>, &Expr<'tcx>) -> Option<DefId>,
-    cx: &LateContext<'tcx>,
-    expr: &Expr<'tcx>,
-    segments: &[&str],
-) -> bool {
-    path_def_id(cx, expr).is_some_and(|id| match_def_path(cx, id, segments))
-}
+// smoelius: `match_any_def_paths` and `match_def_path` are from `clippy_utils`:
+// https://github.com/rust-lang/rust-clippy/blob/f62f26965817f2573c2649288faa489a03ed1665/clippy_utils/src/lib.rs#L2068-L2084
+// They were removed by the following commit:
+// https://github.com/rust-lang/rust-clippy/commit/93bd4d893122417b9265563c037f11a158a8e37c
 
 /// Checks if the given `DefId` matches any of the paths. Returns the index of matching path, if
 /// any.
