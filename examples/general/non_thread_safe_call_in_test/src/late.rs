@@ -5,7 +5,7 @@ use clippy_utils::{
 use dylint_internal::{match_def_path, paths};
 use rustc_ast::ast::LitKind;
 use rustc_hir::{
-    Closure, Expr, ExprKind, HirId, Item, ItemKind, Node,
+    Closure, ConstItemRhs, Expr, ExprKind, HirId, Item, ItemKind, Node,
     def_id::{DefId, LocalDefId},
     intravisit::{Visitor, walk_body, walk_expr},
 };
@@ -102,7 +102,7 @@ impl NonThreadSafeCallInTest {
             let item = cx.tcx.hir_item(item_id);
             // smoelius:
             // https://rustc-dev-guide.rust-lang.org/test-implementation.html#step-3-test-object-generation
-            if let ItemKind::Const(_ident, _generics, ty, const_body_id) = item.kind
+            if let ItemKind::Const(_ident, _generics, ty, ConstItemRhs::Body(const_body_id)) = item.kind
                 && let Some(ty_def_id) = ty.basic_res().opt_def_id()
                 && match_def_path(cx, ty_def_id, &paths::TEST_DESC_AND_FN)
                 && let const_body = cx.tcx.hir_body(const_body_id)
