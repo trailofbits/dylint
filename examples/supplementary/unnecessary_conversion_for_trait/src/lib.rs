@@ -141,6 +141,7 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["alloc", "vec", "Vec", "into_chunks"],
     &["alloc", "vec", "Vec", "into_flattened"],
     &["alloc", "vec", "Vec", "leak"],
+    &["alloc", "vec", "Vec", "recycle"],
     &["alloc", "vec", "Vec", "spare_capacity_mut"],
     &["core", "slice", "<impl [T]>", "as_chunks_unchecked"],
     &["core", "slice", "<impl [T]>", "as_chunks_unchecked_mut"],
