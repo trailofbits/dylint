@@ -18,7 +18,7 @@ use clippy_utils::{
 use dylint_internal::{match_any_def_paths, paths};
 use rustc_ast::LitKind;
 use rustc_errors::Applicability;
-use rustc_hir::{Expr, ExprKind};
+use rustc_hir::{Expr, ExprKind, Node};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty;
 use rustc_span::{Span, sym};
@@ -57,10 +57,9 @@ dylint_linting::declare_late_lint! {
     "joining of constant path components"
 }
 
-#[derive(Clone, Debug)]
-enum ComponentType {
+enum ComponentType<'tcx> {
     Literal(String),
-    Constant(String),
+    Constant(&'tcx Expr<'tcx>),
     Other,
 }
 
@@ -70,8 +69,11 @@ enum TyOrPartialSpan {
 }
 
 impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
-    #[allow(clippy::too_many_lines)]
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
+        if is_receiver_of_join(cx, expr) {
+            return;
+        }
+
         let (components, ty_or_partial_span) = collect_components(cx, expr);
         if components.len() < 2 {
             return;
@@ -81,27 +83,20 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
             .iter()
             .all(|c| matches!(c, ComponentType::Literal(_)));
 
-        let all_const_or_literal = components
-            .iter()
-            .all(|c| !matches!(c, ComponentType::Other));
+        let all_const_or_literal = !components.iter().any(|c| matches!(c, ComponentType::Other));
 
-        // Only consider constants if there are multiple constants
-        // If there's just one constant with string literals, treat as normal joins
-        let has_multiple_constants = components
+        let at_least_one_const = components
             .iter()
-            .filter(|c| matches!(c, ComponentType::Constant(_)))
-            .count()
-            > 1;
+            .any(|c| matches!(c, ComponentType::Constant(_)));
 
         if all_literals {
-            // Suggest joining into a single string literal
             let joined_path = components
                 .iter()
                 .map(|c| match c {
                     ComponentType::Literal(s) => s.as_str(),
-                    _ => unreachable!(), // Already checked all are literals
+                    _ => unreachable!(),
                 })
-                .collect::<Vec<&str>>()
+                .collect::<Vec<_>>()
                 .join("/");
 
             let (span, sugg) = match ty_or_partial_span {
@@ -123,26 +118,10 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
                 sugg,
                 Applicability::MachineApplicable,
             );
-        } else if all_const_or_literal && has_multiple_constants {
-            // Suggest using concat!() only when there are multiple constant expressions
-            let concat_args = components
-                .iter()
-                .enumerate()
-                .flat_map(|(i, c)| {
-                    let mut items = Vec::new();
-                    match c {
-                        ComponentType::Literal(s) => items.push(format!(r#""{s}""#)),
-                        ComponentType::Constant(s) => items.push(s.clone()),
-                        ComponentType::Other => unreachable!(),
-                    }
-                    // Add path separator, except for the last component
-                    if i < components.len() - 1 {
-                        items.push(r#""/""#.to_string());
-                    }
-                    items
-                })
-                .collect::<Vec<String>>()
-                .join(", ");
+        } else if all_const_or_literal && at_least_one_const {
+            let Some(concat_args) = build_concat_args(cx, &components) else {
+                return;
+            };
 
             let (span, sugg) = match ty_or_partial_span {
                 TyOrPartialSpan::Ty(ty) => (
@@ -150,7 +129,6 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
                     format!(r"{}::from(concat!({concat_args}))", ty.join("::")),
                 ),
                 TyOrPartialSpan::PartialSpan(partial_span) => {
-                    // We need to replace the entire chain of joins with a single join of the concat
                     let full_span = expr.span.with_lo(partial_span.lo());
                     (full_span, format!(r".join(concat!({concat_args}))"))
                 }
@@ -161,55 +139,74 @@ impl<'tcx> LateLintPass<'tcx> for ConstPathJoin {
                 CONST_PATH_JOIN,
                 span,
                 "path could be constructed with concat!",
-                "consider using",
-                sugg,
-                Applicability::MachineApplicable,
-            );
-        } else if all_const_or_literal {
-            // For a single constant expression with string literals, treat like string literals
-            let joined_path = components
-                .iter()
-                .map(|c| match c {
-                    ComponentType::Literal(s) => s.as_str(),
-                    ComponentType::Constant(_) => "..", // We know it's a path component
-                    ComponentType::Other => unreachable!(), /* Already checked all are const or
-                                                          * literals */
-                })
-                .collect::<Vec<&str>>()
-                .join("/");
-
-            let (span, sugg) = match ty_or_partial_span {
-                TyOrPartialSpan::Ty(ty) => (
-                    expr.span,
-                    format!(r#"{}::from("{joined_path}")"#, ty.join("::")),
-                ),
-                TyOrPartialSpan::PartialSpan(partial_span) => {
-                    // Use a wider span to replace all the joins
-                    let full_span = expr.span.with_lo(partial_span.lo());
-                    (full_span, format!(r#".join("{joined_path}")"#))
-                }
-            };
-
-            span_lint_and_sugg(
-                cx,
-                CONST_PATH_JOIN,
-                span,
-                "path could be constructed from a string literal",
                 "use",
                 sugg,
                 Applicability::MachineApplicable,
             );
         }
-        // If it contains ComponentType::Other, do nothing
     }
 }
 
 static PATH_NEW: PathLookup = value_path!(std::path::Path::new);
 
+fn is_receiver_of_join<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) -> bool {
+    if let Node::Expr(parent_expr) = cx.tcx.parent_hir_node(expr.hir_id)
+        && let ExprKind::MethodCall(_, receiver, [arg], _) = parent_expr.kind
+        && receiver.hir_id == expr.hir_id
+        && let Some(method_def_id) = cx
+            .typeck_results()
+            .type_dependent_def_id(parent_expr.hir_id)
+        && match_any_def_paths(
+            cx,
+            method_def_id,
+            &[&paths::CAMINO_UTF8_PATH_JOIN, &paths::PATH_JOIN],
+        )
+        .is_some()
+        && !matches!(check_component_type(cx, arg), ComponentType::Other)
+    {
+        return true;
+    }
+    false
+}
+
+fn build_concat_args<'tcx>(
+    cx: &LateContext<'tcx>,
+    components: &[ComponentType<'tcx>],
+) -> Option<String> {
+    let mut result = Vec::new();
+    let mut pending_literal = String::new();
+
+    for (i, component) in components.iter().enumerate() {
+        if i != 0 {
+            pending_literal.push('/');
+        }
+        match component {
+            ComponentType::Literal(s) => {
+                pending_literal.push_str(s);
+            }
+            ComponentType::Constant(expr) => {
+                if !pending_literal.is_empty() {
+                    result.push(format!(r#""{pending_literal}""#));
+                    pending_literal.clear();
+                }
+                let snippet = snippet_opt(cx, expr.span)?;
+                result.push(snippet);
+            }
+            ComponentType::Other => return None,
+        }
+    }
+
+    if !pending_literal.is_empty() {
+        result.push(format!(r#""{pending_literal}""#));
+    }
+
+    Some(result.join(", "))
+}
+
 fn collect_components<'tcx>(
     cx: &LateContext<'tcx>,
     mut expr: &'tcx Expr<'tcx>,
-) -> (Vec<ComponentType>, TyOrPartialSpan) {
+) -> (Vec<ComponentType<'tcx>>, TyOrPartialSpan) {
     let mut components_reversed = Vec::new();
     let mut partial_span = expr.span.with_lo(expr.span.hi());
 
@@ -268,6 +265,24 @@ fn collect_components<'tcx>(
     (components_reversed, ty_or_partial_span)
 }
 
+fn check_component_type<'tcx>(
+    cx: &LateContext<'tcx>,
+    expr: &'tcx Expr<'tcx>,
+) -> ComponentType<'tcx> {
+    if let Some(s) = is_lit_string(cx, expr) {
+        return ComponentType::Literal(s);
+    }
+
+    if expr.span.from_expansion()
+        && is_const_evaluatable(cx, expr)
+        && cx.typeck_results().expr_ty(expr).peel_refs().is_str()
+    {
+        return ComponentType::Constant(expr);
+    }
+
+    ComponentType::Other
+}
+
 fn is_lit_string(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<String> {
     if !expr.span.from_expansion()
         && let ExprKind::Lit(lit) = &expr.kind
@@ -303,25 +318,6 @@ fn is_path_buf_from(
     } else {
         None
     }
-}
-
-fn check_component_type<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) -> ComponentType {
-    // Check if it's a direct string literal
-    if let Some(s) = is_lit_string(cx, expr) {
-        return ComponentType::Literal(s);
-    }
-
-    // Check if it's a constant-evaluatable string expression
-    if !expr.span.from_expansion()
-        && is_const_evaluatable(cx, expr)
-        && matches!(cx.typeck_results().expr_ty(expr).kind(), ty::Str)
-    {
-        if let Some(snippet) = snippet_opt(cx, expr.span) {
-            return ComponentType::Constant(snippet);
-        }
-    }
-
-    ComponentType::Other
 }
 
 #[test]
