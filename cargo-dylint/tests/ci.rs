@@ -125,7 +125,7 @@ fn cargo_dylint_and_dylint_readmes_are_equal() {
 
 #[test]
 fn examples_readme_contents() {
-    let examples_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
+    let examples_dir = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../examples"));
     let categories = vec![
         "general",
         "supplementary",
@@ -139,7 +139,7 @@ fn examples_readme_contents() {
     let readme_content = read_to_string(&readme_path).unwrap();
 
     // Generate just the lint description tables
-    let expected_tables = generate_lint_tables(&examples_dir, &categories);
+    let expected_tables = generate_lint_tables(examples_dir, &categories);
 
     // Extract the current tables section from README using markers
     let actual_tables = extract_between_markers(&readme_content)
@@ -558,10 +558,13 @@ fn markdown_link_check() {
         .success();
 
     // smoelius: https://github.com/rust-lang/crates.io/issues/788
-    let config = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/markdown_link_check.json");
+    let config = Path::new(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/markdown_link_check.json"
+    ));
 
     // Read the original config content
-    let mut config_content = read_to_string(&config).unwrap();
+    let mut config_content = read_to_string(config).unwrap();
     let temp_config = tempdir.path().join("markdown_link_check.json");
 
     // Replace ${GITHUB_TOKEN} with the actual token
@@ -572,7 +575,7 @@ fn markdown_link_check() {
         let entry = entry.unwrap();
         let path = entry.path();
 
-        let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join(path);
+        let path_buf = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/..")).join(path);
 
         let mut command = Command::new("npx");
         command.args([

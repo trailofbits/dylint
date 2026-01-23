@@ -9,7 +9,7 @@ pub fn build() -> Result<()> {
     crate::cargo::build("dylint-link")
         .build()
         .sanitize_environment()
-        .current_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("../dylint-link"))
+        .current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../dylint-link"))
         .success()?;
 
     for example in iter(true)? {
@@ -35,10 +35,10 @@ pub fn build() -> Result<()> {
 ///   directories are not.
 pub fn iter(workspace: bool) -> Result<impl Iterator<Item = Result<PathBuf>>> {
     #[cfg_attr(dylint_lib = "general", allow(abs_home_path))]
-    let path_buf = Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples");
+    let path = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../examples"));
     // smoelius: Use `cargo_util::paths::normalize_path` instead of `canonicalize` so as not to
     // "taint" the path with a path prefix on Windows.
-    let examples = cargo_util::paths::normalize_path(&path_buf);
+    let examples = cargo_util::paths::normalize_path(path);
     let iter = WalkDir::new(examples)
         .into_iter()
         .filter_entry(|entry| entry.depth() <= 2);
