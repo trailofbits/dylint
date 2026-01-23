@@ -1,7 +1,9 @@
-use super::common::parse_as_nightly;
 use anyhow::{Result, anyhow, bail};
 use chrono::{LocalResult, TimeZone, Utc};
-use dylint_internal::git2::{Commit, Diff, DiffOptions, Oid, Patch, Repository, Time};
+use dylint_internal::{
+    clippy_utils::parse_as_nightly,
+    git2::{Commit, Diff, DiffOptions, Oid, Patch, Repository, Time},
+};
 use std::ffi::OsStr;
 
 /// Starting with `oid`, works backwards to find all of the commits no earlier than `old_channel`.
@@ -65,6 +67,7 @@ pub(super) fn patches_from_diff<'repo>(diff: &Diff<'repo>) -> Result<Vec<Patch<'
         .map(|idx| -> Result<_> {
             let patch = Patch::from_diff(diff, idx)?;
             // smoelius: Only return patches for Rust source files.
+            #[allow(clippy::nonminimal_bool)]
             if !patch
                 .as_ref()
                 .and_then(|patch| patch.delta().old_file().path())

@@ -1,6 +1,6 @@
 [package]
 name = "try_io_result"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for the `?` operator applied to `std::io::Result`"
 edition = "2024"
@@ -16,7 +16,7 @@ path = "ui/main.rs"
 [dependencies]
 clippy_utils = { workspace = true }
 
-dylint_internal = { path = "../../../internal" }
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]

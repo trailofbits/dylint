@@ -1,6 +1,6 @@
 [package]
 name = "register_lints_warn"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for calls to `rustc_errors::DiagCtxtHandle::warn` from within a `register_lints` function"
 edition = "2024"
@@ -12,6 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 clippy_utils = { workspace = true }
 
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]

@@ -1,33 +1,11 @@
-use assert_cmd::prelude::*;
+use assert_cmd::cargo::cargo_bin_cmd;
 use predicates::prelude::*;
-use tempfile::tempdir;
 
 #[test]
 fn no_libraries_were_found() {
-    let tempdir = tempdir().unwrap();
-
-    std::process::Command::new("cargo")
-        .current_dir(&tempdir)
-        .args([
-            "init",
-            "--name",
-            tempdir
-                .path()
-                .file_name()
-                .unwrap()
-                .to_string_lossy()
-                .trim_start_matches('.'),
-        ])
-        .assert()
-        .success();
-
     cargo_dylint()
-        .args([
-            "dylint",
-            "--all",
-            "--manifest-path",
-            &tempdir.path().join("Cargo.toml").to_string_lossy(),
-        ])
+        .current_dir("../fixtures/empty")
+        .args(["dylint", "--all"])
         .assert()
         .success()
         .stderr(predicate::str::ends_with(
@@ -35,12 +13,8 @@ fn no_libraries_were_found() {
         ));
 
     cargo_dylint()
-        .args([
-            "dylint",
-            "list",
-            "--manifest-path",
-            &tempdir.path().join("Cargo.toml").to_string_lossy(),
-        ])
+        .current_dir("../fixtures/empty")
+        .args(["dylint", "list"])
         .assert()
         .success()
         .stderr(predicate::str::ends_with(
@@ -62,29 +36,9 @@ fn nothing_to_do() {
 /// `--all` should not be required when `--git` or `--path` is used on the command line.
 #[test]
 fn opts_library_package_no_warn() {
-    let tempdir = tempdir().unwrap();
-
-    std::process::Command::new("cargo")
-        .current_dir(&tempdir)
-        .args([
-            "init",
-            "--name",
-            tempdir
-                .path()
-                .file_name()
-                .unwrap()
-                .to_string_lossy()
-                .trim_start_matches('.'),
-        ])
-        .assert()
-        .success();
-
     cargo_dylint()
-        .args([
-            "dylint",
-            "--manifest-path",
-            &tempdir.path().join("Cargo.toml").to_string_lossy(),
-        ])
+        .current_dir("../fixtures/empty")
+        .args(["dylint"])
         .assert()
         .success()
         .stderr(predicate::str::ends_with(
@@ -92,12 +46,11 @@ fn opts_library_package_no_warn() {
         ));
 
     cargo_dylint()
+        .current_dir("../fixtures/empty")
         .args([
             "dylint",
-            "--manifest-path",
-            &tempdir.path().join("Cargo.toml").to_string_lossy(),
             "--path",
-            "../examples/general/crate_wide_allow",
+            "../../examples/general/crate_wide_allow",
         ])
         .assert()
         .success()
@@ -112,10 +65,11 @@ fn opts_library_package_no_warn() {
 // understand why the difference.
 //
 // This problem was encountered in the `no_env_logger_warning` test as well.
+#[cfg_attr(dylint_lib = "general", allow(abs_home_path))]
 #[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
-fn cargo_dylint() -> std::process::Command {
+fn cargo_dylint() -> assert_cmd::Command {
     /* let mut command = std::process::Command::new("cargo");
     command.args(["run", "--quiet", "--bin", "cargo-dylint"]);
     command */
-    std::process::Command::cargo_bin("cargo-dylint").unwrap()
+    cargo_bin_cmd!("cargo-dylint")
 }

@@ -126,7 +126,7 @@ use std::{
 
 pub mod ui;
 
-static DRIVER: OnceCell<PathBuf> = OnceCell::new();
+static DRIVER: OnceCell<Result<PathBuf>> = OnceCell::new();
 static LINKING_FLAGS: OnceCell<Vec<String>> = OnceCell::new();
 
 /// Test a library on all source files in a directory.
@@ -155,42 +155,40 @@ pub fn ui_test_examples(name: &str) {
     ui::Test::examples(name).run();
 }
 
-fn initialize(name: &str) -> Result<&Path> {
-    DRIVER
-        .get_or_try_init(|| {
-            let _ = env_logger::try_init();
+fn initialize(name: &str) -> &Result<PathBuf> {
+    DRIVER.get_or_init(|| {
+        let _ = env_logger::try_init();
 
-            // smoelius: Try to order failures by how informative they are: failure to build the
-            // library, failure to find the library, failure to build/find the driver.
+        // smoelius: Try to order failures by how informative they are: failure to build the
+        // library, failure to find the library, failure to build/find the driver.
 
-            dylint_internal::cargo::build(&format!("library `{name}`"))
-                .build()
-                .success()?;
+        dylint_internal::cargo::build(&format!("library `{name}`"))
+            .build()
+            .success()?;
 
-            // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-            // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is
-            // no longer the case. I am leaving the comment here for now in case removal
-            // of the `name_toolchain_map` call causes a regression.
-            let metadata = dylint_internal::cargo::current_metadata().unwrap();
-            let dylint_library_path = metadata.target_directory.join("debug");
-            unsafe {
-                set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-            }
+        // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
+        // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is
+        // no longer the case. I am leaving the comment here for now in case removal
+        // of the `name_toolchain_map` call causes a regression.
+        let metadata = dylint_internal::cargo::current_metadata().unwrap();
+        let dylint_library_path = metadata.target_directory.join("debug");
+        unsafe {
+            set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
+        }
 
-            let dylint_libs = dylint_libs(name)?;
-            let driver = dylint::driver_builder::get(
-                &dylint::opts::Dylint::default(),
-                env!("RUSTUP_TOOLCHAIN"),
-            )?;
+        let dylint_libs = dylint_libs(name)?;
+        let driver = dylint::driver_builder::get(
+            &dylint::opts::Dylint::default(),
+            env!("RUSTUP_TOOLCHAIN"),
+        )?;
 
-            unsafe {
-                set_var(env::CLIPPY_DISABLE_DOCS_LINKS, "true");
-                set_var(env::DYLINT_LIBS, dylint_libs);
-            }
+        unsafe {
+            set_var(env::CLIPPY_DISABLE_DOCS_LINKS, "true");
+            set_var(env::DYLINT_LIBS, dylint_libs);
+        }
 
-            Ok(driver)
-        })
-        .map(PathBuf::as_path)
+        Ok(driver)
+    })
 }
 
 #[doc(hidden)]
@@ -209,7 +207,7 @@ fn example_target(package: &Package, example: &str) -> Result<Target> {
         .iter()
         .find(|target| target.kind == [TargetKind::Example] && target.name == example)
         .cloned()
-        .ok_or_else(|| anyhow!("Could not find example `{}`", example))
+        .ok_or_else(|| anyhow!("Could not find example `{example}`"))
 }
 
 #[allow(clippy::unnecessary_wraps)]
@@ -246,8 +244,11 @@ fn run_example_test(
             to.to_string_lossy()
         )
     })?;
-    ["fixed", "stderr", "stdout"]
-        .map(|extension| copy_with_extension(&target.src_path, &to, extension).unwrap_or_default());
+    for extension in ["fixed", "stderr", "stdout"] {
+        copy_with_extension(&target.src_path, &to, extension)
+            .map(|_| ())
+            .unwrap_or_default();
+    }
 
     let mut config = config.clone();
     config.rustc_flags.extend(linking_flags.iter().cloned());
@@ -319,7 +320,7 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
         // say "Building `package` examples".
         dylint_internal::cargo::build(&format!("`{}` examples", package.name))
             .build()
-            .envs([(env::CARGO_TERM_COLOR, "never")])
+            .env_remove(env::CARGO_TERM_COLOR)
             .args([
                 "--manifest-path",
                 package.manifest_path.as_ref(),
@@ -374,16 +375,15 @@ fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> R
         let entry = entry.with_context(|| format!("`read_dir` failed for `{examples}`"))?;
         let path = entry.path();
 
-        if let Some(file_name) = path.file_name() {
-            let s = file_name.to_string_lossy();
-            let target_name = snake_case(&target.name);
-            if s == target_name.clone() + consts::EXE_SUFFIX
-                || s.starts_with(&(target_name.clone() + "-"))
-            {
-                remove_file(&path).with_context(|| {
-                    format!("`remove_file` failed for `{}`", path.to_string_lossy())
-                })?;
-            }
+        let file_name = entry.file_name();
+        let s = file_name.to_string_lossy();
+        let target_name = snake_case(&target.name);
+        if s == target_name.clone() + consts::EXE_SUFFIX
+            || s.starts_with(&(target_name.clone() + "-"))
+        {
+            remove_file(&path).with_context(|| {
+                format!("`remove_file` failed for `{}`", path.to_string_lossy())
+            })?;
         }
     }
 
@@ -395,7 +395,7 @@ where
     I: Iterator<Item = T>,
 {
     iter.next()
-        .ok_or_else(|| anyhow!("Missing argument for `{}`", flag))
+        .ok_or_else(|| anyhow!("Missing argument for `{flag}`"))
 }
 
 fn copy_with_extension<P: AsRef<Path>, Q: AsRef<Path>>(

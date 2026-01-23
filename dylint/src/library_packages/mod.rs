@@ -4,19 +4,12 @@ use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackag
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
 use dylint_internal::{CommandExt, config, env, library_filename, rustup::SanitizeEnvironment};
 use glob::glob;
-use if_chain::if_chain;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, de::IntoDeserializer};
 use std::path::{Path, PathBuf};
 
-// smoelius: If both `__cargo_cli` and `__cargo_lib` are enabled, assume the user built
-// `cargo-dylint` with `--features=cargo-lib` and forgot `--no-default-features`.
-#[cfg(all(feature = "__cargo_cli", not(feature = "__cargo_lib")))]
+#[cfg(feature = "__cargo_cli")]
 #[path = "cargo_cli/mod.rs"]
-mod impl_;
-
-#[cfg(feature = "__cargo_lib")]
-#[path = "cargo_lib/mod.rs"]
 mod impl_;
 
 use impl_::{GlobalContext, PackageId, SourceId, dependency_source_id_and_root};
@@ -25,10 +18,18 @@ type Object = serde_json::Map<String, serde_json::Value>;
 
 #[derive(Clone, Debug)]
 pub struct Package {
+    /// [`Metadata`] of the workspace bing linted
+    ///
+    /// Caching a reference to the [`Metadata`] here ensures that it existed when the package was
+    /// created.
     metadata: &'static Metadata,
+    /// Path to the package's directory
     pub root: PathBuf,
+    /// The package's [`PackageId`], which includes the package's name, version, and source id
     pub id: PackageId,
+    /// Name of the `cdylib` the package builds
     pub lib_name: String,
+    /// Toolchain the package uses
     pub toolchain: String,
 }
 
@@ -125,39 +126,26 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
     library_packages(opts, metadata, &[library])
 }
 
-fn to_map_entry(key: &str, value: Option<&String>) -> Option<(String, toml::Value)> {
-    value
-        .cloned()
-        .map(|s| (String::from(key), toml::Value::from(s)))
-}
-
 pub fn from_workspace_metadata(opts: &opts::Dylint) -> Result<Vec<Package>> {
-    if_chain! {
-        if let Some(metadata) = cargo_metadata(opts)?;
-        if let Some(object) = dylint_metadata(opts)?;
-        then {
-            library_packages_from_dylint_metadata(opts, metadata, object)
-        } else {
-            Ok(vec![])
-        }
+    if let Some(metadata) = cargo_metadata(opts)?
+        && let Some(object) = dylint_metadata(opts)?
+    {
+        library_packages_from_dylint_metadata(opts, metadata, object)
+    } else {
+        Ok(vec![])
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub fn dylint_metadata(opts: &opts::Dylint) -> Result<Option<&'static Object>> {
-    if_chain! {
-        if let Some(metadata) = cargo_metadata(opts)?;
-        if let serde_json::Value::Object(object) = &metadata.workspace_metadata;
-        if let Some(value) = object.get("dylint");
-        then {
-            if let serde_json::Value::Object(subobject) = value {
-                Ok(Some(subobject))
-            } else {
-                bail!("`dylint` value must be a map")
-            }
+pub fn from_dylint_toml(opts: &opts::Dylint) -> Result<Vec<Package>> {
+    if let Some(metadata) = cargo_metadata(opts)? {
+        let _ = config::try_init_with_metadata(metadata)?;
+        if let Some(table) = config::get() {
+            library_packages_from_dylint_toml(opts, metadata, table)
         } else {
-            Ok(None)
+            Ok(vec![])
         }
+    } else {
+        Ok(vec![])
     }
 }
 
@@ -182,13 +170,11 @@ fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
                 Ok(metadata) => Ok(Some(metadata)),
                 Err(err) => {
                     if lib_sel.manifest_path.is_none() {
-                        if_chain! {
-                            if let Error::CargoMetadata { stderr } = err;
-                            if let Some(line) = stderr.lines().next();
-                            if !line.starts_with("error: could not find `Cargo.toml`");
-                            then {
-                                warn(opts, line.strip_prefix("error: ").unwrap_or(line));
-                            }
+                        if let Error::CargoMetadata { stderr } = err
+                            && let Some(line) = stderr.lines().next()
+                            && !line.starts_with("error: could not find `Cargo.toml`")
+                        {
+                            warn(opts, line.strip_prefix("error: ").unwrap_or(line));
                         }
                         Ok(None)
                     } else {
@@ -198,6 +184,28 @@ fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
             }
         })
         .map(Option::as_ref)
+}
+
+fn to_map_entry(key: &str, value: Option<&String>) -> Option<(String, toml::Value)> {
+    value
+        .cloned()
+        .map(|s| (String::from(key), toml::Value::from(s)))
+}
+
+#[allow(clippy::module_name_repetitions)]
+pub fn dylint_metadata(opts: &opts::Dylint) -> Result<Option<&'static Object>> {
+    if let Some(metadata) = cargo_metadata(opts)?
+        && let serde_json::Value::Object(object) = &metadata.workspace_metadata
+        && let Some(value) = object.get("dylint")
+    {
+        if let serde_json::Value::Object(subobject) = value {
+            Ok(Some(subobject))
+        } else {
+            bail!("`dylint` value must be a map")
+        }
+    } else {
+        Ok(None)
+    }
 }
 
 fn library_packages_from_dylint_metadata(
@@ -212,24 +220,11 @@ fn library_packages_from_dylint_metadata(
                 let libraries = serde_json::from_value::<Vec<Library>>(value.clone())?;
                 library_packages(opts, metadata, &libraries)
             } else {
-                bail!("Unknown key `{}`", key)
+                bail!("Unknown key `{key}`")
             }
         })
         .collect::<Result<Vec<_>>>()?;
     Ok(libraries.into_iter().flatten().collect())
-}
-
-pub fn from_dylint_toml(opts: &opts::Dylint) -> Result<Vec<Package>> {
-    if_chain! {
-        if let Some(metadata) = cargo_metadata(opts)?;
-        let _ = config::try_init_with_metadata(metadata)?;
-        if let Some(table) = config::get();
-        then {
-            library_packages_from_dylint_toml(opts, metadata, table)
-        } else {
-            Ok(vec![])
-        }
-    }
 }
 
 fn library_packages_from_dylint_toml(
@@ -258,7 +253,7 @@ fn library_packages_from_dylint_toml(
                 let libraries = Vec::<Library>::deserialize(value.clone().into_deserializer())?;
                 library_packages(opts, metadata, &libraries)
             } else {
-                bail!("Unknown key `{}`", key)
+                bail!("Unknown key `{key}`")
             }
         })
         .collect::<Result<Vec<_>>>()?;
@@ -337,7 +332,15 @@ fn library_package(
             matched = true;
         }
 
-        ensure!(matched, "No paths matched `{}`", pattern);
+        if !matched {
+            if library.pattern.is_some() {
+                bail!("No paths matched `{pattern}`");
+            }
+            bail!(
+                "No library packages found in `{}`",
+                dependency_root.display()
+            );
+        }
     }
 
     // smoelius: Collecting the package ids before building reveals missing/unparsable `Cargo.toml`
@@ -350,35 +353,36 @@ fn library_package(
     // (https://github.com/rust-lang/rustup/issues/1399#issuecomment-383376082).
 
     // smoelius: Experiments suggest that a considerable amount of Dylint's start up time is spent
-    // in the following "loop," and a considerable (though not necessarily dominant) fraction of
-    // that is spent in `active_toolchain`.
-    let packages = paths
-        .into_iter()
-        .map(|path| {
-            if path.is_dir() {
-                // smoelius: Ignore subdirectories that do not contain packages.
-                let Ok(package) = package_with_root(&path) else {
-                    return Ok(None);
-                };
-                // smoelius: When `__cargo_cli` is enabled, `source_id`'s type is `String`.
-                #[allow(clippy::clone_on_copy)]
-                let package_id = package_id(&package, source_id.clone());
-                let lib_name = package_library_name(&package)?;
-                let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
-                Ok(Some(Package {
-                    metadata,
-                    root: path,
-                    id: package_id,
-                    lib_name,
-                    toolchain,
-                }))
-            } else {
-                Ok(None)
+    // in the following loop, and a considerable (though not necessarily dominant) fraction of that
+    // is spent in `active_toolchain`.
+    let mut packages = Vec::new();
+    for path in paths {
+        if !path.is_dir() {
+            continue;
+        }
+        // smoelius: Ignore subdirectories that do not contain packages.
+        let package = match package_with_root(&path) {
+            Ok(package) => package,
+            Err(error) => {
+                warn(opts, &error.to_string());
+                continue;
             }
-        })
-        .collect::<Result<Vec<_>>>()?;
+        };
+        // smoelius: When `__cargo_cli` is enabled, `source_id`'s type is `String`.
+        #[allow(clippy::clone_on_copy)]
+        let package_id = package_id(&package, source_id.clone());
+        let lib_name = package_library_name(&package)?;
+        let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
+        packages.push(Package {
+            metadata,
+            root: path,
+            id: package_id,
+            lib_name,
+            toolchain,
+        });
+    }
 
-    Ok(packages.into_iter().flatten().collect())
+    Ok(packages)
 }
 
 fn toml_detailed_dependency(library: &Library) -> Result<&TomlDetailedDependency> {
@@ -407,7 +411,12 @@ fn toml_detailed_dependency(library: &Library) -> Result<&TomlDetailedDependency
 fn package_with_root(package_root: &Path) -> Result<MetadataPackage> {
     // smoelius: For the long term, we should investigate having a "cache" that maps paths to
     // `cargo_metadata::Metadata`.
+    // smoelius: Both `cargo_path` and `sanitize_environment` must be called. Without the call to
+    // `cargo_path`, `cargo_metadata` will use `$CARGO`. Without the call to `sanitize_environment`,
+    // `CARGO`, etc. will be set and the `rustup` proxy will invoke the wrong `cargo`.
     let metadata = MetadataCommand::new()
+        .cargo_path("cargo")
+        .sanitize_environment()
         .current_dir(package_root)
         .no_deps()
         .exec()?;
@@ -418,7 +427,7 @@ fn package_with_root(package_root: &Path) -> Result<MetadataPackage> {
 fn package_id(package: &MetadataPackage, source_id: SourceId) -> PackageId {
     PackageId::new(
         #[allow(clippy::useless_conversion)]
-        package.name.clone().into(),
+        package.name.to_string().into(),
         package.version.clone(),
         source_id,
     )

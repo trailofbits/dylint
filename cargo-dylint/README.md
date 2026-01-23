@@ -92,6 +92,18 @@ libraries = [
 ]
 ```
 
+The `git` field can be accompanied by a `branch`, `tag`, or `rev` option.
+
+```toml
+[workspace.metadata.dylint]
+libraries = [
+    # All of these are valid ways to load lints from a remote git repository
+    { git = "https://github.com/trailofbits/dylint", tag = "v5.0.0", pattern = "examples/general" },
+    { git = "https://github.com/trailofbits/dylint", branch = "master", pattern = "examples/general" },
+    { git = "https://github.com/trailofbits/dylint", rev = "76b73b33dffa2505ad179bd5fce0134a90a055e4", pattern = "examples/general" }
+]
+```
+
 ### Configurable libraries
 
 Libraries can be configured by including a `dylint.toml` file in a linted workspace's root directory. The file should encode a [toml table] whose keys are library names. A library determines how its value in the table (if any) is interpreted.
@@ -157,14 +169,14 @@ Then, add the following to the Cargo.toml file of each package in the workspace:
 workspace = true
 ```
 
-For an example, see commit [`c8fabc5`] in this repository.
+For an example, see commit [`bc16236`] in this repository.
 
 ### VS Code integration
 
 Dylint results can be viewed in VS Code using [rust-analyzer]. To do so, add the following to your VS Code `settings.json` file:
 
 ```json
-    "rust-analyzer.checkOnSave.overrideCommand": [
+    "rust-analyzer.check.overrideCommand": [
         "cargo",
         "dylint",
         "--all",
@@ -245,7 +257,7 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 [Writing lints]: #writing-lints
 [`LateLintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
 [`abs_home_path`]: ../examples/general/abs_home_path
-[`c8fabc5`]: https://github.com/trailofbits/dylint/pull/1240/commits/c8fabc59dff5564333d4b6d4108e5f09108a0b4a
+[`bc16236`]: https://github.com/trailofbits/dylint/commit/bc16236fb34c3f98139d2dad469e6a7de179d68d
 [`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ../dylint-link

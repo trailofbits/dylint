@@ -1,8 +1,8 @@
 [package]
 name = "wrong_serialize_struct_arg"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "A lint to check for calls to `serialize_struct` with incorrect `len` arguments"
+description = "A lint to check for calls to serialization methods with incorrect `len` arguments"
 edition = "2024"
 publish = false
 
@@ -16,7 +16,7 @@ path = "ui/main.rs"
 [dependencies]
 clippy_utils = { workspace = true }
 
-dylint_internal = { path = "../../../internal" }
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]

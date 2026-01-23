@@ -1,7 +1,8 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 // #![warn(unused_extern_crates)]
 
+// A list of available compiler crates can be found here:
+// https://doc.rust-lang.org/nightly/nightly-rustc/
 extern crate rustc_arena;
 extern crate rustc_ast;
 extern crate rustc_ast_pretty;

@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_errors;
@@ -8,8 +7,8 @@ extern crate rustc_index;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_sugg, match_def_path};
-use dylint_internal::paths;
+use clippy_utils::diagnostics::span_lint_and_sugg;
+use dylint_internal::{match_def_path, paths};
 use rustc_errors::Applicability;
 use rustc_hir as hir;
 use rustc_index::bit_set::DenseBitSet;
@@ -17,7 +16,7 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
         Body, Local, Location, Mutability, Place, Rvalue, Terminator, TerminatorKind,
-        pretty::{PrettyPrintMirOptions, write_mir_fn},
+        pretty::MirWriter,
         visit::{PlaceContext, Visitor},
     },
     ty::TyCtxt,
@@ -69,15 +68,8 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryBorrowMut {
         let mir = cx.tcx.optimized_mir(local_def_id.to_def_id());
 
         if enabled("DEBUG_MIR") {
-            let options = PrettyPrintMirOptions::from_cli(cx.tcx);
-            write_mir_fn(
-                cx.tcx,
-                mir,
-                &mut |_, _| Ok(()),
-                &mut std::io::stdout(),
-                options,
-            )
-            .unwrap();
+            let writer = MirWriter::new(cx.tcx);
+            writer.write_mir_fn(mir, &mut std::io::stdout()).unwrap();
         }
 
         for (local, borrow_mut_span) in collect_borrow_mut_locals(cx, mir) {

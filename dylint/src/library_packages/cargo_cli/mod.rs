@@ -19,7 +19,7 @@ use crate::opts;
 use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::{Metadata, MetadataCommand};
 use cargo_util_schemas::manifest::TomlDetailedDependency;
-use dylint_internal::{CommandExt, cargo::stable_cargo_path, home::cargo_home, packaging::isolate};
+use dylint_internal::{CommandExt, home::cargo_home, packaging::isolate};
 use semver::Version;
 use serde::Serialize;
 use std::{
@@ -255,6 +255,25 @@ publish = false
     ))
 }
 
+// smoelius: `ident` is based on the function of the same name at:
+// https://github.com/rust-lang/cargo/blob/1a498b6c1c119a79d677553862bffae96b97ad7f/src/cargo/sources/git/source.rs#L136-L147
+#[allow(clippy::manual_next_back)]
+fn ident(url: &str) -> Result<String> {
+    let url = Url::parse(url)?;
+
+    let canonical_url = CanonicalUrl::new(&url)?;
+
+    let ident = canonical_url
+        .raw_canonicalized_url()
+        .path_segments()
+        .and_then(|s| s.rev().next())
+        .unwrap_or("");
+
+    let ident = if ident.is_empty() { "_empty" } else { ident };
+
+    Ok(format!("{}-{}", ident, short_hash(&canonical_url)))
+}
+
 fn inject_dummy_dependencies(
     dep_path: &Path,
     dep_name: &str,
@@ -290,29 +309,10 @@ fn cargo_fetch(path: &Path) -> Result<std::process::Output> {
 
 fn cargo_metadata(path: &Path) -> Result<Metadata> {
     MetadataCommand::new()
-        .cargo_path(stable_cargo_path())
+        .cargo_path(dylint_internal::cargo::stable_cargo_path())
         .current_dir(path)
         .exec()
         .map_err(Into::into)
-}
-
-// smoelius: `ident` is based on the function of the same name at:
-// https://github.com/rust-lang/cargo/blob/1a498b6c1c119a79d677553862bffae96b97ad7f/src/cargo/sources/git/source.rs#L136-L147
-#[allow(clippy::manual_next_back)]
-fn ident(url: &str) -> Result<String> {
-    let url = Url::parse(url)?;
-
-    let canonical_url = CanonicalUrl::new(&url)?;
-
-    let ident = canonical_url
-        .raw_canonicalized_url()
-        .path_segments()
-        .and_then(|s| s.rev().next())
-        .unwrap_or("");
-
-    let ident = if ident.is_empty() { "_empty" } else { ident };
-
-    Ok(format!("{}-{}", ident, short_hash(&canonical_url)))
 }
 
 fn find_accessed_subdir<'a>(
@@ -325,7 +325,7 @@ fn find_accessed_subdir<'a>(
         .map_or::<&[_], _>(&[], |metadata| &metadata.packages)
         .iter()
         .map(|package| {
-            if package.name == dep_name {
+            if package.name.as_str() == dep_name {
                 let parent = package
                     .manifest_path
                     .parent()
@@ -367,8 +367,7 @@ fn find_accessed_subdir<'a>(
 
     ensure!(
         accessed.len() <= 1,
-        "Multiple subdirectories were accessed: {:#?}",
-        accessed
+        "Multiple subdirectories were accessed: {accessed:#?}"
     );
 
     accessed
@@ -386,14 +385,12 @@ fn for_each_subdir(
     {
         let entry = entry
             .with_context(|| format!("`read_dir` failed for `{}`", checkout_path.display()))?;
+        let file_name = entry.file_name();
         let path = entry.path();
-        let file_name = path
-            .file_name()
-            .ok_or_else(|| anyhow!("Could not get file name"))?;
         if !path.is_dir() {
             continue;
         }
-        f(file_name, &path)?;
+        f(&file_name, &path)?;
     }
     Ok(())
 }

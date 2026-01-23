@@ -2,12 +2,12 @@ use crate::{error::warn, opts};
 use anyhow::{Context, Result, anyhow, ensure};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    CommandExt, driver as dylint_driver, env, home,
+    CommandExt, driver as dylint_driver, env,
     rustup::{SanitizeEnvironment, toolchain_path},
 };
 use semver::Version;
 use std::{
-    env::consts,
+    env::{consts, home_dir},
     fs::{copy, create_dir_all, rename, write},
     path::{Path, PathBuf},
 };
@@ -23,32 +23,6 @@ Deleting this directory will cause Dylint to rebuild the drivers
 the next time it needs them, but will have no ill effects.
 ";
 
-fn cargo_toml(toolchain: &str, dylint_driver_spec: &str) -> String {
-    format!(
-        r#"
-[package]
-name = "dylint_driver-{toolchain}"
-version = "0.1.0"
-edition = "2018"
-
-[dependencies]
-anyhow = "1.0"
-env_logger = "0.11"
-dylint_driver = {{ {dylint_driver_spec} }}
-"#,
-    )
-}
-
-fn rust_toolchain(toolchain: &str) -> String {
-    format!(
-        r#"
-[toolchain]
-channel = "{toolchain}"
-components = ["llvm-tools-preview", "rustc-dev"]
-"#,
-    )
-}
-
 // smoelius: We need `#![feature(rustc_private)]` as it changes `dylib` linking behavior and allows
 // us to link to `rustc_driver`. See: https://github.com/rust-lang/rust/pull/122362
 const MAIN_RS: &str = r"
@@ -56,12 +30,11 @@ const MAIN_RS: &str = r"
 
 use anyhow::Result;
 use std::env;
-use std::ffi::OsString;
 
 pub fn main() -> Result<()> {
     env_logger::init();
 
-    let args: Vec<_> = env::args().map(OsString::from).collect();
+    let args: Vec<_> = env::args_os().collect();
 
     dylint_driver::dylint_driver(&args)
 }
@@ -98,7 +71,7 @@ fn dylint_drivers() -> Result<PathBuf> {
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())
     } else {
-        let home = home::home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
+        let home = home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
         let dylint_drivers = Path::new(&home).join(".dylint_drivers");
         if !dylint_drivers.is_dir() {
             create_dir_all(&dylint_drivers).with_context(|| {
@@ -239,11 +212,36 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
     Ok(())
 }
 
+fn cargo_toml(toolchain: &str, dylint_driver_spec: &str) -> String {
+    format!(
+        r#"
+[package]
+name = "dylint_driver-{toolchain}"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0"
+env_logger = "0.11"
+dylint_driver = {{ {dylint_driver_spec} }}
+"#,
+    )
+}
+
+fn rust_toolchain(toolchain: &str) -> String {
+    format!(
+        r#"
+[toolchain]
+channel = "{toolchain}"
+components = ["llvm-tools-preview", "rustc-dev"]
+"#,
+    )
+}
+
 #[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::process::{Command, ExitStatus};
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
@@ -256,8 +254,14 @@ mod test {
     // smoelius: As mentioned above, `tempdir` is a temporary directory. So there should be no race
     // here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    // smoelius: This test passes on macOS but for the wrong reason. On recent macOS versions (e.g.,
+    // Tahoe), if you copy `/bin/sleep` to you local directory and run it, it will be killed, even
+    // without `child.kill()`. I haven't yet figured out how best to address this.
+    #[cfg(not(target_os = "macos"))]
     #[test]
     fn can_install_while_driver_is_running() {
+        use std::process::{Command, ExitStatus};
+
         const WHICH: &str = if cfg!(target_os = "windows") {
             "where"
         } else {

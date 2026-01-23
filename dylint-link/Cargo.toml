@@ -1,8 +1,8 @@
 [package]
 name = "dylint-link"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
-description = "A wrapper around Rust's default linker to help create Dyling libraries"
+description = "A wrapper around Rust's default linker to help create Dylint libraries"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
@@ -10,22 +10,22 @@ repository = "https://github.com/trailofbits/dylint"
 [dependencies]
 anyhow = { workspace = true }
 env_logger = { workspace = true }
-if_chain = { workspace = true }
-toml_edit = { workspace = true }
+toml = { workspace = true }
 
-dylint_internal = { version = "=4.1.0", path = "../internal", features = [
+dylint_internal = { version = "=5.0.0", path = "../internal", features = [
     "cargo",
+    "rustup",
 ] }
 
 [build-dependencies]
-dylint_internal = { version = "=4.1.0", path = "../internal" }
+dylint_internal = { version = "=5.0.0", path = "../internal" }
 
 [dev-dependencies]
 assert_cmd = { workspace = true }
 predicates = { workspace = true }
 tempfile = { workspace = true }
 
-dylint_internal = { version = "=4.1.0", path = "../internal", features = [
+dylint_internal = { version = "=5.0.0", path = "../internal", features = [
     "packaging",
 ] }
 

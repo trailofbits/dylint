@@ -81,16 +81,19 @@ impl<'tcx> LateLintPass<'tcx> for EscapingDocLink {
         let parser = Parser::new_ext(&doc, Options::all());
 
         for (_, link_def) in parser.reference_definitions().iter() {
-            // smoelius: Heuristic to detect urls (`://`) and intra-doc links (`::`). Is there a
-            // better way?
-            if link_def.dest.contains("://") || link_def.dest.contains("::") {
+            // smoelius: Heuristic to detect urls (`://`), intra-doc links (`::`), and
+            // disambiguators (`@`). Is there a better way?
+            if link_def.dest.contains("://")
+                || link_def.dest.contains("::")
+                || link_def.dest.contains('@')
+            {
                 continue;
             }
 
             let path = link_def
                 .dest
                 .rsplit_once('#')
-                .map_or(link_def.dest.as_ref(), |(prefix, _)| prefix);
+                .map_or_else(|| link_def.dest.as_ref(), |(prefix, _)| prefix);
 
             let path = Path::new(path);
 
@@ -174,10 +177,7 @@ fn absolutize(base: &Path, path: &Path, normalize: bool) -> PathBuf {
 #[cfg_attr(dylint_lib = "general", allow(unnecessary_conversion_for_trait))]
 #[test]
 fn ui_absolute() {
-    dylint_testing::ui_test(
-        env!("CARGO_PKG_NAME"),
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("ui"),
-    );
+    dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui");
 }
 
 #[test]

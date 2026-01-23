@@ -18,12 +18,19 @@ use tempfile::tempdir;
 // smoelius: Put recent boundaries first, since they're more likely to cause problems.
 // smoelius: The relevant PRs and merge commits appear before each boundary.
 const BOUNDARIES: &[(&str, &str)] = &[
+    // https://github.com/rust-lang/rust/pull/138682
+    // https://github.com/rust-lang/rust/commit/0abc6c6e9859bc6915ddc76d484117ff626481c6
+    // smoelius: 2025-05-15 is skipped because there is no release for that date.
+    ("nightly-2025-05-14", "nightly-2025-05-16"),
+    // smoelius: `libloading-0.9.0` requires rustc 1.88.
     // https://github.com/rust-lang/rust/pull/135880
     // https://github.com/rust-lang/rust/commit/7d31ae7f351b4aa0fcb47d1d22e04c275bef0653
-    ("2025-01-24", "2025-01-25"),
+    // ("nightly-2025-01-24", "nightly-2025-01-25"),
+    // smoelius: `cargo-util-schemas@0.8.2` and `cargo_metadata@0.22.0` require rustc 1.86.
+    // nightly-2024-03-17 is Rust 1.85.
     // https://github.com/rust-lang/rust/pull/133567
     // https://github.com/rust-lang/rust/commit/d2881e4eb5e0fe1591bfd8e4cab1d5abc3e3a46c
-    ("2024-12-09", "2024-12-10"),
+    // ("2024-12-09", "2024-12-10"),
     // https://github.com/rust-lang/rust/pull/122450
     // https://github.com/rust-lang/rust/commit/685927aae69657b46323cffbeb0062835bd7fa2b
     // smoelius: `proc-macro2` now requires library features `proc_macro_byte_character` and
@@ -94,9 +101,9 @@ const BOUNDARIES: &[(&str, &str)] = &[
 
 #[test]
 fn boundary_toolchains() {
-    for (before, after) in BOUNDARIES {
-        for date in [before, after] {
-            let channel = format!("nightly-{date}");
+    for (channel_before, channel_after) in BOUNDARIES {
+        for channel in [channel_before, channel_after] {
+            assert!(channel.starts_with("nightly-"));
 
             let tempdir = tempdir().unwrap();
 
@@ -109,7 +116,7 @@ fn boundary_toolchains() {
             )
             .unwrap();
 
-            set_toolchain_channel(tempdir.path(), &channel).unwrap();
+            set_toolchain_channel(tempdir.path(), channel).unwrap();
 
             dylint_internal::cargo::test(&format!("with channel `{channel}`"))
                 .build()
@@ -121,7 +128,7 @@ fn boundary_toolchains() {
             if std::env::var(env::CI).is_ok() {
                 assert!(
                     std::process::Command::new("rustup")
-                        .args(["uninstall", &channel])
+                        .args(["uninstall", channel])
                         .status()
                         .unwrap()
                         .success()

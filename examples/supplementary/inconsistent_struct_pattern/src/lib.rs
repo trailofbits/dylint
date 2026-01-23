@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_data_structures;
@@ -20,7 +19,7 @@ use rustc_span::Symbol;
 dylint_linting::declare_late_lint! {
     /// ### What it does
     ///
-    /// Checks for struct patterns whose fields whose fields do not match their declared order.
+    /// Checks for struct patterns whose fields do not match their declared order.
     ///
     /// ### Why is this bad?
     ///

@@ -1,6 +1,6 @@
 [package]
 name = "ui_manifest"
-version = "4.1.0"
+version = "5.0.0"
 edition = "2024"
 
 [lints.clippy]

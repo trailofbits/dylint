@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_data_structures;
@@ -9,8 +8,10 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{
-    diagnostics::span_lint_and_sugg, path_to_local_id, peel_middle_ty_refs, source::snippet,
-    ty::is_copy,
+    diagnostics::span_lint_and_sugg,
+    res::MaybeResPath,
+    source::snippet,
+    ty::{is_copy, peel_and_count_ty_refs},
 };
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
@@ -20,7 +21,10 @@ use rustc_hir::{
     intravisit::{FnKind, Visitor, walk_expr},
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{self, adjustment::Adjust};
+use rustc_middle::ty::{
+    self,
+    adjustment::{Adjust, PatAdjustment},
+};
 use rustc_span::Span;
 use serde::Deserialize;
 use std::{cmp::min, fmt::Write};
@@ -122,17 +126,17 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
             }
 
             param.pat.walk(|pat| {
-                let pat_ty = if let Some([pat_ty, ..]) = cx
+                let pat_ty = if let Some([PatAdjustment { source, .. }, ..]) = cx
                     .typeck_results()
                     .pat_adjustments()
                     .get(pat.hir_id)
                     .map(Vec::as_slice)
                 {
-                    *pat_ty
+                    *source
                 } else {
                     cx.typeck_results().node_type(pat.hir_id)
                 };
-                let (referent_ty, n_refs) = peel_middle_ty_refs(pat_ty);
+                let (referent_ty, n_refs, _) = peel_and_count_ty_refs(pat_ty);
 
                 let mut is_tuple = false;
 
@@ -224,7 +228,7 @@ struct ProjectionVisitor<'tcx> {
 
 impl<'tcx> Visitor<'tcx> for ProjectionVisitor<'tcx> {
     fn visit_expr(&mut self, expr: &'tcx Expr<'tcx>) {
-        if path_to_local_id(expr, self.hir_id) {
+        if expr.res_local_id() == Some(self.hir_id) {
             let node = self.tcx.parent_hir_node(expr.hir_id);
             if let Node::Expr(Expr {
                 kind: ExprKind::Field(_, ident),
@@ -278,7 +282,7 @@ fn collect_non_ref_idents(pat: &Pat<'_>) -> Option<FxHashSet<HirId>> {
                 BindingMode(ByRef::No, _) => {
                     hir_ids.as_mut().map(|hir_ids| hir_ids.insert(pat.hir_id));
                 }
-                BindingMode(ByRef::Yes(_), _) => {
+                BindingMode(ByRef::Yes(..), _) => {
                     hir_ids = None;
                 }
             }
@@ -320,7 +324,7 @@ impl<'tcx> Visitor<'tcx> for DereferenceVisitor<'_, 'tcx> {
         if self
             .hir_ids
             .iter()
-            .any(|&hir_id| path_to_local_id(expr, hir_id))
+            .any(|&hir_id| expr.res_local_id() == Some(hir_id))
         {
             let (n_derefs, explicit_deref) = count_derefs(self.cx, expr);
             self.n_derefs = min(self.n_derefs, n_derefs);

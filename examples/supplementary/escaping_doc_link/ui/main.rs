@@ -12,4 +12,6 @@
 
 //! [broken link]: ../nonexistent_library
 
+//! [main]: fn@main
+
 fn main() {}

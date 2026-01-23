@@ -5,7 +5,7 @@ extern crate rustc_hir;
 extern crate rustc_middle;
 
 use clippy_utils::diagnostics::span_lint_and_then;
-use clippy_utils::match_def_path;
+use dylint_internal::match_def_path;
 use rustc_hir as hir;
 use rustc_hir::def_id::DefId;
 use rustc_lint::{LateContext, LateLintPass};
@@ -101,10 +101,9 @@ impl LateLintPass<'_> for AwaitHoldingSpanGuard {
                 )),
             ..
         }) = expr.kind
+            && let Some(coroutine_layout) = cx.tcx.mir_coroutine_witnesses(*def_id)
         {
-            if let Some(coroutine_layout) = cx.tcx.mir_coroutine_witnesses(*def_id) {
-                check_interior_types(cx, coroutine_layout);
-            }
+            check_interior_types(cx, coroutine_layout);
         }
     }
 }
@@ -115,16 +114,13 @@ fn check_interior_types(cx: &LateContext<'_>, coroutine: &CoroutineLayout<'_>) {
     for (ty_index, ty_cause) in coroutine.field_tys.iter_enumerated() {
         if let Adt(adt, _) = ty_cause.ty.kind() {
             let await_points = || {
-                coroutine
-                    .variant_source_info
-                    .iter_enumerated()
-                    .filter_map(|(variant, source_info)| {
-                        coroutine.variant_fields[variant]
-                            .raw
-                            .contains(&ty_index)
-                            .then_some(source_info.span)
-                    })
-                    .collect::<Vec<_>>()
+                let mut spans = Vec::new();
+                for (variant, source_info) in coroutine.variant_source_info.iter_enumerated() {
+                    if coroutine.variant_fields[variant].raw.contains(&ty_index) {
+                        spans.push(source_info.span);
+                    }
+                }
+                spans
             };
             if is_tracing_span_guard(cx, adt.did()) {
                 span_lint_and_then(

@@ -10,7 +10,6 @@ use std::{
     sync::LazyLock,
 };
 
-#[allow(clippy::module_name_repetitions)]
 pub use home::cargo_home;
 
 static STABLE_CARGO: LazyLock<PathBuf> = LazyLock::new(|| {
@@ -133,7 +132,7 @@ impl Builder {
             // smoelius: Writing directly to `stderr` prevents capture by `libtest`.
             let message = format!("{} {}", self.verb, self.description);
             writeln!(std::io::stderr(), "{style}{message}{style:#}")
-                .expect("Could not write to stderr");
+                .unwrap_or_else(|error| panic!("Could not write to stderr: {error}"));
         }
         let mut command = if self.stable {
             Command::new(&*STABLE_CARGO)
@@ -161,22 +160,16 @@ pub fn current_metadata() -> Result<Metadata> {
 }
 
 pub fn package_with_root(metadata: &Metadata, package_root: &Path) -> Result<Package> {
-    let packages = metadata
-        .packages
-        .iter()
-        .map(|package| {
-            let path = package
-                .manifest_path
-                .parent()
-                .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-            Ok(if path == package_root {
-                Some(package)
-            } else {
-                None
-            })
-        })
-        .filter_map(Result::transpose)
-        .collect::<Result<Vec<_>>>()?;
+    let mut packages = Vec::new();
+    for package in &metadata.packages {
+        let path = package
+            .manifest_path
+            .parent()
+            .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+        if path == package_root {
+            packages.push(package);
+        }
+    }
 
     ensure!(
         packages.len() <= 1,

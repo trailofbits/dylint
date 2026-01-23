@@ -1,4 +1,6 @@
 #![feature(rustc_private)]
+#![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
+#![allow(clippy::collapsible_if)]
 #![deny(clippy::expect_used)]
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
@@ -290,6 +292,8 @@ impl rustc_driver::Callbacks for Callbacks {
             }
         }));
 
+        register_extra_symbols(config);
+
         // smoelius: Choose to be compatible with Clippy:
         // https://github.com/rust-lang/rust-clippy/commit/7bae5bd828e98af9d245b77118c075a7f1a036b9
         zero_mir_opt_level(config);
@@ -326,6 +330,17 @@ fn list_lints(before: &BTreeSet<Lint>, after: &BTreeSet<Lint>) {
             level_width = level_width
         );
     }
+}
+
+#[rustversion::before(2025-05-14)]
+fn register_extra_symbols(_config: &mut rustc_interface::Config) {}
+
+#[rustversion::since(2025-05-14)]
+include!(concat!(env!("OUT_DIR"), "/extra_symbols.rs"));
+
+#[rustversion::since(2025-05-14)]
+fn register_extra_symbols(config: &mut rustc_interface::Config) {
+    config.extra_symbols = EXTRA_SYMBOLS.into();
 }
 
 pub fn dylint_driver<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {

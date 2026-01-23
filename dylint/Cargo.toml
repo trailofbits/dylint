@@ -1,20 +1,17 @@
 [package]
 name = "dylint"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
-# smoelius: Bump `edition` to 2024 once `rust-version` is 1.85 or later.
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
-rust-version = "1.81"
+# This should match `dylint_internal::msrv::MSRV`.
+rust-version = "1.88"
 
 [dependencies]
 anstyle = { workspace = true }
 anyhow = { workspace = true }
-# smoelius: The `cargo` dependency should be kept in sync with: dylint/src/library_packages/cargo_lib/toml/mod.rs
-cargo = { workspace = true, optional = true }
-cargo-platform = { workspace = true, optional = true }
 cargo-util = { workspace = true, optional = true }
 cargo-util-schemas = { workspace = true, optional = true }
 cargo_metadata = { workspace = true }
@@ -24,7 +21,6 @@ fs_extra = { workspace = true, optional = true }
 glob = { workspace = true, optional = true }
 heck = { workspace = true, optional = true }
 hex = { workspace = true, optional = true }
-if_chain = { workspace = true, optional = true }
 log = { workspace = true }
 once_cell = { workspace = true }
 rewriter = { workspace = true, optional = true }
@@ -42,25 +38,24 @@ syntect = { workspace = true, features = [
 tempfile = { workspace = true }
 toml = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
-walkdir = { workspace = true }
+walkdir = { workspace = true, optional = true }
 
-dylint_internal = { version = "=4.1.0", path = "../internal", features = [
+dylint_internal = { version = "=5.0.0", path = "../internal", features = [
     "config",
     "git",
     "packaging",
     "rustup",
-    "sed",
 ] }
 
 [build-dependencies]
-dylint_internal = { version = "=4.1.0", path = "../internal", features = [
+dylint_internal = { version = "=5.0.0", path = "../internal", features = [
     "cargo",
 ] }
 
 [dev-dependencies]
 env_logger = { workspace = true }
 
-dylint_internal = { version = "=4.1.0", path = "../internal", features = [
+dylint_internal = { version = "=5.0.0", path = "../internal", features = [
     "examples",
 ] }
 
@@ -72,9 +67,9 @@ package_options = [
     "dylint_internal/clippy_utils",
     "dylint_internal/git",
     "heck",
-    "if_chain",
     "rewriter",
     "syntect",
+    "walkdir",
 ]
 __cargo_cli = [
     "cargo-util",
@@ -84,29 +79,11 @@ __cargo_cli = [
     "fs_extra",
     "glob",
     "hex",
-    "if_chain",
     "rustc-stable-hash",
     "serde-untagged",
     "toml",
     "url",
 ]
-__cargo_lib = [
-    "cargo",
-    "cargo-platform",
-    "cargo-util",
-    "cargo-util-schemas",
-    "dunce",
-    "glob",
-    "if_chain",
-    "serde-untagged",
-    "toml",
-]
 
 [lints]
 workspace = true
-
-# smoelius: When both `__cargo_cli` and `__cargo_lib` are enabled, we treat it as though
-# `--features=cargo-lib` was passed but the user forgot to pass `--no-default-features`. This
-# approach causes `fs_extra` and `rustc-stable-hash` to look like unused dependencies.
-[package.metadata.cargo-udeps.ignore]
-normal = ["fs_extra", "rustc-stable-hash"]

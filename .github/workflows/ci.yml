@@ -14,6 +14,9 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
 
+permissions:
+  contents: read
+
 jobs:
   check-up-to-dateness:
     outputs:
@@ -24,33 +27,6 @@ jobs:
     steps:
       - id: main
         uses: trailofbits/check-up-to-dateness@v1
-
-  lint:
-    needs: [check-up-to-dateness]
-
-    if: needs.check-up-to-dateness.outputs.is-up-to-date != 'true'
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.dylint_drivers/
-            ~/.rustup/toolchains/
-          key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
-
-      - name: Install dylint-link
-        run: cargo install --path ./dylint-link --force
-
-      - name: Lint
-        run: ./scripts/lint.sh
 
   test:
     needs: [check-up-to-dateness]
@@ -64,8 +40,8 @@ jobs:
         package:
           [
             cargo-dylint,
-            cargo-dylint-cargo-lib,
             dylint_examples,
+            expensive-auto_correct,
             expensive-alpine,
             expensive-boundary_toolchains,
             expensive-custom_toolchain,
@@ -82,12 +58,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       # smoelius: The `nightly_toolchain` test makes sense only if the nightly driver is cached.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/bin/
@@ -106,11 +82,11 @@ jobs:
 
       - name: Install tools
         run: |
-          npm install -g prettier
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
+          cargo install cargo-nested || true
+          npm install -g prettier
 
-      # smoelius: This list will grow: https://github.com/trailofbits/dylint/issues/636
       - name: Install CI tools
         if: ${{ matrix.package == 'cargo-dylint-ci' }}
         run: |
@@ -118,7 +94,6 @@ jobs:
           cargo install cargo-license        || true
           cargo install cargo-msrv           || true
           cargo install cargo-rdme           || true
-          cargo install cargo-sort           || true
           cargo install cargo-supply-chain   || true
           cargo install cargo-udeps --locked || true
           cargo install cargo-unmaintained   || true
@@ -128,10 +103,14 @@ jobs:
         if: ${{ matrix.environment == 'ubuntu-latest' }}
         run: |
           # https://github.com/actions/runner-images/issues/2606#issuecomment-772683150
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/share/swift
           # du -sh /usr/*/* 2>/dev/null | sort -h || true
+          sudo rm -rfv /usr/lib/google-cloud-sdk | grep . >/dev/null
+          sudo rm -rfv /usr/lib/jvm              | grep . >/dev/null
+          sudo rm -rfv /usr/local/julia*         | grep . >/dev/null
+          sudo rm -rfv /usr/share/az_*           | grep . >/dev/null
+          sudo rm -rfv /usr/share/dotnet         | grep . >/dev/null
+          sudo rm -rfv /usr/share/miniconda      | grep . >/dev/null
+          sudo rm -rfv /usr/share/swift          | grep . >/dev/null
 
       - name: Free up space on macOS
         if: ${{ matrix.environment == 'macos-latest' }}
@@ -140,28 +119,24 @@ jobs:
           echo /Applications/Xcode* | sort | head -n1 | xargs rm -rf
           # du -sh /*/* 2>/dev/null | sort -h || true
 
+      # smoelius: The next step avoids tests having to use `rustup` concurrently.
       - name: Preinstall toolchains
         run: cargo run -p dylint_internal --bin preinstall-toolchains
 
       - name: Test
         run: |
+          cargo nested fetch
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
             case '${{ matrix.package }}' in
               cargo-dylint)
                 cargo test -p cargo-dylint --no-default-features --features=cargo-cli -- --nocapture
                 ;;
-              cargo-dylint-cargo-lib)
-                # smoelius: The next line is useful for debugging.
-                # sed -i 's/^.*\<fs_extra\>/# &/' dylint/Cargo.toml
-                git diff
-                cargo test -p cargo-dylint --no-default-features --features=cargo-lib -- --nocapture
-                ;;
               cargo-dylint-ci)
-                cargo test -p cargo-dylint --test ci
+                cargo test -p cargo-dylint --test ci -- --nocapture
                 if [[ '${{ github.event_name }}' = 'schedule' || '${{ github.event_name }}' = 'workflow_dispatch' ]] ||
                   git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -w 'scheduled'
                 then
-                  cargo test -p scheduled
+                  cargo test -p scheduled -- --nocapture
                 fi
                 ;;
               *)
@@ -187,14 +162,6 @@ jobs:
           else
             cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive --exclude scheduled -- --nocapture
 
-            pushd driver
-            cargo test --all-features -- --nocapture
-            popd
-
-            pushd utils/linting
-            cargo test --all-features -- --nocapture
-            popd
-
             # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
             for X in examples/*/*; do
               if [[ ! -d "$X" ]]; then
@@ -213,9 +180,10 @@ jobs:
           fi
         env:
           CARGO_INCREMENTAL: 0
+          GITHUB_TOKEN: ${{ github.token }}
 
   all-checks:
-    needs: [lint, test]
+    needs: [test]
 
     # smoelius: From "Defining prerequisite jobs"
     # (https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs):

@@ -1,6 +1,6 @@
 [package]
 name = "escaping_doc_link"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for doc comment links that escape their packages"
 edition = "2024"

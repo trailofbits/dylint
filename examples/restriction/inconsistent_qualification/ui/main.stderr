@@ -60,37 +60,37 @@ LL |         use std::env::var_os;
    |         ^^^^^^^^^^^^^^^^^^^^^
 
 warning: inconsistent qualification
-  --> $DIR/main.rs:80:9
+  --> $DIR/main.rs:77:9
    |
 LL |         bar::Baz::new()
    |         ^^^^^^^^
    |
 note: `bar::Baz` was imported here
-  --> $DIR/main.rs:77:5
+  --> $DIR/main.rs:74:5
    |
 LL |     use bar::Baz;
    |     ^^^^^^^^^^^^^
 
 warning: inconsistent qualification
-  --> $DIR/main.rs:98:15
+  --> $DIR/main.rs:95:15
    |
 LL |         <_ as std::borrow::Borrow<T>>::borrow(x)
    |               ^^^^^^^^^^^^^^^^^^^
    |
 note: `std::borrow::Borrow` was imported here
-  --> $DIR/main.rs:95:5
+  --> $DIR/main.rs:92:5
    |
 LL |     use std::borrow::Borrow;
    |     ^^^^^^^^^^^^^^^^^^^^^^^^
 
 warning: inconsistent qualification
-  --> $DIR/main.rs:107:9
+  --> $DIR/main.rs:104:9
    |
 LL |         bar::baz::qux()
    |         ^^^^^^^^
    |
 note: `bar::baz` was imported here
-  --> $DIR/main.rs:104:5
+  --> $DIR/main.rs:101:5
    |
 LL |     use bar::baz;
    |     ^^^^^^^^^^^^^

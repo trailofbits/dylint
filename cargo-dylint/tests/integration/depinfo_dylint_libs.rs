@@ -1,19 +1,18 @@
-use assert_cmd::prelude::*;
+use assert_cmd::cargo::cargo_bin_cmd;
 use dylint_internal::env;
 use predicates::prelude::*;
-use std::{env::set_var, process::Command};
+use std::env::remove_var;
 
 #[ctor::ctor]
 fn initialize() {
     unsafe {
-        set_var(env::CARGO_TERM_COLOR, "never");
+        remove_var(env::CARGO_TERM_COLOR);
     }
 }
 
 #[test]
 fn depinfo_dylint_libs() {
-    Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir("../fixtures/depinfo_dylint_libs")
         .args(["dylint", "--lib", "question_mark_in_expression"])
         .assert()
@@ -21,8 +20,7 @@ fn depinfo_dylint_libs() {
             "\nwarning: using the `?` operator within an expression\n",
         ));
 
-    Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir("../fixtures/depinfo_dylint_libs")
         .args(["dylint", "--lib", "try_io_result"])
         .assert()

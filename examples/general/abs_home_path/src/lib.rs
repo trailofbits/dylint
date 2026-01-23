@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_ast;
@@ -7,13 +6,15 @@ extern crate rustc_hir;
 extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint, is_in_test};
-use dylint_internal::home;
 use once_cell::unsync::OnceCell;
 use rustc_ast::ast::LitKind;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::Span;
-use std::path::{Path, PathBuf};
+use std::{
+    env::home_dir,
+    path::{Path, PathBuf},
+};
 
 dylint_linting::impl_late_lint! {
     /// ### What it does
@@ -85,18 +86,25 @@ impl<'tcx> LateLintPass<'tcx> for AbsHomePath {
             && path.is_absolute()
             && self
                 .home
-                .get_or_init(home::home_dir)
+                .get_or_init(home_dir)
                 .as_ref()
                 .is_some_and(|dir| path.starts_with(dir))
         {
             span_lint(
                 cx,
                 ABS_HOME_PATH,
-                Span::with_root_ctxt(expr.span.lo(), expr.span.hi()),
+                get_nearest_root_span(expr.span),
                 "this path might not exist in production",
             );
         }
     }
+}
+
+fn get_nearest_root_span(mut span: Span) -> Span {
+    while !span.ctxt().is_root() {
+        span = span.source_callsite();
+    }
+    span
 }
 
 #[test]
@@ -108,10 +116,9 @@ fn ui() {
 
     // smoelius: On GitHub, `dylint` is stored on the D drive, not in the user's home directory on
     // the C drive.
-    if let Some(home) = home::home_dir()
+    if let Some(home) = home_dir()
         && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
     {
-        #[expect(clippy::explicit_write)]
         writeln!(
             stderr(),
             "Skipping `ui` test as repository is not stored in the user's home directory"
@@ -183,10 +190,9 @@ fn context_allowance() {
     ];
 
     // Skip tests if repository is not stored in the user's home directory
-    if let Some(home) = home::home_dir()
+    if let Some(home) = home_dir()
         && !Path::new(env!("CARGO_MANIFEST_DIR")).starts_with(home)
     {
-        #[expect(clippy::explicit_write)]
         writeln!(
             stderr(),
             "Skipping `context_allowance` tests as repository is not stored in the user's home directory"
@@ -209,9 +215,11 @@ fn context_allowance() {
                 case.manifest_path,
                 "--path",
                 env!("CARGO_MANIFEST_DIR"),
+                "--",
+                "--all-targets",
             ])
             .logged_output(true)
-            .expect("Failed to execute cargo-dylint command");
+            .unwrap_or_else(|error| panic!("Failed to execute cargo-dylint command: {error}"));
 
         (case.assert_fn)(&output);
     }

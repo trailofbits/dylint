@@ -35,6 +35,6 @@ s/^\(.*\)\<version = \"[^\"]*\"\(.*\)$/\1$REQ\2/
 
 # smoelius: `template` must be handled specially because it does not use the `version = "..."`
 # syntax.
-sed -i "s/^\(dylint_[^ ]*\) = \"[^\"]*\"$/\1 = \"$1\"/" internal/template/Cargo.toml~
+sed -i "s/^\(dylint_[^ ]*\) = \"[^\"]*\"$/\1 = \"$1\"/" internal/template/Cargo.toml
 
 scripts/update_lockfiles.sh

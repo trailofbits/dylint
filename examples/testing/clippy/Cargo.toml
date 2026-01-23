@@ -1,6 +1,6 @@
 [package]
 name = "clippy"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "All of the Clippy lints as a Dylint library"
 edition = "2024"
@@ -10,9 +10,10 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-clippy_config = { git = "https://github.com/rust-lang/rust-clippy", rev = "7bb54d91be1af212faaa078786c1d2271a67d4f9" }
-clippy_lints = { git = "https://github.com/rust-lang/rust-clippy", rev = "7bb54d91be1af212faaa078786c1d2271a67d4f9" }
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "7bb54d91be1af212faaa078786c1d2271a67d4f9" }
+clippy_config = { git = "https://github.com/rust-lang/rust-clippy", rev = "9e3e9649cbae7ed33ba62ca436f43081eaaedeb5" }
+clippy_lints = { git = "https://github.com/rust-lang/rust-clippy", rev = "9e3e9649cbae7ed33ba62ca436f43081eaaedeb5" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9e3e9649cbae7ed33ba62ca436f43081eaaedeb5" }
+declare_clippy_lint = { git = "https://github.com/rust-lang/rust-clippy", rev = "9e3e9649cbae7ed33ba62ca436f43081eaaedeb5" }
 serde_json = "1.0"
 
 dylint_internal = { path = "../../../internal" }
@@ -20,10 +21,10 @@ dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
 anyhow = "1.0"
-cargo_metadata = "0.19"
+cargo_metadata = "0.23"
 env_logger = "0.11"
 log = "0.4"
-tempfile = "3.19"
+tempfile = "3.23"
 
 dylint = { path = "../../../dylint" }
 dylint_internal = { path = "../../../internal", features = ["git"] }

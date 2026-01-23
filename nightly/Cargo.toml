@@ -1,0 +1,18 @@
+[package]
+name = "nightly"
+description = "Containing package for Dylint workspaces requiring a nightly toolchain"
+version = "5.0.0"
+edition = "2024"
+publish = false
+
+[build-dependencies]
+nested_workspace = { workspace = true }
+
+[dev-dependencies]
+nested_workspace = { workspace = true }
+
+[lints]
+workspace = true
+
+[package.metadata.nested_workspace]
+roots = ["../driver", "../internal/template", "../utils/linting"]

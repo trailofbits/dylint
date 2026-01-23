@@ -1,12 +1,9 @@
 #![allow(clippy::unwrap_used)]
 
-use super::{
-    Backup,
-    common::{self, clippy_repository},
-};
+use super::Backup;
 use crate::opts;
 use anyhow::{Context, Result};
-use dylint_internal::git2::Oid;
+use dylint_internal::{clippy_utils::clippy_repository, git2::Oid};
 use rewriter::{LineColumn, Rewriter, Span, interface::Span as _};
 use std::{
     collections::{BTreeMap, HashMap},
@@ -121,6 +118,10 @@ pub fn auto_correct_revertible(
             if highlight.line_start <= *last_rewritten_line {
                 continue;
             }
+            // smoelius: `replacement_source_map` maps replacement text to the rewrites from which
+            // they came. A reason for mapping from replacement text is to avoid creating
+            // unnecessary distinctions among rewrites. In other words, if two rewrites with the
+            // same score provide the same replacement text, then either rewrite can be applied.
             let mut replacement_source_map = applicable_rewrites(&rewrites, highlight)?;
             // smoelius: If the next call to `max` succeeds, it means there is at least one
             // replacement.
@@ -149,15 +150,18 @@ pub fn auto_correct_revertible(
             // smoelius: We know there is at least one replacement, because `max` above was not
             // `None`.
             let (replacement, source) = replacement_source_map.pop_first().unwrap();
+            // smoelius: Note that a replacement could have multiple sources. But it doesn't really
+            // matter, because the replacement text is the same for each. The only way it could
+            // matter is that the commit oid would be wrong. But we only track one, so what we
+            // output is already inaccurate.
             eprintln!(
-                "Rewriting with score {} rewrite from {}: {:#?} {:#?}",
-                best_score,
+                "Rewriting with score {best_score} rewrite from {}: {:#?} {:#?}",
                 source.oid.short_id(),
                 source.rewrite,
                 highlight,
             );
-            *last_rewritten_line = source.span.end().line;
             let _: String = rewriter.rewrite(&source.span, &replacement);
+            *last_rewritten_line = source.span.end().line;
         }
 
         for (file_name, (_, rewriter)) in rewriters {
@@ -204,6 +208,7 @@ fn applicable_rewrites<'rewrite>(
                             - rewrite.common_prefix_len),
             )?;
             if let Some(source) = replacement_source_map.get_mut(&replacement) {
+                // smoelius: Higher scores are better.
                 if source.score < score {
                     *source = ReplacementSource {
                         score,

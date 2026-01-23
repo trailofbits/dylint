@@ -1,13 +1,13 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_help, match_def_path};
-use rustc_hir::{Expr, ExprKind, LangItem, MatchSource, QPath};
+use clippy_utils::diagnostics::span_lint_and_help;
+use dylint_internal::{match_def_path, paths};
+use rustc_hir::{Expr, ExprKind, LangItem, MatchSource};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{GenericArgKind, Ty, TyKind};
 use rustc_span::sym;
@@ -59,8 +59,8 @@ impl<'tcx> LateLintPass<'tcx> for TryIoResult {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'_>) {
         if let ExprKind::Match(scrutinee, _, MatchSource::TryDesugar(_)) = expr.kind
             && let ExprKind::Call(callee, [arg]) = scrutinee.kind
-            && let ExprKind::Path(path) = &callee.kind
-            && matches!(path, QPath::LangItem(LangItem::TryTraitBranch, _))
+            && let ExprKind::Path(qpath) = callee.kind
+            && cx.tcx.qpath_is_lang_item(qpath, LangItem::TryTraitBranch)
             && let arg_ty = cx.typeck_results().node_type(arg.hir_id)
             && is_io_result(cx, arg_ty)
             && let local_def_id = cx.tcx.hir_enclosing_body_owner(expr.hir_id)
@@ -87,9 +87,9 @@ fn is_io_result(cx: &LateContext<'_>, ty: Ty) -> bool {
     if let TyKind::Adt(def, substs) = ty.kind()
         && cx.tcx.is_diagnostic_item(sym::Result, def.did())
         && let [_, generic_arg] = substs.as_slice()
-        && let GenericArgKind::Type(generic_arg_ty) = generic_arg.unpack()
+        && let GenericArgKind::Type(generic_arg_ty) = generic_arg.kind()
         && let TyKind::Adt(generic_arg_def, _) = generic_arg_ty.kind()
-        && match_def_path(cx, generic_arg_def.did(), &dylint_internal::paths::IO_ERROR)
+        && match_def_path(cx, generic_arg_def.did(), &paths::IO_ERROR)
     {
         true
     } else {

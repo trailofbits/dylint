@@ -1,6 +1,6 @@
 [package]
 name = "basic_dead_store"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Filipe Casal <fcasal@users.noreply.github.com>"]
 description = "A lint to find simple instances of dead stores in arrays"
 edition = "2024"

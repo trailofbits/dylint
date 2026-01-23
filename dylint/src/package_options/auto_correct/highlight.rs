@@ -36,6 +36,7 @@ pub struct Highlight {
     pub is_primary: bool,
 }
 
+#[allow(clippy::missing_fields_in_debug)]
 impl std::fmt::Debug for Highlight {
     #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

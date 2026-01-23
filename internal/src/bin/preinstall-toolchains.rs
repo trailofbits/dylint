@@ -1,22 +1,27 @@
 use anyhow::{Context, Result, anyhow, ensure};
 use regex::Regex;
 use std::{
+    ffi::OsStr,
     fs::File,
     io::{BufRead, BufReader},
-    path::Path,
+    path::{Path, PathBuf},
     process::{Command, Stdio},
     sync::LazyLock,
     thread,
 };
 
 fn main() -> Result<()> {
-    let toolchains = collect_toolchains(&["cargo-dylint", "examples", "internal"])?;
+    let toolchains = collect_toolchains(&["cargo-dylint", "examples", "expensive", "internal"])?;
 
     println!("{:#?}", &toolchains);
 
-    let handles = std::iter::once("nightly".to_owned())
-        .chain(toolchains)
-        .map(|toolchain| (thread::spawn(move || install_toolchain(&toolchain))));
+    let mut handles = Vec::new();
+    for toolchain in ["stable", "nightly"] {
+        handles.push(thread::spawn(move || install_toolchain(toolchain)));
+    }
+    for toolchain in toolchains {
+        handles.push(thread::spawn(move || install_toolchain(toolchain)));
+    }
 
     for handle in handles {
         let () = handle
@@ -50,14 +55,22 @@ fn collect_toolchains_for_dir(dir: &str) -> Result<Vec<String>> {
         .with_context(|| "Could not spawn `git ls-files`")?;
 
     let stdout = ls_files.stdout.take().unwrap();
-    BufReader::new(stdout)
-        .lines()
-        .try_fold(Vec::new(), |mut toolchains, result| -> Result<_> {
-            let path = result.with_context(|| "Could not read from `git ls-files`")?;
-            let toolchains_for_path = collect_toolchains_for_path(path)?;
-            toolchains.extend(toolchains_for_path);
-            Ok(toolchains)
-        })
+    let mut toolchains = Vec::new();
+    for result in BufReader::new(stdout).lines() {
+        let path = result
+            .map(PathBuf::from)
+            .with_context(|| "Could not read from `git ls-files`")?;
+        if path
+            .file_stem()
+            .and_then(OsStr::to_str)
+            .is_some_and(|file_stem| file_stem.ends_with("_no_preinstall"))
+        {
+            continue;
+        }
+        let toolchains_for_path = collect_toolchains_for_path(path)?;
+        toolchains.extend(toolchains_for_path);
+    }
+    Ok(toolchains)
 }
 
 static RE: LazyLock<Regex> =
@@ -66,18 +79,19 @@ static RE: LazyLock<Regex> =
 fn collect_toolchains_for_path(path: impl AsRef<Path>) -> Result<Vec<String>> {
     let file = File::open(&path)
         .with_context(|| format!("Could not open `{}`", path.as_ref().display()))?;
-    BufReader::new(file)
-        .lines()
-        .try_fold(Vec::new(), |mut toolchains, result| -> Result<_> {
-            let line = result
-                .with_context(|| format!("Could not read from `{}`", path.as_ref().display()))?;
-            let n = line.find("//").unwrap_or(line.len());
-            toolchains.extend(RE.find_iter(&line[..n]).map(|m| m.as_str().to_owned()));
-            Ok(toolchains)
-        })
+    let mut toolchains = Vec::new();
+    for result in BufReader::new(file).lines() {
+        let line =
+            result.with_context(|| format!("Could not read from `{}`", path.as_ref().display()))?;
+        let n = line.find("//").unwrap_or(line.len());
+        toolchains.extend(RE.find_iter(&line[..n]).map(|m| m.as_str().to_owned()));
+    }
+    Ok(toolchains)
 }
 
-fn install_toolchain(toolchain: &str) -> Result<()> {
+fn install_toolchain(toolchain: impl AsRef<str>) -> Result<()> {
+    let toolchain = toolchain.as_ref();
+
     let status = Command::new("rustup")
         .args(["install", toolchain, "--profile=minimal"])
         .status()

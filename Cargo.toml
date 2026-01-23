@@ -1,17 +1,17 @@
-# smoelius: `dylint_driver` and `dylint_linting` are in their own workspaces because they require
-# specific Rust components.
+# smoelius: `dylint_driver`, `dylint_linting`, and the library template are in their own workspaces
+# because they require specific Rust components.
 
 [workspace]
+exclude = ["driver", "internal/template", "utils/linting"]
 members = [
     "cargo-dylint",
-    # "driver",
     "dylint",
     "dylint-link",
     "examples",
     "expensive",
     "internal",
+    "nightly",
     "scheduled",
-    # "utils/linting",
     "utils/testing",
 ]
 resolver = "2"
@@ -19,32 +19,29 @@ resolver = "2"
 [workspace.dependencies]
 anstyle = "1.0"
 anyhow = "1.0"
-assert_cmd = "2.0"
-bitflags = "2.9"
-cargo = "0.81"
-cargo-platform = "0.1"
+assert_cmd = "2.1"
+bitflags = "2.10"
 cargo-util = "0.2"
-cargo-util-schemas = "0.7"
-cargo_metadata = "0.19"
+cargo-util-schemas = "0.10"
+cargo_metadata = "0.23"
 chrono = { version = "0.4", default-features = false }
 clap = "4.5"
 compiletest_rs = "0.11"
-ctor = "0.2"
+ctor = "0.6"
 dunce = "1.0"
 env_logger = "0.11"
 fs_extra = "1.3"
-git2 = "0.18"
+git2 = "0.20"
 glob = "0.3"
 heck = "0.5"
 hex = "0.4"
-home = "=0.5.9"
-if_chain = "1.0"
+home = "0.5"
 log = "0.4"
+nested_workspace = "0.7"
 once_cell = "1.21"
 predicates = "3.1"
-regex = "1.11"
-rewriter = "0.1"
-rust-embed = "8.7"
+regex = "1.12"
+rewriter = "0.2"
 rustc-stable-hash = "0.1"
 rustversion = "1.0"
 semver = "1.0"
@@ -52,11 +49,13 @@ serde = "1.0"
 serde-untagged = "0.1"
 serde_json = "1.0"
 similar-asserts = "1.7"
-syntect = { version = "5.2", default-features = false }
-tempfile = "3.19"
+snapbox = "0.6"
+syntect = { version = "5.3", default-features = false }
+tar = "0.4"
+tempfile = "3.24"
 thiserror = "2.0"
-toml = "0.8"
-toml_edit = "0.22"
+toml = "0.9"
+toml_edit = "0.24"
 url = "2.5"
 walkdir = "2.5"
 
@@ -74,8 +73,8 @@ level = "deny"
 check-cfg = [
     "cfg(coverage)",
     "cfg(dylint_lib, values(any()))",
+    "cfg(nightly)",
     "cfg(__cargo_cli)",
-    "cfg(__cargo_lib)",
     "cfg(__library_packages)",
 ]
 
@@ -89,16 +88,13 @@ libraries = [
 
 [workspace.metadata.unmaintained]
 ignore = [
-    "icu_locid",
-    "icu_locid_transform",
-    "icu_locid_transform_data",
-    "icu_provider_macros",
+    "bincode",
     "miow",
     "num_cpus",
-    "rust-embed-impl",
-    "rust-embed-utils",
     "serde-value",
     "tester",
+    # https://github.com/toml-rs/toml/blob/5a029b03dda8fa4d58e1c9a76af4d44eeaa68cc1/crates/toml_writer/CHANGELOG.md?plain=1#L12
+    "toml_write",
     # https://github.com/alacritty/vte/pull/122#issuecomment-2579278540
     "utf8parse",
 ]

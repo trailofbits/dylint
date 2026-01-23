@@ -1,6 +1,6 @@
 [package]
 name = "unnecessary_borrow_mut"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for calls to `RefCell::borrow_mut` that could be `RefCell::borrow`"
 edition = "2024"
@@ -12,7 +12,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 clippy_utils = { workspace = true }
 
-dylint_internal = { path = "../../../internal" }
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]

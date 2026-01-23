@@ -4,4 +4,4 @@ version = 4
 
 [[package]]
 name = "ui_build_script"
-version = "4.1.0"
+version = "5.0.0"

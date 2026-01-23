@@ -1,0 +1,4 @@
+Warning: `env_logger` already initialized: attempted to set a logger after the logging system was already initialized
+Cloning into '[..]'...
+Checking upgraded library package
+Found 0 highlights in [..] seconds

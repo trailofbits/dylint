@@ -1,6 +1,6 @@
 [package]
 name = "assert_eq_arg_misordering"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for `assert_eq!(actual, expected)`"
 edition = "2024"

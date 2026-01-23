@@ -1,28 +1,23 @@
 #[cfg(all(not(coverage), test))]
 mod test {
     use cargo_metadata::MetadataCommand;
-    use dylint_internal::{
-        CommandExt, clippy_utils::toolchain_channel, examples::iter, rustup::SanitizeEnvironment,
+    use dylint_internal::{CommandExt, clippy_utils::toolchain_channel, examples::iter};
+    use regex::Regex;
+    use std::{
+        collections::BTreeSet,
+        ffi::OsStr,
+        fs::{read_dir, read_to_string},
+        path::Path,
+        process::Command,
     };
-    use std::{ffi::OsStr, fs::read_to_string, process::Command};
-    use toml_edit::{DocumentMut, Item, Value};
+    use toml_edit::{DocumentMut, Item};
     use walkdir::WalkDir;
 
     #[test]
     fn examples() {
-        for path in iter(false).unwrap() {
-            let path = path.unwrap();
-            let file_name = path.file_name().unwrap();
-            // smoelius: Pass `--lib --tests` to `cargo test` to avoid the potential filename
-            // collision associated with building the examples.
-            dylint_internal::cargo::test(&format!("example `{}`", file_name.to_string_lossy()))
-                .build()
-                .sanitize_environment()
-                .current_dir(path)
-                .args(["--lib", "--tests"])
-                .success()
-                .unwrap();
-        }
+        // smoelius: Pass `--lib --tests` to `cargo test` to avoid the potential filename
+        // collision associated with building the examples.
+        nested_workspace::test().args(["--lib", "--tests"]).unwrap();
     }
 
     #[test]
@@ -123,17 +118,17 @@ mod test {
             let path = path.unwrap();
 
             let contents = read_to_string(path.join("rust-toolchain")).unwrap();
-            let document = contents.parse::<DocumentMut>().unwrap();
-            let array = document
-                .as_table()
+            let table = toml::from_str::<toml::Table>(&contents).unwrap();
+            let array = table
                 .get("toolchain")
-                .and_then(Item::as_table)
-                .and_then(|table| table.get("components"))
-                .and_then(Item::as_array)
+                .and_then(toml::Value::as_table)
+                .and_then(|toolchain| toolchain.get("components"))
+                .and_then(toml::Value::as_array)
                 .unwrap();
+
             let components = array
                 .iter()
-                .map(Value::as_str)
+                .map(toml::Value::as_str)
                 .collect::<Option<Vec<_>>>()
                 .unwrap();
 
@@ -148,37 +143,34 @@ mod test {
         let allowed_dirs = ["experimental", "testing"];
         let root_dirs_with_exceptions = ["general", "supplementary", "restriction"];
 
-        for entry in WalkDir::new("examples").into_iter().flatten() {
+        for entry in WalkDir::new(".").into_iter().flatten() {
+            let file_name = entry.file_name().to_str().unwrap();
             let path = entry.path();
-            let normalized_path = path.strip_prefix("examples").unwrap_or(path);
 
-            if let Some(file_name) = normalized_path.file_name().and_then(OsStr::to_str) {
-                if forbidden_files_general.contains(&file_name) {
-                    assert!(
-                        !forbidden_files_general.contains(&file_name),
-                        "Forbidden file `.gitignore` found in examples directory: {}",
-                        normalized_path.display()
-                    );
-                }
+            if forbidden_files_general.contains(&file_name) {
+                assert!(
+                    !forbidden_files_general.contains(&file_name),
+                    "Forbidden file `.gitignore` found in examples directory: {}",
+                    path.display()
+                );
+            }
 
-                if forbidden_files_specific.contains(&file_name) {
-                    let is_in_allowed_directory = allowed_dirs
-                        .iter()
-                        .any(|&allowed| normalized_path.starts_with(allowed));
+            if forbidden_files_specific.contains(&file_name) {
+                let is_in_allowed_directory = allowed_dirs
+                    .iter()
+                    .any(|&allowed| path.starts_with(allowed));
 
-                    let is_in_root_of_exception_dirs =
-                        root_dirs_with_exceptions.iter().any(|&exception| {
-                            normalized_path.starts_with(exception)
-                                && normalized_path.components().count() == 2
-                        });
+                let is_in_root_of_exception_dirs =
+                    root_dirs_with_exceptions.iter().any(|&exception| {
+                        path.starts_with(exception) && path.components().count() == 2
+                    });
 
-                    assert!(
-                        !(is_in_allowed_directory || is_in_root_of_exception_dirs),
-                        "Forbidden file {} found in non-allowed directory: {}",
-                        file_name,
-                        normalized_path.display()
-                    );
-                }
+                assert!(
+                    !(is_in_allowed_directory || is_in_root_of_exception_dirs),
+                    "Forbidden file {} found in non-allowed directory: {}",
+                    file_name,
+                    path.display()
+                );
             }
         }
     }
@@ -201,7 +193,7 @@ mod test {
                     path.to_str().unwrap(),
                 ])
                 .logged_output(false)
-                .expect("Failed to execute rustfmt");
+                .unwrap_or_else(|error| panic!("Failed to execute rustfmt: {error}"));
 
             if !output.status.success() {
                 failed_files.push(path.to_path_buf());
@@ -223,5 +215,57 @@ mod test {
                 .collect::<Vec<_>>()
                 .join("\n")
         );
+    }
+
+    #[test]
+    fn verify_registered_lints() {
+        const CATEGORIES: &[&str] = &["general", "supplementary"];
+        let register_lints_re =
+            Regex::new(r"([a-zA-Z_][a-zA-Z0-9_]*)::register_lints\s*\(").unwrap();
+
+        for category in CATEGORIES {
+            let category_path = Path::new(category);
+            let lib_rs_path = category_path.join("src/lib.rs");
+            let file_contents = read_to_string(&lib_rs_path)
+                .unwrap_or_else(|e| panic!("Failed to read {}: {}", lib_rs_path.display(), e));
+
+            let actual_lints: BTreeSet<_> = register_lints_re
+                .captures_iter(&file_contents)
+                .map(|cap| cap.get(1).unwrap().as_str().to_string())
+                .collect();
+
+            let expected_lints: BTreeSet<_> = read_dir(category_path)
+                .unwrap_or_else(|e| {
+                    panic!(
+                        "Failed to read directory {}: {}",
+                        category_path.display(),
+                        e
+                    )
+                })
+                .filter_map(|entry| {
+                    let entry = entry.ok()?;
+                    let path = entry.path();
+                    if path.is_dir() {
+                        let file_name = entry.file_name();
+                        let dir_name = file_name.to_str()?;
+                        if dir_name != "src" && !dir_name.starts_with('.') {
+                            return Some(dir_name.to_string());
+                        }
+                    }
+                    None
+                })
+                .collect();
+
+            let missing: Vec<_> = expected_lints.difference(&actual_lints).collect();
+
+            assert!(
+                missing.is_empty(),
+                "Mismatch in {}\n\nMissing registered lints: {:?}\n\nExpected: {:?}\nActual: {:?}",
+                category_path.display(),
+                missing,
+                expected_lints,
+                actual_lints
+            );
+        }
     }
 }

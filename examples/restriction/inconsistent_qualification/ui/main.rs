@@ -59,10 +59,7 @@ mod trait_import {
 
 // smoelius: The lint triggers on `diesel::expression::SelectableExpression`. My current best guess
 // is that the compiler is not returning the correct span for that path.
-#[cfg_attr(
-    dylint_lib = "inconsistent_qualification",
-    expect(inconsistent_qualification)
-)]
+// smoelius: With diesel 2.3, the lint no longer triggers.
 mod diesel {
     use diesel::table;
 

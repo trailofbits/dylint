@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_ast;
@@ -81,20 +80,6 @@ mod test {
         sync::{LazyLock, Mutex, MutexGuard},
     };
 
-    fn mutex<T: maybe_return::MaybeReturn<MutexGuard<'static, ()>>>() -> T::Output {
-        static MUTEX: Mutex<()> = Mutex::new(());
-
-        let lock = MUTEX.lock().unwrap();
-
-        // smoelius: Ensure the `clippy` component is installed.
-        Command::new("rustup")
-            .args(["component", "add", "clippy"])
-            .assert()
-            .success();
-
-        T::maybe_return(lock)
-    }
-
     #[test]
     fn ui() {
         let _lock = mutex::<maybe_return::Yes>();
@@ -158,8 +143,7 @@ mod test {
         assert(cargo_dylint(Some(rustflags)));
     }
 
-    const ASSERTIONS_ON_CONSTANTS_WARNING: &str =
-        "`assert!(true)` will be optimized out by the compiler";
+    const ASSERTIONS_ON_CONSTANTS_WARNING: &str = "this assertion is always `true`";
 
     #[test]
     fn premise_manifest_sanity() {
@@ -200,6 +184,20 @@ mod test {
             .assert()
             .failure()
             .stderr(predicate::str::contains(ASSERTIONS_ON_CONSTANTS_WARNING));
+    }
+
+    fn mutex<T: maybe_return::MaybeReturn<MutexGuard<'static, ()>>>() -> T::Output {
+        static MUTEX: Mutex<()> = Mutex::new(());
+
+        let lock = MUTEX.lock().unwrap();
+
+        // smoelius: Ensure the `clippy` component is installed.
+        Command::new("rustup")
+            .args(["component", "add", "clippy"])
+            .assert()
+            .success();
+
+        T::maybe_return(lock)
     }
 
     mod maybe_return {

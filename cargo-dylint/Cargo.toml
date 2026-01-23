@@ -1,6 +1,6 @@
 [package]
 name = "cargo-dylint"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A tool for running Rust lints from dynamic libraries"
 edition = "2024"
@@ -16,10 +16,10 @@ anyhow = { workspace = true, features = ["backtrace"] }
 clap = { workspace = true, features = ["cargo", "derive", "wrap_help"] }
 env_logger = { workspace = true }
 
-dylint = { version = "=4.1.0", path = "../dylint", features = [
+dylint = { version = "=5.0.0", path = "../dylint", features = [
     "package_options",
 ] }
-dylint_internal = { version = "=4.1.0", path = "../internal" }
+dylint_internal = { version = "=5.0.0", path = "../internal" }
 
 [dev-dependencies]
 assert_cmd = { workspace = true }
@@ -32,10 +32,12 @@ regex = { workspace = true }
 semver = { workspace = true }
 serde_json = { workspace = true }
 similar-asserts = { workspace = true }
+snapbox = { workspace = true }
 tempfile = { workspace = true }
+toml_edit = { workspace = true }
 walkdir = { workspace = true }
 
-dylint_internal = { version = "=4.1.0", path = "../internal", features = [
+dylint_internal = { version = "=5.0.0", path = "../internal", features = [
     "examples",
     "testing",
 ] }
@@ -43,7 +45,6 @@ dylint_internal = { version = "=4.1.0", path = "../internal", features = [
 [features]
 default = ["cargo-cli", "__ci"]
 cargo-cli = ["dylint/__cargo_cli"]
-cargo-lib = ["dylint/__cargo_lib"]
 __ci = []
 __clap_headings = []
 

@@ -21,7 +21,7 @@ The example libraries are separated into the following three categories:
 | [`incorrect_matches_operation`](./general/incorrect_matches_operation)                   | Incorrect operators used with matches! macros                          |
 | [`non_local_effect_before_error_return`](./general/non_local_effect_before_error_return) | Non-local effects before return of an error                            |
 | [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test)                 | Non-thread-safe function calls in tests                                |
-| [`wrong_serialize_struct_arg`](./general/wrong_serialize_struct_arg)                     | Calls to `serialize_struct` with incorrect `len` arguments             |
+| [`wrong_serialize_struct_arg`](./general/wrong_serialize_struct_arg)                     | Calls to serialization methods with incorrect `len` arguments          |
 
 ## Supplementary
 
@@ -47,6 +47,7 @@ The example libraries are separated into the following three categories:
 | [`env_literal`](./restriction/env_literal)                                                                   | Environment variables referred to with string literals                                |
 | [`inconsistent_qualification`](./restriction/inconsistent_qualification)                                     | Inconsistent qualification of module items                                            |
 | [`misleading_variable_name`](./restriction/misleading_variable_name)                                         | Variables whose names suggest they have types other than the ones they have           |
+| [`non_topologically_sorted_functions`](./restriction/non_topologically_sorted_functions)                     | A lint to check the function order                                                    |
 | [`question_mark_in_expression`](./restriction/question_mark_in_expression)                                   | The `?` operator in expressions                                                       |
 | [`ref_aware_redundant_closure_for_method_calls`](./restriction/ref_aware_redundant_closure_for_method_calls) | A ref-aware fork of `redundant_closure_for_method_calls`                              |
 | [`register_lints_warn`](./restriction/register_lints_warn)                                                   | Calls to `rustc_errors::DiagCtxtHandle::warn` from within a `register_lints` function |
@@ -55,11 +56,10 @@ The example libraries are separated into the following three categories:
 
 ## Experimental
 
-| Example                                                                   | Description/check                               |
-| ------------------------------------------------------------------------- | ----------------------------------------------- |
-| [`derive_opportunity`](./experimental/derive_opportunity)                 | Traits that could be derived                    |
-| [`missing_doc_comment_openai`](./experimental/missing_doc_comment_openai) | A lint that suggests doc comments using OpenAI  |
-| [`overscoped_allow`](./experimental/overscoped_allow)                     | `allow` attributes whose scope could be reduced |
+| Example                                                             | Description/check                              |
+| ------------------------------------------------------------------- | ---------------------------------------------- |
+| [`derive_opportunity`](./experimental/derive_opportunity)           | Traits that could be derived                   |
+| [`missing_doc_comment_llm`](./experimental/missing_doc_comment_llm) | A lint that suggests doc comments using an LLM |
 
 ## Testing
 

@@ -3,12 +3,12 @@
 // #![cfg(not(coverage))]
 
 use anyhow::{Context, Result};
-use assert_cmd::prelude::*;
+use assert_cmd::cargo::cargo_bin_cmd;
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
-    env, library_filename,
+    env, library_filename, msrv,
     rustup::SanitizeEnvironment,
     testing::new_template,
 };
@@ -20,36 +20,45 @@ use std::{
 };
 use tempfile::tempdir;
 
-const CHANNEL_A: &str = "nightly-2025-01-09";
-const CHANNEL_B: &str = "nightly-2025-02-20";
-
-const CLIPPY_UTILS_REV_A: &str = "19e305bb57a7595f2a8d81f521c0dd8bf854e739";
-const CLIPPY_UTILS_REV_B: &str = "238edf273d195c8e472851ebd60571f77f978ac8";
-
 #[test]
 fn one_name_multiple_toolchains() {
     let tempdir = tempdir().unwrap();
 
     new_template(tempdir.path()).unwrap();
 
-    patch_dylint_template(tempdir.path(), CHANNEL_A, CLIPPY_UTILS_REV_A).unwrap();
-    dylint_internal::cargo::build(&format!("dylint-template with channel `{CHANNEL_A}`"))
-        .build()
-        .sanitize_environment()
-        .current_dir(&tempdir)
-        .success()
-        .unwrap();
+    patch_dylint_template(
+        tempdir.path(),
+        msrv::MSRV_CHANNEL,
+        msrv::MSRV_CLIPPY_UTILS_REV,
+    )
+    .unwrap();
+    dylint_internal::cargo::build(&format!(
+        "dylint-template with channel `{}`",
+        msrv::MSRV_CHANNEL
+    ))
+    .build()
+    .sanitize_environment()
+    .current_dir(&tempdir)
+    .success()
+    .unwrap();
 
-    patch_dylint_template(tempdir.path(), CHANNEL_B, CLIPPY_UTILS_REV_B).unwrap();
-    dylint_internal::cargo::build(&format!("dylint-template with channel `{CHANNEL_B}`"))
-        .build()
-        .sanitize_environment()
-        .current_dir(&tempdir)
-        .success()
-        .unwrap();
+    patch_dylint_template(
+        tempdir.path(),
+        msrv::MSRV_PLUS_1_CHANNEL,
+        msrv::MSRV_PLUS_1_CLIPPY_UTILS_REV,
+    )
+    .unwrap();
+    dylint_internal::cargo::build(&format!(
+        "dylint-template with channel `{}`",
+        msrv::MSRV_PLUS_1_CHANNEL
+    ))
+    .build()
+    .sanitize_environment()
+    .current_dir(&tempdir)
+    .success()
+    .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .envs([(
             env::DYLINT_LIBRARY_PATH,
             target_debug(tempdir.path()).unwrap(),
@@ -58,8 +67,9 @@ fn one_name_multiple_toolchains() {
         .assert()
         .success()
         .stdout(
-            predicate::str::contains(format!("fill_me_in@{CHANNEL_A}"))
-                .and(predicate::str::contains(format!("fill_me_in@{CHANNEL_B}"))),
+            predicate::str::contains(format!("fill_me_in@{}", msrv::MSRV_CHANNEL)).and(
+                predicate::str::contains(format!("fill_me_in@{}", msrv::MSRV_PLUS_1_CHANNEL)),
+            ),
         );
 }
 
@@ -96,8 +106,7 @@ fn one_name_multiple_paths() {
     ])
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .envs([(env::DYLINT_LIBRARY_PATH, paths)])
         .args(["dylint", "list", "--all", "--no-metadata"])
         .assert()
@@ -130,16 +139,14 @@ fn opts_library_package() {
     let paths = join_paths([&target_debug(tempdir.path()).unwrap()]).unwrap();
 
     // smoelius: Sanity.
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .envs([(env::DYLINT_LIBRARY_PATH, &paths)])
         .args(["dylint", "list", "--all", "--no-metadata"])
         .assert()
         .success()
         .stdout(predicate::str::contains("fill_me_in"));
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .envs([(env::DYLINT_LIBRARY_PATH, paths)])
         .args([
             "dylint",
@@ -183,8 +190,7 @@ fn relative_path() {
             .strip_prefix(tempdir.path().canonicalize().unwrap())
             .unwrap();
 
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
+        cargo_bin_cmd!("cargo-dylint")
             .current_dir(&tempdir)
             .envs([(env::DYLINT_LIBRARY_PATH, &path)])
             .args(["dylint", "list"])
@@ -220,17 +226,11 @@ fn list_by_path() {
     .unwrap()
     .unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .args(["dylint", "list", "--path", &path.to_string_lossy()])
         .assert()
-        .success()
-        .stdout(
-            predicate::str::contains("fill_me_in").and(predicate::str::contains("Building").not()),
-        )
-        .stderr(predicate::str::contains(
-            "Referring to libraries with `--path` is deprecated. Use `--lib-path`.",
-        ));
+        .failure()
+        .stderr(predicate::str::contains("No library packages found in "));
 }
 
 // smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is

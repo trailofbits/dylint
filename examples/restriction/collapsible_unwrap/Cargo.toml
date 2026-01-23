@@ -1,6 +1,6 @@
 [package]
 name = "collapsible_unwrap"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for an `unwrap` that could be combined with an `expect` or `unwrap` using `and_then`"
 edition = "2024"

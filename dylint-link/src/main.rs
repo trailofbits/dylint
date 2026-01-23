@@ -5,8 +5,9 @@
 #[cfg(target_os = "windows")]
 use anyhow::ensure;
 use anyhow::{Context, Result, anyhow};
-use dylint_internal::{CommandExt, cargo::cargo_home, env, library_filename};
-use if_chain::if_chain;
+use dylint_internal::{
+    CommandExt, cargo::cargo_home, env, library_filename, rustup::parse_toolchain,
+};
 use std::{
     env::{args, consts},
     ffi::OsStr,
@@ -16,7 +17,6 @@ use std::{
 };
 #[cfg(target_os = "windows")]
 use std::{fs::File, io::Read};
-use toml_edit::{DocumentMut, Item};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -45,15 +45,14 @@ fn linker() -> Result<PathBuf> {
                 config_toml.to_string_lossy()
             )
         })?;
-        let document = contents.parse::<DocumentMut>()?;
+        let document = contents.parse::<toml::Table>()?;
         document
-            .as_table()
             .get("target")
-            .and_then(Item::as_table)
+            .and_then(toml::Value::as_table)
             .and_then(|table| table.get(&target))
-            .and_then(Item::as_table)
+            .and_then(toml::Value::as_table)
             .and_then(|table| table.get("linker"))
-            .and_then(Item::as_str)
+            .and_then(toml::Value::as_str)
             .map_or_else(default_linker, |s| Ok(PathBuf::from(s)))
     } else {
         default_linker()
@@ -104,15 +103,16 @@ where
 
 #[cfg(not(target_os = "windows"))]
 #[allow(clippy::unnecessary_wraps)]
-fn output_path<'a, I>(mut iter: I) -> Result<Option<PathBuf>>
+fn output_path<'a, I>(iter: I) -> Result<Option<PathBuf>>
 where
-    I: Iterator<Item = &'a String>,
+    I: IntoIterator<Item = &'a String>,
 {
+    let mut iter = iter.into_iter();
     while let Some(arg) = iter.next() {
-        if arg == "-o" {
-            if let Some(path) = iter.next() {
-                return Ok(Some(path.into()));
-            }
+        if arg == "-o"
+            && let Some(path) = iter.next()
+        {
+            return Ok(Some(path.into()));
         }
     }
 
@@ -151,11 +151,9 @@ fn extract_out_path_from_linker_response_file(path: impl AsRef<Path>) -> Result<
 }
 
 fn copy_library(path: &Path) -> Result<()> {
-    if_chain! {
-        if let Some(lib_name) = parse_path_plain_filename(path);
+    if let Some(lib_name) = parse_path_plain_filename(path) {
         let cargo_pkg_name = env::var(env::CARGO_PKG_NAME)?;
-        if lib_name == cargo_pkg_name.replace('-', "_");
-        then {
+        if lib_name == cargo_pkg_name.replace('-', "_") {
             let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
             let filename_with_toolchain = library_filename(&lib_name, &rustup_toolchain);
             let parent = path
@@ -173,21 +171,6 @@ fn copy_library(path: &Path) -> Result<()> {
     }
 
     Ok(())
-}
-
-// smoelius: I do not know what the right/best way to parse a toolchain is. `parse_toolchain` does
-// so by looking for the architecture.
-fn parse_toolchain(toolchain: &str) -> Option<(String, String)> {
-    let split_toolchain: Vec<_> = toolchain.split('-').collect();
-    split_toolchain
-        .iter()
-        .rposition(|s| ARCHITECTURES.binary_search(s).is_ok())
-        .map(|i| {
-            (
-                split_toolchain[..i].join("-"),
-                split_toolchain[i..].join("-"),
-            )
-        })
 }
 
 fn parse_path_plain_filename(path: &Path) -> Option<String> {
@@ -208,117 +191,15 @@ fn strip_deps(path: &Path) -> PathBuf {
     .to_path_buf()
 }
 
-// smoelius: `ARCHITECTURES` is based on: https://doc.rust-lang.org/rustc/platform-support.html
-const ARCHITECTURES: &[&str] = &[
-    "aarch64",
-    "aarch64_be",
-    "amdgcn",
-    "arm",
-    "arm64_32",
-    "arm64e",
-    "arm64ec",
-    "armeb",
-    "armebv7r",
-    "armv4t",
-    "armv5te",
-    "armv6",
-    "armv6k",
-    "armv7",
-    "armv7a",
-    "armv7k",
-    "armv7r",
-    "armv7s",
-    "armv8r",
-    "avr",
-    "bpfeb",
-    "bpfel",
-    "csky",
-    "hexagon",
-    "i386",
-    "i586",
-    "i686",
-    "loongarch64",
-    "m68k",
-    "mips",
-    "mips64",
-    "mips64el",
-    "mipsel",
-    "mipsisa32r6",
-    "mipsisa32r6el",
-    "mipsisa64r6",
-    "mipsisa64r6el",
-    "msp430",
-    "nvptx64",
-    "powerpc",
-    "powerpc64",
-    "powerpc64le",
-    "riscv32",
-    "riscv32e",
-    "riscv32em",
-    "riscv32emc",
-    "riscv32gc",
-    "riscv32i",
-    "riscv32im",
-    "riscv32ima",
-    "riscv32imac",
-    "riscv32imafc",
-    "riscv32imc",
-    "riscv64",
-    "riscv64gc",
-    "riscv64imac",
-    "s390x",
-    "sparc",
-    "sparc64",
-    "sparcv9",
-    "thumbv4t",
-    "thumbv5te",
-    "thumbv6m",
-    "thumbv7a",
-    "thumbv7em",
-    "thumbv7m",
-    "thumbv7neon",
-    "thumbv8m.base",
-    "thumbv8m.main",
-    "wasm32",
-    "wasm32v1",
-    "wasm64",
-    "x86_64",
-    "x86_64h",
-    "xtensa",
-];
-
 #[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod test {
-    use super::{ARCHITECTURES, env};
+    use super::env;
     use assert_cmd::prelude::*;
     use dylint_internal::{CommandExt, packaging::isolate};
     use predicates::prelude::*;
     use std::fs::{create_dir, write};
     use tempfile::{tempdir, tempdir_in};
-
-    #[test]
-    fn architectures_are_current() {
-        let output = std::process::Command::new("rustc")
-            .args(["--print", "target-list"])
-            .unwrap();
-        let mut architectures = std::str::from_utf8(&output.stdout)
-            .unwrap()
-            .lines()
-            .filter_map(|line| line.split_once('-').map(|(architecture, _)| architecture))
-            .collect::<Vec<_>>();
-        architectures.sort_unstable();
-        architectures.dedup();
-        assert_eq!(ARCHITECTURES, architectures);
-    }
-
-    #[test]
-    fn architectures_are_sorted() {
-        let mut architectures = ARCHITECTURES.to_vec();
-        architectures.sort_unstable();
-        architectures.dedup();
-        assert_eq!(ARCHITECTURES, architectures);
-    }
 
     #[cfg_attr(
         not(all(target_arch = "x86_64", target_os = "linux")),
@@ -379,7 +260,7 @@ linker = "false"
 
         std::process::Command::new("cargo")
             .env(env::CARGO_HOME, cargo_home.path())
-            .env(env::CARGO_TERM_COLOR, "never")
+            .env_remove(env::CARGO_TERM_COLOR)
             .current_dir(&package)
             .arg("build")
             .assert()

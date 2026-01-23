@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![allow(unused_imports)]
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
 #![cfg_attr(
@@ -17,10 +16,10 @@ extern crate rustc_trait_selection;
 
 use clippy_utils::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use clippy_utils::higher::VecArgs;
+use clippy_utils::res::{MaybeDef, MaybeResPath};
 use clippy_utils::source::snippet_opt;
-use clippy_utils::ty::get_type_diagnostic_name;
 use clippy_utils::usage::{local_used_after_expr, local_used_in};
-use clippy_utils::{higher, is_adjusted, path_to_local, path_to_local_id};
+use clippy_utils::{higher, is_adjusted};
 use rustc_errors::Applicability;
 use rustc_hir::def_id::DefId;
 use rustc_hir::{BindingMode, Expr, ExprKind, FnRetTy, Param, PatKind, QPath, Safety, TyKind};
@@ -35,11 +34,7 @@ use rustc_session::declare_lint_pass;
 use rustc_span::symbol::sym;
 use rustc_trait_selection::error_reporting::InferCtxtErrorExt as _;
 
-use clippy_utils::{
-    get_parent_expr,
-    source::trim_span,
-    ty::{is_copy, is_type_diagnostic_item},
-};
+use clippy_utils::{get_parent_expr, source::trim_span, ty::is_copy};
 use rustc_lint::LintContext;
 use rustc_middle::ty::adjustment::{
     Adjust, Adjustment, AutoBorrow, AutoBorrowMutability, OverloadedDeref,
@@ -198,7 +193,7 @@ impl<'tcx> LateLintPass<'tcx> for RefAwareRedundantClosureForMethodCalls {
                     && let ExprKind::MethodCall(parent_path, parent_receiver, _, span) =
                         parent_expr.kind
                     && let parent_receiver_ty = cx.typeck_results().expr_ty(parent_receiver)
-                    && is_type_diagnostic_item(cx, parent_receiver_ty, sym::Option)
+                    && parent_receiver_ty.is_diag_item(cx, sym::Option)
                     && let Some(method_def_id) = typeck.type_dependent_def_id(body.value.hir_id)
                     && check_sig(
                         cx,
@@ -250,7 +245,7 @@ fn check_inputs(
                 if matches!(
                     p.pat.kind,
                     PatKind::Binding(BindingMode::NONE | BindingMode::MUT, id, _, None)
-                    if path_to_local_id(arg, id)
+                    if arg.res_local_id() == Some(id)
                 ) {
                     method_name_from_adjustments(cx, cx.typeck_results().expr_adjustments(arg))
                 } else {
@@ -334,7 +329,7 @@ fn has_late_bound_to_non_late_bound_regions(from_sig: FnSig<'_>, to_sig: FnSig<'
             return true;
         }
         for (from_arg, to_arg) in to_subs.iter().zip(from_subs) {
-            match (from_arg.unpack(), to_arg.unpack()) {
+            match (from_arg.kind(), to_arg.kind()) {
                 (GenericArgKind::Lifetime(from_region), GenericArgKind::Lifetime(to_region)) => {
                     if check_region(from_region, to_region) {
                         return true;
@@ -387,8 +382,8 @@ fn get_ufcs_type_name<'tcx>(
     let assoc_item = cx.tcx.associated_item(method_def_id);
     let def_id = assoc_item.container_id(cx.tcx);
     match assoc_item.container {
-        ty::AssocItemContainer::Trait => cx.tcx.def_path_str(def_id),
-        ty::AssocItemContainer::Impl => {
+        ty::AssocContainer::Trait => cx.tcx.def_path_str(def_id),
+        ty::AssocContainer::InherentImpl | ty::AssocContainer::TraitImpl(_) => {
             let ty = cx.tcx.type_of(def_id).instantiate_identity();
             match ty.kind() {
                 ty::Adt(adt, _) => cx.tcx.def_path_str(adt.did()),

@@ -1,5 +1,6 @@
 use super::{IGNORED_INHERENTS, WATCHED_INHERENTS};
-use clippy_utils::{def_path_res, get_trait_def_id, match_def_path};
+use clippy_utils::paths::{PathNS, lookup_path};
+use dylint_internal::match_def_path;
 use rustc_hir::{Safety, def_id::DefId};
 use rustc_lint::LateContext;
 use rustc_middle::ty::{self, TypeFolder, fast_reject::SimplifiedType};
@@ -7,13 +8,8 @@ use rustc_span::{Symbol, symbol::sym};
 
 #[expect(clippy::too_many_lines)]
 pub fn check_inherents(cx: &LateContext<'_>) {
-    let into_iterator_def_id = get_trait_def_id(
-        cx.tcx,
-        &["core", "iter", "traits", "collect", "IntoIterator"],
-    )
-    .unwrap();
-    let iterator_def_id =
-        get_trait_def_id(cx.tcx, &["core", "iter", "traits", "iterator", "Iterator"]).unwrap();
+    let into_iterator_def_id = cx.tcx.get_diagnostic_item(sym::IntoIterator).unwrap();
+    let iterator_def_id = cx.tcx.get_diagnostic_item(sym::Iterator).unwrap();
 
     let type_paths = type_paths();
 
@@ -23,7 +19,7 @@ pub fn check_inherents(cx: &LateContext<'_>) {
         }
 
         let assoc_item = cx.tcx.associated_item(def_id);
-        if assoc_item.kind != ty::AssocKind::Fn {
+        if !matches!(assoc_item.kind, ty::AssocKind::Fn { .. }) {
             return false;
         }
 
@@ -61,8 +57,17 @@ pub fn check_inherents(cx: &LateContext<'_>) {
 
     let type_path_impl_def_ids = type_paths
         .iter()
-        .flat_map(|type_path| def_path_res(cx.tcx, type_path))
-        .filter_map(|res| res.opt_def_id())
+        .flat_map(|type_path| {
+            lookup_path(
+                cx.tcx,
+                PathNS::Type,
+                &type_path
+                    .iter()
+                    .copied()
+                    .map(Symbol::intern)
+                    .collect::<Vec<_>>(),
+            )
+        })
         .flat_map(|def_id| cx.tcx.inherent_impls(def_id));
 
     let slice_incoherent_impl_def_ids = cx
@@ -91,11 +96,15 @@ pub fn check_inherents(cx: &LateContext<'_>) {
             continue;
         }
 
-        let def_id = def_path_res(cx.tcx, path)
-            .into_iter()
-            .find_map(|res| res.opt_def_id())
-            .ok_or_else(|| format!("`def_path_res` failed for {path:?}"))
-            .unwrap();
+        let def_id = lookup_path(
+            cx.tcx,
+            PathNS::Value,
+            &path.iter().copied().map(Symbol::intern).collect::<Vec<_>>(),
+        )
+        .into_iter()
+        .next()
+        .ok_or_else(|| format!("`lookup_path_str` failed for {path:?}"))
+        .unwrap();
 
         assert!(
             of_interest(def_id),
@@ -185,7 +194,11 @@ fn implements_trait_with_item<'tcx>(
         return None;
     }
 
-    cx.get_associated_type(replace_ty_params_with_global_ty(cx, ty), trait_id, "Item")
+    cx.get_associated_type(
+        replace_ty_params_with_global_ty(cx, ty),
+        trait_id,
+        sym::Item,
+    )
 }
 
 // smoelius: This is a hack. For `get_associated_type` to return `Some(..)`, all of its argument
@@ -197,10 +210,17 @@ fn replace_ty_params_with_global_ty<'tcx>(
     cx: &LateContext<'tcx>,
     ty: ty::Ty<'tcx>,
 ) -> ty::Ty<'tcx> {
-    let global_def_id = def_path_res(cx.tcx, &["alloc", "alloc", "Global"])
-        .into_iter()
-        .find_map(|res| res.opt_def_id())
-        .unwrap();
+    let global_def_id = lookup_path(
+        cx.tcx,
+        PathNS::Type,
+        &["alloc", "alloc", "Global"]
+            .into_iter()
+            .map(Symbol::intern)
+            .collect::<Vec<_>>(),
+    )
+    .into_iter()
+    .next()
+    .unwrap();
     let global_adt_def = cx.tcx.adt_def(global_def_id);
     let global_ty = ty::Ty::new_adt(cx.tcx, global_adt_def, ty::List::empty());
     ty::BottomUpFolder {
@@ -263,8 +283,8 @@ fn strip_as_ref<'tcx>(
                 predicate.kind().skip_binder()
                 && cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id)
                 && let [self_arg, subst_arg] = trait_ref.args.as_slice()
-                && self_arg.unpack() == ty::GenericArgKind::Type(ty)
-                && let ty::GenericArgKind::Type(subst_ty) = subst_arg.unpack()
+                && self_arg.kind() == ty::GenericArgKind::Type(ty)
+                && let ty::GenericArgKind::Type(subst_ty) = subst_arg.kind()
             {
                 Some(subst_ty)
             } else {

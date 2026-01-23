@@ -1,6 +1,6 @@
 [package]
 name = "misleading_variable_name"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for variables whose names suggest they have types other than the ones they have"
 edition = "2024"

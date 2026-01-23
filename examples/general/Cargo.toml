@@ -1,6 +1,6 @@
 [package]
 name = "general"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "General-purpose lints"
 edition = "2024"
@@ -39,8 +39,8 @@ members = ["*"]
 exclude = [".cargo", "src"]
 
 [workspace.dependencies]
-bitflags = "2.9"
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "7bb54d91be1af212faaa078786c1d2271a67d4f9" }
+bitflags = "2.10"
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9e3e9649cbae7ed33ba62ca436f43081eaaedeb5" }
 derivative = "2.2.0"
 once_cell = "1.21"
 serde = "1.0"

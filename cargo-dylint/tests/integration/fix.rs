@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use assert_cmd::prelude::*;
+use assert_cmd::{cargo::cargo_bin_cmd, prelude::*};
 use std::{
     fs::{OpenOptions, read_to_string, write},
     io::Write,
@@ -9,17 +9,6 @@ use tempfile::tempdir;
 
 const CATEGORY: &str = "restriction";
 const LIB_NAME: &str = "const_path_join";
-
-fn workspace_metadata(path_spec: &str) -> String {
-    format!(
-        r#"
-[workspace.metadata.dylint]
-libraries = [
-    {{ path = "{path_spec}" }},
-]
-"#,
-    )
-}
 
 const MAIN_RS: &str = r#"
 fn main() {
@@ -60,8 +49,7 @@ fn fix() {
 
     write(tempdir.path().join("src/main.rs"), MAIN_RS).unwrap();
 
-    std::process::Command::cargo_bin("cargo-dylint")
-        .unwrap()
+    cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
         .args(["dylint", "--lib", LIB_NAME, "--fix", "--", "--allow-dirty"])
         .assert()
@@ -95,4 +83,15 @@ fn append_workspace_metadata(path: &Path) -> Result<()> {
         .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
 
     Ok(())
+}
+
+fn workspace_metadata(path_spec: &str) -> String {
+    format!(
+        r#"
+[workspace.metadata.dylint]
+libraries = [
+    {{ path = "{path_spec}" }},
+]
+"#,
+    )
 }

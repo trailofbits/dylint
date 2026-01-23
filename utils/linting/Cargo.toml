@@ -1,6 +1,6 @@
 [package]
 name = "dylint_linting"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Utilities for writing Dylint libraries"
 edition = "2024"
@@ -8,24 +8,24 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
-cargo_metadata = "0.19"
+cargo_metadata = "0.23"
 paste = "1.0"
 rustversion = "1.0"
 serde = "1.0"
 thiserror = "2.0"
-toml = "0.8"
+toml = "0.9"
 
-dylint_internal = { version = "=4.1.0", path = "../../internal", features = [
+dylint_internal = { version = "=5.0.0", path = "../../internal", features = [
     "config",
 ] }
 
 [build-dependencies]
-toml = "0.8"
+toml = "0.9"
 
 [dev-dependencies]
-assert_cmd = "2.0"
+assert_cmd = "2.1"
 rustc_version = "0.4"
-tempfile = "3.19"
+tempfile = "3.24"
 
 [features]
 constituent = []

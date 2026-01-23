@@ -1,8 +1,5 @@
 use clap::{ArgAction, Parser, crate_version};
-use std::{
-    ffi::{OsStr, OsString},
-    fmt::Debug,
-};
+use std::{ffi::OsStr, fmt::Debug};
 
 #[derive(Debug, Parser)]
 #[clap(bin_name = "cargo", display_name = "cargo")]
@@ -389,7 +386,7 @@ fn main() -> dylint::ColorizedResult<()> {
         );
     });
 
-    let args: Vec<_> = std::env::args().map(OsString::from).collect();
+    let args: Vec<_> = std::env::args_os().collect();
 
     cargo_dylint(&args)
 }
@@ -404,51 +401,10 @@ fn cargo_dylint<T: AsRef<OsStr>>(args: &[T]) -> dylint::ColorizedResult<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_cmd::prelude::*;
     use clap::CommandFactory;
 
     #[test]
     fn verify_cli() {
         Opts::command().debug_assert();
-    }
-
-    #[test]
-    fn usage() {
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
-            .args(["dylint", "--help"])
-            .assert()
-            .success()
-            .stdout(predicates::str::contains("Usage: cargo dylint"));
-    }
-
-    #[test]
-    fn version() {
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
-            .args(["dylint", "--version"])
-            .assert()
-            .success()
-            .stdout(format!("cargo-dylint {}\n", env!("CARGO_PKG_VERSION")));
-    }
-
-    // `no_env_logger_warning` fails if [`std::process::Command::new`] is replaced with
-    // [`assert_cmd::cargo::CommandCargoExt::cargo_bin`]. I don't understand why.
-    //
-    // [`assert_cmd::cargo::CommandCargoExt::cargo_bin`]: https://docs.rs/assert_cmd/latest/assert_cmd/cargo/trait.CommandCargoExt.html#tymethod.cargo_bin
-    // [`std::process::Command::new`]: https://doc.rust-lang.org/std/process/struct.Command.html#method.new
-    //
-    // smoelius: I am switching to `assert_cmd::cargo::CommandCargoExt::cargo_bin` and disabling
-    // this test. `cargo run` without a `--features=...` argument can cause `cargo-dylint` to be
-    // rebuilt with the wrong features.
-    #[cfg(any())]
-    #[test]
-    fn no_env_logger_warning() {
-        std::process::Command::cargo_bin("cargo-dylint")
-            .unwrap()
-            .arg("dylint")
-            .assert()
-            .failure()
-            .stderr(predicates::str::contains("`env_logger` already initialized").not());
     }
 }

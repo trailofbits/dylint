@@ -18,14 +18,14 @@ warning: path could be constructed from a string literal
 LL |     let _ = std::path::PathBuf::from("..").join("target").as_path();
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `std::path::PathBuf::from("../target")`
 
-warning: path could be constructed from a string literal
-  --> $DIR/main.rs:7:65
+warning: path could be constructed with concat!
+  --> $DIR/main.rs:7:13
    |
 LL |       let _ = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-   |  _________________________________________________________________^
+   |  _____________^
 LL | |         .join("..")
 LL | |         .join("target");
-   | |_______________________^ help: use: `.join("../target")`
+   | |_______________________^ help: use: `std::path::PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/../target"))`
 
 warning: path could be constructed from a string literal
   --> $DIR/main.rs:11:13
@@ -45,14 +45,14 @@ warning: path could be constructed from a string literal
 LL |     let _ = camino::Utf8PathBuf::from("..").join("target").as_path();
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `camino::Utf8PathBuf::from("../target")`
 
-warning: path could be constructed from a string literal
-  --> $DIR/main.rs:14:66
+warning: path could be constructed with concat!
+  --> $DIR/main.rs:14:13
    |
 LL |       let _ = camino::Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-   |  __________________________________________________________________^
+   |  _____________^
 LL | |         .join("..")
 LL | |         .join("target");
-   | |_______________________^ help: use: `.join("../target")`
+   | |_______________________^ help: use: `camino::Utf8PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/../target"))`
 
 warning: 8 warnings emitted
 

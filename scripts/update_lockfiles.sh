@@ -13,7 +13,9 @@ WORKSPACE="$(realpath "$SCRIPTS"/..)"
 
 cd "$WORKSPACE"
 
+# smoelius: `template` must be handled specially.
 find . -name Cargo.toml |
+grep -vw template |
 while read -r X; do
     cargo update --manifest-path "$X"
 done

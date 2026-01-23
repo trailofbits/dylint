@@ -1,6 +1,6 @@
 [package]
 name = "non_thread_safe_call_in_test"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for non-thread-safe function calls in tests"
 edition = "2024"
@@ -24,7 +24,7 @@ path = "ui/set_current_dir.rs"
 [dependencies]
 clippy_utils = { workspace = true }
 
-dylint_internal = { path = "../../../internal" }
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]

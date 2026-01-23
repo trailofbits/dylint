@@ -1,16 +1,22 @@
 #![feature(rustc_private)]
 #![feature(box_patterns)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_abi;
+extern crate rustc_data_structures;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_then, match_def_path};
+use clippy_utils::{
+    diagnostics::span_lint_and_then,
+    paths::{PathLookup, PathNS},
+    type_path,
+};
+use dylint_internal::match_def_path;
+use rustc_data_structures::fx::FxHashMap;
 use rustc_errors::Diag;
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind};
 use rustc_index::bit_set::DenseBitSet;
@@ -18,13 +24,13 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     mir::{
         BasicBlock, Body, ConstOperand, Local, Location, Mutability, Operand, Place,
-        ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind,
-        pretty::{PrettyPrintMirOptions, write_mir_fn},
+        ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind, pretty::MirWriter,
     },
     ty,
 };
 use rustc_span::{Span, sym};
 use serde::Deserialize;
+use std::cell::RefCell;
 
 mod visit_error_paths;
 use visit_error_paths::visit_error_paths;
@@ -123,6 +129,7 @@ impl NonLocalEffectBeforeErrorReturn {
 }
 
 impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
+    #[cfg_attr(dylint_lib = "supplementary", allow(local_ref_cell))]
     fn check_fn(
         &mut self,
         cx: &LateContext<'tcx>,
@@ -159,16 +166,14 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
         let mir = cx.tcx.optimized_mir(local_def_id.to_def_id());
 
         if enabled("DEBUG_MIR") {
-            let options = PrettyPrintMirOptions::from_cli(cx.tcx);
-            write_mir_fn(
-                cx.tcx,
-                mir,
-                &mut |_, _| Ok(()),
-                &mut std::io::stdout(),
-                options,
-            )
-            .unwrap();
+            let writer = MirWriter::new(cx.tcx);
+            writer.write_mir_fn(mir, &mut std::io::stdout()).unwrap();
         }
+
+        // smoelius: Accumulate all spans and output them at the end to make the output less
+        // cluttered. See: https://github.com/trailofbits/dylint/issues/1667
+        let call_with_mut_ref_spans = RefCell::new(FxHashMap::<_, Vec<_>>::default());
+        let deref_assign_spans = RefCell::new(FxHashMap::<_, Vec<_>>::default());
 
         visit_error_paths(
             self.config
@@ -183,32 +188,48 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
                     if !contributing_calls.contains(index)
                         && let Some((func, func_span)) = is_call_with_mut_ref(cx, mir, &path[i..])
                     {
-                        span_lint_and_then(
-                            cx,
-                            NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                            func_span,
-                            format!(
-                                "call to `{func:?}` with mutable reference before error return"
-                            ),
-                            error_note(span),
-                        );
+                        let mut call_with_mut_ref_spans = call_with_mut_ref_spans.borrow_mut();
+                        let spans = call_with_mut_ref_spans
+                            .entry((format!("{func:?}"), func_span))
+                            .or_default();
+                        if let Some(span) = span {
+                            spans.push(span);
+                        }
                     }
 
                     let basic_block = &mir.basic_blocks[index];
                     for statement in basic_block.statements.iter().rev() {
                         if let Some(assign_span) = is_deref_assign(statement) {
-                            span_lint_and_then(
-                                cx,
-                                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                                assign_span,
-                                "assignment to dereference before error return",
-                                error_note(span),
-                            );
+                            let mut deref_assign_spans = deref_assign_spans.borrow_mut();
+                            let spans = deref_assign_spans.entry(assign_span).or_default();
+                            if let Some(span) = span {
+                                spans.push(span);
+                            }
                         }
                     }
                 }
             },
         );
+
+        for ((func, func_span), spans) in call_with_mut_ref_spans.borrow().iter() {
+            span_lint_and_then(
+                cx,
+                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
+                *func_span,
+                format!("call to `{func}` with mutable reference before error return"),
+                error_note(spans),
+            );
+        }
+
+        for (assign_span, spans) in deref_assign_spans.borrow().iter() {
+            span_lint_and_then(
+                cx,
+                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
+                *assign_span,
+                "assignment to dereference before error return",
+                error_note(spans),
+            );
+        }
     }
 }
 
@@ -221,6 +242,8 @@ fn in_async_function(tcx: ty::TyCtxt<'_>, hir_id: rustc_hir::HirId) -> bool {
         })
 }
 
+static CORE_FMT_ERROR: PathLookup = type_path!(core::fmt::Error);
+
 fn is_lintable_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
     if let ty::Adt(adt, substs) = ty.kind() {
         if !cx.tcx.is_diagnostic_item(sym::Result, adt.did()) {
@@ -230,7 +253,7 @@ fn is_lintable_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
         // Don't lint if the error type is core::fmt::Error
         if let Some(error_ty) = substs.get(1)
             && let ty::Adt(error_adt, _) = error_ty.expect_ty().kind()
-            && match_def_path(cx, error_adt.did(), &["core", "fmt", "Error"])
+            && CORE_FMT_ERROR.matches(cx, error_adt.did())
         {
             return false;
         }
@@ -302,7 +325,7 @@ fn collect_locals_and_constants<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
-    args: impl Iterator<Item = &'tcx Operand<'tcx>>,
+    args: impl IntoIterator<Item = &'tcx Operand<'tcx>>,
 ) -> (DenseBitSet<Local>, Vec<&'tcx ConstOperand<'tcx>>) {
     let mut locals_narrowly = DenseBitSet::new_empty(mir.local_decls.len());
     let mut locals_widely = DenseBitSet::new_empty(mir.local_decls.len());
@@ -436,10 +459,10 @@ fn is_deref_assign(statement: &Statement) -> Option<Span> {
     }
 }
 
-fn error_note(span: Option<Span>) -> impl FnOnce(&mut Diag<'_, ()>) {
+fn error_note(spans: &[Span]) -> impl FnOnce(&mut Diag<'_, ()>) {
     move |diag| {
-        if let Some(span) = span {
-            diag.span_note(span, "error is determined here");
+        for span in spans {
+            diag.span_note(*span, "error is determined here");
         }
     }
 }

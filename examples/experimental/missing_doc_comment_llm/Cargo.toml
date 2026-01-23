@@ -1,0 +1,42 @@
+[package]
+name = "missing_doc_comment_llm"
+version = "5.0.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint that suggests doc comments using an LLM"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9e3e9649cbae7ed33ba62ca436f43081eaaedeb5" }
+# smoelius: Commit 438e029 is a bug fix. See: https://github.com/majiayu000/litellm-rs/pull/3
+litellm-rs = { git = "https://github.com/majiayu000/litellm-rs", rev = "438e02998f63efa904f93b1924e87073070399b0", default-features = false, features = [
+    "redis",
+] }
+serde = "1.0"
+serde_json = "1.0"
+tokio = { version = "1", features = ["rt", "macros"] }
+
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[lints.rust.unexpected_cfgs]
+level = "deny"
+check-cfg = ["cfg(dylint_lib, values(any()))"]
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../general" },
+    { path = "../../supplementary" },
+    { path = "../../testing/clippy" },
+    { path = "../../restriction/*" },
+]

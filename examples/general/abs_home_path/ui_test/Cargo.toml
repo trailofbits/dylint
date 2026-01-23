@@ -1,6 +1,9 @@
 [package]
 name = "ui_test"
-version = "4.1.0"
+version = "5.0.0"
 edition = "2024"
 
-[workspace] 
+[dev-dependencies]
+assert_cmd = "2.1"
+
+[workspace]

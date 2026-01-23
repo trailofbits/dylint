@@ -1,6 +1,4 @@
-bitflags v1.3.2
-bitflags v2.9.0
 thiserror v1.0.69
-thiserror v2.0.12
+thiserror v2.0.17
 thiserror-impl v1.0.69
-thiserror-impl v2.0.12
+thiserror-impl v2.0.17

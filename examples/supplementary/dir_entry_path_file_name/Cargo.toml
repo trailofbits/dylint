@@ -1,0 +1,27 @@
+[package]
+name = "dir_entry_path_file_name"
+version = "5.0.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[example]]
+name = "ui_test"
+path = "ui_test/main.rs"
+
+[dependencies]
+clippy_utils = { workspace = true }
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+walkdir = "2.5"
+
+[features]
+rlib = ["dylint_linting/constituent"]
+
+[package.metadata.rust-analyzer]
+rustc_private = true

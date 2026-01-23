@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_errors;
@@ -12,11 +11,11 @@ extern crate rustc_trait_selection;
 
 use clippy_utils::{
     diagnostics::{span_lint, span_lint_and_help, span_lint_and_sugg},
-    get_parent_expr, match_def_path,
+    get_parent_expr,
     source::snippet_opt,
     ty::is_copy,
 };
-use dylint_internal::cargo::current_metadata;
+use dylint_internal::{cargo::current_metadata, match_def_path};
 use rustc_errors::Applicability;
 use rustc_hir::{
     BorrowKind, Expr, ExprKind, Mutability,
@@ -139,8 +138,10 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["alloc", "string", "String", "from_utf16le_lossy"],
     &["alloc", "string", "String", "from_utf8_lossy_owned"],
     &["alloc", "string", "String", "leak"],
+    &["alloc", "vec", "Vec", "into_chunks"],
     &["alloc", "vec", "Vec", "into_flattened"],
     &["alloc", "vec", "Vec", "leak"],
+    &["alloc", "vec", "Vec", "recycle"],
     &["alloc", "vec", "Vec", "spare_capacity_mut"],
     &["core", "slice", "<impl [T]>", "as_chunks_unchecked"],
     &["core", "slice", "<impl [T]>", "as_chunks_unchecked_mut"],
@@ -156,6 +157,7 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["std", "ffi", "os_str", "OsStr", "to_ascii_lowercase"],
     &["std", "ffi", "os_str", "OsStr", "to_ascii_uppercase"],
     &["std", "ffi", "os_str", "OsString", "leak"],
+    &["std", "path", "Path", "trim_trailing_sep"],
     &["std", "path", "PathBuf", "leak"],
 ];
 
@@ -614,7 +616,7 @@ fn replace_types<'tcx>(
                 {
                     let projection = projection_predicate
                         .projection_term
-                        .with_self_ty(cx.tcx, new_ty)
+                        .with_replaced_self_ty(cx.tcx, new_ty)
                         .expect_ty(cx.tcx)
                         .to_ty(cx.tcx);
 

@@ -1,6 +1,6 @@
 [package]
 name = "await_holding_span_guard"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["David Barsky"]
 description = "A lint to check for Span guards held while calling await inside an async function"
 edition = "2024"
@@ -16,6 +16,7 @@ path = "ui/main.rs"
 [dependencies]
 clippy_utils = { workspace = true }
 
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]

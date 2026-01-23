@@ -1,6 +1,6 @@
 [package]
 name = "const_path_join"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for joining of constant path components"
 edition = "2024"
@@ -13,10 +13,14 @@ crate-type = ["cdylib"]
 name = "ui"
 path = "ui/main.rs"
 
+[[example]]
+name = "ui_const_expr"
+path = "ui/const_expr.rs"
+
 [dependencies]
 clippy_utils = { workspace = true }
 
-dylint_internal = { path = "../../../internal" }
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]

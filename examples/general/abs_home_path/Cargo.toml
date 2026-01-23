@@ -1,6 +1,6 @@
 [package]
 name = "abs_home_path"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for string literals that are absolute paths into the user's home directory"
 edition = "2024"

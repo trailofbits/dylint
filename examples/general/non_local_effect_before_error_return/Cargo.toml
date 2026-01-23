@@ -1,6 +1,6 @@
 [package]
 name = "non_local_effect_before_error_return"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for non-local effects before return of an error"
 edition = "2024"
@@ -21,6 +21,7 @@ path = "ui_public_only/main.rs"
 clippy_utils = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 
+dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]

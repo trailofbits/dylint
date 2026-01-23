@@ -2,14 +2,13 @@ use crate::opts;
 use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
     clippy_utils::{
-        clippy_utils_version_from_rust_version, set_clippy_utils_dependency_revision,
-        set_toolchain_channel, toolchain_channel,
+        Revs, clippy_utils_version_from_rust_version, parse_as_nightly,
+        set_clippy_utils_dependency_revision, set_toolchain_channel, toolchain_channel,
     },
     find_and_replace,
     packaging::new_template,
 };
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
-use if_chain::if_chain;
 use rewriter::Backup;
 use std::{
     env::current_dir,
@@ -22,19 +21,13 @@ use walkdir::WalkDir;
 mod auto_correct;
 use auto_correct::auto_correct;
 
-mod common;
-use common::parse_as_nightly;
-
-mod revs;
-use revs::Revs;
-
 pub fn new_package(_opts: &opts::Dylint, new_opts: &opts::New) -> Result<()> {
     let path = Path::new(&new_opts.path);
 
     let name = path
         .file_name()
         .map(|s| s.to_string_lossy().to_string())
-        .ok_or_else(|| anyhow!("Could not determine library name from {:?}", path))?;
+        .ok_or_else(|| anyhow!("Could not determine library name from `{}`", path.display()))?;
 
     let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
 
@@ -111,7 +104,7 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
 
     let rev = {
         let revs = Revs::new(opts.quiet)?;
-        let mut iter = revs.iter()?;
+        let mut iter = revs.version_iter()?;
         match &upgrade_opts.rust_version {
             Some(rust_version) => {
                 let clippy_utils_version = clippy_utils_version_from_rust_version(rust_version)?;
@@ -124,8 +117,7 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
                 })
                 .unwrap_or_else(|| {
                     Err(anyhow!(
-                        "Could not find `clippy_utils` version `{}`",
-                        clippy_utils_version
+                        "Could not find `clippy_utils` version `{clippy_utils_version}`"
                     ))
                 })?
             }
@@ -137,20 +129,18 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
 
     let old_channel = toolchain_channel(path)?;
 
-    if_chain! {
-        if !upgrade_opts.allow_downgrade;
-        if let Some(new_nightly) = parse_as_nightly(&rev.channel);
-        if let Some(old_nightly) = parse_as_nightly(&old_channel);
-        if new_nightly < old_nightly;
-        then {
-            bail!(
-                "Refusing to downgrade toolchain from `{}` to `{}`. \
-                Use `--allow-downgrade` to override.",
-                old_channel,
-                rev.channel
-            );
-        }
-    };
+    if !upgrade_opts.allow_downgrade
+        && let Some(new_nightly) = parse_as_nightly(&rev.channel)
+        && let Some(old_nightly) = parse_as_nightly(&old_channel)
+        && new_nightly < old_nightly
+    {
+        bail!(
+            "Refusing to downgrade toolchain from `{}` to `{}`. \
+            Use `--allow-downgrade` to override.",
+            old_channel,
+            rev.channel
+        );
+    }
 
     let rust_toolchain_path = path.join("rust-toolchain");
     let cargo_toml_path = path.join("Cargo.toml");

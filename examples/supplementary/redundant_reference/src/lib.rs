@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(let_chains)]
 #![warn(unused_extern_crates)]
 
 extern crate rustc_data_structures;
@@ -8,11 +7,13 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{
-    diagnostics::span_lint_hir_and_then, get_parent_expr, peel_middle_ty_refs, ty::is_copy,
+    diagnostics::span_lint_hir_and_then,
+    get_parent_expr,
+    ty::{is_copy, peel_and_count_ty_refs},
 };
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
-    Expr, ExprKind, GenericParam, GenericParamKind, HirId, Item, ItemKind, Lifetime, LifetimeName,
+    Expr, ExprKind, GenericParam, GenericParamKind, HirId, Item, ItemKind, Lifetime, LifetimeKind,
     MutTy, Mutability, TyKind, VariantData,
     def_id::LocalDefId,
     intravisit::{Visitor, walk_generic_param, walk_lifetime},
@@ -129,7 +130,7 @@ impl RedundantReference {
 impl<'tcx> LateLintPass<'tcx> for RedundantReference {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         if let ExprKind::Field(operand, field) = expr.kind
-            && let (operand_ty, _) = peel_middle_ty_refs(cx.typeck_results().expr_ty(operand))
+            && let (operand_ty, _, _) = peel_and_count_ty_refs(cx.typeck_results().expr_ty(operand))
             && let ty::Adt(adt_def, _) = operand_ty.kind()
             && let Some(local_def_id) = adt_def.did().as_local()
             && let Some(parent) = get_parent_expr(cx, expr)
@@ -163,7 +164,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
         ) in &self.field_uses
         {
             let item = cx.tcx.hir_expect_item(*local_def_id);
-            if let ItemKind::Struct(ident, VariantData::Struct { fields, .. }, _generics) =
+            if let ItemKind::Struct(ident, _generics, VariantData::Struct { fields, .. }) =
                 &item.kind
                 && let Some(field_def) = fields.iter().find(|field_def| field_def.ident == *field)
                 && let field_def_local_def_id = field_def.def_id
@@ -176,7 +177,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                         mutbl: Mutability::Not,
                     },
                 ) = field_def.ty.kind
-                && let LifetimeName::Param(local_def_id) = lifetime.res
+                && let LifetimeKind::Param(local_def_id) = lifetime.kind
                 && (!self.config.lifetime_check || {
                     let lifetime_uses = lifetime_uses(local_def_id, item);
                     lifetime_uses.len() == 1 && {
@@ -241,7 +242,7 @@ struct LifetimeUses {
 
 impl<'tcx> Visitor<'tcx> for LifetimeUses {
     fn visit_lifetime(&mut self, lifetime: &'tcx Lifetime) {
-        if let LifetimeName::Param(local_def_id) = lifetime.res
+        if let LifetimeKind::Param(local_def_id) = lifetime.kind
             && self.local_def_id == local_def_id
         {
             self.uses.insert(lifetime.hir_id);

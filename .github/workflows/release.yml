@@ -8,19 +8,28 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Check CHANGELOG.md
         run: ./scripts/check_CHANGELOG.sh "${{ github.ref }}"
 
-      - name: Login
-        run: echo ${{ secrets.CRATES_IO_TOKEN }} | cargo login
+      - uses: rust-lang/crates-io-auth-action@v1
+        id: auth
 
       - name: Publish
-        run: ./scripts/publish.sh
+        run: |
+          # smoelius: Publishing in this order ensures that all dependencies are met.
+          DIRS="internal driver dylint-link dylint cargo-dylint utils/linting utils/testing"
+          for DIR in $DIRS; do
+              pushd "$DIR" && (cargo publish || true) && popd
+          done
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
 
       - name: Get version
         id: get-version

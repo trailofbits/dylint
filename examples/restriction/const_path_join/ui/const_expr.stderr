@@ -1,0 +1,25 @@
+warning: path could be constructed with concat!
+  --> $DIR/const_expr.rs:5:13
+   |
+LL |       let _ = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+   |  _____________^
+LL | |         .join("src")
+LL | |         .join("lib.rs");
+   | |_______________________^ help: use: `std::path::PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/src/lib.rs"))`
+   |
+   = note: `#[warn(const_path_join)]` on by default
+
+warning: path could be constructed from a string literal
+  --> $DIR/const_expr.rs:11:42
+   |
+LL |     let _ = std::path::PathBuf::from(dir).join("tests").join("fixtures");
+   |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `.join("tests/fixtures")`
+
+warning: path could be constructed with concat!
+  --> $DIR/const_expr.rs:14:13
+   |
+LL |     let _ = camino::Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `camino::Utf8PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/src"))`
+
+warning: 3 warnings emitted
+

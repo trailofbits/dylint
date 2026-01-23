@@ -1,6 +1,6 @@
 [package]
 name = "dylint_internal"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Dylint internals"
 edition = "2024"
@@ -9,6 +9,7 @@ repository = "https://github.com/trailofbits/dylint"
 
 [dependencies]
 anyhow = { workspace = true }
+log = { workspace = true }
 regex = { workspace = true }
 
 anstyle = { workspace = true, optional = true }
@@ -19,14 +20,10 @@ ctor = { workspace = true, optional = true }
 env_logger = { workspace = true, optional = true }
 git2 = { workspace = true, optional = true }
 home = { workspace = true, optional = true }
-if_chain = { workspace = true, optional = true }
-log = { workspace = true, optional = true }
-rust-embed = { workspace = true, features = [
-    "include-exclude",
-], optional = true }
-rustversion = { workspace = true, optional = true }
 semver = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
+tar = { workspace = true, optional = true }
+tempfile = { workspace = true, optional = true }
 thiserror = { workspace = true, optional = true }
 toml = { workspace = true, optional = true }
 toml_edit = { workspace = true, optional = true }
@@ -36,19 +33,19 @@ walkdir = { workspace = true, optional = true }
 assert_cmd = { workspace = true }
 predicates = { workspace = true }
 tempfile = { workspace = true }
+toml = { workspace = true }
 toml_edit = { workspace = true }
 
 [features]
-cargo = ["anstyle", "bitflags", "cargo_metadata", "command", "home"]
-clippy_utils = ["semver", "toml_edit"]
-command = ["log"]
+cargo = ["anstyle", "bitflags", "cargo_metadata", "home"]
+clippy_utils = ["git", "semver", "tempfile", "toml", "toml_edit"]
 config = ["cargo_metadata", "serde", "thiserror", "toml"]
 examples = ["cargo", "cargo-util", "rustup", "walkdir"]
-git = ["command", "git2", "if_chain"]
-home = ["dep:home", "rustversion"]
-packaging = ["cargo", "rust-embed"]
-rustup = ["command"]
-sed = []
+git = ["git2"]
+home = ["dep:home"]
+match_def_path = []
+packaging = ["cargo", "tar"]
+rustup = ["cargo_metadata"]
 testing = ["ctor", "env_logger", "packaging"]
 
 [lints]

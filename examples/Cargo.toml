@@ -1,22 +1,40 @@
 [package]
 name = "dylint_examples"
-version = "4.1.0"
+version = "5.0.0"
 description = "A dummy package for testing the example Dylint libraries"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 publish = false
 
+[build-dependencies]
+nested_workspace = { workspace = true }
+
 [dev-dependencies]
 cargo-util = { workspace = true }
 cargo_metadata = { workspace = true }
+nested_workspace = { workspace = true }
+regex = { workspace = true }
 toml = { workspace = true }
 toml_edit = { workspace = true }
 walkdir = { workspace = true }
 
-dylint_internal = { version = "=4.1.0", path = "../internal", features = [
+dylint_internal = { version = "=5.0.0", path = "../internal", features = [
     "clippy_utils",
     "examples",
 ] }
 
 [lints]
 workspace = true
+
+[package.metadata.nested_workspace]
+roots = [
+    "general",
+    "supplementary",
+    "restriction",
+    "testing/clippy",
+    "testing/straggler",
+    "experimental/derive_opportunity",
+    # smoelius: Disabling testing of `missing_doc_comment_llm` until the space issue is resolved.
+    # See: https://github.com/majiayu000/litellm-rs/issues/5
+    # "experimental/missing_doc_comment_llm",
+]

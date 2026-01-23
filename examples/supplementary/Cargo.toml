@@ -1,6 +1,6 @@
 [package]
 name = "supplementary"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Supplementary lints"
 edition = "2024"
@@ -10,7 +10,11 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
+arg_iter = { path = "arg_iter", features = ["rlib"] }
 commented_out_code = { path = "commented_out_code", features = ["rlib"] }
+dir_entry_path_file_name = { path = "dir_entry_path_file_name", features = [
+    "rlib",
+] }
 escaping_doc_link = { path = "escaping_doc_link", features = ["rlib"] }
 inconsistent_struct_pattern = { path = "inconsistent_struct_pattern", features = [
     "rlib",
@@ -39,14 +43,14 @@ exclude = [".cargo", "src"]
 
 [workspace.dependencies]
 cargo-util = "0.2"
-cargo_metadata = "0.18"
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "7bb54d91be1af212faaa078786c1d2271a67d4f9" }
+cargo_metadata = "0.23"
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9e3e9649cbae7ed33ba62ca436f43081eaaedeb5" }
 once_cell = "1.21"
-pulldown-cmark = "0.10"
-regex = "1.11"
+pulldown-cmark = "0.13"
+regex = "1.12"
 serde = "1.0"
 syn = "2.0"
-tempfile = "3.19"
+tempfile = "3.24"
 
 [workspace.lints.clippy]
 nursery = { level = "warn", priority = -1 }
