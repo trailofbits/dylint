@@ -71,7 +71,7 @@ checksum = "2a4385e2e34eb35d6b3efe798b9eb88096925d87726c0798709bf56d9ed84af3"
 name = "arg_iter"
 version = "6.0.1"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_linting",
  "dylint_testing",
 ]
@@ -184,6 +184,17 @@ checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
 name = "clippy_utils"
+version = "0.1.88"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=7bb54d91be1af212faaa078786c1d2271a67d4f9#7bb54d91be1af212faaa078786c1d2271a67d4f9"
+dependencies = [
+ "arrayvec",
+ "itertools",
+ "rustc_apfloat",
+ "serde",
+]
+
+[[package]]
+name = "clippy_utils"
 version = "0.1.98"
 source = "git+https://github.com/rust-lang/rust-clippy?rev=9fca3bc9fc2bc83c60bde26d18ed68f11564b228#9fca3bc9fc2bc83c60bde26d18ed68f11564b228"
 dependencies = [
@@ -203,7 +214,7 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 name = "commented_out_code"
 version = "6.0.1"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_linting",
  "dylint_testing",
  "regex",
@@ -318,7 +329,7 @@ dependencies = [
 name = "dir_entry_path_file_name"
 version = "6.0.1"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -460,7 +471,7 @@ version = "6.0.1"
 dependencies = [
  "cargo-util",
  "cargo_metadata",
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_linting",
  "dylint_testing",
  "once_cell",
@@ -494,6 +505,15 @@ name = "foldhash"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
+
+[[package]]
+name = "format_concat_args"
+version = "0.1.0"
+dependencies = [
+ "clippy_utils 0.1.88",
+ "dylint_linting",
+ "dylint_testing",
+]
 
 [[package]]
 name = "getopts"
@@ -642,7 +662,7 @@ dependencies = [
 name = "inconsistent_struct_pattern"
 version = "6.0.1"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_linting",
  "dylint_testing",
 ]
@@ -775,7 +795,7 @@ checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
 name = "local_ref_cell"
 version = "6.0.1"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -807,7 +827,7 @@ name = "nonexistent_path_in_comment"
 version = "6.0.1"
 dependencies = [
  "cargo_metadata",
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_linting",
  "dylint_testing",
  "regex",
@@ -942,7 +962,7 @@ dependencies = [
 name = "redundant_reference"
 version = "6.0.1"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_linting",
  "dylint_testing",
  "serde",
@@ -1327,7 +1347,7 @@ checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 name = "unnamed_constant"
 version = "6.0.1"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_linting",
  "dylint_testing",
  "serde",
@@ -1337,7 +1357,7 @@ dependencies = [
 name = "unnecessary_borrow_mut"
 version = "6.0.1"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
@@ -1347,7 +1367,7 @@ dependencies = [
 name = "unnecessary_conversion_for_trait"
 version = "6.0.1"
 dependencies = [
- "clippy_utils",
+ "clippy_utils 0.1.98",
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
