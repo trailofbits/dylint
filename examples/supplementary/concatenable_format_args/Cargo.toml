@@ -1,5 +1,5 @@
 [package]
-name = "format_concat_args"
+name = "concatenable_format_args"
 version = "0.1.0"
 authors = ["Your Name <you@example.com>"]
 description = "A Dylint lint to suggest using `concat!(...)` instead of `format!(...)` for all-constant Display arguments."
