@@ -11,18 +11,15 @@ extern crate rustc_span;
 #[cfg(not(feature = "rlib"))]
 dylint_linting::dylint_library!();
 
-use clippy_utils::{
-    diagnostics::span_lint_and_sugg,
-    is_expn_of,
-};
+use clippy_utils::{diagnostics::span_lint_and_sugg, is_expn_of};
 use rustc_hir::Expr;
-use rustc_lint::{Lint, LateContext, LateLintPass, Level};
+use rustc_lint::{LateContext, LateLintPass, Level, Lint};
 use rustc_session::declare_lint_pass;
 use rustc_span::sym;
 
 // Declare the lint directly
-pub static FORMAT_CONCAT_ARGS: &Lint = &Lint {
-    name: "format_concat_args",
+pub static CONCATENABLE_FORMAT_ARGS: &Lint = &Lint {
+    name: "concatenable_format_args",
     default_level: Level::Allow,
     desc: "Checks for `format!(...)` invocations where `concat!(...)` could be used instead.",
     edition_lint_opts: None,
@@ -35,9 +32,9 @@ pub static FORMAT_CONCAT_ARGS: &Lint = &Lint {
 };
 
 // Declare the lint pass
-declare_lint_pass!(FormatConcatArgs => [FORMAT_CONCAT_ARGS]);
+declare_lint_pass!(ConcatenableFormatArgs => [CONCATENABLE_FORMAT_ARGS]);
 
-impl<'tcx> LateLintPass<'tcx> for FormatConcatArgs {
+impl<'tcx> LateLintPass<'tcx> for ConcatenableFormatArgs {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'_>) {
         // Check if the expression is a `format!` macro invocation
         if is_expn_of(expr.span, sym::format_args.as_str()).is_some() {
@@ -50,7 +47,7 @@ impl<'tcx> LateLintPass<'tcx> for FormatConcatArgs {
 
             span_lint_and_sugg(
                 cx,
-                FORMAT_CONCAT_ARGS,
+                CONCATENABLE_FORMAT_ARGS,
                 expr.span,
                 "this `format!(...)` invocation might be replaceable with `concat!(...)`",
                 "consider using concat! if all arguments are constant",
@@ -65,5 +62,5 @@ impl<'tcx> LateLintPass<'tcx> for FormatConcatArgs {
 #[allow(unused_extern_crates)]
 #[allow(clippy::float_arithmetic, clippy::option_option, clippy::unreachable)]
 fn main() {
-   dylint_linting::test(env!("CARGO_PKG_NAME"), &[]);
+    dylint_linting::test(env!("CARGO_PKG_NAME"), &[]);
 }

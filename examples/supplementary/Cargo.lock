@@ -244,6 +244,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "concatenable_format_args"
+version = "0.1.0"
+dependencies = [
+ "clippy_utils 0.1.88",
+ "dylint_linting",
+ "dylint_testing",
+]
+
+[[package]]
 name = "const-oid"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -505,15 +514,6 @@ name = "foldhash"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
-
-[[package]]
-name = "format_concat_args"
-version = "0.1.0"
-dependencies = [
- "clippy_utils 0.1.88",
- "dylint_linting",
- "dylint_testing",
-]
 
 [[package]]
 name = "getopts"
