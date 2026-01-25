@@ -4,7 +4,7 @@ warning: `std::fs` exports a type `File`, which is not the type of `file`
 LL |     let file = read_to_string(path)?;
    |         ^^^^
    |
-   = help: use a name that is not `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, `read_dir`, or `try_lock_error`
+   = help: use a name that is not `dir`, `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, `read_dir`, or `try_lock_error`
    = note: `#[warn(misleading_variable_name)]` on by default
 
 warning: `std::fs` exports a type `File`, which is not the type of `file`
@@ -13,7 +13,7 @@ warning: `std::fs` exports a type `File`, which is not the type of `file`
 LL |     let file = read_to_string(path).with_context(|| "read")?;
    |         ^^^^
    |
-   = help: use a name that is not `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, `read_dir`, or `try_lock_error`
+   = help: use a name that is not `dir`, `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, `read_dir`, or `try_lock_error`
 
 warning: `std::fs` exports a type `File`, which is not the type of `file`
   --> $DIR/main.rs:56:9
@@ -21,7 +21,7 @@ warning: `std::fs` exports a type `File`, which is not the type of `file`
 LL |     let file = read_to_string(path).unwrap();
    |         ^^^^
    |
-   = help: use a name that is not `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, `read_dir`, or `try_lock_error`
+   = help: use a name that is not `dir`, `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, `read_dir`, or `try_lock_error`
 
 warning: `std::io` exports a type `BufReader`, which is not the type of `buf_reader`
   --> $DIR/main.rs:58:9

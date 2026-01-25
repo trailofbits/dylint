@@ -133,136 +133,160 @@ LL |     let _ = std::fs::write("x", vec.into_boxed_slice());
    |                                    ^^^^^^^^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:65:49
+  --> $DIR/general.rs:65:33
+   |
+LL |     let _ = std::fs::write("x", &[][..].as_mut_slice());
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^ help: use: `&&mut [][..]`
+
+warning: the receiver implements the required traits
+  --> $DIR/general.rs:66:33
+   |
+LL |     let _ = std::fs::write("x", &[][..].as_slice());
+   |                                 ^^^^^^^^^^^^^^^^^^ help: use: `&[][..]`
+
+warning: the receiver implements the required traits
+  --> $DIR/general.rs:67:49
    |
 LL |     let _ = Command::new("ls").args(["-a", "-l"].iter());
    |                                                 ^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:66:49
+  --> $DIR/general.rs:68:49
    |
 LL |     let _ = Command::new("ls").args(["-a", "-l"].iter_mut());
    |                                                 ^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:68:35
+  --> $DIR/general.rs:70:35
    |
 LL |     let _ = std::fs::write("x", "".as_bytes());
    |                                   ^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:69:35
+  --> $DIR/general.rs:71:35
    |
 LL |     let _ = std::fs::write("x", "".as_str());
    |                                   ^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:71:34
+  --> $DIR/general.rs:73:34
    |
 LL |     let _ = os_str_or_bytes(osstr.as_encoded_bytes());
    |                                  ^^^^^^^^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:72:41
+  --> $DIR/general.rs:74:34
+   |
+LL |     let _ = os_str_or_bytes(osstr.as_os_str());
+   |                                  ^^^^^^^^^^^^ help: remove this
+
+warning: the receiver implements the required traits
+  --> $DIR/general.rs:75:41
    |
 LL |     let _ = is_empty_os(osstring.clone().into_boxed_os_str().into_os_string());
    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: remove this
 
 warning: the inner argument implements the required traits
-  --> $DIR/general.rs:73:28
+  --> $DIR/general.rs:76:28
    |
 LL |     let _ = std::fs::write(OsStr::new("x"), "");
    |                            ^^^^^^^^^^^^^^^ help: use: `"x"`
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:74:33
+  --> $DIR/general.rs:77:33
    |
 LL |     let _ = std::fs::write(osstr.to_os_string(), "");
    |                                 ^^^^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:76:28
+  --> $DIR/general.rs:79:28
    |
 LL |     let _ = std::fs::write(osstring.as_os_str(), "");
    |                            ^^^^^^^^^^^^^^^^^^^^ help: use: `&osstring`
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:77:41
+  --> $DIR/general.rs:80:41
    |
 LL |     let _ = is_empty_os(osstring.clone().into_boxed_os_str());
    |                                         ^^^^^^^^^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:78:48
+  --> $DIR/general.rs:81:48
    |
 LL |     let _ = os_string_or_bytes(osstring.clone().into_encoded_bytes());
    |                                                ^^^^^^^^^^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:80:46
+  --> $DIR/general.rs:83:46
    |
 LL |     let _ = std::fs::write(PathBuf::from("x").as_mut_os_str(), "");
    |                                              ^^^^^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:81:32
+  --> $DIR/general.rs:84:32
    |
 LL |     let _ = std::fs::write(path.as_os_str(), "");
    |                                ^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:82:46
+  --> $DIR/general.rs:85:32
+   |
+LL |     let _ = std::fs::write(path.as_path(), "");
+   |                                ^^^^^^^^^^ help: remove this
+
+warning: the receiver implements the required traits
+  --> $DIR/general.rs:86:46
    |
 LL |     let _ = std::fs::write(PathBuf::from("x").into_boxed_path().into_path_buf(), "");
    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:83:41
+  --> $DIR/general.rs:87:41
    |
 LL |     let _ = Command::new("ls").args(path.iter());
    |                                         ^^^^^^^ help: remove this
 
 warning: the inner argument implements the required traits
-  --> $DIR/general.rs:84:28
+  --> $DIR/general.rs:88:28
    |
 LL |     let _ = std::fs::write(Path::new("x"), "");
    |                            ^^^^^^^^^^^^^^ help: use: `"x"`
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:85:32
+  --> $DIR/general.rs:89:32
    |
 LL |     let _ = std::fs::write(path.to_path_buf(), "");
    |                                ^^^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:87:28
+  --> $DIR/general.rs:91:28
    |
 LL |     let _ = std::fs::write(path_buf.as_mut_os_string(), "");
    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `&mut path_buf`
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:88:28
+  --> $DIR/general.rs:92:28
    |
 LL |     let _ = std::fs::write(path_buf.as_path(), "");
    |                            ^^^^^^^^^^^^^^^^^^ help: use: `&path_buf`
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:89:44
+  --> $DIR/general.rs:93:44
    |
 LL |     let _ = std::fs::write(path_buf.clone().into_os_string(), "");
    |                                            ^^^^^^^^^^^^^^^^^ help: remove this
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:91:28
+  --> $DIR/general.rs:95:28
    |
 LL |     let _ = std::fs::write(tempdir.path(), "");
    |                            ^^^^^^^^^^^^^^ help: use: `&tempdir`
 
 warning: the receiver implements the required traits
-  --> $DIR/general.rs:92:28
+  --> $DIR/general.rs:96:28
    |
 LL |     let _ = std::fs::write(tempfile.path(), "");
    |                            ^^^^^^^^^^^^^^^ help: use: `&tempfile`
 
-warning: 44 warnings emitted
+warning: 48 warnings emitted
 
