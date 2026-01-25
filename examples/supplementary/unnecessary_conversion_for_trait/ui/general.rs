@@ -62,6 +62,8 @@ fn main() {
     let _ = std::fs::write("x", vec.as_slice());
     let _ = std::fs::write("x", vec.into_boxed_slice());
 
+    let _ = std::fs::write("x", &[][..].as_mut_slice());
+    let _ = std::fs::write("x", &[][..].as_slice());
     let _ = Command::new("ls").args(["-a", "-l"].iter());
     let _ = Command::new("ls").args(["-a", "-l"].iter_mut());
 
@@ -69,6 +71,7 @@ fn main() {
     let _ = std::fs::write("x", "".as_str());
 
     let _ = os_str_or_bytes(osstr.as_encoded_bytes());
+    let _ = os_str_or_bytes(osstr.as_os_str());
     let _ = is_empty_os(osstring.clone().into_boxed_os_str().into_os_string());
     let _ = std::fs::write(OsStr::new("x"), "");
     let _ = std::fs::write(osstr.to_os_string(), "");
@@ -79,6 +82,7 @@ fn main() {
 
     let _ = std::fs::write(PathBuf::from("x").as_mut_os_str(), "");
     let _ = std::fs::write(path.as_os_str(), "");
+    let _ = std::fs::write(path.as_path(), "");
     let _ = std::fs::write(PathBuf::from("x").into_boxed_path().into_path_buf(), "");
     let _ = Command::new("ls").args(path.iter());
     let _ = std::fs::write(Path::new("x"), "");

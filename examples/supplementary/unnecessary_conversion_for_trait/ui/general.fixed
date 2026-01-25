@@ -62,12 +62,15 @@ fn main() {
     let _ = std::fs::write("x", &vec);
     let _ = std::fs::write("x", vec);
 
+    let _ = std::fs::write("x", &&mut [][..]);
+    let _ = std::fs::write("x", &[][..]);
     let _ = Command::new("ls").args(["-a", "-l"]);
     let _ = Command::new("ls").args(["-a", "-l"]);
 
     let _ = std::fs::write("x", "");
     let _ = std::fs::write("x", "");
 
+    let _ = os_str_or_bytes(osstr);
     let _ = os_str_or_bytes(osstr);
     let _ = is_empty_os(osstring.clone());
     let _ = std::fs::write("x", "");
@@ -78,6 +81,7 @@ fn main() {
     let _ = os_string_or_bytes(osstring.clone());
 
     let _ = std::fs::write(PathBuf::from("x"), "");
+    let _ = std::fs::write(path, "");
     let _ = std::fs::write(path, "");
     let _ = std::fs::write(PathBuf::from("x"), "");
     let _ = Command::new("ls").args(path);
