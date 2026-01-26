@@ -370,19 +370,10 @@ fn format_util_readmes() {
 }
 
 #[test]
-fn hack_feature_powerset_udeps() {
-    Command::new("rustup")
-        // smoelius: `--check-cfg cfg(test)` to work around the following issue:
-        // https://github.com/est31/cargo-udeps/issues/293
-        .env(env::RUSTFLAGS, "-D warnings --check-cfg cfg(test)")
-        .args([
-            "run",
-            "nightly",
-            "cargo",
-            "hack",
-            "--feature-powerset",
-            "udeps",
-        ])
+fn hack_each_feature_udeps() {
+    Command::new("cargo")
+        .env(env::RUSTFLAGS, "-D warnings")
+        .args(["+nightly", "hack", "--each-feature", "udeps"])
         .assert()
         .success();
 }
