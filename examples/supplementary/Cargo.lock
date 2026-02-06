@@ -12,6 +12,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ansi_term"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d52a9bb7ec0cf484c551830a7ce27bd20d67eac647e1befb56b0be4ee39a55d2"
+dependencies = [
+ "winapi",
+]
+
+[[package]]
 name = "anstream"
 version = "0.6.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -203,8 +212,8 @@ name = "commented_out_code"
 version = "5.0.0"
 dependencies = [
  "clippy_utils",
- "dylint_linting",
- "dylint_testing",
+ "dylint_linting 4.1.0",
+ "dylint_testing 4.1.0",
  "regex",
  "syn",
 ]
@@ -385,6 +394,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "dylint_internal"
+version = "4.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "258d36f53de789719a4c97ecde1df80c16abbcd029c5d25f19c86164caa54cff"
+dependencies = [
+ "ansi_term",
+ "anyhow",
+ "bitflags",
+ "cargo_metadata 0.19.2",
+ "git2",
+ "home",
+ "if_chain",
+ "log",
+ "regex",
+ "rust-embed",
+ "rustversion",
+ "serde",
+ "thiserror 2.0.12",
+ "toml",
+]
+
+[[package]]
 name = "dylint_linting"
 version = "5.0.0"
 dependencies = [
@@ -398,14 +429,45 @@ dependencies = [
 ]
 
 [[package]]
+name = "dylint_linting"
+version = "4.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3293a3baa87904faeea12506ec152b56655e40fc49709d905a9be6d277b56c8e"
+dependencies = [
+ "cargo_metadata 0.19.2",
+ "dylint_internal 4.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "paste",
+ "rustversion",
+ "serde",
+ "thiserror 2.0.12",
+ "toml",
+]
+
+[[package]]
+name = "dylint_testing"
+version = "4.1.0"
+dependencies = [
+ "anyhow",
+ "cargo_metadata 0.19.2",
+ "compiletest_rs",
+ "dylint 4.1.0",
+ "dylint_internal 4.1.0",
+ "env_logger",
+ "once_cell",
+ "regex",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "dylint_testing"
 version = "5.0.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
  "compiletest_rs",
- "dylint",
- "dylint_internal",
+ "dylint 4.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "dylint_internal 4.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger",
  "once_cell",
  "regex",
@@ -465,8 +527,8 @@ dependencies = [
  "cargo-util",
  "cargo_metadata",
  "clippy_utils",
- "dylint_linting",
- "dylint_testing",
+ "dylint_linting 4.1.0",
+ "dylint_testing 4.1.0",
  "once_cell",
  "pulldown-cmark",
 ]
@@ -501,6 +563,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
 dependencies = [
  "percent-encoding",
+]
+
+[[package]]
+name = "format_concat_args"
+version = "0.1.0"
+dependencies = [
+ "clippy_utils",
+ "dylint_linting 4.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "dylint_testing 4.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -723,8 +794,8 @@ name = "inconsistent_struct_pattern"
 version = "5.0.0"
 dependencies = [
  "clippy_utils",
- "dylint_linting",
- "dylint_testing",
+ "dylint_linting 4.1.0",
+ "dylint_testing 4.1.0",
 ]
 
 [[package]]
@@ -872,9 +943,9 @@ name = "local_ref_cell"
 version = "5.0.0"
 dependencies = [
  "clippy_utils",
- "dylint_internal",
- "dylint_linting",
- "dylint_testing",
+ "dylint_internal 4.1.0",
+ "dylint_linting 4.1.0",
+ "dylint_testing 4.1.0",
 ]
 
 [[package]]
@@ -904,8 +975,8 @@ version = "5.0.0"
 dependencies = [
  "cargo_metadata",
  "clippy_utils",
- "dylint_linting",
- "dylint_testing",
+ "dylint_linting 4.1.0",
+ "dylint_testing 4.1.0",
  "regex",
 ]
 
@@ -1065,8 +1136,8 @@ name = "redundant_reference"
 version = "5.0.0"
 dependencies = [
  "clippy_utils",
- "dylint_linting",
- "dylint_testing",
+ "dylint_linting 4.1.0",
+ "dylint_testing 4.1.0",
  "serde",
 ]
 
@@ -1471,8 +1542,8 @@ name = "unnamed_constant"
 version = "5.0.0"
 dependencies = [
  "clippy_utils",
- "dylint_linting",
- "dylint_testing",
+ "dylint_linting 4.1.0",
+ "dylint_testing 4.1.0",
  "serde",
 ]
 
@@ -1481,9 +1552,9 @@ name = "unnecessary_borrow_mut"
 version = "5.0.0"
 dependencies = [
  "clippy_utils",
- "dylint_internal",
- "dylint_linting",
- "dylint_testing",
+ "dylint_internal 4.1.0",
+ "dylint_linting 4.1.0",
+ "dylint_testing 4.1.0",
 ]
 
 [[package]]
@@ -1491,9 +1562,9 @@ name = "unnecessary_conversion_for_trait"
 version = "5.0.0"
 dependencies = [
  "clippy_utils",
- "dylint_internal",
- "dylint_linting",
- "dylint_testing",
+ "dylint_internal 4.1.0",
+ "dylint_linting 4.1.0",
+ "dylint_testing 4.1.0",
  "tempfile",
 ]
 
