@@ -1,0 +1,10 @@
+warning: unnecessary conversion for trait
+  --> $DIR/false_positive_iter.rs:4:16
+   |
+4  |     ys.extend(xs.iter());     // lint suggests removing .iter()
+   |                ^^^^^^^
+   |
+   = note: `#[warn(unnecessary_conversion_for_trait)]` on by default
+   = help: remove the `.iter()`
+
+warning: 1 warning emitted 
