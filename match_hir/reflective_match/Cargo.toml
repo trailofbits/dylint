@@ -1,0 +1,23 @@
+[package]
+name = "reflective_match"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+thiserror = "2.0"
+dylint_linting = "5.0"
+
+match_hir = { path = ".." }
+
+[dev-dependencies]
+dylint_testing = "5.0"
+
+[lints]
+workspace = true
+
+[package.metadata.rust-analyzer]
+rustc_private = true
