@@ -30,7 +30,7 @@ dylint_internal = { path = "../../../internal" }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
-bitflags = "2.10"
+bitflags = "2.11"
 serde_derive = "1.0"
 
 dylint_testing = { path = "../../../utils/testing" }
