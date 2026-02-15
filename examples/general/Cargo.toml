@@ -39,7 +39,7 @@ members = ["*"]
 exclude = [".cargo", "src"]
 
 [workspace.dependencies]
-bitflags = "2.10"
+bitflags = "2.11"
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "54482290b5f32e6c6b57cc9e0a17153f432b0036" }
 derivative = "2.2.0"
 once_cell = "1.21"
