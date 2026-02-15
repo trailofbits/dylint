@@ -13,19 +13,19 @@ paste = "1.0"
 rustversion = "1.0"
 serde = "1.0"
 thiserror = "2.0"
-toml = "0.9"
+toml = "1.0"
 
 dylint_internal = { version = "=5.0.0", path = "../../internal", features = [
     "config",
 ] }
 
 [build-dependencies]
-toml = "0.9"
+toml = "1.0"
 
 [dev-dependencies]
 assert_cmd = "2.1"
 rustc_version = "0.4"
-tempfile = "3.24"
+tempfile = "3.25"
 
 [features]
 constituent = []
