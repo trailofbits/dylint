@@ -55,7 +55,7 @@ tar = "0.4"
 tempfile = "3.25"
 thiserror = "2.0"
 toml = "1.0"
-toml_edit = "0.24"
+toml_edit = "0.25"
 url = "2.5"
 walkdir = "2.5"
 
