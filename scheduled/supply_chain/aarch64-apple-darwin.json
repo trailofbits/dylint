@@ -1,19 +1,5 @@
 {
   "crates_io_crates": {
-    "addr2line": [
-      {
-        "id": 696,
-        "kind": "user",
-        "login": "fitzgen",
-        "name": "Nick Fitzgerald"
-      },
-      {
-        "id": 4415,
-        "kind": "user",
-        "login": "philipc",
-        "name": "Philip Craig"
-      }
-    ],
     "adler2": [
       {
         "id": 4968,
@@ -108,32 +94,12 @@
         "name": "Alex Kladov"
       }
     ],
-    "backtrace": [
-      {
-        "id": 55123,
-        "kind": "user",
-        "login": "rust-lang-owner",
-        "name": null
-      }
-    ],
     "bincode": [
-      {
-        "id": 78,
-        "kind": "user",
-        "login": "TyOverby",
-        "name": "Ty Overby"
-      },
       {
         "id": 3672,
         "kind": "user",
         "login": "ZoeyR",
         "name": "Zoey Riordan"
-      },
-      {
-        "id": 4990,
-        "kind": "user",
-        "login": "VictorKoenders",
-        "name": "Trangar"
       }
     ],
     "bit-set": [
@@ -178,12 +144,6 @@
     ],
     "bitflags": [
       {
-        "id": 3,
-        "kind": "user",
-        "login": "huonw",
-        "name": "Huon Wilson"
-      },
-      {
         "id": 51,
         "kind": "team",
         "login": "github:rust-lang-nursery:libs",
@@ -194,12 +154,6 @@
         "kind": "user",
         "login": "KodrAus",
         "name": "Ashley Mannix"
-      },
-      {
-        "id": 4416,
-        "kind": "team",
-        "login": "github:bitflags:owners",
-        "name": "owners"
       }
     ],
     "block-buffer": [
@@ -970,20 +924,6 @@
         "name": "Diggory Hardy"
       }
     ],
-    "gimli": [
-      {
-        "id": 696,
-        "kind": "user",
-        "login": "fitzgen",
-        "name": "Nick Fitzgerald"
-      },
-      {
-        "id": 4415,
-        "kind": "user",
-        "login": "philipc",
-        "name": "Philip Craig"
-      }
-    ],
     "git2": [
       {
         "id": 1,
@@ -1578,20 +1518,6 @@
         "name": "Mads Marquart"
       }
     ],
-    "object": [
-      {
-        "id": 696,
-        "kind": "user",
-        "login": "fitzgen",
-        "name": "Nick Fitzgerald"
-      },
-      {
-        "id": 4415,
-        "kind": "user",
-        "login": "philipc",
-        "name": "Philip Craig"
-      }
-    ],
     "once_cell": [
       {
         "id": 2699,
@@ -1786,26 +1712,6 @@
         "name": "Samuel Moelius"
       }
     ],
-    "rustc-demangle": [
-      {
-        "id": 11,
-        "kind": "team",
-        "login": "github:rust-lang:libs",
-        "name": "libs"
-      },
-      {
-        "id": 408,
-        "kind": "team",
-        "login": "github:rust-lang:compiler",
-        "name": "compiler"
-      },
-      {
-        "id": 55123,
-        "kind": "user",
-        "login": "rust-lang-owner",
-        "name": null
-      }
-    ],
     "rustc-stable-hash": [
       {
         "id": 408,
@@ -1846,14 +1752,6 @@
         "kind": "user",
         "login": "sunfishcode",
         "name": "Dan Gohman"
-      }
-    ],
-    "ryu": [
-      {
-        "id": 3618,
-        "kind": "user",
-        "login": "dtolnay",
-        "name": "David Tolnay"
       }
     ],
     "same-file": [
@@ -2384,44 +2282,6 @@
         "name": "Sujay Jayakar"
       }
     ],
-    "unicode-xid": [
-      {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
-        "id": 3,
-        "kind": "user",
-        "login": "huonw",
-        "name": "Huon Wilson"
-      },
-      {
-        "id": 7,
-        "kind": "user",
-        "login": "SimonSapin",
-        "name": "Simon Sapin"
-      },
-      {
-        "id": 1139,
-        "kind": "user",
-        "login": "Manishearth",
-        "name": "Manish Goregaokar"
-      },
-      {
-        "id": 1458,
-        "kind": "user",
-        "login": "kwantam",
-        "name": "Riad S. Wahby"
-      },
-      {
-        "id": 21056,
-        "kind": "user",
-        "login": "sujayakar",
-        "name": "Sujay Jayakar"
-      }
-    ],
     "url": [
       {
         "id": 5,
@@ -2656,6 +2516,14 @@
         "kind": "team",
         "login": "github:unicode-org:icu4x-release",
         "name": "icu4x-release"
+      }
+    ],
+    "zmij": [
+      {
+        "id": 3618,
+        "kind": "user",
+        "login": "dtolnay",
+        "name": "David Tolnay"
       }
     ]
   },
