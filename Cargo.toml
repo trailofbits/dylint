@@ -89,6 +89,7 @@ libraries = [
 [workspace.metadata.unmaintained]
 ignore = [
     "bincode",
+    "dirs-sys-next",
     "miow",
     "num_cpus",
     "serde-value",
