@@ -198,6 +198,7 @@
 #[allow(unused_extern_crates)]
 extern crate rustc_driver;
 
+extern crate rustc_data_structures;
 extern crate rustc_session;
 extern crate rustc_span;
 
@@ -490,19 +491,69 @@ pub fn init_config(sess: &rustc_session::Session) {
     });
 }
 
-trait ParseSess {
-    fn parse_sess(&self) -> &rustc_session::parse::ParseSess;
+trait EnvDepInfo {
+    fn env_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<
+        rustc_data_structures::fx::FxIndexSet<(Symbol, Option<Symbol>)>,
+    >;
 }
 
-impl ParseSess for rustc_session::Session {
+impl EnvDepInfo for rustc_session::Session {
     #[rustversion::before(2024-03-05)]
-    fn parse_sess(&self) -> &rustc_session::parse::ParseSess {
-        &self.parse_sess
+    fn env_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<
+        rustc_data_structures::fx::FxIndexSet<(Symbol, Option<Symbol>)>,
+    > {
+        &self.parse_sess.env_depinfo
     }
 
-    #[rustversion::since(2024-03-05)]
-    fn parse_sess(&self) -> &rustc_session::parse::ParseSess {
-        &self.psess
+    #[rustversion::all(since(2024-03-05), before(2026-03-18))]
+    fn env_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<
+        rustc_data_structures::fx::FxIndexSet<(Symbol, Option<Symbol>)>,
+    > {
+        &self.psess.env_depinfo
+    }
+
+    #[rustversion::since(2026-03-18)]
+    fn env_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<
+        rustc_data_structures::fx::FxIndexSet<(Symbol, Option<Symbol>)>,
+    > {
+        &self.env_depinfo
+    }
+}
+
+trait FileDepInfo {
+    fn file_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<Symbol>>;
+}
+
+impl FileDepInfo for rustc_session::Session {
+    #[rustversion::before(2024-03-05)]
+    fn file_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<Symbol>> {
+        &self.parse_sess.file_depinfo
+    }
+
+    #[rustversion::all(since(2024-03-05), before(2026-03-18))]
+    fn file_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<Symbol>> {
+        &self.psess.file_depinfo
+    }
+
+    #[rustversion::since(2026-03-18)]
+    fn file_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<Symbol>> {
+        &self.file_depinfo
     }
 }
 
@@ -532,7 +583,7 @@ fn try_init_config_guarded(sess: &rustc_session::Session) -> ConfigResult<()> {
 
     if let Ok(value) = std::env::var(env::DYLINT_TOML) {
         config::init_from_string(&value)?;
-        sess.parse_sess().env_depinfo.lock().insert((
+        sess.env_depinfo().lock().insert((
             Symbol::intern(env::DYLINT_TOML),
             Some(Symbol::intern(&value)),
         ));
@@ -596,10 +647,7 @@ fn try_init_config_guarded(sess: &rustc_session::Session) -> ConfigResult<()> {
             let value = config::try_init_with_metadata(&metadata)?;
 
             if let Some(s) = &value {
-                sess.parse_sess()
-                    .file_depinfo
-                    .lock()
-                    .insert(Symbol::intern(s));
+                sess.file_depinfo().lock().insert(Symbol::intern(s));
             }
         }
     }

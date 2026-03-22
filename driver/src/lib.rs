@@ -6,6 +6,7 @@
 #![deny(clippy::panic)]
 #![deny(unused_extern_crates)]
 
+extern crate rustc_data_structures;
 extern crate rustc_driver;
 extern crate rustc_interface;
 extern crate rustc_lint;
@@ -188,19 +189,72 @@ fn early_error(msg: impl Into<rustc_errors::DiagMessage>) -> ! {
     handler.early_fatal(msg)
 }
 
-trait ParseSess {
-    fn parse_sess(&self) -> &rustc_session::parse::ParseSess;
+trait EnvDepInfo {
+    fn env_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<
+        rustc_data_structures::fx::FxIndexSet<(rustc_span::Symbol, Option<rustc_span::Symbol>)>,
+    >;
 }
 
-impl ParseSess for rustc_session::Session {
+impl EnvDepInfo for rustc_session::Session {
     #[rustversion::before(2024-03-05)]
-    fn parse_sess(&self) -> &rustc_session::parse::ParseSess {
-        &self.parse_sess
+    fn env_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<
+        rustc_data_structures::fx::FxIndexSet<(rustc_span::Symbol, Option<rustc_span::Symbol>)>,
+    > {
+        &self.parse_sess.env_depinfo
     }
 
-    #[rustversion::since(2024-03-05)]
-    fn parse_sess(&self) -> &rustc_session::parse::ParseSess {
-        &self.psess
+    #[rustversion::all(since(2024-03-05), before(2026-03-18))]
+    fn env_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<
+        rustc_data_structures::fx::FxIndexSet<(rustc_span::Symbol, Option<rustc_span::Symbol>)>,
+    > {
+        &self.psess.env_depinfo
+    }
+
+    #[rustversion::since(2026-03-18)]
+    fn env_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<
+        rustc_data_structures::fx::FxIndexSet<(rustc_span::Symbol, Option<rustc_span::Symbol>)>,
+    > {
+        &self.env_depinfo
+    }
+}
+
+trait FileDepInfo {
+    fn file_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<rustc_span::Symbol>>;
+}
+
+impl FileDepInfo for rustc_session::Session {
+    #[rustversion::before(2024-03-05)]
+    fn file_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<rustc_span::Symbol>>
+    {
+        &self.parse_sess.file_depinfo
+    }
+
+    #[rustversion::all(since(2024-03-05), before(2026-03-18))]
+    fn file_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<rustc_span::Symbol>>
+    {
+        &self.psess.file_depinfo
+    }
+
+    #[rustversion::since(2026-03-18)]
+    fn file_depinfo(
+        &self,
+    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<rustc_span::Symbol>>
+    {
+        &self.file_depinfo
     }
 }
 
@@ -250,15 +304,15 @@ impl rustc_driver::Callbacks for Callbacks {
             let dylint_no_deps_enabled = dylint_no_deps.as_ref().is_some_and(|value| value != "0");
             let cargo_primary_package_is_set = env::var(env::CARGO_PRIMARY_PACKAGE).is_ok();
 
-            sess.parse_sess().env_depinfo.lock().insert((
+            sess.env_depinfo().lock().insert((
                 rustc_span::Symbol::intern(env::DYLINT_LIBS),
                 dylint_libs.as_deref().map(rustc_span::Symbol::intern),
             ));
-            sess.parse_sess().env_depinfo.lock().insert((
+            sess.env_depinfo().lock().insert((
                 rustc_span::Symbol::intern(env::DYLINT_METADATA),
                 dylint_metadata.as_deref().map(rustc_span::Symbol::intern),
             ));
-            sess.parse_sess().env_depinfo.lock().insert((
+            sess.env_depinfo().lock().insert((
                 rustc_span::Symbol::intern(env::DYLINT_NO_DEPS),
                 dylint_no_deps.as_deref().map(rustc_span::Symbol::intern),
             ));
@@ -275,8 +329,7 @@ impl rustc_driver::Callbacks for Callbacks {
             }
             for loaded_lib in &loaded_libs {
                 if let Some(path) = loaded_lib.path.to_str() {
-                    sess.parse_sess()
-                        .file_depinfo
+                    sess.file_depinfo()
                         .lock()
                         .insert(rustc_span::Symbol::intern(path));
                 }
