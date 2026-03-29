@@ -54,7 +54,7 @@ syntect = { version = "5.3", default-features = false }
 tar = "0.4"
 tempfile = "3.27"
 thiserror = "2.0"
-toml = "1.0"
+toml = "1.1"
 toml_edit = "0.25"
 url = "2.5"
 walkdir = "2.5"
