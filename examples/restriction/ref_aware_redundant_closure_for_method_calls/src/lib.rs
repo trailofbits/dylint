@@ -270,7 +270,7 @@ fn method_name_from_adjustments<'tcx>(
     match adjustments {
         [
             Adjustment {
-                kind: Adjust::Deref(None),
+                kind: Adjust::Deref(DerefAdjustKind::Builtin),
                 target,
             },
         ] if is_copy(cx, *target) => Some("copied"),
@@ -285,7 +285,7 @@ fn method_name_from_adjustments<'tcx>(
         }),
         [
             Adjustment {
-                kind: Adjust::Deref(Some(OverloadedDeref { .. })),
+                kind: Adjust::Deref(DerefAdjustKind::Overloaded(OverloadedDeref { .. })),
                 ..
             },
             Adjustment {
