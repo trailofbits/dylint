@@ -5,6 +5,16 @@ LL | fn bar() {}
    | ^^^^^^^^^^^ function `bar` should be defined before `baz`
    |
    = help: move bar's definition to earlier in the module
+note: `foo` calls `bar` here
+  --> $DIR/multiple_incorrect.rs:4:5
+   |
+LL |     bar();
+   |     ^^^^^
+note: `foo` calls `baz` here
+  --> $DIR/multiple_incorrect.rs:5:5
+   |
+LL |     baz();
+   |     ^^^^^
    = note: `#[warn(non_topologically_sorted_functions)]` on by default
 
 warning: 1 warning emitted
