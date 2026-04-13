@@ -46,8 +46,20 @@ dylint_linting::declare_late_lint! {
 }
 
 struct Callee {
-    pub caller_local_def_id: LocalDefId,
+    pub callee_local_def_id: LocalDefId,
     pub call_span: Span,
+}
+
+/// Explains why function `foo` must come before function `bar`.
+enum ConstraintReason {
+    /// `foo` calls `bar` at the given span.
+    CallerCallee { call_span: Span },
+    /// `foo` and `bar` are both called by `caller`, with `foo` called first.
+    CalleeOrder {
+        caller: LocalDefId,
+        first_call_span: Span,
+        second_call_span: Span,
+    },
 }
 
 struct Finder<'a, 'tcx> {
@@ -82,9 +94,9 @@ impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
         {
             self.seen.insert(local_def_id);
             self.order.push(Callee {
-                caller_local_def_id: local_def_id,
+                callee_local_def_id: local_def_id,
                 call_span: ex.span,
-            }); // capture call span
+            });
         }
 
         // keep traversing
@@ -104,60 +116,55 @@ impl NonTopologicallySortedFunctions {
         finder.order
     }
 
-    /// Collect all funcs in caller's body and place them like (caller -> (callee, `call_span`))
+    /// Build caller-callee constraints: each caller must come before its callees.
     fn build_caller_callee_constraint(
         caller_id: LocalDefId,
         callees: &[Callee],
         mut must_come_before: HashSet<(LocalDefId, LocalDefId)>,
-        call_sites: &mut HashMap<(LocalDefId, LocalDefId), Option<Span>>,
+        reasons: &mut HashMap<(LocalDefId, LocalDefId), ConstraintReason>,
     ) -> HashSet<(LocalDefId, LocalDefId)> {
         for &Callee {
-            caller_local_def_id,
+            callee_local_def_id,
             call_span,
         } in callees
         {
-            let key = (caller_id, caller_local_def_id);
-            // (caller -> callee) constraint
+            let key = (caller_id, callee_local_def_id);
             // If the reverse constraint already exists (added by an earlier caller),
             // we keep the earlier constraint (because we iterate callers in module order).
-            if must_come_before.contains(&(caller_local_def_id, caller_id)) {
-                // reversed constraint exists; skip adding (precedence kept)
-            } else {
-                must_come_before.insert(key);
+            if must_come_before.contains(&(callee_local_def_id, caller_id)) {
+                continue;
             }
-
-            call_sites.entry(key).or_insert(Some(call_span));
+            must_come_before.insert(key);
+            reasons
+                .entry(key)
+                .or_insert(ConstraintReason::CallerCallee { call_span });
         }
         must_come_before
     }
 
-    /// Check inner order rule.
-    ///
-    /// The earlier order is preferred and is considered the main one.
-    fn transitive_closure(
+    /// Build callee-callee constraints: if a caller calls `foo` before `bar`, then `foo`
+    /// must come before `bar` in the module.
+    fn build_callee_order_constraints(
+        caller_id: LocalDefId,
         callees: &[Callee],
         mut must_come_before: HashSet<(LocalDefId, LocalDefId)>,
+        reasons: &mut HashMap<(LocalDefId, LocalDefId), ConstraintReason>,
     ) -> HashSet<(LocalDefId, LocalDefId)> {
-        // We only need the LocalDefId ordering here (ignore spans)
-        let ids: Vec<LocalDefId> = callees
-            .iter()
-            .map(
-                |&Callee {
-                     caller_local_def_id,
-                     ..
-                 }| caller_local_def_id,
-            )
-            .collect();
-        for i in 0..ids.len() {
-            for j in (i + 1)..ids.len() {
-                let a = ids[i];
-                let b = ids[j];
+        for i in 0..callees.len() {
+            for j in (i + 1)..callees.len() {
+                let a = callees[i].callee_local_def_id;
+                let b = callees[j].callee_local_def_id;
                 // prefer earlier constraint: if (b,a) already exists, skip
                 if must_come_before.contains(&(b, a)) {
-                    // earlier caller already set reversed ordering; keep it.
                     continue;
                 }
-                must_come_before.insert((a, b));
+                let key = (a, b);
+                must_come_before.insert(key);
+                reasons.entry(key).or_insert(ConstraintReason::CalleeOrder {
+                    caller: caller_id,
+                    first_call_span: callees[i].call_span,
+                    second_call_span: callees[j].call_span,
+                });
             }
         }
         must_come_before
@@ -245,11 +252,9 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
         }
 
         let mut must_come_before: HashSet<(LocalDefId, LocalDefId)> = HashSet::new();
-        // stores all call sites for (caller, callee)
-        let mut call_sites: HashMap<(LocalDefId, LocalDefId), Option<Span>> = HashMap::new();
+        let mut reasons: HashMap<(LocalDefId, LocalDefId), ConstraintReason> = HashMap::new();
 
         for caller_id in def_order {
-            // use hir_maybe_body_owned_by — works for functions and methods etc.
             let caller_body = cx.tcx.hir_maybe_body_owned_by(caller_id);
 
             if let Some(caller_body) = caller_body {
@@ -260,9 +265,14 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                     caller_id,
                     &callees,
                     must_come_before,
-                    &mut call_sites,
+                    &mut reasons,
                 );
-                must_come_before = Self::transitive_closure(&callees, must_come_before);
+                must_come_before = Self::build_callee_order_constraints(
+                    caller_id,
+                    &callees,
+                    must_come_before,
+                    &mut reasons,
+                );
             }
         }
 
@@ -280,7 +290,6 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
             } = violation;
             if warned.insert(id_first_fn) {
                 cx.span_lint(NON_TOPOLOGICALLY_SORTED_FUNCTIONS, span, |diag| {
-                    // PRIMARY ERROR
                     diag.span_label(
                         span,
                         format!(
@@ -292,15 +301,32 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                         "move {name_first_fn}'s definition to earlier in the module"
                     ));
 
-                    // search call sites
-                    if let Some(sites) = call_sites.get(&(id_first_fn, id_second_fn))
-                        && let Some(call_span) = sites
-                    {
-                        // extra block with double info
-                        diag.span_note(
-                            *call_span,
-                            format!("`{name_second_fn}` is called from `{name_first_fn}` here"),
-                        );
+                    if let Some(reason) = reasons.get(&(id_first_fn, id_second_fn)) {
+                        match *reason {
+                            ConstraintReason::CallerCallee { call_span } => {
+                                diag.span_note(
+                                    call_span,
+                                    format!(
+                                        "`{name_second_fn}` is called from `{name_first_fn}` here"
+                                    ),
+                                );
+                            }
+                            ConstraintReason::CalleeOrder {
+                                caller,
+                                first_call_span,
+                                second_call_span,
+                            } => {
+                                let caller_name = cx.tcx.def_path_str(caller.to_def_id());
+                                diag.span_note(
+                                    first_call_span,
+                                    format!("`{caller_name}` calls `{name_first_fn}` here"),
+                                );
+                                diag.span_note(
+                                    second_call_span,
+                                    format!("`{caller_name}` calls `{name_second_fn}` here"),
+                                );
+                            }
+                        }
                     }
                 });
             }

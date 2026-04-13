@@ -22,6 +22,16 @@ LL | fn bar() {}
    | ^^^^^^^^^^^ function `bar` should be defined before `baz`
    |
    = help: move bar's definition to earlier in the module
+note: `foo` calls `bar` here
+  --> $DIR/wrong_inner_call.rs:8:5
+   |
+LL |     bar();
+   |     ^^^^^
+note: `foo` calls `baz` here
+  --> $DIR/wrong_inner_call.rs:12:9
+   |
+LL |         baz();
+   |         ^^^^^
 
 warning: 2 warnings emitted
 
