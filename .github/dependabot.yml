@@ -18,7 +18,7 @@ updates:
       - /examples/testing
       - /utils/linting
     groups:
-      rust:
+      cargo:
         patterns:
           - "*"
     schedule:
