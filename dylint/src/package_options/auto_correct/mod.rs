@@ -65,7 +65,7 @@ pub fn auto_correct(
     Ok(())
 }
 
-#[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
+#[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_unhandled_error))]
 #[allow(clippy::module_name_repetitions, clippy::similar_names)]
 pub fn auto_correct_revertible(
     opts: &opts::Dylint,
