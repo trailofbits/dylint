@@ -74,10 +74,10 @@ impl Revs {
 impl Iterator for RevIter<'_> {
     type Item = Result<Rev>;
 
-    // smoelius: I think it is okay to ignore the `non_local_effect_before_error_return` warning
+    // smoelius: I think it is okay to ignore the `non_local_effect_before_unhandled_error` warning
     // here. If `self.commit` were not updated, the same commits would be traversed the next time
     // `next` was called.
-    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_unhandled_error))]
     fn next(&mut self) -> Option<Self::Item> {
         (|| -> Result<Option<Rev>> {
             let mut prev_rev: Option<Rev> = None;
