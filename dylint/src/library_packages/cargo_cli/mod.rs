@@ -280,7 +280,7 @@ fn inject_dummy_dependencies(
     checkout_path: &Path,
 ) -> Result<BTreeMap<OsString, NamedTempDir>> {
     let mut injected_dependencies = BTreeMap::new();
-    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_unhandled_error))]
     for_each_subdir(checkout_path, |subdir, path| {
         injected_dependencies.insert(subdir.to_owned(), NamedTempDir(path.join(dep_name)));
         fs_extra::dir::copy(dep_path, path, &fs_extra::dir::CopyOptions::default())?;

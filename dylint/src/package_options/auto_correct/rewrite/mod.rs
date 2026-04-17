@@ -24,7 +24,7 @@ pub struct Rewrite {
 
 #[allow(clippy::missing_fields_in_debug)]
 impl std::fmt::Debug for Rewrite {
-    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_unhandled_error))]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // smoelius: Convert the slices to strings so that even if the alternate format is used, the
         // slices are not printed on multiple lines.

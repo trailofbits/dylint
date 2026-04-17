@@ -48,7 +48,7 @@ static REQUIRED_FORM: LazyLock<String> = LazyLock::new(|| {
     )
 });
 
-#[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
+#[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_unhandled_error))]
 pub fn run(opts: &opts::Dylint) -> Result<()> {
     let opts = {
         let mut opts = opts.clone();
