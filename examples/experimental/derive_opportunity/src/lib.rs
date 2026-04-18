@@ -418,7 +418,11 @@ fn typing_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> t
         ),
     );
     ty::TypingEnv {
-        typing_mode: ty::TypingMode::non_body_analysis(),
+        typing_mode: ty::TypingMode::non_body_analysis(, || {
+
+                is_from_proc_macro(cx, item)
+
+            }),
         param_env,
     }
 }
