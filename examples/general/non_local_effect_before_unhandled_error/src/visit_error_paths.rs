@@ -1,6 +1,6 @@
 use clippy_utils::ty::implements_trait;
 use rustc_abi::VariantIdx;
-use rustc_hir::intravisit::FnKind;
+use rustc_hir::def_id::DefId;
 use rustc_index::bit_set::DenseBitSet;
 use rustc_lint::{LateContext, LintContext};
 use rustc_middle::{
@@ -35,14 +35,14 @@ use rustc_span::Span;
 pub fn visit_error_paths<'tcx>(
     work_limit: u64,
     cx: &LateContext<'tcx>,
-    fn_kind: FnKind<'tcx>,
+    def_id: DefId,
     mir: &'tcx Body<'tcx>,
     visitor: impl Fn(&[BasicBlock], &DenseBitSet<BasicBlock>, Option<Span>),
 ) {
     for (index, basic_block) in mir.basic_blocks.iter_enumerated() {
         let terminator = basic_block.terminator();
         if terminator.kind == TerminatorKind::Return {
-            let mut guide = Guide::new(work_limit, cx, fn_kind, mir, &visitor);
+            let mut guide = Guide::new(work_limit, cx, def_id, mir, &visitor);
             let state = State::new();
             guide.visit_error_paths_to_block_terminator(&state, index);
         }
@@ -112,7 +112,7 @@ impl State {
 struct Guide<'cx, 'tcx, V> {
     work_limit: u64,
     cx: &'cx LateContext<'tcx>,
-    fn_kind: FnKind<'tcx>,
+    def_id: DefId,
     mir: &'tcx Body<'tcx>,
     visitor: V,
     blocks_visited: DenseBitSet<BasicBlock>,
@@ -128,14 +128,14 @@ where
     fn new(
         work_limit: u64,
         cx: &'cx LateContext<'tcx>,
-        fn_kind: FnKind<'tcx>,
+        def_id: DefId,
         mir: &'tcx Body<'tcx>,
         visitor: V,
     ) -> Self {
         Self {
             work_limit,
             cx,
-            fn_kind,
+            def_id,
             mir,
             visitor,
             blocks_visited: DenseBitSet::new_empty(mir.basic_blocks.len()),
@@ -251,10 +251,7 @@ where
     // Emits a warning and returns true if work limit has been reached.
     fn work(&mut self) -> bool {
         if self.work >= self.work_limit {
-            let name = match self.fn_kind {
-                FnKind::ItemFn(ident, _, _) | FnKind::Method(ident, _) => format!("`{ident}`"),
-                FnKind::Closure => "closure".to_owned(),
-            };
+            let name = format!("`{}`", self.cx.tcx.def_path_str(self.def_id));
             self.cx.sess().dcx().warn(format!(
                 "reached work limit ({}) while checking {}; set `{}.work_limit` in `dylint.toml` \
                  to override",
