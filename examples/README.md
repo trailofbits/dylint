@@ -12,16 +12,16 @@ The example libraries are separated into the following three categories:
 
 ## General
 
-| Example                                                                                  | Description/check                                                      |
-| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| [`abs_home_path`](./general/abs_home_path)                                               | String literals that are absolute paths into the user's home directory |
-| [`await_holding_span_guard`](./general/await_holding_span_guard)                         | Span guards held while calling await inside an async function          |
-| [`basic_dead_store`](./general/basic_dead_store)                                         | A lint to find simple instances of dead stores in arrays               |
-| [`crate_wide_allow`](./general/crate_wide_allow)                                         | `#![allow(...)]` used at the crate level                               |
-| [`incorrect_matches_operation`](./general/incorrect_matches_operation)                   | Incorrect operators used with matches! macros                          |
-| [`non_local_effect_before_error_return`](./general/non_local_effect_before_error_return) | Non-local effects before return of an error                            |
-| [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test)                 | Non-thread-safe function calls in tests                                |
-| [`wrong_serialize_struct_arg`](./general/wrong_serialize_struct_arg)                     | Calls to serialization methods with incorrect `len` arguments          |
+| Example                                                                                        | Description/check                                                          |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| [`abs_home_path`](./general/abs_home_path)                                                     | String literals that are absolute paths into the user's home directory     |
+| [`await_holding_span_guard`](./general/await_holding_span_guard)                               | Span guards held while calling await inside an async function              |
+| [`basic_dead_store`](./general/basic_dead_store)                                               | A lint to find simple instances of dead stores in arrays                   |
+| [`crate_wide_allow`](./general/crate_wide_allow)                                               | `#![allow(...)]` used at the crate level                                   |
+| [`incorrect_matches_operation`](./general/incorrect_matches_operation)                         | Incorrect operators used with matches! macros                              |
+| [`non_local_effect_before_unhandled_error`](./general/non_local_effect_before_unhandled_error) | Unhandled errors from functions with non-local effects before error return |
+| [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test)                       | Non-thread-safe function calls in tests                                    |
+| [`wrong_serialize_struct_arg`](./general/wrong_serialize_struct_arg)                           | Calls to serialization methods with incorrect `len` arguments              |
 
 ## Supplementary
 

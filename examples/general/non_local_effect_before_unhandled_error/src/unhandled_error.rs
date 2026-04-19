@@ -1,148 +1,55 @@
-use super::rvalue_places;
+use crate::{non_local_effect::is_lintable_result, rvalue_places::rvalue_places};
 use clippy_utils::{
-    diagnostics::span_lint,
     paths::{PathLookup, PathNS},
     type_path, value_path,
 };
-use rustc_hir::{Body, FnDecl, def_id::DefId, def_id::LocalDefId, intravisit::FnKind};
-use rustc_index::{Idx, IndexVec, bit_set::DenseBitSet};
-use rustc_lint::{LateContext, LateLintPass};
+use rustc_hir::def_id::DefId;
+use rustc_index::{IndexVec, bit_set::DenseBitSet};
+use rustc_lint::LateContext;
 use rustc_middle::{
     mir::{
-        self, BasicBlock, Local, Operand, RETURN_PLACE, Rvalue, StatementKind, TerminatorKind,
-        pretty::MirWriter,
+        BasicBlock, Body, Local, Location, Operand, RETURN_PLACE, Rvalue, StatementKind,
+        TerminatorKind,
     },
-    ty::{self, EarlyBinder, Ty},
+    ty::{Adt, EarlyBinder, Ty},
 };
-use rustc_session::{declare_lint, declare_lint_pass};
-use rustc_span::{Span, sym};
+use rustc_span::sym;
 use std::collections::VecDeque;
 
-declare_lint! {
-    /// **What it does:**
-    ///
-    /// **Why is this bad?**
-    ///
-    /// **Known problems:** None.
-    ///
-    /// **Example:**
-    ///
-    /// ```rust
-    /// // example code where a warning is issued
-    /// ```
-    /// Use instead:
-    /// ```rust
-    /// // example code that does not raise a warning
-    /// ```
-    pub UNHANDLED_ERROR,
-    Warn,
-    "description goes here"
-}
-
-declare_lint_pass!(UnhandledError => [UNHANDLED_ERROR]);
-
-// smoelius: This lint has essentially two steps:
-// 1. Perform a source-to-sink analysis. The sinks are:
-//    * the return place if the return type is a `Result`
-//    * all call arguments whose type is a `Result`
-//    * all locals wherever there is a call to a function that does not return
-//    Propagate backward to find all locals that flow to these sinks.
-// 2. Find calls whose return value is of type `Result` and does not flow to a sink. Emit a lint
-//    warning for such calls.
+// Backward dataflow analysis that, for each basic block, computes the set of locals whose errors
+// (if any) may reach function exit without being consumed by a handling operation. An error is
+// considered "handled" if its local is:
+// - Returned via the function's return place.
+// - Passed as a `Result`-typed argument to another call (e.g., `FromResidual::from_residual`).
+// - Passed to `Result::unwrap` or `Result::expect`.
+// - Consumed by a call to a function whose return type is `!` (panic, etc.).
 //
-// The analysis is expressed as a hand-rolled backward worklist because the `SwitchInt` edge-effect
-// hook this lint relies on was removed from `rustc_mir_dataflow` in rust-lang/rust#143769. See the
-// comment on `join_successors` for the specific per-edge transform.
+// The analysis is a hand-rolled worklist rather than an `rustc_mir_dataflow::Analysis` impl
+// because modern rustc no longer supports per-edge `SwitchInt` effects in the backward direction
+// (see rust-lang/rust#143769), and this analysis relies on pruning non-`Err` edges of a
+// `Result`/`ControlFlow`-discriminated `SwitchInt`.
 
-impl<'tcx> LateLintPass<'tcx> for UnhandledError {
-    fn check_fn(
-        &mut self,
-        cx: &LateContext<'tcx>,
-        _: FnKind<'tcx>,
-        _: &'tcx FnDecl<'_>,
-        body: &'tcx Body<'_>,
-        _: Span,
-        _: LocalDefId,
-    ) {
-        let local_def_id = cx.tcx.hir_body_owner_def_id(body.id());
-
-        let mir = cx.tcx.optimized_mir(local_def_id.to_def_id());
-
-        let returns_result = is_result(cx, cx.typeck_results().expr_ty(body.value));
-
-        if enabled("UE_DUMP_MIR") {
-            let writer = MirWriter::new(cx.tcx);
-            writer.write_mir_fn(mir, &mut std::io::stdout()).unwrap();
-        }
-
-        // smoelius: Step 1
-
-        let analysis = UnhandledErrorsAnalysis {
-            cx,
-            mir,
-            returns_result,
-        };
-
-        // state_at_start[B] = state that B propagates to its predecessors (i.e., state at the
-        // block's start in forward order, after all backward transfer effects).
-        let state_at_start = analysis.run();
-
-        if enabled("UE_DUMP_ANALYSIS") {
-            for (index, _) in mir.basic_blocks.iter_enumerated() {
-                let before = state_at_start[index].clone();
-                let after = analysis.state_at_end(index, &state_at_start);
-                println!("{index:?}: {:?} -> {:?}", invert(&before), invert(&after));
-            }
-        }
-
-        // smoelius: Step 2
-
-        for (index, basic_block) in mir.basic_blocks.iter_enumerated() {
-            let terminator = basic_block.terminator();
-            if let TerminatorKind::Call {
-                destination,
-                fn_span,
-                ..
-            } = &terminator.kind
-                && is_result(cx, destination.ty(&mir.local_decls, cx.tcx).ty)
-            {
-                let state = analysis.state_at_end(index, &state_at_start);
-                if state.contains(destination.local) {
-                    span_lint(
-                        cx,
-                        UNHANDLED_ERROR,
-                        fn_span.data().span(),
-                        "this call's result may not be handled along all error paths",
-                    );
-                }
-            }
-        }
-    }
+/// Runs the backward analysis and returns, for each basic block, the state at the block's end in
+/// forward order (equivalent to what the old framework's `seek_to_block_end` would produce).
+pub fn analyze<'tcx>(
+    cx: &LateContext<'tcx>,
+    mir: &'tcx Body<'tcx>,
+) -> IndexVec<BasicBlock, DenseBitSet<Local>> {
+    UnhandledErrorsAnalysis { cx, mir }.run()
 }
 
 struct UnhandledErrorsAnalysis<'cx, 'tcx> {
     cx: &'cx LateContext<'tcx>,
-    mir: &'tcx mir::Body<'tcx>,
-    returns_result: bool,
+    mir: &'tcx Body<'tcx>,
 }
-
-// smoelius: The `UnhandledErrors` domain stores the locals that are unhandled at a given point in
-// the program. It would seem more intuitive to me to store the handled locals instead of the
-// unhandled ones. I didn't do this for the following reason. An error is handled if-and-only-if it
-// is handled along all error paths. Thus, if we were to store the handled locals, then at
-// `SwitchInt`s, we would have to compute the intersection of its block's successor states. But a
-// union-style join is more natural in this framework, so we store unhandled errors and compute
-// their union.
-//   A couple notable points:
-// * At returns, only the returned local is considered handled; all other locals are considered
-//   unhandled.
-// * At function calls that do not return (e.g., panics), all locals are considered handled.
 
 impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
     fn run(&self) -> IndexVec<BasicBlock, DenseBitSet<Local>> {
         let n_locals = self.mir.local_decls.len();
         let n_blocks = self.mir.basic_blocks.len();
 
+        // state_at_start[B] = state that B propagates to its predecessors (i.e., state at B's
+        // start in forward order, after all backward transfer effects have been applied).
         let mut state_at_start: IndexVec<BasicBlock, DenseBitSet<Local>> =
             IndexVec::from_fn_n(|_| DenseBitSet::new_empty(n_locals), n_blocks);
 
@@ -170,13 +77,13 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
             }
         }
 
-        state_at_start
+        IndexVec::from_fn_n(|block| self.state_at_end(block, &state_at_start), n_blocks)
     }
 
-    // Computes the state at the end of `block` (forward order) by joining successor contributions.
-    // For `SwitchInt` on a `Result`/`ControlFlow` discriminant, non-`Err` edges contribute the
-    // empty set (i.e., they are effectively pruned) — this is the per-edge effect that used to be
-    // expressed via `apply_switch_int_edge_effects`.
+    // Computes the state at the end of `block` (forward order) by joining successor
+    // contributions. For a `SwitchInt` on a `Result`/`ControlFlow` discriminant, non-`Err` edges
+    // contribute the empty set — this is the per-edge effect that used to be expressed via
+    // `apply_switch_int_edge_effects` in the old framework.
     fn state_at_end(
         &self,
         block: BasicBlock,
@@ -193,11 +100,11 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
                 let prune = self.is_result_discriminant_switch(block, discr);
                 let mut joined = DenseBitSet::new_empty(n_locals);
                 for (value, target) in targets.iter() {
-                    // smoelius: Ignore `Ok` and `otherwise` edges, since we only care what
-                    // happens to a `Result` when it is an `Err`. Accomplish this by contributing
-                    // the empty set on those edges.
+                    // Ignore `Ok` and `otherwise` edges, since we only care what happens to a
+                    // `Result` when it is an `Err`. Accomplish this by contributing the empty set
+                    // on those edges.
                     //   The discriminant values of `Result::Err` and `ControlFlow::Break` are
-                    // both 1. But this check should be made more robust.
+                    // both 1. This check should be made more robust.
                     if prune && value != 1 {
                         continue;
                     }
@@ -228,13 +135,15 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
         let basic_block = &self.mir[block];
         let terminator = basic_block.terminator();
 
-        // Terminator effect (equivalent to the old `apply_before_terminator_effect`).
         match &terminator.kind {
             TerminatorKind::Return => {
-                if self.returns_result {
-                    state.insert_all();
-                    state.remove(RETURN_PLACE);
-                }
+                // Mark every local as "unhandled going forward from here" except the return
+                // place. This seeds the analysis; downstream processing will remove locals as
+                // handling operations are found. Note: unlike the original `unhandled_error`
+                // lint, we do this regardless of whether the enclosing function returns a
+                // `Result`, so that unhandled calls in `() -> ()` functions are also detected.
+                state.insert_all();
+                state.remove(RETURN_PLACE);
             }
             TerminatorKind::Call {
                 func,
@@ -248,7 +157,7 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
                         .instantiate(self.cx.tcx, substs);
                     let output = fn_sig.skip_binder().output();
                     if output.is_never() {
-                        // smoelius: If the callee doesn't return, assume all locals are handled.
+                        // Callee doesn't return; assume all locals are handled along this path.
                         state.clear();
                     } else if changed || is_sink_function(self.cx, def_id) {
                         let inputs = fn_sig.skip_binder().inputs();
@@ -267,12 +176,11 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
             _ => {}
         }
 
-        // Statements in reverse.
         for (statement_index, statement) in basic_block.statements.iter().enumerate().rev() {
             if let StatementKind::Assign(box (place, rvalue)) = &statement.kind
                 && state.insert(place.local)
             {
-                let location = mir::Location {
+                let location = Location {
                     block,
                     statement_index,
                 };
@@ -308,7 +216,7 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
             return false;
         };
         let place_ty = place.ty(&self.mir.local_decls, self.cx.tcx).ty;
-        is_result(self.cx, place_ty) || is_control_flow_result(self.cx, place_ty)
+        is_lintable_result(self.cx, place_ty) || is_control_flow_of_result(self.cx, place_ty)
     }
 }
 
@@ -319,14 +227,10 @@ fn is_sink_function(cx: &LateContext<'_>, def_id: DefId) -> bool {
     RESULT_EXPECT.matches(cx, def_id) || RESULT_UNWRAP.matches(cx, def_id)
 }
 
-fn is_result<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> bool {
-    matches!(ty.kind(), ty::Adt(adt, _) if cx.tcx.is_diagnostic_item(sym::Result, adt.did()))
-}
-
 static CONTROL_FLOW: PathLookup = type_path!(core::ops::ControlFlow);
 
-fn is_control_flow_result<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> bool {
-    if let ty::Adt(adt, substs) = ty.kind()
+fn is_control_flow_of_result<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> bool {
+    if let Adt(adt, substs) = ty.kind()
         && CONTROL_FLOW.matches(cx, adt.did())
         && let Some(generic_arg) = substs.iter().next()
         && let Some(inner_ty) = generic_arg.as_type()
@@ -337,14 +241,6 @@ fn is_control_flow_result<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> bool {
     }
 }
 
-#[must_use]
-fn enabled(key: &str) -> bool {
-    std::env::var(key).is_ok_and(|value| value != "0")
-}
-
-fn invert(state: &DenseBitSet<Local>) -> Vec<Local> {
-    (0..state.domain_size())
-        .map(Local::new)
-        .filter(|&l| !state.contains(l))
-        .collect()
+fn is_result<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> bool {
+    matches!(ty.kind(), Adt(adt, _) if cx.tcx.is_diagnostic_item(sym::Result, adt.did()))
 }
