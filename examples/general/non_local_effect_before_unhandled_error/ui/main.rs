@@ -1,306 +1,143 @@
-#![expect(dead_code)]
+#![allow(unused_must_use)]
 
-use std::{
-    env::{VarError, var},
-    fs::File,
-    io::{Error, ErrorKind, Read},
-};
+use std::env::VarError;
 
 fn main() {}
 
-pub fn deref_assign_before_ok_return(flag: &mut bool) -> Result<(), VarError> {
-    *flag = true;
-    Ok(())
-}
+// --- Functions with non-local effects before error return ---
 
-pub fn call_with_mut_ref_before_ok_return(xs: &mut Vec<u32>) -> Result<(), VarError> {
-    xs.push(0);
-    Ok(())
-}
-
-pub fn deref_assign_before_err_return(flag: &mut bool) -> Result<(), VarError> {
+pub fn non_local_effect_deref_assign(flag: &mut bool) -> Result<(), VarError> {
     *flag = true;
     Err(VarError::NotPresent)
 }
 
-pub fn call_with_mut_ref_before_err_return(xs: &mut Vec<u32>) -> Result<(), VarError> {
+pub fn non_local_effect_call_with_mut_ref(xs: &mut Vec<u32>) -> Result<(), VarError> {
     xs.push(0);
     Err(VarError::NotPresent)
 }
 
-pub fn deref_assign_before_error_switch(flag: &mut bool) -> Result<(), VarError> {
-    *flag = true;
-    let _ = var("X")?;
+// --- A function without non-local effects ---
+
+pub fn no_non_local_effect(x: u32) -> Result<u32, VarError> {
+    if x == 0 {
+        return Err(VarError::NotPresent);
+    }
+    Ok(x)
+}
+
+// --- Callers that DO NOT handle errors (should warn) ---
+
+pub fn caller_ignore_let_underscore(flag: &mut bool) {
+    // Unhandled: the result is dropped.
+    let _ = non_local_effect_deref_assign(flag);
+}
+
+pub fn caller_ignore_semicolon(xs: &mut Vec<u32>) {
+    // Unhandled: the result is dropped.
+    non_local_effect_call_with_mut_ref(xs);
+}
+
+pub fn caller_partial_handle(flag: &mut bool, should_return: bool) -> Result<(), VarError> {
+    let result = non_local_effect_deref_assign(flag);
+    if should_return {
+        // The Ok branch returns early, dropping `result` without handling its error.
+        return Ok(());
+    }
+    result
+}
+
+// --- Callers that DO handle errors (should NOT warn) ---
+
+pub fn caller_question_mark(flag: &mut bool) -> Result<(), VarError> {
+    non_local_effect_deref_assign(flag)?;
     Ok(())
 }
 
-pub fn call_with_mut_ref_before_error_switch(xs: &mut Vec<u32>) -> Result<(), VarError> {
-    xs.push(0);
-    let _ = var("X")?;
-    Ok(())
+pub fn caller_return_directly(flag: &mut bool) -> Result<(), VarError> {
+    non_local_effect_deref_assign(flag)
 }
 
-pub fn deref_assign_after_ok_assign(flag: &mut bool) -> Result<(), VarError> {
-    let result = Ok(());
-    *flag = true;
-    result
+pub fn caller_unwrap(flag: &mut bool) {
+    non_local_effect_deref_assign(flag).unwrap();
 }
 
-pub fn call_with_mut_ref_after_ok_assign(xs: &mut Vec<u32>) -> Result<(), VarError> {
-    let result = Ok(());
-    xs.push(0);
-    result
+pub fn caller_expect(flag: &mut bool) {
+    non_local_effect_deref_assign(flag).expect("must succeed");
 }
 
-pub fn deref_assign_after_err_assign(flag: &mut bool) -> Result<(), VarError> {
-    let result = Err(VarError::NotPresent);
-    *flag = true;
-    result
-}
-
-pub fn call_with_mut_ref_after_err_assign(xs: &mut Vec<u32>) -> Result<(), VarError> {
-    let result = Err(VarError::NotPresent);
-    xs.push(0);
-    result
-}
-
-pub fn deref_assign_in_ok_arm(flag: &mut bool) -> Result<(), VarError> {
-    let result = var("X").map(|_| {});
-    match result {
-        Ok(_) => {
-            *flag = true;
-        }
-        Err(_) => {}
-    }
-    result
-}
-
-pub fn call_with_mut_ref_in_ok_arm(xs: &mut Vec<u32>) -> Result<(), VarError> {
-    let result = var("X").map(|_| {});
-    match result {
-        Ok(_) => {
-            xs.push(0);
-        }
-        Err(_) => {}
-    }
-    result
-}
-
-pub fn deref_assign_in_err_arm(flag: &mut bool) -> Result<(), VarError> {
-    let result = var("X").map(|_| {});
-    match result {
+pub fn caller_match_panic(flag: &mut bool) {
+    match non_local_effect_deref_assign(flag) {
         Ok(_) => {}
-        Err(_) => {
-            *flag = true;
-        }
+        Err(_) => panic!("bad"),
     }
+}
+
+pub fn caller_assign_then_return(flag: &mut bool) -> Result<(), VarError> {
+    let result = non_local_effect_deref_assign(flag);
     result
 }
 
-pub fn call_with_mut_ref_in_err_arm(xs: &mut Vec<u32>) -> Result<(), VarError> {
-    let result = var("X").map(|_| {});
-    match result {
-        Ok(_) => {}
-        Err(_) => {
-            xs.push(0);
-        }
-    }
-    result
+// --- Call to function without non-local effects: never warns ---
+
+pub fn caller_ignore_call_with_no_non_local_effect(x: u32) {
+    let _ = no_non_local_effect(x);
 }
 
-pub fn contributing_call(file: &mut File) -> Result<bool, Error> {
-    let mut buf = [0];
-    file.read(&mut buf).and_then(|size| {
-        if size == 0 {
-            Err(Error::from(ErrorKind::UnexpectedEof))
-        } else {
-            Ok(buf[0] != 0)
-        }
-    })
-}
+// --- fmt::Result is excluded from non-local effect tracking ---
 
-pub mod bank {
-    pub struct Account {
-        balance: i64,
-    }
-
-    pub struct InsufficientBalance;
-
-    impl Account {
-        pub fn withdraw(&mut self, amount: i64) -> Result<i64, InsufficientBalance> {
-            self.balance -= amount;
-            if self.balance < 0 {
-                return Err(InsufficientBalance);
-            }
-            Ok(self.balance)
-        }
-
-        pub fn safe_withdraw(&mut self, amount: i64) -> Result<i64, InsufficientBalance> {
-            let new_balance = self.balance - amount;
-            if new_balance < 0 {
-                return Err(InsufficientBalance);
-            }
-            self.balance = new_balance;
-            Ok(self.balance)
-        }
-    }
-}
-
-pub mod more_than_two_variants {
-    pub enum Error {
-        Zero,
-        One,
-        Two,
-    }
-
-    pub fn deref_assign_before_err_return(flag: &mut bool) -> Result<(), Error> {
-        *flag = true;
-        Err(Error::Two)
-    }
-}
-
-pub mod bitflags {
-    bitflags::bitflags! {
-        #[derive(Clone, Copy)]
-        pub struct Flags: u8 {
-            const FOO = 1 << 0;
-            const BAR = 1 << 1;
-        }
-    }
-
-    static FLAGS: std::sync::Mutex<Flags> = std::sync::Mutex::new(Flags::empty());
-
-    pub fn double_check(flag: Flags) -> Result<bool, ()> {
-        let flags = FLAGS.lock().unwrap();
-        let prev = flags.contains(flag);
-        if prev && !flags.contains(flag) {
-            return Err(());
-        }
-        Ok(prev)
-    }
-
-    pub fn write_and_check(flag: Flags) -> Result<(), ()> {
-        let mut flags = FLAGS.lock().unwrap();
-        flags.insert(flag);
-        if !flags.contains(flag) {
-            return Err(());
-        }
-        Ok(())
-    }
-}
-
-pub mod mut_ref_arg {
-    // smoelius: Should not lint
-    pub fn foo(mut s: String) -> Result<(), ()> {
-        s.push('x');
-        Err(())
-    }
-
-    // smoelius: Should lint
-    pub fn bar(s: &mut String) -> Result<(), ()> {
-        s.push('x');
-        Err(())
-    }
-}
-
-// smoelius: Currently, a warning is generated for the call to `env` because it modifies `command`.
-// Notably, the call is not considered to "contribute" to the error because `Command` does not
-// implement the `Try` trait. We may want to revisit this decision.
-pub fn debug(command: &mut std::process::Command) -> Result<bool, Error> {
-    command
-        .env("RUST_LOG", "debug")
-        .status()
-        .map(|status| status.success())
-}
-
-// smoelius: I don't yet understand what is going on with async functions. But this is the smallest
-// example I have produced that exhibits the false positive.
-pub mod async_false_positive {
-    use std::{convert::Infallible, sync::Arc};
-
-    pub async fn deref_assign_before_noop_and_async_arc_consume() -> Result<(), Infallible> {
-        let arc = Arc::new(());
-        noop();
-        async_arc_consume(arc).await?;
-        Ok(())
-    }
-
-    pub fn noop() {}
-
-    pub async fn async_arc_consume(_: Arc<()>) -> Result<(), Infallible> {
-        Ok(())
-    }
-}
-
-pub mod downcast {
-    pub enum Error {
-        Zero,
-        One,
-        Two,
-    }
-
-    pub fn deref_assign_before_downcast(flag: &mut bool) -> Result<(), Error> {
-        *flag = true;
-        let result = foo();
-        match result {
-            Err(Error::Two) => Ok(()),
-            _ => result,
-        }
-    }
-
-    pub fn foo() -> Result<(), Error> {
-        Ok(())
-    }
-}
-
-use derivative::Derivative;
-
-#[derive(Derivative)]
-#[derivative(Debug)]
-pub struct Foo {
-    foo: u8,
-    #[derivative(Debug = "ignore")]
-    bar: u8,
-}
-
-pub mod public_only {
-    use std::env::VarError;
-
-    pub fn call_with_mut_ref_before_err_return(xs: &mut Vec<u32>) -> Result<(), VarError> {
-        xs.push(0);
-        Err(VarError::NotPresent)
-    }
-
-    fn private_call_with_mut_ref_before_err_return(xs: &mut Vec<u32>) -> Result<(), VarError> {
-        xs.push(0);
-        Err(VarError::NotPresent)
-    }
-}
-
-// Test to check that functions returning std::fmt::Result should not trigger the lint
 pub mod fmt_result_test {
     use std::fmt::{self, Write};
 
-    pub fn fmt_result_with_write_before_err_return(buffer: &mut String) -> fmt::Result {
-        // This non-local effect (write) should not trigger a lint warning
-        // because the return type is std::fmt::Result
-        buffer.write_str("Hello, world!")?;
+    pub fn fmt_write(buffer: &mut String) -> fmt::Result {
+        buffer.write_str("hello")?;
         Err(fmt::Error)
+    }
+
+    pub fn caller_ignores_fmt(buffer: &mut String) {
+        // Should not warn: `fmt_write` returns `fmt::Result`, which is excluded from tracking.
+        let _ = fmt_write(buffer);
     }
 }
 
-pub mod consolidate_warnings {
-    pub fn foo(x: &mut u32, y: bool, z: bool) -> std::io::Result<()> {
-        *x = 0;
+// --- Macro-originated effects are NOT treated as non-local effects ---
+//
+// The only "mutations" inside this function are internal to the `vec!` macro expansion,
+// which the non-local effect detection should skip. The function therefore should not be tracked
+// as having non-local effects, and the call in `caller_ignore_macro_non_local_effect` should not
+// be flagged.
 
-        if y {
-            return Err(std::io::Error::other("y"));
-        }
+pub fn only_macro_effect(x: u32) -> Result<Vec<u32>, VarError> {
+    let v = vec![x];
+    if x == 0 {
+        return Err(VarError::NotPresent);
+    }
+    Ok(v)
+}
 
-        if z {
-            return Err(std::io::Error::other("z"));
-        }
+pub fn caller_ignore_macro_non_local_effect(x: u32) {
+    let _ = only_macro_effect(x);
+}
 
-        Ok(())
+// --- Interprocedural: caller of a transitive function with non-local effects is NOT flagged ---
+
+pub mod transitive {
+    use std::env::VarError;
+
+    pub fn direct_non_local_effect(flag: &mut bool) -> Result<(), VarError> {
+        *flag = true;
+        Err(VarError::NotPresent)
+    }
+
+    pub fn passthrough(flag: &mut bool) -> Result<(), VarError> {
+        // `passthrough` does not itself perform a non-local effect (the mut-ref argument just
+        // flows into `direct_non_local_effect`), so it should not be tracked as having non-local
+        // effects.
+        direct_non_local_effect(flag)
+    }
+
+    pub fn caller_of_passthrough(flag: &mut bool) {
+        // Should not warn at the call to `passthrough` since it does not itself have non-local
+        // effects.
+        let _ = passthrough(flag);
     }
 }

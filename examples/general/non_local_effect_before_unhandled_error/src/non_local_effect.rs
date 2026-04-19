@@ -1,25 +1,123 @@
+use crate::{rvalue_places::rvalue_places, visit_error_paths::visit_error_paths};
 use clippy_utils::{
     paths::{PathLookup, PathNS},
-    type_path,
+    sym, type_path,
 };
 use dylint_internal::match_def_path;
-use rustc_hir::HirId;
+use rustc_hir::def_id::DefId;
 use rustc_index::bit_set::DenseBitSet;
 use rustc_lint::LateContext;
 use rustc_middle::{
     mir::{
         BasicBlock, Body, ConstOperand, Local, Location, Mutability, Operand, Place,
-        ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind,
+        ProjectionElem, RETURN_PLACE, Rvalue, Statement, StatementKind, TerminatorKind,
     },
     ty,
 };
-use rustc_span::{Span, sym};
+use rustc_span::Span;
+use std::cell::RefCell;
 
-use crate::rvalue_places::rvalue_places;
+/// Kind of non-local effect found inside a function with non-local effects.
+#[derive(Clone, Debug)]
+pub enum NonLocalEffectKind {
+    /// A call that passes a mutable reference or constant reference.
+    Call {
+        /// Rendered description of the callee (e.g., `std::vec::Vec::<u32>::push`).
+        callee: String,
+        /// Location of the call expression in the source.
+        span: Span,
+    },
+    /// An assignment to a dereference (e.g., `*p = ...`).
+    DerefAssign {
+        /// Location of the assignment in the source.
+        span: Span,
+    },
+}
 
-pub fn in_async_function(tcx: ty::TyCtxt<'_>, hir_id: HirId) -> bool {
-    std::iter::once((hir_id, tcx.hir_node(hir_id)))
-        .chain(tcx.hir_parent_iter(hir_id))
+/// A function's non-local effect and the error return it precedes.
+#[derive(Clone, Debug)]
+pub struct NonLocalEffect {
+    pub kind: NonLocalEffectKind,
+    /// Location where the error is determined (e.g., an `Err(...)` expression or a `?`).
+    pub error_span: Option<Span>,
+}
+
+/// If the function identified by `def_id` returns a `Result` and performs a non-local effect
+/// (either an assignment to a dereference, or a call passing a mutable reference or constant
+/// reference) on at least one path that returns an error, returns info about the first such
+/// effect found. Otherwise returns `None`.
+#[cfg_attr(dylint_lib = "supplementary", allow(local_ref_cell))]
+pub fn has_non_local_effect_before_error_return(
+    cx: &LateContext<'_>,
+    def_id: DefId,
+    work_limit: u64,
+) -> Option<NonLocalEffect> {
+    if !def_id.is_local() {
+        return None;
+    }
+
+    if !cx.tcx.is_mir_available(def_id) {
+        return None;
+    }
+
+    // smoelius: Ignore async functions (at least for now).
+    if is_async_function(cx, def_id) {
+        return None;
+    }
+
+    let mir = cx.tcx.optimized_mir(def_id);
+
+    if !is_lintable_result(cx, mir.local_decls[RETURN_PLACE].ty) {
+        return None;
+    }
+
+    let found: RefCell<Option<NonLocalEffect>> = RefCell::new(None);
+
+    visit_error_paths(
+        work_limit,
+        cx,
+        def_id,
+        mir,
+        |path, contributing_calls, error_span| {
+            if found.borrow().is_some() {
+                return;
+            }
+            for (i, &index) in path.iter().enumerate() {
+                if !contributing_calls.contains(index)
+                    && let Some((callee, span)) =
+                        is_call_with_mut_ref_or_const_ref(cx, mir, &path[i..])
+                {
+                    *found.borrow_mut() = Some(NonLocalEffect {
+                        kind: NonLocalEffectKind::Call { callee, span },
+                        error_span,
+                    });
+                    return;
+                }
+
+                let basic_block = &mir.basic_blocks[index];
+                for statement in basic_block.statements.iter().rev() {
+                    if let Some(span) = is_deref_assign(statement) {
+                        *found.borrow_mut() = Some(NonLocalEffect {
+                            kind: NonLocalEffectKind::DerefAssign { span },
+                            error_span,
+                        });
+                        return;
+                    }
+                }
+            }
+        },
+    );
+
+    found.into_inner()
+}
+
+fn is_async_function(cx: &LateContext<'_>, def_id: DefId) -> bool {
+    let Some(local_def_id) = def_id.as_local() else {
+        return false;
+    };
+    let hir_id = cx.tcx.local_def_id_to_hir_id(local_def_id);
+    std::iter::once((hir_id, cx.tcx.hir_node(hir_id)))
+        .chain(cx.tcx.hir_parent_iter(hir_id))
         .any(|(_, node)| {
             node.fn_kind()
                 .is_some_and(|fn_kind| fn_kind.asyncness().is_async())
@@ -48,20 +146,21 @@ pub fn is_lintable_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
     }
 }
 
-pub fn is_call_with_mut_ref<'tcx>(
+fn is_call_with_mut_ref_or_const_ref<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
-) -> Option<(&'tcx Operand<'tcx>, Span)> {
+) -> Option<(String, Span)> {
     let index = path[0];
     let basic_block = &mir[index];
     let terminator = basic_block.terminator();
     if let TerminatorKind::Call {
-            func,
-            args,
-            fn_span,
-            ..
-        } = &terminator.kind
+        func,
+        args,
+        fn_span,
+        ..
+    } = &terminator.kind
+        && !fn_span.from_expansion()
         // smoelius: `deref_mut` generates too much noise.
         && func.const_fn_def().is_none_or(|(def_id, _)| {
             !cx.tcx.is_diagnostic_item(sym::deref_mut_method, def_id)
@@ -70,7 +169,7 @@ pub fn is_call_with_mut_ref<'tcx>(
         && (locals.iter().any(|local| is_mut_ref_arg(mir, local))
             || constants.iter().any(|constant| is_const_ref(constant)))
     {
-        Some((func, *fn_span))
+        Some((format!("{func:?}"), *fn_span))
     } else {
         None
     }
@@ -233,9 +332,10 @@ fn is_mut_ref(ty: ty::Ty<'_>) -> bool {
     matches!(ty.kind(), ty::Ref(_, _, Mutability::Mut))
 }
 
-pub fn is_deref_assign(statement: &Statement) -> Option<Span> {
+fn is_deref_assign(statement: &Statement) -> Option<Span> {
     if let StatementKind::Assign(box (Place { projection, .. }, _)) = &statement.kind
         && projection.iter().any(|elem| elem == ProjectionElem::Deref)
+        && !statement.source_info.span.from_expansion()
     {
         Some(statement.source_info.span)
     } else {

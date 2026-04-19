@@ -476,7 +476,7 @@ dependencies = [
  "crate_wide_allow",
  "dylint_linting",
  "incorrect_matches_operation",
- "non_local_effect_before_error_return",
+ "non_local_effect_before_unhandled_error",
  "non_thread_safe_call_in_test",
  "wrong_serialize_struct_arg",
 ]
@@ -878,7 +878,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "non_local_effect_before_error_return"
+name = "non_local_effect_before_unhandled_error"
 version = "5.0.0"
 dependencies = [
  "bitflags",
