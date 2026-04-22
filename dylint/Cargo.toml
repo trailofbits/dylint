@@ -7,7 +7,7 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 # This should match `dylint_internal::msrv::MSRV`.
-rust-version = "1.88"
+rust-version = "1.91"
 
 [dependencies]
 anstyle = { workspace = true }

@@ -20,23 +20,24 @@
 // smoelius: Edition 2024 was stabilized with Rust 1.85.
 // smoelius: `zmij v1.0.1` requires Rust 1.88. However, `zmij`'s build script considers
 // nightly-2025-04-22 Rust 1.88. Hence, the MSRV must be bumped to 1.89.
-pub const MSRV: &str = "1.89.0";
+// smoelius: `cargo-platform@0.3.3` requires rustc 1.91.
+pub const MSRV: &str = "1.91.0";
 
 /// The channel Clippy was using when it switched to 0.[`MSRV`].
 ///
 /// Note that this is not the channel when Rust switched to [`MSRV`].
-pub const MSRV_CHANNEL: &str = "nightly-2025-05-14";
+pub const MSRV_CHANNEL: &str = "nightly-2025-08-07";
 
 /// The `clippy_utils` Git OID (commit hash) for [`MSRV`].
-pub const MSRV_CLIPPY_UTILS_REV: &str = "93bd4d893122417b9265563c037f11a158a8e37c";
+pub const MSRV_CLIPPY_UTILS_REV: &str = "334fb906aef13d20050987b13448f37391bb97a2";
 
 /// The minimum supported Rust version plus one minor version.
-pub const MSRV_PLUS_1: &str = "1.90.0";
+pub const MSRV_PLUS_1: &str = "1.92.0";
 
 /// The channel Clippy was using when it switched to 0.[`MSRV_PLUS_1`].
 ///
 /// Note that this is not the channel when Rust switched to [`MSRV_PLUS_1`].
-pub const MSRV_PLUS_1_CHANNEL: &str = "nightly-2025-07-10";
+pub const MSRV_PLUS_1_CHANNEL: &str = "nightly-2025-09-18";
 
 /// The `clippy_utils` Git OID (commit hash) for [`MSRV_PLUS_1`].
-pub const MSRV_PLUS_1_CLIPPY_UTILS_REV: &str = "4e614bf683fb265079f79268408cd69e361efdcc";
+pub const MSRV_PLUS_1_CLIPPY_UTILS_REV: &str = "20ce69b9a63bcd2756cd906fe0964d1e901e042a";
