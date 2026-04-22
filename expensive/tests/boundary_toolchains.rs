@@ -21,10 +21,11 @@ const BOUNDARIES: &[(&str, &str)] = &[
     // https://github.com/rust-lang/rust/pull/153778
     // https://github.com/rust-lang/rust/commit/44c87292ac (rollup merge 2026-03-18)
     ("nightly-2026-03-18", "nightly-2026-03-19"),
-    // https://github.com/rust-lang/rust/pull/138682
-    // https://github.com/rust-lang/rust/commit/0abc6c6e9859bc6915ddc76d484117ff626481c6
-    // smoelius: 2025-05-15 is skipped because there is no release for that date.
-    ("nightly-2025-05-14", "nightly-2025-05-16"),
+    // smoelius: `cargo-platform@0.3.3` requires rustc 1.91.
+    // // https://github.com/rust-lang/rust/pull/138682
+    // // https://github.com/rust-lang/rust/commit/0abc6c6e9859bc6915ddc76d484117ff626481c6
+    // // smoelius: 2025-05-15 is skipped because there is no release for that date.
+    // ("nightly-2025-05-14", "nightly-2025-05-16"),
     // smoelius: `libloading-0.9.0` requires rustc 1.88.
     // https://github.com/rust-lang/rust/pull/135880
     // https://github.com/rust-lang/rust/commit/7d31ae7f351b4aa0fcb47d1d22e04c275bef0653
