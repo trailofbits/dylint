@@ -1,0 +1,54 @@
+warning: unhandled call to `nle_deref_assign`, which performs a non-local effect before returning an error
+  --> $DIR/main.rs:32:13
+   |
+LL |     let _ = nle_deref_assign(flag);
+   |             ^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: non-local effect: assignment to dereference
+  --> $DIR/main.rs:10:5
+   |
+LL |     *flag = true;
+   |     ^^^^^^^^^^^^
+note: error is determined here
+  --> $DIR/main.rs:11:5
+   |
+LL |     Err(VarError::NotPresent)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: `#[warn(non_local_effect_before_unhandled_error)]` on by default
+
+warning: unhandled call to `nle_call_with_mut_ref`, which performs a non-local effect before returning an error
+  --> $DIR/main.rs:37:5
+   |
+LL |     nle_call_with_mut_ref(xs);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: non-local effect: call to `std::vec::Vec::<u32>::push`
+  --> $DIR/main.rs:15:8
+   |
+LL |     xs.push(0);
+   |        ^^^^^^^
+note: error is determined here
+  --> $DIR/main.rs:16:5
+   |
+LL |     Err(VarError::NotPresent)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unhandled call to `nle_deref_assign`, which performs a non-local effect before returning an error
+  --> $DIR/main.rs:41:18
+   |
+LL |     let result = nle_deref_assign(flag);
+   |                  ^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: non-local effect: assignment to dereference
+  --> $DIR/main.rs:10:5
+   |
+LL |     *flag = true;
+   |     ^^^^^^^^^^^^
+note: error is determined here
+  --> $DIR/main.rs:11:5
+   |
+LL |     Err(VarError::NotPresent)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: 3 warnings emitted
+

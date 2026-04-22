@@ -1,241 +1,123 @@
-#![feature(rustc_private)]
-#![feature(box_patterns)]
-#![warn(unused_extern_crates)]
-
-extern crate rustc_abi;
-extern crate rustc_data_structures;
-extern crate rustc_errors;
-extern crate rustc_hir;
-extern crate rustc_index;
-extern crate rustc_middle;
-extern crate rustc_span;
-
+use crate::{rvalue_places::rvalue_places, visit_error_paths::visit_error_paths};
 use clippy_utils::{
-    diagnostics::span_lint_and_then,
     paths::{PathLookup, PathNS},
     type_path,
 };
 use dylint_internal::match_def_path;
-use rustc_data_structures::fx::FxHashMap;
-use rustc_errors::Diag;
-use rustc_hir::{def_id::LocalDefId, intravisit::FnKind};
+use rustc_hir::def_id::DefId;
 use rustc_index::bit_set::DenseBitSet;
-use rustc_lint::{LateContext, LateLintPass};
+use rustc_lint::LateContext;
 use rustc_middle::{
     mir::{
         BasicBlock, Body, ConstOperand, Local, Location, Mutability, Operand, Place,
-        ProjectionElem, Rvalue, Statement, StatementKind, TerminatorKind, pretty::MirWriter,
+        ProjectionElem, RETURN_PLACE, Rvalue, Statement, StatementKind, TerminatorKind,
     },
     ty,
 };
 use rustc_span::{Span, sym};
-use serde::Deserialize;
 use std::cell::RefCell;
 
-mod visit_error_paths;
-use visit_error_paths::visit_error_paths;
-
-mod rvalue_places;
-use rvalue_places::rvalue_places;
-
-dylint_linting::impl_late_lint! {
-    /// ### What it does
-    ///
-    /// Checks for non-local effects (e.g., assignments to mutable references) before return of an
-    /// error.
-    ///
-    /// ### Why is this bad?
-    ///
-    /// Functions that make changes to the program state before returning an error are difficult to
-    /// reason about. Generally speaking, if a function returns an error, it should be as though the
-    /// function was never called.
-    ///
-    /// ### Known problems
-    ///
-    /// - The search strategy is exponential in the number of blocks in a function body. To help
-    ///   deal with complex bodies, the lint includes a "work limit" (see "Configuration" below).
-    /// - Errors in loops are not handled properly.
-    ///
-    /// ### Example
-    ///
-    /// ```rust
-    /// # struct Account { balance: i64 }
-    /// # struct InsufficientBalance;
-    /// impl Account {
-    ///     fn withdraw(&mut self, amount: i64) -> Result<i64, InsufficientBalance> {
-    ///         self.balance -= amount;
-    ///         if self.balance < 0 {
-    ///             return Err(InsufficientBalance);
-    ///         }
-    ///         Ok(self.balance)
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// Use instead:
-    ///
-    /// ```rust
-    /// # struct Account { balance: i64 }
-    /// # struct InsufficientBalance;
-    /// impl Account {
-    ///     fn withdraw(&mut self, amount: i64) -> Result<i64, InsufficientBalance> {
-    ///         let new_balance = self.balance - amount;
-    ///         if new_balance < 0 {
-    ///             return Err(InsufficientBalance);
-    ///         }
-    ///         self.balance = new_balance;
-    ///         Ok(self.balance)
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// ### Configuration
-    ///
-    /// - `public_only: bool` (default `true`): Whether to check only publicly accessible functions.
-    /// - `work_limit: u64` (default 500000): When exploring a function body, the maximum number of
-    ///   times the search path is extended. Setting this to a higher number allows more bodies to
-    ///   be explored exhaustively, but at the expense of greater runtime.
-    pub NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-    Warn,
-    "non-local effects before return of an error",
-    NonLocalEffectBeforeErrorReturn::new()
-}
-
-#[derive(Deserialize)]
-struct Config {
-    public_only: Option<bool>,
-    work_limit: Option<u64>,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            public_only: Some(true),
-            work_limit: Some(500_000),
-        }
-    }
-}
-
-struct NonLocalEffectBeforeErrorReturn {
-    config: Config,
-}
-
-impl NonLocalEffectBeforeErrorReturn {
-    pub fn new() -> Self {
-        Self {
-            config: dylint_linting::config_or_default(env!("CARGO_PKG_NAME")),
-        }
-    }
-}
-
-impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeErrorReturn {
-    #[cfg_attr(dylint_lib = "supplementary", allow(local_ref_cell))]
-    fn check_fn(
-        &mut self,
-        cx: &LateContext<'tcx>,
-        fn_kind: FnKind<'tcx>,
-        _: &'tcx rustc_hir::FnDecl<'_>,
-        body: &'tcx rustc_hir::Body<'_>,
+/// Kind of non-local effect found inside an NLE function.
+#[derive(Clone, Debug)]
+pub enum NonLocalEffectKind {
+    /// A call that passes a mutable reference or constant reference.
+    Call {
+        /// Rendered description of the callee (e.g., `std::vec::Vec::<u32>::push`).
+        callee: String,
+        /// Location of the call expression in the source.
         span: Span,
-        local_def_id: LocalDefId,
-    ) {
-        if span.from_expansion() {
-            return;
-        }
+    },
+    /// An assignment to a dereference (e.g., `*p = ...`).
+    DerefAssign {
+        /// Location of the assignment in the source.
+        span: Span,
+    },
+}
 
-        if self
-            .config
-            .public_only
-            .unwrap_or_else(|| Config::default().public_only.unwrap())
-            && !cx.effective_visibilities.is_exported(local_def_id)
-        {
-            return;
-        }
+/// An NLE function's non-local effect and the error return it precedes.
+#[derive(Clone, Debug)]
+pub struct NonLocalEffect {
+    pub kind: NonLocalEffectKind,
+    /// Location where the error is determined (e.g., an `Err(...)` expression or a `?`).
+    pub error_span: Option<Span>,
+}
 
-        // smoelius: Ignore async functions (at least for now).
-        if in_async_function(cx.tcx, body.id().hir_id) {
-            return;
-        }
+/// If the function identified by `def_id` returns a `Result` and performs a non-local effect
+/// (either an assignment to a dereference, or a call passing a mutable reference or constant
+/// reference) on at least one path that returns an error, returns info about the first such
+/// effect found. Otherwise returns `None`.
+#[cfg_attr(dylint_lib = "supplementary", allow(local_ref_cell))]
+pub fn has_non_local_effect_before_error_return(
+    cx: &LateContext<'_>,
+    def_id: DefId,
+    work_limit: u64,
+) -> Option<NonLocalEffect> {
+    if !def_id.is_local() {
+        return None;
+    }
 
-        if !is_lintable_result(cx, cx.typeck_results().expr_ty(body.value)) {
-            return;
-        }
+    if !cx.tcx.is_mir_available(def_id) {
+        return None;
+    }
 
-        let local_def_id = cx.tcx.hir_body_owner_def_id(body.id());
+    // smoelius: Ignore async functions (at least for now).
+    if is_async_function(cx, def_id) {
+        return None;
+    }
 
-        let mir = cx.tcx.optimized_mir(local_def_id.to_def_id());
+    let mir = cx.tcx.optimized_mir(def_id);
 
-        if enabled("DEBUG_MIR") {
-            let writer = MirWriter::new(cx.tcx);
-            writer.write_mir_fn(mir, &mut std::io::stdout()).unwrap();
-        }
+    if !is_lintable_result(cx, mir.local_decls[RETURN_PLACE].ty) {
+        return None;
+    }
 
-        // smoelius: Accumulate all spans and output them at the end to make the output less
-        // cluttered. See: https://github.com/trailofbits/dylint/issues/1667
-        let call_with_mut_ref_spans = RefCell::new(FxHashMap::<_, Vec<_>>::default());
-        let deref_assign_spans = RefCell::new(FxHashMap::<_, Vec<_>>::default());
+    let found: RefCell<Option<NonLocalEffect>> = RefCell::new(None);
 
-        visit_error_paths(
-            self.config
-                .work_limit
-                .unwrap_or_else(|| Config::default().work_limit.unwrap()),
-            cx,
-            fn_kind,
-            mir,
-            |path, contributing_calls, span| {
-                // smoelius: The path is from a return to the start block.
-                for (i, &index) in path.iter().enumerate() {
-                    if !contributing_calls.contains(index)
-                        && let Some((func, func_span)) = is_call_with_mut_ref(cx, mir, &path[i..])
-                    {
-                        let mut call_with_mut_ref_spans = call_with_mut_ref_spans.borrow_mut();
-                        let spans = call_with_mut_ref_spans
-                            .entry((format!("{func:?}"), func_span))
-                            .or_default();
-                        if let Some(span) = span {
-                            spans.push(span);
-                        }
-                    }
+    visit_error_paths(
+        work_limit,
+        cx,
+        def_id,
+        mir,
+        |path, contributing_calls, error_span| {
+            if found.borrow().is_some() {
+                return;
+            }
+            for (i, &index) in path.iter().enumerate() {
+                if !contributing_calls.contains(index)
+                    && let Some((callee, span)) =
+                        is_call_with_mut_ref_or_const_ref(cx, mir, &path[i..])
+                {
+                    *found.borrow_mut() = Some(NonLocalEffect {
+                        kind: NonLocalEffectKind::Call { callee, span },
+                        error_span,
+                    });
+                    return;
+                }
 
-                    let basic_block = &mir.basic_blocks[index];
-                    for statement in basic_block.statements.iter().rev() {
-                        if let Some(assign_span) = is_deref_assign(statement) {
-                            let mut deref_assign_spans = deref_assign_spans.borrow_mut();
-                            let spans = deref_assign_spans.entry(assign_span).or_default();
-                            if let Some(span) = span {
-                                spans.push(span);
-                            }
-                        }
+                let basic_block = &mir.basic_blocks[index];
+                for statement in basic_block.statements.iter().rev() {
+                    if let Some(span) = is_deref_assign(statement) {
+                        *found.borrow_mut() = Some(NonLocalEffect {
+                            kind: NonLocalEffectKind::DerefAssign { span },
+                            error_span,
+                        });
+                        return;
                     }
                 }
-            },
-        );
+            }
+        },
+    );
 
-        for ((func, func_span), spans) in call_with_mut_ref_spans.borrow().iter() {
-            span_lint_and_then(
-                cx,
-                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                *func_span,
-                format!("call to `{func}` with mutable reference before error return"),
-                error_note(spans),
-            );
-        }
-
-        for (assign_span, spans) in deref_assign_spans.borrow().iter() {
-            span_lint_and_then(
-                cx,
-                NON_LOCAL_EFFECT_BEFORE_ERROR_RETURN,
-                *assign_span,
-                "assignment to dereference before error return",
-                error_note(spans),
-            );
-        }
-    }
+    found.into_inner()
 }
 
-fn in_async_function(tcx: ty::TyCtxt<'_>, hir_id: rustc_hir::HirId) -> bool {
-    std::iter::once((hir_id, tcx.hir_node(hir_id)))
-        .chain(tcx.hir_parent_iter(hir_id))
+fn is_async_function(cx: &LateContext<'_>, def_id: DefId) -> bool {
+    let Some(local_def_id) = def_id.as_local() else {
+        return false;
+    };
+    let hir_id = cx.tcx.local_def_id_to_hir_id(local_def_id);
+    std::iter::once((hir_id, cx.tcx.hir_node(hir_id)))
+        .chain(cx.tcx.hir_parent_iter(hir_id))
         .any(|(_, node)| {
             node.fn_kind()
                 .is_some_and(|fn_kind| fn_kind.asyncness().is_async())
@@ -244,7 +126,7 @@ fn in_async_function(tcx: ty::TyCtxt<'_>, hir_id: rustc_hir::HirId) -> bool {
 
 static CORE_FMT_ERROR: PathLookup = type_path!(core::fmt::Error);
 
-fn is_lintable_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
+pub fn is_lintable_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
     if let ty::Adt(adt, substs) = ty.kind() {
         if !cx.tcx.is_diagnostic_item(sym::Result, adt.did()) {
             return false;
@@ -264,20 +146,21 @@ fn is_lintable_result(cx: &LateContext<'_>, ty: ty::Ty) -> bool {
     }
 }
 
-fn is_call_with_mut_ref<'tcx>(
+fn is_call_with_mut_ref_or_const_ref<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
-) -> Option<(&'tcx Operand<'tcx>, Span)> {
+) -> Option<(String, Span)> {
     let index = path[0];
     let basic_block = &mir[index];
     let terminator = basic_block.terminator();
     if let TerminatorKind::Call {
-            func,
-            args,
-            fn_span,
-            ..
-        } = &terminator.kind
+        func,
+        args,
+        fn_span,
+        ..
+    } = &terminator.kind
+        && !fn_span.from_expansion()
         // smoelius: `deref_mut` generates too much noise.
         && func.const_fn_def().is_none_or(|(def_id, _)| {
             !cx.tcx.is_diagnostic_item(sym::deref_mut_method, def_id)
@@ -286,7 +169,7 @@ fn is_call_with_mut_ref<'tcx>(
         && (locals.iter().any(|local| is_mut_ref_arg(mir, local))
             || constants.iter().any(|constant| is_const_ref(constant)))
     {
-        Some((func, *fn_span))
+        Some((format!("{func:?}"), *fn_span))
     } else {
         None
     }
@@ -452,42 +335,10 @@ fn is_mut_ref(ty: ty::Ty<'_>) -> bool {
 fn is_deref_assign(statement: &Statement) -> Option<Span> {
     if let StatementKind::Assign(box (Place { projection, .. }, _)) = &statement.kind
         && projection.iter().any(|elem| elem == ProjectionElem::Deref)
+        && !statement.source_info.span.from_expansion()
     {
         Some(statement.source_info.span)
     } else {
         None
     }
-}
-
-fn error_note(spans: &[Span]) -> impl FnOnce(&mut Diag<'_, ()>) {
-    move |diag| {
-        for span in spans {
-            diag.span_note(*span, "error is determined here");
-        }
-    }
-}
-
-#[must_use]
-fn enabled(opt: &str) -> bool {
-    let key = env!("CARGO_PKG_NAME").to_uppercase() + "_" + opt;
-    std::env::var(key).is_ok_and(|value| value != "0")
-}
-
-#[test]
-fn ui() {
-    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "ui");
-}
-
-#[test]
-fn ui_public_only() {
-    dylint_testing::ui::Test::example(env!("CARGO_PKG_NAME"), "ui_public_only")
-        .dylint_toml("non_local_effect_before_error_return.public_only = false")
-        .run();
-}
-
-#[test]
-fn ui_main_rs_equal() {
-    let ui_main_rs = std::fs::read_to_string("ui/main.rs").unwrap();
-    let ui_public_only_main_rs = std::fs::read_to_string("ui_public_only/main.rs").unwrap();
-    assert_eq!(ui_main_rs, ui_public_only_main_rs);
 }
