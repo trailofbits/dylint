@@ -129,14 +129,14 @@ jobs:
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
             case '${{ matrix.package }}' in
               cargo-dylint)
-                cargo test -p cargo-dylint --no-default-features --features=cargo-cli -- --nocapture
+                cargo test -p cargo-dylint --no-default-features --features=cargo-cli
                 ;;
               cargo-dylint-ci)
-                cargo test -p cargo-dylint --test ci -- --nocapture
+                cargo test -p cargo-dylint --test ci
                 if [[ '${{ github.event_name }}' = 'schedule' || '${{ github.event_name }}' = 'workflow_dispatch' ]] ||
                   git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -w 'scheduled'
                 then
-                  cargo test -p scheduled -- --nocapture
+                  cargo test -p scheduled
                 fi
                 ;;
               *)
@@ -158,9 +158,9 @@ jobs:
             else
               PACKAGE='${{ matrix.package }}'
             fi
-            cargo test -p "$PACKAGE" "$TEST" -- --nocapture
+            cargo test -p "$PACKAGE" "$TEST"
           else
-            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive --exclude scheduled -- --nocapture
+            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive --exclude scheduled
 
             # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
             for X in examples/*/*; do
