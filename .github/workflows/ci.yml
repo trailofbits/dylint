@@ -123,9 +123,11 @@ jobs:
       - name: Preinstall toolchains
         run: cargo run -p dylint_internal --bin preinstall-toolchains
 
+      - name: Fetch dependencies
+        run: cargo nested fetch
+
       - name: Test
         run: |
-          cargo nested fetch
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
             case '${{ matrix.package }}' in
               cargo-dylint)
