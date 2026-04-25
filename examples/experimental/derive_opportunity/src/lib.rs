@@ -330,7 +330,8 @@ fn is_derived(cx: &LateContext<'_>, def_id: DefId) -> Option<Macro> {
     {
         let macro_def_id = outer.macro_def_id.unwrap();
         if find_attr!(
-            cx.tcx.get_all_attrs(macro_def_id),
+            cx.tcx,
+            macro_def_id,
             AttributeKind::RustcBuiltinMacro { .. }
         ) {
             // smoelius: I'm not sure whether `SyntaxExtension::builtin_name` would be the right

@@ -12,7 +12,7 @@ use clippy_utils::{
     paths::{PathLookup, PathNS, lookup_path_str},
     res::MaybeQPath,
     source::snippet_opt,
-    value_path,
+    sym, value_path,
     visitors::is_const_evaluatable,
 };
 use dylint_internal::{match_any_def_paths, paths};
@@ -21,7 +21,7 @@ use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind, Node};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty;
-use rustc_span::{Span, sym};
+use rustc_span::Span;
 
 dylint_linting::declare_late_lint! {
     /// ### What it does

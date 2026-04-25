@@ -13,7 +13,7 @@ extern crate rustc_span;
 use clippy_utils::{
     diagnostics::span_lint_and_then,
     paths::{PathLookup, PathNS},
-    type_path,
+    sym, type_path,
 };
 use dylint_internal::match_def_path;
 use rustc_data_structures::fx::FxHashMap;
@@ -28,7 +28,7 @@ use rustc_middle::{
     },
     ty,
 };
-use rustc_span::{Span, sym};
+use rustc_span::Span;
 use serde::Deserialize;
 use std::cell::RefCell;
 
