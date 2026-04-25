@@ -11,7 +11,6 @@ extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_infer;
 extern crate rustc_middle;
-extern crate rustc_span;
 extern crate rustc_trait_selection;
 
 use clippy_utils::diagnostics::{span_lint_and_sugg, span_lint_and_then};
@@ -19,7 +18,7 @@ use clippy_utils::higher::VecArgs;
 use clippy_utils::res::{MaybeDef, MaybeResPath};
 use clippy_utils::source::snippet_opt;
 use clippy_utils::usage::{local_used_after_expr, local_used_in};
-use clippy_utils::{higher, is_adjusted};
+use clippy_utils::{higher, is_adjusted, sym};
 use rustc_errors::Applicability;
 use rustc_hir::def_id::DefId;
 use rustc_hir::{BindingMode, Expr, ExprKind, FnRetTy, Param, PatKind, QPath, Safety, TyKind};
@@ -31,13 +30,12 @@ use rustc_middle::ty::{
     TypeckResults,
 };
 use rustc_session::declare_lint_pass;
-use rustc_span::symbol::sym;
 use rustc_trait_selection::error_reporting::InferCtxtErrorExt as _;
 
 use clippy_utils::{get_parent_expr, source::trim_span, ty::is_copy};
 use rustc_lint::LintContext;
 use rustc_middle::ty::adjustment::{
-    Adjust, Adjustment, AutoBorrow, AutoBorrowMutability, OverloadedDeref,
+    Adjust, Adjustment, AutoBorrow, AutoBorrowMutability, DerefAdjustKind, OverloadedDeref,
 };
 
 dylint_linting::declare_late_lint! {

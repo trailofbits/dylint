@@ -74,7 +74,7 @@ pub fn check_inherents(cx: &LateContext<'_>) {
         .tcx
         .incoherent_impls(SimplifiedType::Slice)
         .iter()
-        .filter(|&impl_def_id| {
+        .filter(|&&impl_def_id| {
             // smoelius: Filter out cases like `core::slice::ascii::<impl [u8]>::trim_ascii`.
             let ty::Slice(ty) = cx.tcx.type_of(impl_def_id).skip_binder().kind() else {
                 panic!("impl is not for a slice");

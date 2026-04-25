@@ -13,6 +13,7 @@ use clippy_utils::{
     diagnostics::{span_lint, span_lint_and_help, span_lint_and_sugg},
     get_parent_expr,
     source::snippet_opt,
+    sym,
     ty::is_copy,
 };
 use dylint_internal::{cargo::current_metadata, match_def_path};
@@ -29,7 +30,7 @@ use rustc_middle::ty::{
     ProjectionPredicate, Ty,
     adjustment::{Adjust, Adjustment, AutoBorrow},
 };
-use rustc_span::symbol::{Symbol, sym};
+use rustc_span::symbol::Symbol;
 use rustc_trait_selection::traits::{
     Obligation, ObligationCause, query::evaluate_obligation::InferCtxtExt,
 };
@@ -220,6 +221,11 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryConversionForTrait {
                             .iter()
                             .chain(WATCHED_INHERENTS.iter())
                             .any(|path| match_def_path(cx, inner_callee_def_id, path))
+                            // `box_assume_init_into_vec_unsafe` appears in the new `vec![..]` macro
+                            // expansion. It is trait-preserving, but it is a free function, so it
+                            // cannot be added to `WATCHED_INHERENTS`.
+                            && cx.tcx.get_diagnostic_name(inner_callee_def_id)
+                                != Some(sym::box_assume_init_into_vec_unsafe)
                         {
                             if enabled("DEBUG_WATCHLIST") {
                                 span_lint(
@@ -658,7 +664,7 @@ fn ancestor_addr_of_mutabilities<'tcx>(
 }
 
 fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
-    const BOX_NEW: [&str; 3] = ["alloc", "boxed", "box_new"];
+    const WRITE_BOX_VIA_MOVE: [&str; 3] = ["alloc", "intrinsics", "write_box_via_move"];
 
     #[cfg_attr(dylint_lib = "supplementary", expect(commented_out_code))]
     loop {
@@ -668,11 +674,11 @@ fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx
             continue;
         } */
 
-        if let ExprKind::Call(callee, args) = expr.kind
+        if let ExprKind::Call(callee, [_uninit_box, inner_arg]) = expr.kind
+            && matches!(inner_arg.kind, ExprKind::Array(_))
             && let callee_ty = cx.typeck_results().expr_ty(callee)
             && let FnDef(callee_def_id, _) = callee_ty.kind()
-            && match_def_path(cx, *callee_def_id, &BOX_NEW)
-            && let [inner_arg] = args
+            && match_def_path(cx, *callee_def_id, &WRITE_BOX_VIA_MOVE)
         {
             expr = inner_arg;
             continue;

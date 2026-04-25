@@ -68,7 +68,7 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentStructPattern {
             return;
         };
 
-        let adt_def = cx.tcx.adt_def(def_id);
+        let adt_def = cx.tcx.adt_def(*def_id);
         let variant_def = adt_def.variants().iter().next().unwrap();
 
         let mut def_order_map = FxHashMap::default();
