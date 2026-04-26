@@ -345,13 +345,9 @@ fn count_derefs<'tcx>(cx: &LateContext<'tcx>, mut expr: &Expr<'tcx>) -> (usize, 
         let mut adjusted_for_deref = false;
         for adjustment in adjustments {
             match adjustment.kind {
-                Adjust::Deref(_) => {
-                    if is_copy(cx, adjustment.target) {
-                        n_derefs += 1;
-                        adjusted_for_deref = true;
-                    } else {
-                        return (n_derefs, explicit_deref);
-                    }
+                Adjust::Deref(_) if is_copy(cx, adjustment.target) => {
+                    n_derefs += 1;
+                    adjusted_for_deref = true;
                 }
                 Adjust::Borrow(_) => {
                     if adjusted_for_deref {

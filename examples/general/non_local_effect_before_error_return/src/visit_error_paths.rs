@@ -163,10 +163,8 @@ where
                 | StatementKind::SetDiscriminant {
                     place: box place,
                     variant_index,
-                } => {
-                    if state.is_local(place.local) {
-                        state.set_confirmed_variant(*variant_index, statement.source_info.span);
-                    }
+                } if state.is_local(place.local) => {
+                    state.set_confirmed_variant(*variant_index, statement.source_info.span);
                 }
                 StatementKind::Assign(box (assign_place, rvalue)) => {
                     if state.remove_local(assign_place.local)

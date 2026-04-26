@@ -423,7 +423,7 @@ pattern = "examples/general/crate_wide_allow"
         .assert()
         .success();
 
-    writeln!(file, r#"revision = "{REV}""#,).unwrap();
+    writeln!(file, r#"revision = "{REV}""#).unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
