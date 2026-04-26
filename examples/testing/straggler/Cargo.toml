@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # smoelius: `straggler` is intentionally held back for testing purposes.
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "54482290b5f32e6c6b57cc9e0a17153f432b0036" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "e645f93552c3926a0bb481a777df120b7bce986f" }
 
 dylint_linting = { path = "../../../utils/linting" }
 
