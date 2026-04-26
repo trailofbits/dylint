@@ -380,7 +380,7 @@ fn hack_each_feature_udeps() {
 
 #[test]
 fn license() {
-    let re = Regex::new(r"^[^:]*\b(Apache|BSD-3-Clause|ISC|MIT|N/A)\b").unwrap();
+    let re = Regex::new(r"^[^:]*\b(Apache|BSD-3-Clause|ISC|MIT|Zlib|N/A)\b").unwrap();
 
     // smoelius: Skip examples directory for now.
     for entry in walkdir(false).with_file_name("Cargo.toml") {
