@@ -173,7 +173,7 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
         for (toolchain, maybe_libraries) in toolchain_map {
             for maybe_library in maybe_libraries {
                 let location = display_location(&maybe_library.path())?;
-                println!("{name:<name_width$}  {toolchain:<toolchain_width$}  {location}",);
+                println!("{name:<name_width$}  {toolchain:<toolchain_width$}  {location}");
             }
         }
     }
