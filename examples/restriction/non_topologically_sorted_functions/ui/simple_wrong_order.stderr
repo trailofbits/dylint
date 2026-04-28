@@ -1,4 +1,4 @@
-warning: 
+warning: function definitions are not topologically sorted
   --> $DIR/simple_wrong_order.rs:7:1
    |
 LL | / fn foo() {

@@ -1,4 +1,4 @@
-warning: 
+warning: function definitions are not topologically sorted
   --> $DIR/multiple_incorrect.rs:15:1
    |
 LL | fn bar() {}
