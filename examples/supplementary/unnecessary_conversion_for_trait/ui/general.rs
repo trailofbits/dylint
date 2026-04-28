@@ -1,6 +1,6 @@
 // run-rustfix
 
-#![allow(unused_imports, unused_parens)]
+#![allow(unused)]
 #![feature(str_as_str)]
 
 use std::{
