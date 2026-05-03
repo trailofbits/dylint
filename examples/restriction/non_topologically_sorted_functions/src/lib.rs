@@ -4,11 +4,12 @@
 extern crate rustc_hir;
 extern crate rustc_span;
 
+use clippy_utils::diagnostics::span_lint_and_then;
 use rustc_hir::def::Res;
 use rustc_hir::def_id::LocalDefId;
 use rustc_hir::intravisit::{self, Visitor};
 use rustc_hir::{BodyId, Expr, ExprKind, HirId, Item, ItemKind, Mod};
-use rustc_lint::{LateContext, LateLintPass, LintContext};
+use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Span;
 use std::collections::{HashMap, HashSet};
 
@@ -289,46 +290,52 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                 ..
             } = violation;
             if warned.insert(id_first_fn) {
-                cx.span_lint(NON_TOPOLOGICALLY_SORTED_FUNCTIONS, span, |diag| {
-                    diag.span_label(
-                        span,
-                        format!(
-                            "function `{name_first_fn}` should be defined before `{name_second_fn}`"
-                        ),
-                    );
+                span_lint_and_then(
+                    cx,
+                    NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
+                    span,
+                    "function definitions are not topologically sorted",
+                    |diag| {
+                        diag.span_label(
+                            span,
+                            format!(
+                                "function `{name_first_fn}` should be defined before `{name_second_fn}`"
+                            ),
+                        );
 
-                    diag.help(format!(
-                        "move {name_first_fn}'s definition to earlier in the module"
-                    ));
+                        diag.help(format!(
+                            "move {name_first_fn}'s definition to earlier in the module"
+                        ));
 
-                    if let Some(reason) = reasons.get(&(id_first_fn, id_second_fn)) {
-                        match *reason {
-                            ConstraintReason::CallerCallee { call_span } => {
-                                diag.span_note(
-                                    call_span,
-                                    format!(
-                                        "`{name_second_fn}` is called from `{name_first_fn}` here"
-                                    ),
-                                );
-                            }
-                            ConstraintReason::CalleeOrder {
-                                caller,
-                                first_call_span,
-                                second_call_span,
-                            } => {
-                                let caller_name = cx.tcx.def_path_str(caller.to_def_id());
-                                diag.span_note(
+                        if let Some(reason) = reasons.get(&(id_first_fn, id_second_fn)) {
+                            match *reason {
+                                ConstraintReason::CallerCallee { call_span } => {
+                                    diag.span_note(
+                                        call_span,
+                                        format!(
+                                            "`{name_second_fn}` is called from `{name_first_fn}` here"
+                                        ),
+                                    );
+                                }
+                                ConstraintReason::CalleeOrder {
+                                    caller,
                                     first_call_span,
-                                    format!("`{caller_name}` calls `{name_first_fn}` here"),
-                                );
-                                diag.span_note(
                                     second_call_span,
-                                    format!("`{caller_name}` calls `{name_second_fn}` here"),
-                                );
+                                } => {
+                                    let caller_name = cx.tcx.def_path_str(caller.to_def_id());
+                                    diag.span_note(
+                                        first_call_span,
+                                        format!("`{caller_name}` calls `{name_first_fn}` here"),
+                                    );
+                                    diag.span_note(
+                                        second_call_span,
+                                        format!("`{caller_name}` calls `{name_second_fn}` here"),
+                                    );
+                                }
                             }
                         }
-                    }
-                });
+                    },
+                );
             }
         }
     }
