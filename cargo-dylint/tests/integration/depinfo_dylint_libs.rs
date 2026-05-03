@@ -3,7 +3,7 @@ use dylint_internal::env;
 use predicates::prelude::*;
 use std::env::remove_var;
 
-#[ctor::ctor]
+#[ctor::ctor(unsafe)]
 fn initialize() {
     unsafe {
         remove_var(env::CARGO_TERM_COLOR);

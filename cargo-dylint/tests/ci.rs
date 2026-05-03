@@ -22,7 +22,7 @@ static METADATA: LazyLock<Metadata> = LazyLock::new(|| current_metadata().unwrap
 static DESCRIPTION_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"description\s*=\s*"([^"]*)""#).unwrap());
 
-#[ctor::ctor]
+#[ctor::ctor(unsafe)]
 fn initialize() {
     set_current_dir("..").unwrap();
     unsafe {

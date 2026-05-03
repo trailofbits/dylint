@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[ctor::ctor]
+#[ctor::ctor(unsafe)]
 fn init() {
     env_logger::init();
 }
