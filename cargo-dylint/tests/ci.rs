@@ -257,7 +257,8 @@ fn extract_name_and_description(cargo_toml_path: &Path) -> Option<(String, Strin
         .to_string();
 
     // Extract the description using regex
-    let description = if let Some(caps) = DESCRIPTION_REGEX.captures(&content) {
+    let description = {
+        let caps = DESCRIPTION_REGEX.captures(&content)?;
         let desc = caps.get(1).unwrap();
         // Format the description like the bash script does
         let desc_str = desc.as_str();
@@ -266,8 +267,6 @@ fn extract_name_and_description(cargo_toml_path: &Path) -> Option<(String, Strin
         } else {
             desc_str.to_string()
         }
-    } else {
-        return None;
     };
 
     Some((name, description))
