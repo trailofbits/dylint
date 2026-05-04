@@ -1,4 +1,4 @@
-warning: 
+warning: function definitions are not topologically sorted
   --> $DIR/wrong_inner_call.rs:7:1
    |
 LL | / fn foo() {
@@ -15,7 +15,7 @@ LL |         baz();
    |         ^^^^^
    = note: `#[warn(non_topologically_sorted_functions)]` on by default
 
-warning: 
+warning: function definitions are not topologically sorted
   --> $DIR/wrong_inner_call.rs:16:1
    |
 LL | fn bar() {}

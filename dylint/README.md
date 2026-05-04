@@ -107,10 +107,10 @@ libraries = [
 
 Libraries can be configured by including a `dylint.toml` file in a linted workspace's root directory. The file should encode a [toml table] whose keys are library names. A library determines how its value in the table (if any) is interpreted.
 
-As an example, a `dylint.toml` file with the following contents sets the [`non_local_effect_before_error_return`] library's `work_limit` configuration to `1_000_000`:
+As an example, a `dylint.toml` file with the following contents sets the [`non_local_effect_before_unhandled_error`] library's `work_limit` configuration to `1_000_000`:
 
 ```toml
-[non_local_effect_before_error_return]
+[non_local_effect_before_unhandled_error]
 work_limit = 1_000_000
 ```
 
@@ -262,7 +262,7 @@ Put another way, we strive to preserve Dylint's MSRV when releasing bug fixes, a
 [`dylint-link`]: ../dylint-link
 [`dylint_library!`]: ../utils/linting
 [`dylint_linting`]: ../utils/linting
-[`non_local_effect_before_error_return`]: ../examples/general/non_local_effect_before_error_return
+[`non_local_effect_before_unhandled_error`]: ../examples/general/non_local_effect_before_unhandled_error
 [`non_thread_safe_call_in_test`]: ../examples/general/non_thread_safe_call_in_test
 [`try_io_result`]: ../examples/restriction/try_io_result
 [`ui_test`]: ../utils/testing

@@ -19,7 +19,7 @@ crate_wide_allow = { path = "crate_wide_allow", features = ["rlib"] }
 incorrect_matches_operation = { path = "incorrect_matches_operation", features = [
     "rlib",
 ] }
-non_local_effect_before_error_return = { path = "non_local_effect_before_error_return", features = [
+non_local_effect_before_unhandled_error = { path = "non_local_effect_before_unhandled_error", features = [
     "rlib",
 ] }
 non_thread_safe_call_in_test = { path = "non_thread_safe_call_in_test", features = [
@@ -40,7 +40,7 @@ exclude = [".cargo", "src"]
 
 [workspace.dependencies]
 bitflags = "2.11"
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "e645f93552c3926a0bb481a777df120b7bce986f" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f6d310692116e9a527ce6d0b3526c965d9c5d7b9" }
 derivative = "2.2.0"
 once_cell = "1.21"
 serde = "1.0"

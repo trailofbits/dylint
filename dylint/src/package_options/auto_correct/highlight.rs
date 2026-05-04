@@ -38,7 +38,7 @@ pub struct Highlight {
 
 #[allow(clippy::missing_fields_in_debug)]
 impl std::fmt::Debug for Highlight {
-    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_error_return))]
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_unhandled_error))]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Highlight")
             .field("message", &self.message)
