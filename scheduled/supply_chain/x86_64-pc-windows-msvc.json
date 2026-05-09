@@ -528,14 +528,6 @@
         "name": "Matt Mastracci"
       }
     ],
-    "ctor-proc-macro": [
-      {
-        "id": 34586,
-        "kind": "user",
-        "login": "mmastrac",
-        "name": "Matt Mastracci"
-      }
-    ],
     "diff": [
       {
         "id": 297,
@@ -598,22 +590,6 @@
         "kind": "user",
         "login": "yaahc",
         "name": "Jane Losare-Lusby"
-      }
-    ],
-    "dtor": [
-      {
-        "id": 34586,
-        "kind": "user",
-        "login": "mmastrac",
-        "name": "Matt Mastracci"
-      }
-    ],
-    "dtor-proc-macro": [
-      {
-        "id": 34586,
-        "kind": "user",
-        "login": "mmastrac",
-        "name": "Matt Mastracci"
       }
     ],
     "dunce": [
@@ -1354,6 +1330,14 @@
         "name": "Matt Mastracci"
       }
     ],
+    "linktime-proc-macro": [
+      {
+        "id": 34586,
+        "kind": "user",
+        "login": "mmastrac",
+        "name": "Matt Mastracci"
+      }
+    ],
     "litemap": [
       {
         "id": 1139,
@@ -1980,12 +1964,6 @@
         "kind": "user",
         "login": "Stebalien",
         "name": "Steven Allen"
-      },
-      {
-        "id": 3204,
-        "kind": "user",
-        "login": "KodrAus",
-        "name": "Ashley Mannix"
       }
     ],
     "term": [
