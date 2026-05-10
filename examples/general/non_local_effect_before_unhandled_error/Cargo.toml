@@ -1,6 +1,6 @@
 [package]
 name = "non_local_effect_before_unhandled_error"
-version = "5.0.0"
+version = "6.0.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for unhandled errors from functions with non-local effects before error return"
 edition = "2024"

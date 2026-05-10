@@ -2,6 +2,28 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.0.0
+
+- Update README.md to include examples of git revisions ([#1802](https://github.com/trailofbits/dylint/pull/1802))&mdash;thanks [@brannondorsey](https://github.com/brannondorsey)
+- Remove `if_chain` crate ([6e73a33](https://github.com/trailofbits/dylint/commit/6e73a33d098e6adec21d54d15c99cfe49a5aa9f7))&mdash;thanks [@brannondorsey](https://github.com/brannondorsey)
+- Remove unnecessary parenthesis in error.rs ([30657a9](https://github.com/trailofbits/dylint/commit/30657a9820a8f2c0adb11e0cc8b1c15f05f8db7d))
+- Fix nightly build ([b861ff9](https://github.com/trailofbits/dylint/commit/b861ff90351aded1a07b1751468d3fe15fc61a90))
+- Bump MSRV to 1.91 ([dda53fc](https://github.com/trailofbits/dylint/commit/dda53fc71d9ae52d0cab33729f8082176ecc54a0))
+- Update README.md toml example ([c3225dc](https://github.com/trailofbits/dylint/commit/c3225dcaeba39db50d68b5af013abb93ef59d47d))
+- BREAKING: Remove MSRV policy ([#1967](https://github.com/trailofbits/dylint/pull/1967))
+- Updated dependencies
+  - `cargo_metadata` upgraded to version 0.23
+  - `cargo-util-schemas` upgraded to version 0.13
+  - `ctor` upgraded to version 1.0
+  - `home` upgraded to version 0.5
+  - `libloading` upgraded to version 0.9
+  - `similar-asserts` upgraded to version 2.0
+  - `toml_edit` upgraded to version 0.25
+  - `toml` upgraded to version 1.1
+- Removed dependencies
+  - `if_chain` removed
+  - `rustversion` removed
+
 ## 5.0.0
 
 - Fix a bug causing `dylint_testing` to make repeated failed attempts to build a driver ([#1744](https://github.com/trailofbits/dylint/pull/1744))

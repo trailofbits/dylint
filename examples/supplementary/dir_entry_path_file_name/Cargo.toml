@@ -1,6 +1,6 @@
 [package]
 name = "dir_entry_path_file_name"
-version = "5.0.0"
+version = "6.0.0"
 edition = "2024"
 publish = false
 

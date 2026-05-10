@@ -1,6 +1,6 @@
 [package]
 name = "non_topologically_sorted_functions"
-version = "5.0.0"
+version = "6.0.0"
 authors = ["J4CK VVH173 <i78901234567890@gmail.com>"]
 description = "A lint to check the function order"
 edition = "2024"
