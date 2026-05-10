@@ -2,7 +2,7 @@ thiserror v1.0.69
 thiserror v2.0.18
 thiserror-impl v1.0.69
 thiserror-impl v2.0.18
-toml v0.9.11+spec-1.1.0
+toml v0.9.12+spec-1.1.0
 toml v1.1.2+spec-1.1.0
 toml_datetime v0.7.5+spec-1.1.0
 toml_datetime v1.1.1+spec-1.1.0
