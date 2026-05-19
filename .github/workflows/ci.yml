@@ -72,7 +72,7 @@ jobs:
             ~/.cargo/git/db/
             ~/.dylint_drivers/
             ~/.rustup/toolchains/
-          key: ${{ runner.os }}-drivers-${{ hashFiles('driver/**') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Rustup
         run: rustup update
