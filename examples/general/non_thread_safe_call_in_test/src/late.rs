@@ -9,7 +9,7 @@ use rustc_hir::{
     def_id::{DefId, LocalDefId},
     intravisit::{Visitor, walk_body, walk_expr},
 };
-use rustc_lint::{LateContext, LateLintPass, LintContext};
+use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::hir::nested_filter;
 use rustc_session::{declare_lint, impl_lint_pass};
 use std::collections::HashSet;
@@ -70,14 +70,15 @@ pub struct NonThreadSafeCallInTest {
 impl_lint_pass!(NonThreadSafeCallInTest => [NON_THREAD_SAFE_CALL_IN_TEST]);
 
 impl<'tcx> LateLintPass<'tcx> for NonThreadSafeCallInTest {
+    #[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
-        if !cx.sess().opts.test {
+        // smoelius: Disable "unlikely to be effective" warning.
+        /* if !cx.sess().opts.test {
             cx.sess().dcx().warn(
                 "`non_thread_safe_call_in_test` is unlikely to be effective as `--test` was not \
                  passed to rustc",
             );
-        }
-
+        } */
         self.find_test_fns(cx);
     }
 
