@@ -23,7 +23,20 @@ fn main() -> Result<()> {
 
     let linker = linker()?;
     let args: Vec<String> = args().collect();
-    Command::new(linker).args(&args[1..]).success()?;
+
+    let mut command = Command::new(&linker);
+    // `rust-lld` and `lld` are generic LLD drivers: they need to be told which
+    // flavor (ELF / Mach-O / COFF / Wasm) to act as. When configured as the
+    // linker on Windows-MSVC they expect to be invoked as `lld-link`, which can
+    // be achieved either via a same-named symlink or by passing `-flavor link`
+    // ahead of the linker arguments. Inject the flag here so that
+    // `linker = "rust-lld"` in Cargo's configuration file works without further
+    // setup.
+    #[cfg(target_os = "windows")]
+    if needs_lld_link_flavor(&linker) {
+        command.args(["-flavor", "link"]);
+    }
+    command.args(&args[1..]).success()?;
 
     if let Some(path) = output_path(args.iter())? {
         copy_library(&path)?;
@@ -82,6 +95,14 @@ fn default_linker() -> Result<PathBuf> {
 #[allow(clippy::unnecessary_wraps)]
 fn default_linker() -> Result<PathBuf> {
     Ok(PathBuf::from("cc"))
+}
+
+#[cfg(target_os = "windows")]
+fn needs_lld_link_flavor(linker: &Path) -> bool {
+    let Some(stem) = linker.file_stem().and_then(OsStr::to_str) else {
+        return false;
+    };
+    stem.eq_ignore_ascii_case("rust-lld") || stem.eq_ignore_ascii_case("lld")
 }
 
 #[cfg(target_os = "windows")]
