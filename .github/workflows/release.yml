@@ -21,10 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-
       - name: Build binaries
         run: cargo build --locked --release --target ${{ matrix.target }} -p cargo-dylint -p dylint-link
 
@@ -116,7 +112,7 @@ jobs:
           # smoelius: Publishing in this order ensures that all dependencies are met.
           DIRS="internal driver dylint-link dylint cargo-dylint utils/linting utils/testing"
           for DIR in $DIRS; do
-              cargo publish --allow-dirty --manifest-path "$DIR/Cargo.toml"
+              pushd "$DIR" && (cargo publish --allow-dirty || true) && popd
           done
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
