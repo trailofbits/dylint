@@ -132,7 +132,7 @@ checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
 name = "clippy"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -266,7 +266,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -282,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -300,7 +300,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -313,7 +313,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -649,9 +649,9 @@ checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "jiff"
-version = "0.2.24"
+version = "0.2.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f00b5dbd620d61dfdcb6007c9c1f6054ebd75319f163d886a9055cec1155073d"
+checksum = "392c70591e8749fe235ddaf513e6f58b26bce3dcc16524cecc8936f75afa161e"
 dependencies = [
  "jiff-static",
  "log",
@@ -662,9 +662,9 @@ dependencies = [
 
 [[package]]
 name = "jiff-static"
-version = "0.2.24"
+version = "0.2.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e000de030ff8022ea1da3f466fbb0f3a809f5e51ed31f6dd931c35181ad8e6d7"
+checksum = "47b605b0c050d845fc355bb11eb3f9a8deddc218ea60c76e61aa1f2adfb2c96a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -762,9 +762,9 @@ checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
 name = "log"
-version = "0.4.29"
+version = "0.4.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
+checksum = "616ec5685824bcc94416c6d4a7a446eea774a31efd7062c8480ba6fd06d7a6e5"
 
 [[package]]
 name = "memchr"

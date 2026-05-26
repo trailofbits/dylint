@@ -117,7 +117,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_driver"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "curl",
@@ -135,7 +135,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -465,9 +465,9 @@ checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
 name = "log"
-version = "0.4.29"
+version = "0.4.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
+checksum = "616ec5685824bcc94416c6d4a7a446eea774a31efd7062c8480ba6fd06d7a6e5"
 
 [[package]]
 name = "memchr"
