@@ -2,6 +2,10 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.0.1
+
+- Fix a bug affecting Windows users who use `rust-lld` as the linker ([#1982](https://github.com/trailofbits/dylint/pull/1982))&mdash;thanks [@Diggsey](https://github.com/Diggsey)
+
 ## 6.0.0
 
 - Update README.md to include examples of git revisions ([#1802](https://github.com/trailofbits/dylint/pull/1802))&mdash;thanks [@brannondorsey](https://github.com/brannondorsey)
