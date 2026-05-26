@@ -155,7 +155,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-dylint"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -490,7 +490,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
 name = "dylint"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -522,7 +522,7 @@ dependencies = [
 
 [[package]]
 name = "dylint-link"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -536,7 +536,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_examples"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "cargo-util",
  "cargo_metadata",
@@ -550,7 +550,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -577,7 +577,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -658,7 +658,7 @@ dependencies = [
 
 [[package]]
 name = "expensive"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "dylint_internal",
@@ -1029,9 +1029,9 @@ checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "jiff"
-version = "0.2.24"
+version = "0.2.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f00b5dbd620d61dfdcb6007c9c1f6054ebd75319f163d886a9055cec1155073d"
+checksum = "392c70591e8749fe235ddaf513e6f58b26bce3dcc16524cecc8936f75afa161e"
 dependencies = [
  "jiff-static",
  "log",
@@ -1042,9 +1042,9 @@ dependencies = [
 
 [[package]]
 name = "jiff-static"
-version = "0.2.24"
+version = "0.2.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e000de030ff8022ea1da3f466fbb0f3a809f5e51ed31f6dd931c35181ad8e6d7"
+checksum = "47b605b0c050d845fc355bb11eb3f9a8deddc218ea60c76e61aa1f2adfb2c96a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1154,9 +1154,9 @@ checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
 name = "log"
-version = "0.4.29"
+version = "0.4.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
+checksum = "616ec5685824bcc94416c6d4a7a446eea774a31efd7062c8480ba6fd06d7a6e5"
 
 [[package]]
 name = "memchr"
@@ -1203,7 +1203,7 @@ dependencies = [
 
 [[package]]
 name = "nightly"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "nested_workspace",
 ]
@@ -1509,7 +1509,7 @@ dependencies = [
 
 [[package]]
 name = "scheduled"
-version = "6.0.0"
+version = "6.0.1"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -1641,9 +1641,9 @@ checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
 
 [[package]]
 name = "similar"
-version = "3.1.0"
+version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04d93e861ede2e497b47833469b8ec9d5c07fa4c78ce7a00f6eb7dd8168b4b3f"
+checksum = "e6505efef05804732ed8a3f2d4f279429eb485bd69d5b0cc6b19cc02005cda16"
 dependencies = [
  "bstr",
  "unicode-segmentation",
@@ -1656,7 +1656,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "997e6ca38e97437973fc9f7f50a50d1274cacd874341a4960fea90067291038c"
 dependencies = [
  "console",
- "similar 3.1.0",
+ "similar 3.1.1",
 ]
 
 [[package]]
