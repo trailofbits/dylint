@@ -23,6 +23,8 @@ jobs:
 
       - name: Build binaries
         run: cargo build --locked --release --target ${{ matrix.target }} -p cargo-dylint -p dylint-link
+        env:
+          DYLINT_DRIVER_FROM_CRATES_IO: 1
 
       - name: Package binaries
         shell: bash
