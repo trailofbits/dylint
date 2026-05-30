@@ -633,7 +633,9 @@ fn replace_types<'tcx>(
 
                     if let Ok(projected_ty) = cx
                         .tcx
-                        .try_normalize_erasing_regions(cx.typing_env(), projection)
+                        .try_normalize_erasing_regions(cx.typing_env(), Unnormalized::new_wip(projection),
+
+                    ) 
                         && substs[term_param_ty.index as usize]
                             != ty::GenericArg::from(projected_ty)
                     {
