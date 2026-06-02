@@ -65,7 +65,7 @@ pub fn checkout(repository: &Repository, refname: &str) -> Result<()> {
         .checkout_tree(&object, None)
         .with_context(|| format!("`checkout_tree` failed for `{object:?}`"))?;
 
-    match reference.as_ref().and_then(|r| r.name()) {
+    match reference.as_ref().map(|r| r.name()).transpose()? {
         Some(refname) => {
             repository
                 .set_head(refname)
