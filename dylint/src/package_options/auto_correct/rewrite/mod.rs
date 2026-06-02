@@ -159,7 +159,7 @@ pub fn collect_rewrites(
     );
 
     if env::enabled("DEBUG_COMMITS") {
-        display_commits(&commits);
+        display_commits(&commits)?;
     }
 
     let start = Instant::now();
@@ -201,12 +201,13 @@ pub fn collect_rewrites(
     Ok(rewrites)
 }
 
-fn display_commits(commits: &[Commit]) {
+fn display_commits(commits: &[Commit]) -> Result<()> {
     for commit in commits {
         let short_id = commit.short_id();
-        let summary = commit.summary().unwrap_or_default();
-        eprintln!("{short_id}: {summary}");
+        let summary = commit.summary()?;
+        eprintln!("{short_id}: {}", summary.unwrap_or_default());
     }
+    Ok(())
 }
 
 // smoelius: You need a `Patch` to get a `DiffHunk`'s lines. So there would be no easy way to write
