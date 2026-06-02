@@ -138,6 +138,7 @@ const IGNORED_INHERENTS: &[&[&str]] = &[
     &["alloc", "str", "<impl str>", "to_ascii_uppercase"],
     &["alloc", "str", "<impl str>", "to_lowercase"],
     &["alloc", "str", "<impl str>", "to_uppercase"],
+    &["alloc", "str", "<impl str>", "word_to_titlecase"],
     &["alloc", "string", "String", "from_utf16_lossy"],
     &["alloc", "string", "String", "from_utf16be_lossy"],
     &["alloc", "string", "String", "from_utf16le_lossy"],
@@ -573,8 +574,9 @@ fn inner_arg_implements_traits<'tcx>(
     }
 
     predicates.iter().all(|predicate| {
-        let predicate =
-            EarlyBinder::bind(predicate).instantiate(cx.tcx, substs_with_new_ty.as_slice());
+        let predicate = EarlyBinder::bind(predicate)
+            .instantiate(cx.tcx, substs_with_new_ty.as_slice())
+            .skip_norm_wip();
         let obligation = Obligation::new(cx.tcx, ObligationCause::dummy(), cx.param_env, predicate);
         cx.tcx
             .infer_ctxt()
@@ -631,11 +633,11 @@ fn replace_types<'tcx>(
                         .expect_ty(cx.tcx)
                         .to_ty(cx.tcx);
 
-                    if let Ok(projected_ty) = cx
-                        .tcx
-                        .try_normalize_erasing_regions(cx.typing_env(), projection)
-                        && substs[term_param_ty.index as usize]
-                            != ty::GenericArg::from(projected_ty)
+                    if let Ok(projected_ty) = cx.tcx.try_normalize_erasing_regions(
+                        cx.typing_env(),
+                        ty::Unnormalized::new_wip(projection),
+                    ) && substs[term_param_ty.index as usize]
+                        != ty::GenericArg::from(projected_ty)
                     {
                         deque.push_back((*term_param_ty, projected_ty));
                     }

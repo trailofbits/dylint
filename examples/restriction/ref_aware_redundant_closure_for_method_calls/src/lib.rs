@@ -303,7 +303,7 @@ fn check_sig<'tcx>(
     closure: ClosureArgs<TyCtxt<'tcx>>,
     call_sig: FnSig<'_>,
 ) -> bool {
-    call_sig.safety == Safety::Safe
+    call_sig.safety() == Safety::Safe
         && !has_late_bound_to_non_late_bound_regions(
             cx.tcx
                 .signature_unclosure(closure.sig(), Safety::Safe)
@@ -382,7 +382,11 @@ fn get_ufcs_type_name<'tcx>(
     match assoc_item.container {
         ty::AssocContainer::Trait => cx.tcx.def_path_str(def_id),
         ty::AssocContainer::InherentImpl | ty::AssocContainer::TraitImpl(_) => {
-            let ty = cx.tcx.type_of(def_id).instantiate_identity();
+            let ty = cx
+                .tcx
+                .type_of(def_id)
+                .instantiate_identity()
+                .skip_norm_wip();
             match ty.kind() {
                 ty::Adt(adt, _) => cx.tcx.def_path_str(adt.did()),
                 ty::Array(..)
@@ -392,7 +396,12 @@ fn get_ufcs_type_name<'tcx>(
                 | ty::Ref(..)
                 | ty::Slice(_)
                 | ty::Tuple(_) => {
-                    format!("<{}>", EarlyBinder::bind(ty).instantiate(cx.tcx, args))
+                    format!(
+                        "<{}>",
+                        EarlyBinder::bind(ty)
+                            .instantiate(cx.tcx, args)
+                            .skip_norm_wip()
+                    )
                 }
                 _ => ty.to_string(),
             }
