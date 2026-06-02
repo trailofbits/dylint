@@ -171,7 +171,7 @@ impl<'tcx> DeriveOpportunity<'tcx> {
                 .collect::<FxHashSet<_>>();
             let mut traits_derivable_for_at_least_one_field = FxHashSet::default();
             for field_def in adt_def.all_fields() {
-                let field_ty = field_def.ty(cx.tcx, substs);
+                let field_ty = field_def.ty(cx.tcx, substs).skip_norm_wip();
 
                 let field_applied_macros = self
                     .derivable_traits(cx)

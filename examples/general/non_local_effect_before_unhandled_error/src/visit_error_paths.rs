@@ -168,7 +168,7 @@ where
                 }
                 StatementKind::Assign(box (assign_place, rvalue)) => {
                     if state.remove_local(assign_place.local)
-                        && let Rvalue::Use(rvalue_operand) = rvalue
+                        && let Rvalue::Use(rvalue_operand, _) = rvalue
                         && let Some(rvalue_place) = rvalue_operand.place()
                     {
                         state.set_local(rvalue_place.local);
