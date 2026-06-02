@@ -275,9 +275,7 @@ fn collect_locals_and_constants<'tcx>(
                 && let followed_widely = locals_widely.remove(assign_place.local)
                 && (followed_narrowly || followed_widely)
             {
-                if let Rvalue::Use(Operand::Constant(constant,
-
-        )) = rvalue {
+                if let Rvalue::Use(Operand::Constant(constant), _) = rvalue {
                     constants.push(constant);
                 } else if let [rvalue_place, ..] = rvalue_places(
                     rvalue,
