@@ -119,9 +119,13 @@ jobs:
           echo /Applications/Xcode* | sort | head -n1 | xargs rm -rf
           # du -sh /*/* 2>/dev/null | sort -h || true
 
-      # smoelius: The next step avoids tests having to use `rustup` concurrently.
+      # smoelius: The next step avoids tests having to use `rustup` concurrently. Toolchain
+      # nightly-2026-06-22 is needed for cargo-rdme 2.0.0.
       - name: Preinstall toolchains
-        run: cargo run -p dylint_internal --bin preinstall-toolchains
+        run: |
+          cargo run -p dylint_internal --bin preinstall-toolchains
+          rustup toolchain add nightly-2026-06-22
+          rustup component add llvm-tools-preview rustc-dev --toolchain nightly-2026-06-22
 
       - name: Fetch dependencies
         run: cargo nested fetch
