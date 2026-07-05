@@ -138,7 +138,7 @@ pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highli
                     opts,
                     &format!(
                         "Found diagnostic error with no spans: {}",
-                        &diagnostic.message
+                        diagnostic.message
                     ),
                 );
                 continue;
