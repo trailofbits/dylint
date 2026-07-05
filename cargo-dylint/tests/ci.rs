@@ -843,7 +843,7 @@ fn version() {
         .args(["dylint", "--version"])
         .assert()
         .success()
-        .stdout(format!("cargo-dylint {}\n", env!("CARGO_PKG_VERSION")));
+        .stdout(concat!("cargo-dylint ", env!("CARGO_PKG_VERSION"), "\n"));
 }
 
 fn readme_contents(dir: impl AsRef<Path>) -> Result<String> {

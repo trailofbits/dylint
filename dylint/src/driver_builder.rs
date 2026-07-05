@@ -184,7 +184,7 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
 // smoelius: `package` is a temporary directory. So there should be no race here.
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 fn initialize(toolchain: &str, package: &Path) -> Result<()> {
-    let version_spec = format!("version = \"={}\"", env!("CARGO_PKG_VERSION"));
+    let version_spec = concat!("version = \"=", env!("CARGO_PKG_VERSION"), "\"");
 
     let path_spec = DYLINT_DRIVER_MANIFEST_DIR.map_or(String::new(), |path| {
         format!(", path = \"{}\"", path.replace('\\', "\\\\"))
