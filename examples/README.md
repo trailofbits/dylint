@@ -25,17 +25,18 @@ The example libraries are separated into the following three categories:
 
 ## Supplementary
 
-| Example                                                                                | Description/check                                              |
-| -------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| [`commented_out_code`](./supplementary/commented_out_code)                             | Code that has been commented out                               |
-| [`escaping_doc_link`](./supplementary/escaping_doc_link)                               | Doc comment links that escape their packages                   |
-| [`inconsistent_struct_pattern`](./supplementary/inconsistent_struct_pattern)           | Struct patterns whose fields do not match their declared order |
-| [`local_ref_cell`](./supplementary/local_ref_cell)                                     | `RefCell` local variables                                      |
-| [`nonexistent_path_in_comment`](./supplementary/nonexistent_path_in_comment)           | Lint for nonexistent paths in comments                         |
-| [`redundant_reference`](./supplementary/redundant_reference)                           | Reference fields used only to read one copyable subfield       |
-| [`unnamed_constant`](./supplementary/unnamed_constant)                                 | Unnamed constants, aka magic numbers                           |
-| [`unnecessary_borrow_mut`](./supplementary/unnecessary_borrow_mut)                     | Calls to `RefCell::borrow_mut` that could be `RefCell::borrow` |
-| [`unnecessary_conversion_for_trait`](./supplementary/unnecessary_conversion_for_trait) | Unnecessary trait-behavior-preserving calls                    |
+| Example                                                                                | Description/check                                                     |
+| -------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [`commented_out_code`](./supplementary/commented_out_code)                             | Code that has been commented out                                      |
+| [`concatenable_format_args`](./supplementary/concatenable_format_args)                 | `format!(...)` invocations where `concat!(...)` could be used instead |
+| [`escaping_doc_link`](./supplementary/escaping_doc_link)                               | Doc comment links that escape their packages                          |
+| [`inconsistent_struct_pattern`](./supplementary/inconsistent_struct_pattern)           | Struct patterns whose fields do not match their declared order        |
+| [`local_ref_cell`](./supplementary/local_ref_cell)                                     | `RefCell` local variables                                             |
+| [`nonexistent_path_in_comment`](./supplementary/nonexistent_path_in_comment)           | Lint for nonexistent paths in comments                                |
+| [`redundant_reference`](./supplementary/redundant_reference)                           | Reference fields used only to read one copyable subfield              |
+| [`unnamed_constant`](./supplementary/unnamed_constant)                                 | Unnamed constants, aka magic numbers                                  |
+| [`unnecessary_borrow_mut`](./supplementary/unnecessary_borrow_mut)                     | Calls to `RefCell::borrow_mut` that could be `RefCell::borrow`        |
+| [`unnecessary_conversion_for_trait`](./supplementary/unnecessary_conversion_for_trait) | Unnecessary trait-behavior-preserving calls                           |
 
 ## Restriction
 

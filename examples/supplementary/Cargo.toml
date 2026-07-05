@@ -12,6 +12,9 @@ crate-type = ["cdylib"]
 [dependencies]
 arg_iter = { path = "arg_iter", features = ["rlib"] }
 commented_out_code = { path = "commented_out_code", features = ["rlib"] }
+concatenable_format_args = { path = "concatenable_format_args", features = [
+    "rlib",
+] }
 dir_entry_path_file_name = { path = "dir_entry_path_file_name", features = [
     "rlib",
 ] }

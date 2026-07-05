@@ -1,0 +1,64 @@
+warning: this `format!()` invocation could be replaced with `concat!()`
+  --> $DIR/main.rs:8:13
+   |
+LL |     let _ = format!("{}/**/*.md", env!("CARGO_MANIFEST_DIR"));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(concatenable_format_args)]` on by default
+
+warning: this `format!()` invocation could be replaced with `concat!()`
+  --> $DIR/main.rs:9:13
+   |
+LL |     let _ = format!("{}/**/*.yml", env!("CARGO_MANIFEST_DIR"));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: this `format!()` invocation could be replaced with `concat!()`
+  --> $DIR/main.rs:10:13
+   |
+LL |     let _ = format!("!{}/target/**", env!("CARGO_MANIFEST_DIR"));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: this `format!()` invocation could be replaced with `concat!()`
+  --> $DIR/main.rs:11:13
+   |
+LL |     let _ = format!("{}/{}", env!("CARGO_MANIFEST_DIR"), env!("CARGO_PKG_NAME"));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: this `format!()` invocation could be replaced with `concat!()`
+  --> $DIR/main.rs:12:13
+   |
+LL |     let _ = format!("{}-{}", env!("CARGO_PKG_NAME"), "lint");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: this `format!()` invocation could be replaced with `concat!()`
+  --> $DIR/main.rs:13:13
+   |
+LL |     let _ = std::format!("{}/src", env!("CARGO_MANIFEST_DIR"));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: this `format!()` invocation could be replaced with `concat!()`
+  --> $DIR/main.rs:14:13
+   |
+LL |     let _ = format!("{}/src", std::env!("CARGO_MANIFEST_DIR"));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: this `format!()` invocation could be replaced with `concat!()`
+  --> $DIR/main.rs:17:13
+   |
+LL |     let _ = format!("{}/trail", env!("CARGO_MANIFEST_DIR"),);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: this `format!()` invocation could be replaced with `concat!()`
+  --> $DIR/main.rs:20:13
+   |
+LL |       let _ = format!(
+   |  _____________^
+LL | |         "{}-{}-{}",
+LL | |         "prefix",
+LL | |         env!("CARGO_PKG_NAME"),
+LL | |         env!("CARGO_PKG_VERSION")
+LL | |     );
+   | |_____^
+
+warning: 9 warnings emitted
+
