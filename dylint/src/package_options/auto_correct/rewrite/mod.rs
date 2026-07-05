@@ -47,7 +47,7 @@ impl std::fmt::Debug for Rewrite {
             .field("before_tokens", &before_tokens)
             .field(
                 "rewrite",
-                &format!("{} -> {}", &rewrite_old_tokens, &rewrite_new_tokens),
+                &format!("{rewrite_old_tokens} -> {rewrite_new_tokens}"),
             )
             .field("after_tokens", &after_tokens)
             .finish()

@@ -181,7 +181,7 @@ where
         if state.on_error_path() {
             self.visit_error_paths_to_block_entry(&state, index);
         }
-        assert!(self.block_path.pop() == Some(index));
+        assert_eq!(self.block_path.pop(), Some(index));
         assert!(self.blocks_visited.remove(index));
     }
 

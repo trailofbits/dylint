@@ -13,7 +13,7 @@ use std::{
 fn main() -> Result<()> {
     let toolchains = collect_toolchains(&["cargo-dylint", "examples", "expensive", "internal"])?;
 
-    println!("{:#?}", &toolchains);
+    println!("{toolchains:#?}");
 
     let mut handles = Vec::new();
     for toolchain in ["stable", "nightly"] {
