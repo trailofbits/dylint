@@ -123,7 +123,7 @@ impl Dylint {
         self.operation.library_selection()
     }
 
-    pub fn library_selection_mut(&mut self) -> &mut LibrarySelection {
+    pub const fn library_selection_mut(&mut self) -> &mut LibrarySelection {
         self.operation.library_selection_mut()
     }
 
@@ -173,7 +173,7 @@ impl Operation {
     }
 
     #[allow(clippy::panic)]
-    fn library_selection_mut(&mut self) -> &mut LibrarySelection {
+    const fn library_selection_mut(&mut self) -> &mut LibrarySelection {
         match self {
             Self::Check(check) => &mut check.lib_sel,
             Self::List(list) => &mut list.lib_sel,
