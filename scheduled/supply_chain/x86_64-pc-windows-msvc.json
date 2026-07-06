@@ -112,7 +112,7 @@
       {
         "id": 3672,
         "kind": "user",
-        "login": "ZoeyR",
+        "login": "ghost_3672",
         "name": "Zoey Riordan"
       }
     ],
@@ -406,6 +406,20 @@
         "name": "Philip Munksgaard"
       }
     ],
+    "const-oid": [
+      {
+        "id": 267,
+        "kind": "user",
+        "login": "tarcieri",
+        "name": "Tony Arcieri"
+      },
+      {
+        "id": 4457,
+        "kind": "team",
+        "login": "github:rustcrypto:formats",
+        "name": "formats"
+      }
+    ],
     "cpufeatures": [
       {
         "id": 267,
@@ -554,7 +568,7 @@
       {
         "id": 13677,
         "kind": "user",
-        "login": "Dylan-DPC",
+        "login": "Dylan-DPC-zz",
         "name": "Dylan DPC"
       },
       {
@@ -568,7 +582,7 @@
       {
         "id": 13677,
         "kind": "user",
-        "login": "Dylan-DPC",
+        "login": "Dylan-DPC-zz",
         "name": "Dylan DPC"
       },
       {
@@ -806,20 +820,6 @@
         "name": "Denis Kurilenko"
       }
     ],
-    "generic-array": [
-      {
-        "id": 1793,
-        "kind": "user",
-        "login": "fizyk20",
-        "name": "Bartłomiej Kamiński"
-      },
-      {
-        "id": 5704,
-        "kind": "user",
-        "login": "novacrazy",
-        "name": "Nova"
-      }
-    ],
     "getopts": [
       {
         "id": 3,
@@ -974,6 +974,20 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
+      }
+    ],
+    "hybrid-array": [
+      {
+        "id": 267,
+        "kind": "user",
+        "login": "tarcieri",
+        "name": "Tony Arcieri"
+      },
+      {
+        "id": 2398,
+        "kind": "team",
+        "login": "github:rustcrypto:utils",
+        "name": "utils"
       }
     ],
     "icu_collections": [
@@ -1270,32 +1284,6 @@
         "name": null
       }
     ],
-    "libssh2-sys": [
-      {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
-        "id": 5988,
-        "kind": "user",
-        "login": "yodaldevoid",
-        "name": "Gabriel Smith"
-      },
-      {
-        "id": 11243,
-        "kind": "user",
-        "login": "wez",
-        "name": "Wez Furlong"
-      },
-      {
-        "id": 12280,
-        "kind": "user",
-        "login": "crisidev",
-        "name": "Matteo Bigoi"
-      }
-    ],
     "libz-sys": [
       {
         "id": 1,
@@ -1552,6 +1540,14 @@
         "kind": "user",
         "login": "rust-lang-owner",
         "name": null
+      }
+    ],
+    "portable-atomic": [
+      {
+        "id": 33035,
+        "kind": "user",
+        "login": "taiki-e",
+        "name": "Taiki Endo"
       }
     ],
     "potential_utf": [
@@ -1946,12 +1942,6 @@
     ],
     "tar": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 58094,
         "kind": "user",
         "login": "cgwalters",
@@ -2300,14 +2290,6 @@
         "kind": "user",
         "login": "waych",
         "name": "Mike Waychison"
-      }
-    ],
-    "version_check": [
-      {
-        "id": 3864,
-        "kind": "user",
-        "login": "SergioBenitez",
-        "name": "Sergio Benitez"
       }
     ],
     "walkdir": [
