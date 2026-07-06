@@ -59,10 +59,14 @@ fn one_name_multiple_toolchains() {
     .unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
-        .envs([(
+        // smoelius: A toolchain can fail when it shares a target directory with another toolchain.
+        // Setting `CARGO_INCREMENTAL` to 0 avoids this problem, but it is a band-aid. I need to
+        // investigate ways of determining the toolchain used to produce a target directory.
+        .env(env::CARGO_INCREMENTAL, "0")
+        .env(
             env::DYLINT_LIBRARY_PATH,
             target_debug(tempdir.path()).unwrap(),
-        )])
+        )
         .args(["dylint", "list", "--all", "--no-metadata"])
         .assert()
         .success()
@@ -233,6 +237,7 @@ fn list_by_path() {
         .stderr(predicate::str::contains("No library packages found in "));
 }
 
+/// Returns the canonical path to the `target/debug` directory of the package at `path`.
 // smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is
 // symlinked to `/private/var`.
 fn target_debug(path: &Path) -> Result<PathBuf> {
