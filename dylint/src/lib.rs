@@ -596,6 +596,11 @@ mod test {
     }
 
     fn name_toolchain_map() -> NameToolchainMap<'static> {
+        // smoelius: See comment regarding `CARGO_INCREMENTAL` in `list` integration test.
+        unsafe {
+            std::env::set_var(env::CARGO_INCREMENTAL, "0");
+        }
+
         NameToolchainMap::new(&OPTS)
     }
 }
