@@ -107,7 +107,7 @@ fn check_span(cx: &LateContext<'_>, span: Span) {
     if span.from_expansion() {
         return;
     }
-    let Some(source_file_range) = span.get_source_text(cx) else {
+    let Some(source_file_range) = span.get_text(cx) else {
         return;
     };
     let text = source_file_range.as_str();
