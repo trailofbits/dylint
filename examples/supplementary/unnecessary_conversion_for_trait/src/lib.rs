@@ -574,7 +574,7 @@ fn inner_arg_implements_traits<'tcx>(
     }
 
     predicates.iter().all(|predicate| {
-        let predicate = EarlyBinder::bind(predicate)
+        let clause = EarlyBinder::bind(cx.tcx, clause)
             .instantiate(cx.tcx, substs_with_new_ty.as_slice())
             .skip_norm_wip();
         let obligation = Obligation::new(cx.tcx, ObligationCause::dummy(), cx.param_env, predicate);
@@ -631,7 +631,9 @@ fn replace_types<'tcx>(
                         .projection_term
                         .with_replaced_self_ty(cx.tcx, new_ty)
                         .expect_ty(cx.tcx)
-                        .to_ty(cx.tcx);
+                        .to_ty(cx.tcx,
+
+        ) ;
 
                     if let Ok(projected_ty) = cx.tcx.try_normalize_erasing_regions(
                         cx.typing_env(),
