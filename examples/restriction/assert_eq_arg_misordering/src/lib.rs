@@ -69,7 +69,7 @@ impl<'tcx> LateLintPass<'tcx> for AssertEqArgMisordering {
         else {
             return;
         };
-        if !is_const_evaluatable(cx, left) && is_const_evaluatable(cx, right) {
+        if !is_const_param_evaluatable(cx, left) && is_const_evaluatable(cx, right) {
             span_lint_and_sugg(
                 cx,
                 ASSERT_EQ_ARG_MISORDERING,
