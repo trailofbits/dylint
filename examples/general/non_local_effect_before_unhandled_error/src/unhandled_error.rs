@@ -153,6 +153,15 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
             } => {
                 let changed = state.insert(destination.local);
                 if let Some((def_id, substs)) = func.const_fn_def() {
+                    if destination.local == RETURN_PLACE
+                        && self.cx.tcx.lang_items().from_residual_fn() == Some(def_id)
+                        && is_result(self.cx, self.mir.local_decls[RETURN_PLACE].ty)
+                    {
+                        // Returning a residual reports failure to the caller, so do not treat
+                        // errors from earlier calls as silently discarded along this path.
+                        state.clear();
+                        return state;
+                    }
                     let fn_sig = EarlyBinder::bind(self.cx.tcx.fn_sig(def_id).skip_binder())
                         .instantiate(self.cx.tcx, substs);
                     let output = fn_sig.skip_binder().output();
