@@ -50,5 +50,39 @@ note: error is determined here
 LL |     Err(VarError::NotPresent)
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: 3 warnings emitted
+warning: unhandled call to `non_local_effect_deref_assign`, which performs a non-local effect before returning an error
+  --> $DIR/main.rs:97:19
+   |
+LL |     let _result = non_local_effect_deref_assign(flag);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: non-local effect: assignment to dereference
+  --> $DIR/main.rs:10:5
+   |
+LL |     *flag = true;
+   |     ^^^^^^^^^^^^
+note: error is determined here
+  --> $DIR/main.rs:11:5
+   |
+LL |     Err(VarError::NotPresent)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unhandled call to `non_local_effect_deref_assign`, which performs a non-local effect before returning an error
+  --> $DIR/main.rs:103:19
+   |
+LL |     let _result = non_local_effect_deref_assign(flag);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: non-local effect: assignment to dereference
+  --> $DIR/main.rs:10:5
+   |
+LL |     *flag = true;
+   |     ^^^^^^^^^^^^
+note: error is determined here
+  --> $DIR/main.rs:11:5
+   |
+LL |     Err(VarError::NotPresent)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: 5 warnings emitted
 
