@@ -26,8 +26,8 @@ use std::collections::VecDeque;
 //
 // The analysis is a hand-rolled worklist rather than an `rustc_mir_dataflow::Analysis` impl
 // because modern rustc no longer supports per-edge `SwitchInt` effects in the backward direction
-// (see rust-lang/rust#143769), and this analysis relies on pruning non-`Err` edges of a
-// `Result`/`ControlFlow`-discriminated `SwitchInt`.
+// (see rust-lang/rust#143769), and this analysis relies on applying an edge-specific effect to
+// non-error edges of a `Result`/`ControlFlow`-discriminated `SwitchInt`.
 
 /// Runs the backward analysis and returns, for each basic block, the state at the block's end in
 /// forward order (equivalent to what the old framework's `seek_to_block_end` would produce).
@@ -81,9 +81,9 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
     }
 
     // Computes the state at the end of `block` (forward order) by joining successor
-    // contributions. For a `SwitchInt` on a `Result`/`ControlFlow` discriminant, non-`Err` edges
-    // contribute the empty set — this is the per-edge effect that used to be expressed via
-    // `apply_switch_int_edge_effects` in the old framework.
+    // contributions. For a `SwitchInt` on a `Result`/`ControlFlow` discriminant, remove the
+    // discriminated local from non-error edges. Other locals must keep flowing: they may contain
+    // errors produced before the discriminated operation.
     fn state_at_end(
         &self,
         block: BasicBlock,
@@ -97,22 +97,24 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
                 DenseBitSet::new_empty(n_locals)
             }
             TerminatorKind::SwitchInt { discr, targets } => {
-                let prune = self.is_result_discriminant_switch(block, discr);
+                let discriminated_local = self.result_discriminant_local(block, discr);
                 let mut joined = DenseBitSet::new_empty(n_locals);
                 for (value, target) in targets.iter() {
-                    // Ignore `Ok` and `otherwise` edges, since we only care what happens to a
-                    // `Result` when it is an `Err`. Accomplish this by contributing the empty set
-                    // on those edges.
-                    //   The discriminant values of `Result::Err` and `ControlFlow::Break` are
+                    // The discriminant values of `Result::Err` and `ControlFlow::Break` are
                     // both 1. This check should be made more robust.
-                    if prune && value != 1 {
-                        continue;
+                    let mut contribution = state_at_start[target].clone();
+                    if value != 1
+                        && let Some(local) = discriminated_local
+                    {
+                        contribution.remove(local);
                     }
-                    joined.union(&state_at_start[target]);
+                    joined.union(&contribution);
                 }
-                if !prune {
-                    joined.union(&state_at_start[targets.otherwise()]);
+                let mut otherwise = state_at_start[targets.otherwise()].clone();
+                if let Some(local) = discriminated_local {
+                    otherwise.remove(local);
                 }
+                joined.union(&otherwise);
                 joined
             }
             _ => {
@@ -207,11 +209,9 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
     //         _3 = discriminant(_2);
     //         switchInt(move _3) -> [0_isize: bb4, 1_isize: bb2, otherwise: bb3];
     //     }
-    fn is_result_discriminant_switch(&self, block: BasicBlock, discr: &Operand<'tcx>) -> bool {
+    fn result_discriminant_local(&self, block: BasicBlock, discr: &Operand<'tcx>) -> Option<Local> {
         let basic_block = &self.mir[block];
-        let Some(discr_place) = discr.place() else {
-            return false;
-        };
+        let discr_place = discr.place()?;
         let rvalue = basic_block.statements.iter().rev().find_map(|statement| {
             if let StatementKind::Assign(box (place, rvalue)) = &statement.kind
                 && *place == discr_place
@@ -221,11 +221,12 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
                 None
             }
         });
-        let Some(Rvalue::Discriminant(place)) = rvalue else {
-            return false;
+        let Rvalue::Discriminant(place) = rvalue? else {
+            return None;
         };
         let place_ty = place.ty(&self.mir.local_decls, self.cx.tcx).ty;
-        is_lintable_result(self.cx, place_ty) || is_control_flow_of_result(self.cx, place_ty)
+        (is_lintable_result(self.cx, place_ty) || is_control_flow_of_result(self.cx, place_ty))
+            .then_some(place.local)
     }
 }
 
