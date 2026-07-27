@@ -77,6 +77,34 @@ pub fn caller_assign_then_return(flag: &mut bool) -> Result<(), VarError> {
     result
 }
 
+// --- Foo before handling a `Result` returned by a callee ---
+
+pub fn fallible_foo() -> Result<(), VarError> {
+    Err(VarError::NotPresent)
+}
+
+pub fn optional_foo() -> Option<()> {
+    None
+}
+
+pub fn caller_foo_before_propagating(flag: &mut bool) -> Result<(), VarError> {
+    let result = non_local_effect_deref_assign(flag);
+    fallible_foo()?;
+    result
+}
+
+pub fn caller_foo_then_drop(flag: &mut bool) -> Result<(), VarError> {
+    let _result = non_local_effect_deref_assign(flag);
+    fallible_foo()?;
+    Ok(())
+}
+
+pub fn caller_optional_foo_then_drop(flag: &mut bool) -> Option<()> {
+    let _result = non_local_effect_deref_assign(flag);
+    optional_foo()?;
+    Some(())
+}
+
 // --- Call to function without non-local effects: never warns ---
 
 pub fn caller_ignore_call_with_no_non_local_effect(x: u32) {
