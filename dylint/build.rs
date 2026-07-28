@@ -1,12 +1,15 @@
 use dylint_internal::{cargo::cargo_home, env};
 use std::{fs::OpenOptions, io::Write, path::Path};
 
+const DYLINT_DRIVER_FROM_CRATES_IO: &str = "DYLINT_DRIVER_FROM_CRATES_IO";
+
 fn main() {
     write_dylint_driver_manifest_dir();
 
     #[cfg(feature = "__cargo_cli")]
     println!("cargo:rustc-cfg=__library_packages");
 
+    println!("cargo:rerun-if-env-changed={DYLINT_DRIVER_FROM_CRATES_IO}");
     println!("cargo:rerun-if-changed=build.rs");
 }
 
@@ -22,6 +25,7 @@ fn write_dylint_driver_manifest_dir() {
             .parent()
             .is_some_and(|path| path.ends_with("target/package"))
         || env::var(env::DOCS_RS).is_ok()
+        || env::var(DYLINT_DRIVER_FROM_CRATES_IO).is_ok()
     {
         "None".to_owned()
     } else {
