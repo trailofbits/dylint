@@ -17,7 +17,8 @@ fn write_dylint_driver_manifest_dir() {
     #[cfg_attr(dylint_lib = "general", allow(abs_home_path))]
     let dylint_manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
 
-    let dylint_driver_manifest_dir = if dylint_manifest_dir.starts_with(cargo_home)
+    let dylint_driver_manifest_dir = if cfg!(feature = "__driver_from_crates_io")
+        || dylint_manifest_dir.starts_with(cargo_home)
         || dylint_manifest_dir
             .parent()
             .is_some_and(|path| path.ends_with("target/package"))

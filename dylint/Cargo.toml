@@ -84,6 +84,7 @@ __cargo_cli = [
     "toml",
     "url",
 ]
+__driver_from_crates_io = []
 
 [lints]
 workspace = true
