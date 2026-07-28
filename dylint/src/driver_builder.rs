@@ -245,6 +245,7 @@ mod test {
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    #[cfg(not(feature = "__driver_from_crates_io"))]
     #[test]
     fn nightly() {
         let tempdir = tempdir().unwrap();
@@ -257,7 +258,7 @@ mod test {
     // smoelius: This test passes on macOS but for the wrong reason. On recent macOS versions (e.g.,
     // Tahoe), if you copy `/bin/sleep` to you local directory and run it, it will be killed, even
     // without `child.kill()`. I haven't yet figured out how best to address this.
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(all(not(feature = "__driver_from_crates_io"), not(target_os = "macos")))]
     #[test]
     fn can_install_while_driver_is_running() {
         use std::process::{Command, ExitStatus};
@@ -286,5 +287,45 @@ mod test {
 
         child.kill().unwrap();
         let _: ExitStatus = child.wait().unwrap();
+    }
+
+    // smoelius: The `driver_from_crates_io` test is disabled for normal CI. Run it locally with the
+    // following command:
+    // ```
+    // cargo test -p dylint --features=__driver_from_crates_io driver_from_crates_io -- --ignored --nocapture
+    // ```
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    #[cfg(feature = "__driver_from_crates_io")]
+    #[ignore = "requires current `dylint_driver` version to be published"]
+    #[test]
+    fn driver_from_crates_io() {
+        use std::fs::read_to_string;
+
+        let tempdir = tempdir().unwrap();
+        initialize("nightly", tempdir.path()).unwrap();
+
+        let contents = read_to_string(tempdir.path().join("Cargo.toml")).unwrap();
+        let dependency = contents
+            .lines()
+            .find(|line| line.starts_with("dylint_driver = "))
+            .unwrap();
+        assert_eq!(
+            concat!(
+                "dylint_driver = { version = \"=",
+                env!("CARGO_PKG_VERSION"),
+                "\" }"
+            ),
+            dependency
+        );
+
+        build(&opts::Dylint::default(), "nightly", tempdir.path()).unwrap();
+        assert!(
+            !is_outdated(
+                &opts::Dylint::default(),
+                "nightly",
+                &tempdir.path().join("dylint-driver")
+            )
+            .unwrap()
+        );
     }
 }
