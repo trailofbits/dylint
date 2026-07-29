@@ -64,6 +64,8 @@ fn main() -> Result<()> {
     // negative tests
     let contents = read_to_string(path).unwrap();
 
+    let file: String = read_to_string(path).unwrap();
+
     let lines = Cursor::new([]).lines();
 
     let bar = private::foo();

@@ -20,8 +20,9 @@ use std::collections::BTreeMap;
 dylint_linting::declare_late_lint! {
     /// ### What it does
     ///
-    /// Checks for variables satisfying the following three conditions:
+    /// Checks for variables satisfying the following four conditions:
     ///
+    /// - The variable is declared without an explicit type.
     /// - The variable is initialized with the result of a function call.
     /// - The variable's name matches the name of a type defined within the module in which the
     ///   function is defined.
@@ -60,6 +61,7 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
                         kind: PatKind::Binding(_, _, ident, _),
                         ..
                     },
+                ty: None,
                 init: Some(init),
                 ..
             }) = stmt.kind
