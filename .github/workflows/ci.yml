@@ -166,7 +166,8 @@ jobs:
             fi
             cargo test -p "$PACKAGE" "$TEST"
           else
-            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint_examples --exclude expensive --exclude scheduled
+            cargo test --all-features --workspace --exclude cargo-dylint --exclude dylint --exclude dylint_examples --exclude expensive --exclude scheduled
+            cargo test -p dylint --features=library_packages,package_options
 
             # smoelius: The `cdylib` -> `lib` trick is due to @MinerSebas.
             for X in examples/*/*; do
