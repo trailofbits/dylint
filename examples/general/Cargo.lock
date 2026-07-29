@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "abs_home_path"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -107,7 +107,7 @@ checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
 
 [[package]]
 name = "await_holding_span_guard"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -118,7 +118,7 @@ dependencies = [
 
 [[package]]
 name = "basic_dead_store"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -240,7 +240,7 @@ dependencies = [
 
 [[package]]
 name = "crate_wide_allow"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "assert_cmd",
  "clippy_utils",
@@ -337,7 +337,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -353,7 +353,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -373,7 +373,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -386,7 +386,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -478,7 +478,7 @@ dependencies = [
 
 [[package]]
 name = "general"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "abs_home_path",
  "await_holding_span_guard",
@@ -557,7 +557,7 @@ dependencies = [
 
 [[package]]
 name = "incorrect_matches_operation"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -727,7 +727,7 @@ dependencies = [
 
 [[package]]
 name = "non_local_effect_before_unhandled_error"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "bitflags 2.13.1",
  "clippy_utils",
@@ -740,7 +740,7 @@ dependencies = [
 
 [[package]]
 name = "non_thread_safe_call_in_test"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -1381,7 +1381,7 @@ checksum = "23b97319f7b8343df12cc98938e5c3eb436064524c8d2b4e30a1d3a36eecdf81"
 
 [[package]]
 name = "wrong_serialize_struct_arg"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
