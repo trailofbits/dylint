@@ -574,6 +574,84 @@
         "name": "Matt Mastracci"
       }
     ],
+    "defmt": [
+      {
+        "id": 246,
+        "kind": "user",
+        "login": "japaric",
+        "name": "Jorge Aparicio"
+      },
+      {
+        "id": 2769,
+        "kind": "team",
+        "login": "github:knurling-rs:crate-owners",
+        "name": "crate-owners"
+      },
+      {
+        "id": 84779,
+        "kind": "user",
+        "login": "jonathanpallant",
+        "name": "Jonathan Pallant"
+      },
+      {
+        "id": 336166,
+        "kind": "user",
+        "login": "knurling-infra",
+        "name": null
+      }
+    ],
+    "defmt-macros": [
+      {
+        "id": 246,
+        "kind": "user",
+        "login": "japaric",
+        "name": "Jorge Aparicio"
+      },
+      {
+        "id": 2769,
+        "kind": "team",
+        "login": "github:knurling-rs:crate-owners",
+        "name": "crate-owners"
+      },
+      {
+        "id": 84779,
+        "kind": "user",
+        "login": "jonathanpallant",
+        "name": "Jonathan Pallant"
+      },
+      {
+        "id": 336166,
+        "kind": "user",
+        "login": "knurling-infra",
+        "name": null
+      }
+    ],
+    "defmt-parser": [
+      {
+        "id": 246,
+        "kind": "user",
+        "login": "japaric",
+        "name": "Jorge Aparicio"
+      },
+      {
+        "id": 2769,
+        "kind": "team",
+        "login": "github:knurling-rs:crate-owners",
+        "name": "crate-owners"
+      },
+      {
+        "id": 84779,
+        "kind": "user",
+        "login": "jonathanpallant",
+        "name": "Jonathan Pallant"
+      },
+      {
+        "id": 336166,
+        "kind": "user",
+        "login": "knurling-infra",
+        "name": null
+      }
+    ],
     "diff": [
       {
         "id": 297,
@@ -922,12 +1000,6 @@
     ],
     "git2": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
         "id": 4333,
         "kind": "user",
         "login": "joshtriplett",
@@ -1012,28 +1084,16 @@
     ],
     "home": [
       {
-        "id": 443,
-        "kind": "user",
-        "login": "brson",
-        "name": "Brian Anderson"
-      },
-      {
-        "id": 3959,
-        "kind": "user",
-        "login": "LucioFranco",
-        "name": "Lucio Franco"
-      },
-      {
         "id": 6202,
         "kind": "user",
         "login": "ehuss",
         "name": "Eric Huss"
       },
       {
-        "id": 45329,
+        "id": 11164,
         "kind": "user",
-        "login": "kinnison",
-        "name": "Daniel Silverstone"
+        "login": "weihanglo",
+        "name": "Weihang Lo"
       },
       {
         "id": 55123,
@@ -1252,12 +1312,32 @@
         "name": "Andrew Gallant"
       }
     ],
+    "jiff-core": [
+      {
+        "id": 189,
+        "kind": "user",
+        "login": "BurntSushi",
+        "name": "Andrew Gallant"
+      }
+    ],
     "jobserver": [
+      {
+        "id": 408,
+        "kind": "team",
+        "login": "github:rust-lang:compiler",
+        "name": "compiler"
+      },
       {
         "id": 1094,
         "kind": "user",
         "login": "petrochenkov",
         "name": "Vadim Petrochenkov"
+      },
+      {
+        "id": 16264,
+        "kind": "team",
+        "login": "github:rust-lang:cargo",
+        "name": "cargo"
       },
       {
         "id": 55123,
@@ -1325,12 +1405,6 @@
       }
     ],
     "libgit2-sys": [
-      {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
       {
         "id": 4333,
         "kind": "user",
