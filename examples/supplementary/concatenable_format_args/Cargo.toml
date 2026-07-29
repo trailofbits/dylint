@@ -1,6 +1,6 @@
 [package]
 name = "concatenable_format_args"
-version = "6.0.1"
+version = "6.0.2"
 authors = ["Ginza Hatemi <ginzahatemi@gmail.com>"]
 description = "A lint to check for `format!(...)` invocations where `concat!(...)` could be used instead"
 edition = "2024"

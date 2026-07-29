@@ -235,7 +235,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -251,7 +251,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -269,7 +269,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -282,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -812,7 +812,7 @@ checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
 
 [[package]]
 name = "straggler"
-version = "6.0.1"
+version = "6.0.2"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
