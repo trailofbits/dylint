@@ -33,4 +33,4 @@ dylint_internal = { version = "=6.0.1", path = "../internal", features = [
 workspace = true
 
 [target.'cfg(target_os = "windows")'.dependencies]
-cc = "1.2"
+cc = "1.4"
