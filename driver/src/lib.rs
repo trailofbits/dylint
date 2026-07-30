@@ -531,42 +531,42 @@ mod test {
     #[test]
     fn no_rustc() {
         assert_eq!(
+            vec!["rustc", "--crate-name", "name"],
             rustc_args(
                 &["--crate-name", "name"],
                 None,
                 &[] as &[&str],
                 &[] as &[&Path]
             )
-            .unwrap(),
-            vec!["rustc", "--crate-name", "name"]
+            .unwrap()
         );
     }
 
     #[test]
     fn plain_rustc() {
         assert_eq!(
+            vec!["rustc", "--crate-name", "name"],
             rustc_args(
                 &["rustc", "--crate-name", "name"],
                 None,
                 &[] as &[&str],
                 &[] as &[&Path]
             )
-            .unwrap(),
-            vec!["rustc", "--crate-name", "name"]
+            .unwrap()
         );
     }
 
     #[test]
     fn qualified_rustc() {
         assert_eq!(
+            vec!["/bin/rustc", "--crate-name", "name"],
             rustc_args(
                 &["/bin/rustc", "--crate-name", "name"],
                 None,
                 &[] as &[&str],
                 &[] as &[&Path]
             )
-            .unwrap(),
-            vec!["/bin/rustc", "--crate-name", "name"]
+            .unwrap()
         );
     }
 }
