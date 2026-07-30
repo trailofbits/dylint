@@ -2,6 +2,7 @@
 #![cfg_attr(dylint_lib = "supplementary", allow(nonexistent_path_in_comment))]
 
 mod depinfo_dylint_libs;
+mod depinfo_dylint_toml;
 mod dylint_driver_path;
 mod fix;
 mod library_packages;
