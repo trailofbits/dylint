@@ -21,6 +21,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
+mod untracked_state;
+use untracked_state::{UNTRACKED_STATE_VAR, UNTRACKED_STATE_VARS, hash_from_env};
+
 pub const DYLINT_VERSION: &str = "0.1.0";
 
 type DylintVersionFunc = unsafe fn() -> *mut std::os::raw::c_char;
@@ -298,24 +301,19 @@ impl rustc_driver::Callbacks for Callbacks {
                 previous(sess, lint_store);
             }
 
-            let dylint_libs = env::var(env::DYLINT_LIBS).ok();
-            let dylint_metadata = env::var(env::DYLINT_METADATA).ok();
             let dylint_no_deps = env::var(env::DYLINT_NO_DEPS).ok();
             let dylint_no_deps_enabled = dylint_no_deps.as_ref().is_some_and(|value| value != "0");
             let cargo_primary_package_is_set = env::var(env::CARGO_PRIMARY_PACKAGE).is_ok();
 
-            sess.env_depinfo().lock().insert((
-                rustc_span::Symbol::intern(env::DYLINT_LIBS),
-                dylint_libs.as_deref().map(rustc_span::Symbol::intern),
-            ));
-            sess.env_depinfo().lock().insert((
-                rustc_span::Symbol::intern(env::DYLINT_METADATA),
-                dylint_metadata.as_deref().map(rustc_span::Symbol::intern),
-            ));
-            sess.env_depinfo().lock().insert((
-                rustc_span::Symbol::intern(env::DYLINT_NO_DEPS),
-                dylint_no_deps.as_deref().map(rustc_span::Symbol::intern),
-            ));
+            // This loop and `untracked_state::hash_from_env` are fed from the same list. See
+            // `UNTRACKED_STATE_VARS` for why a variable missing from either one is a bug.
+            for var in UNTRACKED_STATE_VARS {
+                let value = env::var(var).ok();
+                sess.env_depinfo().lock().insert((
+                    rustc_span::Symbol::intern(var),
+                    value.as_deref().map(rustc_span::Symbol::intern),
+                ));
+            }
 
             if dylint_no_deps_enabled && !cargo_primary_package_is_set {
                 return;
@@ -409,8 +407,15 @@ pub fn run<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
     let sysroot = sysroot().ok();
     let rustflags = rustflags();
     let paths = paths();
+    let untracked_state = hash_from_env(&paths)?;
 
-    let rustc_args = rustc_args(args, sysroot.as_deref(), &rustflags, &paths)?;
+    let rustc_args = rustc_args(
+        args,
+        sysroot.as_deref(),
+        &rustflags,
+        &paths,
+        untracked_state.as_deref(),
+    )?;
 
     let mut callbacks = Callbacks::new(paths);
 
@@ -449,6 +454,7 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
     sysroot: Option<&Path>,
     rustflags: &[U],
     paths: &[V],
+    untracked_state: Option<&str>,
 ) -> Result<Vec<String>> {
     let mut args = args.iter().peekable();
     let mut rustc_args = Vec::new();
@@ -477,6 +483,18 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
         } else {
             bail!("could not parse `{}`", path.as_ref().to_string_lossy());
         }
+    }
+    if let Some(untracked_state) = untracked_state {
+        rustc_args.extend([
+            // Passing `-Zunstable-options` causes rustc to register its internal lints, which are
+            // deny-by-default and meant for compiler development. Libraries are exactly the crates
+            // that use `rustc_private` and could trip them, so allow the group: asking for
+            // `--env-set` should not change which lints fire. A user can still override this, as
+            // `DYLINT_RUSTFLAGS` is appended after these arguments.
+            "--allow=rustc::internal".to_owned(),
+            "-Zunstable-options".to_owned(),
+            format!("--env-set={UNTRACKED_STATE_VAR}={untracked_state}"),
+        ]);
     }
     rustc_args.extend(args.map(|s| s.as_ref().to_string_lossy().to_string()));
     rustc_args.extend(
