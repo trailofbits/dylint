@@ -1,4 +1,4 @@
-warning: arguments are "non-const, const", which looks like "actual, expected"
+warning: arguments are "non-const, const-like", which looks like "actual, expected"
   --> $DIR/main.rs:9:16
    |
 LL |     assert_eq!(x, 0);
@@ -6,7 +6,7 @@ LL |     assert_eq!(x, 0);
    |
    = note: `#[warn(assert_eq_arg_misordering)]` on by default
 
-warning: arguments are "non-const, const", which looks like "actual, expected"
+warning: arguments are "non-const, const-like", which looks like "actual, expected"
   --> $DIR/main.rs:14:9
    |
 LL | /         variable_with_a_really_long_name,
@@ -19,11 +19,36 @@ LL ~         CONST_WITH_A_REALLY_LONG_NAME,
 LL +         variable_with_a_really_long_name
    |
 
-warning: arguments are "non-const, const", which looks like "actual, expected"
+warning: arguments are "non-const, const-like", which looks like "actual, expected"
   --> $DIR/main.rs:20:16
    |
 LL |     assert_eq!(x, 0, "this is a message (with parens)");
    |                ^^^^ help: prefer "expected, actual": `0, x`
 
-warning: 3 warnings emitted
+warning: arguments are "non-const, const-like", which looks like "actual, expected"
+  --> $DIR/main.rs:32:16
+   |
+LL |     assert_eq!(x, vec![0, 1, 2]);
+   |                ^^^^^^^^^^^^^^^^ help: prefer "expected, actual": `vec![0, 1, 2], x`
+
+warning: arguments are "non-const, const-like", which looks like "actual, expected"
+  --> $DIR/main.rs:36:16
+   |
+LL |     assert_eq!(x, vec![0; 3]);
+   |                ^^^^^^^^^^^^^ help: prefer "expected, actual": `vec![0; 3], x`
+
+warning: arguments are "non-const, const-like", which looks like "actual, expected"
+  --> $DIR/main.rs:46:9
+   |
+LL | /         vec_with_a_really_long_name,
+LL | |         vec![CONST_WITH_A_REALLY_LONG_NAME, CONST_WITH_A_REALLY_LONG_NAME]
+   | |__________________________________________________________________________^
+   |
+help: prefer "expected, actual"
+   |
+LL ~         vec![CONST_WITH_A_REALLY_LONG_NAME, CONST_WITH_A_REALLY_LONG_NAME],
+LL +         vec_with_a_really_long_name
+   |
+
+warning: 6 warnings emitted
 
