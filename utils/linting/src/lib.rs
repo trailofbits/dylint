@@ -386,7 +386,7 @@ macro_rules! declare_early_lint {
                 $(#[$attr])* $vis $NAME,
                 $Level,
                 $desc,
-                register_early_pass,
+                register_early_lint_pass,
                 || Box::new([< $NAME:camel >])
             );
             rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);

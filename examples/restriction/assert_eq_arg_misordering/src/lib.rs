@@ -108,7 +108,7 @@ fn is_const_like<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) -> bool {
         Some(VecArgs::Vec([])) => false,
         Some(VecArgs::Vec(elems)) => elems.iter().all(|elem| is_const_like(cx, elem)),
         Some(VecArgs::Repeat(elem, len)) => is_const_like(cx, elem) && is_const_like(cx, len),
-        None => is_const_evaluatable(cx, expr),
+        None => is_const_param_evaluatable(cx, expr),
     }
 }
 
