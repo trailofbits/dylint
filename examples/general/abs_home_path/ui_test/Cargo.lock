@@ -142,7 +142,7 @@ checksum = "8f50febec83f5ee1df3015341d8bd429f2d1cc62bcba7ea2076759d315084683"
 
 [[package]]
 name = "ui_test"
-version = "6.0.2"
+version = "6.0.3"
 dependencies = [
  "assert_cmd",
 ]
