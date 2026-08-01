@@ -106,7 +106,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_driver"
-version = "6.0.2"
+version = "6.0.3"
 dependencies = [
  "anyhow",
  "curl",
@@ -124,7 +124,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.0.2"
+version = "6.0.3"
 dependencies = [
  "anyhow",
  "cargo_metadata",

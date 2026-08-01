@@ -2,6 +2,11 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.0.3
+
+- Invalidate rustc's incremental cache when the set of registered lints changes ([4ca081a](https://github.com/trailofbits/dylint/commit/4ca081a67a3dd69a4ddb4c8386fb4e304fdcfd8c))
+- Remove patch versions from template manifest ([fb21b76](https://github.com/trailofbits/dylint/commit/fb21b766dbf71fcf9db57fc822af1200bd911765))
+
 ## 6.0.2
 
 - Fix a bug causing published binaries to include invalid source paths ([#2011](https://github.com/trailofbits/dylint/pull/2011)). Reported in [#1985](https://github.com/trailofbits/dylint/pull/1985) by [@clabby](https://github.com/clabby), to whom we are sincerely grateful for the initial binary publishing implementation ([#1971](https://github.com/trailofbits/dylint/pull/1971)).
