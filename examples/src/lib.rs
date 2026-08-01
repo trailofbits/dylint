@@ -1,5 +1,5 @@
 #[cfg(all(not(coverage), test))]
-mod test {
+mod tests {
     use cargo_metadata::MetadataCommand;
     use dylint_internal::{CommandExt, clippy_utils::toolchain_channel, examples::iter};
     use regex::Regex;

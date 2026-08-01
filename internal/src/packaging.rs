@@ -95,7 +95,7 @@ pub fn use_local_packages(path: &Path) -> Result<()> {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use crate::env;
     use std::fs::{copy, read, read_to_string};

@@ -489,7 +489,7 @@ fn target_dir(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
 
 #[allow(clippy::unwrap_used)]
 #[cfg(all(test, __library_packages))]
-mod test {
+mod tests {
     use super::*;
     use std::sync::Mutex;
 
