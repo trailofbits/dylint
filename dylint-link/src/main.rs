@@ -214,7 +214,7 @@ fn strip_deps(path: &Path) -> PathBuf {
 
 #[allow(clippy::unwrap_used)]
 #[cfg(test)]
-mod test {
+mod tests {
     use super::env;
     use assert_cmd::prelude::*;
     use dylint_internal::{CommandExt, packaging::isolate};

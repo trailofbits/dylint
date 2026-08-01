@@ -380,7 +380,7 @@ fn enabled(name: &str) -> bool {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use std::env::set_var;
 

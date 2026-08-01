@@ -1,7 +1,7 @@
 fn main() {}
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::sync::Mutex;
 
     #[rustfmt::skip]

@@ -240,7 +240,7 @@ components = ["llvm-tools-preview", "rustc-dev"]
 
 #[allow(clippy::unwrap_used)]
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.

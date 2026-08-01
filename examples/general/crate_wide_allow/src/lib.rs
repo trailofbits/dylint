@@ -71,7 +71,7 @@ impl EarlyLintPass for CrateWideAllow {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use assert_cmd::{Command, assert::Assert};
     use dylint_internal::{env, testing::cargo_dylint};
     use predicates::prelude::*;

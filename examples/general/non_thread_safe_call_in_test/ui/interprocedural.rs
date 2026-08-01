@@ -1,7 +1,7 @@
 fn main() {}
 
 #[cfg(test)]
-mod test {
+mod tests {
     #[test]
     fn foo() {
         set_var();

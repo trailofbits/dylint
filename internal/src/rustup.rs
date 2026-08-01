@@ -212,7 +212,7 @@ const ARCHITECTURES: &[&str] = &[
 
 #[allow(clippy::unwrap_used)]
 #[cfg(test)]
-mod test {
+mod tests {
     use super::{ARCHITECTURES, Command};
     use assert_cmd::prelude::*;
 

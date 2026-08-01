@@ -136,7 +136,7 @@ impl Iterator for RevIter<'_> {
 
 #[allow(clippy::unwrap_used)]
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use std::sync::LazyLock;
 

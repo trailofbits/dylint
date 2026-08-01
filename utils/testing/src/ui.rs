@@ -111,7 +111,7 @@ impl Test {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
 
     // smoelius: Verify that `rustc_flags` compiles when used as intended.
