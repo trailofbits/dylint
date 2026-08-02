@@ -77,7 +77,7 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@v2.85.5
         with:
           tool: rsign2
           fallback: cargo-install
