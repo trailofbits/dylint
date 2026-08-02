@@ -18,6 +18,7 @@ Dylint is a Rust linting tool, similar to Clippy. But whereas Clippy runs a pred
   - [Configurable libraries]
   - [Conditional compilation]
   - [VS Code integration]
+- [Caching in CI]
 - [Utilities]
 - [Resources]
 
@@ -197,6 +198,30 @@ And add the following to the library's `Cargo.toml` file:
 rustc_private = true
 ```
 
+### Caching in CI
+
+If you run Dylint in CI, we recommend caching certain directories to avoid rebuilding libraries, rebuilding drivers, or redownloading toolchains.
+
+Current [Rust - Cargo guidance] recommends caching these directories:
+
+```yaml
+~/.cargo/bin/
+~/.cargo/registry/index/
+~/.cargo/registry/cache/
+~/.cargo/git/db/
+target/
+```
+
+In addition, we recommend caching these directories:
+
+```yaml
+~/.cargo/git/checkouts/
+~/.dylint_drivers/
+~/.rustup/toolchains/
+```
+
+Also, if you do not cache `target/`, we recommend at least caching `target/dylint/`.
+
 ## Utilities
 
 The following utilities can be helpful for writing Dylint libraries:
@@ -225,6 +250,7 @@ Helpful resources for writing lints include the following:
 
 [Adding a new lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md
 [Author lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md#author-lint
+[Caching in CI]: #caching-in-ci
 [Common tools for writing lints]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/common_tools_writing_lints.md
 [Conditional compilation]: #conditional-compilation
 [Configurable libraries]: #configurable-libraries
@@ -240,6 +266,7 @@ Helpful resources for writing lints include the following:
 [Quick start]: #quick-start
 [Resources]: #resources
 [Running Dylint]: #running-dylint
+[Rust - Cargo guidance]: https://github.com/actions/cache/blob/b9bf592b98b6a5d0cad9929c76247de1cac78abe/examples.md#rust---cargo
 [Struct `rustc_lint::LateContext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html
 [Test coverage]: https://trailofbits.github.io/dylint/coverage/index.html
 [Utilities]: #utilities
