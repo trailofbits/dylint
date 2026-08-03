@@ -45,16 +45,16 @@ pub fn iter(workspace: bool) -> Result<impl Iterator<Item = Result<PathBuf>>> {
         .map(move |entry| -> Result<Option<PathBuf>> {
             let entry = entry?;
             let path = entry.path();
-            let rust_toolchain_path = path.join("rust-toolchain");
+            let rust_toolchain_toml_path = path.join("rust-toolchain.toml");
             let cargo_toml_path = path.join("Cargo.toml");
             if entry.depth() < 1 || !path.is_dir() {
                 return Ok(None);
             }
             if workspace
-                && rust_toolchain_path.try_exists().with_context(|| {
+                && rust_toolchain_toml_path.try_exists().with_context(|| {
                     format!(
                         "Could not determine whether `{}` exists",
-                        rust_toolchain_path.display()
+                        rust_toolchain_toml_path.display()
                     )
                 })?
             {

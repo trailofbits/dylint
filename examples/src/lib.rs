@@ -117,7 +117,7 @@ mod tests {
         for path in iter(true).unwrap() {
             let path = path.unwrap();
 
-            let contents = read_to_string(path.join("rust-toolchain")).unwrap();
+            let contents = read_to_string(path.join("rust-toolchain.toml")).unwrap();
             let table = toml::from_str::<toml::Table>(&contents).unwrap();
             let array = table
                 .get("toolchain")
@@ -139,7 +139,11 @@ mod tests {
     #[test]
     fn examples_do_not_contain_forbidden_paths() {
         let forbidden_files_general = [".gitignore"];
-        let forbidden_files_specific = [".cargo/config.toml", "rust-toolchain"];
+        let forbidden_files_specific = [
+            ".cargo/config.toml",
+            "rust-toolchain",
+            "rust-toolchain.toml",
+        ];
         let allowed_dirs = ["experimental", "testing"];
         let root_dirs_with_exceptions = ["general", "supplementary", "restriction"];
 

@@ -112,7 +112,7 @@ mod tests {
             ".gitignore",
             "Cargo.toml",
             "README.md",
-            "rust-toolchain",
+            "rust-toolchain.toml",
             "src/lib.rs",
             "ui/main.rs",
             "ui/main.stderr",

@@ -142,11 +142,11 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
         );
     }
 
-    let rust_toolchain_path = path.join("rust-toolchain");
+    let rust_toolchain_toml_path = path.join("rust-toolchain.toml");
     let cargo_toml_path = path.join("Cargo.toml");
 
-    let mut rust_toolchain_backup =
-        Backup::new(rust_toolchain_path).with_context(|| "Could not backup `rust-toolchain`")?;
+    let mut rust_toolchain_backup = Backup::new(rust_toolchain_toml_path)
+        .with_context(|| "Could not backup `rust-toolchain.toml`")?;
     let mut cargo_toml_backup =
         Backup::new(cargo_toml_path).with_context(|| "Could not backup `Cargo.toml`")?;
 
