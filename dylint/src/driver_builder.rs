@@ -195,11 +195,11 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
     let cargo_toml_path = package.join("Cargo.toml");
     write(&cargo_toml_path, cargo_toml(toolchain, &dylint_driver_spec))
         .with_context(|| format!("`write` failed for `{}`", cargo_toml_path.to_string_lossy()))?;
-    let rust_toolchain_path = package.join("rust-toolchain");
-    write(&rust_toolchain_path, rust_toolchain(toolchain)).with_context(|| {
+    let rust_toolchain_toml_path = package.join("rust-toolchain.toml");
+    write(&rust_toolchain_toml_path, rust_toolchain(toolchain)).with_context(|| {
         format!(
             "`write` failed for `{}`",
-            rust_toolchain_path.to_string_lossy()
+            rust_toolchain_toml_path.to_string_lossy()
         )
     })?;
     let src = package.join("src");
