@@ -41,8 +41,7 @@ pub fn iter(workspace: bool) -> Result<impl Iterator<Item = Result<PathBuf>>> {
     let examples = cargo_util::paths::normalize_path(path);
     let iter = WalkDir::new(examples)
         .into_iter()
-        .filter_entry(|entry| entry.depth() <= 2);
-    Ok(iter
+        .filter_entry(|entry| entry.depth() <= 2)
         .map(move |entry| -> Result<Option<PathBuf>> {
             let entry = entry?;
             let path = entry.path();
@@ -73,5 +72,6 @@ pub fn iter(workspace: bool) -> Result<impl Iterator<Item = Result<PathBuf>>> {
             }
             Ok(None)
         })
-        .filter_map(Result::transpose))
+        .filter_map(Result::transpose);
+    Ok(iter)
 }
