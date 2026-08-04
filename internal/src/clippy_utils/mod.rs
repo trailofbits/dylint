@@ -2,7 +2,7 @@ use anyhow::{Context, Result, anyhow, bail};
 use semver::Version;
 use std::{
     fs::{read_to_string, write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 use toml_edit::{DocumentMut, Item, Value};
 
@@ -73,21 +73,8 @@ pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()
 
 /// Extracts the `toolchain.channel` setting from a `rust-toolchain` or `rust-toolchain.toml` file
 pub fn toolchain_channel(path: &Path) -> Result<String> {
-    let rust_toolchain = path.join("rust-toolchain");
-    let rust_toolchain_toml = path.join("rust-toolchain.toml");
-    let contents = match read_to_string(&rust_toolchain) {
-        Ok(contents) => contents,
-        Err(error) => match read_to_string(&rust_toolchain_toml) {
-            Ok(contents) => contents,
-            Err(error_toml) => {
-                bail!(
-                    "`read_to_string` failed for both `{}` and `{}`: {:#?}",
-                    rust_toolchain.to_string_lossy(),
-                    rust_toolchain_toml.to_string_lossy(),
-                    [error, error_toml]
-                );
-            }
-        },
+    let Some((_, contents)) = read_rust_toolchain_file(path)? else {
+        bail!("Could not find rust-toolchain file at `{}`", path.display());
     };
     let table = toml::from_str::<toml::Table>(&contents)?;
     table
@@ -101,13 +88,9 @@ pub fn toolchain_channel(path: &Path) -> Result<String> {
 
 /// Sets `toolchain.channel` in a `rust-toolchain` or `rust-toolchain.toml` file
 pub fn set_toolchain_channel(path: &Path, channel: &str) -> Result<()> {
-    let rust_toolchain = path.join("rust-toolchain");
-    let contents = read_to_string(&rust_toolchain).with_context(|| {
-        format!(
-            "`read_to_string` failed for `{}`",
-            rust_toolchain.to_string_lossy(),
-        )
-    })?;
+    let Some((path_used, contents)) = read_rust_toolchain_file(path)? else {
+        bail!("Could not find rust-toolchain file at `{}`", path.display());
+    };
     let mut document = contents.parse::<DocumentMut>()?;
     document
         .as_table_mut()
@@ -117,5 +100,93 @@ pub fn set_toolchain_channel(path: &Path, channel: &str) -> Result<()> {
         .and_then(Item::as_value_mut)
         .map(|value| *value = Value::from(channel))
         .ok_or_else(|| anyhow!("Could not set Rust toolchain channel"))?;
-    write(rust_toolchain, document.to_string()).map_err(Into::into)
+    write(path_used, document.to_string()).map_err(Into::into)
+}
+
+pub fn read_rust_toolchain_file(path: &Path) -> Result<Option<(PathBuf, String)>> {
+    // smoelius: Rustup gives precedence to `rust-toolchain` over `rust-toolchain.toml`:
+    // https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file
+    let rust_toolchain_path = path.join("rust-toolchain");
+    let rust_toolchain_toml_path = path.join("rust-toolchain.toml");
+    if rust_toolchain_path.try_exists().with_context(|| {
+        format!(
+            "Could not determine whether `{}` exists",
+            rust_toolchain_path.display(),
+        )
+    })? {
+        let contents = read_to_string(&rust_toolchain_path).with_context(|| {
+            format!(
+                "`read_to_string` failed for `{}`",
+                rust_toolchain_path.display(),
+            )
+        })?;
+        return Ok(Some((rust_toolchain_path, contents)));
+    }
+    if rust_toolchain_toml_path.try_exists().with_context(|| {
+        format!(
+            "Could not determine whether `{}` exists",
+            rust_toolchain_toml_path.display(),
+        )
+    })? {
+        let contents = read_to_string(&rust_toolchain_toml_path).with_context(|| {
+            format!(
+                "`read_to_string` failed for `{}`",
+                rust_toolchain_toml_path.display(),
+            )
+        })?;
+        return Ok(Some((rust_toolchain_toml_path, contents)));
+    }
+    Ok(None)
+}
+
+#[allow(clippy::unwrap_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::read_dir;
+    use tempfile::tempdir;
+
+    const BEFORE: &str = r#"[toolchain]
+channel = "nightly-2025-01-02"
+components = ["llvm-tools-preview", "rustc-dev"]
+"#;
+
+    const AFTER: &str = r#"[toolchain]
+channel = "nightly-2025-03-04"
+components = ["llvm-tools-preview", "rustc-dev"]
+"#;
+
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    #[test]
+    fn set_toolchain_channel_rust_toolchain() {
+        check_set_toolchain_channel("rust-toolchain");
+    }
+
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    #[test]
+    fn set_toolchain_channel_rust_toolchain_toml() {
+        check_set_toolchain_channel("rust-toolchain.toml");
+    }
+
+    fn check_set_toolchain_channel(filename: &str) {
+        let tempdir = tempdir().unwrap();
+        write(tempdir.path().join(filename), BEFORE).unwrap();
+
+        set_toolchain_channel(tempdir.path(), "nightly-2025-03-04").unwrap();
+
+        assert_eq!(
+            "nightly-2025-03-04",
+            toolchain_channel(tempdir.path()).unwrap()
+        );
+
+        // The channel should be the only thing that changed.
+        assert_eq!(
+            AFTER,
+            read_to_string(tempdir.path().join(filename)).unwrap()
+        );
+
+        // The file that was present should have been written; the other should not have been
+        // created.
+        assert_eq!(1, read_dir(&tempdir).unwrap().count());
+    }
 }
