@@ -22,6 +22,10 @@ dylint_internal = { version = "=6.0.3", path = "../../internal", features = [
 [build-dependencies]
 toml = "1.1"
 
+dylint_internal = { version = "=6.0.3", path = "../../internal", features = [
+    "clippy_utils",
+] }
+
 [dev-dependencies]
 assert_cmd = "2.2"
 rustc_version = "0.4"

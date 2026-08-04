@@ -8,16 +8,17 @@ fn main() {
 }
 
 fn check_components() {
-    use std::{fs::read_to_string, path::Path};
+    use dylint_internal::{clippy_utils, env};
+    use std::{env::var_os, path::PathBuf};
     use toml::{Table, Value};
 
-    let rust_toolchain = Path::new("rust-toolchain");
+    let manifest_dir = var_os(env::CARGO_MANIFEST_DIR).unwrap();
+    let path = PathBuf::from(manifest_dir);
 
-    if !rust_toolchain.try_exists().unwrap() {
+    let Some((_, contents)) = clippy_utils::read_rust_toolchain_file(&path).unwrap() else {
         return;
-    }
+    };
 
-    let contents = read_to_string(rust_toolchain).unwrap();
     let table = contents.parse::<Table>().unwrap();
     let array = table
         .get("toolchain")
