@@ -137,6 +137,23 @@ fn is_concatenable_format_args(snippet: &str) -> bool {
     has_env_macro
 }
 
+/// Extract a supported argument (a cooked string literal or an `env!(...)`-named macro invocation,
+/// including qualified paths like `std::env!`) and return whether it is the macro form along with
+/// the remaining input.
+fn extract_concat_arg(s: &str) -> Option<(bool, &str)> {
+    if let Some((name, _, rest)) = parse_macro_invocation(s)
+        && is_env_macro(name)
+    {
+        return Some((true, rest));
+    }
+
+    if let Some(rest) = skip_string(s) {
+        return Some((false, rest));
+    }
+
+    None
+}
+
 /// Parse a macro invocation and return its name, arguments, and remaining input.
 fn parse_macro_invocation(snippet: &str) -> Option<(&str, &str, &str)> {
     let snippet = snippet.trim_start();
@@ -178,23 +195,6 @@ fn parse_format_string(s: &str) -> Option<&str> {
             }
             continue;
         }
-    }
-
-    None
-}
-
-/// Extract a supported argument (a cooked string literal or an `env!(...)`-named macro invocation,
-/// including qualified paths like `std::env!`) and return whether it is the macro form along with
-/// the remaining input.
-fn extract_concat_arg(s: &str) -> Option<(bool, &str)> {
-    if let Some((name, _, rest)) = parse_macro_invocation(s)
-        && is_env_macro(name)
-    {
-        return Some((true, rest));
-    }
-
-    if let Some(rest) = skip_string(s) {
-        return Some((false, rest));
     }
 
     None
