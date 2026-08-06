@@ -2,7 +2,11 @@
 
 ### What it does
 
-It enforces a certain relative order among functions defined within a module.
+It enforces a relative order among functions defined within a module. Callers must precede
+their module-local callees. Functions called by the same caller should appear in call order,
+unless that ordering would conflict with caller-callee constraints. Caller-callee
+constraints take precedence, and a call-order constraint is ignored if adding it would
+create a cycle.
 
 ### Why is this bad?
 

@@ -16,7 +16,11 @@ use std::collections::{HashMap, HashSet};
 dylint_linting::declare_late_lint! {
     /// ### What it does
     ///
-    /// It enforces a certain relative order among functions defined within a module.
+    /// It enforces a relative order among functions defined within a module. Callers must precede
+    /// their module-local callees. Functions called by the same caller should appear in call order,
+    /// unless that ordering would conflict with caller-callee constraints. Caller-callee
+    /// constraints take precedence, and a call-order constraint is ignored if adding it would
+    /// create a cycle.
     ///
     /// ### Why is this bad?
     ///
@@ -43,7 +47,7 @@ dylint_linting::declare_late_lint! {
     /// ```
     pub NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
     Warn,
-    "Enforce callers before callees and consistent order of callees (module-local functions)"
+    "Enforce callers before callees and compatible call ordering among module-local functions"
 }
 
 struct Callee {
