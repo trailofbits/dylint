@@ -1,0 +1,49 @@
+[package]
+name = "disallowed_pattern"
+version = "5.0.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "description goes here"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0"
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "0450db33a5d8587f7c1d4b6d233dac963605766b" }
+libloading = "0.8"
+match_hir = { path = "../../../match_hir" }
+paste = "1.0"
+quote = "1.0"
+serde = "1.0"
+syn = "2.0"
+tempfile = "3.17"
+
+dylint_internal = { path = "../../../internal", features = ["cargo", "rustup"] }
+dylint_linting = { path = "../../../utils/linting" }
+
+[build-dependencies]
+toml = "0.9"
+
+dylint_internal = { path = "../../../internal" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[lints.rust.unexpected_cfgs]
+level = "deny"
+check-cfg = ["cfg(dylint_lib, values(any()))"]
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../general" },
+    { path = "../../supplementary" },
+    { path = "../../testing/clippy" },
+    { path = "../../restriction/*" },
+]

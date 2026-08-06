@@ -1,0 +1,60 @@
+[package]
+name = "match_hir"
+version = "0.1.0"
+authors = ["Samuel Moelius <sam@moeli.us>"]
+description = "A library to make matching Rust's High-level IR (HIR) easier"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/trailofbits/dylint"
+
+build = "build/main.rs"
+
+[dependencies]
+paste = "1.0"
+proc-macro2 = { version = "1.0", features = ["span-locations"] }
+syn = { version = "2.0", features = [
+    "extra-traits",
+    "full",
+    "parsing",
+    "visit",
+] }
+thiserror = "2.0"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+quote = "1.0"
+snapbox = "0.6"
+
+[build-dependencies]
+inflections = "1.1"
+quote = "1.0"
+syn = { version = "2.0", features = ["extra-traits", "full"] }
+
+[lints]
+workspace = true
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[profile.release]
+debug = true
+
+[workspace]
+members = ["reflective_match"]
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+missing-errors-doc = "allow"
+missing-panics-doc = "allow"
+
+[workspace.lints.rust.unexpected_cfgs]
+level = "deny"
+check-cfg = ["cfg(dylint_lib, values(any()))"]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../examples/general" },
+    { path = "../examples/supplementary" },
+    { path = "../examples/testing/clippy" },
+    { path = "../examples/restriction/*" },
+]
