@@ -56,7 +56,7 @@ enum ConstraintReason {
     /// `foo` calls `bar` at the given span.
     CallerCallee { call_span: Span },
     /// `foo` and `bar` are both called by `caller`, with `foo` called first.
-    CalleeOrder {
+    CallOrder {
         caller: LocalDefId,
         first_call_span: Span,
         second_call_span: Span,
@@ -143,9 +143,9 @@ impl NonTopologicallySortedFunctions {
         must_come_before
     }
 
-    /// Build callee-callee constraints: if a caller calls `foo` before `bar`, then `foo`
+    /// Build call-order constraints: if a caller calls `foo` before `bar`, then `foo`
     /// must come before `bar` in the module.
-    fn build_callee_order_constraints(
+    fn build_call_order_constraints(
         caller_id: LocalDefId,
         callees: &[Callee],
         mut must_come_before: HashSet<(LocalDefId, LocalDefId)>,
@@ -155,13 +155,15 @@ impl NonTopologicallySortedFunctions {
             for j in (i + 1)..callees.len() {
                 let a = callees[i].callee_local_def_id;
                 let b = callees[j].callee_local_def_id;
-                // prefer earlier constraint: if (b,a) already exists, skip
-                if must_come_before.contains(&(b, a)) {
+                // Caller-callee constraints take precedence over call-order constraints.
+                // Skip this call-order constraint if adding it would close a cycle in the
+                // constraints accumulated thus far.
+                if Self::is_reachable(&must_come_before, b, a) {
                     continue;
                 }
                 let key = (a, b);
                 must_come_before.insert(key);
-                reasons.entry(key).or_insert(ConstraintReason::CalleeOrder {
+                reasons.entry(key).or_insert(ConstraintReason::CallOrder {
                     caller: caller_id,
                     first_call_span: callees[i].call_span,
                     second_call_span: callees[j].call_span,
@@ -169,6 +171,28 @@ impl NonTopologicallySortedFunctions {
             }
         }
         must_come_before
+    }
+
+    fn is_reachable(
+        must_come_before: &HashSet<(LocalDefId, LocalDefId)>,
+        from: LocalDefId,
+        to: LocalDefId,
+    ) -> bool {
+        let mut pending = vec![from];
+        let mut seen = HashSet::new();
+        while let Some(current) = pending.pop() {
+            if current == to {
+                return true;
+            }
+            if seen.insert(current) {
+                pending.extend(
+                    must_come_before
+                        .iter()
+                        .filter_map(|&(before, after)| (before == current).then_some(after)),
+                );
+            }
+        }
+        false
     }
 
     fn find_violations(
@@ -253,6 +277,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
         }
 
         let mut must_come_before: HashSet<(LocalDefId, LocalDefId)> = HashSet::new();
+        let mut calls = Vec::new();
         let mut reasons: HashMap<(LocalDefId, LocalDefId), ConstraintReason> = HashMap::new();
 
         for caller_id in def_order {
@@ -268,13 +293,18 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                     must_come_before,
                     &mut reasons,
                 );
-                must_come_before = Self::build_callee_order_constraints(
-                    caller_id,
-                    &callees,
-                    must_come_before,
-                    &mut reasons,
-                );
+
+                calls.push((caller_id, callees));
             }
+        }
+
+        for (caller_id, callees) in calls {
+            must_come_before = Self::build_call_order_constraints(
+                caller_id,
+                &callees,
+                must_come_before,
+                &mut reasons,
+            );
         }
 
         let violations = Self::find_violations(cx, &must_come_before, &functions);
@@ -317,7 +347,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
                                         ),
                                     );
                                 }
-                                ConstraintReason::CalleeOrder {
+                                ConstraintReason::CallOrder {
                                     caller,
                                     first_call_span,
                                     second_call_span,
