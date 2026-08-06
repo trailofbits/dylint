@@ -149,9 +149,25 @@ pub fn from_dylint_toml(opts: &opts::Dylint) -> Result<Vec<Package>> {
     }
 }
 
-static CARGO_METADATA: OnceCell<Option<Metadata>> = OnceCell::new();
+#[allow(clippy::module_name_repetitions)]
+pub fn dylint_metadata(opts: &opts::Dylint) -> Result<Option<&'static Object>> {
+    if let Some(metadata) = cargo_metadata(opts)?
+        && let serde_json::Value::Object(object) = &metadata.workspace_metadata
+        && let Some(value) = object.get("dylint")
+    {
+        if let serde_json::Value::Object(subobject) = value {
+            Ok(Some(subobject))
+        } else {
+            bail!("`dylint` value must be a map")
+        }
+    } else {
+        Ok(None)
+    }
+}
 
 fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
+    static CARGO_METADATA: OnceCell<Option<Metadata>> = OnceCell::new();
+
     CARGO_METADATA
         .get_or_try_init(|| {
             let lib_sel = opts.library_selection();
@@ -190,22 +206,6 @@ fn to_map_entry(key: &str, value: Option<&String>) -> Option<(String, toml::Valu
     value
         .cloned()
         .map(|s| (String::from(key), toml::Value::from(s)))
-}
-
-#[allow(clippy::module_name_repetitions)]
-pub fn dylint_metadata(opts: &opts::Dylint) -> Result<Option<&'static Object>> {
-    if let Some(metadata) = cargo_metadata(opts)?
-        && let serde_json::Value::Object(object) = &metadata.workspace_metadata
-        && let Some(value) = object.get("dylint")
-    {
-        if let serde_json::Value::Object(subobject) = value {
-            Ok(Some(subobject))
-        } else {
-            bail!("`dylint` value must be a map")
-        }
-    } else {
-        Ok(None)
-    }
 }
 
 fn library_packages_from_dylint_metadata(
