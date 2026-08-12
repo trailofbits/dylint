@@ -2,6 +2,7 @@
 #![warn(unused_extern_crates)]
 
 extern crate rustc_hir;
+extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::diagnostics::span_lint_and_then;
@@ -122,6 +123,12 @@ struct Finder<'a, 'tcx> {
 }
 
 impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
+    type NestedFilter = rustc_middle::hir::nested_filter::OnlyBodies;
+
+    fn maybe_tcx(&mut self) -> Self::MaybeTyCtxt {
+        self.cx.tcx
+    }
+
     fn visit_expr(&mut self, ex: &'tcx Expr<'tcx>) {
         if let ExprKind::Call(callee, _args) = &ex.kind
             && let ExprKind::Path(ref qpath) = callee.kind
