@@ -14,7 +14,10 @@ use rustc_hir::{
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Span;
-use std::collections::{HashMap, HashSet};
+use std::{
+    cmp::Ordering,
+    collections::{HashMap, HashSet},
+};
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
@@ -214,12 +217,12 @@ impl NonTopologicallySortedFunctions {
                 let span_a = functions.get(&a)?;
                 let span_b = functions.get(&b)?;
                 if span_a.lo() > span_b.hi() {
-                    let span = *span_a;
                     let name_a = cx.tcx.def_path_str(a.to_def_id());
                     let name_b = cx.tcx.def_path_str(b.to_def_id());
                     let violation = Violation {
-                        span,
-                        id_first_fn: a,
+                        span_first_fn: *span_a,
+                        span_second_fn: *span_b,
+                        id_second_fn: b,
                         name_first_fn: name_a,
                         name_second_fn: name_b,
                         reason: edge.weight,
@@ -231,35 +234,39 @@ impl NonTopologicallySortedFunctions {
             })
             .collect();
 
-        // keep the same order: sort deterministically by span.lo, span.hi, name
-        violations.sort_by(
-            |Violation {
-                 name_first_fn: name_a,
-                 span: span_a,
-                 ..
-             },
-             Violation {
-                 name_first_fn: name_b,
-                 span: span_b,
-                 ..
-             }| {
-                span_a
-                    .lo()
-                    .cmp(&span_b.lo())
-                    .then(span_a.hi().cmp(&span_b.hi()))
-                    .then(name_a.as_str().cmp(name_b.as_str()))
-            },
-        );
+        // Sort violations by the function that must move, then by the latest function it must
+        // follow. This ensures that the first violation for each misplaced function identifies
+        // its latest required position.
+        violations.sort_by(Self::compare_violations);
+
+        // A function can violate multiple incoming constraints, but moving it after the latest
+        // function it must follow satisfies all of them. Retain only that violation for each
+        // misplaced function.
+        violations.dedup_by_key(|violation| violation.id_second_fn);
 
         violations
+    }
+
+    fn compare_violations(a: &Violation, b: &Violation) -> Ordering {
+        a.span_second_fn
+            .lo()
+            .cmp(&b.span_second_fn.lo())
+            // Functions expanded from separate invocations of the same macro can share a span, so
+            // group by definition path before ordering their predecessors.
+            .then(a.name_second_fn.cmp(&b.name_second_fn))
+            // Swap the comparison arguments so that, among the target function's required
+            // predecessors, the latest appears first.
+            .then(b.span_first_fn.lo().cmp(&a.span_first_fn.lo()))
+            .then(a.name_first_fn.cmp(&b.name_first_fn))
     }
 }
 
 struct Violation {
     name_first_fn: String,
     name_second_fn: String,
-    id_first_fn: LocalDefId,
-    span: Span,
+    id_second_fn: LocalDefId,
+    span_first_fn: Span,
+    span_second_fn: Span,
     reason: ConstraintReason,
 }
 
@@ -305,66 +312,56 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
 
         let violations = Self::find_violations(cx, &constraints, &functions);
 
-        // A function can violate multiple outgoing constraints, but emitting all of them would
-        // place multiple warnings on the same definition. Because violations are sorted
-        // deterministically above, report the first violation for each misplaced function and
-        // suppress the rest.
-        let mut warned: HashSet<LocalDefId> = HashSet::new();
-
         for violation in violations {
             let Violation {
                 name_first_fn,
                 name_second_fn,
-                id_first_fn,
-                span,
+                span_second_fn,
                 reason,
+                ..
             } = violation;
-            if warned.insert(id_first_fn) {
-                span_lint_and_then(
-                    cx,
-                    NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
-                    span,
-                    "function definitions are not topologically sorted",
-                    |diag| {
-                        diag.span_label(
-                            span,
-                            format!(
-                                "function `{name_first_fn}` should be defined before `{name_second_fn}`"
-                            ),
-                        );
+            span_lint_and_then(
+                cx,
+                NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
+                span_second_fn,
+                "function definitions are not topologically sorted",
+                |diag| {
+                    diag.span_label(
+                        span_second_fn,
+                        format!(
+                            "function `{name_second_fn}` should be defined after `{name_first_fn}`"
+                        ),
+                    );
 
-                        diag.help(format!(
-                            "move {name_first_fn}'s definition to earlier in the module"
-                        ));
+                    diag.help(format!(
+                        "move {name_second_fn}'s definition to later in the module"
+                    ));
 
-                        match reason {
-                            ConstraintReason::CallerCallee { call_span } => {
-                                diag.span_note(
-                                    call_span,
-                                    format!(
-                                        "`{name_second_fn}` is called from `{name_first_fn}` here"
-                                    ),
-                                );
-                            }
-                            ConstraintReason::CallOrder {
-                                caller,
-                                first_call_span,
-                                second_call_span,
-                            } => {
-                                let caller_name = cx.tcx.def_path_str(caller.to_def_id());
-                                diag.span_note(
-                                    first_call_span,
-                                    format!("`{caller_name}` calls `{name_first_fn}` here"),
-                                );
-                                diag.span_note(
-                                    second_call_span,
-                                    format!("`{caller_name}` calls `{name_second_fn}` here"),
-                                );
-                            }
+                    match reason {
+                        ConstraintReason::CallerCallee { call_span } => {
+                            diag.span_note(
+                                call_span,
+                                format!("`{name_second_fn}` is called from `{name_first_fn}` here"),
+                            );
                         }
-                    },
-                );
-            }
+                        ConstraintReason::CallOrder {
+                            caller,
+                            first_call_span,
+                            second_call_span,
+                        } => {
+                            let caller_name = cx.tcx.def_path_str(caller.to_def_id());
+                            diag.span_note(
+                                first_call_span,
+                                format!("`{caller_name}` calls `{name_first_fn}` here"),
+                            );
+                            diag.span_note(
+                                second_call_span,
+                                format!("`{caller_name}` calls `{name_second_fn}` here"),
+                            );
+                        }
+                    }
+                },
+            );
         }
     }
 }
