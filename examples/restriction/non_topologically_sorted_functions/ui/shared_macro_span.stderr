@@ -1,0 +1,37 @@
+warning: function definitions are not topologically sorted
+  --> $DIR/shared_macro_span.rs:7:9
+   |
+LL |         fn $name() {}
+   |         ^^^^^^^^^^^^^ function `first` should be defined after `latest_predecessor`
+...
+LL | define_function!(first);
+   | ----------------------- in this macro invocation
+   |
+   = help: move first's definition to later in the module
+note: `first` is called from `latest_predecessor` here
+  --> $DIR/shared_macro_span.rs:19:5
+   |
+LL |     first();
+   |     ^^^^^^^
+   = note: `#[warn(non_topologically_sorted_functions)]` on by default
+   = note: this warning originates in the macro `define_function` (in Nightly b$DIRlds, run with -Z macro-backtrace for more info)
+
+warning: function definitions are not topologically sorted
+  --> $DIR/shared_macro_span.rs:7:9
+   |
+LL |         fn $name() {}
+   |         ^^^^^^^^^^^^^ function `second` should be defined after `latest_predecessor`
+...
+LL | define_function!(second);
+   | ------------------------ in this macro invocation
+   |
+   = help: move second's definition to later in the module
+note: `second` is called from `latest_predecessor` here
+  --> $DIR/shared_macro_span.rs:20:5
+   |
+LL |     second();
+   |     ^^^^^^^^
+   = note: this warning originates in the macro `define_function` (in Nightly b$DIRlds, run with -Z macro-backtrace for more info)
+
+warning: 2 warnings emitted
+

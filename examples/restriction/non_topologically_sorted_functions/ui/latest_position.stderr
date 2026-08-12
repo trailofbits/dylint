@@ -1,0 +1,16 @@
+warning: function definitions are not topologically sorted
+  --> $DIR/latest_position.rs:3:1
+   |
+LL | fn misplaced() {}
+   | ^^^^^^^^^^^^^^^^^ function `misplaced` should be defined after `latest_predecessor`
+   |
+   = help: move misplaced's definition to later in the module
+note: `misplaced` is called from `latest_predecessor` here
+  --> $DIR/latest_position.rs:10:5
+   |
+LL |     misplaced();
+   |     ^^^^^^^^^^^
+   = note: `#[warn(non_topologically_sorted_functions)]` on by default
+
+warning: 1 warning emitted
+

@@ -1,12 +1,10 @@
 warning: function definitions are not topologically sorted
-  --> $DIR/simple_wrong_order.rs:7:1
+  --> $DIR/simple_wrong_order.rs:5:1
    |
-LL | / fn foo() {
-LL | |     bar();
-LL | | }
-   | |_^ function `foo` should be defined before `bar`
+LL | fn bar() {}
+   | ^^^^^^^^^^^ function `bar` should be defined after `foo`
    |
-   = help: move foo's definition to earlier in the module
+   = help: move bar's definition to later in the module
 note: `bar` is called from `foo` here
   --> $DIR/simple_wrong_order.rs:8:5
    |
