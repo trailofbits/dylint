@@ -1,0 +1,5 @@
+[build]
+target-dir = "../../../target/examples"
+
+[target.'cfg(all())']
+linker = "dylint-link"
