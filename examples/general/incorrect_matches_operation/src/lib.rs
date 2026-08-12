@@ -6,7 +6,9 @@ extern crate rustc_span;
 
 use clippy_utils::diagnostics::span_lint;
 use rustc_ast::{
-    BinOpKind, Expr, ExprKind, MacCall, token::Token, token::TokenKind, tokenstream::TokenTree,
+    BinOpKind, Expr, ExprKind, MacCall,
+    token::{Token, TokenKind},
+    tokenstream::TokenTree,
 };
 use rustc_lint::{EarlyContext, EarlyLintPass};
 use rustc_span::Symbol;

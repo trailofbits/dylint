@@ -6,10 +6,12 @@ extern crate rustc_span;
 
 use clippy_utils::diagnostics::span_lint_and_then;
 use daggy::{Dag, NodeIndex};
-use rustc_hir::def::Res;
-use rustc_hir::def_id::LocalDefId;
-use rustc_hir::intravisit::{self, Visitor};
-use rustc_hir::{BodyId, Expr, ExprKind, HirId, Item, ItemKind, Mod};
+use rustc_hir::{
+    BodyId, Expr, ExprKind, HirId, Item, ItemKind, Mod,
+    def::Res,
+    def_id::LocalDefId,
+    intravisit::{self, Visitor},
+};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Span;
 use std::collections::{HashMap, HashSet};
