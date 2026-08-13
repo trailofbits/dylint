@@ -7,7 +7,25 @@ LL |     assert_eq!(x, 0);
    = note: `#[warn(assert_eq_arg_misordering)]` on by default
 
 warning: arguments are "non-const, const-like", which looks like "actual, expected"
-  --> $DIR/main.rs:14:9
+  --> $DIR/main.rs:10:22
+   |
+LL |     debug_assert_eq!(x, 0);
+   |                      ^^^^ help: prefer "expected, actual": `0, x`
+
+warning: arguments are "non-const, const-like", which looks like "actual, expected"
+  --> $DIR/main.rs:11:16
+   |
+LL |     assert_ne!(x, 0);
+   |                ^^^^ help: prefer "expected, actual": `0, x`
+
+warning: arguments are "non-const, const-like", which looks like "actual, expected"
+  --> $DIR/main.rs:12:22
+   |
+LL |     debug_assert_ne!(x, 0);
+   |                      ^^^^ help: prefer "expected, actual": `0, x`
+
+warning: arguments are "non-const, const-like", which looks like "actual, expected"
+  --> $DIR/main.rs:17:9
    |
 LL | /         variable_with_a_really_long_name,
 LL | |         CONST_WITH_A_REALLY_LONG_NAME
@@ -20,25 +38,25 @@ LL +         variable_with_a_really_long_name
    |
 
 warning: arguments are "non-const, const-like", which looks like "actual, expected"
-  --> $DIR/main.rs:20:16
+  --> $DIR/main.rs:23:16
    |
 LL |     assert_eq!(x, 0, "this is a message (with parens)");
    |                ^^^^ help: prefer "expected, actual": `0, x`
 
 warning: arguments are "non-const, const-like", which looks like "actual, expected"
-  --> $DIR/main.rs:24:16
+  --> $DIR/main.rs:27:16
    |
 LL |     assert_eq!(x, vec![0, 1, 2]);
    |                ^^^^^^^^^^^^^^^^ help: prefer "expected, actual": `vec![0, 1, 2], x`
 
 warning: arguments are "non-const, const-like", which looks like "actual, expected"
-  --> $DIR/main.rs:28:16
+  --> $DIR/main.rs:31:16
    |
 LL |     assert_eq!(x, vec![0; 3]);
    |                ^^^^^^^^^^^^^ help: prefer "expected, actual": `vec![0; 3], x`
 
 warning: arguments are "non-const, const-like", which looks like "actual, expected"
-  --> $DIR/main.rs:33:9
+  --> $DIR/main.rs:36:9
    |
 LL | /         vec_with_a_really_long_name,
 LL | |         vec![CONST_WITH_A_REALLY_LONG_NAME, CONST_WITH_A_REALLY_LONG_NAME]
@@ -50,5 +68,5 @@ LL ~         vec![CONST_WITH_A_REALLY_LONG_NAME, CONST_WITH_A_REALLY_LONG_NAME],
 LL +         vec_with_a_really_long_name
    |
 
-warning: 6 warnings emitted
+warning: 9 warnings emitted
 

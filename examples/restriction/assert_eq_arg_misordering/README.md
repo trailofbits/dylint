@@ -2,8 +2,8 @@
 
 ### What it does
 
-Checks for invocations of `assert_eq!` whose arguments are "non-const, const-like", which
-suggests they could be "actual, expected".
+Checks for invocations of `assert_eq!` or `assert_ne!` whose arguments are "non-const,
+const-like", which suggests they could be "actual, expected".
 
 An argument is "const-like" if it is const-evaluatable, or if it is a non-empty `vec!`
 invocation whose arguments are const-like. The latter allowance is needed because a `vec!`

@@ -7,6 +7,9 @@ const CONST_WITH_A_REALLY_LONG_NAME: u32 = 0;
 
 fn non_const_const(x: u32) {
     assert_eq!(x, 0);
+    debug_assert_eq!(x, 0);
+    assert_ne!(x, 0);
+    debug_assert_ne!(x, 0);
 }
 
 fn non_const_const_multiline(variable_with_a_really_long_name: u32) {
