@@ -50,8 +50,8 @@ tracing = "0.1"
 [workspace.lints.clippy]
 nursery = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
-option-if-let-else = "allow"
-struct-field-names = "allow"
+option_if_let_else = "allow"
+struct_field_names = "allow"
 
 [workspace.lints.rust.unexpected_cfgs]
 level = "deny"
