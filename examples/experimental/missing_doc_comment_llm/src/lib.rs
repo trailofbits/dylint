@@ -303,7 +303,7 @@ async fn send_request(
 
 fn extract_doc_comment(response: &str) -> Option<String> {
     // smoelius: Sanity check. The LLM response should not contain the stop sequence.
-    assert_ne!(response.lines().last(), Some(STOP));
+    assert_ne!(Some(STOP), response.lines().last());
 
     // smoelius: In several of my experiments, the last several lines of the response did not start
     // with `///`. Ignore those lines. Also, in some of my experiments, the generated comments
