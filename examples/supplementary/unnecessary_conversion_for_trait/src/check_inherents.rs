@@ -172,10 +172,6 @@ fn type_paths() -> Vec<&'static [&'static str]> {
     type_paths
 }
 
-fn is_primitive_impl(path: &[&str]) -> bool {
-    path.iter().any(|s| s.starts_with('<'))
-}
-
 // smoelius: See comment preceding `replace_ty_params_with_global_ty` re type parameters. If `ty`
 // contains any constant parameters, `implements_trait_with_item` returns `None`.
 fn implements_trait_with_item<'tcx>(
@@ -291,4 +287,8 @@ fn strip_as_ref<'tcx>(
                 None
             }
         })
+}
+
+fn is_primitive_impl(path: &[&str]) -> bool {
+    path.iter().any(|s| s.starts_with('<'))
 }
