@@ -22,7 +22,7 @@ toml = "1.1"
 [workspace.lints.clippy]
 nursery = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
-option-if-let-else = "allow"
+option_if_let_else = "allow"
 
 [workspace.lints.rust.unexpected_cfgs]
 level = "deny"
