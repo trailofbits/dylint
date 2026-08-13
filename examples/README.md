@@ -42,7 +42,7 @@ The example libraries are separated into the following three categories:
 
 | Example                                                                                                      | Description/check                                                                     |
 | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| [`assert_eq_arg_misordering`](./restriction/assert_eq_arg_misordering)                                       | `assert_eq!(actual, expected)`                                                        |
+| [`assert_eq_arg_misordering`](./restriction/assert_eq_arg_misordering)                                       | Misordered `assert_eq!` and `assert_ne!` arguments                                    |
 | [`collapsible_unwrap`](./restriction/collapsible_unwrap)                                                     | An `unwrap` that could be combined with an `expect` or `unwrap` using `and_then`      |
 | [`const_path_join`](./restriction/const_path_join)                                                           | Joining of constant path components                                                   |
 | [`env_literal`](./restriction/env_literal)                                                                   | Environment variables referred to with string literals                                |

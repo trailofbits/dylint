@@ -18,8 +18,8 @@ use rustc_lint::{LateContext, LateLintPass};
 dylint_linting::declare_late_lint! {
     /// ### What it does
     ///
-    /// Checks for invocations of `assert_eq!` whose arguments are "non-const, const-like", which
-    /// suggests they could be "actual, expected".
+    /// Checks for invocations of `assert_eq!` or `assert_ne!` whose arguments are "non-const,
+    /// const-like", which suggests they could be "actual, expected".
     ///
     /// An argument is "const-like" if it is const-evaluatable, or if it is a non-empty `vec!`
     /// invocation whose arguments are const-like. The latter allowance is needed because a `vec!`
@@ -64,7 +64,10 @@ impl<'tcx> LateLintPass<'tcx> for AssertEqArgMisordering {
             return;
         };
         let macro_name = cx.tcx.item_name(macro_call.def_id);
-        if !matches!(macro_name.as_str(), "assert_eq" | "debug_assert_eq") {
+        if !matches!(
+            macro_name.as_str(),
+            "assert_eq" | "assert_ne" | "debug_assert_eq" | "debug_assert_ne"
+        ) {
             return;
         }
         let Some((left, right, _)) = find_assert_eq_args(cx, expr, macro_call.expn) else {
