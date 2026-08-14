@@ -1308,12 +1308,6 @@
         "name": "libs"
       },
       {
-        "id": 3623,
-        "kind": "team",
-        "login": "github:rust-lang:libc",
-        "name": "libc"
-      },
-      {
         "id": 4333,
         "kind": "user",
         "login": "joshtriplett",
