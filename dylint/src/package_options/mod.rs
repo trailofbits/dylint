@@ -2,7 +2,7 @@ use crate::opts;
 use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
     clippy_utils::{
-        Revs, clippy_utils_version_from_rust_version, parse_as_nightly,
+        Revs, clippy_utils_version_from_rust_version, parse_as_nightly, read_rust_toolchain_file,
         set_clippy_utils_dependency_revision, set_toolchain_channel, toolchain_channel,
     },
     find_and_replace,
@@ -142,11 +142,13 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
         );
     }
 
-    let rust_toolchain_toml_path = path.join("rust-toolchain.toml");
+    let Some((rust_toolchain_path, _)) = read_rust_toolchain_file(path)? else {
+        bail!("Could not find rust-toolchain file at `{}`", path.display());
+    };
     let cargo_toml_path = path.join("Cargo.toml");
 
-    let mut rust_toolchain_backup = Backup::new(rust_toolchain_toml_path)
-        .with_context(|| "Could not backup `rust-toolchain.toml`")?;
+    let mut rust_toolchain_backup = Backup::new(&rust_toolchain_path)
+        .with_context(|| format!("Could not backup `{}`", rust_toolchain_path.display()))?;
     let mut cargo_toml_backup =
         Backup::new(cargo_toml_path).with_context(|| "Could not backup `Cargo.toml`")?;
 
