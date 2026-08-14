@@ -6,7 +6,18 @@ on:
       - "v*"
 
 jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check CHANGELOG.md
+        run: ./scripts/check_CHANGELOG.sh "${{ github.ref }}"
+
   build-binaries:
+    needs: check-changelog
     name: Build binaries (${{ matrix.target }})
     runs-on: ${{ matrix.os }}
     permissions:
@@ -18,6 +29,8 @@ jobs:
             target: x86_64-unknown-linux-gnu
           - os: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
+          - os: macos-latest
+            target: aarch64-apple-darwin
     steps:
       - uses: actions/checkout@v7
 
@@ -39,7 +52,7 @@ jobs:
 
             ARCHIVE="${PACKAGE_NAME}.tar.gz"
             tar -czf "${ARCHIVE}" "${PACKAGE_NAME}"
-            sha256sum "${ARCHIVE}" > "${ARCHIVE}.sha256"
+            shasum -a 256 "${ARCHIVE}" > "${ARCHIVE}.sha256"
           done
 
       - name: Upload binary artifacts
@@ -56,6 +69,8 @@ jobs:
   publish:
     needs: build-binaries
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
     permissions:
       actions: read
       contents: read
@@ -64,12 +79,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-
-      - name: Check CHANGELOG.md
-        run: ./scripts/check_CHANGELOG.sh "${{ github.ref }}"
-
-      - uses: rust-lang/crates-io-auth-action@v1
-        id: auth
 
       - name: Download binary artifacts
         uses: actions/download-artifact@v8
@@ -105,6 +114,9 @@ jobs:
             rsign sign -W -s minisign.key -x "${ARCHIVE}.sig" "${ARCHIVE}"
           done
 
+      - uses: rust-lang/crates-io-auth-action@v1
+        id: auth
+
       - name: Publish
         run: |
           set -euo pipefail
@@ -127,11 +139,34 @@ jobs:
       - name: Create release notes
         run: git log -p -1 CHANGELOG.md | grep '^+\($\|[^+]\)' | cut -c 2- | tee body.md
 
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-artifacts
+          path: |
+            body.md
+            dist/*.tar.gz
+            dist/*.sha256
+            dist/*.sig
+          if-no-files-found: error
+
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: release-artifacts
+
       - name: Create release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref }}
-          name: Release ${{ steps.get-version.outputs.version }}
+          name: Release ${{ needs.publish.outputs.version }}
           body_path: body.md
           files: |
             dist/*.tar.gz
@@ -139,4 +174,3 @@ jobs:
             dist/*.sig
           draft: false
           prerelease: ${{ contains(github.ref, 'pre') || contains(github.ref, 'rc') }}
-          token: ${{ secrets.REPO_TOKEN }}
