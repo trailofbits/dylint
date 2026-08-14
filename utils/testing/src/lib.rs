@@ -166,16 +166,6 @@ fn initialize(name: &str) -> &Result<PathBuf> {
             .build()
             .success()?;
 
-        // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-        // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is
-        // no longer the case. I am leaving the comment here for now in case removal
-        // of the `name_toolchain_map` call causes a regression.
-        let metadata = dylint_internal::cargo::current_metadata().unwrap();
-        let dylint_library_path = metadata.target_directory.join("debug");
-        unsafe {
-            set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-        }
-
         let dylint_libs = dylint_libs(name)?;
         let driver = dylint::driver_builder::get(
             &dylint::opts::Dylint::default(),
