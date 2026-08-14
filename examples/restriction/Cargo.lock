@@ -75,7 +75,7 @@ checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
 
 [[package]]
 name = "assert_eq_arg_misordering"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -158,7 +158,7 @@ dependencies = [
 
 [[package]]
 name = "collapsible_unwrap"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -197,7 +197,7 @@ dependencies = [
 
 [[package]]
 name = "const_path_join"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "camino",
  "clippy_utils",
@@ -362,7 +362,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -378,7 +378,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -399,7 +399,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -412,7 +412,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -444,7 +444,7 @@ dependencies = [
 
 [[package]]
 name = "env_literal"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -608,7 +608,7 @@ checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "inconsistent_qualification"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "diesel",
@@ -767,7 +767,7 @@ dependencies = [
 
 [[package]]
 name = "misleading_variable_name"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -779,7 +779,7 @@ dependencies = [
 
 [[package]]
 name = "non_topologically_sorted_functions"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "daggy",
@@ -865,7 +865,7 @@ dependencies = [
 
 [[package]]
 name = "question_mark_in_expression"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -902,7 +902,7 @@ dependencies = [
 
 [[package]]
 name = "ref_aware_redundant_closure_for_method_calls"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -941,7 +941,7 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 
 [[package]]
 name = "register_lints_warn"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -1072,7 +1072,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "suboptimal_pattern"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -1263,7 +1263,7 @@ dependencies = [
 
 [[package]]
 name = "try_io_result"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "anyhow",
  "clippy_utils",

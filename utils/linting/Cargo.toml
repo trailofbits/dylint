@@ -1,6 +1,6 @@
 [package]
 name = "dylint_linting"
-version = "6.0.3"
+version = "6.0.4"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "Utilities for writing Dylint libraries"
 edition = "2024"
@@ -15,14 +15,14 @@ serde = "1.0"
 thiserror = "2.0"
 toml = "1.1"
 
-dylint_internal = { version = "=6.0.3", path = "../../internal", features = [
+dylint_internal = { version = "=6.0.4", path = "../../internal", features = [
     "config",
 ] }
 
 [build-dependencies]
 toml = "1.1"
 
-dylint_internal = { version = "=6.0.3", path = "../../internal", features = [
+dylint_internal = { version = "=6.0.4", path = "../../internal", features = [
     "clippy_utils",
 ] }
 

@@ -1,6 +1,6 @@
 [package]
 name = "assert_eq_arg_misordering"
-version = "6.0.3"
+version = "6.0.4"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for misordered `assert_eq!` and `assert_ne!` arguments"
 edition = "2024"

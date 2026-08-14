@@ -2,6 +2,13 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.0.4
+
+- Allow `dylint_linting` to work with either `rust-toolchain` or `rust-toolchain.toml` files. ([c9ec563](https://github.com/trailofbits/dylint/commit/c9ec563c7f6134c83b207a9b7c6ff9799713d6d7))
+- Allow `cargo dylint upgrade` to work with either `rust-toolchain` or `rust-toolchain.toml` files. ([c340c08](https://github.com/trailofbits/dylint/commit/c340c08e332a9d176eaf6330f0080fd391948b73))
+- Dependency updates
+  - `nested_workspace` upgraded to version 1.0
+
 ## 6.0.3
 
 - Invalidate rustc's incremental cache when the set of registered lints changes ([4ca081a](https://github.com/trailofbits/dylint/commit/4ca081a67a3dd69a4ddb4c8386fb4e304fdcfd8c))
