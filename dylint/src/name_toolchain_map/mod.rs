@@ -1,3 +1,4 @@
+use crate::error::warn;
 use anyhow::{Context, Result, ensure};
 use dylint_internal::{env, parse_path_filename};
 use once_cell::sync::OnceCell;
@@ -77,7 +78,7 @@ impl<'opts> Lazy<'opts> {
                 // smoelius: If `--git` or `--path` was passed, then do not look for libraries by
                 // other means.
                 if !self.inner.opts.git_or_path() {
-                    let dylint_library_paths = dylint_library_paths()?;
+                    let dylint_library_paths = self.dylint_library_paths()?;
 
                     for path in dylint_library_paths {
                         for entry in dylint_libraries_in(&path)? {
@@ -95,28 +96,33 @@ impl<'opts> Lazy<'opts> {
                 Ok(name_toolchain_map)
             })
     }
-}
 
-fn dylint_library_paths() -> Result<Vec<PathBuf>> {
-    let mut paths = Vec::new();
+    fn dylint_library_paths(&self) -> Result<Vec<PathBuf>> {
+        let mut paths = Vec::new();
 
-    if let Ok(val) = env::var(env::DYLINT_LIBRARY_PATH) {
-        for path in split_paths(&val) {
-            ensure!(
-                path.is_absolute(),
-                "DYLINT_LIBRARY_PATH contains `{}`, which is not absolute",
-                path.to_string_lossy()
+        if let Ok(val) = env::var(env::DYLINT_LIBRARY_PATH) {
+            warn(
+                self.inner.opts,
+                "`DYLINT_LIBRARY_PATH` is deprecated; use workspace metadata to name libraries",
             );
-            ensure!(
-                path.is_dir(),
-                "DYLINT_LIBRARY_PATH contains `{}`, which is not a directory",
-                path.to_string_lossy()
-            );
-            paths.push(path);
+
+            for path in split_paths(&val) {
+                ensure!(
+                    path.is_absolute(),
+                    "DYLINT_LIBRARY_PATH contains `{}`, which is not absolute",
+                    path.to_string_lossy()
+                );
+                ensure!(
+                    path.is_dir(),
+                    "DYLINT_LIBRARY_PATH contains `{}`, which is not a directory",
+                    path.to_string_lossy()
+                );
+                paths.push(path);
+            }
         }
-    }
 
-    Ok(paths)
+        Ok(paths)
+    }
 }
 
 fn dylint_libraries_in(
