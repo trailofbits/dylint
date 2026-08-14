@@ -553,7 +553,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users 0.5.2",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -592,7 +592,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
 name = "dylint"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -608,7 +608,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -629,7 +629,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -642,7 +642,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -698,7 +698,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1507,7 +1507,7 @@ dependencies = [
 
 [[package]]
 name = "missing_doc_comment_llm"
-version = "6.0.3"
+version = "6.0.4"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -1756,7 +1756,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2017,7 +2017,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2305,7 +2305,7 @@ dependencies = [
  "getrandom 0.4.3",
  "once_cell",
  "rustix",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
