@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9fca3bc9fc2bc83c60bde26d18ed68f11564b228" }
-litellm-rs = { version = "0.5.0", default-features = false }
+litellm-rs = { version = "0.6.0", default-features = false }
 serde = "1.0"
 serde_json = "1.0"
 tokio = { version = "1", features = ["rt", "macros"] }
