@@ -285,6 +285,7 @@ async fn send_request(
                     role: MessageRole::Assistant,
                     content: Some(MessageContent::Text(MOCK_COMPLETION.to_owned())),
                     thinking: None,
+                    audio: None,
                     name: None,
                     tool_calls: None,
                     tool_call_id: None,
