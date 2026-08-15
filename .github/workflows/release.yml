@@ -5,11 +5,25 @@ on:
     tags:
       - "v*"
 
+# smoelius: Please keep keys ordered as follows when defining jobs:
+#
+# - name
+# - needs (optional)
+# - outputs (optional)
+# - permissions
+# - strategy (optional)
+# - runs-on
+# - steps
+#
+# Note that, ignoring `strategy`, the keys are in alphabetical order. `strategy` is an exception
+# because `runs-on` often relies on `strategy.matrix`.
+
 jobs:
   check-changelog:
-    runs-on: ubuntu-latest
+    name: Check changelog
     permissions:
       contents: read
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
@@ -17,9 +31,8 @@ jobs:
         run: ./scripts/check_CHANGELOG.sh "${{ github.ref }}"
 
   build-binaries:
-    needs: check-changelog
     name: Build binaries (${{ matrix.target }})
-    runs-on: ${{ matrix.os }}
+    needs: check-changelog
     permissions:
       contents: read
     strategy:
@@ -31,6 +44,7 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - os: macos-latest
             target: aarch64-apple-darwin
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
 
@@ -67,14 +81,15 @@ jobs:
           if-no-files-found: error
 
   publish:
+    name: Publish
     needs: build-binaries
-    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     permissions:
       actions: read
       contents: read
       id-token: write
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
@@ -151,11 +166,12 @@ jobs:
           if-no-files-found: error
 
   release:
+    name: Release
     needs: publish
-    runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: write
+    runs-on: ubuntu-latest
     steps:
       - name: Download release artifacts
         uses: actions/download-artifact@v8
