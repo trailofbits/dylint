@@ -27,7 +27,7 @@ for EXAMPLE in examples/general examples/supplementary examples/restriction $EXP
     # smoelius: `clippy` requires special care.
     if [[ "$EXAMPLE" = 'examples/testing/clippy' ]]; then
         PREV_REV="$(sed -n 's/^clippy_utils\>.*\(\<\(rev\|tag\) = "[^"]*"\).*$/\1/;T;p' "$EXAMPLE"/Cargo.toml)"
-        PREV_CHANNEL="$(sed -n 's/^channel = "[^"]*"$/&/;T;p' "$EXAMPLE"/rust-toolchain)"
+        PREV_CHANNEL="$(sed -n 's/^channel = "[^"]*"$/&/;T;p' "$EXAMPLE"/rust-toolchain.toml)"
 
         RUST_LOG=debug $CARGO_DYLINT upgrade "$EXAMPLE" --auto-correct
 
@@ -36,13 +36,13 @@ for EXAMPLE in examples/general examples/supplementary examples/restriction $EXP
         sed -i "s/^\(clippy_lints\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
         sed -i "s/^\(declare_clippy_lint\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$REV\3/" "$EXAMPLE"/Cargo.toml
 
-        # smoelius: If `clippy`'s `rust-toolchain` file changed, upgrade `straggler` to the Rust
-        # version that `clippy` used previously. Note that `clippy` can be upgraded without its
-        # `rust-toolchain` file changing.
-        if ! git diff --exit-code "$EXAMPLE"/rust-toolchain; then
+        # smoelius: If `clippy`'s `rust-toolchain.toml` file changed, upgrade `straggler` to the
+        # Rust version that `clippy` used previously. Note that `clippy` can be upgraded without
+        # its `rust-toolchain.toml` file changing.
+        if ! git diff --exit-code "$EXAMPLE"/rust-toolchain.toml; then
             pushd examples/testing/straggler
             sed -i "s/^\(clippy_utils\>.*\)\<\(rev\|tag\) = \"[^\"]*\"\(.*\)$/\1$PREV_REV\3/" Cargo.toml
-            sed -i "s/^channel = \"[^\"]*\"$/$PREV_CHANNEL/" rust-toolchain
+            sed -i "s/^channel = \"[^\"]*\"$/$PREV_CHANNEL/" rust-toolchain.toml
             # smoelius: If the upgraded library does not build, let CI fail after the PR has been
             # created, not now.
             # cargo build --all-targets
