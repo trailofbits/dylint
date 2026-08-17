@@ -48,7 +48,7 @@ published() {
     cargo init
     sed -i "/^\[dependencies\]$/a $1 = \"$2\"" Cargo.toml
     echo '[workspace]' >> Cargo.toml
-    cat > rust-toolchain << EOF
+    cat > rust-toolchain.toml << EOF
 [toolchain]
 channel = "nightly"
 components = ["llvm-tools-preview", "rustc-dev"]
