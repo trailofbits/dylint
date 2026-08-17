@@ -16,8 +16,8 @@ use rustc_span::Symbol;
 dylint_linting::declare_pre_expansion_lint! {
     /// ### What it does
     ///
-    /// Checks for inefficient or incorrect use of the `matches!` macro.
-    /// Examples of inefficient or boiler plate uses:
+    /// Checks for inefficient or incorrect use of the `matches!` macro. Examples of inefficient or
+    /// boiler plate uses:
     ///
     /// - `matches!(obj, case1) | matches!(obj, case2)`
     /// - `matches!(obj, case1) || matches!(obj, case2)`
@@ -33,10 +33,9 @@ dylint_linting::declare_pre_expansion_lint! {
     ///
     /// ### Known problems
     ///
-    /// Since we use a pre-expansion-lint, we match the `matches!` argument tokens.
-    /// This is not ideal since we don't know if the argument is a variable name or, e.g.,
-    /// a call. If it is a call, this lint may result in a false positive, though I bet there won't
-    /// be many of those.
+    /// Since we use a pre-expansion-lint, we match the `matches!` argument tokens. This is not
+    /// ideal since we don't know if the argument is a variable name or, e.g., a call. If it is a
+    /// call, this lint may result in a false positive, though I bet there won't be many of those.
     ///
     /// ### Example
     ///

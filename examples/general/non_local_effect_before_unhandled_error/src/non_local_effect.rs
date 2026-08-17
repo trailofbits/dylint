@@ -44,8 +44,8 @@ pub struct NonLocalEffect {
 
 /// If the function identified by `def_id` returns a `Result` and performs a non-local effect
 /// (either an assignment to a dereference, or a call passing a mutable reference or constant
-/// reference) on at least one path that returns an error, returns info about the first such
-/// effect found. Otherwise returns `None`.
+/// reference) on at least one path that returns an error, returns info about the first such effect
+/// found. Otherwise returns `None`.
 #[cfg_attr(dylint_lib = "supplementary", allow(local_ref_cell))]
 pub fn has_non_local_effect_before_error_return(
     cx: &LateContext<'_>,

@@ -17,8 +17,8 @@ use rustc_middle::ty;
 dylint_linting::declare_late_lint! {
     /// ### What it does
     ///
-    /// Checks for calling `.path().file_name()` on a `DirEntry` when `.file_name()` can be
-    /// called directly.
+    /// Checks for calling `.path().file_name()` on a `DirEntry` when `.file_name()` can be called
+    /// directly.
     ///
     /// ### Why is this bad?
     ///

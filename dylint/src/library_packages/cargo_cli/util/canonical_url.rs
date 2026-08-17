@@ -18,16 +18,13 @@ use anyhow::Result as CargoResult;
 use std::hash::{self, Hash};
 use url::Url;
 
-/// A newtype wrapper around `Url` which represents a "canonical" version of an
-/// original URL.
+/// A newtype wrapper around `Url` which represents a "canonical" version of an original URL.
 ///
-/// A "canonical" url is only intended for internal comparison purposes in
-/// Cargo. It's to help paper over mistakes such as depending on
-/// `github.com/foo/bar` vs `github.com/foo/bar.git`. This is **only** for
-/// internal purposes within Cargo and provides no means to actually read the
-/// underlying string value of the `Url` it contains. This is intentional,
-/// because all fetching should still happen within the context of the original
-/// URL.
+/// A "canonical" url is only intended for internal comparison purposes in Cargo. It's to help paper
+/// over mistakes such as depending on `github.com/foo/bar` vs `github.com/foo/bar.git`. This is
+/// **only** for internal purposes within Cargo and provides no means to actually read the
+/// underlying string value of the `Url` it contains. This is intentional, because all fetching
+/// should still happen within the context of the original URL.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct CanonicalUrl(Url);
 
@@ -72,9 +69,8 @@ impl CanonicalUrl {
         Ok(CanonicalUrl(url))
     }
 
-    /// Returns the raw canonicalized URL, although beware that this should
-    /// never be used/displayed/etc, it should only be used for internal data
-    /// structures and hashes and such.
+    /// Returns the raw canonicalized URL, although beware that this should never be
+    /// used/displayed/etc, it should only be used for internal data structures and hashes and such.
     pub fn raw_canonicalized_url(&self) -> &Url {
         &self.0
     }
