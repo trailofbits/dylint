@@ -17,14 +17,14 @@ use rustc_span::{
 dylint_linting::declare_late_lint! {
     /// ### What it does
     ///
-    /// Checks for functions that take `Iterator` trait bounds when they could use
-    /// `IntoIterator` instead.
+    /// Checks for functions that take `Iterator` trait bounds when they could use `IntoIterator`
+    /// instead.
     ///
     /// ### Why is this bad?
     ///
-    /// Using `IntoIterator` makes functions more flexible by allowing them to
-    /// accept more types like arrays, slices, and `Vec` without requiring explicit
-    /// `.iter()` calls. This often makes the API easier to use.
+    /// Using `IntoIterator` makes functions more flexible by allowing them to accept more types
+    /// like arrays, slices, and `Vec` without requiring explicit `.iter()` calls. This often makes
+    /// the API easier to use.
     ///
     /// ### Example
     ///
@@ -47,8 +47,8 @@ dylint_linting::declare_late_lint! {
     /// }
     /// ```
     ///
-    /// This lint ignores cases where the parameter is also bounded by other traits
-    /// (besides the implicit `Sized`), as `IntoIterator` might not be suitable.
+    /// This lint ignores cases where the parameter is also bounded by other traits (besides the
+    /// implicit `Sized`), as `IntoIterator` might not be suitable.
     ///
     /// ```rust
     /// fn complex_bound<I: Iterator + Clone>(iter: I) { // Ok
@@ -124,8 +124,8 @@ impl<'tcx> LateLintPass<'tcx> for ArgIter {
     }
 }
 
-/// Checks if a given type parameter `param_ty` is bound _only_ by `iterator_def_id`
-/// within the given `predicates`
+/// Checks if a given type parameter `param_ty` is bound _only_ by `iterator_def_id` within the
+/// given `predicates`
 fn is_param_bound_only_by_iterator<'tcx>(
     predicates: ty::GenericPredicates<'tcx>,
     param_ty: ty::Ty<'tcx>,

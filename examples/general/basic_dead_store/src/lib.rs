@@ -73,9 +73,8 @@ impl BasicDeadStore {
     }
 }
 
-/// Checks if the given expression is an assignment to an array indexed by a literal.
-/// This consists in starting with `expr` and checking that the other nodes in the tree are of the
-/// correct kind:
+/// Checks if the given expression is an assignment to an array indexed by a literal. This consists
+/// in starting with `expr` and checking that the other nodes in the tree are of the correct kind:
 ///
 /// ```ignore
 ///                 assign_expr is ExprKind::Assign

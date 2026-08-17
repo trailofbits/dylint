@@ -115,14 +115,13 @@ struct Finder<'a, 'tcx> {
     /// - The `LocalDefId` of the callee
     /// - The `Span` of the call site
     ///
-    /// This ordering is significant: the first occurrence of a callee defines
-    /// how constraints between callees are derived. For example, if calls appear
-    /// in the order `bar()`, then `baz()`, this produces the ordering constraint
-    /// `bar` must come before `baz` when functions are arranged in the module.
+    /// This ordering is significant: the first occurrence of a callee defines how constraints
+    /// between callees are derived. For example, if calls appear in the order `bar()`, then
+    /// `baz()`, this produces the ordering constraint `bar` must come before `baz` when functions
+    /// are arranged in the module.
     ///
-    /// The `Span` is later used to produce more precise diagnostics; if a
-    /// function is out of order, we can point to the exact call site that
-    /// implies the constraint.
+    /// The `Span` is later used to produce more precise diagnostics; if a function is out of order,
+    /// we can point to the exact call site that implies the constraint.
     order: Vec<Callee>,
 }
 
@@ -186,8 +185,8 @@ impl NonTopologicallySortedFunctions {
         }
     }
 
-    /// Build call-order constraints: if a caller calls `foo` before `bar`, then `foo`
-    /// must come before `bar` in the module.
+    /// Build call-order constraints: if a caller calls `foo` before `bar`, then `foo` must come
+    /// before `bar` in the module.
     fn build_call_order_constraints(
         caller_id: LocalDefId,
         callees: &[Callee],

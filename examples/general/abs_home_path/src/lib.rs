@@ -32,7 +32,8 @@ dylint_linting::impl_late_lint! {
     ///
     /// ### Note
     ///
-    /// This lint doesn't warn in build scripts (`build.rs`) or test contexts, as they often need to reference absolute paths.
+    /// This lint doesn't warn in build scripts (`build.rs`) or test contexts, as they often need to
+    /// reference absolute paths.
     ///
     /// ### Example
     ///

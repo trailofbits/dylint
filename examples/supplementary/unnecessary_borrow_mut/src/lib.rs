@@ -50,7 +50,8 @@ dylint_linting::declare_late_lint! {
     /// x = *cell.borrow();
     /// ```
     ///
-    /// [`RefCell::borrow_mut`]: https://doc.rust-lang.org/std/cell/struct.RefCell.html#method.borrow_mut
+    /// [`RefCell::borrow_mut`]:
+    ///   https://doc.rust-lang.org/std/cell/struct.RefCell.html#method.borrow_mut
     /// [`RefCell::borrow`]: https://doc.rust-lang.org/std/cell/struct.RefCell.html#method.borrow
     pub UNNECESSARY_BORROW_MUT,
     Warn,

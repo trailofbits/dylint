@@ -69,7 +69,8 @@ dylint_linting::declare_late_lint! {
     /// ```
     ///
     /// [`Option`]: https://doc.rust-lang.org/std/option/enum.Option.html
-    /// [`redundant_closure_for_method_calls`]: https://rust-lang.github.io/rust-clippy/master/#redundant_closure_for_method_calls
+    /// [`redundant_closure_for_method_calls`]:
+    ///   https://rust-lang.github.io/rust-clippy/master/#redundant_closure_for_method_calls
     pub REF_AWARE_REDUNDANT_CLOSURE_FOR_METHOD_CALLS,
     Warn,
     "a ref-aware fork of `redundant_closure_for_method_calls`"
