@@ -2,10 +2,10 @@
 
 ### What it does
 
-This lint checks code comments, including both line comments (using `//`) and block comments
-(`/*...*/`) for file path references. It then validates that the referenced files exist either
-relative to the source file's directory or relative to the workspace root. When a file path
-reference does not point to an existing file, the lint emits a warning.
+This lint checks code comments, including both line comments (using `//`) and block
+comments (`/*...*/`) for file path references. It then validates that the referenced files
+exist either relative to the source file's directory or relative to the workspace root.
+When a file path reference does not point to an existing file, the lint emits a warning.
 
 ### Why is this bad?
 
@@ -25,8 +25,8 @@ Currently, this lint must be allowed at the crate level.
 // dylint/dylint/build.rs  (it exists)
 ```
 
-would get flagged here because the workspace root is `supplementary`
-it did exist, as this lint doesn't check for project root.
+would get flagged here because the workspace root is `supplementary` it did exist, as this
+lint doesn't check for project root.
 
 ### Example
 

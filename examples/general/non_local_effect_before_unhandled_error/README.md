@@ -7,15 +7,15 @@ Checks for calls whose errors may be unhandled and whose callees perform non-loc
 
 ### Why is this bad?
 
-Functions that make changes to the program state before returning an error are difficult
-to reason about: generally speaking, if a function returns an error, it should be as
-though the function was never called. Failing to handle an error returned by such a
-function compounds the problem, because the caller silently leaves the program in a
+Functions that make changes to the program state before returning an error are difficult to
+reason about: generally speaking, if a function returns an error, it should be as though
+the function was never called. Failing to handle an error returned by such a function
+compounds the problem, because the caller silently leaves the program in a
 partially-modified state.
 
 This lint is interprocedural: it identifies functions that may perform non-local effects
-before returning an error, then flags call sites that do not handle the errors returned
-by those functions.
+before returning an error, then flags call sites that do not handle the errors returned by
+those functions.
 
 ### Known problems
 
@@ -66,7 +66,6 @@ fn caller(account: &mut Account) -> Result<(), InsufficientBalance> {
 
 ### Configuration
 
-- `work_limit: u64` (default 500000): When exploring a function body for non-local
-  effects, the maximum number of times the search path is extended. Setting this to a
-  higher number allows more bodies to be explored exhaustively, but at the expense of
-  greater runtime.
+- `work_limit: u64` (default 500000): When exploring a function body for non-local effects,
+  the maximum number of times the search path is extended. Setting this to a higher number
+  allows more bodies to be explored exhaustively, but at the expense of greater runtime.
