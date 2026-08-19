@@ -83,28 +83,36 @@
 //!   file, and is provided for context.
 //! - All other lines (e.g., `diff of stderr:`) contain `compiletest_rs` messages.
 //!
-//! **Note:** In the actual standard error, a blank line usually follows the `error: aborting due to
-//! N previous errors` line. So a correct `.stderr` file will typically contain one blank line at
-//! the end.
+//! **Note:** In the actual standard error, a blank line usually follows the
+//! `error: aborting due to N previous errors` line. So a correct `.stderr` file will typically
+//! contain one blank line at the end.
 //!
-//! In general, it is not too hard to update a `.stderr` file by hand. However, the `compiletest_rs`
-//! report should contain a line of the form `Actual stderr saved to PATH`. Copying `PATH` to your
-//! `.stderr` file should update it completely.
+//! In general, it is not too hard to update a `.stderr` file by hand. However, the
+//! `compiletest_rs` report should contain a line of the form `Actual stderr saved to PATH`.
+//! Copying `PATH` to your `.stderr` file should update it completely.
 //!
 //! Additional documentation on `compiletest_rs` can be found in [its repository].
 //!
 //! [Dylint]: https://github.com/trailofbits/dylint/tree/master
 //! [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
-//! [`non_thread_safe_call_in_test`]: https://github.com/trailofbits/dylint/tree/master/examples/general/non_thread_safe_call_in_test/src/lib.rs
-//! [`question_mark_in_expression`]: https://github.com/trailofbits/dylint/tree/master/examples/restriction/question_mark_in_expression/Cargo.toml
-//! [`ui::Test::example`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.example
-//! [`ui::Test::examples`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.examples
-//! [`ui::Test::src_base`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.src_base
+//! [`non_thread_safe_call_in_test`]:
+//!   https://github.com/trailofbits/dylint/tree/master/examples/general/non_thread_safe_call_in_test/src/lib.rs
+//! [`question_mark_in_expression`]:
+//!   https://github.com/trailofbits/dylint/tree/master/examples/restriction/question_mark_in_expression/Cargo.toml
+//! [`ui::Test::example`]:
+//!   https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.example
+//! [`ui::Test::examples`]:
+//!   https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.examples
+//! [`ui::Test::src_base`]:
+//!   https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html#method.src_base
 //! [`ui::Test`]: https://docs.rs/dylint_testing/latest/dylint_testing/ui/struct.Test.html
-//! [`ui_test_example`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_example.html
-//! [`ui_test_examples`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_examples.html
+//! [`ui_test_example`]:
+//!   https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_example.html
+//! [`ui_test_examples`]:
+//!   https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test_examples.html
 //! [`ui_test`]: https://docs.rs/dylint_testing/latest/dylint_testing/fn.ui_test.html
-//! [configurable libraries]: https://github.com/trailofbits/dylint/tree/master#configurable-libraries
+//! [configurable libraries]:
+//!   https://github.com/trailofbits/dylint/tree/master#configurable-libraries
 //! [docs.rs documentation]: https://docs.rs/dylint_testing/latest/dylint_testing/
 //! [examples]: https://github.com/trailofbits/dylint/tree/master/examples
 //! [its repository]: https://github.com/Manishearth/compiletest-rs

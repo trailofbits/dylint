@@ -2,7 +2,8 @@
 
 ### What it does
 
-Checks for an `unwrap` that could be combined with an `expect` or `unwrap` using `and_then`.
+Checks for an `unwrap` that could be combined with an `expect` or `unwrap` using
+`and_then`.
 
 ### Why is this bad?
 

@@ -31,9 +31,9 @@
 //!
 //! # `declare_late_lint!`, etc.
 //!
-//! If your library contains just one lint, using `declare_late_lint!`, etc. can make your code more
-//! concise. Each of these macros requires the same arguments as [`declare_lint!`], and wraps the
-//! following:
+//! If your library contains just one lint, using `declare_late_lint!`, etc. can make your code
+//! more concise. Each of these macros requires the same arguments as [`declare_lint!`], and wraps
+//! the following:
 //!
 //! - a call to `dylint_library!`
 //! - an implementation of the `register_lints` function
@@ -92,11 +92,10 @@
 //! - With the feature turned on, the lint can be built as part of a larger library, alongside other
 //!   lints.
 //!
-//! The [general-purpose] and [supplementary] lints in this repository employ this technique.
-//! That is, each general-purpose lint can be built as a library by itself, or as part of the
-//! [`general` library]. An analogous statement applies to the supplementary lints and the
-//! [`supplementary` library]. The `constituent` feature is the underlying mechanism that makes this
-//! work.
+//! The [general-purpose] and [supplementary] lints in this repository employ this technique. That
+//! is, each general-purpose lint can be built as a library by itself, or as part of the [`general`
+//! library]. An analogous statement applies to the supplementary lints and the [`supplementary`
+//! library]. The `constituent` feature is the underlying mechanism that makes this work.
 //!
 //! # Configurable libraries
 //!
@@ -167,23 +166,33 @@
 //! [Configurable libraries]: #configurable-libraries
 //! [Dylint]: https://github.com/trailofbits/dylint/tree/master
 //! [`LintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LintPass.html
-//! [`config_or_default`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_or_default.html
+//! [`config_or_default`]:
+//!   https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_or_default.html
 //! [`config_toml`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config_toml.html
 //! [`config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.config.html
 //! [`constituent` feature]: #constituent-feature
-//! [`declare_late_lint!`, `declare_early_lint!`, `declare_pre_expansion_lint!`]: #declare_late_lint-etc
-//! [`declare_lint!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint.html
-//! [`declare_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint_pass.html
+//! [`declare_late_lint!`, `declare_early_lint!`, `declare_pre_expansion_lint!`]:
+//!   #declare_late_lint-etc
+//! [`declare_lint!`]:
+//!   https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint.html
+//! [`declare_lint_pass!`]:
+//!   https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint_pass.html
 //! [`dylint-link`]: https://github.com/trailofbits/dylint/tree/master/dylint-link
 //! [`dylint_library!`]: #dylint_library
-//! [`general` library]: https://github.com/trailofbits/dylint/tree/master/examples/general/src/lib.rs
+//! [`general` library]:
+//!   https://github.com/trailofbits/dylint/tree/master/examples/general/src/lib.rs
 //! [`impl_late_lint!`, `impl_early_lint!`, `impl_pre_expansion_lint!`]: #impl_late_lint-etc
-//! [`impl_lint_pass!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html
+//! [`impl_lint_pass!`]:
+//!   https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.impl_lint_pass.html
 //! [`init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.init_config.html
-//! [`non_local_effect_before_unhandled_error`]: https://github.com/trailofbits/dylint/tree/master/examples/general/non_local_effect_before_unhandled_error/src/lib.rs
-//! [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
-//! [`supplementary` library]: https://github.com/trailofbits/dylint/tree/master/examples/supplementary/src/lib.rs
-//! [`try_init_config`]: https://docs.rs/dylint_linting/latest/dylint_linting/fn.try_init_config.html
+//! [`non_local_effect_before_unhandled_error`]:
+//!   https://github.com/trailofbits/dylint/tree/master/examples/general/non_local_effect_before_unhandled_error/src/lib.rs
+//! [`register_lints`]:
+//!   https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
+//! [`supplementary` library]:
+//!   https://github.com/trailofbits/dylint/tree/master/examples/supplementary/src/lib.rs
+//! [`try_init_config`]:
+//!   https://docs.rs/dylint_linting/latest/dylint_linting/fn.try_init_config.html
 //! [docs.rs documentation]: https://docs.rs/dylint_linting/latest/dylint_linting/
 //! [docs.rs]: https://docs.rs/dylint_linting/latest/dylint_linting/
 //! [examples]: https://github.com/trailofbits/dylint/tree/master/examples
@@ -410,8 +419,8 @@ macro_rules! declare_late_lint {
     };
 }
 
-/// Reads and deserializes an entry from the workspace's `dylint.toml` file, and returns the default
-/// value if the entry is not present.
+/// Reads and deserializes an entry from the workspace's `dylint.toml` file, and returns the
+/// default value if the entry is not present.
 ///
 /// - If the target workspace's `dylint.toml` file contains key `name` and its value can be
 ///   deserializes as `T`, `config_or_default` returns the deserialized value.
@@ -464,8 +473,8 @@ pub fn config<T: serde::de::DeserializeOwned>(name: &str) -> ConfigResult<Option
 ///   `name`
 /// - `Err(...)` if an error occurs (e.g., `init_config` was not called)
 ///
-/// Note: `init_config` or `try_init_config` must be called before `config_toml` is called. However,
-/// the `register_lints` function generated by `impl_late_lint`, etc. includes a call to
+/// Note: `init_config` or `try_init_config` must be called before `config_toml` is called.
+/// However, the `register_lints` function generated by `impl_late_lint`, etc. includes a call to
 /// `init_config`.
 pub fn config_toml(name: &str) -> ConfigResult<Option<toml::Value>> {
     let Some(config_table) = config::get() else {
@@ -481,9 +490,9 @@ pub fn config_toml(name: &str) -> ConfigResult<Option<toml::Value>> {
 /// A wrapper around `try_init_config`. Calls `rustc_session::early_error` if `try_init_config`
 /// returns an error.
 ///
-/// Note: `init_config` or `try_init_config` must be called before `config_or_default`, `config`, or
-/// `config_toml` is called. However, the `register_lints` function generated by `impl_late_lint`,
-/// etc. includes a call to `init_config`.
+/// Note: `init_config` or `try_init_config` must be called before `config_or_default`, `config`,
+/// or `config_toml` is called. However, the `register_lints` function generated by
+/// `impl_late_lint`, etc. includes a call to `init_config`.
 pub fn init_config(sess: &rustc_session::Session) {
     try_init_config(sess).unwrap_or_else(|err| {
         let msg = format!("could not read configuration file: {err}");
@@ -559,9 +568,9 @@ impl FileDepInfo for rustc_session::Session {
 
 /// Reads the target workspace's `dylint.toml` file and parses it as a `toml::value::Table`.
 ///
-/// Note: `init_config` or `try_init_config` must be called before `config_or_default`, `config`, or
-/// `config_toml` is called. However, the `register_lints` function generated by `impl_late_lint`,
-/// etc. includes a call to `init_config`.
+/// Note: `init_config` or `try_init_config` must be called before `config_or_default`, `config`,
+/// or `config_toml` is called. However, the `register_lints` function generated by
+/// `impl_late_lint`, etc. includes a call to `init_config`.
 pub fn try_init_config(sess: &rustc_session::Session) -> ConfigResult<()> {
     let result = try_init_config_guarded(sess);
 

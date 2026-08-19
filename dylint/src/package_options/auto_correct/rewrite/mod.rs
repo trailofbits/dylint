@@ -271,8 +271,8 @@ fn diff_is_refactor(diff: &Diff) -> Result<bool> {
     Ok(false)
 }
 
-/// Returns true if, for any hunk in the patch, both the number of old lines and the number of
-/// new lines is three or more.
+/// Returns true if, for any hunk in the patch, both the number of old lines and the number of new
+/// lines is three or more.
 #[allow(dead_code)]
 fn patch_is_refactor(patch: &Patch) -> Result<bool> {
     for hunk_idx in 0..patch.num_hunks() {

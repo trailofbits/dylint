@@ -1,7 +1,7 @@
 //! This module borrows an idea from [Marker]: to use `cargo fetch` to download a package into
-//! Cargo's cache. More specifically, this module creates a "dummy" project with a specified package
-//! as a dependency, and then calls `cargo fetch` to download the project's dependencies into
-//! Cargo's cache.
+//! Cargo's cache. More specifically, this module creates a "dummy" project with a specified
+//! package as a dependency, and then calls `cargo fetch` to download the project's dependencies
+//! into Cargo's cache.
 //!
 //! There is a complication, however. Dylint does not require a workspace metadata entry to specify
 //! a lint library's package name. But the above idea, as applied in Marker, requires the package

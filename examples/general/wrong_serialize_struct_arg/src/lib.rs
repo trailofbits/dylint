@@ -16,8 +16,8 @@ use rustc_span::Span;
 dylint_linting::impl_late_lint! {
     /// ### What it does
     ///
-    /// Checks for Serde serialization method calls whose `len` argument does not match the number of
-    /// subsequent `serialize_field` or `serialize_element` calls. This includes:
+    /// Checks for Serde serialization method calls whose `len` argument does not match the number
+    /// of subsequent `serialize_field` or `serialize_element` calls. This includes:
     ///
     /// - `serialize_struct` (expects `serialize_field`)
     /// - `serialize_struct_variant` (expects `serialize_field`)
@@ -30,7 +30,8 @@ dylint_linting::impl_late_lint! {
     /// The [`serde` documentation] is unclear on whether the `len` argument is meant to be a hint.
     /// Even if it is just a hint, there's no telling what real-world implementations will do with
     /// that argument. Thus, ensuring that the argument is correct helps protect against
-    /// implementations that expect it to be correct, even if such implementations are only hypothetical.
+    /// implementations that expect it to be correct, even if such implementations are only
+    /// hypothetical.
     ///
     /// ### Examples
     ///
@@ -87,7 +88,8 @@ dylint_linting::impl_late_lint! {
     /// The same principle applies to other serialization methods like `serialize_struct_variant`,
     /// `serialize_tuple_struct`, and `serialize_tuple_variant`.
     ///
-    /// [`serde` documentation]: https://docs.rs/serde/latest/serde/trait.Serializer.html#tymethod.serialize_struct
+    /// [`serde` documentation]:
+    ///   https://docs.rs/serde/latest/serde/trait.Serializer.html#tymethod.serialize_struct
     pub WRONG_SERIALIZE_STRUCT_ARG,
     Warn,
     "calls to serialization methods with incorrect `len` arguments",

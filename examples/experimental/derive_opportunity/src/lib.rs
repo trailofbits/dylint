@@ -40,8 +40,8 @@ declare_lint! {
     ///
     /// - This lint is noisy! The `at_least_one_field` and `ignore` options (see below) can be used
     ///   to make the lint less noisy.
-    /// - Currently does not support traits with type or constant parameters (e.g., `PartialEq`), or
-    ///   traits with supertraits with type or constant parameters (e.g., `Eq`).
+    /// - Currently does not support traits with type or constant parameters (e.g., `PartialEq`),
+    ///   or traits with supertraits with type or constant parameters (e.g., `Eq`).
     ///
     /// ### Example
     ///
@@ -65,10 +65,10 @@ declare_lint! {
     /// ### Configuration
     ///
     /// - `at_least_one_field: bool` (default `false`): If set to `true`, the lint suggests to
-    ///   derive a trait only when there is at least one field that implements (or could derive) the
-    ///   trait.
-    /// - `ignore: Vec<String>` (default `[]`): A list of macro paths the lint should not suggest to
-    ///   derive.
+    ///   derive a trait only when there is at least one field that implements (or could derive)
+    ///   the trait.
+    /// - `ignore: Vec<String>` (default `[]`): A list of macro paths the lint should not suggest
+    ///   to derive.
     pub DERIVE_OPPORTUNITY,
     Warn,
     "data structures that could derive additional traits"
@@ -285,9 +285,9 @@ fn all_params_are_lifetimes(tcx: ty::TyCtxt<'_>, trait_id: DefId) -> bool {
 // https://github.com/rust-lang/rust/blob/fbdef58414af2b3469bf4f0f83bb136945414b96/compiler/rustc_middle/src/ty/context.rs#L1582-L1606
 
 /// Computes the def-ids of the transitive supertraits of `trait_def_id`. This (intentionally) does
-/// not compute the full elaborated super-predicates but just the set of def-ids. It is used
-/// to identify which traits may define a given associated type to help avoid cycle errors.
-/// Returns a `DefId` iterator.
+/// not compute the full elaborated super-predicates but just the set of def-ids. It is used to
+/// identify which traits may define a given associated type to help avoid cycle errors. Returns a
+/// `DefId` iterator.
 fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<Item = DefId> + '_ {
     let mut set = FxHashSet::default();
     let mut stack = vec![trait_def_id];

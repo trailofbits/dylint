@@ -37,9 +37,9 @@ repository.
 
 ## `declare_late_lint!`, etc.
 
-If your library contains just one lint, using `declare_late_lint!`, etc. can make your code more
-concise. Each of these macros requires the same arguments as [`declare_lint!`], and wraps the
-following:
+If your library contains just one lint, using `declare_late_lint!`, etc. can make your code
+more concise. Each of these macros requires the same arguments as [`declare_lint!`], and wraps
+the following:
 
 - a call to `dylint_library!`
 - an implementation of the `register_lints` function
@@ -98,11 +98,10 @@ library. That is:
 - With the feature turned on, the lint can be built as part of a larger library, alongside other
   lints.
 
-The [general-purpose] and [supplementary] lints in this repository employ this technique.
-That is, each general-purpose lint can be built as a library by itself, or as part of the
-[`general` library]. An analogous statement applies to the supplementary lints and the
-[`supplementary` library]. The `constituent` feature is the underlying mechanism that makes this
-work.
+The [general-purpose] and [supplementary] lints in this repository employ this technique. That
+is, each general-purpose lint can be built as a library by itself, or as part of the [`general`
+library]. An analogous statement applies to the supplementary lints and the [`supplementary`
+library]. The `constituent` feature is the underlying mechanism that makes this work.
 
 ## Configurable libraries
 
