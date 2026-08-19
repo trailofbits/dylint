@@ -109,7 +109,8 @@ impl Highlight {
     }
 }
 
-/// Invokes `cargo build` at `path` and returns the generated diagnostic messages as [`Highlight`]s.
+/// Invokes `cargo build` at `path` and returns the generated diagnostic messages as
+/// [`Highlight`]s.
 pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highlight>> {
     let start = Instant::now();
 

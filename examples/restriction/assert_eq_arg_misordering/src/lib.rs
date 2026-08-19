@@ -30,8 +30,8 @@ dylint_linting::declare_late_lint! {
     ///
     /// ### Why is this bad?
     ///
-    /// In a long list of output, one's eyes naturally go to the last line. Hence, it should be what
-    /// is unusual, i.e., the "actual" value.
+    /// In a long list of output, one's eyes naturally go to the last line. Hence, it should be
+    /// what is unusual, i.e., the "actual" value.
     ///
     /// ### Known problems
     ///

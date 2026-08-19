@@ -40,15 +40,15 @@ dylint_linting::impl_late_lint! {
     ///
     /// ### Why is this bad?
     ///
-    /// Functions that make changes to the program state before returning an error are difficult
-    /// to reason about: generally speaking, if a function returns an error, it should be as
-    /// though the function was never called. Failing to handle an error returned by such a
-    /// function compounds the problem, because the caller silently leaves the program in a
+    /// Functions that make changes to the program state before returning an error are difficult to
+    /// reason about: generally speaking, if a function returns an error, it should be as though
+    /// the function was never called. Failing to handle an error returned by such a function
+    /// compounds the problem, because the caller silently leaves the program in a
     /// partially-modified state.
     ///
     /// This lint is interprocedural: it identifies functions that may perform non-local effects
-    /// before returning an error, then flags call sites that do not handle the errors returned
-    /// by those functions.
+    /// before returning an error, then flags call sites that do not handle the errors returned by
+    /// those functions.
     ///
     /// ### Known problems
     ///
@@ -103,10 +103,9 @@ dylint_linting::impl_late_lint! {
     ///
     /// ### Configuration
     ///
-    /// - `work_limit: u64` (default 500000): When exploring a function body for non-local
-    ///   effects, the maximum number of times the search path is extended. Setting this to a
-    ///   higher number allows more bodies to be explored exhaustively, but at the expense of
-    ///   greater runtime.
+    /// - `work_limit: u64` (default 500000): When exploring a function body for non-local effects,
+    ///   the maximum number of times the search path is extended. Setting this to a higher number
+    ///   allows more bodies to be explored exhaustively, but at the expense of greater runtime.
     pub NON_LOCAL_EFFECT_BEFORE_UNHANDLED_ERROR,
     Warn,
     "unhandled errors from functions with non-local effects before error return",

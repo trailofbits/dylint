@@ -14,7 +14,8 @@
 //! };
 //! ```
 //!
-//! [struct update syntax]: https://doc.rust-lang.org/book/ch05-01-defining-structs.html#creating-instances-from-other-instances-with-struct-update-syntax
+//! [struct update syntax]:
+//!   https://doc.rust-lang.org/book/ch05-01-defining-structs.html#creating-instances-from-other-instances-with-struct-update-syntax
 
 #[cfg(feature = "package_options")]
 use std::sync::LazyLock;

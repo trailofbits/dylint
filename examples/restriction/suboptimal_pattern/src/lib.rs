@@ -68,7 +68,8 @@ dylint_linting::impl_late_lint! {
     ///   suggest to destructure a reference unless it would eliminate at least one explicit
     ///   dereference. Setting `explicit_deref_check` to `false` disables this check.
     ///
-    /// [pattern-type-mismatch]: https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch
+    /// [pattern-type-mismatch]:
+    ///   https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch
     pub SUBOPTIMAL_PATTERN,
     Warn,
     "patterns that could perform additional destructuring",

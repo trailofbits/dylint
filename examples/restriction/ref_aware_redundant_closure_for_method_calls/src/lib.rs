@@ -69,7 +69,8 @@ dylint_linting::declare_late_lint! {
     /// ```
     ///
     /// [`Option`]: https://doc.rust-lang.org/std/option/enum.Option.html
-    /// [`redundant_closure_for_method_calls`]: https://rust-lang.github.io/rust-clippy/master/#redundant_closure_for_method_calls
+    /// [`redundant_closure_for_method_calls`]:
+    ///   https://rust-lang.github.io/rust-clippy/master/#redundant_closure_for_method_calls
     pub REF_AWARE_REDUNDANT_CLOSURE_FOR_METHOD_CALLS,
     Warn,
     "a ref-aware fork of `redundant_closure_for_method_calls`"
@@ -317,10 +318,12 @@ fn check_sig<'tcx>(
         )
 }
 
-/// This walks through both signatures and checks for any time a late-bound region is expected by an
-/// `impl Fn` type, but the target signature does not have a late-bound region in the same position.
+/// This walks through both signatures and checks for any time a late-bound region is expected by
+/// an `impl Fn` type, but the target signature does not have a late-bound region in the same
+/// position.
 ///
-/// This is needed because rustc is unable to late bind early-bound regions in a function signature.
+/// This is needed because rustc is unable to late bind early-bound regions in a function
+/// signature.
 fn has_late_bound_to_non_late_bound_regions(from_sig: FnSig<'_>, to_sig: FnSig<'_>) -> bool {
     fn check_region(from_region: Region<'_>, to_region: Region<'_>) -> bool {
         matches!(from_region.kind(), RegionKind::ReBound(..))

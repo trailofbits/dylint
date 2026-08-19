@@ -1,10 +1,10 @@
 //! Which lints are registered is an input to compilation that rustc's incremental dependency graph
 //! knows nothing about. Writing the variables in [`UNTRACKED_STATE_VARS`] to `sess.env_depinfo`
-//! (see `Callbacks::config`) tells Cargo to re-invoke rustc when the input changes, but it does not
-//! tell rustc to distrust its cache: `env_depinfo` is written to the dep-info file for the build
-//! system to read, and nothing in rustc reads it back. So rustc reloads a cache produced with a
-//! different set of registered lints, sees that everything it recorded as an input to its dep-graph
-//! nodes is unchanged (it marks them "green"), and ICEs when a query such as
+//! (see `Callbacks::config`) tells Cargo to re-invoke rustc when the input changes, but it does
+//! not tell rustc to distrust its cache: `env_depinfo` is written to the dep-info file for the
+//! build system to read, and nothing in rustc reads it back. So rustc reloads a cache produced
+//! with a different set of registered lints, sees that everything it recorded as an input to its
+//! dep-graph nodes is unchanged (it marks them "green"), and ICEs when a query such as
 //! `shallow_lint_levels_on` recomputes to a different value anyway. See
 //! <https://github.com/trailofbits/dylint/issues/2010>.
 //!
@@ -37,13 +37,13 @@ pub(crate) const UNTRACKED_STATE_VAR: &str = "DYLINT_UNTRACKED_STATE";
 /// The environment variables whose change should cause lints to be rerun.
 ///
 /// `CARGO_PRIMARY_PACKAGE` and `DYLINT_NO_DEPS` determine whether lints are registered at all,
-/// `DYLINT_LIBS` names the libraries that register them, and `DYLINT_METADATA` is the metadata from
-/// which those libraries are resolved.
+/// `DYLINT_LIBS` names the libraries that register them, and `DYLINT_METADATA` is the metadata
+/// from which those libraries are resolved.
 ///
 /// Read by two consumers that must not drift apart: `sess.env_depinfo`, which tells Cargo when to
-/// re-invoke rustc, and [`hash_from_env`], which tells rustc when to discard its incremental cache.
-/// A rerun needs both, since re-invoking rustc accomplishes nothing if rustc then reuses results
-/// computed under the old values.
+/// re-invoke rustc, and [`hash_from_env`], which tells rustc when to discard its incremental
+/// cache. A rerun needs both, since re-invoking rustc accomplishes nothing if rustc then reuses
+/// results computed under the old values.
 pub(crate) const UNTRACKED_STATE_VARS: &[&str] = &[
     env::CARGO_PRIMARY_PACKAGE,
     env::DYLINT_LIBS,
