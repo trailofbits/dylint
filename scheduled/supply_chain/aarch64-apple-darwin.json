@@ -144,16 +144,16 @@
     ],
     "bitflags": [
       {
-        "id": 51,
-        "kind": "team",
-        "login": "github:rust-lang-nursery:libs",
-        "name": "libs"
-      },
-      {
         "id": 3204,
         "kind": "user",
         "login": "KodrAus",
         "name": "Ashley Mannix"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
       }
     ],
     "block-buffer": [
@@ -244,12 +244,6 @@
     ],
     "cc": [
       {
-        "id": 11,
-        "kind": "team",
-        "login": "github:rust-lang:libs",
-        "name": "libs"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -257,12 +251,6 @@
       }
     ],
     "cfg-if": [
-      {
-        "id": 11,
-        "kind": "team",
-        "login": "github:rust-lang:libs",
-        "name": "libs"
-      },
       {
         "id": 55123,
         "kind": "user",
@@ -471,7 +459,7 @@
         "id": 1546,
         "kind": "user",
         "login": "srijs",
-        "name": "Sam Rijs"
+        "name": "Sam"
       }
     ],
     "crossbeam-deque": [
@@ -792,12 +780,6 @@
         "name": "log-owners"
       },
       {
-        "id": 51,
-        "kind": "team",
-        "login": "github:rust-lang-nursery:libs",
-        "name": "libs"
-      },
-      {
         "id": 2851,
         "kind": "team",
         "login": "github:env-logger-rs:publishers",
@@ -808,6 +790,12 @@
         "kind": "user",
         "login": "sebasmagri",
         "name": "Sebastián Magrí"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
       }
     ],
     "equivalent": [
@@ -890,12 +878,6 @@
     ],
     "find-msvc-tools": [
       {
-        "id": 11,
-        "kind": "team",
-        "login": "github:rust-lang:libs",
-        "name": "libs"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -966,18 +948,6 @@
     ],
     "getopts": [
       {
-        "id": 3,
-        "kind": "user",
-        "login": "huonw",
-        "name": "Huon Wilson"
-      },
-      {
-        "id": 51,
-        "kind": "team",
-        "login": "github:rust-lang-nursery:libs",
-        "name": "libs"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -1006,12 +976,6 @@
         "name": "Josh Triplett"
       },
       {
-        "id": 6202,
-        "kind": "user",
-        "login": "ehuss",
-        "name": "Eric Huss"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -1019,18 +983,6 @@
       }
     ],
     "glob": [
-      {
-        "id": 3,
-        "kind": "user",
-        "login": "huonw",
-        "name": "Huon Wilson"
-      },
-      {
-        "id": 51,
-        "kind": "team",
-        "login": "github:rust-lang-nursery:libs",
-        "name": "libs"
-      },
       {
         "id": 55123,
         "kind": "user",
@@ -1083,12 +1035,6 @@
       }
     ],
     "home": [
-      {
-        "id": 6202,
-        "kind": "user",
-        "login": "ehuss",
-        "name": "Eric Huss"
-      },
       {
         "id": 11164,
         "kind": "user",
@@ -1348,49 +1294,19 @@
     ],
     "lazy_static": [
       {
-        "id": 51,
-        "kind": "team",
-        "login": "github:rust-lang-nursery:libs",
-        "name": "libs"
-      },
-      {
         "id": 394,
         "kind": "user",
         "login": "Kimundi",
         "name": "Marvin Löbel"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
       }
     ],
     "libc": [
-      {
-        "id": 3,
-        "kind": "user",
-        "login": "huonw",
-        "name": "Huon Wilson"
-      },
-      {
-        "id": 11,
-        "kind": "team",
-        "login": "github:rust-lang:libs",
-        "name": "libs"
-      },
-      {
-        "id": 4333,
-        "kind": "user",
-        "login": "joshtriplett",
-        "name": "Josh Triplett"
-      },
-      {
-        "id": 5725,
-        "kind": "user",
-        "login": "gnzlbg",
-        "name": "gnzlbg"
-      },
-      {
-        "id": 51017,
-        "kind": "user",
-        "login": "JohnTitor",
-        "name": "Yuki Okushi"
-      },
       {
         "id": 55123,
         "kind": "user",
@@ -1404,12 +1320,6 @@
         "kind": "user",
         "login": "joshtriplett",
         "name": "Josh Triplett"
-      },
-      {
-        "id": 6202,
-        "kind": "user",
-        "login": "ehuss",
-        "name": "Eric Huss"
       },
       {
         "id": 55123,
@@ -1492,12 +1402,6 @@
         "kind": "team",
         "login": "github:rust-lang-nursery:log-owners",
         "name": "log-owners"
-      },
-      {
-        "id": 51,
-        "kind": "team",
-        "login": "github:rust-lang-nursery:libs",
-        "name": "libs"
       },
       {
         "id": 3204,
@@ -1770,12 +1674,6 @@
     ],
     "regex": [
       {
-        "id": 11,
-        "kind": "team",
-        "login": "github:rust-lang:libs",
-        "name": "libs"
-      },
-      {
         "id": 19,
         "kind": "team",
         "login": "github:rust-lang-nursery:regex-owners",
@@ -1786,6 +1684,12 @@
         "kind": "user",
         "login": "BurntSushi",
         "name": "Andrew Gallant"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
       }
     ],
     "regex-automata": [
@@ -1794,15 +1698,15 @@
         "kind": "user",
         "login": "BurntSushi",
         "name": "Andrew Gallant"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
       }
     ],
     "regex-syntax": [
-      {
-        "id": 11,
-        "kind": "team",
-        "login": "github:rust-lang:libs",
-        "name": "libs"
-      },
       {
         "id": 19,
         "kind": "team",
@@ -1814,6 +1718,12 @@
         "kind": "user",
         "login": "BurntSushi",
         "name": "Andrew Gallant"
+      },
+      {
+        "id": 55123,
+        "kind": "user",
+        "login": "rust-lang-owner",
+        "name": null
       }
     ],
     "rewriter": [
@@ -2211,12 +2121,6 @@
       }
     ],
     "toml": [
-      {
-        "id": 6202,
-        "kind": "user",
-        "login": "ehuss",
-        "name": "Eric Huss"
-      },
       {
         "id": 6743,
         "kind": "user",
