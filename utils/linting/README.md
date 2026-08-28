@@ -98,11 +98,10 @@ library. That is:
 - With the feature turned on, the lint can be built as part of a larger library, alongside other
   lints.
 
-The [general-purpose] and [supplementary] lints in this repository employ this technique.
-That is, each general-purpose lint can be built as a library by itself, or as part of the
-[`general` library]. An analogous statement applies to the supplementary lints and the
-[`supplementary` library]. The `constituent` feature is the underlying mechanism that makes this
-work.
+The [general-purpose] and [supplementary] lints in this repository employ this technique. That
+is, each general-purpose lint can be built as a library by itself, or as part of the [`general`
+library]. An analogous statement applies to the supplementary lints and the [`supplementary`
+library]. The `constituent` feature is the underlying mechanism that makes this work.
 
 ## Configurable libraries
 

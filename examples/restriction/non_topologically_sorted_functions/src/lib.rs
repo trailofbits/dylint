@@ -108,6 +108,7 @@ impl ConstraintGraph {
 struct Finder<'a, 'tcx> {
     cx: &'a LateContext<'tcx>,
     seen: HashSet<LocalDefId>,
+    #[rustfmt::skip] // https://github.com/rust-lang/rustfmt/issues/6180
     /// The list of callees encountered during a preorder traversal of the body.
     ///
     /// Each element stores:
@@ -115,14 +116,13 @@ struct Finder<'a, 'tcx> {
     /// - The `LocalDefId` of the callee
     /// - The `Span` of the call site
     ///
-    /// This ordering is significant: the first occurrence of a callee defines
-    /// how constraints between callees are derived. For example, if calls appear
-    /// in the order `bar()`, then `baz()`, this produces the ordering constraint
-    /// `bar` must come before `baz` when functions are arranged in the module.
+    /// This ordering is significant: the first occurrence of a callee defines how constraints
+    /// between callees are derived. For example, if calls appear in the order `bar()`, then
+    /// `baz()`, this produces the ordering constraint `bar` must come before `baz` when functions
+    /// are arranged in the module.
     ///
-    /// The `Span` is later used to produce more precise diagnostics; if a
-    /// function is out of order, we can point to the exact call site that
-    /// implies the constraint.
+    /// The `Span` is later used to produce more precise diagnostics; if a function is out of order,
+    /// we can point to the exact call site that implies the constraint.
     order: Vec<Callee>,
 }
 
@@ -186,8 +186,8 @@ impl NonTopologicallySortedFunctions {
         }
     }
 
-    /// Build call-order constraints: if a caller calls `foo` before `bar`, then `foo`
-    /// must come before `bar` in the module.
+    /// Build call-order constraints: if a caller calls `foo` before `bar`, then `foo` must come
+    /// before `bar` in the module.
     fn build_call_order_constraints(
         caller_id: LocalDefId,
         callees: &[Callee],
@@ -245,14 +245,14 @@ impl NonTopologicallySortedFunctions {
             })
             .collect();
 
-        // Sort violations by the function that must move, then by the latest function it must
-        // follow. This ensures that the first violation for each misplaced function identifies
-        // its latest required position.
+        // Sort violations by the function that must move, then by the latest function
+        // it must follow. This ensures that the first violation for each
+        // misplaced function identifies its latest required position.
         violations.sort_by(Self::compare_violations);
 
-        // A function can violate multiple incoming constraints, but moving it after the latest
-        // function it must follow satisfies all of them. Retain only that violation for each
-        // misplaced function.
+        // A function can violate multiple incoming constraints, but moving it after the
+        // latest function it must follow satisfies all of them. Retain only
+        // that violation for each misplaced function.
         violations.dedup_by_key(|violation| violation.id_second_fn);
 
         violations

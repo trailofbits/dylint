@@ -25,4 +25,5 @@ Some(String::from("a")).as_deref().map(str::to_uppercase);
 ```
 
 [`Option`]: https://doc.rust-lang.org/std/option/enum.Option.html
-[`redundant_closure_for_method_calls`]: https://rust-lang.github.io/rust-clippy/master/#redundant_closure_for_method_calls
+[`redundant_closure_for_method_calls`]:
+  https://rust-lang.github.io/rust-clippy/master/#redundant_closure_for_method_calls
