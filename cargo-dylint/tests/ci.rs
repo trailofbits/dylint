@@ -635,6 +635,9 @@ fn prettier_all_but_examples_and_template() {
 fn prettier_examples_and_template() {
     Command::new("prettier")
         .args(["--check", "examples/**/*.md", "internal/template/**/*.md"])
+        // smoelius: Simulate the arguments that `rustdoc-prettier` uses.
+        // Note that 92 = 100 (`comment_width`) - 4 (indentation) - 4 (width of `/// `).
+        .args(["--prose-wrap=always", "--print-width=92"])
         .assert()
         .success();
 }
