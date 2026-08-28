@@ -270,7 +270,8 @@ fn collect_locals_and_constants<'tcx>(
         }
 
         for (statement_index, statement) in basic_block.statements.iter().enumerate().rev() {
-            if let StatementKind::Assign(box (assign_place, rvalue)) = &statement.kind
+            if let StatementKind::Assign(assign) = &statement.kind
+                && let (assign_place, rvalue) = assign.as_ref()
                 && let followed_narrowly = locals_narrowly.remove(assign_place.local)
                 && let followed_widely = locals_widely.remove(assign_place.local)
                 && (followed_narrowly || followed_widely)
@@ -333,7 +334,8 @@ fn is_mut_ref(ty: ty::Ty<'_>) -> bool {
 }
 
 fn is_deref_assign(statement: &Statement) -> Option<Span> {
-    if let StatementKind::Assign(box (Place { projection, .. }, _)) = &statement.kind
+    if let StatementKind::Assign(assign) = &statement.kind
+        && let (Place { projection, .. }, _) = assign.as_ref()
         && projection.iter().any(|elem| elem == ProjectionElem::Deref)
         && !statement.source_info.span.from_expansion()
     {

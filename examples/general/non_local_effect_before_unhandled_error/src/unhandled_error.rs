@@ -188,7 +188,8 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
         }
 
         for (statement_index, statement) in basic_block.statements.iter().enumerate().rev() {
-            if let StatementKind::Assign(box (place, rvalue)) = &statement.kind
+            if let StatementKind::Assign(assign) = &statement.kind
+                && let (place, rvalue) = assign.as_ref()
                 && state.insert(place.local)
             {
                 let location = Location {
@@ -213,7 +214,8 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
         let basic_block = &self.mir[block];
         let discr_place = discr.place()?;
         let rvalue = basic_block.statements.iter().rev().find_map(|statement| {
-            if let StatementKind::Assign(box (place, rvalue)) = &statement.kind
+            if let StatementKind::Assign(assign) = &statement.kind
+                && let (place, rvalue) = assign.as_ref()
                 && *place == discr_place
             {
                 Some(rvalue)

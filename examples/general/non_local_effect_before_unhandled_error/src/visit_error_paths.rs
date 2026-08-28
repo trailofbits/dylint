@@ -156,23 +156,25 @@ where
         let basic_block = &self.mir[index];
         for statement in basic_block.statements.iter().rev() {
             match &statement.kind {
-                StatementKind::Assign(box (
-                    place,
-                    Rvalue::Aggregate(box AggregateKind::Adt(_, variant_index, _, _, _), _),
-                ))
-                | StatementKind::SetDiscriminant {
-                    place: box place,
-                    variant_index,
-                } if state.is_local(place.local) => {
-                    state.set_confirmed_variant(*variant_index, statement.source_info.span);
-                }
-                StatementKind::Assign(box (assign_place, rvalue)) => {
-                    if state.remove_local(assign_place.local)
+                StatementKind::Assign(assign) => {
+                    let (assign_place, rvalue) = assign.as_ref();
+                    if let Rvalue::Aggregate(kind, _) = rvalue
+                        && let AggregateKind::Adt(_, variant_index, _, _, _) = kind.as_ref()
+                        && state.is_local(assign_place.local)
+                    {
+                        state.set_confirmed_variant(*variant_index, statement.source_info.span);
+                    } else if state.remove_local(assign_place.local)
                         && let Rvalue::Use(rvalue_operand, _) = rvalue
                         && let Some(rvalue_place) = rvalue_operand.place()
                     {
                         state.set_local(rvalue_place.local);
                     }
+                }
+                StatementKind::SetDiscriminant {
+                    place,
+                    variant_index,
+                } if state.is_local(place.local) => {
+                    state.set_confirmed_variant(*variant_index, statement.source_info.span);
                 }
                 _ => {}
             }
@@ -311,8 +313,8 @@ fn ends_with_discriminant_switch<'tcx>(
         && let Some(discr_place) = discr.place()
     {
         basic_block.statements.iter().rev().find_map(|statement| {
-            if let StatementKind::Assign(box (assign_place, Rvalue::Discriminant(rvalue_place))) =
-                &statement.kind
+            if let StatementKind::Assign(assign) = &statement.kind
+                && let (assign_place, Rvalue::Discriminant(rvalue_place)) = assign.as_ref()
                 && *assign_place == discr_place
             {
                 Some(*rvalue_place)
