@@ -1,11 +1,12 @@
 use super::{clippy_utils_package_version, repository::clippy_repository, toolchain_channel};
 use crate::git2::{Commit, ObjectType, Oid, Repository};
 use anyhow::{Context, Result, anyhow};
+use semver::Version;
 use std::rc::Rc;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Rev {
-    pub version: String,
+    pub version: Version,
     pub channel: String,
     pub oid: Oid,
 }
@@ -138,38 +139,38 @@ impl Iterator for RevIter<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::LazyLock;
+    use std::{str::FromStr, sync::LazyLock};
 
     static VERSION_EXAMPLES: LazyLock<[Rev; 6]> = LazyLock::new(|| {
         [
             Rev {
-                version: "0.1.65".to_owned(),
+                version: Version::from_str("0.1.65").unwrap(),
                 channel: "nightly-2022-08-11".to_owned(),
                 oid: Oid::from_str("2b2190cb5667cdd276a24ef8b9f3692209c54a89").unwrap(),
             },
             Rev {
-                version: "0.1.64".to_owned(),
+                version: Version::from_str("0.1.64").unwrap(),
                 channel: "nightly-2022-06-30".to_owned(),
                 oid: Oid::from_str("0cb0f7636851f9fcc57085cf80197a2ef6db098f").unwrap(),
             },
             // smoelius: 0.1.62 and 0.1.63 omitted (for no particular reason).
             Rev {
-                version: "0.1.61".to_owned(),
+                version: Version::from_str("0.1.61").unwrap(),
                 channel: "nightly-2022-02-24".to_owned(),
                 oid: Oid::from_str("7b2896a8fc9f0b275692677ee6d2d66a7cbde16a").unwrap(),
             },
             Rev {
-                version: "0.1.60".to_owned(),
+                version: Version::from_str("0.1.60").unwrap(),
                 channel: "nightly-2022-01-13".to_owned(),
                 oid: Oid::from_str("97a5daa65908e59744e2bc625b14849352231c75").unwrap(),
             },
             Rev {
-                version: "0.1.59".to_owned(),
+                version: Version::from_str("0.1.59").unwrap(),
                 channel: "nightly-2021-12-02".to_owned(),
                 oid: Oid::from_str("392b0c5c25ddbd36e4dc480afcf70ed01dce352d").unwrap(),
             },
             Rev {
-                version: "0.1.58".to_owned(),
+                version: Version::from_str("0.1.58").unwrap(),
                 channel: "nightly-2021-10-21".to_owned(),
                 oid: Oid::from_str("91496c2ac6abf6454c413bb23e8becf6b6dc20ea").unwrap(),
             },
@@ -198,12 +199,12 @@ mod tests {
     static CHANNEL_EXAMPLES: LazyLock<[Rev; 2]> = LazyLock::new(|| {
         [
             Rev {
-                version: "0.1.89".to_owned(),
+                version: Version::from_str("0.1.89").unwrap(),
                 channel: "nightly-2025-05-14".to_owned(),
                 oid: Oid::from_str("0450db33a5d8587f7c1d4b6d233dac963605766b").unwrap(),
             },
             Rev {
-                version: "0.1.88".to_owned(),
+                version: Version::from_str("0.1.88").unwrap(),
                 channel: "nightly-2025-05-01".to_owned(),
                 oid: Oid::from_str("03a5b6b976ac121f4233775c49a4bce026065b47").unwrap(),
             },

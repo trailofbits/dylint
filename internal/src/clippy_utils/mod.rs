@@ -13,14 +13,14 @@ mod revs_no_preinstall;
 pub use revs_no_preinstall::{Rev, Revs};
 
 #[allow(clippy::module_name_repetitions)]
-pub fn clippy_utils_version_from_rust_version(rust_version: &str) -> Result<String> {
+pub fn clippy_utils_version_from_rust_version(rust_version: &str) -> Result<Version> {
     Version::parse(rust_version.strip_prefix("rust-").unwrap_or(rust_version))
-        .map(|version| Version::new(0, version.major, version.minor).to_string())
+        .map(|version| Version::new(0, version.major, version.minor))
         .map_err(Into::into)
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub fn clippy_utils_package_version(path: &Path) -> Result<String> {
+pub fn clippy_utils_package_version(path: &Path) -> Result<Version> {
     let cargo_toml = path.join("clippy_utils/Cargo.toml");
     let contents = read_to_string(&cargo_toml).with_context(|| {
         format!(
@@ -29,13 +29,13 @@ pub fn clippy_utils_package_version(path: &Path) -> Result<String> {
         )
     })?;
     let table = toml::from_str::<toml::Table>(&contents)?;
-    table
+    let version = table
         .get("package")
         .and_then(toml::Value::as_table)
         .and_then(|table| table.get("version"))
         .and_then(toml::Value::as_str)
-        .map(ToOwned::to_owned)
-        .ok_or_else(|| anyhow!("Could not determine `clippy_utils` version"))
+        .ok_or_else(|| anyhow!("Could not determine `clippy_utils` version"))?;
+    version.parse().map_err(Into::into)
 }
 
 pub fn set_clippy_utils_dependency_revision(path: &Path, rev: &str) -> Result<()> {
