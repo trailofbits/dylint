@@ -17,14 +17,13 @@ use std::collections::HashSet;
 declare_lint! {
     /// ### What it does
     ///
-    /// Checks for calls to non-thread-safe functions in code attributed with
-    /// `#[test]`. For this lint to be effective, `--tests` must be passed to `cargo check`.
+    /// Checks for calls to non-thread-safe functions in code attributed with `#[test]`. For this
+    /// lint to be effective, `--tests` must be passed to `cargo check`.
     ///
     /// ### Why is this bad?
     ///
-    /// "When you run multiple tests, by default they run in parallel using
-    /// threads" ([reference]). Calling a non-thread-safe function in one test could affect the
-    /// outcome of another.
+    /// "When you run multiple tests, by default they run in parallel using threads" ([reference]).
+    /// Calling a non-thread-safe function in one test could affect the outcome of another.
     ///
     /// ### Known problems
     ///
@@ -55,7 +54,8 @@ declare_lint! {
     /// }
     /// ```
     ///
-    /// [reference]: https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively
+    /// [reference]:
+    ///   https://doc.rust-lang.org/book/ch11-02-running-tests.html#running-tests-in-parallel-or-consecutively
     pub NON_THREAD_SAFE_CALL_IN_TEST,
     Warn,
     "non-thread-safe function calls in tests"

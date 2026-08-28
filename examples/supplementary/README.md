@@ -1,6 +1,7 @@
 # Supplementary lints
 
-Like the [general-purpose lints], the supplementary lints use `dylint_linting`'s [`constituent` feature].
+Like the [general-purpose lints], the supplementary lints use `dylint_linting`'s
+[`constituent` feature].
 
 See the general-purpose lints' [documentation] for an explanation.
 

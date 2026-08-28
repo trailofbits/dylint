@@ -38,4 +38,5 @@ let ys = xs.iter().map(|&x| x == 0).collect::<Vec<_>>();
   suggest to destructure a reference unless it would eliminate at least one explicit
   dereference. Setting `explicit_deref_check` to `false` disables this check.
 
-[pattern-type-mismatch]: https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch
+[pattern-type-mismatch]:
+  https://rust-lang.github.io/rust-clippy/master/#pattern_type_mismatch

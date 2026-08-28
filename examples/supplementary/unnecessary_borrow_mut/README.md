@@ -22,5 +22,6 @@ Use instead:
 x = *cell.borrow();
 ```
 
-[`RefCell::borrow_mut`]: https://doc.rust-lang.org/std/cell/struct.RefCell.html#method.borrow_mut
+[`RefCell::borrow_mut`]:
+  https://doc.rust-lang.org/std/cell/struct.RefCell.html#method.borrow_mut
 [`RefCell::borrow`]: https://doc.rust-lang.org/std/cell/struct.RefCell.html#method.borrow

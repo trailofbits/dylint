@@ -26,4 +26,5 @@ x *= MILLIS;
 
 - `threshold: u64` (default `10`): Minimum value a constant must exceed to be flagged.
 
-[pandaquests]: https://levelup.gitconnected.com/whats-so-bad-about-magic-numbers-4c0a0c524b7d
+[pandaquests]:
+  https://levelup.gitconnected.com/whats-so-bad-about-magic-numbers-4c0a0c524b7d

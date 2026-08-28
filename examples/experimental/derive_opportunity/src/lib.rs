@@ -285,9 +285,9 @@ fn all_params_are_lifetimes(tcx: ty::TyCtxt<'_>, trait_id: DefId) -> bool {
 // https://github.com/rust-lang/rust/blob/fbdef58414af2b3469bf4f0f83bb136945414b96/compiler/rustc_middle/src/ty/context.rs#L1582-L1606
 
 /// Computes the def-ids of the transitive supertraits of `trait_def_id`. This (intentionally) does
-/// not compute the full elaborated super-predicates but just the set of def-ids. It is used
-/// to identify which traits may define a given associated type to help avoid cycle errors.
-/// Returns a `DefId` iterator.
+/// not compute the full elaborated super-predicates but just the set of def-ids. It is used to
+/// identify which traits may define a given associated type to help avoid cycle errors. Returns a
+/// `DefId` iterator.
 fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<Item = DefId> + '_ {
     let mut set = FxHashSet::default();
     let mut stack = vec![trait_def_id];

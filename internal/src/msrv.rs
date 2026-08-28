@@ -1,8 +1,8 @@
 //! Centralized MSRV (Minimum Supported Rust Version) constants for Dylint.
 //!
-//! These constants define the minimum Rust version required by Dylint and related
-//! `clippy_utils` revisions. They are exported from a single location to make version
-//! updates easier and more consistent across the codebase.
+//! These constants define the minimum Rust version required by Dylint and related `clippy_utils`
+//! revisions. They are exported from a single location to make version updates easier and more
+//! consistent across the codebase.
 
 // smoelius: I expected `git2-0.17.2` to build with nightly-2022-06-30, which corresponds to
 // `--rust-version 1.64.0`. I'm not sure why it doesn't.

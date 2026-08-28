@@ -16,8 +16,8 @@ use rustc_span::Span;
 dylint_linting::impl_late_lint! {
     /// ### What it does
     ///
-    /// Checks for Serde serialization method calls whose `len` argument does not match the number of
-    /// subsequent `serialize_field` or `serialize_element` calls. This includes:
+    /// Checks for Serde serialization method calls whose `len` argument does not match the number
+    /// of subsequent `serialize_field` or `serialize_element` calls. This includes:
     ///
     /// - `serialize_struct` (expects `serialize_field`)
     /// - `serialize_struct_variant` (expects `serialize_field`)
@@ -30,7 +30,8 @@ dylint_linting::impl_late_lint! {
     /// The [`serde` documentation] is unclear on whether the `len` argument is meant to be a hint.
     /// Even if it is just a hint, there's no telling what real-world implementations will do with
     /// that argument. Thus, ensuring that the argument is correct helps protect against
-    /// implementations that expect it to be correct, even if such implementations are only hypothetical.
+    /// implementations that expect it to be correct, even if such implementations are only
+    /// hypothetical.
     ///
     /// ### Examples
     ///
@@ -87,7 +88,8 @@ dylint_linting::impl_late_lint! {
     /// The same principle applies to other serialization methods like `serialize_struct_variant`,
     /// `serialize_tuple_struct`, and `serialize_tuple_variant`.
     ///
-    /// [`serde` documentation]: https://docs.rs/serde/latest/serde/trait.Serializer.html#tymethod.serialize_struct
+    /// [`serde` documentation]:
+    ///   https://docs.rs/serde/latest/serde/trait.Serializer.html#tymethod.serialize_struct
     pub WRONG_SERIALIZE_STRUCT_ARG,
     Warn,
     "calls to serialization methods with incorrect `len` arguments",
@@ -112,8 +114,9 @@ enum SerializeKind {
 
 #[derive(Default)]
 struct WrongSerializeStructArg {
-    /// `stack` contains one vector for each nested block. The inner vector contains one element
-    /// for each serialization call within the block.
+    #[rustfmt::skip] // https://github.com/rust-lang/rustfmt/issues/6180
+    /// `stack` contains one vector for each nested block. The inner vector contains one element for
+    /// each serialization call within the block.
     stack: Vec<Vec<SerializationState>>,
 }
 
@@ -221,8 +224,8 @@ impl<'tcx> LateLintPass<'tcx> for WrongSerializeStructArg {
             return;
         }
 
-        // Check for serialize_field or serialize_element calls based on the active serialization
-        // kind
+        // Check for serialize_field or serialize_element calls based on the active
+        // serialization kind
         if let Some(last_block_states) = self.stack.last_mut()
             && let Some(active_serialization) = last_block_states.last_mut()
         {

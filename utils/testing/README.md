@@ -89,9 +89,9 @@ The meaning of each line is as follows:
   file, and is provided for context.
 - All other lines (e.g., `diff of stderr:`) contain `compiletest_rs` messages.
 
-**Note:** In the actual standard error, a blank line usually follows the `error: aborting due to
-N previous errors` line. So a correct `.stderr` file will typically contain one blank line at
-the end.
+**Note:** In the actual standard error, a blank line usually follows the
+`error: aborting due to N previous errors` line. So a correct `.stderr` file will typically
+contain one blank line at the end.
 
 In general, it is not too hard to update a `.stderr` file by hand. However, the `compiletest_rs`
 report should contain a line of the form `Actual stderr saved to PATH`. Copying `PATH` to your

@@ -4,7 +4,8 @@ The example libraries are separated into the following three categories:
 
 - [general] - significant concerns; may produce false positives
 - [supplementary] - lesser concerns, but with a low false positive rate
-- [restriction] - lesser or stylistic concerns; may produce false positives (similar to [Clippy]'s "restriction" category)
+- [restriction] - lesser or stylistic concerns; may produce false positives (similar to
+  [Clippy]'s "restriction" category)
 - [experimental] - not ready for primetime yet (similar to [Clippy]'s "nursery" category)
 - [testing] - used only for testing purposes
 
@@ -74,7 +75,9 @@ The example libraries are separated into the following three categories:
 **Notes**
 
 1. Each example is in its own workspace so that it can have its own `rust-toolchain`.
-2. Each example is configured to use the installed copy of [`dylint-link`](../dylint-link). To use the copy within this repository, change the example's `.cargo/config.toml` file as follows:
+2. Each example is configured to use the installed copy of [`dylint-link`](../dylint-link).
+   To use the copy within this repository, change the example's `.cargo/config.toml` file as
+   follows:
    ```toml
    [target.x86_64-unknown-linux-gnu]
    linker = "../../../target/debug/dylint-link"
