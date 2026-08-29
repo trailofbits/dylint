@@ -14,6 +14,7 @@ predicates = { workspace = true }
 regex = { workspace = true }
 serde_json = { workspace = true }
 similar-asserts = { workspace = true }
+supply_chain = { workspace = true }
 
 dylint_internal = { version = "=6.0.4", path = "../internal" }
 

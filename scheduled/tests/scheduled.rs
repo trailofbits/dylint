@@ -4,8 +4,6 @@ use similar_asserts::SimpleDiff;
 use std::{
     fs::{read_to_string, write},
     path::PathBuf,
-    process,
-    str::FromStr,
 };
 
 const TARGETS: [&str; 3] = [
@@ -78,63 +76,11 @@ fn duplicate_dependencies() {
     }
 }
 
-// smoelius: `supply_chain` is the only test that uses `supply_chain.json`. So there is no race.
-#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn supply_chain() {
-    let mut command = process::Command::new("cargo");
-    command.args(["supply-chain", "update", "--cache-max-age=0s"]);
-    let _: process::ExitStatus = command.status().unwrap();
-
     for target in TARGETS {
-        let mut command = Command::new("cargo");
-        command.current_dir("..");
-        command.args(["supply-chain", "json", "--no-dev", "--target", target]);
-        let assert = command.assert().success();
-
-        let stdout_actual = std::str::from_utf8(&assert.get_output().stdout).unwrap();
-        // smoelius: Sanity. (I have nothing against Redox OS.)
-        assert!(!stdout_actual.contains("redox"));
-        let mut value = serde_json::Value::from_str(stdout_actual).unwrap();
-        remove_avatars(&mut value);
-        let stdout_normalized = serde_json::to_string_pretty(&value).unwrap();
-
         let path = PathBuf::from(format!("supply_chain/{target}.json"));
-
-        let stdout_expected = read_to_string(&path).unwrap();
-
-        if env::enabled("BLESS") {
-            write(path, stdout_normalized).unwrap();
-        } else {
-            assert!(
-                stdout_expected == stdout_normalized,
-                "{}",
-                SimpleDiff::from_str(&stdout_expected, &stdout_normalized, "left", "right")
-            );
-        }
-    }
-}
-
-fn remove_avatars(value: &mut serde_json::Value) {
-    match value {
-        serde_json::Value::Null
-        | serde_json::Value::Bool(_)
-        | serde_json::Value::Number(_)
-        | serde_json::Value::String(_) => {}
-        serde_json::Value::Array(array) => {
-            for value in array {
-                remove_avatars(value);
-            }
-        }
-        serde_json::Value::Object(object) => {
-            object.retain(|key, value| {
-                if key == "avatar" {
-                    return false;
-                }
-                remove_avatars(value);
-                true
-            });
-        }
+        supply_chain::check_with_args(path, ["--manifest-path=../Cargo.toml", "--target", target]);
     }
 }
 
