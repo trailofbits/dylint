@@ -1210,6 +1210,7 @@ dependencies = [
 name = "nightly"
 version = "6.0.4"
 dependencies = [
+ "dylint_internal",
  "nested_workspace",
 ]
 

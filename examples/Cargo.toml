@@ -9,6 +9,8 @@ publish = false
 [build-dependencies]
 nested_workspace = { workspace = true }
 
+dylint_internal = { version = "=6.0.4", path = "../internal" }
+
 [dev-dependencies]
 cargo-util = { workspace = true }
 cargo_metadata = { workspace = true }
