@@ -1528,6 +1528,7 @@ dependencies = [
  "regex",
  "serde_json",
  "similar-asserts",
+ "supply_chain",
 ]
 
 [[package]]
@@ -1702,6 +1703,17 @@ name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
+
+[[package]]
+name = "supply_chain"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "281f578d5368f10a30805a842a16790697899d64f129c43947d2e90f8f133f95"
+dependencies = [
+ "anyhow",
+ "serde_json",
+ "similar-asserts",
+]
 
 [[package]]
 name = "syn"
