@@ -274,7 +274,11 @@ fn check_component_type<'tcx>(
     }
 
     if expr.span.from_expansion()
-        && is_const_evaluatable(cx, expr)
+        // Check if the whole expression can be moved into a const context.
+
+            // Note that const eval can evaluate things which cannot be moved (e.g. `false && x`).
+
+            && is_const_evaluatable(cx.tcx, cx.typeck_results(), expr)
         && cx.typeck_results().expr_ty(expr).peel_refs().is_str()
     {
         return ComponentType::Constant(expr);
