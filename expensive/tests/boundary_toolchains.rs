@@ -18,6 +18,15 @@ use tempfile::tempdir;
 // smoelius: Put recent boundaries first, since they're more likely to cause problems.
 // smoelius: The relevant PRs and merge commits appear before each boundary.
 const BOUNDARIES: &[(&str, &str)] = &[
+    // smoelius: rust#159030 is a Clippy subtree update. The effectual commit within that PR was
+    // "Rename some lint pass things":
+    // https://github.com/rust-lang/rust/pull/159030/changes/ae25a17fa9b5df5058e2e8089bd80ef1b7df5e83
+    // https://github.com/rust-lang/rust/pull/159030
+    // https://github.com/rust-lang/rust/commit/ae705ae862c518e4e1f8ead45777e18cf4b6a271
+    ("nightly-2026-06-27", "nightly-2026-06-28"),
+    // https://github.com/rust-lang/rust/pull/157689
+    // https://github.com/rust-lang/rust/commit/942ac9ce4116d4ea784c9882659372b34978b1f8
+    ("nightly-2026-06-22", "nightly-2026-06-23"),
     // https://github.com/rust-lang/rust/pull/153778
     // https://github.com/rust-lang/rust/commit/44c87292ac (rollup merge 2026-03-18)
     ("nightly-2026-03-18", "nightly-2026-03-19"),
