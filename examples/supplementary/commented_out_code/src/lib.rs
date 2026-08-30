@@ -4,7 +4,7 @@
 extern crate rustc_hir;
 extern crate rustc_span;
 
-use clippy_utils::{diagnostics::span_lint_and_help, source::SpanRangeExt};
+use clippy_utils::{diagnostics::span_lint_and_help, source::SpanExt};
 use regex::{Captures, Regex};
 use rustc_hir::Block;
 use rustc_lint::{LateContext, LateLintPass};

@@ -136,6 +136,7 @@ const WATCHED_INHERENTS: &[&[&str]] = &[
 const IGNORED_INHERENTS: &[&[&str]] = &[
     &["alloc", "str", "<impl str>", "to_ascii_lowercase"],
     &["alloc", "str", "<impl str>", "to_ascii_uppercase"],
+    &["alloc", "str", "<impl str>", "to_casefold_unnormalized"],
     &["alloc", "str", "<impl str>", "to_lowercase"],
     &["alloc", "str", "<impl str>", "to_uppercase"],
     &["alloc", "str", "<impl str>", "word_to_titlecase"],
@@ -574,7 +575,7 @@ fn inner_arg_implements_traits<'tcx>(
     }
 
     predicates.iter().all(|predicate| {
-        let predicate = EarlyBinder::bind(predicate)
+        let predicate = EarlyBinder::bind(cx.tcx, predicate)
             .instantiate(cx.tcx, substs_with_new_ty.as_slice())
             .skip_norm_wip();
         let obligation = Obligation::new(cx.tcx, ObligationCause::dummy(), cx.param_env, predicate);
@@ -630,8 +631,8 @@ fn replace_types<'tcx>(
                     let projection = projection_predicate
                         .projection_term
                         .with_replaced_self_ty(cx.tcx, new_ty)
-                        .expect_ty(cx.tcx)
-                        .to_ty(cx.tcx);
+                        .expect_ty()
+                        .to_ty(cx.tcx, ty::IsRigid::No);
 
                     if let Ok(projected_ty) = cx.tcx.try_normalize_erasing_regions(
                         cx.typing_env(),

@@ -58,7 +58,7 @@ extern crate rustc_session;
 pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
     dylint_linting::init_config(sess);
     lint_store.register_lints(&[NAME]);
-    lint_store.register_late_pass(|_| Box::new(Name));
+    lint_store.register_late_lint_pass(Box::new(|_| Box::new(Name)));
 }
 
 rustc_session::declare_lint!(vis NAME, Level, "description");
@@ -79,8 +79,8 @@ rustc_session::declare_lint_pass!(Name => [NAME]);
 That is, `impl_late_lint!`'s additional argument is what goes here:
 
 ```rust
-    lint_store.register_late_pass(|_| Box::new(...));
-                                               ^^^
+    lint_store.register_late_lint_pass(Box::new(|_| Box::new(...)));
+                                                             ^^^
 ```
 
 ## `constituent` feature
@@ -163,7 +163,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint
 
     lint_store.register_lints(&[FIRST_LINT_NAME, SECOND_LINT_NAME]);
 
-    lint_store.register_late_pass(|_| Box::new(LintPassName::new()));
+    lint_store.register_late_lint_pass(Box::new(|_| Box::new(LintPassName::new())));
 }
 ```
 

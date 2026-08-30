@@ -407,7 +407,7 @@ fn get_ufcs_type_name<'tcx>(
                 | ty::Tuple(_) => {
                     format!(
                         "<{}>",
-                        EarlyBinder::bind(ty)
+                        EarlyBinder::bind(cx.tcx, ty)
                             .instantiate(cx.tcx, args)
                             .skip_norm_wip()
                     )

@@ -274,7 +274,7 @@ fn check_component_type<'tcx>(
     }
 
     if expr.span.from_expansion()
-        && is_const_evaluatable(cx, expr)
+        && is_const_evaluatable(cx.tcx, cx.typeck_results(), expr)
         && cx.typeck_results().expr_ty(expr).peel_refs().is_str()
     {
         return ComponentType::Constant(expr);

@@ -81,7 +81,7 @@ impl_lint_pass!(DeriveOpportunity<'_> => [DERIVE_OPPORTUNITY]);
 pub fn register_lints(sess: &Session, lint_store: &mut LintStore) {
     dylint_linting::init_config(sess);
     lint_store.register_lints(&[DERIVE_OPPORTUNITY]);
-    lint_store.register_late_pass(move |_| Box::new(DeriveOpportunity::new()));
+    lint_store.register_late_lint_pass(Box::new(move |_| Box::new(DeriveOpportunity::new())));
 }
 
 #[derive(Default, Deserialize)]
