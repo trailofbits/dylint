@@ -10,6 +10,8 @@ pub const CAMINO_UTF8_PATH_BUF: [&str; 2] = ["camino", "Utf8PathBuf"];
 pub const CELL_REF_CELL: [&str; 3] = ["core", "cell", "RefCell"];
 pub const REF_CELL_BORROW_MUT: [&str; 4] = ["core", "cell", "RefCell", "borrow_mut"];
 
+pub const IO_ERROR: [&str; 4] = ["core", "io", "error", "Error"];
+
 pub const SERDE_CORE_SERIALIZE_FIELD_STRUCT: [&str; 4] =
     ["serde_core", "ser", "SerializeStruct", "serialize_field"];
 pub const SERDE_CORE_SERIALIZE_FIELD_STRUCT_VARIANT: [&str; 4] = [
@@ -65,8 +67,6 @@ pub const FS_RENAME: [&str; 3] = ["std", "fs", "rename"];
 pub const FS_SET_PERMISSIONS: [&str; 3] = ["std", "fs", "set_permissions"];
 pub const FS_SOFT_LINK: [&str; 3] = ["std", "fs", "soft_link"];
 pub const FS_WRITE: [&str; 3] = ["std", "fs", "write"];
-
-pub const IO_ERROR: [&str; 4] = ["std", "io", "error", "Error"];
 
 pub const PATH_JOIN: [&str; 4] = ["std", "path", "Path", "join"];
 pub const PATH_NEW: [&str; 4] = ["std", "path", "Path", "new"];

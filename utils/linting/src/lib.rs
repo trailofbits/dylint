@@ -52,7 +52,7 @@
 //! pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
 //!     dylint_linting::init_config(sess);
 //!     lint_store.register_lints(&[NAME]);
-//!     lint_store.register_late_pass(|_| Box::new(Name));
+//!     lint_store.register_late_lint_pass(Box::new(|_| Box::new(Name)));
 //! }
 //!
 //! rustc_session::declare_lint!(vis NAME, Level, "description");
@@ -73,8 +73,8 @@
 //! That is, `impl_late_lint!`'s additional argument is what goes here:
 //!
 //! ```rust,ignore
-//!     lint_store.register_late_pass(|_| Box::new(...));
-//!                                                ^^^
+//!     lint_store.register_late_lint_pass(Box::new(|_| Box::new(...)));
+//!                                                              ^^^
 //! ```
 //!
 //! # `constituent` feature
@@ -157,7 +157,7 @@
 //!
 //!     lint_store.register_lints(&[FIRST_LINT_NAME, SECOND_LINT_NAME]);
 //!
-//!     lint_store.register_late_pass(|_| Box::new(LintPassName::new()));
+//!     lint_store.register_late_lint_pass(Box::new(|_| Box::new(LintPassName::new())));
 //! }
 //! ```
 //!
@@ -281,7 +281,7 @@ macro_rules! __maybe_mangle {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __declare_and_register_lint {
-    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $register_pass_method:ident, $pass:expr) => {
+    ($(#[$attr:meta])* $vis:vis $NAME:ident, $Level:ident, $desc:expr, $register_pass:ident, $pass:expr) => {
         $crate::__maybe_exclude! {
             $crate::dylint_library!();
         }
@@ -294,11 +294,92 @@ macro_rules! __declare_and_register_lint {
             pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint::LintStore) {
                 $crate::init_config(sess);
                 lint_store.register_lints(&[$NAME]);
-                lint_store.$register_pass_method($pass);
+                $crate::$register_pass!(lint_store, $pass);
             }
         }
 
         rustc_session::declare_lint!($(#[$attr])* $vis $NAME, $Level, $desc);
+    };
+}
+
+#[rustversion::before(2026-06-22)]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __register_pre_expansion_lint_pass {
+    ($lint_store:ident, $pass:expr) => {
+        $lint_store.register_pre_expansion_pass($pass)
+    };
+}
+
+#[rustversion::all(since(2026-06-22), before(2026-06-27))]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __register_pre_expansion_lint_pass {
+    ($lint_store:ident, $pass:expr) => {
+        $lint_store.register_pre_expansion_pass(Box::new($pass))
+    };
+}
+
+#[rustversion::since(2026-06-27)]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __register_pre_expansion_lint_pass {
+    ($lint_store:ident, $pass:expr) => {
+        $lint_store.register_pre_expansion_lint_pass(Box::new($pass))
+    };
+}
+
+#[rustversion::before(2026-06-22)]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __register_early_lint_pass {
+    ($lint_store:ident, $pass:expr) => {
+        $lint_store.register_early_pass($pass)
+    };
+}
+
+#[rustversion::all(since(2026-06-22), before(2026-06-27))]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __register_early_lint_pass {
+    ($lint_store:ident, $pass:expr) => {
+        $lint_store.register_early_pass(Box::new($pass))
+    };
+}
+
+#[rustversion::since(2026-06-27)]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __register_early_lint_pass {
+    ($lint_store:ident, $pass:expr) => {
+        $lint_store.register_early_lint_pass(Box::new($pass))
+    };
+}
+
+#[rustversion::before(2026-06-22)]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __register_late_lint_pass {
+    ($lint_store:ident, $pass:expr) => {
+        $lint_store.register_late_pass($pass)
+    };
+}
+
+#[rustversion::all(since(2026-06-22), before(2026-06-27))]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __register_late_lint_pass {
+    ($lint_store:ident, $pass:expr) => {
+        $lint_store.register_late_pass(Box::new($pass))
+    };
+}
+
+#[rustversion::since(2026-06-27)]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __register_late_lint_pass {
+    ($lint_store:ident, $pass:expr) => {
+        $lint_store.register_late_lint_pass(Box::new($pass))
     };
 }
 
@@ -330,7 +411,7 @@ macro_rules! impl_pre_expansion_lint {
             $(#[$attr])* $vis $NAME,
             $Level,
             $desc,
-            register_pre_expansion_pass,
+            __register_pre_expansion_lint_pass,
             || Box::new($pass)
         );
         $crate::paste::paste! {
@@ -346,7 +427,7 @@ macro_rules! impl_early_lint {
             $(#[$attr])* $vis $NAME,
             $Level,
             $desc,
-            register_early_pass,
+            __register_early_lint_pass,
             || Box::new($pass)
         );
         $crate::paste::paste! {
@@ -362,7 +443,7 @@ macro_rules! impl_late_lint {
             $(#[$attr])* $vis $NAME,
             $Level,
             $desc,
-            register_late_pass,
+            __register_late_lint_pass,
             $crate::__make_late_closure!($pass)
         );
         $crate::paste::paste! {
@@ -379,7 +460,7 @@ macro_rules! declare_pre_expansion_lint {
                 $(#[$attr])* $vis $NAME,
                 $Level,
                 $desc,
-                register_pre_expansion_pass,
+                __register_pre_expansion_lint_pass,
                 || Box::new([< $NAME:camel >])
             );
             rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
@@ -395,7 +476,7 @@ macro_rules! declare_early_lint {
                 $(#[$attr])* $vis $NAME,
                 $Level,
                 $desc,
-                register_early_pass,
+                __register_early_lint_pass,
                 || Box::new([< $NAME:camel >])
             );
             rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
@@ -411,7 +492,7 @@ macro_rules! declare_late_lint {
                 $(#[$attr])* $vis $NAME,
                 $Level,
                 $desc,
-                register_late_pass,
+                __register_late_lint_pass,
                 $crate::__make_late_closure!([< $NAME:camel >])
             );
             rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);

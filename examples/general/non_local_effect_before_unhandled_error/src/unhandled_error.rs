@@ -164,8 +164,9 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
                         state.clear();
                         return state;
                     }
-                    let fn_sig = EarlyBinder::bind(self.cx.tcx.fn_sig(def_id).skip_binder())
-                        .instantiate(self.cx.tcx, substs);
+                    let fn_sig =
+                        EarlyBinder::bind(self.cx.tcx, self.cx.tcx.fn_sig(def_id).skip_binder())
+                            .instantiate(self.cx.tcx, substs);
                     let output = fn_sig.skip_binder().output();
                     if output.is_never() {
                         // Callee doesn't return; assume all locals are handled along this path.
