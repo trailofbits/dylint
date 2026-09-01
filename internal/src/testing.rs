@@ -13,7 +13,7 @@ fn init() {
 
 pub fn new_template(path: &Path) -> Result<()> {
     crate::packaging::new_template(path)?;
-    crate::packaging::use_local_packages(path)?;
+    crate::packaging::use_local_dylint_linting(path)?;
     Ok(())
 }
 
