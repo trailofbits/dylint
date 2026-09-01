@@ -17,4 +17,10 @@ nested_workspace = { workspace = true }
 workspace = true
 
 [package.metadata.nested_workspace]
-roots = ["../driver", "../internal/template", "../utils/linting"]
+roots = [
+    "../driver",
+    # smoelius: Do not build/test "../internal/template". It is covered by the `new_package` test in
+    # cargo-dylint/tests/integration/package_options.rs.
+    # "../internal/template",
+    "../utils/linting",
+]
