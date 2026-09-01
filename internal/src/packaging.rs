@@ -41,7 +41,7 @@ pub fn isolate(path: &Path) -> Result<()> {
 // packages from `crates.io`. But for the tests in this repository, you often want it to use the
 // packages in this repository. The function `use_local_packages` patches a workspace's `Cargo.toml`
 // file to do so.
-pub fn use_local_packages(path: &Path) -> Result<()> {
+pub fn use_local_dylint_linting(path: &Path) -> Result<()> {
     let metadata = current_metadata()?;
 
     let manifest = path.join("Cargo.toml");

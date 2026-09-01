@@ -20,7 +20,7 @@ fn new_package() {
 
     check_dylint_dependencies(&path_buf).unwrap();
 
-    dylint_internal::packaging::use_local_packages(&path_buf).unwrap();
+    dylint_internal::packaging::use_local_dylint_linting(&path_buf).unwrap();
 
     dylint_internal::cargo::build("filled-in dylint-template")
         .build()
