@@ -12,6 +12,7 @@ use std::{
     ffi::OsStr,
     fmt::Write as _,
     fs::{read_dir, read_to_string, write},
+    io::{Write, stderr},
     ops::Range,
     path::{Component, Path, PathBuf},
     sync::LazyLock,
@@ -522,23 +523,28 @@ fn markdown_reference_links_are_valid_and_used() {
 }
 
 #[cfg_attr(
-    any(true, target_os = "windows"),
-    ignore = "disable `markdown_link_check` test while `non_local_effect_before_unhandled_error` is being refactored"
+    target_os = "windows",
+    ignore = "testing on Unix-like platforms is sufficient"
 )]
 #[test]
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[cfg_attr(dylint_lib = "supplementary", expect(commented_out_code))]
 fn markdown_link_check() {
     // Skip the test if GITHUB_TOKEN is not available
+    #[allow(clippy::explicit_write)]
     let Ok(token) = var(env::GITHUB_TOKEN) else {
-        eprintln!(
+        writeln!(
+            stderr(),
             "Skipping `markdown_link_check` test as {} environment variable is not set",
             env::GITHUB_TOKEN
-        );
-        eprintln!(
+        )
+        .unwrap();
+        writeln!(
+            stderr(),
             "To run this test, set the token: {}=your_token cargo test ...",
             env::GITHUB_TOKEN
-        );
+        )
+        .unwrap();
         return;
     };
 
