@@ -16,7 +16,7 @@ This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dyl
 
 ## 6.0.2
 
-- Fix a bug causing published binaries to include invalid source paths ([#2011](https://github.com/trailofbits/dylint/pull/2011)). Reported in [#1985](https://github.com/trailofbits/dylint/pull/1985) by [@clabby](https://github.com/clabby), to whom we are sincerely grateful for the initial binary publishing implementation ([#1971](https://github.com/trailofbits/dylint/pull/1971)).
+- Fix a bug causing published binaries to include invalid source paths ([#2011](https://github.com/trailofbits/dylint/pull/2011)). Reported in [#1985](https://github.com/trailofbits/dylint/pull/1985) by [@clabby](https://github.com/clabby), to whom we are sincerely grateful for the initial binary publishing implementation ([#1972](https://github.com/trailofbits/dylint/pull/1972)).
 - Dependency upgrades
   - `cargo-util-schemas` upgraded to version 0.14
   - `git2` upgraded to version 0.21
