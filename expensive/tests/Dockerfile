@@ -15,10 +15,15 @@ ENV PATH="/root/.cargo/bin:$PATH"
 RUN rustup install nightly
 RUN rustup component add llvm-tools-preview rustc-dev --toolchain nightly
 
+RUN cargo install cargo-nested
 RUN cargo install --path dylint-link
 
-RUN cargo build --all-targets
+RUN cargo nested fetch
 
+# The musl target enables static CRT linking by default, which is incompatible with the example
+# libraries' `cdylib` crate type. Disabling it allows those dynamic libraries to be built.
 ENV RUSTFLAGS="-C target-feature=-crt-static"
+
+RUN cargo build --all-targets
 
 RUN cargo test -p dylint --lib
