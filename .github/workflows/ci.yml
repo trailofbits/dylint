@@ -105,7 +105,7 @@ jobs:
         if: ${{ matrix.environment == 'ubuntu-latest' }}
         run: |
           # https://github.com/actions/runner-images/issues/2606#issuecomment-772683150
-          # du -sh /usr/*/* 2>/dev/null | sort -h || true
+          # du -sh /usr/*/* 2>/dev/null | sort -h
           sudo rm -rfv /usr/lib/google-cloud-sdk | grep . >/dev/null
           sudo rm -rfv /usr/lib/jvm              | grep . >/dev/null
           sudo rm -rfv /usr/local/julia*         | grep . >/dev/null
@@ -118,8 +118,14 @@ jobs:
         if: ${{ matrix.environment == 'macos-latest' }}
         run: |
           # https://github.com/actions/runner-images/issues/2840#issuecomment-2334584217
-          echo /Applications/Xcode* | sort | head -n1 | xargs rm -rf
-          # du -sh /*/* 2>/dev/null | sort -h || true
+          # du -sh /*/* 2>/dev/null | sort -h
+          sudo rm -rfv /Applications/Xcode* | grep . >/dev/null
+
+      - name: Free up space on Windows
+        if: ${{ matrix.environment == 'windows-latest' }}
+        run: |
+          # du -sh /c/*/* 2>/dev/null | sort -h
+          rm -rfv /c/Program\ Files\ \(x86\)/Android | grep . >/dev/null
 
       # smoelius: The next step avoids tests having to use `rustup` concurrently. Toolchain
       # nightly-2026-08-05 is needed for cargo-rdme 2.2.0.
