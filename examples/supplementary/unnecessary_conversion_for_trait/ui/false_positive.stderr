@@ -1,0 +1,7 @@
+warning: unknown lint: `unnecessary_conversion_for_trait`
+ --> $DIR/false_positive.rs:5:9
+  |
+5 | #[allow(unnecessary_conversion_for_trait)]
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unknown_lints)]` on by default 
