@@ -7,7 +7,9 @@ extern crate rustc_span;
 
 use clippy_utils::diagnostics::span_lint_and_help;
 use dylint_internal::{match_def_path, paths};
-use rustc_hir::{Expr, ExprKind, LangItem, MatchSource};
+use rustc_hir::attrs::lang_items::LangItem;
+
+use rustc_hir::{Expr, ExprKind, MatchSource};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{GenericArgKind, Ty, TyKind};
 use rustc_span::sym;
