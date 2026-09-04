@@ -296,7 +296,7 @@ fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<It
 
     iter::from_fn(move || -> Option<DefId> {
         let trait_did = stack.pop()?;
-        let generic_predicates = tcx.explicit_super_predicates_of(trait_did);
+        let generic_predicates = tcx.explicit_super_clauses_of(trait_did);
 
         for (predicate, _) in generic_predicates.skip_binder() {
             if let ty::ClauseKind::Trait(data) = predicate.kind().skip_binder()
@@ -387,7 +387,9 @@ fn typing_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> t
         .map(|p| (p, matches!(p.kind, ty::GenericParamDefKind::Type { .. })))
         .collect::<Vec<_>>();
 
-    let ty_predicates = tcx.predicates_of(did).predicates;
+    let ty_predicates = tcx.clauses_of(did)
+
+        .clauses;
     for (p, _) in ty_predicates {
         if let ty::ClauseKind::Trait(p) = p.kind().skip_binder()
             && p.trait_ref.def_id == trait_id
