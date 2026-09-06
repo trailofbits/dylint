@@ -134,7 +134,7 @@ fn is_param_bound_only_by_iterator<'tcx>(
 ) -> bool {
     let mut found_iterator_bound = false;
 
-    for &(predicate, _pred_span) in predicates.predicates.iter() {
+    for &(predicate, _pred_span) in predicates.clauses.iter() {
         if let Some(trait_pred) = predicate.as_trait_clause() {
             let bound_trait_pred = trait_pred.skip_binder();
             let self_ty = bound_trait_pred.self_ty();
@@ -161,7 +161,7 @@ fn is_param_used_in_other_trait_args<'tcx>(
     iterator_def_id: DefId,
     sized_def_id: DefId,
 ) -> bool {
-    for &(predicate, _) in predicates.predicates.iter() {
+    for &(predicate, _) in predicates.clauses.iter() {
         if let Some(trait_pred) = predicate.as_trait_clause() {
             let bound_trait_pred = trait_pred.skip_binder();
             let current_trait_def_id = bound_trait_pred.def_id();
