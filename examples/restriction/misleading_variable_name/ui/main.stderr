@@ -1,7 +1,7 @@
 warning: `std::fs` exports a type `File`, which is not the type of `file`
   --> $DIR/main.rs:54:9
    |
-LL |     let file = read_to_string(path)?;
+LL |     let file = read_to_string(input)?;
    |         ^^^^
    |
    = help: use a name that is not `dir`, `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, `read_dir`, or `try_lock_error`
@@ -10,7 +10,7 @@ LL |     let file = read_to_string(path)?;
 warning: `std::fs` exports a type `File`, which is not the type of `file`
   --> $DIR/main.rs:55:9
    |
-LL |     let file = read_to_string(path).with_context(|| "read")?;
+LL |     let file = read_to_string(input).with_context(|| "read")?;
    |         ^^^^
    |
    = help: use a name that is not `dir`, `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, `read_dir`, or `try_lock_error`
@@ -18,21 +18,21 @@ LL |     let file = read_to_string(path).with_context(|| "read")?;
 warning: `std::fs` exports a type `File`, which is not the type of `file`
   --> $DIR/main.rs:56:9
    |
-LL |     let file = read_to_string(path).unwrap();
+LL |     let file = read_to_string(input).unwrap();
    |         ^^^^
    |
    = help: use a name that is not `dir`, `dir_builder`, `dir_entry`, `file`, `file_times`, `file_type`, `metadata`, `open_options`, `permissions`, `read_dir`, or `try_lock_error`
 
-warning: `std::io` exports a type `BufReader`, which is not the type of `buf_reader`
-  --> $DIR/main.rs:58:9
+warning: `std::path` exports a type `Path`, which is not the type of `path`
+  --> $DIR/main.rs:59:9
    |
-LL |     let buf_reader = Cursor::new([]).lines();
-   |         ^^^^^^^^^^
+LL |     let path = input.to_path_buf();
+   |         ^^^^
    |
-   = help: use `lines` or something similar
+   = help: use `path_buf` or something similar
 
 warning: `one_type` exports a type `Bar`, which is not the type of `bar`
-  --> $DIR/main.rs:60:9
+  --> $DIR/main.rs:61:9
    |
 LL |     let bar = one_type::foo();
    |         ^^^
@@ -40,7 +40,7 @@ LL |     let bar = one_type::foo();
    = help: use a name other than `bar`
 
 warning: `two_types` exports a type `Bar`, which is not the type of `bar`
-  --> $DIR/main.rs:62:9
+  --> $DIR/main.rs:63:9
    |
 LL |     let bar = two_types::foo();
    |         ^^^

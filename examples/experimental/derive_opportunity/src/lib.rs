@@ -355,10 +355,8 @@ fn implements_trait_with_bounds<'tcx>(
 ) -> bool {
     let generics = cx.tcx.generics_of(trait_id);
     // smoelius: `all_params_are_lifetimes` should have already been checked.
-    let args = vec![
-        ty::Region::new_from_kind(cx.tcx, ty::ReStatic).into();
-        generics.own_params.len().saturating_sub(1)
-    ];
+    let args =
+        vec![ty::Region::new_static(cx.tcx).into(); generics.own_params.len().saturating_sub(1)];
     if let ty::Adt(adt_def, _) = ty.kind() {
         let typing_env = typing_env_with_bounds(cx.tcx, adt_def.did(), trait_id);
         // smoelius: The decision to pass `adt_def.did()` as the `callee_id` argument is based on
@@ -387,9 +385,7 @@ fn typing_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> t
         .map(|p| (p, matches!(p.kind, ty::GenericParamDefKind::Type { .. })))
         .collect::<Vec<_>>();
 
-    let ty_predicates = tcx.clauses_of(did)
-
-        .clauses;
+    let ty_predicates = tcx.clauses_of(did).clauses;
     for (p, _) in ty_predicates {
         if let ty::ClauseKind::Trait(p) = p.kind().skip_binder()
             && p.trait_ref.def_id == trait_id
