@@ -49,19 +49,22 @@ mod rc {
 }
 
 fn main() -> Result<()> {
-    let path = Path::new("x");
+    let input = Path::new("x");
 
-    let file = read_to_string(path)?;
-    let file = read_to_string(path).with_context(|| "read")?;
-    let file = read_to_string(path).unwrap();
+    let file = read_to_string(input)?;
+    let file = read_to_string(input).with_context(|| "read")?;
+    let file = read_to_string(input).unwrap();
 
-    let buf_reader = Cursor::new([]).lines();
+    // Test method-call handling and suggesting a name derived from the actual return type.
+    let path = input.to_path_buf();
 
     let bar = one_type::foo();
 
     let bar = two_types::foo();
 
     // negative tests
+    let path = Path::new("x");
+
     let contents = read_to_string(path).unwrap();
 
     let file: String = read_to_string(path).unwrap();
