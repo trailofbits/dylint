@@ -8,7 +8,7 @@ use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
-    env, library_filename, msrv,
+    env, library_filename_with_toolchain, msrv,
     rustup::SanitizeEnvironment,
     testing::new_template,
 };
@@ -221,7 +221,7 @@ fn list_by_path() {
         &tempdir
             .path()
             .join("target/debug")
-            .join(library_filename("fill_me_in", "*"))
+            .join(library_filename_with_toolchain("fill_me_in", "*"))
             .to_string_lossy(),
     )
     .ok()

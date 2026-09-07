@@ -120,7 +120,7 @@
 use anyhow::{Context, Result, anyhow, ensure};
 use cargo_metadata::{Metadata, Package, Target, TargetKind};
 use compiletest_rs as compiletest;
-use dylint_internal::{CommandExt, env, library_filename, rustup::is_rustc};
+use dylint_internal::{CommandExt, env, library_filename_with_toolchain, rustup::is_rustc};
 use once_cell::sync::OnceCell;
 use regex::Regex;
 use std::{
@@ -203,7 +203,7 @@ fn initialize(name: &str) -> &Result<PathBuf> {
 pub fn dylint_libs(name: &str) -> Result<String> {
     let metadata = dylint_internal::cargo::current_metadata().unwrap();
     let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
-    let filename = library_filename(name, &rustup_toolchain);
+    let filename = library_filename_with_toolchain(name, &rustup_toolchain);
     let path = metadata.target_directory.join("debug").join(filename);
     let paths = vec![path];
     serde_json::to_string(&paths).map_err(Into::into)
