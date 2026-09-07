@@ -126,8 +126,8 @@ fn run_with_name_toolchain_map(
     let resolved = resolve(opts, name_toolchain_map)?;
 
     if resolved.is_empty() {
-        assert!(lib_sel.libs.is_empty());
-        assert!(lib_sel.lib_paths.is_empty());
+        assert_eq!(&[] as &[String], lib_sel.libs);
+        assert_eq!(&[] as &[String], lib_sel.lib_paths);
 
         let name_toolchain_map_is_empty = warn_if_empty(opts, name_toolchain_map)?;
 

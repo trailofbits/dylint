@@ -114,7 +114,7 @@ impl Rewrite {
     pub fn applicability(&self, highlight: &Highlight) -> Option<(usize, usize)> {
         let needle = &self.old_tokens
             [self.common_prefix_len..self.old_tokens.len() - self.common_suffix_len];
-        assert!(!needle.is_empty());
+        assert_ne!(&[] as &[String], needle);
         let i = subslice_position(&highlight.tokens, needle)?;
         // smoelius: To be applicable, the needle must change at least one highlighted token.
         if i + needle.len() <= highlight.highlight_start || highlight.highlight_end <= i {
