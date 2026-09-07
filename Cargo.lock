@@ -172,6 +172,7 @@ dependencies = [
  "dylint_internal",
  "env_logger",
  "glob",
+ "ignore",
  "log",
  "predicates",
  "regex",
