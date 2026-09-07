@@ -687,11 +687,8 @@ fn shellcheck() {
 
 #[test]
 fn dependencies_are_sorted() {
-    for entry in walkdir::WalkDir::new(".")
-        .into_iter()
-        .filter_map(Result::ok)
-        .filter(|e| e.file_name() == "Cargo.toml")
-    {
+    for entry in walkdir(true).with_file_name("Cargo.toml") {
+        let entry = entry.unwrap();
         let path = entry.path();
         let contents = read_to_string(path).unwrap();
         let document = contents.parse::<toml_edit::Document<_>>().unwrap();
@@ -868,31 +865,33 @@ fn compare_lines(left: &str, right: &str) {
     }
 }
 
-fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
-    walkdir::WalkDir::new(".")
-        .into_iter()
-        .filter_entry(move |entry| {
-            let filename = entry.file_name();
-            filename != "target" && (include_examples || filename != "examples")
-        })
+fn walkdir(include_examples: bool) -> ignore::Walk {
+    let mut builder = ignore::WalkBuilder::new(".");
+    builder
+        .standard_filters(false)
+        .git_ignore(true)
+        .filter_entry(move |entry| include_examples || entry.file_name() != "examples");
+    builder.build()
 }
+
+type WalkResult = std::result::Result<ignore::DirEntry, ignore::Error>;
 
 trait IntoIterExt {
     fn with_extension(
         self,
         extension: impl AsRef<OsStr> + 'static,
-    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>>;
+    ) -> impl Iterator<Item = WalkResult>;
     fn with_file_name(
         self,
         file_name: impl AsRef<OsStr> + 'static,
-    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>>;
+    ) -> impl Iterator<Item = WalkResult>;
 }
 
-impl<T: Iterator<Item = walkdir::Result<walkdir::DirEntry>>> IntoIterExt for T {
+impl<T: Iterator<Item = WalkResult>> IntoIterExt for T {
     fn with_extension(
         self,
         extension: impl AsRef<OsStr> + 'static,
-    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
+    ) -> impl Iterator<Item = WalkResult> {
         self.filter(move |entry| {
             entry.as_ref().map_or(true, |entry| {
                 entry.path().extension() == Some(extension.as_ref())
@@ -902,7 +901,7 @@ impl<T: Iterator<Item = walkdir::Result<walkdir::DirEntry>>> IntoIterExt for T {
     fn with_file_name(
         self,
         file_name: impl AsRef<OsStr> + 'static,
-    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
+    ) -> impl Iterator<Item = WalkResult> {
         self.filter(move |entry| {
             entry
                 .as_ref()
