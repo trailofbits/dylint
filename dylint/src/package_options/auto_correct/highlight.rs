@@ -80,7 +80,7 @@ impl Highlight {
             .map(ToOwned::to_owned)
             .collect::<Vec<_>>();
 
-        assert!(!lines.is_empty());
+        assert_ne!(&[] as &[String], lines);
 
         // smoelius: The calculations of `highlight_start` and `highlight_end` retokenize parts of
         // the first and last lines. This is kind of ugly.
@@ -148,7 +148,7 @@ pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highli
                     continue;
                 }
                 let highlight = Highlight::try_new(&diagnostic.message, span)?;
-                assert!(!highlight.tokens.is_empty());
+                assert_ne!(&[] as &[String], highlight.tokens);
                 highlights.push(highlight);
             }
         }
