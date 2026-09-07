@@ -21,7 +21,8 @@ pub mod examples;
 
 mod filename;
 pub use filename::{
-    library_filename_with_toolchain, parse_path_with_toolchain,
+    library_filename_with_toolchain, library_plain_filename, parse_path_with_toolchain,
+    parse_plain_path,
 };
 
 #[cfg(feature = "git")]
@@ -34,6 +35,9 @@ pub use git2;
 
 #[cfg(feature = "home")]
 pub mod home;
+
+#[cfg(feature = "link")]
+pub mod link;
 
 #[cfg(all(nightly, feature = "match_def_path"))]
 mod match_def_path;

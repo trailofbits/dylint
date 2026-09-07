@@ -1,5 +1,24 @@
 use std::{env::consts, path::Path};
 
+#[must_use]
+pub fn library_plain_filename(lib_name: &str) -> String {
+    format!(
+        "{}{}{}",
+        consts::DLL_PREFIX,
+        lib_name.replace('-', "_"),
+        consts::DLL_SUFFIX
+    )
+}
+
+#[must_use]
+pub fn parse_plain_path(path: &Path) -> Option<String> {
+    let filename = path.file_name()?;
+    let s = filename.to_string_lossy();
+    let file_stem = s.strip_suffix(consts::DLL_SUFFIX)?;
+    let lib_name = file_stem.strip_prefix(consts::DLL_PREFIX)?;
+    Some(lib_name.to_owned())
+}
+
 /// Returns the filename of a Dylint library.
 ///
 /// # Examples

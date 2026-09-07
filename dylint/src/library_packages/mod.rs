@@ -3,7 +3,8 @@ use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage, TargetKind};
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
 use dylint_internal::{
-    CommandExt, config, env, library_filename_with_toolchain, rustup::SanitizeEnvironment,
+    CommandExt, config, env, library_filename_with_toolchain, library_plain_filename,
+    link::copy_library, rustup::SanitizeEnvironment,
 };
 use glob::glob;
 use once_cell::sync::OnceCell;
@@ -68,6 +69,12 @@ impl Package {
             .join("dylint/libraries")
             .join(&self.toolchain)
             .into_std_path_buf()
+    }
+
+    pub fn library_plain_path(&self) -> PathBuf {
+        self.target_directory()
+            .join("release")
+            .join(library_plain_filename(&self.lib_name))
     }
 
     pub fn library_path_with_toolchain(&self) -> PathBuf {
@@ -469,10 +476,17 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
             .quiet(opts.quiet)
             .build()
             .sanitize_environment()
+            .env(env::DYLINT_BUILDING_METADATA_ENTRIES, "1")
             .env_remove(env::RUSTFLAGS)
             .current_dir(&package.root)
             .args(["--release", "--target-dir", &target_dir.to_string_lossy()])
             .success()?;
+
+        copy_library(
+            &package.library_plain_path(),
+            &package.lib_name,
+            &package.toolchain,
+        )?;
 
         let exists = path
             .try_exists()

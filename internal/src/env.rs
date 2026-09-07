@@ -19,6 +19,7 @@ declare_const!(CI);
 declare_const!(CLIPPY_DISABLE_DOCS_LINKS);
 declare_const!(CLIPPY_DRIVER_PATH);
 declare_const!(DOCS_RS);
+declare_const!(DYLINT_BUILDING_METADATA_ENTRIES);
 declare_const!(DYLINT_DRIVER_PATH);
 declare_const!(DYLINT_LIBRARY_PATH);
 declare_const!(DYLINT_LIBS);
