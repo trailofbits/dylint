@@ -20,7 +20,7 @@ pub mod env;
 pub mod examples;
 
 mod filename;
-pub use filename::{library_filename, parse_path_filename};
+pub use filename::{library_filename_with_toolchain, parse_path_with_toolchain};
 
 #[cfg(feature = "git")]
 mod git;

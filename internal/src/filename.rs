@@ -5,23 +5,23 @@ use std::{env::consts, path::Path};
 /// # Examples
 ///
 /// ```
-/// use dylint_internal::library_filename;
+/// use dylint_internal::library_filename_with_toolchain;
 ///
 /// #[cfg(target_os = "linux")]
 /// assert_eq!(
-///     library_filename("foo", "stable-x86_64-unknown-linux-gnu"),
+///     library_filename_with_toolchain("foo", "stable-x86_64-unknown-linux-gnu"),
 ///     "libfoo@stable-x86_64-unknown-linux-gnu.so"
 /// );
 ///
 /// #[cfg(target_os = "macos")]
 /// assert_eq!(
-///     library_filename("foo", "stable-x86_64-apple-darwin"),
+///     library_filename_with_toolchain("foo", "stable-x86_64-apple-darwin"),
 ///     "libfoo@stable-x86_64-apple-darwin.dylib"
 /// );
 ///
 /// #[cfg(target_os = "windows")]
 /// assert_eq!(
-///     library_filename("foo", "stable-x86_64-pc-windows-msvc"),
+///     library_filename_with_toolchain("foo", "stable-x86_64-pc-windows-msvc"),
 ///     "foo@stable-x86_64-pc-windows-msvc.dll"
 /// );
 /// ```
@@ -29,11 +29,11 @@ use std::{env::consts, path::Path};
 // behavior is consistent with that.
 #[allow(clippy::module_name_repetitions, clippy::uninlined_format_args)]
 #[must_use]
-pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
+pub fn library_filename_with_toolchain(name: &str, toolchain: &str) -> String {
     format!(
         "{}{}@{}{}",
         consts::DLL_PREFIX,
-        lib_name.replace('-', "_"),
+        name.replace('-', "_"),
         toolchain,
         consts::DLL_SUFFIX
     )
@@ -44,12 +44,12 @@ pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
 /// # Examples
 ///
 /// ```
-/// use dylint_internal::parse_path_filename;
+/// use dylint_internal::parse_path_with_toolchain;
 /// use std::path::Path;
 ///
 /// #[cfg(target_os = "linux")]
 /// assert_eq!(
-///     parse_path_filename(Path::new("libfoo@stable-x86_64-unknown-linux-gnu.so")),
+///     parse_path_with_toolchain(Path::new("libfoo@stable-x86_64-unknown-linux-gnu.so")),
 ///     Some((
 ///         String::from("foo"),
 ///         String::from("stable-x86_64-unknown-linux-gnu")
@@ -58,7 +58,7 @@ pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
 ///
 /// #[cfg(target_os = "macos")]
 /// assert_eq!(
-///     parse_path_filename(Path::new("libfoo@stable-x86_64-apple-darwin.dylib")),
+///     parse_path_with_toolchain(Path::new("libfoo@stable-x86_64-apple-darwin.dylib")),
 ///     Some((
 ///         String::from("foo"),
 ///         String::from("stable-x86_64-apple-darwin")
@@ -67,7 +67,7 @@ pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
 ///
 /// #[cfg(target_os = "windows")]
 /// assert_eq!(
-///     parse_path_filename(Path::new("foo@stable-x86_64-pc-windows-msvc.dll")),
+///     parse_path_with_toolchain(Path::new("foo@stable-x86_64-pc-windows-msvc.dll")),
 ///     Some((
 ///         String::from("foo"),
 ///         String::from("stable-x86_64-pc-windows-msvc")
@@ -76,20 +76,20 @@ pub fn library_filename(lib_name: &str, toolchain: &str) -> String {
 /// ```
 #[allow(clippy::module_name_repetitions)]
 #[must_use]
-pub fn parse_path_filename(path: &Path) -> Option<(String, String)> {
+pub fn parse_path_with_toolchain(path: &Path) -> Option<(String, String)> {
     let filename = path.file_name()?;
-    parse_filename(&filename.to_string_lossy())
+    parse_filename_with_toolchain(&filename.to_string_lossy())
 }
 
 #[allow(clippy::module_name_repetitions)]
 #[must_use]
-pub fn parse_filename(filename: &str) -> Option<(String, String)> {
+pub fn parse_filename_with_toolchain(filename: &str) -> Option<(String, String)> {
     let file_stem = filename.strip_suffix(consts::DLL_SUFFIX)?;
-    let target_name = file_stem.strip_prefix(consts::DLL_PREFIX)?;
-    parse_target_name(target_name)
+    let lib_name_with_toolchain = file_stem.strip_prefix(consts::DLL_PREFIX)?;
+    parse_lib_name_with_toolchain(lib_name_with_toolchain)
 }
 
-fn parse_target_name(target_name: &str) -> Option<(String, String)> {
-    let (lib_name, toolchain) = target_name.split_once('@')?;
+fn parse_lib_name_with_toolchain(lib_name_with_toolchain: &str) -> Option<(String, String)> {
+    let (lib_name, toolchain) = lib_name_with_toolchain.split_once('@')?;
     Some((lib_name.to_owned(), toolchain.to_owned()))
 }

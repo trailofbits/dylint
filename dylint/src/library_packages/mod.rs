@@ -2,7 +2,9 @@ use crate::{error::warn, opts};
 use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage, TargetKind};
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
-use dylint_internal::{CommandExt, config, env, library_filename, rustup::SanitizeEnvironment};
+use dylint_internal::{
+    CommandExt, config, env, library_filename_with_toolchain, rustup::SanitizeEnvironment,
+};
 use glob::glob;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, de::IntoDeserializer};
@@ -68,10 +70,13 @@ impl Package {
             .into_std_path_buf()
     }
 
-    pub fn path(&self) -> PathBuf {
+    pub fn library_path_with_toolchain(&self) -> PathBuf {
         self.target_directory()
             .join("release")
-            .join(library_filename(&self.lib_name, &self.toolchain))
+            .join(library_filename_with_toolchain(
+                &self.lib_name,
+                &self.toolchain,
+            ))
     }
 }
 
@@ -455,7 +460,7 @@ pub fn package_library_name(package: &MetadataPackage) -> Result<String> {
 pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> {
     let target_dir = package.target_directory();
 
-    let path = package.path();
+    let path = package.library_path_with_toolchain();
 
     if !opts.library_selection().no_build {
         // smoelius: Clear `RUSTFLAGS` so that changes to it do not cause workspace metadata entries
