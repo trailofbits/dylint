@@ -47,7 +47,7 @@ impl Inner {
             Self::Path(path) => path.clone(),
 
             #[cfg(__library_packages)]
-            Self::Package(package) => package.path(),
+            Self::Package(package) => package.library_path_with_toolchain(),
         }
     }
 

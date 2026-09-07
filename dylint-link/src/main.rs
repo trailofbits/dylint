@@ -4,7 +4,7 @@
 
 use anyhow::{Context, Result, anyhow};
 use dylint_internal::{
-    CommandExt, cargo::cargo_home, env, library_filename, rustup::parse_toolchain,
+    CommandExt, cargo::cargo_home, env, library_filename_with_toolchain, rustup::parse_toolchain,
 };
 use std::{
     env::{args, consts},
@@ -79,7 +79,8 @@ fn copy_library(path: &Path) -> Result<()> {
         let cargo_pkg_name = env::var(env::CARGO_PKG_NAME)?;
         if lib_name == cargo_pkg_name.replace('-', "_") {
             let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
-            let filename_with_toolchain = library_filename(&lib_name, &rustup_toolchain);
+            let filename_with_toolchain =
+                library_filename_with_toolchain(&lib_name, &rustup_toolchain);
             let parent = path
                 .parent()
                 .ok_or_else(|| anyhow!("Could not get parent directory"))?;

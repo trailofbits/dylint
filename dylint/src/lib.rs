@@ -7,7 +7,8 @@
 use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    CommandExt, driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment,
+    CommandExt, driver as dylint_driver, env, parse_path_with_toolchain,
+    rustup::SanitizeEnvironment,
 };
 use std::{
     collections::BTreeMap,
@@ -276,7 +277,7 @@ where
 
 fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBuf)>> {
     if let Ok(path) = PathBuf::from(name).canonicalize() {
-        if let Some((_, toolchain)) = parse_path_filename(&path) {
+        if let Some((_, toolchain)) = parse_path_with_toolchain(&path) {
             return Ok(Some((toolchain, path)));
         }
 
@@ -423,7 +424,7 @@ fn list_lints(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
             let driver = driver_builder::get(opts, toolchain)?;
             let dylint_libs = serde_json::to_string(&[path])?;
             let (name, _) =
-                parse_path_filename(path).ok_or_else(|| anyhow!("Could not parse path"))?;
+                parse_path_with_toolchain(path).ok_or_else(|| anyhow!("Could not parse path"))?;
 
             print!("{name}");
             if resolved.keys().len() >= 2 {
