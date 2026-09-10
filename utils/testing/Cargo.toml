@@ -14,11 +14,12 @@ compiletest_rs = { workspace = true }
 env_logger = { workspace = true }
 once_cell = { workspace = true }
 regex = { workspace = true }
-serde_json = { workspace = true }
 tempfile = { workspace = true }
 
 dylint = { version = "=6.0.4", path = "../../dylint" }
-dylint_internal = { version = "=6.0.4", path = "../../internal" }
+dylint_internal = { version = "=6.0.4", path = "../../internal", features = [
+    "link",
+] }
 
 [features]
 default = []

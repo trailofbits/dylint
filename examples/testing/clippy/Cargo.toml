@@ -27,7 +27,7 @@ log = "0.4"
 tempfile = "3.27"
 
 dylint = { path = "../../../dylint" }
-dylint_internal = { path = "../../../internal", features = ["git"] }
+dylint_internal = { path = "../../../internal", features = ["git", "link"] }
 dylint_testing = { path = "../../../utils/testing" }
 
 [lints.rust.unexpected_cfgs]
