@@ -1,6 +1,6 @@
 use anyhow::Result;
 use assert_cmd::cargo::cargo_bin_cmd;
-use cargo_metadata::{Dependency, MetadataCommand};
+use cargo_metadata::Dependency;
 use dylint_internal::{CommandExt, msrv, rustup::SanitizeEnvironment};
 use predicates::prelude::*;
 use semver::Version;
@@ -37,8 +37,8 @@ fn new_package() {
         .unwrap();
 }
 
-fn check_dylint_dependencies(path: &Path) -> Result<()> {
-    let metadata = MetadataCommand::new().current_dir(path).no_deps().exec()?;
+fn check_dylint_dependencies(dir: &Path) -> Result<()> {
+    let metadata = dylint_internal::cargo::metadata(dir)?;
     for package in metadata.packages {
         for Dependency { name: dep, req, .. } in &package.dependencies {
             if dep.starts_with("dylint") {
