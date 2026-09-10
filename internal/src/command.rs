@@ -25,8 +25,7 @@ impl CommandExt for Command {
 
         ensure!(
             !require_success || output.status.success(),
-            "command failed: {:?}\nstdout: {:?}\nstderr: {:?}",
-            self,
+            "command failed: {self:?}\nstdout: {:?}\nstderr: {:?}",
             std::str::from_utf8(&output.stdout).unwrap_or_default(),
             std::str::from_utf8(&output.stderr).unwrap_or_default()
         );

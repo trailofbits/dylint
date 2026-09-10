@@ -107,11 +107,8 @@ impl CollapsibleUnwrap {
                     Some((
                         &mut unwrap_span_sugg,
                         format!(
-                            ".and_then(|{}{}| {}{})",
-                            if needs_mut { "mut " } else { "" },
-                            name,
-                            name,
-                            snip
+                            ".and_then(|{}{name}| {name}{snip})",
+                            if needs_mut { "mut " } else { "" }
                         ),
                     ))
                 } else {

@@ -243,8 +243,7 @@ pub fn name_as_lib(
             0 => Ok(None),
             1 => Ok(Some(toolchain_maybe_libraries.remove(0))),
             _ => Err(anyhow!(
-                "Found multiple libraries matching `{}`: {:?}",
-                name,
+                "Found multiple libraries matching `{name}`: {:?}",
                 toolchain_maybe_libraries
                     .iter()
                     .map(|(_, path)| path)

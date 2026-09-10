@@ -226,10 +226,9 @@ fn rewrites_from_patch(
             warn(
                 opts,
                 &format!(
-                    "Malformed hunk: old lines ({}) + new lines ({}) != line count ({})",
+                    "Malformed hunk: old lines ({}) + new lines ({}) != line count ({line_count})",
                     hunk.old_lines(),
                     hunk.new_lines(),
-                    line_count
                 ),
             );
             continue;
