@@ -171,8 +171,7 @@ mod tests {
 
                 assert!(
                     !(is_in_allowed_directory || is_in_root_of_exception_dirs),
-                    "Forbidden file {} found in non-allowed directory: {}",
-                    file_name,
+                    "Forbidden file {file_name} found in non-allowed directory: {}",
                     path.display()
                 );
             }
@@ -231,7 +230,7 @@ mod tests {
             let category_path = Path::new(category);
             let lib_rs_path = category_path.join("src/lib.rs");
             let file_contents = read_to_string(&lib_rs_path)
-                .unwrap_or_else(|e| panic!("Failed to read {}: {}", lib_rs_path.display(), e));
+                .unwrap_or_else(|e| panic!("Failed to read {}: {e}", lib_rs_path.display()));
 
             let actual_lints: BTreeSet<_> = register_lints_re
                 .captures_iter(&file_contents)
@@ -240,11 +239,7 @@ mod tests {
 
             let expected_lints: BTreeSet<_> = read_dir(category_path)
                 .unwrap_or_else(|e| {
-                    panic!(
-                        "Failed to read directory {}: {}",
-                        category_path.display(),
-                        e
-                    )
+                    panic!("Failed to read directory {}: {e}", category_path.display())
                 })
                 .filter_map(|entry| {
                     let entry = entry.ok()?;
@@ -264,11 +259,8 @@ mod tests {
 
             assert!(
                 missing.is_empty(),
-                "Mismatch in {}\n\nMissing registered lints: {:?}\n\nExpected: {:?}\nActual: {:?}",
-                category_path.display(),
-                missing,
-                expected_lints,
-                actual_lints
+                "Mismatch in {}\n\nMissing registered lints: {missing:?}\n\nExpected: {expected_lints:?}\nActual: {actual_lints:?}",
+                category_path.display()
             );
         }
     }

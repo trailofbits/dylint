@@ -515,13 +515,7 @@ macro_rules! declare_late_lint {
 /// `init_config`.
 pub fn config_or_default<T: Default + serde::de::DeserializeOwned>(name: &str) -> T {
     config::<T>(name).map_or_else(
-        |error| {
-            panic!(
-                "Could not parse config as `{}`: {}",
-                type_name::<T>(),
-                error
-            )
-        },
+        |error| panic!("Could not parse config as `{}`: {error}", type_name::<T>()),
         Option::unwrap_or_default,
     )
 }

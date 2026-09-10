@@ -184,12 +184,12 @@ expected stderr:\n```\n{}```
             expected
                 .lines()
                 .enumerate()
-                .map(|(i, line)| format!("{:>4}: {}\n", i + 1, line))
+                .map(|(i, line)| format!("{:>4}: {line}\n", i + 1))
                 .collect::<String>(),
             actual
                 .lines()
                 .enumerate()
-                .map(|(i, line)| format!("{:>4}: {}\n", i + 1, line))
+                .map(|(i, line)| format!("{:>4}: {line}\n", i + 1))
                 .collect::<String>()
         );
     }

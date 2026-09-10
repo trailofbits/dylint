@@ -65,10 +65,8 @@ impl LoadedLibrary {
                 let dylint_version = CString::from_raw(func()).into_string()?;
                 ensure!(
                     dylint_version == DYLINT_VERSION,
-                    "`{}` has dylint version `{}`, but `{}` was expected",
-                    self.path.to_string_lossy(),
-                    dylint_version,
-                    DYLINT_VERSION
+                    "`{}` has dylint version `{dylint_version}`, but `{DYLINT_VERSION}` was expected",
+                    self.path.to_string_lossy()
                 );
             } else {
                 bail!(
@@ -138,11 +136,7 @@ impl Callbacks {
                     // smoelius: And rust-lang/rust#111748 made it that `msg` is borrowed for
                     // `'static`. Since the program is about to exit, it's probably fine to leak the
                     // string.
-                    let msg = format!(
-                        "could not load library `{}`: {}",
-                        path.to_string_lossy(),
-                        err
-                    );
+                    let msg = format!("could not load library `{}`: {err}", path.to_string_lossy());
                     early_error(msg);
                 });
 
@@ -373,12 +367,9 @@ fn list_lints(before: &BTreeSet<Lint>, after: &BTreeSet<Lint>) {
 
     for Lint { name, level, desc } in difference {
         println!(
-            "    {:<name_width$}    {:<level_width$}    {}",
+            "    {:<name_width$}    {:<level_width$}    {desc}",
             name.to_lowercase(),
-            level.as_str(),
-            desc,
-            name_width = name_width,
-            level_width = level_width
+            level.as_str()
         );
     }
 }

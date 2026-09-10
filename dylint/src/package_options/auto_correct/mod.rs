@@ -155,10 +155,9 @@ pub fn auto_correct_revertible(
             // matter is that the commit oid would be wrong. But we only track one, so what we
             // output is already inaccurate.
             eprintln!(
-                "Rewriting with score {best_score} rewrite from {}: {:#?} {:#?}",
+                "Rewriting with score {best_score} rewrite from {}: {:#?} {highlight:#?}",
                 source.oid.short_id(),
                 source.rewrite,
-                highlight,
             );
             let _: String = rewriter.rewrite(&source.span, &replacement);
             *last_rewritten_line = source.span.end().line;
