@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, sync::OnceLock};
+use std::{fs::read_to_string, path::PathBuf, sync::OnceLock};
 use thiserror::Error as ThisError;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -52,9 +52,9 @@ pub fn get() -> Option<&'static toml::value::Table> {
     CONFIG_TABLE.get()
 }
 
-// smoelius: `try_init_with_metadata` returns a string so that `dylint_linting` can record it in
-// `file_depinfo`.
-pub fn try_init_with_metadata(metadata: &cargo_metadata::Metadata) -> Result<Option<String>> {
+// rirze: Return the configuration file's path so `dylint_linting` can load it into rustc's source
+// map to track changes.
+pub fn try_init_with_metadata(metadata: &cargo_metadata::Metadata) -> Result<Option<PathBuf>> {
     if CONFIG_TABLE.get().is_some() {
         return Ok(None);
     }
@@ -63,26 +63,23 @@ pub fn try_init_with_metadata(metadata: &cargo_metadata::Metadata) -> Result<Opt
 
     let dylint_toml = workspace_root.join("dylint.toml");
 
-    let value = if dylint_toml
+    if !dylint_toml
         .try_exists()
         .map_err(|error| Inner::Io(format!("`try_exists` failed for {dylint_toml:?}"), error))?
     {
-        let value = read_to_string(&dylint_toml).map_err(|error| {
-            Inner::Io(
-                format!("`read_to_string` failed for {dylint_toml:?}"),
-                error,
-            )
-        })?;
-        Some(value)
-    } else {
-        None
-    };
-
-    if let Some(s) = &value {
-        init_from_string(s)?;
+        return Ok(None);
     }
 
-    Ok(value)
+    let value = read_to_string(&dylint_toml).map_err(|error| {
+        Inner::Io(
+            format!("`read_to_string` failed for {dylint_toml:?}"),
+            error,
+        )
+    })?;
+
+    init_from_string(&value)?;
+
+    Ok(Some(dylint_toml.into_std_path_buf()))
 }
 
 pub fn init_from_string(s: &str) -> Result<()> {

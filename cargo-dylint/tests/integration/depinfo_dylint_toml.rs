@@ -3,7 +3,7 @@ use dylint_internal::{CommandExt, env, packaging::isolate};
 use predicates::prelude::*;
 use std::{
     env::remove_var,
-    fs::{OpenOptions, write},
+    fs::{OpenOptions, remove_file, write},
     io::Write,
 };
 use tempfile::tempdir;
@@ -26,7 +26,7 @@ fn main() {
 }
 ";
 
-/// Verify that changes to `dylint.toml` cause the lints to be rerun.
+/// Verify that unchanged `dylint.toml` files preserve cached results, while changes rerun lints.
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn depinfo_dylint_toml() {
@@ -64,20 +64,52 @@ path = "{}/../examples/supplementary/unnamed_constant"
 
     cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
-        .args(["dylint", "--all"])
+        .args(["dylint", "--all", "--", "--verbose"])
         .assert()
         .success()
         .stderr(predicate::str::contains("warning: unnamed constant").not());
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&tempdir)
+        .args(["dylint", "--all", "--", "--verbose"])
+        .assert()
+        .success()
+        .stderr(
+            predicate::str::contains("Fresh depinfo_dylint_toml_test")
+                .and(predicate::str::contains("Checking depinfo_dylint_toml_test").not()),
+        );
 
     write(&dylint_toml, "[unnamed_constant]\nthreshold = 1\n").unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
-        .args(["dylint", "--all"])
+        .args(["dylint", "--all", "--", "--verbose"])
         .assert()
         .success()
         .stderr(
             predicate::str::contains("Checking depinfo_dylint_toml_test")
                 .and(predicate::str::contains("warning: unnamed constant")),
+        );
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&tempdir)
+        .args(["dylint", "--all", "--", "--verbose"])
+        .assert()
+        .success()
+        .stderr(
+            predicate::str::contains("Fresh depinfo_dylint_toml_test")
+                .and(predicate::str::contains("Checking depinfo_dylint_toml_test").not()),
+        );
+
+    remove_file(&dylint_toml).unwrap();
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&tempdir)
+        .args(["dylint", "--all", "--", "--verbose"])
+        .assert()
+        .success()
+        .stderr(
+            predicate::str::contains("Checking depinfo_dylint_toml_test")
+                .and(predicate::str::contains("warning: unnamed constant").not()),
         );
 }

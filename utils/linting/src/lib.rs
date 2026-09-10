@@ -618,35 +618,6 @@ impl EnvDepInfo for rustc_session::Session {
     }
 }
 
-trait FileDepInfo {
-    fn file_depinfo(
-        &self,
-    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<Symbol>>;
-}
-
-impl FileDepInfo for rustc_session::Session {
-    #[rustversion::before(2024-03-05)]
-    fn file_depinfo(
-        &self,
-    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<Symbol>> {
-        &self.parse_sess.file_depinfo
-    }
-
-    #[rustversion::all(since(2024-03-05), before(2026-03-18))]
-    fn file_depinfo(
-        &self,
-    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<Symbol>> {
-        &self.psess.file_depinfo
-    }
-
-    #[rustversion::since(2026-03-18)]
-    fn file_depinfo(
-        &self,
-    ) -> &rustc_data_structures::sync::Lock<rustc_data_structures::fx::FxIndexSet<Symbol>> {
-        &self.file_depinfo
-    }
-}
-
 /// Reads the target workspace's `dylint.toml` file and parses it as a `toml::value::Table`.
 ///
 /// Note: `init_config` or `try_init_config` must be called before `config_or_default`, `config`, or
@@ -734,10 +705,10 @@ fn try_init_config_guarded(sess: &rustc_session::Session) -> ConfigResult<()> {
         _ => {
             let metadata = result?;
 
-            let value = config::try_init_with_metadata(&metadata)?;
-
-            if let Some(s) = &value {
-                sess.file_depinfo().lock().insert(Symbol::intern(s));
+            if let Some(path) = config::try_init_with_metadata(&metadata)? {
+                sess.source_map().load_file(&path).map_err(|error| {
+                    ConfigError::other(format!("Could not load {path:?}: {error}"))
+                })?;
             }
         }
     }
