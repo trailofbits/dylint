@@ -159,6 +159,15 @@ pub fn current_metadata() -> Result<Metadata> {
     MetadataCommand::new().no_deps().exec().map_err(Into::into)
 }
 
+/// Get metadata at `dir`.
+pub fn metadata(dir: impl Into<PathBuf>) -> Result<Metadata> {
+    MetadataCommand::new()
+        .current_dir(dir)
+        .no_deps()
+        .exec()
+        .map_err(Into::into)
+}
+
 pub fn package_with_root(metadata: &Metadata, package_root: &Path) -> Result<Package> {
     let mut packages = Vec::new();
     for package in &metadata.packages {

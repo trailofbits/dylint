@@ -476,17 +476,19 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
             .quiet(opts.quiet)
             .build()
             .sanitize_environment()
-            .env(env::DYLINT_BUILDING_METADATA_ENTRIES, "1")
+            .env(env::DYLINT_BUILDING_LIBRARIES, "1")
             .env_remove(env::RUSTFLAGS)
             .current_dir(&package.root)
             .args(["--release", "--target-dir", &target_dir.to_string_lossy()])
             .success()?;
 
-        copy_library(
+        let path_with_toolchain = copy_library(
             &package.library_plain_path(),
             &package.lib_name,
             &package.toolchain,
         )?;
+
+        assert_eq!(path, path_with_toolchain);
 
         let exists = path
             .try_exists()

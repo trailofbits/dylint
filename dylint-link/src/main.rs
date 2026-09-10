@@ -34,7 +34,7 @@ fn main() -> Result<()> {
     }
     command.args(&args[1..]).success()?;
 
-    if !env::enabled(env::DYLINT_BUILDING_METADATA_ENTRIES)
+    if !env::enabled(env::DYLINT_BUILDING_LIBRARIES)
         && let Some(plain_path) = output_path(args.iter())?
         && let Some(lib_name) = parse_plain_path(&plain_path)
         && let cargo_pkg_name = env::var(env::CARGO_PKG_NAME)?

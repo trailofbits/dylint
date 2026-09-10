@@ -120,7 +120,7 @@
 use anyhow::{Context, Result, anyhow, ensure};
 use cargo_metadata::{Metadata, Package, Target, TargetKind};
 use compiletest_rs as compiletest;
-use dylint_internal::{CommandExt, env, library_filename_with_toolchain, rustup::is_rustc};
+use dylint_internal::{CommandExt, env, link::dylint_libs, rustup::is_rustc};
 use once_cell::sync::OnceCell;
 use regex::Regex;
 use std::{
@@ -172,19 +172,10 @@ fn initialize(name: &str) -> &Result<PathBuf> {
 
         dylint_internal::cargo::build(&format!("library `{name}`"))
             .build()
+            .env(env::DYLINT_BUILDING_LIBRARIES, "1")
             .success()?;
 
-        // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-        // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is
-        // no longer the case. I am leaving the comment here for now in case removal
-        // of the `name_toolchain_map` call causes a regression.
-        let metadata = dylint_internal::cargo::current_metadata().unwrap();
-        let dylint_library_path = metadata.target_directory.join("debug");
-        unsafe {
-            set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-        }
-
-        let dylint_libs = dylint_libs(name)?;
+        let dylint_libs = dylint_libs(name, env!("RUSTUP_TOOLCHAIN"))?;
         let driver = dylint::driver_builder::get(
             &dylint::opts::Dylint::default(),
             env!("RUSTUP_TOOLCHAIN"),
@@ -197,16 +188,6 @@ fn initialize(name: &str) -> &Result<PathBuf> {
 
         Ok(driver)
     })
-}
-
-#[doc(hidden)]
-pub fn dylint_libs(name: &str) -> Result<String> {
-    let metadata = dylint_internal::cargo::current_metadata().unwrap();
-    let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
-    let filename = library_filename_with_toolchain(name, &rustup_toolchain);
-    let path = metadata.target_directory.join("debug").join(filename);
-    let paths = vec![path];
-    serde_json::to_string(&paths).map_err(Into::into)
 }
 
 fn example_target(package: &Package, example: &str) -> Result<Target> {

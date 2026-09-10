@@ -331,6 +331,7 @@ dependencies = [
  "regex",
  "semver",
  "serde",
+ "serde_json",
  "tar",
  "tempfile",
  "thiserror 2.0.20",
@@ -363,7 +364,6 @@ dependencies = [
  "env_logger",
  "once_cell",
  "regex",
- "serde_json",
  "tempfile",
 ]
 
