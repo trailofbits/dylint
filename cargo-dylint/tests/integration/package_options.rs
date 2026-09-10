@@ -10,7 +10,13 @@ use tempfile::tempdir;
 
 #[test]
 fn new_package() {
-    for change_build_dir_location in [false, true] {
+    for (change_build_dir_location, use_dylint_link) in [
+        (false, false),
+        (true, false),
+        (false, true),
+        // smoelius: `dylint-link` does not support changing the build directory location.
+        // (true, true),
+    ] {
         #[deny(clippy::unwrap_used)]
         || -> Result<()> {
             let build_dir = if change_build_dir_location {
@@ -39,6 +45,9 @@ fn new_package() {
             if let Some(build_dir) = &build_dir {
                 command.env(env::CARGO_BUILD_BUILD_DIR, build_dir.path());
             }
+            if use_dylint_link {
+                command.env(env::DYLINT_LINK_ENABLE_COPY_LIBRARY, "1");
+            }
             command.current_dir(&path_buf);
             command.success()?;
 
@@ -65,6 +74,9 @@ fn new_package() {
             if let Some(build_dir) = &build_dir {
                 command.env(env::CARGO_BUILD_BUILD_DIR, build_dir.path());
             }
+            if use_dylint_link {
+                command.env(env::DYLINT_LINK_ENABLE_COPY_LIBRARY, "1");
+            }
             command.current_dir(&path_buf);
             command.success()?;
 
@@ -78,7 +90,8 @@ fn new_package() {
         }()
         .unwrap_or_else(|error| {
             panic!(
-                "failed with change_build_dir_location={change_build_dir_location:?}: {error:?}"
+                "failed with change_build_dir_location={change_build_dir_location:?}, \
+                 use_dylint_link={use_dylint_link:?}: {error:?}"
             );
         });
     }

@@ -1,4 +1,5 @@
 use crate::{
+    env::{self, enabled},
     library_filename_with_toolchain, library_plain_filename, parse_plain_path,
     rustup::active_toolchain,
 };
@@ -37,8 +38,13 @@ pub fn debug_path_with_toolchain(dir: &Path, name: &str, toolchain: &str) -> Res
     let metadata = crate::cargo::metadata(dir)?;
     let debug_dir = metadata.target_directory.join("debug");
 
-    let plain_path = debug_dir.join(library_plain_filename(name));
-    copy_library(plain_path.as_std_path(), name, toolchain)
+    if enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY) {
+        let path_with_toolchain = debug_dir.join(library_filename_with_toolchain(name, toolchain));
+        Ok(path_with_toolchain.into_std_path_buf())
+    } else {
+        let plain_path = debug_dir.join(library_plain_filename(name));
+        copy_library(plain_path.as_std_path(), name, toolchain)
+    }
 }
 
 pub fn copy_library(plain_path: &Path, lib_name: &str, toolchain: &str) -> Result<PathBuf> {

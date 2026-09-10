@@ -24,6 +24,7 @@ declare_const!(DYLINT_BUILDING_LIBRARIES);
 declare_const!(DYLINT_DRIVER_PATH);
 declare_const!(DYLINT_LIBRARY_PATH);
 declare_const!(DYLINT_LIBS);
+declare_const!(DYLINT_LINK_ENABLE_COPY_LIBRARY);
 declare_const!(DYLINT_LIST);
 declare_const!(DYLINT_METADATA);
 declare_const!(DYLINT_NO_DEPS);
