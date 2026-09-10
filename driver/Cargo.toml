@@ -23,7 +23,6 @@ dylint_internal = { version = "=6.0.4", path = "../internal", features = [
 
 [build-dependencies]
 anyhow = "1.0"
-curl = "0.4"
 git2 = "0.21"
 proc-macro2 = "1.0"
 rustversion = "1.0"
