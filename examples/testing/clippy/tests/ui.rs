@@ -1,6 +1,6 @@
 use anyhow::{Result, anyhow};
 use cargo_metadata::Dependency;
-use dylint_internal::{CommandExt, clone, env};
+use dylint_internal::{CommandExt, clone, env, link::dylint_libs};
 use std::path::Path;
 use tempfile::{tempdir, tempdir_in};
 
@@ -12,6 +12,7 @@ fn ui() {
 
     dylint_internal::cargo::build("clippy")
         .build()
+        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
         .success()
         .unwrap();
 
@@ -34,7 +35,7 @@ fn ui() {
     )
     .unwrap();
 
-    let dylint_libs = dylint_testing::dylint_libs("clippy").unwrap();
+    let dylint_libs = dylint_libs("clippy", env!("RUSTUP_TOOLCHAIN")).unwrap();
     let driver =
         dylint::driver_builder::get(&dylint::opts::Dylint::default(), env!("RUSTUP_TOOLCHAIN"))
             .unwrap();

@@ -1,11 +1,11 @@
 use std::{env::consts, path::Path};
 
 #[must_use]
-pub fn library_plain_filename(lib_name: &str) -> String {
+pub fn library_plain_filename(name: &str) -> String {
     format!(
         "{}{}{}",
         consts::DLL_PREFIX,
-        lib_name.replace('-', "_"),
+        name.replace('-', "_"),
         consts::DLL_SUFFIX
     )
 }
