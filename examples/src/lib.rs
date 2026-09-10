@@ -1,6 +1,5 @@
 #[cfg(all(not(coverage), test))]
 mod tests {
-    use cargo_metadata::MetadataCommand;
     use dylint_internal::{CommandExt, clippy_utils::toolchain_channel, examples::iter};
     use regex::Regex;
     use std::{
@@ -23,16 +22,12 @@ mod tests {
     #[test]
     fn examples_have_same_version_as_workspace() {
         for path in iter(false).unwrap() {
-            let path = path.unwrap();
-            if path.file_name() == Some(OsStr::new("restriction")) {
+            let dir = path.unwrap();
+            if dir.file_name() == Some(OsStr::new("restriction")) {
                 continue;
             }
-            let metadata = MetadataCommand::new()
-                .current_dir(&path)
-                .no_deps()
-                .exec()
-                .unwrap();
-            let package = dylint_internal::cargo::package_with_root(&metadata, &path).unwrap();
+            let metadata = dylint_internal::cargo::metadata(&dir).unwrap();
+            let package = dylint_internal::cargo::package_with_root(&metadata, &dir).unwrap();
             assert_eq!(env!("CARGO_PKG_VERSION"), package.version.to_string());
         }
     }

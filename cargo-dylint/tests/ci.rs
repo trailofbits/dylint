@@ -2,8 +2,11 @@
 
 use anyhow::Result;
 use assert_cmd::{Command, cargo::cargo_bin_cmd};
-use cargo_metadata::{Dependency, Metadata, MetadataCommand};
-use dylint_internal::{cargo::current_metadata, env, examples};
+use cargo_metadata::{Dependency, Metadata};
+use dylint_internal::{
+    cargo::{current_metadata, metadata},
+    env, examples,
+};
 use regex::Regex;
 use semver::{Op, Version};
 use similar_asserts::SimpleDiff;
@@ -45,12 +48,8 @@ fn versions_are_equal() {
 
 #[test]
 fn nightly_crates_have_same_version_as_workspace() {
-    for path in ["driver", "utils/linting"] {
-        let metadata = MetadataCommand::new()
-            .current_dir(path)
-            .no_deps()
-            .exec()
-            .unwrap();
+    for dir in ["driver", "utils/linting"] {
+        let metadata = metadata(dir).unwrap();
         let package = metadata.root_package().unwrap();
         assert_eq!(env!("CARGO_PKG_VERSION"), package.version.to_string());
     }
@@ -79,13 +78,7 @@ fn versions_are_exact_and_match() {
 
 #[test]
 fn patch_version_requirements_are_exact() {
-    let metadata = ["driver", "utils/linting"].map(|path| {
-        MetadataCommand::new()
-            .current_dir(path)
-            .no_deps()
-            .exec()
-            .unwrap()
-    });
+    let metadata = ["driver", "utils/linting"].map(|dir| metadata(dir).unwrap());
 
     for metadata in std::iter::once(&*METADATA).chain(metadata.iter()) {
         for package in &metadata.packages {

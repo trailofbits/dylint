@@ -1,6 +1,5 @@
 use crate::CommandExt;
 use anyhow::Result;
-use cargo_metadata::MetadataCommand;
 use std::{
     env::consts,
     path::{Path, PathBuf},
@@ -32,11 +31,7 @@ pub fn cargo_dylint(workspace_root: impl AsRef<Path>) -> Result<PathBuf> {
         .args(["--bin", "cargo-dylint"])
         .success()?;
 
-    let metadata = MetadataCommand::new()
-        .current_dir(workspace_root.as_ref())
-        .no_deps()
-        .exec()
-        .unwrap();
+    let metadata = crate::cargo::metadata(workspace_root.as_ref()).unwrap();
     let cargo_dylint = metadata
         .target_directory
         .as_std_path()
