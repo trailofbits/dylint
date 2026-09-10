@@ -255,10 +255,9 @@ where
         if self.work >= self.work_limit {
             let name = format!("`{}`", self.cx.tcx.def_path_str(self.def_id));
             self.cx.sess().dcx().warn(format!(
-                "reached work limit ({}) while checking {}; set `{}.work_limit` in `dylint.toml` \
+                "reached work limit ({}) while checking {name}; set `{}.work_limit` in `dylint.toml` \
                  to override",
                 self.work_limit,
-                name,
                 env!("CARGO_PKG_NAME")
             ));
             return true;
