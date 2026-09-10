@@ -81,6 +81,11 @@ pub fn run(description: &str) -> Builder {
 }
 
 #[must_use]
+pub fn rustc(description: &str) -> Builder {
+    Builder::new("rustc", "Compiling", description)
+}
+
+#[must_use]
 pub fn test(description: &str) -> Builder {
     Builder::new("test", "Testing", description)
 }
