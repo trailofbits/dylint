@@ -23,6 +23,9 @@ The `dylint_library!` macro expands to the following:
 #[allow(unused_extern_crates)]
 extern crate rustc_driver;
 
+const _: Option<&str> = option_env!("DYLINT_BUILDING_LIBRARIES");
+const _: Option<&str> = option_env!("DYLINT_LINK_ENABLE_COPY_LIBRARY");
+
 #[unsafe(no_mangle)]
 pub extern "C" fn dylint_version() -> *mut std::os::raw::c_char {
     std::ffi::CString::new($crate::DYLINT_VERSION)
