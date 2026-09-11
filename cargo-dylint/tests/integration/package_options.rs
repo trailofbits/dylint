@@ -10,13 +10,9 @@ use tempfile::tempdir;
 
 #[test]
 fn new_package() {
-    for (change_build_dir_location, use_dylint_link) in [
-        (false, false),
-        (true, false),
-        (false, true),
-        // smoelius: `dylint-link` does not support changing the build directory location.
-        // (true, true),
-    ] {
+    for (change_build_dir_location, use_dylint_link) in
+        [(false, false), (true, false), (false, true), (true, true)]
+    {
         #[deny(clippy::unwrap_used)]
         || -> Result<()> {
             let build_dir = if change_build_dir_location {
@@ -51,7 +47,8 @@ fn new_package() {
             command.current_dir(&path_buf);
             command.success()?;
 
-            // smoelius: Check that the library was actually built in the custom build directory.
+            // smoelius: Check that the library was actually built in the configured build
+            // directory.
             if let Some(build_dir) = &build_dir {
                 let maybe_path_buf = glob(
                     &build_dir
