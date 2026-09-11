@@ -118,7 +118,7 @@
 //! [its repository]: https://github.com/Manishearth/compiletest-rs
 
 use anyhow::{Context, Result, anyhow, ensure};
-use cargo_metadata::{Metadata, Package, Target, TargetKind};
+use cargo_metadata::{Metadata, Package, Target, TargetKind, camino::Utf8PathBuf};
 use compiletest_rs as compiletest;
 use dylint_internal::{CommandExt, env, library_filename, rustup::is_rustc};
 use once_cell::sync::OnceCell;
@@ -179,7 +179,7 @@ fn initialize(name: &str) -> &Result<PathBuf> {
         // no longer the case. I am leaving the comment here for now in case removal
         // of the `name_toolchain_map` call causes a regression.
         let metadata = dylint_internal::cargo::current_metadata().unwrap();
-        let dylint_library_path = metadata.target_directory.join("debug");
+        let dylint_library_path = dylint_library_path(&metadata);
         unsafe {
             set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
         }
@@ -204,9 +204,17 @@ pub fn dylint_libs(name: &str) -> Result<String> {
     let metadata = dylint_internal::cargo::current_metadata().unwrap();
     let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
     let filename = library_filename(name, &rustup_toolchain);
-    let path = metadata.target_directory.join("debug").join(filename);
+    let path = dylint_library_path(&metadata).join(filename);
     let paths = vec![path];
     serde_json::to_string(&paths).map_err(Into::into)
+}
+
+fn dylint_library_path(metadata: &Metadata) -> Utf8PathBuf {
+    metadata
+        .build_directory
+        .as_ref()
+        .unwrap_or(&metadata.target_directory)
+        .join("debug")
 }
 
 fn example_target(package: &Package, example: &str) -> Result<Target> {
