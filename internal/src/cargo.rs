@@ -168,6 +168,19 @@ pub fn metadata(dir: impl Into<PathBuf>) -> Result<Metadata> {
         .map_err(Into::into)
 }
 
+/// Get metadata at `dir`, resolving paths as though `target_dir` were Cargo's target directory.
+pub fn metadata_with_target_dir(
+    dir: impl Into<PathBuf>,
+    target_dir: impl Into<std::ffi::OsString>,
+) -> Result<Metadata> {
+    MetadataCommand::new()
+        .current_dir(dir)
+        .no_deps()
+        .env(crate::env::CARGO_TARGET_DIR, target_dir)
+        .exec()
+        .map_err(Into::into)
+}
+
 pub fn package_with_root(metadata: &Metadata, package_root: &Path) -> Result<Package> {
     let mut packages = Vec::new();
     for package in &metadata.packages {

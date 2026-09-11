@@ -1,6 +1,8 @@
 use crate::{error::warn, opts};
 use anyhow::{Context, Result, anyhow, bail, ensure};
-use cargo_metadata::{Error, Metadata, MetadataCommand, Package as MetadataPackage, TargetKind};
+use cargo_metadata::{
+    Error, Metadata, MetadataCommand, Package as MetadataPackage, TargetKind, camino::Utf8PathBuf,
+};
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
 use dylint_internal::{
     CommandExt, config, env, library_filename_with_toolchain, library_plain_filename,
@@ -34,6 +36,8 @@ pub struct Package {
     pub lib_name: String,
     /// Toolchain the package uses
     pub toolchain: String,
+    /// Cargo's build directory when `dylint-link` performs the copy; otherwise `None`
+    build_directory: Option<PathBuf>,
 }
 
 impl Eq for Package {}
@@ -78,7 +82,13 @@ impl Package {
     }
 
     pub fn library_path_with_toolchain(&self) -> PathBuf {
-        self.target_directory()
+        // When Dylint copies the library, it does so after Cargo finishes and places the copy in
+        // `target_directory`. But when `dylint-link` performs the copy, it does so during linking
+        // and places the copy relative to the linker output, which can be under `build_directory`.
+        // This is especially relevant when the user changes the build directory location.
+        self.build_directory
+            .clone()
+            .unwrap_or_else(|| self.target_directory())
             .join("release")
             .join(library_filename_with_toolchain(
                 &self.lib_name,
@@ -385,12 +395,24 @@ fn library_package(
         let package_id = package_id(&package, source_id.clone());
         let lib_name = package_library_name(&package)?;
         let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
+        let build_directory = if env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY) {
+            let target_directory = metadata
+                .target_directory
+                .join("dylint/libraries")
+                .join(&toolchain);
+            let metadata =
+                dylint_internal::cargo::metadata_with_target_dir(&path, target_directory)?;
+            metadata.build_directory.map(Utf8PathBuf::into_std_path_buf)
+        } else {
+            None
+        };
         packages.push(Package {
             metadata,
             root: path,
             id: package_id,
             lib_name,
             toolchain,
+            build_directory,
         });
     }
 
@@ -482,13 +504,15 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
             .args(["--release", "--target-dir", &target_dir.to_string_lossy()])
             .success()?;
 
-        let path_with_toolchain = copy_library(
-            &package.library_plain_path(),
-            &package.lib_name,
-            &package.toolchain,
-        )?;
+        if !env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY) {
+            let path_with_toolchain = copy_library(
+                &package.library_plain_path(),
+                &package.lib_name,
+                &package.toolchain,
+            )?;
 
-        assert_eq!(path, path_with_toolchain);
+            assert_eq!(path, path_with_toolchain);
+        }
 
         let exists = path
             .try_exists()
