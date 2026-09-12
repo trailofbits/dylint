@@ -13,10 +13,8 @@ pub use maybe_library::MaybeLibrary;
 
 pub type ToolchainMap = BTreeMap<String, BTreeSet<PathBuf>>;
 
-#[allow(clippy::redundant_pub_crate)]
 pub(crate) type NameToolchainMap = BTreeMap<String, LazyToolchainMap>;
 
-#[allow(clippy::redundant_pub_crate)]
 pub(crate) type LazyToolchainMap = BTreeMap<String, BTreeSet<MaybeLibrary>>;
 
 #[cfg_attr(not(__library_packages), allow(dead_code))]
