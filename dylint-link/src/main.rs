@@ -128,7 +128,7 @@ mod windows {
 
     pub(super) fn default_linker() -> Result<PathBuf> {
         let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
-        if rustup_toolchain.split('-').last() == Some("msvc") {
+        if rustup_toolchain.split('-').next_back() == Some("msvc") {
             // MinerSebas: Removes the Release Information:
             // "nightly-2021-04-08-x86_64-pc-windows-msvc" -> "x86_64-pc-windows-msvc"
             // smoelius: The approach has changed slightly.
@@ -181,16 +181,13 @@ mod windows {
         // MinerSebas: Convert the File from UTF-16 to a Rust UTF-8 String
         // (Only necessary for MSVC, the GNU Linker uses UTF-8 instead.)
         // Based on: https://stackoverflow.com/a/57172592
-        let file: Vec<u16> = buf
-            .chunks_exact(2)
-            .into_iter()
-            .map(|a| u16::from_ne_bytes([a[0], a[1]]))
-            .collect();
+        let (chunks, _) = buf.as_chunks::<2>();
+        let file: Vec<u16> = chunks.iter().map(|&a| u16::from_ne_bytes(a)).collect();
         let file = String::from_utf16_lossy(file.as_slice());
 
         let paths: Vec<_> = file
             .lines()
-            .flat_map(|line| line.trim().trim_matches('"').strip_prefix("/OUT:"))
+            .filter_map(|line| line.trim().trim_matches('"').strip_prefix("/OUT:"))
             .collect();
 
         ensure!(paths.len() <= 1, "Found multiple output paths");
