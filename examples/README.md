@@ -55,6 +55,7 @@ The example libraries are separated into the following three categories:
 | [`register_lints_warn`](./restriction/register_lints_warn)                                                   | Calls to `rustc_errors::DiagCtxtHandle::warn` from within a `register_lints` function |
 | [`suboptimal_pattern`](./restriction/suboptimal_pattern)                                                     | Patterns that could perform additional destructuring                                  |
 | [`try_io_result`](./restriction/try_io_result)                                                               | The `?` operator applied to `std::io::Result`                                         |
+| [`unreadable_cooked_string_literal`](./restriction/unreadable_cooked_string_literal)                         | Cooked string literals that would me more readable as raw string literals             |
 
 ## Experimental
 

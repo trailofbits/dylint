@@ -1,0 +1,25 @@
+[package]
+name = "unreadable_cooked_string_literal"
+version = "6.0.4"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "A lint to check for cooked string literals that would me more readable as raw string literals"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { workspace = true }
+regex = "1.13"
+
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[lints]
+workspace = true
+
+[package.metadata.rust-analyzer]
+rustc_private = true
