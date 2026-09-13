@@ -2,6 +2,10 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## Next
+
+- Add the `--fail-on-no-libraries` option to `cargo dylint`. Reported in [#2073](https://github.com/trailofbits/dylint/issues/2073) by [@humb1t](https://github.com/humb1t).
+
 ## 6.0.4
 
 - Allow `dylint_linting` to work with either `rust-toolchain` or `rust-toolchain.toml` files. ([c9ec563](https://github.com/trailofbits/dylint/commit/c9ec563c7f6134c83b207a9b7c6ff9799713d6d7))

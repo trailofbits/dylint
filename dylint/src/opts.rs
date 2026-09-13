@@ -32,11 +32,14 @@ pub struct Dylint {
     pub operation: Operation,
 }
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Default)]
 pub struct LibrarySelection {
     pub all: bool,
 
     pub branch: Option<String>,
+
+    pub fail_on_no_libraries: bool,
 
     pub git: Option<String>,
 
