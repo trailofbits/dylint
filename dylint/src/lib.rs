@@ -132,6 +132,13 @@ fn run_with_name_toolchain_map(
         // smoelius: If `name_toolchain_map` is NOT empty, then it had better be the case that
         // `--all` was not passed.
         assert!(name_toolchain_map_is_empty || !lib_sel.all);
+
+        if name_toolchain_map_is_empty
+            && matches!(opts.operation, opts::Operation::Check(_))
+            && lib_sel.fail_on_no_libraries
+        {
+            bail!("No libraries were found.");
+        }
     }
 
     match &opts.operation {

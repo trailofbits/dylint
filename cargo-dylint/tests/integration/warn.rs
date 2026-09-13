@@ -23,6 +23,34 @@ fn no_libraries_were_found() {
 }
 
 #[test]
+fn fail_on_no_libraries() {
+    cargo_dylint()
+        .current_dir("../fixtures/empty")
+        .args(["dylint", "--all", "--fail-on-no-libraries"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("No libraries were found"));
+
+    cargo_dylint()
+        .current_dir("../fixtures/empty")
+        .args(["dylint", "list", "--all", "--fail-on-no-libraries"])
+        .assert()
+        .success()
+        .stderr(predicate::str::ends_with(
+            "Warning: No libraries were found.\n",
+        ));
+
+    cargo_dylint()
+        .current_dir("../fixtures/empty")
+        .args(["dylint", "--fail-on-no-libraries"])
+        .assert()
+        .success()
+        .stderr(predicate::str::ends_with(
+            "Warning: Nothing to do. Did you forget `--all`?\n",
+        ));
+}
+
+#[test]
 fn nothing_to_do() {
     cargo_dylint()
         .args(["dylint"])
