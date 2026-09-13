@@ -35,3 +35,6 @@ libraries = [
     { path = "../testing/clippy" },
     { path = "../restriction/*" },
 ]
+
+[workspace.metadata.rust-analyzer]
+rustc_private = true
