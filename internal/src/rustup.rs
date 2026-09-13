@@ -85,6 +85,10 @@ mod rustup_test {
         assert!(is_rustc("rustc"));
     }
 
+    #[cfg_attr(
+        dylint_lib = "unreadable_cooked_string_literal",
+        allow(unreadable_cooked_string_literal)
+    )]
     #[test]
     fn test_parse_active_toolchain() {
         let outputs = [

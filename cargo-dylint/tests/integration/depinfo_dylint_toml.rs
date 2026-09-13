@@ -60,7 +60,13 @@ path = "{}/../examples/supplementary/unnamed_constant"
 
     let dylint_toml = tempdir.path().join("dylint.toml");
 
-    write(&dylint_toml, "[unnamed_constant]\nthreshold = 100\n").unwrap();
+    write(
+        &dylint_toml,
+        r"[unnamed_constant]
+threshold = 100
+",
+    )
+    .unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
@@ -69,7 +75,13 @@ path = "{}/../examples/supplementary/unnamed_constant"
         .success()
         .stderr(predicate::str::contains("warning: unnamed constant").not());
 
-    write(&dylint_toml, "[unnamed_constant]\nthreshold = 1\n").unwrap();
+    write(
+        &dylint_toml,
+        r"[unnamed_constant]
+threshold = 1
+",
+    )
+    .unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
