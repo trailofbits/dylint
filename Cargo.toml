@@ -63,9 +63,9 @@ walkdir = "2.5"
 [workspace.lints.clippy]
 nursery = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
-option_if_let_else = "allow"
 missing_errors_doc = "allow"
 missing_panics_doc = "allow"
+option_if_let_else = "allow"
 significant_drop_tightening = "allow"
 struct_field_names = "allow"
 
