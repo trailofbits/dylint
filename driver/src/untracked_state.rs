@@ -34,11 +34,11 @@ use std::{
 /// Nothing reads the value back. It is set only so that changing it changes `dep_tracking_hash`.
 pub(crate) const UNTRACKED_STATE_VAR: &str = "DYLINT_UNTRACKED_STATE";
 
-/// The environment variables whose change should cause lints to be rerun.
+/// The environment variables whose change should cause lints to be rerun:
 ///
-/// `CARGO_PRIMARY_PACKAGE` and `DYLINT_NO_DEPS` determine whether lints are registered at all,
-/// `DYLINT_LIBS` names the libraries that register them, and `DYLINT_METADATA` is the metadata from
-/// which those libraries are resolved.
+/// - `CARGO_PRIMARY_PACKAGE` and `DYLINT_NO_DEPS` determine whether lints are registered at all.
+/// - `DYLINT_LIBS` names the libraries that register the lints.
+/// - `DYLINT_METADATA` is the metadata from which the libraries are resolved.
 ///
 /// Read by two consumers that must not drift apart: `sess.env_depinfo`, which tells Cargo when to
 /// re-invoke rustc, and [`hash_from_env`], which tells rustc when to discard its incremental cache.
