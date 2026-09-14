@@ -288,7 +288,7 @@ fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
 // - https://github.com/rust-lang/rust/pull/98975
 // - https://github.com/rust-lang/rust/commit/0ed9c64c3e63acac9bd77abce62501696c390450
 #[rustversion::since(2022-07-14)]
-fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
+const fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
     config.opts.unstable_opts.mir_opt_level = Some(0);
 }
 
@@ -527,6 +527,7 @@ fn run_compiler(
 }
 
 #[rustversion::since(2025-01-24)]
+#[allow(clippy::unnecessary_wraps)]
 fn run_compiler(
     at_args: &[String],
     callbacks: &mut (dyn rustc_driver::Callbacks + Send),

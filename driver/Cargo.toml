@@ -37,6 +37,13 @@ dylint_internal = { version = "=6.0.4", path = "../internal", features = [
 [dev-dependencies]
 rustc_version = "0.4"
 
+[lints.clippy]
+nursery = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+missing_errors_doc = "allow"
+option_if_let_else = "allow"
+redundant_pub_crate = "allow"
+
 [lints.rust.unexpected_cfgs]
 level = "deny"
 check-cfg = ["cfg(dylint_lib, values(any()))"]
