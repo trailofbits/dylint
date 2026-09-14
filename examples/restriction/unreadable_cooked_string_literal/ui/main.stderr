@@ -1,0 +1,58 @@
+warning: cooked string literal that would be more readable raw
+  --> $DIR/main.rs:4:14
+   |
+LL |     println!("fn main() {{/n    println!(/"Hello, world!/");/n}}");
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unreadable_cooked_string_literal)]` on by default
+help: use
+   |
+LL ~     println!(r#"fn main() {{
+LL +     println!("Hello, world!");
+LL ~ }}"#);
+   |
+
+warning: cooked string literal that would be more readable raw
+  --> $DIR/main.rs:6:13
+   |
+LL |     let _ = "newline /n, quote /", and backslash /";
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use
+   |
+LL ~     let _ = r#"newline 
+LL ~ , quote ", and backslash /"#;
+   |
+
+warning: cooked string literal that would be more readable raw
+  --> $DIR/main.rs:8:13
+   |
+LL |     let _ = "zero quote /" hashes";
+   |             ^^^^^^^^^^^^^^^^^^^^^^ help: use: `r#"zero quote " hashes"#`
+
+warning: cooked string literal that would be more readable raw
+  --> $DIR/main.rs:9:13
+   |
+LL |     let _ = "one quote #/" hash to the left";
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `r##"one quote #" hash to the left"##`
+
+warning: cooked string literal that would be more readable raw
+  --> $DIR/main.rs:10:13
+   |
+LL |     let _ = "one quote /"# hash to the right";
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `r##"one quote "# hash to the right"##`
+
+warning: cooked string literal that would be more readable raw
+  --> $DIR/main.rs:11:13
+   |
+LL |     let _ = "two quote ##/" hashes to the left";
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `r###"two quote ##" hashes to the left"###`
+
+warning: cooked string literal that would be more readable raw
+  --> $DIR/main.rs:12:13
+   |
+LL |     let _ = "two quote /"## hashes to the right";
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `r###"two quote "## hashes to the right"###`
+
+warning: 7 warnings emitted
+
