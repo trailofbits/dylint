@@ -11,3 +11,9 @@ fn bar() {
 }
 
 struct TestStruct;
+
+// negative test (test functions should be ignored)
+#[test]
+fn baz() {
+    foo();
+}
