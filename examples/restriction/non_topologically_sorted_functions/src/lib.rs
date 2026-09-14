@@ -5,7 +5,7 @@ extern crate rustc_hir;
 extern crate rustc_middle;
 extern crate rustc_span;
 
-use clippy_utils::diagnostics::span_lint_and_then;
+use clippy_utils::{diagnostics::span_lint_and_then, is_test_function};
 use daggy::{Dag, NodeIndex};
 use rustc_hir::{
     BodyId, Expr, ExprKind, HirId, Item, ItemKind, Mod,
@@ -291,6 +291,10 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
             let item: &Item<'tcx> = cx.tcx.hir_item(*item_id);
             if let ItemKind::Fn { .. } = item.kind {
                 let local_def_id = item.owner_id.def_id;
+
+                if is_test_function(cx.tcx, local_def_id) {
+                    continue;
+                }
 
                 def_order.push(local_def_id);
                 functions.insert(local_def_id, item.span);
