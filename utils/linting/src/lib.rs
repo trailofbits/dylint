@@ -692,7 +692,7 @@ fn try_init_config_guarded(sess: &rustc_session::Session) -> ConfigResult<()> {
     // smoelius: https://users.rust-lang.org/t/pathbuf-equivalent-to-string-is-empty/24823
     if parent.as_os_str().is_empty() {
         parent = Path::new(".");
-    };
+    }
 
     let result = cargo_metadata::MetadataCommand::new()
         .current_dir(parent)

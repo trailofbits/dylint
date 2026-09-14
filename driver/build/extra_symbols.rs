@@ -44,7 +44,7 @@ pub fn build() -> Result<()> {
     writeln!(file, "const EXTRA_SYMBOLS: &[&str] = &[")
         .with_context(|| format!("`writeln!` failed for `{}`", path_buf.display()))?;
     for quoted_symbol in quoted_symbols {
-        writeln!(file, r#"    {quoted_symbol},"#)
+        writeln!(file, "    {quoted_symbol},")
             .with_context(|| format!("`writeln!` failed for `{}`", path_buf.display()))?;
     }
     writeln!(file, "];")
