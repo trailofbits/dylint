@@ -13,7 +13,8 @@ use std::{
     collections::BTreeMap,
     env::{consts, current_dir},
     ffi::OsStr,
-    fs::OpenOptions,
+    fs::{OpenOptions, read},
+    hash::{DefaultHasher, Hasher},
     path::{MAIN_SEPARATOR, Path, PathBuf},
     sync::LazyLock,
 };
@@ -312,6 +313,7 @@ fn check_or_fix(
     resolved: &ToolchainMap,
 ) -> Result<()> {
     let clippy_disable_docs_links = clippy_disable_docs_links()?;
+    let dylint_toml_digest = dylint_toml_digest(opts)?;
 
     let mut failures = Vec::new();
 
@@ -364,6 +366,7 @@ fn check_or_fix(
                 ),
                 (env::DYLINT_LIBS, &dylint_libs),
                 (env::DYLINT_METADATA, &dylint_metadata_str),
+                (env::DYLINT_TOML_DIGEST, &dylint_toml_digest),
                 (
                     env::DYLINT_NO_DEPS,
                     if check_opts.no_deps { "1" } else { "0" },
@@ -472,6 +475,32 @@ fn display_location(path: &Path) -> Result<String> {
 fn clippy_disable_docs_links() -> Result<String> {
     let val = env::var(env::CLIPPY_DISABLE_DOCS_LINKS).ok();
     serde_json::to_string(&val).map_err(Into::into)
+}
+
+/// Returns a value that changes when the workspace's `dylint.toml` changes or is created.
+fn dylint_toml_digest(opts: &opts::Dylint) -> Result<String> {
+    let mut command = MetadataCommand::new();
+    if let Some(path) = &opts.library_selection().manifest_path {
+        command.manifest_path(path);
+    }
+    let metadata = command.no_deps().exec()?;
+    let dylint_toml = metadata.workspace_root.join("dylint.toml");
+
+    let mut hasher = DefaultHasher::new();
+    hasher.write(b"dylint-toml-digest-v1");
+    let exists = dylint_toml
+        .try_exists()
+        .with_context(|| format!("Could not determine whether {dylint_toml:?} exists"))?;
+    if exists {
+        hasher.write(b"present");
+        let contents =
+            read(&dylint_toml).with_context(|| format!("Could not read {dylint_toml:?}"))?;
+        hasher.write(&contents);
+    } else {
+        hasher.write(b"absent");
+    }
+
+    Ok(format!("{:016x}", hasher.finish()))
 }
 
 fn target_dir(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
