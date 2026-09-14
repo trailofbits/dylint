@@ -1,6 +1,6 @@
 [workspace]
 members = ["*"]
-exclude = [".cargo"]
+exclude = [".cargo", "non_topologically_sorted_functions/attr"]
 resolver = "2"
 
 [workspace.dependencies]
