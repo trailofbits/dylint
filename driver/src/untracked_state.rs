@@ -39,6 +39,7 @@ pub(crate) const UNTRACKED_STATE_VAR: &str = "DYLINT_UNTRACKED_STATE";
 /// - `CARGO_PRIMARY_PACKAGE` and `DYLINT_NO_DEPS` determine whether lints are registered at all.
 /// - `DYLINT_LIBS` names the libraries that register the lints.
 /// - `DYLINT_METADATA` is the metadata from which the libraries are resolved.
+/// - `DYLINT_TOML_DIGEST` describes the configuration that affects the lints' behavior.
 ///
 /// Read by two consumers that must not drift apart: `sess.env_depinfo`, which tells Cargo when to
 /// re-invoke rustc, and [`hash_from_env`], which tells rustc when to discard its incremental cache.
@@ -49,6 +50,7 @@ pub(crate) const UNTRACKED_STATE_VARS: &[&str] = &[
     env::DYLINT_LIBS,
     env::DYLINT_METADATA,
     env::DYLINT_NO_DEPS,
+    env::DYLINT_TOML_DIGEST,
 ];
 
 /// Reads [`UNTRACKED_STATE_VARS`] from the environment and forwards them to [`hash`].

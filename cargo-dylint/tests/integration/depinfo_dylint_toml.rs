@@ -26,7 +26,7 @@ fn main() {
 }
 ";
 
-/// Verify that unchanged `dylint.toml` files preserve cached results, while changes rerun lints.
+/// Verify that creating, changing, and removing `dylint.toml` rerun lints only when necessary.
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn depinfo_dylint_toml() {
@@ -57,6 +57,26 @@ path = "{}/../examples/supplementary/unnamed_constant"
     .unwrap();
 
     write(tempdir.path().join("src/main.rs"), MAIN_RS).unwrap();
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&tempdir)
+        .args(["dylint", "--all", "--", "--verbose"])
+        .assert()
+        .success()
+        .stderr(
+            predicate::str::contains("Checking depinfo_dylint_toml_test")
+                .and(predicate::str::contains("warning: unnamed constant").not()),
+        );
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&tempdir)
+        .args(["dylint", "--all", "--", "--verbose"])
+        .assert()
+        .success()
+        .stderr(
+            predicate::str::contains("Fresh depinfo_dylint_toml_test")
+                .and(predicate::str::contains("Checking depinfo_dylint_toml_test").not()),
+        );
 
     let dylint_toml = tempdir.path().join("dylint.toml");
 
