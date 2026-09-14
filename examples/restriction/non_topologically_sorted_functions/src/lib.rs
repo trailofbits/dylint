@@ -385,3 +385,9 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
 fn ui() {
     dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui");
 }
+
+// smoelius: False negative.
+#[test]
+fn ui_attr() {
+    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "ui_attr");
+}

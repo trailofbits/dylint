@@ -9,6 +9,10 @@ publish = false
 [lib]
 crate-type = ["cdylib"]
 
+[[example]]
+name = "ui_attr"
+path = "ui_attr/main.rs"
+
 [dependencies]
 clippy_utils = { workspace = true }
 daggy = { workspace = true }
@@ -17,6 +21,7 @@ dylint_internal = { path = "../../../internal", features = ["match_def_path"] }
 dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
+attr = { path = "attr" }
 dylint_testing = { path = "../../../utils/testing" }
 
 [lints]
