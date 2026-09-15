@@ -75,39 +75,6 @@ pub fn is_rustc<T: AsRef<OsStr> + ?Sized>(arg: &T) -> bool {
     Path::new(arg).file_stem() == Some(OsStr::new("rustc"))
 }
 
-#[cfg(test)]
-mod rustup_test {
-
-    use crate::rustup::{is_rustc, parse_active_toolchain};
-
-    #[test]
-    fn rustc_is_rustc() {
-        assert!(is_rustc("rustc"));
-    }
-
-    #[test]
-    fn test_parse_active_toolchain() {
-        let outputs = [
-            "nightly-aarch64-apple-darwin\ractive because: it's the default toolchain",
-            "nightly-x86_64-pc-windows-msvc (default)\r\nactive toolchain",
-            "1.85.0-rv64gc-unknown-linux-gnu\nactive because: overridden by '/home/user/rust-with-riscv/rust-toolchain'",
-            // allow full width space (\u3000)
-            "自定义　rust\nactive because: overridden by '/root/app/rust-toolchain.toml'",
-            "私の　rust\r\nactive because: overridden by 'C:\\Users\\watashi\\rust-練習\\rust-toolchain.toml'",
-        ];
-        let expects = [
-            "nightly-aarch64-apple-darwin",
-            "nightly-x86_64-pc-windows-msvc",
-            "1.85.0-rv64gc-unknown-linux-gnu",
-            "自定义　rust",
-            "私の　rust",
-        ];
-        for (output, expect) in outputs.iter().zip(expects.iter()) {
-            assert_eq!(parse_active_toolchain(output).unwrap(), *expect);
-        }
-    }
-}
-
 // smoelius: I do not know what the right/best way to parse a toolchain is. `parse_toolchain` does
 // so by looking for the architecture.
 #[must_use]
@@ -214,8 +181,35 @@ const ARCHITECTURES: &[&str] = &[
 #[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
-    use super::{ARCHITECTURES, Command};
+    use super::{ARCHITECTURES, Command, is_rustc, parse_active_toolchain};
     use assert_cmd::prelude::*;
+
+    #[test]
+    fn rustc_is_rustc() {
+        assert!(is_rustc("rustc"));
+    }
+
+    #[test]
+    fn test_parse_active_toolchain() {
+        let outputs = [
+            "nightly-aarch64-apple-darwin\ractive because: it's the default toolchain",
+            "nightly-x86_64-pc-windows-msvc (default)\r\nactive toolchain",
+            "1.85.0-rv64gc-unknown-linux-gnu\nactive because: overridden by '/home/user/rust-with-riscv/rust-toolchain'",
+            // allow full width space (\u3000)
+            "自定义　rust\nactive because: overridden by '/root/app/rust-toolchain.toml'",
+            "私の　rust\r\nactive because: overridden by 'C:\\Users\\watashi\\rust-練習\\rust-toolchain.toml'",
+        ];
+        let expects = [
+            "nightly-aarch64-apple-darwin",
+            "nightly-x86_64-pc-windows-msvc",
+            "1.85.0-rv64gc-unknown-linux-gnu",
+            "自定义　rust",
+            "私の　rust",
+        ];
+        for (output, expect) in outputs.iter().zip(expects.iter()) {
+            assert_eq!(parse_active_toolchain(output).unwrap(), *expect);
+        }
+    }
 
     #[test]
     fn architectures_are_current() {
