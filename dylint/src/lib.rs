@@ -7,7 +7,8 @@
 use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::MetadataCommand;
 use dylint_internal::{
-    CommandExt, driver as dylint_driver, env, parse_path_filename, rustup::SanitizeEnvironment,
+    CommandExt, driver as dylint_driver, env, parse_path_with_toolchain,
+    rustup::SanitizeEnvironment,
 };
 use std::{
     collections::BTreeMap,
@@ -124,8 +125,8 @@ fn run_with_name_toolchain_map(
     let resolved = resolve(opts, name_toolchain_map)?;
 
     if resolved.is_empty() {
-        assert!(lib_sel.libs.is_empty());
-        assert!(lib_sel.lib_paths.is_empty());
+        assert_eq!(&[] as &[String], lib_sel.libs);
+        assert_eq!(&[] as &[String], lib_sel.lib_paths);
 
         let name_toolchain_map_is_empty = warn_if_empty(opts, name_toolchain_map)?;
 
@@ -242,8 +243,7 @@ pub fn name_as_lib(
             0 => Ok(None),
             1 => Ok(Some(toolchain_maybe_libraries.remove(0))),
             _ => Err(anyhow!(
-                "Found multiple libraries matching `{}`: {:?}",
-                name,
+                "Found multiple libraries matching `{name}`: {:?}",
                 toolchain_maybe_libraries
                     .iter()
                     .map(|(_, path)| path)
@@ -277,7 +277,7 @@ where
 
 fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBuf)>> {
     if let Ok(path) = PathBuf::from(name).canonicalize() {
-        if let Some((_, toolchain)) = parse_path_filename(&path) {
+        if let Some((_, toolchain)) = parse_path_with_toolchain(&path) {
             return Ok(Some((toolchain, path)));
         }
 
@@ -424,7 +424,7 @@ fn list_lints(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
             let driver = driver_builder::get(opts, toolchain)?;
             let dylint_libs = serde_json::to_string(&[path])?;
             let (name, _) =
-                parse_path_filename(path).ok_or_else(|| anyhow!("Could not parse path"))?;
+                parse_path_with_toolchain(path).ok_or_else(|| anyhow!("Could not parse path"))?;
 
             print!("{name}");
             if resolved.keys().len() >= 2 {

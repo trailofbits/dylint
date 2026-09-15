@@ -14,7 +14,7 @@ extern crate rustc_session;
 extern crate rustc_span;
 
 use anyhow::{Result, bail, ensure};
-use dylint_internal::{env, parse_path_filename, rustup::is_rustc};
+use dylint_internal::{env, parse_path_with_toolchain, rustup::is_rustc};
 use std::{
     collections::BTreeSet,
     ffi::{CString, OsStr},
@@ -478,7 +478,7 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
         ]);
     }
     for path in paths {
-        if let Some((name, _)) = parse_path_filename(path.as_ref()) {
+        if let Some((name, _)) = parse_path_with_toolchain(path.as_ref()) {
             rustc_args.push(format!(r#"--cfg=dylint_lib="{name}""#));
         } else {
             bail!("could not parse `{}`", path.as_ref().to_string_lossy());

@@ -2,8 +2,11 @@
 
 use anyhow::Result;
 use assert_cmd::{Command, cargo::cargo_bin_cmd};
-use cargo_metadata::{Dependency, Metadata, MetadataCommand};
-use dylint_internal::{cargo::current_metadata, env, examples};
+use cargo_metadata::{Dependency, Metadata};
+use dylint_internal::{
+    cargo::{current_metadata, metadata},
+    env, examples,
+};
 use regex::Regex;
 use semver::{Op, Version};
 use similar_asserts::SimpleDiff;
@@ -45,12 +48,8 @@ fn versions_are_equal() {
 
 #[test]
 fn nightly_crates_have_same_version_as_workspace() {
-    for path in ["driver", "utils/linting"] {
-        let metadata = MetadataCommand::new()
-            .current_dir(path)
-            .no_deps()
-            .exec()
-            .unwrap();
+    for dir in ["driver", "utils/linting"] {
+        let metadata = metadata(dir).unwrap();
         let package = metadata.root_package().unwrap();
         assert_eq!(env!("CARGO_PKG_VERSION"), package.version.to_string());
     }
@@ -79,13 +78,7 @@ fn versions_are_exact_and_match() {
 
 #[test]
 fn patch_version_requirements_are_exact() {
-    let metadata = ["driver", "utils/linting"].map(|path| {
-        MetadataCommand::new()
-            .current_dir(path)
-            .no_deps()
-            .exec()
-            .unwrap()
-    });
+    let metadata = ["driver", "utils/linting"].map(|dir| metadata(dir).unwrap());
 
     for metadata in std::iter::once(&*METADATA).chain(metadata.iter()) {
         for package in &metadata.packages {
@@ -686,11 +679,8 @@ fn shellcheck() {
 
 #[test]
 fn dependencies_are_sorted() {
-    for entry in walkdir::WalkDir::new(".")
-        .into_iter()
-        .filter_map(Result::ok)
-        .filter(|e| e.file_name() == "Cargo.toml")
-    {
+    for entry in walkdir(true).with_file_name("Cargo.toml") {
+        let entry = entry.unwrap();
         let path = entry.path();
         let contents = read_to_string(path).unwrap();
         let document = contents.parse::<toml_edit::Document<_>>().unwrap();
@@ -705,63 +695,6 @@ fn dependencies_are_sorted() {
             );
         }
     }
-}
-
-fn key_value_pair_span<S>(
-    document: &toml_edit::Document<S>,
-    table_name: &str,
-) -> Option<Range<usize>> {
-    // smoelius: The table might not exist.
-    let item = document.get(table_name)?;
-    let table = item.as_table().unwrap();
-    // smoelius: The table might exist but be empty.
-    let (_, last_item) = table.iter().last()?;
-    let header_span = table.span().unwrap();
-    let last_item_span = last_item.span().unwrap();
-    Some(header_span.end..last_item_span.end)
-}
-
-fn key_value_pairs_are_sorted<S: AsRef<str>>(
-    document: &toml_edit::Document<S>,
-    span: Range<usize>,
-) -> bool {
-    for group in groups(document, span) {
-        let pairs = &document.raw()[group]
-            .parse::<toml_edit::Document<_>>()
-            .unwrap();
-        if !pairs.iter().map(|(k, _)| k).is_sorted() {
-            return false;
-        }
-    }
-    true
-}
-
-fn groups<S: AsRef<str>>(
-    document: &toml_edit::Document<S>,
-    span: Range<usize>,
-) -> Vec<Range<usize>> {
-    let group_starts = group_starts(document, &span);
-    let mut groups = Vec::with_capacity(group_starts.len() + 1);
-    let mut start = span.start;
-    for partition in group_starts {
-        groups.push(start..partition);
-        start = partition;
-    }
-    groups.push(start..span.end);
-    groups
-}
-
-/// Find the offsets in `span` that are not newlines, but that are preceded by two (or more)
-/// newlines.
-fn group_starts<S: AsRef<str>>(
-    document: &toml_edit::Document<S>,
-    span: &Range<usize>,
-) -> Vec<usize> {
-    let raw = &document.raw()[span.clone()].as_bytes();
-    (2..raw.len())
-        .filter(|&i| raw[i - 2] == b'\n' && raw[i - 1] == b'\n' && raw[i] != b'\n')
-        .map(|i| span.start + i)
-        .collect()
 }
 
 #[test]
@@ -867,31 +800,33 @@ fn compare_lines(left: &str, right: &str) {
     }
 }
 
-fn walkdir(include_examples: bool) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
-    walkdir::WalkDir::new(".")
-        .into_iter()
-        .filter_entry(move |entry| {
-            let filename = entry.file_name();
-            filename != "target" && (include_examples || filename != "examples")
-        })
+fn walkdir(include_examples: bool) -> ignore::Walk {
+    let mut builder = ignore::WalkBuilder::new(".");
+    builder
+        .standard_filters(false)
+        .git_ignore(true)
+        .filter_entry(move |entry| include_examples || entry.file_name() != "examples");
+    builder.build()
 }
+
+type WalkResult = std::result::Result<ignore::DirEntry, ignore::Error>;
 
 trait IntoIterExt {
     fn with_extension(
         self,
         extension: impl AsRef<OsStr> + 'static,
-    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>>;
+    ) -> impl Iterator<Item = WalkResult>;
     fn with_file_name(
         self,
         file_name: impl AsRef<OsStr> + 'static,
-    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>>;
+    ) -> impl Iterator<Item = WalkResult>;
 }
 
-impl<T: Iterator<Item = walkdir::Result<walkdir::DirEntry>>> IntoIterExt for T {
+impl<T: Iterator<Item = WalkResult>> IntoIterExt for T {
     fn with_extension(
         self,
         extension: impl AsRef<OsStr> + 'static,
-    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
+    ) -> impl Iterator<Item = WalkResult> {
         self.filter(move |entry| {
             entry.as_ref().map_or(true, |entry| {
                 entry.path().extension() == Some(extension.as_ref())
@@ -901,11 +836,68 @@ impl<T: Iterator<Item = walkdir::Result<walkdir::DirEntry>>> IntoIterExt for T {
     fn with_file_name(
         self,
         file_name: impl AsRef<OsStr> + 'static,
-    ) -> impl Iterator<Item = walkdir::Result<walkdir::DirEntry>> {
+    ) -> impl Iterator<Item = WalkResult> {
         self.filter(move |entry| {
             entry
                 .as_ref()
                 .map_or(true, |entry| entry.file_name() == file_name.as_ref())
         })
     }
+}
+
+fn key_value_pair_span<S>(
+    document: &toml_edit::Document<S>,
+    table_name: &str,
+) -> Option<Range<usize>> {
+    // smoelius: The table might not exist.
+    let item = document.get(table_name)?;
+    let table = item.as_table().unwrap();
+    // smoelius: The table might exist but be empty.
+    let (_, last_item) = table.iter().last()?;
+    let header_span = table.span().unwrap();
+    let last_item_span = last_item.span().unwrap();
+    Some(header_span.end..last_item_span.end)
+}
+
+fn key_value_pairs_are_sorted<S: AsRef<str>>(
+    document: &toml_edit::Document<S>,
+    span: Range<usize>,
+) -> bool {
+    for group in groups(document, span) {
+        let pairs = &document.raw()[group]
+            .parse::<toml_edit::Document<_>>()
+            .unwrap();
+        if !pairs.iter().map(|(k, _)| k).is_sorted() {
+            return false;
+        }
+    }
+    true
+}
+
+fn groups<S: AsRef<str>>(
+    document: &toml_edit::Document<S>,
+    span: Range<usize>,
+) -> Vec<Range<usize>> {
+    let group_starts = group_starts(document, &span);
+    let mut groups = Vec::with_capacity(group_starts.len() + 1);
+    let mut start = span.start;
+    for partition in group_starts {
+        groups.push(start..partition);
+        start = partition;
+    }
+    groups.push(start..span.end);
+    groups
+}
+
+/// Find the offsets in `span` that are not newlines, but that are preceded by two (or more)
+/// newlines.
+fn group_starts<S: AsRef<str>>(
+    document: &toml_edit::Document<S>,
+    span: &Range<usize>,
+) -> Vec<usize> {
+    let raw = &document.raw()[span.clone()].as_bytes();
+    (2..raw.len())
+        .filter(|&i| raw[i - 2] == b'\n' && raw[i - 1] == b'\n' && raw[i] != b'\n')
+        .map(|i| span.start + i)
+        .collect()
 }

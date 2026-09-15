@@ -4,15 +4,15 @@
 
 use anyhow::{Context, Result};
 use assert_cmd::cargo::cargo_bin_cmd;
-use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
-    env, library_filename, msrv,
-    rustup::SanitizeEnvironment,
+    env,
+    link::{debug_path_with_active_toolchain, debug_path_with_toolchain},
+    msrv,
+    rustup::{SanitizeEnvironment, active_toolchain},
     testing::new_template,
 };
-use glob::glob;
 use predicates::prelude::*;
 use std::{
     env::join_paths,
@@ -32,15 +32,19 @@ fn one_name_multiple_toolchains() {
         msrv::MSRV_CLIPPY_UTILS_REV,
     )
     .unwrap();
+    let msrv_toolchain = active_toolchain(tempdir.path()).unwrap();
     dylint_internal::cargo::build(&format!(
         "dylint-template with channel `{}`",
         msrv::MSRV_CHANNEL
     ))
     .build()
     .sanitize_environment()
+    .env(env::DYLINT_BUILDING_LIBRARIES, "1")
     .current_dir(&tempdir)
     .success()
     .unwrap();
+    let _: PathBuf =
+        debug_path_with_toolchain(tempdir.path(), "fill_me_in", &msrv_toolchain).unwrap();
 
     patch_dylint_template(
         tempdir.path(),
@@ -48,15 +52,19 @@ fn one_name_multiple_toolchains() {
         msrv::MSRV_PLUS_1_CLIPPY_UTILS_REV,
     )
     .unwrap();
+    let msrv_plus_1_toolchain = active_toolchain(tempdir.path()).unwrap();
     dylint_internal::cargo::build(&format!(
         "dylint-template with channel `{}`",
         msrv::MSRV_PLUS_1_CHANNEL
     ))
     .build()
     .sanitize_environment()
+    .env(env::DYLINT_BUILDING_LIBRARIES, "1")
     .current_dir(&tempdir)
     .success()
     .unwrap();
+    let _: PathBuf =
+        debug_path_with_toolchain(tempdir.path(), "fill_me_in", &msrv_plus_1_toolchain).unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         // smoelius: A toolchain can fail when it shares a target directory with another toolchain.
@@ -71,8 +79,8 @@ fn one_name_multiple_toolchains() {
         .assert()
         .success()
         .stdout(
-            predicate::str::contains(format!("fill_me_in@{}", msrv::MSRV_CHANNEL)).and(
-                predicate::str::contains(format!("fill_me_in@{}", msrv::MSRV_PLUS_1_CHANNEL)),
+            predicate::str::contains(format!("fill_me_in@{msrv_toolchain}")).and(
+                predicate::str::contains(format!("fill_me_in@{msrv_plus_1_toolchain}")),
             ),
         );
 }
@@ -83,6 +91,7 @@ fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> 
     Ok(())
 }
 
+// smoelius: This test will have to go away once `DYLINT_LIBRARY_PATH` is removed.
 #[test]
 fn one_name_multiple_paths() {
     let tempdirs = (tempdir().unwrap(), tempdir().unwrap());
@@ -93,16 +102,20 @@ fn one_name_multiple_paths() {
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdirs.0.path()))
         .build()
         .sanitize_environment()
+        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
         .current_dir(&tempdirs.0)
         .success()
         .unwrap();
-
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdirs.1.path()))
         .build()
         .sanitize_environment()
+        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
         .current_dir(&tempdirs.1)
         .success()
         .unwrap();
+
+    let _: PathBuf = debug_path_with_active_toolchain(tempdirs.0.path(), "fill_me_in").unwrap();
+    let _: PathBuf = debug_path_with_active_toolchain(tempdirs.1.path(), "fill_me_in").unwrap();
 
     let paths = join_paths([
         &target_debug(tempdirs.0.path()).unwrap(),
@@ -127,6 +140,8 @@ fn one_name_multiple_paths() {
         );
 }
 
+// smoelius: Once `DYLINT_LIBRARY_PATH` is removed, this test will need to be adjusted.
+// Specifically, the checks for `fill_me_in` will need to go away.
 #[test]
 fn opts_library_package() {
     let tempdir = tempdir().unwrap();
@@ -136,9 +151,12 @@ fn opts_library_package() {
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
         .build()
         .sanitize_environment()
+        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
         .current_dir(&tempdir)
         .success()
         .unwrap();
+
+    let _: PathBuf = debug_path_with_active_toolchain(tempdir.path(), "fill_me_in").unwrap();
 
     let paths = join_paths([&target_debug(tempdir.path()).unwrap()]).unwrap();
 
@@ -167,6 +185,8 @@ fn opts_library_package() {
         );
 }
 
+// smoelius: Once `DYLINT_LIBRARY_PATH` is removed, this test will need to go away or be adjusted.
+// Re that latter, it might make sense to convert this test to one that uses `--path`.
 #[test]
 fn relative_path() {
     let tempdir = tempdir().unwrap();
@@ -179,6 +199,8 @@ fn relative_path() {
         .current_dir(&tempdir)
         .success()
         .unwrap();
+
+    let _: PathBuf = debug_path_with_active_toolchain(tempdir.path(), "fill_me_in").unwrap();
 
     for path in [
         tempdir.path().join("target/../target/debug"),
@@ -204,6 +226,8 @@ fn relative_path() {
     }
 }
 
+// smoelius: This test checks that if a library path is passed to `--path`, a "No library packages
+// found in ..." message is emitted.
 #[test]
 fn list_by_path() {
     let tempdir = tempdir().unwrap();
@@ -213,22 +237,12 @@ fn list_by_path() {
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
         .build()
         .sanitize_environment()
+        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
         .current_dir(&tempdir)
         .success()
         .unwrap();
 
-    let path = glob(
-        &tempdir
-            .path()
-            .join("target/debug")
-            .join(library_filename("fill_me_in", "*"))
-            .to_string_lossy(),
-    )
-    .ok()
-    .as_mut()
-    .and_then(Iterator::next)
-    .unwrap()
-    .unwrap();
+    let path = debug_path_with_active_toolchain(tempdir.path(), "fill_me_in").unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         .args(["dylint", "list", "--path", &path.to_string_lossy()])
@@ -237,11 +251,11 @@ fn list_by_path() {
         .stderr(predicate::str::contains("No library packages found in "));
 }
 
-/// Returns the canonical path to the `target/debug` directory of the package at `path`.
+/// Returns the canonical path to the `target/debug` directory of the package at `dir`.
 // smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is
 // symlinked to `/private/var`.
-fn target_debug(path: &Path) -> Result<PathBuf> {
-    let metadata = MetadataCommand::new().current_dir(path).no_deps().exec()?;
+fn target_debug(dir: &Path) -> Result<PathBuf> {
+    let metadata = dylint_internal::cargo::metadata(dir)?;
     let debug_dir = metadata.target_directory.join("debug");
     debug_dir
         .canonicalize()

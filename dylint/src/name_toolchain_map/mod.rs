@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, ensure};
-use dylint_internal::{env, parse_path_filename};
+use dylint_internal::{env, parse_path_with_toolchain};
 use once_cell::sync::OnceCell;
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -13,10 +13,8 @@ pub use maybe_library::MaybeLibrary;
 
 pub type ToolchainMap = BTreeMap<String, BTreeSet<PathBuf>>;
 
-#[allow(clippy::redundant_pub_crate)]
 pub(crate) type NameToolchainMap = BTreeMap<String, LazyToolchainMap>;
 
-#[allow(clippy::redundant_pub_crate)]
 pub(crate) type LazyToolchainMap = BTreeMap<String, BTreeSet<MaybeLibrary>>;
 
 #[cfg_attr(not(__library_packages), allow(dead_code))]
@@ -130,7 +128,7 @@ fn dylint_libraries_in(
         let entry = entry
             .with_context(|| format!("`read_dir` failed for `{}`", path_buf.to_string_lossy()))?;
         let entry_path = entry.path();
-        if let Some((lib_name, toolchain)) = parse_path_filename(&entry_path) {
+        if let Some((lib_name, toolchain)) = parse_path_with_toolchain(&entry_path) {
             libraries.push(Ok((lib_name, toolchain, entry_path)));
         }
     }

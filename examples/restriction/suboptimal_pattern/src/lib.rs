@@ -151,9 +151,8 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                         let tuple_pattern =
                             build_tuple_pattern(ident.name.as_str(), &projections, tys.len());
                         let pattern = format!(
-                            "{:&>width$}{}",
+                            "{:&>width$}{tuple_pattern}",
                             "",
-                            tuple_pattern,
                             width = if is_copy(cx, referent_ty) { n_refs } else { 0 }
                         );
                         span_lint_and_sugg(
@@ -181,7 +180,7 @@ impl<'tcx> LateLintPass<'tcx> for SuboptimalPattern {
                     && n_derefs > 0
                 {
                     let snippet = snippet(cx, pat.span, "_");
-                    let pattern = format!("{:&>width$}{}", "", snippet, width = n_derefs);
+                    let pattern = format!("{:&>n_derefs$}{snippet}", "");
                     span_lint_and_sugg(
                         cx,
                         SUBOPTIMAL_PATTERN,

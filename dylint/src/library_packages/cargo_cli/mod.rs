@@ -271,7 +271,7 @@ fn ident(url: &str) -> Result<String> {
 
     let ident = if ident.is_empty() { "_empty" } else { ident };
 
-    Ok(format!("{}-{}", ident, short_hash(&canonical_url)))
+    Ok(format!("{ident}-{}", short_hash(&canonical_url)))
 }
 
 fn inject_dummy_dependencies(

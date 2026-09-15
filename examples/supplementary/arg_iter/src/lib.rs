@@ -87,7 +87,7 @@ impl<'tcx> LateLintPass<'tcx> for ArgIter {
             return;
         };
 
-        let predicates = cx.tcx.predicates_of(id);
+        let predicates = cx.tcx.clauses_of(id);
 
         let fn_sig = cx.tcx.fn_sig(id).skip_binder();
 
@@ -127,14 +127,14 @@ impl<'tcx> LateLintPass<'tcx> for ArgIter {
 /// Checks if a given type parameter `param_ty` is bound _only_ by `iterator_def_id` within the
 /// given `predicates`
 fn is_param_bound_only_by_iterator<'tcx>(
-    predicates: ty::GenericPredicates<'tcx>,
+    predicates: ty::GenericClauses<'tcx>,
     param_ty: ty::Ty<'tcx>,
     iterator_def_id: DefId,
     sized_def_id: DefId,
 ) -> bool {
     let mut found_iterator_bound = false;
 
-    for &(predicate, _pred_span) in predicates.predicates.iter() {
+    for &(predicate, _pred_span) in predicates.clauses.iter() {
         if let Some(trait_pred) = predicate.as_trait_clause() {
             let bound_trait_pred = trait_pred.skip_binder();
             let self_ty = bound_trait_pred.self_ty();
@@ -156,12 +156,12 @@ fn is_param_bound_only_by_iterator<'tcx>(
 
 /// Checks if the given parameter type `param_ty` is used as an argument
 fn is_param_used_in_other_trait_args<'tcx>(
-    predicates: ty::GenericPredicates<'tcx>,
+    predicates: ty::GenericClauses<'tcx>,
     param_ty: ty::Ty<'tcx>,
     iterator_def_id: DefId,
     sized_def_id: DefId,
 ) -> bool {
-    for &(predicate, _) in predicates.predicates.iter() {
+    for &(predicate, _) in predicates.clauses.iter() {
         if let Some(trait_pred) = predicate.as_trait_clause() {
             let bound_trait_pred = trait_pred.skip_binder();
             let current_trait_def_id = bound_trait_pred.def_id();

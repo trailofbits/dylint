@@ -135,9 +135,8 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
         && new_nightly < old_nightly
     {
         bail!(
-            "Refusing to downgrade toolchain from `{}` to `{}`. \
+            "Refusing to downgrade toolchain from `{old_channel}` to `{}`. \
             Use `--allow-downgrade` to override.",
-            old_channel,
             rev.channel
         );
     }

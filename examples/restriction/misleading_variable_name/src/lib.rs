@@ -8,9 +8,10 @@ extern crate rustc_span;
 use clippy_utils::{diagnostics::span_lint_and_help, res::MaybeDef, ty::implements_trait};
 use heck::ToSnakeCase;
 use rustc_hir::{
-    Expr, ExprKind, LangItem, LetStmt, MatchSource, Pat, PatKind, Stmt, StmtKind,
+    Expr, ExprKind, LetStmt, MatchSource, Pat, PatKind, Stmt, StmtKind,
+    attrs::lang_items::LangItem,
     def::{DefKind, Res},
-    def_id::{DefId, ModDefId},
+    def_id::{DefId, ModId},
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty;
@@ -100,10 +101,9 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
                             .collect::<Vec<_>>();
                         let last = names.pop().unwrap();
                         format!(
-                            "use a name that is not {}{} or {}",
+                            "use a name that is not {}{} or {last}",
                             names.join(", "),
-                            if names.len() >= 2 { "," } else { "" },
-                            last
+                            if names.len() >= 2 { "," } else { "" }
                         )
                     }
                 });
@@ -112,9 +112,8 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
                 MISLEADING_VARIABLE_NAME,
                 ident.span,
                 format!(
-                    "`{}` exports a type `{}`, which is not the type of `{}`",
+                    "`{}` exports a type `{child_ty_name}`, which is not the type of `{}`",
                     cx.tcx.def_path_str(module_def_id),
-                    child_ty_name,
                     ident.name
                 ),
                 None,
@@ -242,7 +241,7 @@ fn module_public_child_types(
 }
 
 fn module_public_children(tcx: ty::TyCtxt<'_>, module_def_id: DefId) -> Vec<(Symbol, DefId)> {
-    if let Some(module_local_def_id) = ModDefId::new_unchecked(module_def_id).as_local() {
+    if let Some(module_local_def_id) = ModId::new_unchecked(module_def_id).as_local() {
         tcx.hir_module_free_items(module_local_def_id)
             .filter_map(|item_id| {
                 let child_def_id = item_id.owner_id.to_def_id();

@@ -1,8 +1,15 @@
 use assert_cmd::{cargo::cargo_bin_cmd, prelude::*};
 use dylint_internal::{CommandExt, env, packaging::isolate};
 use predicates::prelude::*;
-use std::{env::remove_var, fs::OpenOptions, io::Write};
-use tempfile::tempdir;
+use std::{
+    env::remove_var,
+    ffi::OsStr,
+    fs::{OpenOptions, copy, create_dir_all},
+    io::Write,
+    path::Path,
+};
+use tempfile::{tempdir, tempdir_in};
+use walkdir::WalkDir;
 
 // smoelius: "Separate lints into categories" commit
 const REV: &str = "402fc24351c60a3c474e786fd76aa66aa8638d55";
@@ -127,6 +134,44 @@ fn library_packages_in_dylint_toml() {
         .stderr(predicate::str::contains(
             "\nwarning: `unwrap`s that could be combined\n",
         ));
+}
+
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+#[test]
+fn library_packages_with_configured_build_directory_and_dylint_link() {
+    let temp_fixture = tempdir_in("../fixtures").unwrap();
+    copy_fixture(
+        Path::new("../fixtures/library_packages_in_dylint_toml"),
+        temp_fixture.path(),
+    );
+    let build_directory = tempdir().unwrap();
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&temp_fixture)
+        .env(env::CARGO_BUILD_BUILD_DIR, build_directory.path())
+        .env(env::DYLINT_LINK_ENABLE_COPY_LIBRARY, "1")
+        .args(["dylint", "--all"])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains(
+            "\nwarning: `unwrap`s that could be combined\n",
+        ));
+}
+
+fn copy_fixture(source: &Path, destination: &Path) {
+    for result in WalkDir::new(source)
+        .into_iter()
+        .filter_entry(|entry| entry.file_name() != OsStr::new("target"))
+    {
+        let entry = result.unwrap();
+        let relative = entry.path().strip_prefix(source).unwrap();
+        let destination = destination.join(relative);
+        if entry.file_type().is_dir() {
+            create_dir_all(destination).unwrap();
+        } else {
+            copy(entry.path(), destination).unwrap();
+        }
+    }
 }
 
 #[test]

@@ -80,7 +80,7 @@ jobs:
         run: rustup update
 
       - name: Install dylint-link
-        run: cargo install --path ./dylint-link --force
+        run: cargo install --path ./dylint-link --features=__copy_library_disabled_by_default --force
 
       - name: Install tools
         run: |

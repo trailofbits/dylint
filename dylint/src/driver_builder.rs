@@ -1,6 +1,5 @@
 use crate::{error::warn, opts};
 use anyhow::{Context, Result, anyhow, ensure};
-use cargo_metadata::MetadataCommand;
 use dylint_internal::{
     CommandExt, driver as dylint_driver, env,
     rustup::{SanitizeEnvironment, toolchain_path},
@@ -120,10 +119,7 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
 
     initialize(toolchain, package)?;
 
-    let metadata = MetadataCommand::new()
-        .current_dir(package)
-        .no_deps()
-        .exec()?;
+    let metadata = dylint_internal::cargo::metadata(package)?;
 
     let toolchain_path = toolchain_path(package)?;
 
