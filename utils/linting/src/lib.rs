@@ -707,7 +707,7 @@ fn try_init_config_guarded(sess: &rustc_session::Session) -> ConfigResult<()> {
 
             if let Some(path) = config::try_init_with_metadata(&metadata)? {
                 sess.source_map().load_file(&path).map_err(|error| {
-                    ConfigError::other(format!("Could not load {path:?}: {error}"))
+                    ConfigError::other(format!("Could not load {}: {error}", path.display()))
                 })?;
             }
         }
