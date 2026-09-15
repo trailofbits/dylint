@@ -66,6 +66,7 @@ pedantic = { level = "warn", priority = -1 }
 missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 option_if_let_else = "allow"
+redundant_pub_crate = "allow"
 significant_drop_tightening = "allow"
 struct_field_names = "allow"
 
