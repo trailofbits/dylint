@@ -9,5 +9,3 @@ proc-macro = true
 [dependencies]
 proc-macro2 = "1.0"
 syn = { version = "3.0", features = ["full"] }
-
-[workspace]

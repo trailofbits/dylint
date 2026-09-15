@@ -87,7 +87,7 @@ name = "attr"
 version = "0.1.0"
 dependencies = [
  "proc-macro2",
- "syn 3.0.4",
+ "syn 3.0.5",
 ]
 
 [[package]]
