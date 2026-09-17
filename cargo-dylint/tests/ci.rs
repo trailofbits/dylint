@@ -663,11 +663,13 @@ fn fmt() {
         let path = entry.path();
         let parent = path.parent().unwrap();
 
-        Command::new("cargo")
-            .args(["+nightly", "fmt", "--check"])
-            .current_dir(parent)
-            .assert()
-            .success();
+        let mut command = Command::new("cargo");
+        command.args(["+nightly", "fmt"]);
+        if !env::enabled("BLESS") {
+            command.arg("--check");
+        }
+        command.current_dir(parent);
+        command.assert().success();
     }
 }
 
