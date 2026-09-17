@@ -11,9 +11,11 @@
 
 type StableHasher = rustc_stable_hash::StableSipHasher128;
 
-use std::fs::File;
-use std::hash::{Hash, Hasher};
-use std::io::Read;
+use std::{
+    fs::File,
+    hash::{Hash, Hasher},
+    io::Read,
+};
 
 pub fn to_hex(num: u64) -> String {
     hex::encode(num.to_le_bytes())
