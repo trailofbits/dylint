@@ -162,8 +162,7 @@ fn generate_lint_tables(examples_dir: &Path, categories: &[&str]) -> String {
 
     // Generate the tables for each category
     for category in categories {
-        use std::cmp::max;
-        use std::fmt::Write;
+        use std::{cmp::max, fmt::Write};
 
         // Get the examples for this category
         let examples = collect_examples_from_category(examples_dir, category);
