@@ -795,6 +795,7 @@ dependencies = [
  "dylint_internal",
  "dylint_linting",
  "dylint_testing",
+ "serde",
 ]
 
 [[package]]
