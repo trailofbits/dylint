@@ -1,0 +1,22 @@
+warning: referring to an environment variable with a string literal is error prone
+  --> $DIR/main.rs:2:13
+   |
+LL |     let _ = std::env::var("RUSTFLAGS");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(disallowed_pattern)]` on by default
+
+warning: referring to an environment variable with a string literal is error prone
+  --> $DIR/main.rs:3:5
+   |
+LL |     std::env::remove_var("RUSTFALGS");
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: disallowed pattern
+  --> $DIR/main.rs:4:5
+   |
+LL |     std::env::set_var("RUSTFALGS", "-D warnings");
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: 3 warnings emitted
+
