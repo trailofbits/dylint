@@ -31,6 +31,11 @@ fn foo() {
 fn bar() {}
 ```
 
+### Configuration
+
+- `check_test_functions: bool` (default `false`): Include functions marked with `#[test]` in
+  the ordering checks.
+
 ### Known problems
 
 While the lint may seem strict, its rules do not completely dictate the order of a module's
