@@ -1,4 +1,8 @@
-use std::process::{Command, Stdio};
+use std::{
+    env,
+    ffi::OsString,
+    process::{Command, Stdio},
+};
 
 fn main() {
     if is_nightly() {
@@ -12,7 +16,7 @@ fn main() {
 }
 
 fn is_nightly() -> bool {
-    Command::new("rustc")
+    Command::new(env::var_os("RUSTC").unwrap_or_else(|| OsString::from("rustc")))
         .args(["-Z", "help"])
         .stderr(Stdio::null())
         .status()
