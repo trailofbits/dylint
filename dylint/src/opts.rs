@@ -140,6 +140,14 @@ impl LibrarySelection {
     pub(crate) const fn git_or_path(&self) -> bool {
         self.git.is_some() || !self.paths.is_empty()
     }
+
+    /// Returns `true` if `all`, `libs`, or `lib_paths` indicates a library selection.
+    ///
+    /// `git` and `paths` are not considered. For the `Check` and `List` operations, `run` folds
+    /// them into `all` before any caller reaches this method.
+    pub(crate) const fn selects_libraries(&self) -> bool {
+        self.all || !self.libs.is_empty() || !self.lib_paths.is_empty()
+    }
 }
 
 #[cfg(feature = "package_options")]

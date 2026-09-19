@@ -151,8 +151,8 @@ struct LibrarySelection {
 
     #[clap(
         long,
-        help = "Exit with an error if no libraries are found (requires a library selection, \
-                e.g., `--all`)"
+        help = "Exit with an error if no libraries are found; requires a library selection \
+                (`--all`, `--git`, `--lib`, `--lib-path`, or `--path`)"
     )]
     fail_on_no_libraries: bool,
 
