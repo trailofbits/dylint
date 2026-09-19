@@ -84,6 +84,16 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
         bail!("`--pattern` can be used only with `--git` or `--path`");
     }
 
+    if opts.has_library_selection()
+        && opts.library_selection().fail_on_no_libraries
+        && !opts.library_selection().selects_libraries()
+    {
+        bail!(
+            "`--fail-on-no-libraries` requires `--all`, `--git`, `--lib`, `--lib-path`, or \
+             `--path`"
+        );
+    }
+
     if opts.pipe_stderr.is_some() {
         warn(&opts, "`--pipe-stderr` is experimental");
     }
@@ -112,7 +122,7 @@ fn run_with_name_toolchain_map(
 ) -> Result<()> {
     let lib_sel = opts.library_selection();
 
-    if lib_sel.libs.is_empty() && lib_sel.lib_paths.is_empty() && !lib_sel.all {
+    if !lib_sel.selects_libraries() {
         if matches!(opts.operation, opts::Operation::List(_)) {
             warn_if_empty(opts, name_toolchain_map)?;
             return list_libs(name_toolchain_map);
@@ -127,6 +137,10 @@ fn run_with_name_toolchain_map(
     if resolved.is_empty() {
         assert!(lib_sel.libs.is_empty());
         assert!(lib_sel.lib_paths.is_empty());
+
+        if lib_sel.fail_on_no_libraries {
+            bail!("No libraries were found");
+        }
 
         let name_toolchain_map_is_empty = warn_if_empty(opts, name_toolchain_map)?;
 

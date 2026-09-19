@@ -135,6 +135,7 @@ Combine with `--all` to list all lints in all discovered libraries."
     },
 }
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Parser)]
 #[cfg_attr(feature = "__clap_headings", clap(next_help_heading = Some("Library Selection")))]
 struct LibrarySelection {
@@ -147,6 +148,13 @@ struct LibrarySelection {
         help = "Branch to use when downloading library packages"
     )]
     branch: Option<String>,
+
+    #[clap(
+        long,
+        help = "Exit with an error if no libraries are found; requires a library selection \
+                (`--all`, `--git`, `--lib`, `--lib-path`, or `--path`)"
+    )]
+    fail_on_no_libraries: bool,
 
     #[clap(
         long,
@@ -319,6 +327,7 @@ impl LibrarySelection {
         let Self {
             all,
             branch,
+            fail_on_no_libraries,
             git,
             lib_paths,
             libs,
@@ -332,6 +341,7 @@ impl LibrarySelection {
         } = other;
         self.all |= all;
         option_absorb!(&mut self.branch, branch);
+        self.fail_on_no_libraries |= fail_on_no_libraries;
         option_absorb!(&mut self.git, git);
         self.lib_paths.extend(lib_paths);
         self.libs.extend(libs);
@@ -350,6 +360,7 @@ impl From<LibrarySelection> for dylint::opts::LibrarySelection {
         let LibrarySelection {
             all,
             branch,
+            fail_on_no_libraries,
             git,
             lib_paths,
             libs,
@@ -364,6 +375,7 @@ impl From<LibrarySelection> for dylint::opts::LibrarySelection {
         Self {
             all,
             branch,
+            fail_on_no_libraries,
             git,
             lib_paths,
             libs,
