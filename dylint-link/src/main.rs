@@ -2,17 +2,12 @@
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::panic)]
 
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result};
 use dylint_internal::{
-    CommandExt, cargo::cargo_home, env, library_filename_with_toolchain, rustup::parse_toolchain,
+    CommandExt, cargo::cargo_home, env, link::copy_library, parse_plain_path,
+    rustup::parse_toolchain,
 };
-use std::{
-    env::{args, consts},
-    ffi::OsStr,
-    fs::{copy, read_to_string},
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::{env::args, fs::read_to_string, path::PathBuf, process::Command};
 
 #[cfg(target_os = "windows")]
 use windows::{default_linker, needs_lld_link_flavor, output_path};
@@ -40,8 +35,27 @@ fn main() -> Result<()> {
     }
     command.args(&args[1..]).success()?;
 
-    if let Some(path) = output_path(args.iter())? {
-        copy_library(&path)?;
+    // smoelius: `DYLINT_BUILDING_LIBRARIES` means that Dylint is building libraries and will handle
+    // the call to `copy_library`. `DYLINT_LINK_ENABLE_COPY_LIBRARY` means that `dylint-link` should
+    // call `copy_library`, even if the `__copy_library_disabled_by_default` feature is enabled. The
+    // latter environment variable trumps the former. That is, if `DYLINT_LINK_ENABLE_COPY_LIBRARY`
+    // is enabled, `dylint-link` proceeds to determine whether `copy_library` should be called, even
+    // if `DYLINT_BUILDING_LIBRARIES` is enabled.
+    if (!env::enabled(env::DYLINT_BUILDING_LIBRARIES)
+        || env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY))
+        && let Some(plain_path) = output_path(args.iter())?
+        && let Some(lib_name) = parse_plain_path(&plain_path)
+        && let cargo_pkg_name = env::var(env::CARGO_PKG_NAME)?
+        && lib_name == cargo_pkg_name.replace('-', "_")
+        && let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?
+    {
+        if !cfg!(feature = "__copy_library_disabled_by_default")
+            || env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY)
+        {
+            copy_library(&plain_path, &lib_name, &rustup_toolchain)?;
+        } else {
+            warn("`copy_library` is disabled; enable with DYLINT_LINK_ENABLE_COPY_LIBRARY=1");
+        }
     }
 
     Ok(())
@@ -74,46 +88,8 @@ fn linker() -> Result<PathBuf> {
     }
 }
 
-fn copy_library(path: &Path) -> Result<()> {
-    if let Some(lib_name) = parse_path_plain_filename(path) {
-        let cargo_pkg_name = env::var(env::CARGO_PKG_NAME)?;
-        if lib_name == cargo_pkg_name.replace('-', "_") {
-            let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
-            let filename_with_toolchain =
-                library_filename_with_toolchain(&lib_name, &rustup_toolchain);
-            let parent = path
-                .parent()
-                .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-            let path_with_toolchain = strip_deps(parent).join(filename_with_toolchain);
-            copy(path, &path_with_toolchain).with_context(|| {
-                format!(
-                    "Could not copy `{}` to `{}`",
-                    path.to_string_lossy(),
-                    path_with_toolchain.to_string_lossy()
-                )
-            })?;
-        }
-    }
-
-    Ok(())
-}
-
-fn parse_path_plain_filename(path: &Path) -> Option<String> {
-    let filename = path.file_name()?;
-    let s = filename.to_string_lossy();
-    let file_stem = s.strip_suffix(consts::DLL_SUFFIX)?;
-    let lib_name = file_stem.strip_prefix(consts::DLL_PREFIX)?;
-    Some(lib_name.to_owned())
-}
-
-fn strip_deps(path: &Path) -> PathBuf {
-    if path.file_name() == Some(OsStr::new("deps")) {
-        path.parent()
-    } else {
-        None
-    }
-    .unwrap_or(path)
-    .to_path_buf()
+fn warn(msg: &str) {
+    eprintln!("{}: {msg}", env!("CARGO_PKG_NAME"));
 }
 
 #[cfg(target_os = "windows")]

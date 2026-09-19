@@ -120,13 +120,13 @@
 use anyhow::{Context, Result, anyhow, ensure};
 use cargo_metadata::{Metadata, Package, Target, TargetKind};
 use compiletest_rs as compiletest;
-use dylint_internal::{CommandExt, env, library_filename_with_toolchain, rustup::is_rustc};
+use dylint_internal::{CommandExt, env, link::dylint_libs, rustup::is_rustc};
 use once_cell::sync::OnceCell;
 use regex::Regex;
 use std::{
-    env::{consts, remove_var, set_var, var_os},
+    env::{remove_var, set_var, var_os},
     ffi::{OsStr, OsString},
-    fs::{copy, read_dir, remove_file},
+    fs::copy,
     io::BufRead,
     path::{Path, PathBuf},
     sync::{LazyLock, Mutex},
@@ -172,19 +172,10 @@ fn initialize(name: &str) -> &Result<PathBuf> {
 
         dylint_internal::cargo::build(&format!("library `{name}`"))
             .build()
+            .env(env::DYLINT_BUILDING_LIBRARIES, "1")
             .success()?;
 
-        // smoelius: `DYLINT_LIBRARY_PATH` must be set before `dylint_libs` is called.
-        // smoelius: This was true when `dylint_libs` called `name_toolchain_map`, but that is
-        // no longer the case. I am leaving the comment here for now in case removal
-        // of the `name_toolchain_map` call causes a regression.
-        let metadata = dylint_internal::cargo::current_metadata().unwrap();
-        let dylint_library_path = metadata.target_directory.join("debug");
-        unsafe {
-            set_var(env::DYLINT_LIBRARY_PATH, dylint_library_path);
-        }
-
-        let dylint_libs = dylint_libs(name)?;
+        let dylint_libs = dylint_libs(name, env!("RUSTUP_TOOLCHAIN"))?;
         let driver = dylint::driver_builder::get(
             &dylint::opts::Dylint::default(),
             env!("RUSTUP_TOOLCHAIN"),
@@ -197,16 +188,6 @@ fn initialize(name: &str) -> &Result<PathBuf> {
 
         Ok(driver)
     })
-}
-
-#[doc(hidden)]
-pub fn dylint_libs(name: &str) -> Result<String> {
-    let metadata = dylint_internal::cargo::current_metadata().unwrap();
-    let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?;
-    let filename = library_filename_with_toolchain(name, &rustup_toolchain);
-    let path = metadata.target_directory.join("debug").join(filename);
-    let paths = vec![path];
-    serde_json::to_string(&paths).map_err(Into::into)
 }
 
 fn example_target(package: &Package, example: &str) -> Result<Target> {
@@ -313,20 +294,21 @@ fn linking_flags(
 
 static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\s*Running\s*`(.*)`$").unwrap());
 
-fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Result<Vec<String>> {
-    // smoelius: The following comments are old and retained for posterity. The linking flags are
-    // now initialized using a `OnceCell`, which makes the mutex unnecessary.
-    //   smoelius: Force rebuilding of the example by removing it. This is kind of messy. The
-    //   example is a shared resource that may be needed by multiple tests. For now, I lock a mutex
-    //   while the example is removed and put back.
-    //   smoelius: Should we use a temporary target directory here?
+fn rustc_flags(_metadata: &Metadata, package: &Package, target: &Target) -> Result<Vec<String>> {
+    // Previously, this function removed the example executable from `target/debug/examples` before
+    // running `cargo build --verbose`. With Cargo's legacy layout, that forced the example to be
+    // recompiled and exposed its rustc invocation in Cargo's verbose output. With the new
+    // build-directory layout, Cargo can restore the removed executable from its cached build
+    // artifact without invoking rustc, making removal ineffective as a way to force recompilation.
+    // So, use `cargo rustc` with a process-specific `-C metadata` value instead. The changed
+    // metadata forces rustc to run for the selected example without removing artifacts or relying
+    // on Cargo's internal layout.
+    let rustc_metadata = format!("metadata=dylint_testing_{}", std::process::id());
     let output = {
-        remove_example(metadata, package, target)?;
-
-        // smoelius: Because of lazy initialization, `cargo build` is run only once. Seeing
+        // smoelius: Because of lazy initialization, `cargo rustc` is run only once. Seeing
         // "Building example `target`" for one example but not for others is confusing. So instead
         // say "Building `package` examples".
-        dylint_internal::cargo::build(&format!("`{}` examples", package.name))
+        dylint_internal::cargo::rustc(&format!("`{}` examples", package.name))
             .build()
             .env_remove(env::CARGO_TERM_COLOR)
             .args([
@@ -335,6 +317,9 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
                 "--example",
                 &target.name,
                 "--verbose",
+                "--",
+                "-C",
+                &rustc_metadata,
             ])
             .logged_output(true)?
     };
@@ -373,29 +358,6 @@ fn rustc_flags(metadata: &Metadata, package: &Package, target: &Target) -> Resul
     matches
         .pop()
         .ok_or_else(|| anyhow!("Found no `rustc` invocations for `{}`", target.name))
-}
-
-fn remove_example(metadata: &Metadata, _package: &Package, target: &Target) -> Result<()> {
-    let examples = metadata.target_directory.join("debug/examples");
-    for entry in
-        read_dir(&examples).with_context(|| format!("`read_dir` failed for `{examples}`"))?
-    {
-        let entry = entry.with_context(|| format!("`read_dir` failed for `{examples}`"))?;
-        let path = entry.path();
-
-        let file_name = entry.file_name();
-        let s = file_name.to_string_lossy();
-        let target_name = snake_case(&target.name);
-        if s == target_name.clone() + consts::EXE_SUFFIX
-            || s.starts_with(&(target_name.clone() + "-"))
-        {
-            remove_file(&path).with_context(|| {
-                format!("`remove_file` failed for `{}`", path.to_string_lossy())
-            })?;
-        }
-    }
-
-    Ok(())
 }
 
 fn next<I, T>(flag: &str, iter: &mut I) -> Result<T>

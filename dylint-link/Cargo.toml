@@ -14,6 +14,7 @@ toml = { workspace = true }
 
 dylint_internal = { version = "=6.0.4", path = "../internal", features = [
     "cargo",
+    "link",
     "rustup",
 ] }
 
@@ -28,6 +29,9 @@ tempfile = { workspace = true }
 dylint_internal = { version = "=6.0.4", path = "../internal", features = [
     "packaging",
 ] }
+
+[features]
+__copy_library_disabled_by_default = []
 
 [lints]
 workspace = true

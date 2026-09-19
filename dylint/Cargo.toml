@@ -43,6 +43,7 @@ walkdir = { workspace = true, optional = true }
 dylint_internal = { version = "=6.0.4", path = "../internal", features = [
     "config",
     "git",
+    "link",
     "packaging",
     "rustup",
 ] }

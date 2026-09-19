@@ -22,6 +22,7 @@ git2 = { workspace = true, optional = true }
 home = { workspace = true, optional = true }
 semver = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
 tar = { workspace = true, optional = true }
 tempfile = { workspace = true, optional = true }
 thiserror = { workspace = true, optional = true }
@@ -43,6 +44,7 @@ config = ["cargo_metadata", "serde", "thiserror", "toml"]
 examples = ["cargo", "cargo-util", "rustup", "walkdir"]
 git = ["git2"]
 home = ["dep:home"]
+link = ["cargo", "rustup", "serde_json"]
 match_def_path = []
 packaging = ["cargo", "tar"]
 rustup = ["cargo_metadata"]

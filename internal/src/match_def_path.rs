@@ -20,6 +20,7 @@ use rustc_span::symbol::Symbol;
 /// any.
 ///
 /// Please use `tcx.get_diagnostic_name` if the targets are all diagnostic items.
+#[must_use]
 pub fn match_any_def_paths(cx: &LateContext<'_>, did: DefId, paths: &[&[&str]]) -> Option<usize> {
     let search_path = cx.get_def_path(did);
     paths.iter().position(|p| {
@@ -30,6 +31,7 @@ pub fn match_any_def_paths(cx: &LateContext<'_>, did: DefId, paths: &[&[&str]]) 
 }
 
 /// Checks if the given `DefId` matches the path.
+#[must_use]
 pub fn match_def_path(cx: &LateContext<'_>, did: DefId, syms: &[&str]) -> bool {
     // We should probably move to Symbols in Clippy as well rather than interning every time.
     let path = cx.get_def_path(did);
