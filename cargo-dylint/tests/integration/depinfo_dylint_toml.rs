@@ -87,7 +87,10 @@ path = "{}/../examples/supplementary/unnamed_constant"
         .args(["dylint", "--all", "--", "--verbose"])
         .assert()
         .success()
-        .stderr(predicate::str::contains("warning: unnamed constant").not());
+        .stderr(
+            predicate::str::contains("Checking depinfo_dylint_toml_test")
+                .and(predicate::str::contains("warning: unnamed constant").not()),
+        );
 
     cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
