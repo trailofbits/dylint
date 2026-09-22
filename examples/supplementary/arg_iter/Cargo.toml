@@ -1,6 +1,6 @@
 [package]
 name = "arg_iter"
-version = "6.0.4"
+version = "6.1.0"
 edition = "2024"
 publish = false
 
