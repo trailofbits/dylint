@@ -176,9 +176,13 @@ fn copy_fixture(source: &Path, destination: &Path) {
 
 #[test]
 fn library_packages_with_rust_toolchain() {
+    let tempdir = tempdir().unwrap();
+
     let assert = cargo_bin_cmd!("cargo-dylint")
         .current_dir("../fixtures/library_packages_with_rust_toolchain")
         .env(env::RUST_LOG, "debug")
+        // smoelius: Use a temporary target directory to shorten build directory paths for Windows.
+        .env(env::CARGO_TARGET_DIR, &*tempdir.path().to_string_lossy())
         .args(["dylint", "--all"])
         .assert()
         .success();
