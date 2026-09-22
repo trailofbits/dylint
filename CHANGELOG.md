@@ -2,9 +2,21 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
-## Next
+## 6.1.0
 
-- Add the `--fail-on-no-libraries` option to `cargo dylint`. Reported in [#2073](https://github.com/trailofbits/dylint/issues/2073) by [@humb1t](https://github.com/humb1t).
+- FEATURE: Provide prebuilt binaries for Apple Silicon macOS ([190b023](https://github.com/trailofbits/dylint/commit/190b02340c39713c8755e97cea43b31c33d976a8))
+- Fix a bug that caused Clippy versions to be compared as `String`s rather than `Version`s. This bug affected the `upgrade` operation. ([8ba7fcb](https://github.com/trailofbits/dylint/commit/8ba7fcb40a3d93d2882f4f1957f7976ac6d158e1))
+- Make `dylint_linting` compatible with newer nightly lint-registration APIs ([92aec4d](https://github.com/trailofbits/dylint/commit/92aec4d671426a48c0ece78f59716cc37d95421c))
+- Fix `dylint.toml` dependency tracking to preserve incremental compilation ([2752c97](https://github.com/trailofbits/dylint/commit/2752c9751915d3e445f4a0ba2bee7512235ffd93))&mdash;thanks [@rirze](https://github.com/rirze)
+- Honor `RUSTC` when detecting nightly in `dylint_internal` ([747f4ae](https://github.com/trailofbits/dylint/commit/747f4aeffa640576e8633e02b8e4e0c3b1a06a1a))&mdash;thanks [@dzbarsky](https://github.com/dzbarsky)
+- Invalidate lints when `dylint.toml` is created ([4ab2cd7](https://github.com/trailofbits/dylint/commit/4ab2cd7f0815426cc9a136d7ca65247b37fb3efc))&mdash;thanks [@rirze](https://github.com/rirze)
+- FEATURE: When building libraries from the `dylint` package, copy them directly rather than with `dylint-link` ([e504ebb](https://github.com/trailofbits/dylint/commit/e504ebbef444a1f2c50dde8631a95c91eff2a15a))
+- Fix library discovery when the user changes the build directory location ([136b95c](https://github.com/trailofbits/dylint/commit/136b95cd9de2476b514eb5fad814891526264529) and [016fb59](https://github.com/trailofbits/dylint/commit/016fb59d9f4f6c89ff7c00756b52afeb854ead4f))&mdash;thanks [@DenisGorbachev](https://github.com/DenisGorbachev)
+- Force `rustc` invocation when collecting UI test flags ([df56652](https://github.com/trailofbits/dylint/commit/df566526712d40a9a35be1c0d65d4062685378bd))
+- FEATURE: Add `--fail-on-no-libraries` option to `cargo dylint` [#2077](https://github.com/trailofbits/dylint/pull/2077)&mdash;thanks [@humb1t](https://github.com/humb1t)
+- Dependency updates
+  - `nested_workspace` upgraded to version 3
+  - `rewriter` upgraded to version 2
 
 ## 6.0.4
 

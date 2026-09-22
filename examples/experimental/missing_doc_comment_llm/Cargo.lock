@@ -589,7 +589,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
 name = "dylint"
-version = "6.0.4"
+version = "6.1.0"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -605,7 +605,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.0.4"
+version = "6.1.0"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -627,7 +627,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "6.0.4"
+version = "6.1.0"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -640,7 +640,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "6.0.4"
+version = "6.1.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -1477,7 +1477,7 @@ dependencies = [
 
 [[package]]
 name = "missing_doc_comment_llm"
-version = "6.0.4"
+version = "6.1.0"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
