@@ -93,6 +93,7 @@ libraries = [
 ignore = [
     "bincode",
     "bit-set",
+    "cfg-if",
     "serde-value",
     "tester",
     # https://github.com/alacritty/vte/pull/122#issuecomment-2579278540
