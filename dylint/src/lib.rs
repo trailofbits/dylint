@@ -79,7 +79,7 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
     };
 
     if opts.has_library_selection()
-        && opts.library_selection().pattern.is_some()
+        && !opts.library_selection().patterns.is_empty()
         && !opts.git_or_path()
     {
         bail!("`--pattern` can be used only with `--git` or `--path`");

@@ -55,7 +55,7 @@ pub struct LibrarySelection {
 
     pub paths: Vec<String>,
 
-    pub pattern: Option<String>,
+    pub patterns: Vec<String>,
 
     pub rev: Option<String>,
 
