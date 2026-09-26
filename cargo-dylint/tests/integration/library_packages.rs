@@ -294,6 +294,23 @@ fn metadata_change() {
 }
 
 #[test]
+fn no_metadata_with_path() {
+    cargo_bin_cmd!("cargo-dylint")
+        .args([
+            "dylint",
+            "list",
+            "--no-metadata",
+            "--path",
+            "../examples/general",
+        ])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "`--git` and `--path` cannot be used with `--no-metadata`",
+        ));
+}
+
+#[test]
 fn nonexistent_git_library() {
     let tempdir = tempdir().unwrap();
 
