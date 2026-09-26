@@ -137,12 +137,19 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
 
     let details = TomlDetailedDependency::deserialize(toml.into_deserializer())?;
 
+    #[allow(deprecated)]
     let library = Library {
         details,
-        pattern: lib_sel
-            .pattern
-            .as_ref()
-            .map(|pattern| StringOrVec(vec![pattern.clone()])),
+        pattern: (lib_sel.pattern.is_some() || !lib_sel.patterns.is_empty()).then(|| {
+            StringOrVec(
+                lib_sel
+                    .pattern
+                    .iter()
+                    .chain(lib_sel.patterns.iter())
+                    .cloned()
+                    .collect(),
+            )
+        }),
     };
 
     library_packages(opts, metadata, &[library])

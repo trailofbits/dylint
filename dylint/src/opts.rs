@@ -55,7 +55,10 @@ pub struct LibrarySelection {
 
     pub paths: Vec<String>,
 
+    #[deprecated(note = "use `patterns`")]
     pub pattern: Option<String>,
+
+    pub patterns: Vec<String>,
 
     pub rev: Option<String>,
 
