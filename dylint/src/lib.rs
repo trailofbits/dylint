@@ -85,6 +85,12 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
         bail!("`--pattern` can be used only with `--git` or `--path`");
     }
 
+    // HardMax71: Libraries named with `--git` or `--path` are built in the workspace's target
+    // directory, which requires the workspace's metadata.
+    if opts.has_library_selection() && opts.library_selection().no_metadata && opts.git_or_path() {
+        bail!("`--git` or `--path` cannot be used with `--no-metadata`");
+    }
+
     if opts.has_library_selection()
         && opts.library_selection().fail_on_no_libraries
         && !opts.library_selection().selects_libraries()
