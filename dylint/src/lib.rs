@@ -73,13 +73,16 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
             // `--path`. For this reason, all of the libraries in the alternative namespace are
             // loaded.
             lib_sel.all |= lib_sel.git_or_path();
+
+            #[allow(deprecated)]
+            lib_sel.patterns.extend(lib_sel.pattern.take());
         }
 
         opts
     };
 
     if opts.has_library_selection()
-        && opts.library_selection().pattern.is_some()
+        && !opts.library_selection().patterns.is_empty()
         && !opts.git_or_path()
     {
         bail!("`--pattern` can be used only with `--git` or `--path`");
