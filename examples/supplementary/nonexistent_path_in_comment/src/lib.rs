@@ -9,7 +9,7 @@ extern crate rustc_span;
 use cargo_metadata::MetadataCommand;
 use clippy_utils::diagnostics::span_lint_and_help;
 use regex::Regex;
-use rustc_lexer::{DocStyle, FrontmatterAllowed, TokenKind};
+use rustc_lexer::{DocStyle, FrontmatterAllowed, TokenKind, tokenize};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::{BytePos, FileName, Span, SyntaxContext};
 use std::sync::LazyLock;
@@ -78,7 +78,7 @@ impl<'tcx> LateLintPass<'tcx> for NonexistentPathInComment {
                 // HardMax71: Tokenize so that "//" and "/*" inside string literals are not
                 // mistaken for comments.
                 let mut end = 0;
-                for token in rustc_lexer::tokenize(content, FrontmatterAllowed::Yes) {
+                for token in tokenize(content, FrontmatterAllowed::Yes) {
                     let start = end;
                     end += token.len as usize;
                     let (text_start, text_end) = match token.kind {
