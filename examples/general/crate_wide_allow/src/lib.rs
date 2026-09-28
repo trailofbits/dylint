@@ -124,9 +124,7 @@ mod tests {
 
         let cargo_dylint = |example_rustflags: Option<&str>| {
             let mut command = Command::new(&*CARGO_DYLINT_PATH);
-            command
-                .env_remove(env::DYLINT_LIBRARY_PATH)
-                .args(["dylint", "--lib", "clippy"]);
+            command.args(["dylint", "--lib", "clippy"]);
             if let Some(rustflags) = example_rustflags {
                 command.env(
                     env::RUSTFLAGS,
