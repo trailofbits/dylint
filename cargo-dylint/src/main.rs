@@ -210,10 +210,13 @@ struct LibrarySelection {
     paths: Vec<String>,
 
     #[clap(
-        long,
+        action = ArgAction::Append,
+        number_of_values = 1,
+        long = "pattern",
+        value_name = "PATTERN",
         help = "Subdirectories of the `--git` or `--path` argument containing library packages"
     )]
-    pattern: Option<String>,
+    patterns: Vec<String>,
 
     #[clap(
         long,
@@ -335,7 +338,7 @@ impl LibrarySelection {
             no_build,
             no_metadata,
             paths,
-            pattern,
+            patterns,
             rev,
             tag,
         } = other;
@@ -349,7 +352,7 @@ impl LibrarySelection {
         self.no_build |= no_build;
         self.no_metadata |= no_metadata;
         self.paths.extend(paths);
-        option_absorb!(&mut self.pattern, pattern);
+        self.patterns.extend(patterns);
         option_absorb!(&mut self.rev, rev);
         option_absorb!(&mut self.tag, tag);
     }
@@ -368,7 +371,7 @@ impl From<LibrarySelection> for dylint::opts::LibrarySelection {
             no_build,
             no_metadata,
             paths,
-            pattern,
+            patterns,
             rev,
             tag,
         } = lib_sel;
@@ -383,7 +386,7 @@ impl From<LibrarySelection> for dylint::opts::LibrarySelection {
             no_build,
             no_metadata,
             paths,
-            pattern,
+            patterns,
             rev,
             tag,
         }

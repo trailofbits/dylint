@@ -294,6 +294,27 @@ fn metadata_change() {
 }
 
 #[test]
+fn multiple_patterns() {
+    cargo_bin_cmd!("cargo-dylint")
+        .args([
+            "dylint",
+            "list",
+            "--path",
+            "../examples/general",
+            "--pattern",
+            "abs_home_path",
+            "--pattern",
+            "crate_wide_allow",
+        ])
+        .assert()
+        .success()
+        .stdout(
+            predicate::str::contains("abs_home_path")
+                .and(predicate::str::contains("crate_wide_allow")),
+        );
+}
+
+#[test]
 fn nonexistent_git_library() {
     let tempdir = tempdir().unwrap();
 

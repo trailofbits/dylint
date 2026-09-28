@@ -10,7 +10,7 @@
 
 Dylint tries to run all lints in all libraries named on the command line. Dylint resolves names to libraries in the following three ways:
 
-1. Via a `--git` or `--path` option on the command line. If either appears, its url or path (respectively) is treated as part of a [workspace metadata] entry. Note that a `--git` or `--path` option can be accompanied by a `--pattern` option to specify subdirectories containing library packages. Furthermore, a `--git` option can be accompanied by a `--branch`, `--tag`, or `--rev` option.
+1. Via a `--git` or `--path` option on the command line. If either appears, its url or path (respectively) is treated as part of a [workspace metadata] entry. Note that a `--git` or `--path` option can be accompanied by one or more `--pattern` options to specify subdirectories containing library packages. Furthermore, a `--git` option can be accompanied by a `--branch`, `--tag`, or `--rev` option.
 
 2. Via the `DYLINT_LIBRARY_PATH` environment variable. If `DYLINT_LIBRARY_PATH` is set when Dylint is started, Dylint treats it as a colon-separated list of paths, and searches each path for files with names of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` (see [Library requirements] below). For each such file found, `LIBRARY_NAME` resolves to that file.
 

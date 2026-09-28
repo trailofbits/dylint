@@ -139,10 +139,7 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
 
     let library = Library {
         details,
-        pattern: lib_sel
-            .pattern
-            .as_ref()
-            .map(|pattern| StringOrVec(vec![pattern.clone()])),
+        pattern: (!lib_sel.patterns.is_empty()).then(|| StringOrVec(lib_sel.patterns.clone())),
     };
 
     library_packages(opts, metadata, &[library])
