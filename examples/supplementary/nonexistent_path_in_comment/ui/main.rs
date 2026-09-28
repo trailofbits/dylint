@@ -29,4 +29,12 @@
 // Negative test: existing path with line and column reference
 // See ../src/lib.rs:1:1
 
-fn main() {}
+// Negative test: comment markers inside string literals
+const STRING: &str = "// See ../nonexistent/path/file.rs";
+const BYTE_STRING: &[u8] = b"// See ../nonexistent/path/file.rs\n";
+const RAW_STRING: &str = r"/* See ../nonexistent/path/file.rs */";
+const JSON: &str = include_str!("string.json");
+
+fn main() {
+    let _ = (STRING, BYTE_STRING, RAW_STRING, JSON);
+}

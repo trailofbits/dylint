@@ -8,6 +8,14 @@ LL | // See ../nonexistent/path/file.rs
    = note: `#[warn(nonexistent_path_in_comment)]` on by default
 
 warning: referenced path does not exist
+  --> $DIR/main.rs:8:8
+   |
+LL |    See ../another/nonexistent/path/file.go
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: verify the path is correct or remove the reference
+
+warning: referenced path does not exist
   --> $DIR/main.rs:15:13
    |
 LL | // The span ./ido/not/exist.rs only points to the path
@@ -28,14 +36,6 @@ warning: referenced path does not exist
    |
 LL | // See ../nonexistent:directory:with:colons/file.rs:1:1
    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = help: verify the path is correct or remove the reference
-
-warning: referenced path does not exist
-  --> $DIR/main.rs:8:8
-   |
-LL |    See ../another/nonexistent/path/file.go
-   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: verify the path is correct or remove the reference
 

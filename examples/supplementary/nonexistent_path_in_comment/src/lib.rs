@@ -3,11 +3,13 @@
 #![cfg_attr(dylint_lib = "supplementary", allow(nonexistent_path_in_comment))]
 #![warn(unused_extern_crates)]
 
+extern crate rustc_lexer;
 extern crate rustc_span;
 
 use cargo_metadata::MetadataCommand;
 use clippy_utils::diagnostics::span_lint_and_help;
-use regex::{Match, Regex};
+use regex::Regex;
+use rustc_lexer::{DocStyle, FrontmatterAllowed, TokenKind, tokenize};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::{BytePos, FileName, Span, SyntaxContext};
 use std::sync::LazyLock;
@@ -62,10 +64,6 @@ dylint_linting::declare_late_lint! {
 // smoelius: Require at least two '/' to consider a string a path.
 const MIN_PATH_SEPARATORS: usize = 2;
 
-static LINE_COMMENT: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new("(^|[^/])(//([^/].*))").unwrap());
-static BLOCK_COMMENT: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"/\*(([^*]|\*[^/])*)\*/").unwrap());
 static PATH_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[-./\w:]+").unwrap());
 
 impl<'tcx> LateLintPass<'tcx> for NonexistentPathInComment {
@@ -77,41 +75,39 @@ impl<'tcx> LateLintPass<'tcx> for NonexistentPathInComment {
             if let Some(content) = file.src.as_ref() {
                 let file_start = file.start_pos;
 
-                for cap in LINE_COMMENT.captures_iter(content) {
-                    // smoelius: If the "//" is preceded by ':', assume it is part of a url (e.g.,
-                    // "https://").
-                    if cap.get(1).as_ref().map(Match::as_str) == Some(":") {
-                        continue;
-                    }
-                    if let Some(comment_text) = cap.get(3) {
-                        check_comment(
-                            cx,
-                            Span::new(
-                                file_start + BytePos(comment_text.start() as u32),
-                                file_start + BytePos(comment_text.end() as u32),
-                                SyntaxContext::root(),
-                                None,
-                            ),
-                            comment_text.as_str(),
-                            &file.name,
-                        );
-                    }
-                }
-
-                for cap in BLOCK_COMMENT.captures_iter(content) {
-                    if let Some(comment_text) = cap.get(1) {
-                        check_comment(
-                            cx,
-                            Span::new(
-                                file_start + BytePos(comment_text.start() as u32),
-                                file_start + BytePos(comment_text.end() as u32),
-                                SyntaxContext::root(),
-                                None,
-                            ),
-                            comment_text.as_str(),
-                            &file.name,
-                        );
-                    }
+                // HardMax71: Tokenize so that "//" and "/*" inside string literals are not
+                // mistaken for comments.
+                let mut end = 0;
+                for token in tokenize(content, FrontmatterAllowed::Yes) {
+                    let start = end;
+                    end += token.len as usize;
+                    let (text_start, text_end) = match token.kind {
+                        TokenKind::LineComment {
+                            doc_style: None | Some(DocStyle::Inner),
+                        } => {
+                            // smoelius: If the "//" is preceded by ':', assume it is part of a url
+                            // (e.g., "https://").
+                            if content[..start].ends_with(':') {
+                                continue;
+                            }
+                            (start + 2, end)
+                        }
+                        TokenKind::BlockComment { terminated, .. } => {
+                            (start + 2, if terminated { end - 2 } else { end })
+                        }
+                        _ => continue,
+                    };
+                    check_comment(
+                        cx,
+                        Span::new(
+                            file_start + BytePos(text_start as u32),
+                            file_start + BytePos(text_end as u32),
+                            SyntaxContext::root(),
+                            None,
+                        ),
+                        &content[text_start..text_end],
+                        &file.name,
+                    );
                 }
             }
         }
