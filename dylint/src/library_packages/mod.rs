@@ -107,6 +107,13 @@ struct Library {
 pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
     let lib_sel = opts.library_selection();
 
+    // HardMax71: Libraries named with `--git` or `--path` are built in the workspace's target
+    // directory, which requires the workspace's metadata.
+    ensure!(
+        !lib_sel.no_metadata,
+        "`--git` and `--path` cannot be used with `--no-metadata`"
+    );
+
     let maybe_metadata = cargo_metadata(opts)?;
 
     let metadata = maybe_metadata.ok_or_else(|| anyhow!("Could not read cargo metadata"))?;
