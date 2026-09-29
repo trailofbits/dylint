@@ -3,3 +3,6 @@ lifetime_check = false
 
 [missing_doc_comment_llm]
 model = "anthropic/claude-opus-4-5-20251101"
+
+[non_topologically_sorted_functions]
+check_test_functions = true
