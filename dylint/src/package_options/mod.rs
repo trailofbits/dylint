@@ -42,7 +42,7 @@ pub fn new_package(_opts: &opts::Dylint, new_opts: &opts::New) -> Result<()> {
         )?;
     }
 
-    // smoelius: So is allowing unused extern crates.
+    // smoelius: So is warning about unused extern crates.
     find_and_replace(
         &tempdir.path().join("src/lib.rs"),
         r"(?m)^.. (#!\[warn\(unused_extern_crates\)\])$",
