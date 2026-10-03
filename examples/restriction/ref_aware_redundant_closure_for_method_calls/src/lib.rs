@@ -34,7 +34,7 @@ use rustc_middle::ty::{
     GenericArgsRef, ImplPolarity, List, Region, RegionKind, Ty, TyCtxt, TypeVisitableExt,
     TypeckResults,
 };
-use rustc_session::declare_lint_pass;
+use rustc_lint::declare_lint_pass;
 use rustc_trait_selection::error_reporting::InferCtxtErrorExt as _;
 
 use clippy_utils::{get_parent_expr, source::trim_span, ty::is_copy};

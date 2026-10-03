@@ -487,7 +487,7 @@ macro_rules! declare_early_lint {
                 __register_early_lint_pass,
                 || Box::new([< $NAME:camel >])
             );
-            rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
+            rustc_session::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
 }
@@ -503,7 +503,7 @@ macro_rules! declare_late_lint {
                 __register_late_lint_pass,
                 $crate::__make_late_closure!([< $NAME:camel >])
             );
-            rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
+            rustc_session::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
 }
