@@ -10,7 +10,9 @@ use litellm_rs::{
     Choice, CompletionOptions, CompletionResponse, Message, MessageContent, MessageRole,
     completion, core::types::responses::FinishReason, user_message,
 };
-use rustc_hir::{Attribute, FnSig, Item, ItemKind, attrs::AttributeKind};
+use rustc_attr_ir::Attribute;
+
+use rustc_hir::{ FnSig, Item, ItemKind, attrs::AttributeKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::{BytePos, SourceFileAndLine, Span};
 use serde::Deserialize;
