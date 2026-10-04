@@ -517,13 +517,23 @@ fn run_compiler(
     Ok(())
 }
 
-#[rustversion::since(2025-01-24)]
+#[rustversion::all(since(2025-01-24), before(2026-10-02))]
 #[allow(clippy::unnecessary_wraps)]
 fn run_compiler(
     at_args: &[String],
     callbacks: &mut (dyn rustc_driver::Callbacks + Send),
 ) -> Result<()> {
     rustc_driver::run_compiler(at_args, callbacks);
+    Ok(())
+}
+
+#[rustversion::since(2026-10-02)]
+#[allow(clippy::unnecessary_wraps)]
+fn run_compiler(
+    at_args: &[String],
+    callbacks: &mut (dyn rustc_driver::Callbacks + Send),
+) -> Result<()> {
+    rustc_driver::compiler_entrypoint(at_args, callbacks);
     Ok(())
 }
 
