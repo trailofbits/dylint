@@ -64,9 +64,9 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut rustc_lint
     lint_store.register_late_lint_pass(Box::new(|_| Box::new(Name)));
 }
 
-rustc_session::declare_lint!(vis NAME, Level, "description");
+dylint_linting::declare_lint!(vis NAME, Level, "description");
 
-rustc_session::declare_lint_pass!(Name => [NAME]);
+dylint_linting::declare_lint_pass!(Name => [NAME]);
 ```
 
 `declare_early_lint!` and `declare_pre_expansion_lint!` are defined similarly.

@@ -58,9 +58,9 @@
 //!     lint_store.register_late_lint_pass(Box::new(|_| Box::new(Name)));
 //! }
 //!
-//! rustc_session::declare_lint!(vis NAME, Level, "description");
+//! dylint_linting::declare_lint!(vis NAME, Level, "description");
 //!
-//! rustc_session::declare_lint_pass!(Name => [NAME]);
+//! dylint_linting::declare_lint_pass!(Name => [NAME]);
 //! ```
 //!
 //! `declare_early_lint!` and `declare_pre_expansion_lint!` are defined similarly.
@@ -205,6 +205,10 @@
 #![feature(rustc_private)]
 #![allow(clippy::useless_attribute)]
 #![cfg_attr(dylint_lib = "general", allow(crate_wide_allow))]
+#![cfg_attr(
+    dylint_lib = "inconsistent_qualification",
+    allow(inconsistent_qualification)
+)]
 #![warn(unused_extern_crates)]
 
 #[allow(unused_extern_crates)]
@@ -213,6 +217,9 @@ extern crate rustc_driver;
 extern crate rustc_data_structures;
 extern crate rustc_session;
 extern crate rustc_span;
+
+#[rustversion::since(2026-08-21)]
+extern crate rustc_lint_defs;
 
 use dylint_internal::{config, env};
 use rustc_span::Symbol;
@@ -226,6 +233,14 @@ pub use config::{Error as ConfigError, Result as ConfigResult};
 pub const DYLINT_VERSION: &str = "0.1.0";
 
 pub use paste;
+
+#[rustversion::before(2026-08-21)]
+#[doc(hidden)]
+pub use rustc_session::{declare_lint, declare_lint_pass, impl_lint_pass};
+
+#[rustversion::since(2026-08-21)]
+#[doc(hidden)]
+pub use rustc_lint_defs::{declare_lint, declare_lint_pass, impl_lint_pass};
 
 // smoelius: Including `extern crate rustc_driver` causes the library to link against
 // `librustc_driver.so`, which dylint-driver also links against. So, essentially, the library uses
@@ -306,7 +321,7 @@ macro_rules! __declare_and_register_lint {
             }
         }
 
-        rustc_session::declare_lint!($(#[$attr])* $vis $NAME, $Level, $desc);
+        $crate::declare_lint!($(#[$attr])* $vis $NAME, $Level, $desc);
     };
 }
 
@@ -423,7 +438,7 @@ macro_rules! impl_pre_expansion_lint {
             || Box::new($pass)
         );
         $crate::paste::paste! {
-            rustc_session::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
+            $crate::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
 }
@@ -439,7 +454,7 @@ macro_rules! impl_early_lint {
             || Box::new($pass)
         );
         $crate::paste::paste! {
-            rustc_session::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
+            $crate::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
 }
@@ -455,7 +470,7 @@ macro_rules! impl_late_lint {
             $crate::__make_late_closure!($pass)
         );
         $crate::paste::paste! {
-            rustc_session::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
+            $crate::impl_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
 }
@@ -471,7 +486,7 @@ macro_rules! declare_pre_expansion_lint {
                 __register_pre_expansion_lint_pass,
                 || Box::new([< $NAME:camel >])
             );
-            rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
+            $crate::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
 }
@@ -487,7 +502,7 @@ macro_rules! declare_early_lint {
                 __register_early_lint_pass,
                 || Box::new([< $NAME:camel >])
             );
-            rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
+            $crate::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
 }
@@ -503,7 +518,7 @@ macro_rules! declare_late_lint {
                 __register_late_lint_pass,
                 $crate::__make_late_closure!([< $NAME:camel >])
             );
-            rustc_session::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
+            $crate::declare_lint_pass!([< $NAME:camel >] => [$NAME]);
         }
     };
 }

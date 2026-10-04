@@ -22,6 +22,11 @@ const BOUNDARIES: &[(&str, &str)] = &[
     // https://github.com/rust-lang/rust/pull/163647
     // https://github.com/rust-lang/rust/commit/b624ec2764a41ea7289305194773e30f416f54e1
     ("nightly-2026-10-02", "nightly-2026-10-03"),
+    // smoelius: `rustc_session` stopped re-exporting `declare_lint!`, `declare_lint_pass!`, and
+    // `impl_lint_pass!` from `rustc_lint_defs`.
+    // https://github.com/rust-lang/rust/pull/161043
+    // https://github.com/rust-lang/rust/commit/095d9ef41e2360afb04faef48d2fdca76a9a2992
+    ("nightly-2026-08-21", "nightly-2026-08-22"),
     // smoelius: rust#159030 is a Clippy subtree update. The effectual commit within that PR was
     // "Rename some lint pass things":
     // https://github.com/rust-lang/rust/pull/159030/changes/ae25a17fa9b5df5058e2e8089bd80ef1b7df5e83
