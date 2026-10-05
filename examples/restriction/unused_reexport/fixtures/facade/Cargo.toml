@@ -1,0 +1,8 @@
+[package]
+name = "unused_reexport_facade"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+origin = { package = "unused_reexport_origin", path = "../origin" }
