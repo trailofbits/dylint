@@ -126,6 +126,8 @@ jobs:
         run: |
           # du -sh /c/*/* 2>/dev/null | sort -h
           rm -rfv /c/Program\ Files\ \(x86\)/Android | grep . >/dev/null
+          rm -rfv /c/ghcup/ghc                       | grep . >/dev/null
+          rm -rfv /c/rtools*                         | grep . >/dev/null
 
       # smoelius: The next step avoids tests having to use `rustup` concurrently. Toolchain
       # nightly-2026-08-05 is needed for cargo-rdme 2.2.0.
