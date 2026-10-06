@@ -14,12 +14,14 @@
 //! callback can only write to `env_depinfo` and `file_depinfo`, which is the tracking that is
 //! already insufficient.
 //!
-//! `--env-set` reaches the hash instead. Each field of `Options` is declared with a marker saying
-//! whether it participates in `dep_tracking_hash`: `[UNTRACKED]` fields do not, `[TRACKED]` fields
-//! do and also contribute to the crate hash, and `[TRACKED_NO_CRATE_HASH]` fields do only the
-//! former. `--env-set` writes to `logical_env`, which is `[TRACKED]`, so changing its value still
-//! causes rustc to discard its cache:
-//! <https://github.com/rust-lang/rust/blob/78e7c7b9f9f6a671255ff0fb88b5a6fd6dbc7a58/compiler/rustc_session/src/options.rs#L106-L129>
+//! Previously, `--env-set` wrote the hash to the tracked `Options::logical_env`, but that option
+//! was removed in <https://github.com/rust-lang/rust/pull/161831>.
+//!
+//! Instead, append the hash to `-C metadata`, a stable, repeatable option whose `Options` field is
+//! tracked. This preserves Cargo's metadata and also contributes to `StableCrateId`, giving each
+//! distinct state its own incremental session. Returning to a previous state can reuse its cache
+//! safely. These sessions accumulate in Dylint's target directory, one per distinct hash. See
+//! <https://github.com/trailofbits/dylint/issues/2078>.
 
 use anyhow::{Context, Result};
 use dylint_internal::env;
@@ -29,11 +31,6 @@ use std::{
     path::Path,
 };
 
-/// The environment variable that carries the hash into `logical_env`.
-///
-/// Nothing reads the value back. It is set only so that changing it changes `dep_tracking_hash`.
-pub(crate) const UNTRACKED_STATE_VAR: &str = "DYLINT_UNTRACKED_STATE";
-
 /// The environment variables whose change should cause lints to be rerun:
 ///
 /// - `CARGO_PRIMARY_PACKAGE` and `DYLINT_NO_DEPS` determine whether lints are registered at all.
@@ -42,9 +39,9 @@ pub(crate) const UNTRACKED_STATE_VAR: &str = "DYLINT_UNTRACKED_STATE";
 /// - `DYLINT_TOML_DIGEST` describes the configuration that affects the lints' behavior.
 ///
 /// Read by two consumers that must not drift apart: `sess.env_depinfo`, which tells Cargo when to
-/// re-invoke rustc, and [`hash_from_env`], which tells rustc when to discard its incremental cache.
-/// A rerun needs both, since re-invoking rustc accomplishes nothing if rustc then reuses results
-/// computed under the old values.
+/// re-invoke rustc, and [`hash_from_env`], which selects rustc's incremental cache. A rerun needs
+/// both, since re-invoking rustc accomplishes nothing if rustc then reuses results computed under
+/// the old values.
 pub(crate) const UNTRACKED_STATE_VARS: &[&str] = &[
     env::CARGO_PRIMARY_PACKAGE,
     env::DYLINT_LIBS,

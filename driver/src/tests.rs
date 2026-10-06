@@ -1,4 +1,5 @@
 use super::*;
+use dylint_internal::CommandExt;
 use rustc_version::{Channel, version_meta};
 
 #[test]
@@ -56,9 +57,7 @@ fn untracked_state_is_passed_to_rustc() {
     assert_eq!(
         vec![
             "rustc",
-            "--allow=rustc::internal",
-            "-Zunstable-options",
-            "--env-set=DYLINT_UNTRACKED_STATE=0123456789abcdef",
+            "-Cmetadata=dylint-untracked-state-0123456789abcdef",
             "--crate-name",
             "name"
         ],
@@ -71,6 +70,68 @@ fn untracked_state_is_passed_to_rustc() {
         )
         .unwrap()
     );
+}
+
+// Exercise the generated arguments with rustc, rather than merely checking their spelling.
+// Cargo's metadata must accumulate with ours, and returning to a previous hash must select
+// the original incremental session.
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+#[test]
+fn untracked_state_selects_incremental_session() {
+    let source = library_path("incremental", "main.rs");
+    let dir = source.parent().unwrap();
+    let incremental = dir.join("incremental");
+    if incremental.exists() {
+        std::fs::remove_dir_all(&incremental).unwrap();
+    }
+    std::fs::write(&source, "fn main() {}\n").unwrap();
+
+    let compile = |metadata, state| {
+        let args = rustc_args(
+            &[
+                "--crate-name",
+                "untracked_state",
+                "--emit=metadata",
+                "--out-dir",
+                dir.to_str().unwrap(),
+                "-C",
+                &format!("incremental={}", incremental.display()),
+                "-C",
+                &format!("metadata={metadata}"),
+                source.to_str().unwrap(),
+            ],
+            None,
+            &[] as &[&str],
+            &[] as &[&Path],
+            Some(state),
+        )
+        .unwrap();
+        std::process::Command::new(&args[0])
+            .args(&args[1..])
+            .logged_output(true)
+            .unwrap();
+        std::fs::read_dir(&incremental)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .collect::<BTreeSet<_>>()
+    };
+
+    // The first compilation creates one session. Identical inputs select the same session.
+    let first = compile("cargo", "0123456789abcdef");
+    assert_eq!(1, first.len());
+    assert_eq!(first, compile("cargo", "0123456789abcdef"));
+
+    // Changing only Dylint's hash creates a separate session and retains the original one.
+    let second = compile("cargo", "fedcba9876543210");
+    assert_eq!(2, second.len());
+    assert!(first.is_subset(&second));
+    // Returning to the original hash selects its existing session without creating another.
+    assert_eq!(second, compile("cargo", "0123456789abcdef"));
+
+    // Cargo's metadata still affects the session: Dylint's argument must accumulate with it.
+    let third = compile("cargo-other", "0123456789abcdef");
+    assert_eq!(3, third.len());
+    assert!(second.is_subset(&third));
 }
 
 #[test]
