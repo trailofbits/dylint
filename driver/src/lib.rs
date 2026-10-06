@@ -22,7 +22,7 @@ use std::{
 };
 
 mod untracked_state;
-use untracked_state::{UNTRACKED_STATE_VAR, UNTRACKED_STATE_VARS, hash_from_env};
+use untracked_state::{UNTRACKED_STATE_VARS, hash_from_env};
 
 pub const DYLINT_VERSION: &str = "0.1.0";
 
@@ -476,16 +476,11 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
         }
     }
     if let Some(untracked_state) = untracked_state {
-        rustc_args.extend([
-            // Passing `-Zunstable-options` causes rustc to register its internal lints, which are
-            // deny-by-default and meant for compiler development. Libraries are exactly the crates
-            // that use `rustc_private` and could trip them, so allow the group: asking for
-            // `--env-set` should not change which lints fire. A user can still override this, as
-            // `DYLINT_RUSTFLAGS` is appended after these arguments.
-            "--allow=rustc::internal".to_owned(),
-            "-Zunstable-options".to_owned(),
-            format!("--env-set={UNTRACKED_STATE_VAR}={untracked_state}"),
-        ]);
+        // `-C metadata` accumulates, so this preserves the metadata Cargo already passes.
+        // See `untracked_state` for why changing the incremental session is necessary.
+        rustc_args.push(format!(
+            "-Cmetadata=dylint-untracked-state-{untracked_state}"
+        ));
     }
     rustc_args.extend(args.map(|s| s.as_ref().to_string_lossy().to_string()));
     rustc_args.extend(
