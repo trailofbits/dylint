@@ -220,7 +220,7 @@ In addition, we recommend caching these directories:
 ~/.rustup/toolchains/
 ```
 
-Also, if you do not cache `target/`, we recommend at least caching `target/dylint/`.
+Also, if you do not cache `target/`, we recommend at least caching `target/dylint/libraries/`.
 
 ## Utilities
 
