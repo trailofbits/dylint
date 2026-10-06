@@ -202,7 +202,7 @@ fn context_allowance() {
         return;
     }
 
-    let cargo_dylint = dylint_internal::testing::cargo_dylint("../../..").unwrap();
+    let cargo_dylint = dylint_internal::testing::cargo_dylint().unwrap();
     for case in test_cases {
         println!("Testing {} allowance...", case.context_name);
         let mut command = Command::new(&cargo_dylint);
