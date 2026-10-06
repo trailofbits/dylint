@@ -117,8 +117,8 @@ mod tests {
     // smoelius: Metadata entries are no longer rebuilt when `RUSTFLAGS` changes.
 
     fn test(rustflags: &str, assert: impl Fn(Assert) -> Assert) {
-        static CARGO_DYLINT_PATH: LazyLock<PathBuf> =
-            LazyLock::new(|| cargo_dylint("../../..").unwrap());
+        // smoelius: This `LazyLock` should likely go in `dylint_internal::testing`.
+        static CARGO_DYLINT_PATH: LazyLock<PathBuf> = LazyLock::new(|| cargo_dylint().unwrap());
 
         let _lock = mutex::<maybe_return::Yes>();
 

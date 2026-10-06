@@ -56,7 +56,7 @@ fn upgrade_restriction_examples_with_auto_correct() {
 
         clone(DYLINT_URL, rev, tempdir.path(), true).unwrap();
 
-        let cargo_dylint = cargo_dylint("..").unwrap();
+        let cargo_dylint = cargo_dylint().unwrap();
         let mut command = Command::new(cargo_dylint);
         command.args([
             "dylint",
