@@ -10,16 +10,32 @@ use std::{
     thread,
 };
 
-fn main() -> Result<()> {
-    let toolchains = collect_toolchains(&["cargo-dylint", "examples", "expensive", "internal"])?;
+// smoelius: As stated in .github/workflows/ci.yml, the purpose of `preinstall-toolchains` is to
+// avoid using `rustup` concurrently. Such concurrent use arises from tests. Thus, we need only
+// consider cases where multiple tests use the same toolchain. This excludes the `expensive` tests,
+// for example.
+const DIRS: &[&str] = &["cargo-dylint", "examples", "internal"];
 
-    println!("{toolchains:#?}");
+fn main() -> Result<()> {
+    let toolchains = collect_toolchains()?;
+
+    let (kept, discarded) = filter_toolchains(toolchains);
+
+    println!("{kept:#?}");
+
+    println!(
+        "discarded: {:#?}",
+        discarded
+            .into_iter()
+            .map(|(toolchain, path)| format!("({toolchain}, {})", path.display()))
+            .collect::<Vec<_>>()
+    );
 
     let mut handles = Vec::new();
     for toolchain in ["stable", "nightly"] {
         handles.push(thread::spawn(move || install_toolchain(toolchain)));
     }
-    for toolchain in toolchains {
+    for toolchain in kept {
         handles.push(thread::spawn(move || install_toolchain(toolchain)));
     }
 
@@ -33,23 +49,9 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn collect_toolchains(dirs: &[&str]) -> Result<Vec<String>> {
-    let mut toolchains = Vec::new();
-
-    for dir in dirs {
-        let toolchains_for_dir = collect_toolchains_for_dir(dir)?;
-        toolchains.extend(toolchains_for_dir);
-    }
-
-    toolchains.sort();
-    toolchains.dedup();
-
-    Ok(toolchains)
-}
-
-fn collect_toolchains_for_dir(dir: &str) -> Result<Vec<String>> {
+fn collect_toolchains() -> Result<Vec<(String, PathBuf)>> {
     let mut ls_files = Command::new("git")
-        .args(["ls-files", dir])
+        .arg("ls-files")
         .stdout(Stdio::piped())
         .spawn()
         .with_context(|| "Could not spawn `git ls-files`")?;
@@ -67,8 +69,12 @@ fn collect_toolchains_for_dir(dir: &str) -> Result<Vec<String>> {
         {
             continue;
         }
-        let toolchains_for_path = collect_toolchains_for_path(path)?;
-        toolchains.extend(toolchains_for_path);
+        let toolchains_for_path = collect_toolchains_for_path(&path)?;
+        toolchains.extend(
+            toolchains_for_path
+                .into_iter()
+                .map(|toolchain| (toolchain, path.clone())),
+        );
     }
     Ok(toolchains)
 }
@@ -81,12 +87,45 @@ fn collect_toolchains_for_path(path: impl AsRef<Path>) -> Result<Vec<String>> {
         .with_context(|| format!("Could not open `{}`", path.as_ref().display()))?;
     let mut toolchains = Vec::new();
     for result in BufReader::new(file).lines() {
-        let line =
-            result.with_context(|| format!("Could not read from `{}`", path.as_ref().display()))?;
+        let line = match result {
+            Ok(line) => line,
+            Err(error) => {
+                eprintln!("Could not read from `{}`: {error}", path.as_ref().display());
+                return Ok(Vec::new());
+            }
+        };
         let n = line.find("//").unwrap_or(line.len());
         toolchains.extend(RE.find_iter(&line[..n]).map(|m| m.as_str().to_owned()));
     }
     Ok(toolchains)
+}
+
+fn filter_toolchains(toolchains: Vec<(String, PathBuf)>) -> (Vec<String>, Vec<(String, PathBuf)>) {
+    let mut kept = Vec::new();
+    let mut discarded = Vec::new();
+
+    for (toolchain, path) in toolchains {
+        if DIRS.iter().any(|dir| path.starts_with(dir))
+            && (path.file_name() == Some(OsStr::new("rust-toolchain.toml"))
+                || path.extension() == Some(OsStr::new("rs")))
+        {
+            kept.push(toolchain);
+            continue;
+        }
+
+        discarded.push((toolchain, path));
+    }
+
+    kept.sort();
+    kept.dedup();
+
+    // smoelius: If a toolchain will be installed, do not call it "discarded".
+    discarded.retain(|(toolchain, _)| kept.binary_search(toolchain).is_err());
+
+    discarded.sort();
+    discarded.dedup();
+
+    (kept, discarded)
 }
 
 fn install_toolchain(toolchain: impl AsRef<str>) -> Result<()> {
