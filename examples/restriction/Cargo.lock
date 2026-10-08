@@ -1295,6 +1295,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
 
 [[package]]
+name = "unused_reexport"
+version = "6.1.0"
+dependencies = [
+ "clippy_utils",
+ "dylint_linting",
+ "dylint_testing",
+ "unused_reexport_facade",
+ "unused_reexport_origin",
+]
+
+[[package]]
+name = "unused_reexport_facade"
+version = "0.1.0"
+dependencies = [
+ "unused_reexport_origin",
+]
+
+[[package]]
+name = "unused_reexport_origin"
+version = "0.1.0"
+
+[[package]]
 name = "utf8parse"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
