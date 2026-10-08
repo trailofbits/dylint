@@ -18,6 +18,7 @@ fn main() {
 fn is_nightly() -> bool {
     Command::new(env::var_os("RUSTC").unwrap_or_else(|| OsString::from("rustc")))
         .args(["-Z", "help"])
+        .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status()
         .unwrap()
