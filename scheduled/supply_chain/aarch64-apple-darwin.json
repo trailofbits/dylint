@@ -194,12 +194,6 @@
     ],
     "cargo-platform": [
       {
-        "id": 4282,
-        "kind": "team",
-        "login": "github:rust-lang:release-publishers",
-        "name": "release-publishers"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -208,12 +202,6 @@
     ],
     "cargo-util": [
       {
-        "id": 4282,
-        "kind": "team",
-        "login": "github:rust-lang:release-publishers",
-        "name": "release-publishers"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -221,12 +209,6 @@
       }
     ],
     "cargo-util-schemas": [
-      {
-        "id": 4282,
-        "kind": "team",
-        "login": "github:rust-lang:release-publishers",
-        "name": "release-publishers"
-      },
       {
         "id": 55123,
         "kind": "user",
@@ -970,12 +952,6 @@
     ],
     "git2": [
       {
-        "id": 4333,
-        "kind": "user",
-        "login": "joshtriplett",
-        "name": "Josh Triplett"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -1276,12 +1252,6 @@
     ],
     "lazy_static": [
       {
-        "id": 394,
-        "kind": "user",
-        "login": "Kimundi",
-        "name": "Marvin Löbel"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -1297,12 +1267,6 @@
       }
     ],
     "libgit2-sys": [
-      {
-        "id": 4333,
-        "kind": "user",
-        "login": "joshtriplett",
-        "name": "Josh Triplett"
-      },
       {
         "id": 55123,
         "kind": "user",
@@ -1724,12 +1688,6 @@
         "name": "compiler"
       },
       {
-        "id": 4162,
-        "kind": "user",
-        "login": "michaelwoerister",
-        "name": "Michael Woerister"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -1737,12 +1695,6 @@
       }
     ],
     "rustfix": [
-      {
-        "id": 4282,
-        "kind": "team",
-        "login": "github:rust-lang:release-publishers",
-        "name": "release-publishers"
-      },
       {
         "id": 55123,
         "kind": "user",
