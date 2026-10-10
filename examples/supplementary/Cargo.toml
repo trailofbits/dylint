@@ -47,7 +47,7 @@ exclude = [".cargo", "src"]
 [workspace.dependencies]
 cargo-util = "0.2"
 cargo_metadata = "0.23"
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "21baba9c10c5d179915cae82e6247bc2337872fb" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "a6bca75bd8554dc1072dab93bc3d1d11c991cfb3" }
 once_cell = "1.21"
 pulldown-cmark = "0.13"
 regex = "1.13"
