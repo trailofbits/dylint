@@ -2,6 +2,13 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.1.1
+
+- Handle rename of `rustc_driver::run_compiler` to `compiler_entrypoint` ([0b495c3](https://github.com/trailofbits/dylint/commit/0b495c38549f5586f894dc77edea4264fcd3ce60))
+- Import `declare_lint!`, etc. from `rustc_lint_defs` (`rustc_session` no longer re-exports `rustc_lint_defs` macros) ([f5bc6bc](https://github.com/trailofbits/dylint/commit/f5bc6bc2399cdef4beafe0908380fb2d7dc8042f))
+- Use `-C metadata` to track the lint state in `rustc`, thereby eliminating use of the removed `--env-set` option ([271f467](https://github.com/trailofbits/dylint/commit/271f467abdcc53125aa09e98d0c25140feff5dcc))
+- Update CI caching guidance ([faba31e](https://github.com/trailofbits/dylint/commit/faba31e186db632b47388476a0183b291ab66a0e))
+
 ## 6.1.0
 
 - FEATURE: Provide prebuilt binaries for Apple Silicon macOS ([190b023](https://github.com/trailofbits/dylint/commit/190b02340c39713c8755e97cea43b31c33d976a8))

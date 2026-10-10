@@ -75,7 +75,7 @@ checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
 
 [[package]]
 name = "assert_eq_arg_misordering"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -84,10 +84,10 @@ dependencies = [
 
 [[package]]
 name = "attr"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "proc-macro2",
- "syn 3.0.6",
+ "syn 3.0.7",
 ]
 
 [[package]]
@@ -137,9 +137,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.6.0"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f74872d07caf508b30a21f6836e7d7016a2eaf7d9ff4f48deaa58cd8a0407630"
+checksum = "50a649af8a827553c29fb0cb4bd4a6f1a0dd695bd3232b9bc98bd9c8a3ffbb8b"
 dependencies = [
  "find-msvc-tools",
  "jobserver",
@@ -165,7 +165,7 @@ dependencies = [
 
 [[package]]
 name = "collapsible_unwrap"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -204,7 +204,7 @@ dependencies = [
 
 [[package]]
 name = "const_path_join"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "camino",
  "clippy_utils",
@@ -369,7 +369,7 @@ dependencies = [
 
 [[package]]
 name = "dylint"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -385,7 +385,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_internal"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -407,7 +407,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_linting"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "cargo_metadata",
  "dylint_internal",
@@ -420,7 +420,7 @@ dependencies = [
 
 [[package]]
 name = "dylint_testing"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -451,7 +451,7 @@ dependencies = [
 
 [[package]]
 name = "env_literal"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -615,7 +615,7 @@ checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "inconsistent_qualification"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "clippy_utils",
  "diesel",
@@ -775,7 +775,7 @@ dependencies = [
 
 [[package]]
 name = "misleading_variable_name"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -787,7 +787,7 @@ dependencies = [
 
 [[package]]
 name = "non_topologically_sorted_functions"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "attr",
  "clippy_utils",
@@ -874,7 +874,7 @@ dependencies = [
 
 [[package]]
 name = "question_mark_in_expression"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -911,7 +911,7 @@ dependencies = [
 
 [[package]]
 name = "ref_aware_redundant_closure_for_method_calls"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -950,7 +950,7 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 
 [[package]]
 name = "register_lints_warn"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "clippy_utils",
  "dylint_internal",
@@ -1036,14 +1036,14 @@ checksum = "e7a5d71263a5a7d47b41f6b3f06ba276f10cc18b0931f1799f710578e2309348"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 3.0.6",
+ "syn 3.0.7",
 ]
 
 [[package]]
 name = "serde_json"
-version = "1.0.151"
+version = "1.0.152"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14"
+checksum = "1741ab7a6cc54a03a89b5d563ed60075c277d9e3cfa73ad0c1f23f23974703c6"
 dependencies = [
  "itoa",
  "memchr",
@@ -1069,9 +1069,9 @@ checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 
 [[package]]
 name = "smallvec"
-version = "1.16.2"
+version = "1.16.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9395f0f0eee849a9b707b2f06bb92a6a422090e2123bb2ef8e87a0e61892a8e"
+checksum = "5b3dc8af474f516a851ff4bd12db780f948b9250ad37211e4eec0bccea54e01b"
 
 [[package]]
 name = "strsim"
@@ -1081,7 +1081,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "suboptimal_pattern"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "clippy_utils",
  "dylint_linting",
@@ -1102,9 +1102,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "3.0.6"
+version = "3.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8593e8e72159ed2257d083c7a454a85cbf854f37a0966d8d483aff8c8a3ebcee"
+checksum = "d62a2e0561533f2ca2561d0cf27fd9fedb640a1bf2616ff5d5c80d99017faadc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1196,7 +1196,7 @@ checksum = "fe5197923287db20a58125f0bc85c062f7f2c892de97b18c356f9efb14b28524"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 3.0.6",
+ "syn 3.0.7",
 ]
 
 [[package]]
@@ -1272,7 +1272,7 @@ dependencies = [
 
 [[package]]
 name = "try_io_result"
-version = "6.1.0"
+version = "6.1.1"
 dependencies = [
  "anyhow",
  "clippy_utils",
