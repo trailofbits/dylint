@@ -1,9 +1,11 @@
-use anyhow::{Context, Result, ensure};
+use anyhow::{Context, Result, bail, ensure};
 use std::{
     ffi::{OsStr, OsString},
+    fmt::Write as _,
     path::{Path, PathBuf},
     process::{Command, Output},
 };
+use tempfile::NamedTempFile;
 
 #[allow(clippy::module_name_repetitions)]
 pub trait CommandExt {
@@ -23,12 +25,36 @@ impl CommandExt for Command {
             .output()
             .with_context(|| format!("Could not get output of `{self:?}`"))?;
 
-        ensure!(
-            !require_success || output.status.success(),
-            "command failed: {self:?}\nstdout: {:?}\nstderr: {:?}",
-            std::str::from_utf8(&output.stdout).unwrap_or_default(),
-            std::str::from_utf8(&output.stderr).unwrap_or_default()
-        );
+        if require_success && !output.status.success() {
+            let mut msg = format!("`{}` command failed", self.get_program().display());
+            if crate::env::enabled(crate::env::CI) {
+                msg.push('\n');
+                msg.push_str("::group::Full command and output\n");
+                write_command_and_output_fmt(&mut msg, self, &output).unwrap();
+                msg.push_str("::endgroup::");
+            } else {
+                msg.push_str("; ");
+                let result = (|| -> Result<PathBuf> {
+                    let mut tempfile =
+                        NamedTempFile::new().with_context(|| "Could not create named temp file")?;
+                    write_command_and_output_io(&mut tempfile, self, &output)?;
+                    tempfile.keep().map(|(_, path)| path).map_err(Into::into)
+                })();
+                match result {
+                    Ok(path) => write!(
+                        &mut msg,
+                        "the full command and output can be found in `{}`",
+                        path.display()
+                    ),
+                    Err(error) => write!(
+                        &mut msg,
+                        "could not write command and output to tempfile: {error}"
+                    ),
+                }
+                .unwrap();
+            }
+            bail!("{msg}");
+        }
 
         Ok(output)
     }
@@ -50,6 +76,30 @@ impl CommandExt for Command {
         Ok(())
     }
 }
+
+macro_rules! impl_write_command_and_output {
+    ($ident:ident) => {
+        pastey::paste! {
+            fn [< write_command_and_output_ $ident >](
+                mut stream: impl std::$ident::Write,
+                command: &Command,
+                output: &Output,
+            ) -> Result<()> {
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                writeln!(
+                    stream,
+                    "{command:?}\nstdout:\n```\n{}\n```\nstderr:\n```\n{}\n```",
+                    stdout.trim_end_matches('\n'),
+                    stderr.trim_end_matches('\n'),
+                ).map_err(Into::into)
+            }
+        }
+    };
+}
+
+impl_write_command_and_output!(fmt);
+impl_write_command_and_output!(io);
 
 #[allow(unused_variables)]
 pub fn driver(toolchain: &str, driver: &Path) -> Result<Command> {

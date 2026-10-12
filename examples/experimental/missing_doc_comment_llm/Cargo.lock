@@ -620,6 +620,7 @@ dependencies = [
  "git2",
  "home",
  "log",
+ "pastey",
  "regex",
  "semver",
  "serde",
