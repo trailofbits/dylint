@@ -720,12 +720,6 @@
         "kind": "user",
         "login": "sebasmagri",
         "name": "Sebastián Magrí"
-      },
-      {
-        "id": 55123,
-        "kind": "user",
-        "login": "rust-lang-owner",
-        "name": null
       }
     ],
     "equivalent": [
@@ -909,12 +903,6 @@
       }
     ],
     "hashbrown": [
-      {
-        "id": 2915,
-        "kind": "user",
-        "login": "Amanieu",
-        "name": "Amanieu d'Antras"
-      },
       {
         "id": 55123,
         "kind": "user",
@@ -1410,6 +1398,14 @@
         "kind": "user",
         "login": "mbrubeck",
         "name": "Matt Brubeck"
+      }
+    ],
+    "pastey": [
+      {
+        "id": 261504,
+        "kind": "user",
+        "login": "AS1100K",
+        "name": "Aditya Kumar"
       }
     ],
     "percent-encoding": [
@@ -2123,7 +2119,7 @@
         "id": 350,
         "kind": "user",
         "login": "Hoverbear",
-        "name": "Ana Hobden"
+        "name": "Ana"
       },
       {
         "id": 359,
