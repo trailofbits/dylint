@@ -57,9 +57,20 @@ pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     }
 
     let driver = driver_dir.join("dylint-driver");
-    if !driver.exists() || is_outdated(opts, toolchain, &driver)? {
-        build(opts, toolchain, &driver_dir)?;
-    }
+    let status = if driver.exists() {
+        is_outdated(toolchain, &driver).map(|outdated| {
+            if outdated {
+                DriverStatus::Outdated
+            } else {
+                DriverStatus::Current
+            }
+        })
+    } else {
+        Ok(DriverStatus::Missing)
+    };
+    ensure_driver(opts, &driver, status, || {
+        build(opts, toolchain, &driver_dir)
+    })?;
 
     Ok(driver)
 }
@@ -88,28 +99,55 @@ fn dylint_drivers() -> Result<PathBuf> {
     }
 }
 
-fn is_outdated(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<bool> {
-    (|| -> Result<bool> {
-        let mut command = dylint_driver(toolchain, driver)?;
-        let output = command.args(["-V"]).logged_output(true)?;
-        let stdout = std::str::from_utf8(&output.stdout)?;
-        let theirs = stdout
-            .trim_end()
-            .rsplit_once(' ')
-            .map(|(_, s)| s)
-            .ok_or_else(|| anyhow!("Could not determine driver version"))?;
+/// A cached driver's status under the existing version policy.
+#[derive(Clone, Copy, Debug)]
+enum DriverStatus {
+    Missing,
+    Current,
+    Outdated,
+}
 
-        let their_version = Version::parse(theirs)
-            .with_context(|| format!("Could not parse driver version `{theirs}`"))?;
+// leynos: Keep the refusal at the same decision that invokes the build operation. The
+// injected operation lets tests exercise every outcome without invoking Cargo.
+fn ensure_driver(
+    opts: &opts::Dylint,
+    driver: &Path,
+    status: Result<DriverStatus>,
+    build: impl FnOnce() -> Result<()>,
+) -> Result<()> {
+    let status = match status {
+        Ok(DriverStatus::Current) => return Ok(()),
+        Ok(DriverStatus::Missing) => "missing",
+        Ok(DriverStatus::Outdated) => "outdated",
+        Err(error) => {
+            warn(opts, &error.to_string());
+            "unverifiable"
+        }
+    };
+    ensure!(
+        !opts.no_driver_build,
+        "Compiler driver `{}` is {status}; --no-driver-build requires a prebuilt compatible driver",
+        driver.display()
+    );
+    build()
+}
 
-        let our_version = Version::parse(env!("CARGO_PKG_VERSION"))?;
+fn is_outdated(toolchain: &str, driver: &Path) -> Result<bool> {
+    let mut command = dylint_driver(toolchain, driver)?;
+    let output = command.args(["-V"]).logged_output(true)?;
+    let stdout = std::str::from_utf8(&output.stdout)?;
+    let theirs = stdout
+        .trim_end()
+        .rsplit_once(' ')
+        .map(|(_, s)| s)
+        .ok_or_else(|| anyhow!("Could not determine driver version"))?;
 
-        Ok(their_version < our_version)
-    })()
-    .or_else(|error| {
-        warn(opts, &error.to_string());
-        Ok(true)
-    })
+    let their_version = Version::parse(theirs)
+        .with_context(|| format!("Could not parse driver version `{theirs}`"))?;
+
+    let our_version = Version::parse(env!("CARGO_PKG_VERSION"))?;
+
+    Ok(their_version < our_version)
 }
 
 #[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
@@ -315,13 +353,10 @@ mod tests {
         );
 
         build(&opts::Dylint::default(), "nightly", tempdir.path()).unwrap();
-        assert!(
-            !is_outdated(
-                &opts::Dylint::default(),
-                "nightly",
-                &tempdir.path().join("dylint-driver")
-            )
-            .unwrap()
-        );
+        assert!(!is_outdated("nightly", &tempdir.path().join("dylint-driver")).unwrap());
     }
 }
+
+#[cfg(test)]
+#[path = "driver_builder/no_driver_build_tests.rs"]
+mod no_driver_build_tests;
