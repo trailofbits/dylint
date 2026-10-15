@@ -1,5 +1,5 @@
 syn v2.0.119
-syn v3.0.7
+syn v3.0.9
 thiserror v1.0.69
 thiserror v2.0.21
 thiserror-impl v1.0.69
