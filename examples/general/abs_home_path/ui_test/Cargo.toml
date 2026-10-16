@@ -1,6 +1,6 @@
 [package]
 name = "ui_test"
-version = "6.1.1"
+version = "6.2.0"
 edition = "2024"
 
 [dev-dependencies]

@@ -2,6 +2,12 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.2.0
+
+- Reject `--no-metadata` when given with `--git` or `--path` on the command line ([3b4c124](https://github.com/trailofbits/dylint/commit/3b4c124326317b6eb4c323978c5a9c541c42e72a))&mdash;thanks [@HardMax71](https://github.com/HardMax71)
+- FEATURE: Allow `--pattern` to be given more than once on the command line; deprecate [`dylint::opts::LibrarySelection::pattern`](https://docs.rs/dylint/latest/dylint/opts/struct.LibrarySelection.html#structfield.pattern) in favor of `LibrarySelection::patterns` ([365fbd6](https://github.com/trailofbits/dylint/commit/365fbd6dad81419105b5f044db35dd5c3b9ff4ca))&mdash;thanks [@HardMax71](https://github.com/HardMax71)
+- FEATURE: When a captured subprocess fails outside of CI, write its full command to a temporary file rather than to the console ([25c51a5](https://github.com/trailofbits/dylint/commit/25c51a55124a18a9aa2de673ade0a965ae640d78))
+
 ## 6.1.1
 
 - Handle rename of `rustc_driver::run_compiler` to `compiler_entrypoint` ([0b495c3](https://github.com/trailofbits/dylint/commit/0b495c38549f5586f894dc77edea4264fcd3ce60))
