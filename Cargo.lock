@@ -1099,9 +1099,9 @@ checksum = "20870f649af7073d53e38067b2a84312175d56ea15217e1b15bc83506ec50afb"
 
 [[package]]
 name = "libc"
-version = "0.2.190"
+version = "0.2.191"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78"
+checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
 
 [[package]]
 name = "libgit2-sys"
@@ -1193,9 +1193,9 @@ dependencies = [
 
 [[package]]
 name = "nested_workspace"
-version = "3.1.0"
+version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74b6ed6587aadd39890426d35e1993561a12c6da97aa4e2d2c3cfa918376d3d4"
+checksum = "318690e61de782fb3bc44a95d83661794f322fd30834949a7f4b36a9f47ec972"
 dependencies = [
  "anstyle",
  "anyhow",
