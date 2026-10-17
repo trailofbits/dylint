@@ -33,8 +33,22 @@ dylint_internal = { version = "=6.2.0", path = "../internal", features = [
     "rustup",
 ] }
 
+[[test]]
+name = "extra_symbols"
+path = "build/extra_symbols.rs"
+
 [dev-dependencies]
+anyhow = "1.0"
+git2 = "0.21"
+proc-macro2 = "1.0"
 rustc_version = "0.4"
+syn = { version = "3.0", features = ["full"] }
+tempfile = "3.27"
+
+dylint_internal = { version = "=6.1.1", path = "../internal", features = [
+    "clippy_utils",
+    "rustup",
+] }
 
 [lints.clippy]
 nursery = { level = "warn", priority = -1 }
