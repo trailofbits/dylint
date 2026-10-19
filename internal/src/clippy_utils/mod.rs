@@ -7,7 +7,7 @@ use std::{
 use toml_edit::{DocumentMut, Item, Value};
 
 mod repository;
-pub use repository::{clippy_repository, parse_as_nightly};
+pub use repository::{clippy_repository, file_at_revision, parse_as_nightly};
 
 mod revs_no_preinstall;
 pub use revs_no_preinstall::{Rev, Revs};
@@ -28,7 +28,11 @@ pub fn clippy_utils_package_version(path: &Path) -> Result<Version> {
             cargo_toml.to_string_lossy(),
         )
     })?;
-    let table = toml::from_str::<toml::Table>(&contents)?;
+    package_version_from_contents(&contents)
+}
+
+fn package_version_from_contents(contents: &str) -> Result<Version> {
+    let table = toml::from_str::<toml::Table>(contents)?;
     let version = table
         .get("package")
         .and_then(toml::Value::as_table)
@@ -76,7 +80,11 @@ pub fn toolchain_channel(path: &Path) -> Result<String> {
     let Some((_, contents)) = read_rust_toolchain_file(path)? else {
         bail!("Could not find rust-toolchain file at `{}`", path.display());
     };
-    let table = toml::from_str::<toml::Table>(&contents)?;
+    toolchain_channel_from_contents(&contents)
+}
+
+fn toolchain_channel_from_contents(contents: &str) -> Result<String> {
+    let table = toml::from_str::<toml::Table>(contents)?;
     table
         .get("toolchain")
         .and_then(toml::Value::as_table)
