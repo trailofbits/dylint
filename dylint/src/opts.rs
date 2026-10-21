@@ -20,6 +20,9 @@
 #[cfg(feature = "package_options")]
 use std::sync::LazyLock;
 
+/// Options mirroring the fields of the same names in `cargo-dylint`'s `Dylint` struct.
+///
+/// Library selection and operation-specific options are grouped under [`Operation`].
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Default)]
 pub struct Dylint {
@@ -32,36 +35,60 @@ pub struct Dylint {
     pub operation: Operation,
 }
 
+/// Options mirroring the fields of the same names in `cargo-dylint`'s `LibrarySelection` struct.
+///
+/// The deprecated [`pattern`](Self::pattern) field is retained for compatibility.
+// smoelius: Please try to keep these comments in sync with the corresponding option descriptions.
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Default)]
 pub struct LibrarySelection {
+    /// Load all discovered libraries.
     pub all: bool,
 
+    /// Branch to use when downloading library packages.
     pub branch: Option<String>,
 
+    /// Exit with an error if no libraries are found; requires a library selection (`--all`,
+    /// `--git`, `--lib`, `--lib-path`, or `--path`).
     pub fail_on_no_libraries: bool,
 
+    /// Git url containing library packages.
     pub git: Option<String>,
 
+    /// Library path to load lints from.
     pub lib_paths: Vec<String>,
 
+    /// Library name to load lints from. A file with a name of the form
+    /// `"DLL_PREFIX <NAME> '@' TOOLCHAIN DLL_SUFFIX"` is searched for in the directories listed in
+    /// `DYLINT_LIBRARY_PATH`, and in the `target/release` directories produced by building the
+    /// current workspace's metadata entries.
     pub libs: Vec<String>,
 
+    /// Path to Cargo.toml. Note: if the manifest uses metadata, then `--manifest-path <PATH>` must
+    /// appear before `--`, not after.
     pub manifest_path: Option<String>,
 
+    /// Do not build metadata entries.
     pub no_build: bool,
 
+    /// Ignore metadata entirely.
     pub no_metadata: bool,
 
+    /// Path containing library packages.
     pub paths: Vec<String>,
 
+    /// A subdirectory pattern to select library packages, combined with
+    /// [`patterns`](Self::patterns).
     #[deprecated(note = "use `patterns`")]
     pub pattern: Option<String>,
 
+    /// Subdirectories of the `--git` or `--path` argument containing library packages.
     pub patterns: Vec<String>,
 
+    /// Specific commit to use when downloading library packages.
     pub rev: Option<String>,
 
+    /// Tag to use when downloading library packages.
     pub tag: Option<String>,
 }
 
