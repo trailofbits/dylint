@@ -561,6 +561,34 @@ mod tests {
         ..Default::default()
     });
 
+    /// Verify that `from_opts` honors deprecated `pattern` both alone and alongside `patterns`. The
+    /// two patterns select different libraries so that ignoring either field causes a failure.
+    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+    #[test]
+    #[allow(deprecated)]
+    fn from_opts_includes_deprecated_pattern() {
+        for patterns in [vec![], vec![String::from("crate_wide_allow")]] {
+            let mut expected = vec!["abs_home_path"];
+            expected.extend(patterns.iter().map(String::as_str));
+
+            let mut opts = OPTS.clone();
+            let lib_sel = opts.library_selection_mut();
+            lib_sel.paths =
+                vec![concat!(env!("CARGO_MANIFEST_DIR"), "/../examples/general").to_owned()];
+            lib_sel.pattern = Some(String::from("abs_home_path"));
+            lib_sel.patterns = patterns.clone();
+
+            let packages = library_packages::from_opts(&opts).unwrap();
+            let mut actual = packages
+                .iter()
+                .map(|package| package.lib_name.as_str())
+                .collect::<Vec<_>>();
+            actual.sort_unstable();
+
+            assert_eq!(expected, actual);
+        }
+    }
+
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn multiple_libraries_multiple_toolchains() {
