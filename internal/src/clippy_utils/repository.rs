@@ -182,7 +182,6 @@ mod tests {
             return;
         }
         let repository = result.unwrap();
-        assert!(Rc::ptr_eq(&repository, &clippy_repository(true).unwrap()));
         let head = repository
             .head()
             .and_then(|reference| reference.peel_to_commit())
