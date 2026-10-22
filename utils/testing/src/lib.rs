@@ -295,8 +295,8 @@ fn linking_flags(
 static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\s*Running\s*`(.*)`$").unwrap());
 
 fn rustc_flags(_metadata: &Metadata, package: &Package, target: &Target) -> Result<Vec<String>> {
-    // Previously, this function removed the example executable from `target/debug/examples` before
-    // running `cargo build --verbose`. With Cargo's legacy layout, that forced the example to be
+    // Previously, this function removed the example executable from Cargo's legacy examples
+    // output directory before running `cargo build --verbose`. That forced the example to be
     // recompiled and exposed its rustc invocation in Cargo's verbose output. With the new
     // build-directory layout, Cargo can restore the removed executable from its cached build
     // artifact without invoking rustc, making removal ineffective as a way to force recompilation.

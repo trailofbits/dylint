@@ -26,6 +26,12 @@ use std::sync::LazyLock;
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Default)]
 pub struct Dylint {
+    /// Refuse to build a missing, outdated, or unverifiable compiler driver.
+    ///
+    /// Defaults to `false`. Existing drivers use the normal version policy. To prevent building
+    /// lint libraries, use [`LibrarySelection::no_build`].
+    pub no_driver_build: bool,
+
     pub pipe_stderr: Option<String>,
 
     pub pipe_stdout: Option<String>,
