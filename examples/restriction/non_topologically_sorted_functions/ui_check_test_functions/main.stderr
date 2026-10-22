@@ -1,0 +1,16 @@
+warning: function definitions are not topologically sorted
+  --> $DIR/main.rs:1:1
+   |
+LL | fn helper() {}
+   | ^^^^^^^^^^^^^^ function `helper` should be defined after `test`
+   |
+   = help: move helper's definition to later in the module
+note: `helper` is called from `test` here
+  --> $DIR/main.rs:5:5
+   |
+LL |     helper();
+   |     ^^^^^^^^
+   = note: `#[warn(non_topologically_sorted_functions)]` on by default
+
+warning: 1 warning emitted
+
