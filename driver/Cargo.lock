@@ -89,6 +89,7 @@ dependencies = [
  "rustversion",
  "serde_json",
  "syn",
+ "tempfile",
 ]
 
 [[package]]
