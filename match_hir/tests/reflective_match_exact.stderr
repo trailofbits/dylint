@@ -1,0 +1,8 @@
+...
+name: "build_script_main"
+errors: 0
+name: "match_hir"
+errors: 3
+src/error.rs:48:14: 48:21 (#0): parse error: unexpected end of input, expected an expression
+src/error.rs:51:16: 51:23 (#0): parse error: unexpected end of input, expected an expression
+src/error.rs:66:11: 66:18 (#0): parse error: unexpected end of input, expected an expression

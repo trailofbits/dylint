@@ -1,0 +1,27 @@
+warning: referring to an environment variable with a string literal is error prone
+  --> $DIR/main.rs:2:27
+   |
+LL |     let _ = std::env::var("RUSTFLAGS");
+   |                           ^^^^^^^^^^^
+   |
+   = help: define a constant `RUSTFLAGS` and use that instead
+   = note: `#[warn(disallowed_pattern)]` on by default
+
+warning: referring to an environment variable with a string literal is error prone
+  --> $DIR/main.rs:3:26
+   |
+LL |     std::env::remove_var("RUSTFALGS");
+   |                          ^^^^^^^^^^^
+   |
+   = help: define a constant `RUSTFALGS` and use that instead
+
+warning: referring to an environment variable with a string literal is error prone
+  --> $DIR/main.rs:4:23
+   |
+LL |     std::env::set_var("RUSTFALGS", "-D warnings");
+   |                       ^^^^^^^^^^^
+   |
+   = help: define a constant `RUSTFALGS` and use that instead
+
+warning: 3 warnings emitted
+
