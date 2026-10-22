@@ -1,16 +1,15 @@
-use anyhow::{Context, Result, anyhow, bail};
+use anyhow::{Context, Result, anyhow};
 use dylint_internal::{
-    clippy_utils::{Rev, Revs, clippy_repository, parse_as_nightly},
+    clippy_utils::{Rev, Revs, clippy_repository, file_at_revision, parse_as_nightly},
     env,
     rustup::parse_toolchain,
 };
 use git2::Oid;
 use proc_macro2::TokenTree;
 use std::{
-    fs::{OpenOptions, read_to_string, write},
+    fs::{OpenOptions, write},
     io::Write,
-    path::PathBuf,
-    process::Command,
+    path::{Path, PathBuf},
 };
 use syn::{Item, ItemMacro, Macro, parse_file};
 
@@ -87,22 +86,7 @@ fn rev_from_channel(channel: &str) -> Result<Rev> {
 
 fn clippy_utils_sym_rs(rev: Oid) -> Result<String> {
     let repository = clippy_repository(false)?;
-    let Some(workdir) = repository.workdir() else {
-        bail!("Repository has no working directory");
-    };
-
-    let mut command = Command::new("git");
-    command
-        .current_dir(workdir)
-        .args(["checkout", &rev.to_string()]);
-    let status = command
-        .status()
-        .with_context(|| format!("command failed: {command:?}"))?;
-    assert!(status.success());
-
-    let sym_path = workdir.join("clippy_utils/src/sym.rs");
-    read_to_string(&sym_path)
-        .with_context(|| format!("`read_to_string` failed for `{}`", sym_path.display()))
+    file_at_revision(&repository, rev, Path::new("clippy_utils/src/sym.rs"))
 }
 
 fn quoted_symbols(sym_rs: &str) -> Result<Vec<String>> {
