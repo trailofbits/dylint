@@ -1,0 +1,92 @@
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:5:13
+   |
+LL |     let _ = origin::First;
+   |             ^^^^^^^^^^^^^ help: use the reexport: `::facade::First`
+   |
+   = note: `#[warn(unused_reexport)]` on by default
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:6:13
+   |
+LL |     let _ = origin::Second;
+   |             ^^^^^^^^^^^^^^ help: use the reexport: `::facade::Renamed`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:7:13
+   |
+LL |     let _ = origin::nested::Third;
+   |             ^^^^^^^^^^^^^^^^^^^^^ help: use the reexport: `::facade::api::Third`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:14:17
+   |
+LL |         let _ = origin::Second;
+   |                 ^^^^^^^^^^^^^^ help: use the reexport: `::facade::Renamed`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:16:9
+   |
+LL |     use origin::First;
+   |         ^^^^^^^^^^^^^ help: use the reexport: `::facade::First`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:22:21
+   |
+LL |             let _ = origin::First;
+   |                     ^^^^^^^^^^^^^ help: use the reexport: `::facade::First`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:51:18
+   |
+LL |     use origin::{First, Second as Other};
+   |                  ^^^^^
+   |
+   = help: import `::facade::First` separately from this use tree
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:51:25
+   |
+LL |     use origin::{First, Second as Other};
+   |                         ^^^^^^
+   |
+   = help: import `::facade::Renamed as Other` separately from this use tree
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:59:9
+   |
+LL |     use origin::Second;
+   |         ^^^^^^^^^^^^^^ help: use the reexport: `::facade::Renamed as Second`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:73:13
+   |
+LL |     let _ = ::origin::Generic::<u8>(0);
+   |             ^^^^^^^^^^^^^^^^^ help: use the reexport: `::facade::Generic`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:74:19
+   |
+LL |     let _: Option<origin::Generic<u8>> = None;
+   |                   ^^^^^^^^^^^^^^^ help: use the reexport: `::facade::Generic`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:76:13
+   |
+LL |     let _ = origin::r#type::Keyword;
+   |             ^^^^^^^^^^^^^^^^^^^^^^^ help: use the reexport: `::facade::r#match`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:80:9
+   |
+LL |     use origin::Second as Local;
+   |         ^^^^^^^^^^^^^^ help: use the reexport: `::facade::Renamed`
+
+warning: this path can be replaced with a dependency's public reexport
+  --> $DIR/main.rs:90:17
+   |
+LL |         let _ = origin::First;
+   |                 ^^^^^^^^^^^^^ help: use the reexport: `::facade::First`
+
+warning: 14 warnings emitted
+
