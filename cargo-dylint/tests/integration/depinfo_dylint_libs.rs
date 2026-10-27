@@ -22,6 +22,16 @@ fn depinfo_dylint_libs() {
 
     cargo_bin_cmd!("cargo-dylint")
         .current_dir("../fixtures/depinfo_dylint_libs")
+        .env(env::DYLINT_RUSTFLAGS, "-D warnings")
+        .args(["dylint", "--lib", "question_mark_in_expression"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "\nerror: using the `?` operator within an expression\n",
+        ));
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir("../fixtures/depinfo_dylint_libs")
         .args(["dylint", "--lib", "try_io_result"])
         .assert()
         .stderr(predicate::str::contains(
