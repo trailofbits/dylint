@@ -52,7 +52,7 @@ pub fn clippy_repository(quiet: bool) -> Result<Rc<Repository>> {
                 )
             })?
         } else {
-            clone(RUST_CLIPPY_URL, "master", tempdir.path(), quiet)?
+            clone(RUST_CLIPPY_URL, "main", tempdir.path(), quiet)?
         };
         let repository = Rc::new(repository);
 

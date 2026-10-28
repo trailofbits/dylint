@@ -248,10 +248,10 @@ Helpful resources for writing lints include the following:
 
 [Test coverage]
 
-[Adding a new lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md
-[Author lint]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/adding_lints.md#author-lint
+[Adding a new lint]: https://github.com/rust-lang/rust-clippy/blob/main/book/src/development/adding_lints.md
+[Author lint]: https://github.com/rust-lang/rust-clippy/blob/main/book/src/development/adding_lints.md#author-lint
 [Caching in CI]: #caching-in-ci
-[Common tools for writing lints]: https://github.com/rust-lang/rust-clippy/blob/master/book/src/development/common_tools_writing_lints.md
+[Common tools for writing lints]: https://github.com/rust-lang/rust-clippy/blob/main/book/src/development/common_tools_writing_lints.md
 [Conditional compilation]: #conditional-compilation
 [Configurable libraries]: #configurable-libraries
 [Crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
@@ -276,7 +276,7 @@ Helpful resources for writing lints include the following:
 [`LateLintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
 [`abs_home_path`]: ./examples/general/abs_home_path
 [`bc16236`]: https://github.com/trailofbits/dylint/commit/bc16236fb34c3f98139d2dad469e6a7de179d68d
-[`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/master/clippy_utils
+[`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/main/clippy_utils
 [`compiletest_rs`]: https://github.com/Manishearth/compiletest-rs
 [`dylint-link`]: ./dylint-link
 [`dylint_library!`]: ./utils/linting
