@@ -20,6 +20,8 @@ enum CargoSubcommand {
     args_conflicts_with_subcommands = true,
     after_help = r#"ENVIRONMENT VARIABLES:
 
+DYLINT_CLIPPY_REPO (default: none) is a path to a Dylint-exclusive clone of the Clippy repository.
+
 DYLINT_DRIVER_PATH (default: $HOME/.dylint_drivers) is the directory where Dylint stores rustc
 drivers.
 
