@@ -1734,6 +1734,12 @@
         "kind": "user",
         "login": "Ms2ger",
         "name": null
+      },
+      {
+        "id": 373789,
+        "kind": "user",
+        "login": "alejandro-vaz",
+        "name": "Alejandro Vaz"
       }
     ],
     "stable_deref_trait": [
