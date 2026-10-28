@@ -2,6 +2,11 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.3.0
+
+- FEATURE: Allow users to supply a Dylint-exclusive Clippy clone via an absolute path in `DYLINT_CLIPPY_REPO` ([82da1fa](https://github.com/trailofbits/dylint/commit/82da1fa27e282f13dd0f4e0091fb509e369bd4a9), [a567fdc](https://github.com/trailofbits/dylint/commit/a567fdce9136779845d7bf063b07b80ac1fa96d8), and [72148e3](https://github.com/trailofbits/dylint/commit/72148e372378882274a53bb0743df4489e2f2569))&mdash;thanks [@EricLiu2000](https://github.com/EricLiu2000)
+- Handle rename of Clippy's default branch from `master` to `main` ([ac3323f](https://github.com/trailofbits/dylint/commit/ac3323f90a6ad790c5f4d524ab9938da0e0cf9d1))
+
 ## 6.2.0
 
 - Reject `--no-metadata` when given with `--git` or `--path` on the command line ([3b4c124](https://github.com/trailofbits/dylint/commit/3b4c124326317b6eb4c323978c5a9c541c42e72a))&mdash;thanks [@HardMax71](https://github.com/HardMax71)

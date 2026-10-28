@@ -1,6 +1,6 @@
 [package]
 name = "local_ref_cell"
-version = "6.2.0"
+version = "6.3.0"
 authors = ["Samuel E. Moelius III <sam@moeli.us>"]
 description = "A lint to check for `RefCell` local variables"
 edition = "2024"
