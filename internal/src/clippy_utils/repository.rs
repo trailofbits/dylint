@@ -1,6 +1,6 @@
 use crate::{clone, env, git2::Repository};
-use anyhow::{Context, Result};
-use std::{cell::RefCell, path::PathBuf, rc::Rc};
+use anyhow::{Context, Result, anyhow, ensure};
+use std::{cell::RefCell, env::var_os, path::PathBuf, rc::Rc};
 use tempfile::{TempDir, tempdir};
 
 const RUST_CLIPPY_URL: &str = "https://github.com/rust-lang/rust-clippy";
@@ -18,13 +18,18 @@ pub fn clippy_repository(quiet: bool) -> Result<Rc<Repository>> {
 
         let tempdir = tempdir().with_context(|| "`tempdir` failed")?;
 
-        let repository = if let Some(path) = std::env::var_os(env::DYLINT_CLIPPY_REPO) {
-            anyhow::ensure!(
+        let repository = if let Some(path) = var_os(env::DYLINT_CLIPPY_REPO) {
+            ensure!(
                 !path.is_empty(),
                 "{} must not be empty",
                 env::DYLINT_CLIPPY_REPO
             );
             let path = PathBuf::from(path);
+            ensure!(
+                path.is_absolute(),
+                "DYLINT_CLIPPY_REPO contains `{}`, which is not absolute",
+                path.display()
+            );
             // EricLiu2000: Revision searches change HEAD and the worktree. Keep the supplied
             // repository unchanged, and clone only from its local object database.
             let source = Repository::open(&path).with_context(|| {
@@ -35,7 +40,7 @@ pub fn clippy_repository(quiet: bool) -> Result<Rc<Repository>> {
                 )
             })?;
             let source_path = source.path().to_str().ok_or_else(|| {
-                anyhow::anyhow!(
+                anyhow!(
                     "Clippy Git repository path is not valid UTF-8: `{}`",
                     source.path().display()
                 )
@@ -76,6 +81,7 @@ mod tests {
     use super::*;
     use crate::CommandExt;
     use std::{
+        env::current_exe,
         fs::{create_dir, read_to_string, write},
         path::Path,
         process::Command,
@@ -92,7 +98,7 @@ mod tests {
     )]
     #[test]
     fn supplied_repository() {
-        if std::env::var_os(DYLINT_TEST_REPOSITORY).is_some() {
+        if var_os(DYLINT_TEST_REPOSITORY).is_some() {
             let repository = clippy_repository(true).unwrap();
             let head = repository
                 .head()
@@ -145,7 +151,7 @@ mod tests {
     )]
     #[test]
     fn invalid_supplied_repository() {
-        if std::env::var_os(DYLINT_TEST_REPOSITORY).is_some() {
+        if var_os(DYLINT_TEST_REPOSITORY).is_some() {
             let error = clippy_repository(true).err().unwrap();
             assert!(format!("{error:#}").contains(env::DYLINT_CLIPPY_REPO));
             return;
@@ -168,7 +174,7 @@ mod tests {
 
     // EricLiu2000: Isolate environment inputs and the thread-local repository cache for each case.
     fn run_child(path: &Path, test: &str) {
-        Command::new(std::env::current_exe().unwrap())
+        Command::new(current_exe().unwrap())
             .args([
                 "--exact",
                 &format!("clippy_utils::repository::tests::{test}"),
