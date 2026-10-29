@@ -4,8 +4,8 @@ This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dyl
 
 ## 6.3.0
 
-- FEATURE: Allow users to supply a Dylint-exclusive Clippy clone via an absolute path in `DYLINT_CLIPPY_REPO` ([82da1fa](https://github.com/trailofbits/dylint/commit/82da1fa27e282f13dd0f4e0091fb509e369bd4a9), [a567fdc](https://github.com/trailofbits/dylint/commit/a567fdce9136779845d7bf063b07b80ac1fa96d8), and [72148e3](https://github.com/trailofbits/dylint/commit/72148e372378882274a53bb0743df4489e2f2569))&mdash;thanks [@EricLiu2000](https://github.com/EricLiu2000)
-- Handle rename of Clippy's default branch from `master` to `main` ([ac3323f](https://github.com/trailofbits/dylint/commit/ac3323f90a6ad790c5f4d524ab9938da0e0cf9d1))
+- FEATURE: Allow users to supply a Dylint-exclusive Clippy clone via an absolute path in `DYLINT_CLIPPY_REPO` ([82da1fa](https://github.com/trailofbits/dylint/commit/82da1fa27e282f13dd0f4e0091fb509e369bd4a9), [25147ed](https://github.com/trailofbits/dylint/commit/25147eda180d55e54326ac5a64ec6e713ae9d32a), and [a561444](https://github.com/trailofbits/dylint/commit/a5614446d665bbdd4c03141a7fed11f0913e73ba))&mdash;thanks [@EricLiu2000](https://github.com/EricLiu2000)
+- Handle rename of Clippy's default branch from `master` to `main` ([f1ed836](https://github.com/trailofbits/dylint/commit/f1ed83623faead3799afd91533f8647715272c33))
 
 ## 6.2.0
 
@@ -46,7 +46,7 @@ This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dyl
 ## 6.0.3
 
 - Invalidate rustc's incremental cache when the set of registered lints changes ([4ca081a](https://github.com/trailofbits/dylint/commit/4ca081a67a3dd69a4ddb4c8386fb4e304fdcfd8c))
-- Remove patch versions from template manifest ([fb21b76](https://github.com/trailofbits/dylint/commit/fb21b766dbf71fcf9db57fc822af1200bd911765))
+- Remove patch versions from template manifest ([c9bea3b](https://github.com/trailofbits/dylint/commit/c9bea3b887a9a4195543f36f9b7087a85bf6f02a))
 
 ## 6.0.2
 
