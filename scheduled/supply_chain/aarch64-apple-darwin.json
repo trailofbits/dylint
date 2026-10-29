@@ -1320,30 +1320,6 @@
     ],
     "log": [
       {
-        "id": 3,
-        "kind": "user",
-        "login": "huonw",
-        "name": "Huon Wilson"
-      },
-      {
-        "id": 5,
-        "kind": "user",
-        "login": "sfackler",
-        "name": "Steven Fackler"
-      },
-      {
-        "id": 14,
-        "kind": "team",
-        "login": "github:rust-lang-nursery:log-owners",
-        "name": "log-owners"
-      },
-      {
-        "id": 3204,
-        "kind": "user",
-        "login": "KodrAus",
-        "name": "Ashley Mannix"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
