@@ -330,22 +330,7 @@ fn rustc_flags(_metadata: &Metadata, package: &Package, target: &Target) -> Resu
         .map(|line| {
             let line =
                 line.with_context(|| format!("Could not read from `{}`", package.manifest_path))?;
-            Ok((*RE).captures(&line).and_then(|captures| {
-                let args = captures[1]
-                    .split(' ')
-                    .map(ToOwned::to_owned)
-                    .collect::<Vec<_>>();
-                if args.first().is_some_and(is_rustc)
-                    && args
-                        .as_slice()
-                        .windows(2)
-                        .any(|window| window == ["--crate-name", &snake_case(&target.name)])
-                {
-                    Some(args)
-                } else {
-                    None
-                }
-            }))
+            Ok(rustc_flags_from_line(&line, &target.name))
         })
         .collect::<Result<Vec<Option<Vec<_>>>>>()?;
 
@@ -358,6 +343,26 @@ fn rustc_flags(_metadata: &Metadata, package: &Package, target: &Target) -> Resu
     matches
         .pop()
         .ok_or_else(|| anyhow!("Found no `rustc` invocations for `{}`", target.name))
+}
+
+fn rustc_flags_from_line(line: &str, target_name: &str) -> Option<Vec<String>> {
+    (*RE).captures(line).and_then(|captures| {
+        let args = captures[1]
+            .split(' ')
+            .map(ToOwned::to_owned)
+            .collect::<Vec<_>>();
+        let i = args.iter().position(is_rustc);
+        if let Some(i) = i
+            && !args[..i].iter().any(|arg| arg.starts_with('-'))
+            && args[i + 1..]
+                .windows(2)
+                .any(|window| window == ["--crate-name", &snake_case(target_name)])
+        {
+            Some(args)
+        } else {
+            None
+        }
+    })
 }
 
 fn next<I, T>(flag: &str, iter: &mut I) -> Result<T>
@@ -449,4 +454,66 @@ impl Drop for VarGuard {
 
 fn snake_case(name: &str) -> String {
     name.replace('-', "_")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // smoelius: See: https://github.com/trailofbits/dylint/issues/1696#issuecomment-6432129817
+
+    #[test]
+    fn no_wrappers() {
+        const LINE: &str = "\
+     Running `/path/to/rustc --crate-name ui --edition=2024 ui/main.rs ...`";
+        assert_eq!(
+            [
+                "/path/to/rustc",
+                "--crate-name",
+                "ui",
+                "--edition=2024",
+                "ui/main.rs",
+                "...",
+            ],
+            rustc_flags_from_line(LINE, "ui").unwrap().as_slice()
+        );
+    }
+
+    #[test]
+    fn rustc_flags_with_wrapper() {
+        const LINE: &str = "\
+     Running `/tmp/wrapper.sh /path/to/rustc --crate-name ui --edition=2024 ui/main.rs ...`";
+        assert_eq!(
+            [
+                "/tmp/wrapper.sh",
+                "/path/to/rustc",
+                "--crate-name",
+                "ui",
+                "--edition=2024",
+                "ui/main.rs",
+                "...",
+            ],
+            rustc_flags_from_line(LINE, "ui").unwrap().as_slice()
+        );
+    }
+
+    #[test]
+    fn rustc_flags_with_nested_wrappers() {
+        const LINE: &str = "\
+     Running `/tmp/wrapper.sh /tmp/workspace-wrapper.sh /path/to/rustc --crate-name ui \
+--edition=2024 ui/main.rs ...`";
+        assert_eq!(
+            [
+                "/tmp/wrapper.sh",
+                "/tmp/workspace-wrapper.sh",
+                "/path/to/rustc",
+                "--crate-name",
+                "ui",
+                "--edition=2024",
+                "ui/main.rs",
+                "...",
+            ],
+            rustc_flags_from_line(LINE, "ui").unwrap().as_slice()
+        );
+    }
 }
