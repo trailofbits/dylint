@@ -2,6 +2,10 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.3.1
+
+- Fix UI test flag detection when `RUSTC_WRAPPER` or `RUSTC_WORKSPACE_WRAPPER` is set in `dylint_testing` ([bca5466](https://github.com/trailofbits/dylint/commit/bca5466a3257da15cb5f7abc043ad9305fbb926b))&mdash;thanks [@dcastro](https://github.com/dcastro) for [reporting the bug](https://github.com/trailofbits/dylint/issues/1691#issuecomment-3095943106) and [@CookieHCl](https://github.com/CookieHCl) for [diagnosing it](https://github.com/trailofbits/dylint/issues/1696#issuecomment-6432129817)
+
 ## 6.3.0
 
 - FEATURE: Allow users to supply a Dylint-exclusive Clippy clone via an absolute path in `DYLINT_CLIPPY_REPO` ([82da1fa](https://github.com/trailofbits/dylint/commit/82da1fa27e282f13dd0f4e0091fb509e369bd4a9), [25147ed](https://github.com/trailofbits/dylint/commit/25147eda180d55e54326ac5a64ec6e713ae9d32a), and [a561444](https://github.com/trailofbits/dylint/commit/a5614446d665bbdd4c03141a7fed11f0913e73ba))&mdash;thanks [@EricLiu2000](https://github.com/EricLiu2000)
