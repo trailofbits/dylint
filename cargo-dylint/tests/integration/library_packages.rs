@@ -112,8 +112,15 @@ libraries = [
 
 #[test]
 fn library_packages_in_dylint_toml() {
+    let temp_fixture = tempdir_in("../fixtures").unwrap();
+    copy_dir(
+        Path::new("../fixtures/library_packages_in_dylint_toml"),
+        temp_fixture.path(),
+    )
+    .unwrap();
+
     cargo_bin_cmd!("cargo-dylint")
-        .current_dir("../fixtures/library_packages_in_dylint_toml")
+        .current_dir(&temp_fixture)
         .args(["dylint", "--all"])
         .assert()
         .success()
@@ -122,7 +129,6 @@ fn library_packages_in_dylint_toml() {
         ));
 }
 
-#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn library_packages_with_configured_build_directory_and_dylint_link() {
     let temp_fixture = tempdir_in("../fixtures").unwrap();
