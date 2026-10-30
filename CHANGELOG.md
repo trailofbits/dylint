@@ -2,6 +2,11 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.3.2
+
+- Invalidate lints when `DYLINT_RUSTFLAGS` changes ([c3c4467](https://github.com/trailofbits/dylint/commit/c3c4467b139a83ca5224cd8663785d58bcd038e1))&mdash;thanks [@jfarmer](https://github.com/jfarmer)
+- Correct [25c51a5](https://github.com/trailofbits/dylint/commit/25c51a55124a18a9aa2de673ade0a965ae640d78)'s error reporting improvements, as they were incomplete ([00aa20c](https://github.com/trailofbits/dylint/commit/00aa20cd6642b87a74d2792ddc4f56c3126d4c98) and [c384fa5](https://github.com/trailofbits/dylint/commit/c384fa56a579a666c57fac26c953ece790aaffb8))
+
 ## 6.3.1
 
 - Fix UI test flag detection when `RUSTC_WRAPPER` or `RUSTC_WORKSPACE_WRAPPER` is set in `dylint_testing` ([bca5466](https://github.com/trailofbits/dylint/commit/bca5466a3257da15cb5f7abc043ad9305fbb926b))&mdash;thanks [@dcastro](https://github.com/dcastro) for [reporting the bug](https://github.com/trailofbits/dylint/issues/1691#issuecomment-3095943106) and [@CookieHCl](https://github.com/CookieHCl) for [diagnosing it](https://github.com/trailofbits/dylint/issues/1696#issuecomment-6432129817)
