@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, bail, ensure};
+use anyhow::{Context, Result, bail};
 use std::{
     ffi::{OsStr, OsString},
     fmt::Write as _,
@@ -26,7 +26,7 @@ impl CommandExt for Command {
             .with_context(|| format!("Could not get output of `{self:?}`"))?;
 
         if require_success && !output.status.success() {
-            let msg = failure_message(self, &output);
+            let msg = failure_message(self, Some(&output));
             bail!("{msg}");
         }
 
@@ -45,17 +45,22 @@ impl CommandExt for Command {
             .status()
             .with_context(|| format!("Could not get status of `{self:?}`"))?;
 
-        ensure!(status.success(), "command failed: {self:?}");
+        if !status.success() {
+            let msg = failure_message(self, None);
+            bail!("{msg}");
+        }
 
         Ok(())
     }
 }
 
-fn failure_message(command: &Command, output: &Output) -> String {
+fn failure_message(command: &Command, output: Option<&Output>) -> String {
     let mut msg = format!("`{}` command failed", command.get_program().display());
+    let and_output = output.map(|_| " and output").unwrap_or_default();
     if crate::env::enabled(crate::env::CI) {
         msg.push('\n');
-        msg.push_str("::group::Full command and output\n");
+        // smoelius: Use `unwrap` when writing to a string.
+        writeln!(msg, "::group::Full command{and_output}").unwrap();
         write_command_and_output_fmt(&mut msg, command, output).unwrap();
         msg.push_str("::endgroup::");
     } else {
@@ -66,15 +71,16 @@ fn failure_message(command: &Command, output: &Output) -> String {
             write_command_and_output_io(&mut tempfile, command, output)?;
             tempfile.keep().map(|(_, path)| path).map_err(Into::into)
         })();
+        // smoelius: Panic if error propagation fails.
         match result {
             Ok(path) => write!(
                 &mut msg,
-                "the full command and output can be found in `{}`",
+                "the full command{and_output} can be found in `{}`",
                 path.display()
             ),
             Err(error) => write!(
                 &mut msg,
-                "could not write command and output to tempfile: {error}"
+                "could not write command{and_output} to tempfile: {error}"
             ),
         }
         .unwrap();
@@ -88,16 +94,24 @@ macro_rules! impl_write_command_and_output {
             fn [< write_command_and_output_ $ident >](
                 mut stream: impl std::$ident::Write,
                 command: &Command,
-                output: &Output,
+                output: Option<&Output>,
             ) -> Result<()> {
-                let stdout = String::from_utf8_lossy(&output.stdout);
-                let stderr = String::from_utf8_lossy(&output.stderr);
-                writeln!(
-                    stream,
-                    "{command:?}\nstdout:\n```\n{}\n```\nstderr:\n```\n{}\n```",
-                    stdout.trim_end_matches('\n'),
-                    stderr.trim_end_matches('\n'),
-                ).map_err(Into::into)
+                writeln!(stream, "{command:?}")
+                    .and_then(|()| {
+                        if let Some(output) = output {
+                            let stdout = String::from_utf8_lossy(&output.stdout);
+                            let stderr = String::from_utf8_lossy(&output.stderr);
+                            writeln!(
+                                stream,
+                                "stdout:\n```\n{}\n```\nstderr:\n```\n{}\n```",
+                                stdout.trim_end_matches('\n'),
+                                stderr.trim_end_matches('\n'),
+                            )
+                        } else {
+                            Ok(())
+                        }
+                    })
+                    .with_context(|| "Could not write to stream")
             }
         }
     };
