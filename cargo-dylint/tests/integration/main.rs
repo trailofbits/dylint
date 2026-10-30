@@ -9,7 +9,6 @@ fn initialize() {
 }
 
 mod depinfo;
-mod depinfo_dylint_toml;
 mod dylint_driver_path;
 mod fix;
 mod library_packages;
