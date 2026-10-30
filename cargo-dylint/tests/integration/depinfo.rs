@@ -1,15 +1,8 @@
 use assert_cmd::cargo::cargo_bin_cmd;
 use dylint_internal::{env, testing::copy_dir};
 use predicates::prelude::*;
-use std::{env::remove_var, path::Path};
+use std::path::Path;
 use tempfile::tempdir_in;
-
-#[ctor::ctor(unsafe)]
-fn initialize() {
-    unsafe {
-        remove_var(env::CARGO_TERM_COLOR);
-    }
-}
 
 #[test]
 fn depinfo_dylint_libs() {

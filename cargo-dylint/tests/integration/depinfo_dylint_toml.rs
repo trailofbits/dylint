@@ -1,19 +1,11 @@
 use assert_cmd::cargo::cargo_bin_cmd;
-use dylint_internal::{CommandExt, env, packaging::isolate};
+use dylint_internal::{CommandExt, packaging::isolate};
 use predicates::prelude::*;
 use std::{
-    env::remove_var,
     fs::{OpenOptions, remove_file, write},
     io::Write,
 };
 use tempfile::tempdir;
-
-#[ctor::ctor(unsafe)]
-fn initialize() {
-    unsafe {
-        remove_var(env::CARGO_TERM_COLOR);
-    }
-}
 
 // `unnamed_constant` flags `9` when its `threshold` is 1, but not when its `threshold` is 100.
 // Note that `9` is also unflagged at the default `threshold` of 10. Hence, the warning below can
