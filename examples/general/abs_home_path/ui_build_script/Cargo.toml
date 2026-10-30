@@ -1,6 +1,6 @@
 [package]
 name = "ui_build_script"
-version = "6.3.1"
+version = "6.3.2"
 edition = "2024"
 
 [workspace] 
