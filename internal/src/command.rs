@@ -26,33 +26,7 @@ impl CommandExt for Command {
             .with_context(|| format!("Could not get output of `{self:?}`"))?;
 
         if require_success && !output.status.success() {
-            let mut msg = format!("`{}` command failed", self.get_program().display());
-            if crate::env::enabled(crate::env::CI) {
-                msg.push('\n');
-                msg.push_str("::group::Full command and output\n");
-                write_command_and_output_fmt(&mut msg, self, &output).unwrap();
-                msg.push_str("::endgroup::");
-            } else {
-                msg.push_str("; ");
-                let result = (|| -> Result<PathBuf> {
-                    let mut tempfile =
-                        NamedTempFile::new().with_context(|| "Could not create named temp file")?;
-                    write_command_and_output_io(&mut tempfile, self, &output)?;
-                    tempfile.keep().map(|(_, path)| path).map_err(Into::into)
-                })();
-                match result {
-                    Ok(path) => write!(
-                        &mut msg,
-                        "the full command and output can be found in `{}`",
-                        path.display()
-                    ),
-                    Err(error) => write!(
-                        &mut msg,
-                        "could not write command and output to tempfile: {error}"
-                    ),
-                }
-                .unwrap();
-            }
+            let msg = failure_message(self, &output);
             bail!("{msg}");
         }
 
@@ -75,6 +49,37 @@ impl CommandExt for Command {
 
         Ok(())
     }
+}
+
+fn failure_message(command: &Command, output: &Output) -> String {
+    let mut msg = format!("`{}` command failed", command.get_program().display());
+    if crate::env::enabled(crate::env::CI) {
+        msg.push('\n');
+        msg.push_str("::group::Full command and output\n");
+        write_command_and_output_fmt(&mut msg, command, output).unwrap();
+        msg.push_str("::endgroup::");
+    } else {
+        msg.push_str("; ");
+        let result = (|| -> Result<PathBuf> {
+            let mut tempfile =
+                NamedTempFile::new().with_context(|| "Could not create named temp file")?;
+            write_command_and_output_io(&mut tempfile, command, output)?;
+            tempfile.keep().map(|(_, path)| path).map_err(Into::into)
+        })();
+        match result {
+            Ok(path) => write!(
+                &mut msg,
+                "the full command and output can be found in `{}`",
+                path.display()
+            ),
+            Err(error) => write!(
+                &mut msg,
+                "could not write command and output to tempfile: {error}"
+            ),
+        }
+        .unwrap();
+    }
+    msg
 }
 
 macro_rules! impl_write_command_and_output {
