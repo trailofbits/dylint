@@ -2258,6 +2258,14 @@
         "name": "Christian Duerr"
       }
     ],
+    "utf_types": [
+      {
+        "id": 4484,
+        "kind": "user",
+        "login": "hsivonen",
+        "name": "Henri Sivonen"
+      }
+    ],
     "vcpkg": [
       {
         "id": 362,
