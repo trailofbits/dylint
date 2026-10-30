@@ -41,7 +41,7 @@ fn new_template_inner(path: &Path) -> Result<()> {
 // smoelius: `copy_dir` is based on:
 // https://github.com/rust-lang/rustup/blob/31a98d3e5ab8990af12d8023fa1dd7038ccc2205/src/utils/raw.rs#L234-L248
 // But the version here requires `dest` to exist.
-pub(crate) fn copy_dir(src: &Path, dest: &Path) -> io::Result<()> {
+pub fn copy_dir(src: &Path, dest: &Path) -> io::Result<()> {
     for entry in src.read_dir()? {
         let entry = entry?;
         let kind = entry.file_type()?;
