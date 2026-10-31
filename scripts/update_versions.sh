@@ -15,7 +15,7 @@ WORKSPACE="$(realpath "$SCRIPTS"/..)"
 
 cd "$WORKSPACE"
 
-if ! scripts/check_CHANGELOG.sh refs/tags/v"$1"; then
+if ! scripts/check_changelog.sh refs/tags/v"$1"; then
     echo "$0: Please update CHANGELOG.md." >&2
     exit 1
 fi
