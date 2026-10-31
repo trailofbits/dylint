@@ -24,4 +24,4 @@ cd "$WORKSPACE"
 
 grep "^## $VERSION$" CHANGELOG.md
 
-scripts/lint_CHANGELOG.sh
+scripts/lint_changelog.sh
