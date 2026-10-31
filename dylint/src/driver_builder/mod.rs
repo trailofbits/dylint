@@ -12,6 +12,8 @@ use std::{
 };
 use tempfile::{NamedTempFile, tempdir};
 
+mod flock;
+
 include!(concat!(env!("OUT_DIR"), "/dylint_driver_manifest_dir.rs"));
 
 const README_TXT: &str = "
@@ -154,6 +156,9 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
     let named_temp_file =
         NamedTempFile::new_in(driver_dir).with_context(|| "Could not create temporary file")?;
 
+    let lock = flock::lock_path(driver_dir)
+        .with_context(|| format!("Could not lock `{}`", driver_dir.display()))?;
+
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     copy(&binary, &named_temp_file).with_context(|| {
         format!(
@@ -172,7 +177,12 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
         rename(&driver, &temp_path).unwrap_or_default();
     }
 
-    named_temp_file.persist(&driver)?;
+    // smoelius: Close the writable handle (via `into_temp_path`) before renaming the file and
+    // dropping the lock. If another process tries to execute the file while this one still holds a
+    // writable handle, that other process will get "Text file busy".
+    named_temp_file.into_temp_path().persist(&driver)?;
+
+    drop(lock);
 
     Ok(())
 }
