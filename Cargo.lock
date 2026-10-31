@@ -560,6 +560,7 @@ dependencies = [
  "glob",
  "heck",
  "hex",
+ "libc",
  "log",
  "once_cell",
  "rewriter",
@@ -573,6 +574,7 @@ dependencies = [
  "toml",
  "url",
  "walkdir",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
