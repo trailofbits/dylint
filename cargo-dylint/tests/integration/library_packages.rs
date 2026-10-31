@@ -1,18 +1,11 @@
 use assert_cmd::{cargo::cargo_bin_cmd, prelude::*};
 use dylint_internal::{CommandExt, env, packaging::isolate, testing::copy_dir};
 use predicates::prelude::*;
-use std::{env::remove_var, fs::OpenOptions, io::Write, path::Path};
+use std::{fs::OpenOptions, io::Write, path::Path};
 use tempfile::{tempdir, tempdir_in};
 
 // smoelius: "Separate lints into categories" commit
 const REV: &str = "402fc24351c60a3c474e786fd76aa66aa8638d55";
-
-#[ctor::ctor(unsafe)]
-fn initialize() {
-    unsafe {
-        remove_var(env::CARGO_TERM_COLOR);
-    }
-}
 
 #[test]
 fn array_pattern() {
@@ -119,8 +112,15 @@ libraries = [
 
 #[test]
 fn library_packages_in_dylint_toml() {
+    let temp_fixture = tempdir_in("../fixtures").unwrap();
+    copy_dir(
+        Path::new("../fixtures/library_packages_in_dylint_toml"),
+        temp_fixture.path(),
+    )
+    .unwrap();
+
     cargo_bin_cmd!("cargo-dylint")
-        .current_dir("../fixtures/library_packages_in_dylint_toml")
+        .current_dir(&temp_fixture)
         .args(["dylint", "--all"])
         .assert()
         .success()
@@ -129,7 +129,6 @@ fn library_packages_in_dylint_toml() {
         ));
 }
 
-#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn library_packages_with_configured_build_directory_and_dylint_link() {
     let temp_fixture = tempdir_in("../fixtures").unwrap();
