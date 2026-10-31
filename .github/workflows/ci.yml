@@ -82,22 +82,23 @@ jobs:
       - name: Install dylint-link
         run: cargo install --path ./dylint-link --features=__copy_library_disabled_by_default --force
 
+      - uses: taiki-e/install-action@v2.87.32
+        with:
+          tool: cargo-hack, cargo-nested, cargo-udeps
+
       - name: Install tools
         run: |
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
-          cargo install cargo-nested || true
           npm install -g prettier
 
       - name: Install CI tools
         if: ${{ matrix.package == 'cargo-dylint-ci' }}
         run: |
-          cargo install cargo-hack           || true
           cargo install cargo-license        || true
           cargo install cargo-msrv --locked  || true
           cargo install cargo-rdme           || true
           cargo install cargo-supply-chain   || true
-          cargo install cargo-udeps --locked || true
           cargo install cargo-unmaintained   || true
           cargo install rustdoc-prettier     || true
 
