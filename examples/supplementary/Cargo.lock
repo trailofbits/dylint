@@ -399,12 +399,14 @@ dependencies = [
  "anyhow",
  "cargo_metadata",
  "dylint_internal",
+ "libc",
  "log",
  "once_cell",
  "semver",
  "serde",
  "serde_json",
  "tempfile",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

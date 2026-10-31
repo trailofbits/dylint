@@ -21,6 +21,7 @@ fs_extra = { workspace = true, optional = true }
 glob = { workspace = true, optional = true }
 heck = { workspace = true, optional = true }
 hex = { workspace = true, optional = true }
+libc = { workspace = true }
 log = { workspace = true }
 once_cell = { workspace = true }
 rewriter = { workspace = true, optional = true }
@@ -46,6 +47,13 @@ dylint_internal = { version = "=6.3.2", path = "../internal", features = [
     "link",
     "packaging",
     "rustup",
+] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+    "Win32_System_IO",
 ] }
 
 [build-dependencies]
