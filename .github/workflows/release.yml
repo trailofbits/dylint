@@ -4,35 +4,69 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 # smoelius: Please keep keys ordered as follows when defining jobs:
 #
 # - name
 # - needs (optional)
+# - environment (optional)
 # - outputs (optional)
 # - permissions
 # - strategy (optional)
 # - runs-on
 # - steps
 #
-# Note that, ignoring `strategy`, the keys are in alphabetical order. `strategy` is an exception
-# because `runs-on` often relies on `strategy.matrix`.
+# Note that, ignoring `needs` and `strategy`, the keys are in alphabetical order.
+# - `needs` is an exception because it expresses dependencies between jobs.
+# - `strategy` is an exception because `runs-on` often relies on `strategy.matrix`.
 
 jobs:
-  check-changelog:
-    name: Check changelog
+  create-release-notes:
+    name: Create release notes
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
     permissions:
       contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
-      - name: Check CHANGELOG.md
-        run: ./scripts/check_CHANGELOG.sh "${{ github.ref }}"
+      - name: Get version
+        id: get-version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Lint CHANGELOG.md
+        run: ./scripts/lint_CHANGELOG.sh
+
+      - name: Create release notes
+        run: git log -p -1 CHANGELOG.md | grep '^+\($\|[^+]\)' | cut -c 2- | tee body.md
+
+      - name: Output summary
+        run: |
+          if [[ '${{ github.event_name }}' = 'workflow_dispatch' ]]; then
+            echo '> [!NOTE]' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Dry run'   >> "$GITHUB_STEP_SUMMARY"
+            echo             >> "$GITHUB_STEP_SUMMARY"
+          fi
+          cat body.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check release notes
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        run: grep -Fx '## ${{ steps.get-version.outputs.version }}' body.md
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-notes
+          path: body.md
+          if-no-files-found: error
 
   build-binaries:
     name: Build binaries (${{ matrix.target }})
-    needs: check-changelog
+    needs: create-release-notes
     permissions:
       contents: read
     strategy:
@@ -44,6 +78,8 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - os: macos-latest
             target: aarch64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -54,7 +90,7 @@ jobs:
       - name: Package binaries
         shell: bash
         run: |
-          set -euo pipefail
+          set -u
 
           VERSION="${GITHUB_REF_NAME#v}"
           BINARIES="cargo-dylint dylint-link"
@@ -66,7 +102,7 @@ jobs:
 
             ARCHIVE="${PACKAGE_NAME}.tar.gz"
             tar -czf "${ARCHIVE}" "${PACKAGE_NAME}"
-            shasum -a 256 "${ARCHIVE}" > "${ARCHIVE}.sha256"
+            openssl dgst -sha256 "${ARCHIVE}" > "${ARCHIVE}.sha256"
           done
 
       - name: Upload binary artifacts
@@ -83,8 +119,9 @@ jobs:
   publish:
     name: Publish
     needs: build-binaries
-    outputs:
-      version: ${{ steps.get-version.outputs.version }}
+    environment:
+      name: release
+      deployment: ${{ github.event_name != 'workflow_dispatch' }}
     permissions:
       actions: read
       contents: read
@@ -109,7 +146,7 @@ jobs:
       - name: Sign binary artifacts
         shell: bash
         run: |
-          set -euo pipefail
+          set -u
 
           MANIFESTS="cargo-dylint/Cargo.toml dylint-link/Cargo.toml"
           trap 'rm -f minisign.key minisign.pub' EXIT
@@ -134,12 +171,18 @@ jobs:
 
       - name: Publish
         run: |
-          set -euo pipefail
+          set -u
 
           # smoelius: Publishing in this order ensures that all dependencies are met.
-          DIRS="internal driver dylint-link dylint cargo-dylint utils/linting utils/testing"
+          DIRS='internal driver dylint-link dylint cargo-dylint utils/linting utils/testing'
           for DIR in $DIRS; do
-              pushd "$DIR" && (cargo publish --allow-dirty || true) && popd
+            pushd "$DIR"
+            if [[ '${{ github.event_name }}' = 'workflow_dispatch' ]]; then
+                cargo publish --allow-dirty --dry-run
+            else
+                cargo publish --allow-dirty || true
+            fi
+            popd
           done
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
@@ -147,19 +190,11 @@ jobs:
       - name: Test crates.io driver
         run: cargo test -p dylint --features=__driver_from_crates_io driver_from_crates_io -- --ignored --nocapture
 
-      - name: Get version
-        id: get-version
-        run: echo "version=${GITHUB_REF/refs\/tags\/v/}" >> "$GITHUB_OUTPUT"
-
-      - name: Create release notes
-        run: git log -p -1 CHANGELOG.md | grep '^+\($\|[^+]\)' | cut -c 2- | tee body.md
-
       - name: Upload release artifacts
         uses: actions/upload-artifact@v7
         with:
           name: release-artifacts
           path: |
-            body.md
             dist/*.tar.gz
             dist/*.sha256
             dist/*.sig
@@ -167,22 +202,29 @@ jobs:
 
   release:
     name: Release
-    needs: publish
+    needs: [create-release-notes, publish]
     permissions:
       actions: read
       contents: write
     runs-on: ubuntu-latest
     steps:
+      - name: Download release notes
+        uses: actions/download-artifact@v8
+        with:
+          name: release-notes
+
       - name: Download release artifacts
         uses: actions/download-artifact@v8
         with:
           name: release-artifacts
+          path: dist
 
       - name: Create release
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref }}
-          name: Release ${{ needs.publish.outputs.version }}
+          name: Release ${{ needs.create-release-notes.outputs.version }}
           body_path: body.md
           files: |
             dist/*.tar.gz
