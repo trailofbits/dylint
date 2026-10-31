@@ -158,8 +158,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_config"
-version = "0.1.100"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=21baba9c10c5d179915cae82e6247bc2337872fb#21baba9c10c5d179915cae82e6247bc2337872fb"
+version = "0.1.101"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=a7fb0ed8a7b593daa6fb8c3d5e161cd9e0d06fb8#a7fb0ed8a7b593daa6fb8c3d5e161cd9e0d06fb8"
 dependencies = [
  "arrayvec",
  "clippy_utils",
@@ -169,8 +169,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_lints"
-version = "0.1.100"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=21baba9c10c5d179915cae82e6247bc2337872fb#21baba9c10c5d179915cae82e6247bc2337872fb"
+version = "0.1.101"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=a7fb0ed8a7b593daa6fb8c3d5e161cd9e0d06fb8#a7fb0ed8a7b593daa6fb8c3d5e161cd9e0d06fb8"
 dependencies = [
  "arrayvec",
  "cargo_metadata",
@@ -191,8 +191,8 @@ dependencies = [
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.100"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=21baba9c10c5d179915cae82e6247bc2337872fb#21baba9c10c5d179915cae82e6247bc2337872fb"
+version = "0.1.101"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=a7fb0ed8a7b593daa6fb8c3d5e161cd9e0d06fb8#a7fb0ed8a7b593daa6fb8c3d5e161cd9e0d06fb8"
 dependencies = [
  "arrayvec",
  "itertools",
@@ -229,8 +229,8 @@ dependencies = [
 
 [[package]]
 name = "declare_clippy_lint"
-version = "0.1.100"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=21baba9c10c5d179915cae82e6247bc2337872fb#21baba9c10c5d179915cae82e6247bc2337872fb"
+version = "0.1.101"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=a7fb0ed8a7b593daa6fb8c3d5e161cd9e0d06fb8#a7fb0ed8a7b593daa6fb8c3d5e161cd9e0d06fb8"
 
 [[package]]
 name = "defmt"
@@ -749,9 +749,9 @@ checksum = "47d9d19d1d6efa0109d2f65ff4c85cddd50bd572e5a00127ab10987290bcefae"
 
 [[package]]
 name = "log"
-version = "0.4.34"
+version = "0.4.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9f8bd3e56ce4dfc153cf470fffbfa98c7620958b312ca5c3a4b8d5181fd13c6"
+checksum = "5d15f86d12da44cd8d4ec3c73984537eb7f4cadcb9776a575a0a8a05ca11005c"
 
 [[package]]
 name = "memchr"

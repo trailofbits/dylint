@@ -138,13 +138,12 @@ checksum = "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600"
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.99"
-source = "git+https://github.com/rust-lang/rust-clippy?rev=09382ed3c34e091d7705f96964e303b59978533c#09382ed3c34e091d7705f96964e303b59978533c"
+version = "0.1.100"
+source = "git+https://github.com/rust-lang/rust-clippy?rev=21baba9c10c5d179915cae82e6247bc2337872fb#21baba9c10c5d179915cae82e6247bc2337872fb"
 dependencies = [
  "arrayvec",
  "itertools",
  "rustc_apfloat",
- "serde",
 ]
 
 [[package]]
@@ -562,9 +561,9 @@ checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
 
 [[package]]
 name = "log"
-version = "0.4.34"
+version = "0.4.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9f8bd3e56ce4dfc153cf470fffbfa98c7620958b312ca5c3a4b8d5181fd13c6"
+checksum = "5d15f86d12da44cd8d4ec3c73984537eb7f4cadcb9776a575a0a8a05ca11005c"
 
 [[package]]
 name = "memchr"
