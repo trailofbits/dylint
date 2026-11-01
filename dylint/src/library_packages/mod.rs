@@ -111,12 +111,7 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
 
     let metadata = maybe_metadata.ok_or_else(|| anyhow!("Could not read cargo metadata"))?;
 
-    ensure!(
-        lib_sel.paths.len() <= 1,
-        "At most one library package can be named with `--path`"
-    );
-
-    let path = if let Some(path) = lib_sel.paths.first() {
+    let path = if let Some(path) = &lib_sel.path {
         let canonical_path = dunce::canonicalize(path)
             .with_context(|| format!("Could not canonicalize {path:?}"))?;
         Some(canonical_path.to_string_lossy().to_string())
