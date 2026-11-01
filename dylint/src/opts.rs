@@ -37,7 +37,8 @@ pub struct Dylint {
 
 /// Options mirroring the fields of the same names in `cargo-dylint`'s `LibrarySelection` struct.
 ///
-/// The deprecated [`pattern`](Self::pattern) field is retained for compatibility.
+/// The deprecated [`paths`](Self::paths) and [`pattern`](Self::pattern) fields are retained for
+/// compatibility.
 // smoelius: Please try to keep these comments in sync with the corresponding option descriptions.
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Default)]
@@ -75,6 +76,9 @@ pub struct LibrarySelection {
     pub no_metadata: bool,
 
     /// Path containing library packages.
+    pub path: Option<String>,
+
+    #[deprecated(note = "use `path`")]
     pub paths: Vec<String>,
 
     /// A subdirectory pattern to select library packages, combined with
@@ -168,13 +172,13 @@ impl Dylint {
 
 impl LibrarySelection {
     pub(crate) const fn git_or_path(&self) -> bool {
-        self.git.is_some() || !self.paths.is_empty()
+        self.git.is_some() || self.path.is_some()
     }
 
     /// Returns `true` if `all`, `libs`, or `lib_paths` indicates a library selection.
     ///
-    /// `git` and `paths` are not considered. For the `Check` and `List` operations, `run` folds
-    /// them into `all` before any caller reaches this method.
+    /// `git` and `path` are not considered. For the `Check` and `List` operations, `run` folds them
+    /// into `all` before any caller reaches this method.
     pub(crate) const fn selects_libraries(&self) -> bool {
         self.all || !self.libs.is_empty() || !self.lib_paths.is_empty()
     }
