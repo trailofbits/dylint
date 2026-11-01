@@ -81,7 +81,7 @@ jobs:
       - name: Install dylint-link
         run: cargo install --path ./dylint-link --features=__copy_library_disabled_by_default --force
 
-      - uses: taiki-e/install-action@v2.87.32
+      - uses: taiki-e/install-action@v2.88.0
         with:
           tool: cargo-hack, cargo-nested, cargo-udeps
 
