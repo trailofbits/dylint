@@ -8,7 +8,7 @@ use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
     env,
-    link::{debug_path_with_active_toolchain, debug_path_with_toolchain},
+    link::debug_path_with_active_toolchain,
     msrv,
     rustup::{SanitizeEnvironment, active_toolchain},
     testing::new_template,
@@ -18,64 +18,50 @@ use std::{
     env::join_paths,
     path::{Path, PathBuf},
 };
-use tempfile::tempdir;
+use tempfile::{tempdir, tempdir_in};
 
 #[test]
 fn one_name_multiple_toolchains() {
-    let tempdir = tempdir().unwrap();
+    let root = tempdir().unwrap();
 
-    new_template(tempdir.path()).unwrap();
+    let tempdirs = (tempdir_in(&root).unwrap(), tempdir_in(&root).unwrap());
+
+    new_template(tempdirs.0.path()).unwrap();
+    new_template(tempdirs.1.path()).unwrap();
 
     patch_dylint_template(
-        tempdir.path(),
+        tempdirs.0.path(),
         msrv::MSRV_CHANNEL,
         msrv::MSRV_CLIPPY_UTILS_REV,
     )
     .unwrap();
-    let msrv_toolchain = active_toolchain(tempdir.path()).unwrap();
-    dylint_internal::cargo::build(&format!(
-        "dylint-template with channel `{}`",
-        msrv::MSRV_CHANNEL
-    ))
-    .build()
-    .sanitize_environment()
-    .env(env::DYLINT_BUILDING_LIBRARIES, "1")
-    .current_dir(&tempdir)
-    .success()
-    .unwrap();
-    let _: PathBuf =
-        debug_path_with_toolchain(tempdir.path(), "fill_me_in", &msrv_toolchain).unwrap();
+    let msrv_toolchain = active_toolchain(tempdirs.0.path()).unwrap();
 
     patch_dylint_template(
-        tempdir.path(),
+        tempdirs.1.path(),
         msrv::MSRV_PLUS_1_CHANNEL,
         msrv::MSRV_PLUS_1_CLIPPY_UTILS_REV,
     )
     .unwrap();
-    let msrv_plus_1_toolchain = active_toolchain(tempdir.path()).unwrap();
-    dylint_internal::cargo::build(&format!(
-        "dylint-template with channel `{}`",
-        msrv::MSRV_PLUS_1_CHANNEL
-    ))
-    .build()
-    .sanitize_environment()
-    .env(env::DYLINT_BUILDING_LIBRARIES, "1")
-    .current_dir(&tempdir)
-    .success()
-    .unwrap();
-    let _: PathBuf =
-        debug_path_with_toolchain(tempdir.path(), "fill_me_in", &msrv_plus_1_toolchain).unwrap();
+    let msrv_plus_1_toolchain = active_toolchain(tempdirs.1.path()).unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         // smoelius: A toolchain can fail when it shares a target directory with another toolchain.
         // Setting `CARGO_INCREMENTAL` to 0 avoids this problem, but it is a band-aid. I need to
         // investigate ways of determining the toolchain used to produce a target directory.
-        .env(env::CARGO_INCREMENTAL, "0")
-        .env(
-            env::DYLINT_LIBRARY_PATH,
-            target_debug(tempdir.path()).unwrap(),
-        )
-        .args(["dylint", "list", "--all", "--no-metadata"])
+        // smoelius: This test used to put both libraries in the same target directory and set
+        // `DYLINT_LIBRARY_PATH` to that target directory. However, the test no longer works that
+        // way.
+        // .env(env::CARGO_INCREMENTAL, "0")
+        // .env(
+        //     env::DYLINT_LIBRARY_PATH,
+        //     target_debug(tempdir.path()).unwrap(),
+        // )
+        .args([
+            "dylint",
+            "list",
+            &format!("--path={}/*", root.path().display()),
+        ])
         .assert()
         .success()
         .stdout(
@@ -83,6 +69,8 @@ fn one_name_multiple_toolchains() {
                 predicate::str::contains(format!("fill_me_in@{msrv_plus_1_toolchain}")),
             ),
         );
+
+    drop(root);
 }
 
 fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> Result<()> {
@@ -182,6 +170,18 @@ fn opts_library_package() {
             predicate::str::contains("fill_me_in")
                 .not()
                 .and(predicate::str::contains("crate_wide_allow")),
+        );
+}
+
+#[test]
+fn opts_library_package_with_wildcard() {
+    cargo_bin_cmd!("cargo-dylint")
+        .args(["dylint", "list", "--path=../examples/testing/*"])
+        .assert()
+        .success()
+        .stdout(
+            predicate::str::contains("clippy::absolute_paths")
+                .and(predicate::str::contains("straggler")),
         );
 }
 
