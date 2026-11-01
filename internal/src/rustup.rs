@@ -178,6 +178,20 @@ const ARCHITECTURES: &[&str] = &[
     "xtensa",
 ];
 
+pub fn parse_channel_as_nightly(channel: &str) -> Option<[u32; 3]> {
+    channel.strip_prefix("nightly-").and_then(parse_date)
+}
+
+fn parse_date(date_str: &str) -> Option<[u32; 3]> {
+    date_str
+        .split('-')
+        .map(str::parse::<u32>)
+        .map(Result::ok)
+        .collect::<Option<Vec<_>>>()
+        .map(<[u32; 3]>::try_from)
+        .and_then(Result::ok)
+}
+
 #[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {

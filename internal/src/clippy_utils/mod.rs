@@ -7,7 +7,7 @@ use std::{
 use toml_edit::{DocumentMut, Item, Value};
 
 mod repository;
-pub use repository::{clippy_repository, parse_as_nightly};
+pub use repository::clippy_repository;
 
 mod revs_no_preinstall;
 pub use revs_no_preinstall::{Rev, Revs};
