@@ -161,7 +161,7 @@ struct LibrarySelection {
     #[clap(
         long,
         value_name = "URL",
-        conflicts_with("paths"),
+        conflicts_with("path"),
         help = "Git url containing library packages"
     )]
     git: Option<String>,
@@ -202,14 +202,12 @@ struct LibrarySelection {
     no_metadata: bool,
 
     #[clap(
-        action = ArgAction::Append,
-        number_of_values = 1,
-        long = "path",
+        long,
         value_name = "PATH",
         conflicts_with("git"),
         help = "Path containing library packages"
     )]
-    paths: Vec<String>,
+    path: Option<String>,
 
     #[clap(
         action = ArgAction::Append,
@@ -339,7 +337,7 @@ impl LibrarySelection {
             manifest_path,
             no_build,
             no_metadata,
-            paths,
+            path,
             patterns,
             rev,
             tag,
@@ -353,7 +351,7 @@ impl LibrarySelection {
         option_absorb!(&mut self.manifest_path, manifest_path);
         self.no_build |= no_build;
         self.no_metadata |= no_metadata;
-        self.paths.extend(paths);
+        option_absorb!(&mut self.path, path);
         self.patterns.extend(patterns);
         option_absorb!(&mut self.rev, rev);
         option_absorb!(&mut self.tag, tag);
@@ -372,7 +370,7 @@ impl From<LibrarySelection> for dylint::opts::LibrarySelection {
             manifest_path,
             no_build,
             no_metadata,
-            paths,
+            path,
             patterns,
             rev,
             tag,
@@ -388,7 +386,8 @@ impl From<LibrarySelection> for dylint::opts::LibrarySelection {
             manifest_path,
             no_build,
             no_metadata,
-            paths,
+            path,
+            paths: Vec::new(),
             pattern: None,
             patterns,
             rev,
