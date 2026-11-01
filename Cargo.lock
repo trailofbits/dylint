@@ -553,7 +553,6 @@ dependencies = [
  "cargo-util-schemas",
  "cargo_metadata",
  "chrono",
- "dunce",
  "dylint_internal",
  "env_logger",
  "fs_extra",

@@ -11,7 +11,7 @@ use dylint_internal::{
 use glob::glob;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, de::IntoDeserializer};
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf, absolute};
 
 #[cfg(feature = "__cargo_cli")]
 #[path = "cargo_cli/mod.rs"]
@@ -111,15 +111,14 @@ pub fn from_opts(opts: &opts::Dylint) -> Result<Vec<Package>> {
 
     let metadata = maybe_metadata.ok_or_else(|| anyhow!("Could not read cargo metadata"))?;
 
-    ensure!(
-        lib_sel.paths.len() <= 1,
-        "At most one library package can be named with `--path`"
-    );
-
-    let path = if let Some(path) = lib_sel.paths.first() {
-        let canonical_path = dunce::canonicalize(path)
-            .with_context(|| format!("Could not canonicalize {path:?}"))?;
-        Some(canonical_path.to_string_lossy().to_string())
+    let path = if let Some(path) = &lib_sel.path {
+        // smoelius: Make `path` absolute so that it is not later considered relative to the
+        // workspace root. Also, use `absolute` rather than `canonicalize` because `path` could
+        // contain a `glob` pattern (e.g., `*`), i.e., Dylint allows `path` entries to contain
+        // `glob` patterns.
+        let absolute_path =
+            absolute(path).with_context(|| format!("Could not make `{path}` absolute"))?;
+        Some(absolute_path.to_string_lossy().to_string())
     } else {
         None
     };
