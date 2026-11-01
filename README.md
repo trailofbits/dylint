@@ -257,23 +257,23 @@ Helpful resources for writing lints include the following:
 [Crate `rustc_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 [Crate `rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
 [Features]: #features
-[Field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#structfield.tcx
+[Field `tcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/context/struct.LateContext.html#structfield.tcx
 [Guide to Rustc Development]: https://rustc-dev-guide.rust-lang.org/
 [How Dylint works]: ./docs/how_dylint_works.md
 [Library requirements]: ./docs/how_dylint_works.md#library-requirements
 [Method `hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.hir
-[Method `typeck_results`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html#method.typeck_results
+[Method `typeck_results`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/context/struct.LateContext.html#method.typeck_results
 [Quick start]: #quick-start
 [Resources]: #resources
 [Running Dylint]: #running-dylint
 [Rust - Cargo guidance]: https://github.com/actions/cache/blob/b9bf592b98b6a5d0cad9929c76247de1cac78abe/examples.md#rust---cargo
-[Struct `rustc_lint::LateContext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LateContext.html
+[Struct `rustc_lint::LateContext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/context/struct.LateContext.html
 [Test coverage]: https://trailofbits.github.io/dylint/coverage/index.html
 [Utilities]: #utilities
 [VS Code integration]: #vs-code-integration
 [Workspace metadata]: #workspace-metadata
 [Writing lints]: #writing-lints
-[`LateLintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/trait.LateLintPass.html
+[`LateLintPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/passes/trait.LateLintPass.html
 [`abs_home_path`]: ./examples/general/abs_home_path
 [`bc16236`]: https://github.com/trailofbits/dylint/commit/bc16236fb34c3f98139d2dad469e6a7de179d68d
 [`clippy_utils`]: https://github.com/rust-lang/rust-clippy/tree/main/clippy_utils
