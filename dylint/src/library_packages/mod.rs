@@ -23,7 +23,7 @@ type Object = serde_json::Map<String, serde_json::Value>;
 
 #[derive(Clone, Debug)]
 pub struct Package {
-    /// [`Metadata`] of the workspace bing linted
+    /// [`Metadata`] of the workspace being linted
     ///
     /// Caching a reference to the [`Metadata`] here ensures that it existed when the package was
     /// created.
