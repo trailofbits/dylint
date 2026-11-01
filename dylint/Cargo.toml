@@ -16,7 +16,6 @@ cargo-util = { workspace = true, optional = true }
 cargo-util-schemas = { workspace = true, optional = true }
 cargo_metadata = { workspace = true }
 chrono = { workspace = true, optional = true }
-dunce = { workspace = true, optional = true }
 fs_extra = { workspace = true, optional = true }
 glob = { workspace = true, optional = true }
 heck = { workspace = true, optional = true }
@@ -83,7 +82,6 @@ package_options = [
 __cargo_cli = [
     "cargo-util",
     "cargo-util-schemas",
-    "dunce",
     "dylint_internal/home",
     "fs_extra",
     "glob",

@@ -252,6 +252,18 @@ fn list_by_path() {
         .stderr(predicate::str::contains("No library packages found in "));
 }
 
+#[test]
+fn list_by_path_with_wildcard() {
+    cargo_bin_cmd!("cargo-dylint")
+        .args(["dylint", "list", "--path=../examples/testing/*"])
+        .assert()
+        .success()
+        .stdout(
+            predicate::str::contains("clippy::absolute_paths")
+                .and(predicate::str::contains("straggler")),
+        );
+}
+
 /// Returns the canonical path to the `target/debug` directory of the package at `dir`.
 // smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is
 // symlinked to `/private/var`.
