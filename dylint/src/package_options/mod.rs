@@ -2,11 +2,12 @@ use crate::opts;
 use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
     clippy_utils::{
-        Revs, clippy_utils_version_from_rust_version, parse_as_nightly, read_rust_toolchain_file,
+        Revs, clippy_utils_version_from_rust_version, read_rust_toolchain_file,
         set_clippy_utils_dependency_revision, set_toolchain_channel, toolchain_channel,
     },
     find_and_replace,
     packaging::new_template,
+    rustup::parse_channel_as_nightly,
 };
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use rewriter::Backup;
@@ -130,8 +131,8 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
     let old_channel = toolchain_channel(path)?;
 
     if !upgrade_opts.allow_downgrade
-        && let Some(new_nightly) = parse_as_nightly(&rev.channel)
-        && let Some(old_nightly) = parse_as_nightly(&old_channel)
+        && let Some(new_nightly) = parse_channel_as_nightly(&rev.channel)
+        && let Some(old_nightly) = parse_channel_as_nightly(&old_channel)
         && new_nightly < old_nightly
     {
         bail!(

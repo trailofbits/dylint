@@ -1,8 +1,8 @@
 use anyhow::{Result, anyhow, bail};
 use chrono::{LocalResult, TimeZone, Utc};
 use dylint_internal::{
-    clippy_utils::parse_as_nightly,
     git2::{Commit, Diff, DiffOptions, Oid, Patch, Repository, Time},
+    rustup::parse_channel_as_nightly,
 };
 use std::ffi::OsStr;
 
@@ -29,7 +29,7 @@ pub(super) fn collect_commits<'repo>(
 }
 
 fn channel_to_time(channel: &str) -> Result<Time> {
-    let [year, month, day] = parse_as_nightly(channel)
+    let [year, month, day] = parse_channel_as_nightly(channel)
         .ok_or_else(|| anyhow!("Channel has unexpected format: {channel}"))?;
     let year_i32 = i32::try_from(year)?;
     let LocalResult::Single(date) = Utc.with_ymd_and_hms(year_i32, month, day, 0, 0, 0) else {

@@ -1,8 +1,8 @@
 use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
-    clippy_utils::{Rev, Revs, clippy_repository, parse_as_nightly},
+    clippy_utils::{Rev, Revs, clippy_repository},
     env,
-    rustup::parse_toolchain,
+    rustup::{parse_channel_as_nightly, parse_toolchain},
 };
 use git2::Oid;
 use proc_macro2::TokenTree;
@@ -14,11 +14,7 @@ use std::{
 };
 use syn::{Item, ItemMacro, Macro, parse_file};
 
-const SINCE: [u32; 3] = [2025, 5, 6];
-
-const I_YEAR: usize = 0;
-const I_MONTH: usize = 1;
-const I_DAY: usize = 2;
+const EXTRA_SYMBOLS_SINCE: [u32; 3] = [2025, 5, 6];
 
 pub fn build() -> Result<()> {
     let out_dir = env::var(env::OUT_DIR)?;
@@ -60,14 +56,11 @@ fn clippy_utils_has_extra_symbols(rustup_toolchain: &str) -> Result<Option<Strin
         return Ok(None);
     }
 
-    let Some([year, month, day]) = parse_as_nightly(&channel) else {
+    let Some(date) = parse_channel_as_nightly(&channel) else {
         return Ok(None);
     };
 
-    if (year < SINCE[I_YEAR])
-        || (year == SINCE[I_YEAR] && month < SINCE[I_MONTH])
-        || (year == SINCE[I_YEAR] && month == SINCE[I_MONTH] && day < SINCE[I_DAY])
-    {
+    if date < EXTRA_SYMBOLS_SINCE {
         return Ok(None);
     }
 
