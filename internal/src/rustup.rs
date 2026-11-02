@@ -178,7 +178,7 @@ const ARCHITECTURES: &[&str] = &[
     "xtensa",
 ];
 
-pub fn parse_as_nightly(channel: &str) -> Option<[u32; 3]> {
+pub fn parse_channel_as_nightly(channel: &str) -> Option<[u32; 3]> {
     channel.strip_prefix("nightly-").and_then(parse_date)
 }
 

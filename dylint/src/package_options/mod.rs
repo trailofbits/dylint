@@ -7,7 +7,7 @@ use dylint_internal::{
     },
     find_and_replace,
     packaging::new_template,
-    rustup::parse_as_nightly,
+    rustup::parse_channel_as_nightly,
 };
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use rewriter::Backup;
@@ -131,8 +131,8 @@ pub fn upgrade_package(opts: &opts::Dylint, upgrade_opts: &opts::Upgrade) -> Res
     let old_channel = toolchain_channel(path)?;
 
     if !upgrade_opts.allow_downgrade
-        && let Some(new_nightly) = parse_as_nightly(&rev.channel)
-        && let Some(old_nightly) = parse_as_nightly(&old_channel)
+        && let Some(new_nightly) = parse_channel_as_nightly(&rev.channel)
+        && let Some(old_nightly) = parse_channel_as_nightly(&old_channel)
         && new_nightly < old_nightly
     {
         bail!(
