@@ -1,8 +1,8 @@
 use anyhow::{Result, anyhow, bail};
 use chrono::{LocalResult, TimeZone, Utc};
 use dylint_internal::{
-    clippy_utils::parse_as_nightly,
     git2::{Commit, Diff, DiffOptions, Oid, Patch, Repository, Time},
+    rustup::parse_as_nightly,
 };
 use std::ffi::OsStr;
 

@@ -1,8 +1,8 @@
 use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
-    clippy_utils::{Rev, Revs, clippy_repository, parse_as_nightly},
+    clippy_utils::{Rev, Revs, clippy_repository},
     env,
-    rustup::parse_toolchain,
+    rustup::{parse_as_nightly, parse_toolchain},
 };
 use git2::Oid;
 use proc_macro2::TokenTree;

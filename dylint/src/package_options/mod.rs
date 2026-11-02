@@ -2,11 +2,12 @@ use crate::opts;
 use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
     clippy_utils::{
-        Revs, clippy_utils_version_from_rust_version, parse_as_nightly, read_rust_toolchain_file,
+        Revs, clippy_utils_version_from_rust_version, read_rust_toolchain_file,
         set_clippy_utils_dependency_revision, set_toolchain_channel, toolchain_channel,
     },
     find_and_replace,
     packaging::new_template,
+    rustup::parse_as_nightly,
 };
 use heck::{ToKebabCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use rewriter::Backup;
