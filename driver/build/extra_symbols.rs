@@ -2,7 +2,7 @@ use anyhow::{Context, Result, anyhow, bail};
 use dylint_internal::{
     clippy_utils::{Rev, Revs, clippy_repository},
     env,
-    rustup::{parse_as_nightly, parse_toolchain},
+    rustup::{parse_channel_as_nightly, parse_toolchain},
 };
 use git2::Oid;
 use proc_macro2::TokenTree;
@@ -56,7 +56,7 @@ fn clippy_utils_has_extra_symbols(rustup_toolchain: &str) -> Result<Option<Strin
         return Ok(None);
     }
 
-    let Some(date) = parse_as_nightly(&channel) else {
+    let Some(date) = parse_channel_as_nightly(&channel) else {
         return Ok(None);
     };
 
