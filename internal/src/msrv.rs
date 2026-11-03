@@ -21,23 +21,26 @@
 // smoelius: `zmij v1.0.1` requires Rust 1.88. However, `zmij`'s build script considers
 // nightly-2025-04-22 Rust 1.88. Hence, the MSRV must be bumped to 1.89.
 // smoelius: `cargo-platform@0.3.3` requires rustc 1.91.
-pub const MSRV: &str = "1.91.0";
+// smoelius: Bump MSRV to get: https://github.com/rust-lang/rust/pull/158410
+pub const MSRV: &str = "1.98.0";
 
-/// The channel Clippy was using when it switched to 0.[`MSRV`].
+/// The channel Clippy was using when it switched to two patch versions more than 0.[`MSRV`].
 ///
-/// Note that this is not the channel when Rust switched to [`MSRV`].
-pub const MSRV_CHANNEL: &str = "nightly-2025-08-07";
+/// Note that Clippy versions tend to be two patch versions more than 0.<rust-version>.
+pub const MSRV_CHANNEL: &str = "nightly-2026-08-20";
 
-/// The `clippy_utils` Git OID (commit hash) for [`MSRV`].
-pub const MSRV_CLIPPY_UTILS_REV: &str = "334fb906aef13d20050987b13448f37391bb97a2";
+/// The `clippy_utils` Git OID (commit hash) when Clippy switched to two patch versions more than
+/// 0.[`MSRV`].
+pub const MSRV_CLIPPY_UTILS_REV: &str = "21baba9c10c5d179915cae82e6247bc2337872fb";
 
 /// The minimum supported Rust version plus one minor version.
-pub const MSRV_PLUS_1: &str = "1.92.0";
+pub const MSRV_PLUS_1: &str = "1.99.0";
 
-/// The channel Clippy was using when it switched to 0.[`MSRV_PLUS_1`].
+/// The channel Clippy was using when it switched to two patch versions more than 0.[`MSRV_PLUS_1`].
 ///
-/// Note that this is not the channel when Rust switched to [`MSRV_PLUS_1`].
-pub const MSRV_PLUS_1_CHANNEL: &str = "nightly-2025-09-18";
+/// Note that Clippy versions tend to be two patch versions more than 0.<rust-version>.
+pub const MSRV_PLUS_1_CHANNEL: &str = "nightly-2026-10-01";
 
-/// The `clippy_utils` Git OID (commit hash) for [`MSRV_PLUS_1`].
-pub const MSRV_PLUS_1_CLIPPY_UTILS_REV: &str = "20ce69b9a63bcd2756cd906fe0964d1e901e042a";
+/// The `clippy_utils` Git OID (commit hash) when Clippy switched to two patch versions more than
+/// 0.[`MSRV_PLUS_1`].
+pub const MSRV_PLUS_1_CLIPPY_UTILS_REV: &str = "a7fb0ed8a7b593daa6fb8c3d5e161cd9e0d06fb8";
