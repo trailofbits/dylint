@@ -3,7 +3,7 @@
 // #![cfg(not(coverage))]
 
 use anyhow::{Context, Result};
-use assert_cmd::cargo::cargo_bin_cmd;
+use assert_cmd::{assert::OutputAssertExt, cargo::cargo_bin_cmd};
 use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
@@ -233,6 +233,42 @@ fn opts_library_package_with_wildcard() {
             predicate::str::contains("clippy::absolute_paths")
                 .and(predicate::str::contains("straggler")),
         );
+}
+
+#[test]
+fn output_path_collision() {
+    let manifest_dir = tempdir().unwrap();
+
+    std::process::Command::new("cargo")
+        .current_dir(&manifest_dir)
+        .args([
+            "init",
+            "--name",
+            manifest_dir
+                .path()
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .trim_start_matches('.'),
+        ])
+        .assert()
+        .success();
+
+    let tempdirs = (tempdir().unwrap(), tempdir().unwrap());
+
+    new_template(tempdirs.0.path()).unwrap();
+    new_template(tempdirs.1.path()).unwrap();
+
+    append_workspace_metadata(manifest_dir.path(), [tempdirs.0.path(), tempdirs.1.path()]).unwrap();
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&manifest_dir)
+        .args(["dylint", "list", "--all"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "Error: Multiple libraries would use the same output path",
+        ));
 }
 
 // smoelius: Once `DYLINT_LIBRARY_PATH` is removed, this test will need to go away or be adjusted.
