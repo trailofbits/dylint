@@ -86,13 +86,20 @@ fn depinfo_dylint_toml() {
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();
 
+    let path_spec = toml::Value::String(
+        concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../examples/supplementary/unnamed_constant"
+        )
+        .to_owned(),
+    );
+
     write!(
         file,
-        r#"
+        r"
 [[workspace.metadata.dylint.libraries]]
-path = "{}/../examples/supplementary/unnamed_constant"
-"#,
-        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
+path = {path_spec}
+"
     )
     .unwrap();
 

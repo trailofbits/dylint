@@ -7,7 +7,7 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/trailofbits/dylint"
 # This should match `dylint_internal::msrv::MSRV`.
-rust-version = "1.91"
+rust-version = "1.98"
 
 [dependencies]
 anstyle = { workspace = true }
@@ -37,7 +37,7 @@ syntect = { workspace = true, features = [
     "parsing",
 ], optional = true }
 tempfile = { workspace = true }
-toml = { workspace = true, optional = true }
+toml = { workspace = true }
 url = { workspace = true, optional = true }
 walkdir = { workspace = true, optional = true }
 
@@ -90,7 +90,6 @@ __cargo_cli = [
     "hex",
     "rustc-stable-hash",
     "serde-untagged",
-    "toml",
     "url",
 ]
 __driver_from_crates_io = []

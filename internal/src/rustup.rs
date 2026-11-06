@@ -196,7 +196,7 @@ fn parse_date(date_str: &str) -> Option<[u32; 3]> {
 #[cfg(test)]
 mod tests {
     use super::{ARCHITECTURES, Command, is_rustc, parse_active_toolchain};
-    use assert_cmd::prelude::*;
+    use assert_cmd::output::OutputOkExt;
 
     #[test]
     fn rustc_is_rustc() {

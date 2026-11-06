@@ -35,10 +35,7 @@ fn write_dylint_driver_manifest_dir() {
             path_buf.display()
         );
 
-        format!(
-            r#"Some("{}")"#,
-            path_buf.to_string_lossy().replace('\\', "\\\\")
-        )
+        format!("Some({:?})", path_buf.to_string_lossy())
     };
 
     let mut file = OpenOptions::new()

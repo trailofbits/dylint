@@ -193,7 +193,7 @@ fn initialize(toolchain: &str, package: &Path) -> Result<()> {
     let version_spec = concat!("version = \"=", env!("CARGO_PKG_VERSION"), "\"");
 
     let path_spec = DYLINT_DRIVER_MANIFEST_DIR.map_or(String::new(), |path| {
-        format!(", path = \"{}\"", path.replace('\\', "\\\\"))
+        format!(", path = {}", toml::Value::String(path.to_owned()))
     });
 
     let dylint_driver_spec = format!("{version_spec}{path_spec}");

@@ -11,7 +11,7 @@ use dylint_internal::{
     rustup::SanitizeEnvironment,
 };
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     env::{consts, current_dir},
     ffi::OsStr,
     fs::{OpenOptions, read},
@@ -60,6 +60,8 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
             opts::Operation::Check(_) | opts::Operation::List(_)
         ) {
             let lib_sel = opts.library_selection_mut();
+
+            migrate_deprecated_paths(lib_sel)?;
 
             // smoelius: Use of `--git` or `--path` implies `--all`.
             //
@@ -124,6 +126,23 @@ pub fn run(opts: &opts::Dylint) -> Result<()> {
             package_options::upgrade_package(&opts, upgrade_opts)
         }
     }
+}
+
+#[allow(deprecated)]
+fn migrate_deprecated_paths(lib_sel: &mut opts::LibrarySelection) -> Result<()> {
+    let mut paths = lib_sel.paths.split_off(0).into_iter();
+
+    let paths_first = paths.next();
+
+    if (lib_sel.path.is_some() && paths_first.is_some()) || paths.next().is_some() {
+        bail!("At most one library package can be named with `--path`");
+    }
+
+    if lib_sel.path.is_none() {
+        lib_sel.path = paths_first;
+    }
+
+    Ok(())
 }
 
 fn run_with_name_toolchain_map(
@@ -220,6 +239,8 @@ fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result
 
         for other in name_toolchain_map.values() {
             for (toolchain, maybe_libraries) in other {
+                detect_collisions(maybe_libraries)?;
+
                 let paths = maybe_libraries
                     .iter()
                     .map(|maybe_library| maybe_library.build(opts))
@@ -246,6 +267,21 @@ fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result
     }
 
     Ok(toolchain_map)
+}
+
+fn detect_collisions<'a>(
+    maybe_libraries: impl IntoIterator<Item = &'a MaybeLibrary>,
+) -> Result<()> {
+    let mut paths = BTreeSet::new();
+    for maybe_library in maybe_libraries {
+        let path = maybe_library.path();
+        ensure!(
+            paths.insert(path.clone()),
+            "Multiple libraries would use the same output path `{}`",
+            path.display()
+        );
+    }
+    Ok(())
 }
 
 pub fn name_as_lib(
@@ -482,6 +518,9 @@ fn list_lints(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
 
 fn display_location(path: &Path) -> Result<String> {
     let current_dir = current_dir().with_context(|| "Could not get current directory")?;
+    let current_dir_canonicalized = current_dir
+        .canonicalize()
+        .with_context(|| format!("Could not canonicalize `{}`", current_dir.display()))?;
     let Ok(path_buf) = path.canonicalize() else {
         return Ok("<unbuilt>".to_owned());
     };
@@ -489,7 +528,7 @@ fn display_location(path: &Path) -> Result<String> {
         .parent()
         .ok_or_else(|| anyhow!("Could not get parent directory"))?;
     Ok(parent
-        .strip_prefix(&current_dir)
+        .strip_prefix(&current_dir_canonicalized)
         .unwrap_or(parent)
         .to_string_lossy()
         .to_string())
@@ -545,10 +584,55 @@ mod tests {
     use super::*;
     use std::sync::Mutex;
 
-    // smoelius: With the upgrade to nightly-2023-03-10, I started running into this:
-    // https://github.com/rust-lang/rustup/issues/988
-    // The easiest solution is to just run the tests sequentially.
-    static MUTEX: Mutex<()> = Mutex::new(());
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_unhandled_error))]
+    #[test]
+    #[allow(deprecated)]
+    fn deprecated_paths_are_migrated() {
+        let mut lib_sel = opts::LibrarySelection {
+            paths: vec![String::from("library")],
+            ..Default::default()
+        };
+
+        migrate_deprecated_paths(&mut lib_sel).unwrap();
+
+        assert_eq!(Some("library"), lib_sel.path.as_deref());
+        assert_eq!(&[] as &[String], lib_sel.paths);
+    }
+
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_unhandled_error))]
+    #[test]
+    #[allow(deprecated)]
+    fn multiple_deprecated_paths_are_rejected() {
+        let mut lib_sel = opts::LibrarySelection {
+            paths: vec![String::from("first"), String::from("second")],
+            ..Default::default()
+        };
+
+        let error = migrate_deprecated_paths(&mut lib_sel).unwrap_err();
+
+        assert_eq!(
+            "At most one library package can be named with `--path`",
+            error.to_string()
+        );
+    }
+
+    #[cfg_attr(dylint_lib = "general", allow(non_local_effect_before_unhandled_error))]
+    #[test]
+    #[allow(deprecated)]
+    fn path_and_deprecated_path_are_rejected() {
+        let mut lib_sel = opts::LibrarySelection {
+            path: Some(String::from("path")),
+            paths: vec![String::from("paths")],
+            ..Default::default()
+        };
+
+        let error = migrate_deprecated_paths(&mut lib_sel).unwrap_err();
+
+        assert_eq!(
+            "At most one library package can be named with `--path`",
+            error.to_string()
+        );
+    }
 
     static OPTS: LazyLock<opts::Dylint> = LazyLock::new(|| opts::Dylint {
         operation: opts::Operation::Check(opts::Check {
@@ -573,8 +657,8 @@ mod tests {
 
             let mut opts = OPTS.clone();
             let lib_sel = opts.library_selection_mut();
-            lib_sel.paths =
-                vec![concat!(env!("CARGO_MANIFEST_DIR"), "/../examples/general").to_owned()];
+            lib_sel.path =
+                Some(concat!(env!("CARGO_MANIFEST_DIR"), "/../examples/general").to_owned());
             lib_sel.pattern = Some(String::from("abs_home_path"));
             lib_sel.patterns = patterns.clone();
 
@@ -588,6 +672,11 @@ mod tests {
             assert_eq!(expected, actual);
         }
     }
+
+    // smoelius: With the upgrade to nightly-2023-03-10, I started running into this:
+    // https://github.com/rust-lang/rustup/issues/988
+    // The easiest solution is to just run the tests sequentially.
+    static MUTEX: Mutex<()> = Mutex::new(());
 
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]

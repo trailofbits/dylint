@@ -1,9 +1,11 @@
-use crate::{CommandExt, rustup::SanitizeEnvironment};
+use crate::{CommandExt, find_and_replace, rustup::SanitizeEnvironment};
 use anyhow::{Result, bail};
+use cargo_metadata::{Dependency, semver::Version};
 use std::{
     env::consts,
     fs, io,
     path::{Path, PathBuf},
+    process::Command,
     sync::LazyLock,
 };
 use tempfile::tempdir;
@@ -57,6 +59,22 @@ pub fn copy_dir(src: &Path, dest: &Path) -> io::Result<()> {
     Ok(())
 }
 
+pub fn new_filled_in_template(cargo_dylint: &Path, path: &Path, name: &str) -> Result<PathBuf> {
+    let path_buf = path.join(name);
+
+    Command::new(cargo_dylint)
+        .args(["dylint", "new", &path_buf.to_string_lossy(), "--isolate"])
+        .success()?;
+
+    check_dylint_dependencies(&path_buf)?;
+
+    crate::packaging::use_local_dylint_linting(&path_buf)?;
+
+    allow_unused_extern_crates(&path_buf)?;
+
+    Ok(path_buf)
+}
+
 /// Debug-builds `cargo-dylint` and returns a path to the resulting executable
 ///
 /// To run the executable from a test, the likely easiest way is to pass
@@ -81,6 +99,34 @@ pub fn cargo_dylint() -> Result<PathBuf> {
         .join(format!("cargo-dylint{}", consts::EXE_SUFFIX));
 
     Ok(cargo_dylint)
+}
+
+fn check_dylint_dependencies(dir: &Path) -> Result<()> {
+    let metadata = crate::cargo::metadata(dir)?;
+    for package in metadata.packages {
+        for Dependency { name: dep, req, .. } in &package.dependencies {
+            if dep.starts_with("dylint") {
+                if package.name.as_str() == "filled_in" {
+                    let version = Version::parse(env!("CARGO_PKG_VERSION")).unwrap();
+                    assert!(req.matches(&version));
+                } else {
+                    assert_eq!("^".to_owned() + env!("CARGO_PKG_VERSION"), req.to_string());
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+// smoelius: `allow_unused_extern_crates` is essentially the inverse of the `find_and_replace` in
+// `dylint::package_options::new_package`. That is, the line that was uncommented gets recommented.
+// This is a hack, but it affects only one test, and only its ui.
+fn allow_unused_extern_crates(path: &Path) -> Result<()> {
+    find_and_replace(
+        &path.join("src/lib.rs"),
+        r"(?m)^(#!\[warn\(unused_extern_crates\)\])$",
+        "// ${1}",
+    )
 }
 
 #[cfg(test)]

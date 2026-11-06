@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use assert_cmd::{cargo::cargo_bin_cmd, prelude::*};
+use assert_cmd::{assert::OutputAssertExt, cargo::cargo_bin_cmd};
 use std::{
     fs::{OpenOptions, read_to_string, write},
     io::Write,
@@ -72,26 +72,22 @@ fn append_workspace_metadata(path: &Path) -> Result<()> {
         .parent()
         .ok_or_else(|| anyhow!("Could not get parent directory"))?;
 
-    let path_spec = parent
-        .join("examples")
-        .join(CATEGORY)
-        .join(LIB_NAME)
-        .to_string_lossy()
-        .replace('\\', "\\\\");
+    let path_spec = parent.join("examples").join(CATEGORY).join(LIB_NAME);
 
-    writeln!(file, "{}", workspace_metadata(&path_spec))
+    writeln!(file, "{}", workspace_metadata(&path_spec.to_string_lossy()))
         .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
 
     Ok(())
 }
 
 fn workspace_metadata(path_spec: &str) -> String {
+    let path_spec = toml::Value::String(path_spec.to_owned());
     format!(
-        r#"
+        r"
 [workspace.metadata.dylint]
 libraries = [
-    {{ path = "{path_spec}" }},
+    {{ path = {path_spec} }},
 ]
-"#,
+",
     )
 }
