@@ -518,6 +518,9 @@ fn list_lints(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
 
 fn display_location(path: &Path) -> Result<String> {
     let current_dir = current_dir().with_context(|| "Could not get current directory")?;
+    let current_dir_canonicalized = current_dir
+        .canonicalize()
+        .with_context(|| format!("Could not canonicalize `{}`", current_dir.display()))?;
     let Ok(path_buf) = path.canonicalize() else {
         return Ok("<unbuilt>".to_owned());
     };
@@ -525,7 +528,7 @@ fn display_location(path: &Path) -> Result<String> {
         .parent()
         .ok_or_else(|| anyhow!("Could not get parent directory"))?;
     Ok(parent
-        .strip_prefix(&current_dir)
+        .strip_prefix(&current_dir_canonicalized)
         .unwrap_or(parent)
         .to_string_lossy()
         .to_string())

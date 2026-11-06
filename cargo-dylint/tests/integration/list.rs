@@ -3,7 +3,10 @@
 // #![cfg(not(coverage))]
 
 use anyhow::{Context, Result};
-use assert_cmd::{assert::OutputAssertExt, cargo::cargo_bin_cmd};
+use assert_cmd::{
+    assert::OutputAssertExt,
+    cargo::{cargo_bin, cargo_bin_cmd},
+};
 use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
@@ -11,13 +14,13 @@ use dylint_internal::{
     link::debug_path_with_active_toolchain,
     msrv,
     rustup::{SanitizeEnvironment, active_toolchain},
-    testing::new_template,
+    testing::{new_filled_in_template, new_template},
 };
 use predicates::prelude::*;
 use std::{
-    env::join_paths,
+    ffi::OsStr,
     fmt::Write as _,
-    fs::OpenOptions,
+    fs::{OpenOptions, create_dir_all},
     io::Write,
     path::{Path, PathBuf},
 };
@@ -82,7 +85,6 @@ fn patch_dylint_template(path: &Path, channel: &str, clippy_utils_rev: &str) -> 
     Ok(())
 }
 
-// smoelius: This test will have to go away once `DYLINT_LIBRARY_PATH` is removed.
 #[test]
 fn one_name_multiple_paths() {
     let tempdirs = (tempdir().unwrap(), tempdir().unwrap());
@@ -105,18 +107,20 @@ fn one_name_multiple_paths() {
         .success()
         .unwrap();
 
-    let _: PathBuf = debug_path_with_active_toolchain(tempdirs.0.path(), "fill_me_in").unwrap();
-    let _: PathBuf = debug_path_with_active_toolchain(tempdirs.1.path(), "fill_me_in").unwrap();
-
-    let paths = join_paths([
-        &target_debug(tempdirs.0.path()).unwrap(),
-        &target_debug(tempdirs.1.path()).unwrap(),
-    ])
-    .unwrap();
+    let lib_path_0: PathBuf =
+        debug_path_with_active_toolchain(tempdirs.0.path(), "fill_me_in").unwrap();
+    let lib_path_1: PathBuf =
+        debug_path_with_active_toolchain(tempdirs.1.path(), "fill_me_in").unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
-        .envs([(env::DYLINT_LIBRARY_PATH, paths)])
-        .args(["dylint", "list", "--all", "--no-metadata"])
+        .args([
+            "dylint",
+            "list",
+            "--lib-path",
+            &lib_path_0.to_string_lossy(),
+            "--lib-path",
+            &lib_path_1.to_string_lossy(),
+        ])
         .assert()
         .success()
         .stdout(
@@ -131,36 +135,9 @@ fn one_name_multiple_paths() {
         );
 }
 
-// smoelius: Once `DYLINT_LIBRARY_PATH` is removed, this test will need to be adjusted.
-// Specifically, the checks for `fill_me_in` will need to go away.
 #[test]
 fn opts_library_package() {
-    let tempdir = tempdir().unwrap();
-
-    new_template(tempdir.path()).unwrap();
-
-    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
-        .build()
-        .sanitize_environment()
-        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
-        .current_dir(&tempdir)
-        .success()
-        .unwrap();
-
-    let _: PathBuf = debug_path_with_active_toolchain(tempdir.path(), "fill_me_in").unwrap();
-
-    let paths = join_paths([&target_debug(tempdir.path()).unwrap()]).unwrap();
-
-    // smoelius: Sanity.
     cargo_bin_cmd!("cargo-dylint")
-        .envs([(env::DYLINT_LIBRARY_PATH, &paths)])
-        .args(["dylint", "list", "--all", "--no-metadata"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("fill_me_in"));
-
-    cargo_bin_cmd!("cargo-dylint")
-        .envs([(env::DYLINT_LIBRARY_PATH, paths)])
         .args([
             "dylint",
             "list",
@@ -169,11 +146,7 @@ fn opts_library_package() {
         ])
         .assert()
         .success()
-        .stdout(
-            predicate::str::contains("fill_me_in")
-                .not()
-                .and(predicate::str::contains("crate_wide_allow")),
-        );
+        .stdout(predicate::str::contains("crate_wide_allow"));
 }
 
 #[test]
@@ -224,46 +197,69 @@ fn output_path_collision() {
         ));
 }
 
-// smoelius: Once `DYLINT_LIBRARY_PATH` is removed, this test will need to go away or be adjusted.
-// Re that latter, it might make sense to convert this test to one that uses `--path`.
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn relative_path() {
-    let tempdir = tempdir().unwrap();
+    let tempdirs = (tempdir().unwrap(), tempdir().unwrap(), tempdir().unwrap());
 
-    new_template(tempdir.path()).unwrap();
+    new_template(tempdirs.0.path()).unwrap();
+    let path_buf =
+        new_filled_in_template(cargo_bin!("cargo-dylint"), tempdirs.1.path(), "filled_in").unwrap();
+    let lib_name = path_buf.file_name().and_then(OsStr::to_str).unwrap();
 
-    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
-        .build()
-        .sanitize_environment()
-        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
-        .current_dir(&tempdir)
-        .success()
+    let toolchain = active_toolchain(tempdirs.0.path()).unwrap();
+
+    let tempdir_name_0 = tempdirs.0.path().file_name().unwrap();
+    let tempdir_name_1 = tempdirs.1.path().file_name().unwrap();
+
+    let lib_dir_0 = Path::new("..").join(tempdir_name_0);
+    let lib_dir_1 = Path::new("..").join(tempdir_name_1).join(lib_name);
+
+    std::process::Command::new("cargo")
+        .current_dir(&tempdirs.2)
+        .args([
+            "init",
+            "--name",
+            tempdirs
+                .2
+                .path()
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .trim_start_matches('.'),
+        ])
+        .assert()
+        .success();
+
+    append_workspace_metadata(
+        tempdirs.2.path(),
+        [lib_dir_0.as_path(), lib_dir_1.as_path()],
+    )
+    .unwrap();
+
+    let libraries_dir = target_libraries_directory(tempdirs.2.path(), &toolchain).unwrap();
+
+    // smoelius: `libraries_dir` might not exist yet.
+    create_dir_all(&libraries_dir).unwrap();
+
+    let canonical_path = libraries_dir.canonicalize().unwrap();
+
+    // smoelius: On Windows, `tempdir.path()` must be canonicalized to ensure it has a path
+    // prefix. Otherwise, the call to `strip_prefix` could fail.
+    let relative_path = canonical_path
+        .strip_prefix(tempdirs.2.path().canonicalize().unwrap())
         .unwrap();
 
-    let _: PathBuf = debug_path_with_active_toolchain(tempdir.path(), "fill_me_in").unwrap();
-
-    for path in [
-        tempdir.path().join("target/../target/debug"),
-        tempdir.path().join("target/debug/../debug"),
-    ] {
-        let canonical_path = path.canonicalize().unwrap();
-
-        assert_ne!(path, canonical_path);
-
-        // smoelius: On Windows, `tempdir.path()` must be canonicalized to ensure it has a path
-        // prefix. Otherwise, the call to `strip_prefix` could fail.
-        let relative_path = canonical_path
-            .strip_prefix(tempdir.path().canonicalize().unwrap())
-            .unwrap();
-
-        cargo_bin_cmd!("cargo-dylint")
-            .current_dir(&tempdir)
-            .envs([(env::DYLINT_LIBRARY_PATH, &path)])
-            .args(["dylint", "list"])
-            .assert()
-            .success()
-            .stdout(predicate::str::contains(relative_path.to_string_lossy()));
-    }
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&tempdirs.2)
+        .args(["dylint", "list", "--all"])
+        .assert()
+        .success()
+        .stdout(
+            predicate::str::contains(format!("fill_me_in ({})", relative_path.display())).and(
+                predicate::str::contains(format!("{lib_name} ({})", relative_path.display())),
+            ),
+        );
 }
 
 fn append_workspace_metadata<'a>(
@@ -329,9 +325,24 @@ fn list_by_path() {
 // smoelius: For the tests to pass on OSX, the paths have to be canonicalized, because `/var` is
 // symlinked to `/private/var`.
 fn target_debug(dir: &Path) -> Result<PathBuf> {
-    let metadata = dylint_internal::cargo::metadata(dir)?;
-    let debug_dir = metadata.target_directory.join("debug");
+    let target_directory = target_directory(dir)?;
+    let debug_dir = target_directory.join("debug");
     debug_dir
         .canonicalize()
-        .with_context(|| format!("Could not canonicalize {debug_dir:?}"))
+        .with_context(|| format!("Could not canonicalize `{}`", debug_dir.display()))
+}
+
+// smoelius: Hack. This function duplicates logic from, e.g.,
+// `dylint::library_packages::Package::library_path_with_toolchain`.
+fn target_libraries_directory(dir: &Path, toolchain: &str) -> Result<PathBuf> {
+    let target_directory = target_directory(dir)?;
+    Ok(target_directory
+        .join("dylint/libraries")
+        .join(toolchain)
+        .join("release"))
+}
+
+fn target_directory(dir: &Path) -> Result<PathBuf> {
+    let metadata = dylint_internal::cargo::metadata(dir)?;
+    Ok(metadata.target_directory.into_std_path_buf())
 }
