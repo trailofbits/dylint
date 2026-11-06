@@ -1,4 +1,4 @@
-use assert_cmd::{cargo::cargo_bin_cmd, prelude::*};
+use assert_cmd::cargo::cargo_bin_cmd;
 use dylint_internal::{CommandExt, env, packaging::isolate, testing::copy_dir};
 use predicates::prelude::*;
 use std::{fs::OpenOptions, io::Write, path::Path};
@@ -25,6 +25,7 @@ fn array_pattern() {
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn edition_2021() {
+    use assert_cmd::assert::OutputAssertExt;
     use dylint_internal::rustup::SanitizeEnvironment;
     use std::{fs::create_dir, os::unix::fs::symlink, path::Path};
 
