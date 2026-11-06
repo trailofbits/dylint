@@ -4,6 +4,10 @@ macro_rules! declare_const {
     ($var: ident) => {
         pub const $var: &str = stringify!($var);
     };
+    ($var: ident, deprecated) => {
+        #[deprecated]
+        pub const $var: &str = stringify!($var);
+    };
 }
 
 declare_const!(CARGO);
@@ -23,7 +27,7 @@ declare_const!(DOCS_RS);
 declare_const!(DYLINT_BUILDING_LIBRARIES);
 declare_const!(DYLINT_CLIPPY_REPO);
 declare_const!(DYLINT_DRIVER_PATH);
-declare_const!(DYLINT_LIBRARY_PATH);
+declare_const!(DYLINT_LIBRARY_PATH, deprecated);
 declare_const!(DYLINT_LIBS);
 declare_const!(DYLINT_LINK_ENABLE_COPY_LIBRARY);
 declare_const!(DYLINT_LIST);
