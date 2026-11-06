@@ -1,13 +1,9 @@
 use anyhow::{Context, Result, bail};
-use assert_cmd::cargo::cargo_bin_cmd;
-use cargo_metadata::Dependency;
-use dylint_internal::{
-    CommandExt, env, find_and_replace, library_plain_filename, msrv, rustup::SanitizeEnvironment,
-};
+use assert_cmd::cargo::{cargo_bin, cargo_bin_cmd};
+use dylint_internal::{CommandExt, env, library_plain_filename, msrv, rustup::SanitizeEnvironment};
 use glob::glob;
 use predicates::prelude::*;
 use semver::Version;
-use std::path::Path;
 use tempfile::tempdir;
 
 #[test]
@@ -27,18 +23,11 @@ fn new_package() {
 
             let tempdir = tempdir().with_context(|| "Could not create temporary directory")?;
 
-            let path_buf = tempdir.path().join("filled_in");
-
-            cargo_bin_cmd!("cargo-dylint")
-                .args(["dylint", "new", &path_buf.to_string_lossy(), "--isolate"])
-                .assert()
-                .success();
-
-            check_dylint_dependencies(&path_buf)?;
-
-            dylint_internal::packaging::use_local_dylint_linting(&path_buf)?;
-
-            allow_unused_extern_crates(&path_buf)?;
+            let path_buf = dylint_internal::testing::new_filled_in_template(
+                cargo_bin!("cargo-dylint"),
+                tempdir.path(),
+                "filled_in",
+            )?;
 
             let mut command = dylint_internal::cargo::build("filled-in dylint-template").build();
             command.sanitize_environment();
@@ -96,34 +85,6 @@ fn new_package() {
             );
         });
     }
-}
-
-fn check_dylint_dependencies(dir: &Path) -> Result<()> {
-    let metadata = dylint_internal::cargo::metadata(dir)?;
-    for package in metadata.packages {
-        for Dependency { name: dep, req, .. } in &package.dependencies {
-            if dep.starts_with("dylint") {
-                if package.name.as_str() == "filled_in" {
-                    let version = Version::parse(env!("CARGO_PKG_VERSION")).unwrap();
-                    assert!(req.matches(&version));
-                } else {
-                    assert_eq!("^".to_owned() + env!("CARGO_PKG_VERSION"), req.to_string());
-                }
-            }
-        }
-    }
-    Ok(())
-}
-
-// smoelius: `allow_unused_extern_crates` is essentially the inverse of the `find_and_replace` in
-// `dylint::package_options::new_package`. That is, the line that was uncommented gets recommented.
-// This is a hack, but it affects only one test, and only its ui.
-fn allow_unused_extern_crates(path: &Path) -> Result<()> {
-    find_and_replace(
-        &path.join("src/lib.rs"),
-        r"(?m)^(#!\[warn\(unused_extern_crates\)\])$",
-        "// ${1}",
-    )
 }
 
 #[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
