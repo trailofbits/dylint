@@ -12,11 +12,9 @@ Dylint tries to run all lints in all libraries named on the command line. Dylint
 
 1. Via a `--git` or `--path` option on the command line. If either appears, its url or path (respectively) is treated as part of a [workspace metadata] entry. Note that a `--git` or `--path` option can be accompanied by one or more `--pattern` options to specify subdirectories containing library packages. Furthermore, a `--git` option can be accompanied by a `--branch`, `--tag`, or `--rev` option.
 
-2. Via the `DYLINT_LIBRARY_PATH` environment variable. If `DYLINT_LIBRARY_PATH` is set when Dylint is started, Dylint treats it as a colon-separated list of paths, and searches each path for files with names of the form `DLL_PREFIX LIBRARY_NAME '@' TOOLCHAIN DLL_SUFFIX` (see [Library requirements] below). For each such file found, `LIBRARY_NAME` resolves to that file.
+2. Via workspace metadata. If Dylint is started in a workspace, Dylint checks the workspace's `Cargo.toml` file for `workspace.metadata.dylint.libraries` (see [Workspace metadata] in the repository's main [README.md]). Dylint downloads and builds each listed entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched and names are resolved in the manner described in 1 above.
 
-3. Via workspace metadata. If Dylint is started in a workspace, Dylint checks the workspace's `Cargo.toml` file for `workspace.metadata.dylint.libraries` (see [Workspace metadata] in the repository's main [README.md]). Dylint downloads and builds each listed entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched and names are resolved in the manner described in 1 above.
-
-4. By path. If a name does not resolve to a library via 1 or 2, it is treated as a path.
+3. By path. If a name does not resolve to a library via 1 or 2, it is treated as a path.
 
 It is considered an error if a name used on the command line resolves to multiple libraries.
 
