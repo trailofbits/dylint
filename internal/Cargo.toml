@@ -47,7 +47,7 @@ git = ["git2"]
 home = ["dep:home"]
 link = ["cargo", "rustup", "serde_json"]
 match_def_path = []
-packaging = ["cargo", "tar"]
+packaging = ["cargo", "tar", "toml"]
 rustup = ["cargo_metadata"]
 testing = ["ctor", "env_logger", "packaging", "rustup"]
 

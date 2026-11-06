@@ -261,6 +261,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
+ "toml",
  "windows-sys 0.61.2",
 ]
 

@@ -229,13 +229,20 @@ fn metadata_change() {
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();
 
+    let path_spec = toml::Value::String(
+        concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../examples/general/crate_wide_allow"
+        )
+        .to_owned(),
+    );
+
     write!(
         file,
-        r#"
+        r"
     [[workspace.metadata.dylint.libraries]]
-    path = "{}/../examples/general/crate_wide_allow"
-    "#,
-        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
+    path = {path_spec}
+    "
     )
     .unwrap();
 
@@ -253,13 +260,20 @@ fn metadata_change() {
         .success()
         .stderr(predicate::str::contains("Checking metadata_change_test").not());
 
+    let path_spec = toml::Value::String(
+        concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../examples/restriction/question_mark_in_expression"
+        )
+        .to_owned(),
+    );
+
     write!(
         file,
-        r#"
+        r"
         [[workspace.metadata.dylint.libraries]]
-        path = "{}/../examples/restriction/question_mark_in_expression"
-        "#,
-        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
+        path = {path_spec}
+        "
     )
     .unwrap();
 
@@ -377,13 +391,20 @@ fn nonexistent_path_library() {
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();
 
+    let path_spec = toml::Value::String(
+        concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../examples/general/crate_wide_allow"
+        )
+        .to_owned(),
+    );
+
     write!(
         file,
-        r#"
+        r"
 [[workspace.metadata.dylint.libraries]]
-path = "{}/../examples/general/crate_wide_allow"
-"#,
-        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
+path = {path_spec}
+"
     )
     .unwrap();
 
@@ -393,13 +414,20 @@ path = "{}/../examples/general/crate_wide_allow"
         .assert()
         .success();
 
+    let path_spec = toml::Value::String(
+        concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../examples/general/nonexistent_library"
+        )
+        .to_owned(),
+    );
+
     write!(
         file,
-        r#"
+        r"
 [[workspace.metadata.dylint.libraries]]
-path = "{}/../examples/general/nonexistent_library"
-"#,
-        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
+path = {path_spec}
+"
     )
     .unwrap();
 
@@ -430,13 +458,20 @@ fn rustflags_change() {
         .open(tempdir.path().join("Cargo.toml"))
         .unwrap();
 
+    let path_spec = toml::Value::String(
+        concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../examples/general/crate_wide_allow"
+        )
+        .to_owned(),
+    );
+
     write!(
         file,
-        r#"
+        r"
 [[workspace.metadata.dylint.libraries]]
-path = "{}/../examples/general/crate_wide_allow"
-"#,
-        env!("CARGO_MANIFEST_DIR").replace('\\', "\\\\")
+path = {path_spec}
+"
     )
     .unwrap();
 

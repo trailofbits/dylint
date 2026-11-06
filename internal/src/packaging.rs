@@ -56,15 +56,9 @@ pub fn use_local_dylint_linting(path: &Path) -> Result<()> {
     writeln!(file)
         .and_then(|()| writeln!(file, "[patch.crates-io]"))
         .and_then(|()| {
-            writeln!(
-                file,
-                r#"dylint_linting = {{ path = "{}" }}"#,
-                metadata
-                    .workspace_root
-                    .join("utils/linting")
-                    .to_string()
-                    .replace('\\', "\\\\")
-            )
+            let path =
+                toml::Value::String(metadata.workspace_root.join("utils/linting").to_string());
+            writeln!(file, "dylint_linting = {{ path = {path} }}")
         })
         .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
 
@@ -84,9 +78,9 @@ pub fn use_local_dylint_linting(path: &Path) -> Result<()> {
             .ok_or_else(|| anyhow!("Could not get parent directory"))?;
         writeln!(
             file,
-            r#"{} = {{ path = "{}" }}"#,
+            "{} = {{ path = {} }}",
             package.name,
-            path.to_string().replace('\\', "\\\\")
+            toml::Value::String(path.to_string())
         )
         .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
     }
