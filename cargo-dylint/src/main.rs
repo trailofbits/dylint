@@ -25,8 +25,8 @@ DYLINT_CLIPPY_REPO (default: none) is a path to a Dylint-exclusive clone of the 
 DYLINT_DRIVER_PATH (default: $HOME/.dylint_drivers) is the directory where Dylint stores rustc
 drivers.
 
-DYLINT_LIBRARY_PATH (default: none) is a colon-separated list of directories where Dylint searches
-for libraries.
+DYLINT_LIBRARY_PATH (deprecated, default: none) is a colon-separated list of directories where
+Dylint searches for libraries. Prefer workspace metadata (described below) for naming libraries.
 
 DYLINT_RUSTFLAGS (default: none) is a space-separated list of flags that Dylint passes to `rustc`
 when checking the packages in the workspace.
@@ -181,9 +181,9 @@ struct LibrarySelection {
         long = "lib",
         value_name = "NAME",
         help = "Library name to load lints from. A file with a name of the form \"DLL_PREFIX \
-        <NAME> '@' TOOLCHAIN DLL_SUFFIX\" is searched for in the directories listed in \
-        DYLINT_LIBRARY_PATH, and in the `target/release` directories produced by building the \
-        current workspace's metadata entries (see example below)."
+        <NAME> '@' TOOLCHAIN DLL_SUFFIX\" is searched for in the directories listed in the \
+        `target/release` directories produced by building the current workspace's metadata entries \
+        (see example below)."
     )]
     libs: Vec<String>,
 
