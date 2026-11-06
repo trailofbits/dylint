@@ -11,7 +11,7 @@ use dylint_internal::{
     rustup::SanitizeEnvironment,
 };
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     env::{consts, current_dir},
     ffi::OsStr,
     fs::{OpenOptions, read},
@@ -239,6 +239,8 @@ fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result
 
         for other in name_toolchain_map.values() {
             for (toolchain, maybe_libraries) in other {
+                detect_collisions(maybe_libraries)?;
+
                 let paths = maybe_libraries
                     .iter()
                     .map(|maybe_library| maybe_library.build(opts))
@@ -265,6 +267,21 @@ fn resolve(opts: &opts::Dylint, name_toolchain_map: &NameToolchainMap) -> Result
     }
 
     Ok(toolchain_map)
+}
+
+fn detect_collisions<'a>(
+    maybe_libraries: impl IntoIterator<Item = &'a MaybeLibrary>,
+) -> Result<()> {
+    let mut paths = BTreeSet::new();
+    for maybe_library in maybe_libraries {
+        let path = maybe_library.path();
+        ensure!(
+            paths.insert(path.clone()),
+            "Multiple libraries would use the same output path `{}`",
+            path.display()
+        );
+    }
+    Ok(())
 }
 
 pub fn name_as_lib(

@@ -3,7 +3,7 @@
 // #![cfg(not(coverage))]
 
 use anyhow::{Context, Result};
-use assert_cmd::cargo::cargo_bin_cmd;
+use assert_cmd::{assert::OutputAssertExt, cargo::cargo_bin_cmd};
 use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
@@ -16,6 +16,9 @@ use dylint_internal::{
 use predicates::prelude::*;
 use std::{
     env::join_paths,
+    fmt::Write as _,
+    fs::OpenOptions,
+    io::Write,
     path::{Path, PathBuf},
 };
 use tempfile::{tempdir, tempdir_in};
@@ -185,6 +188,42 @@ fn opts_library_package_with_wildcard() {
         );
 }
 
+#[test]
+fn output_path_collision() {
+    let manifest_dir = tempdir().unwrap();
+
+    std::process::Command::new("cargo")
+        .current_dir(&manifest_dir)
+        .args([
+            "init",
+            "--name",
+            manifest_dir
+                .path()
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .trim_start_matches('.'),
+        ])
+        .assert()
+        .success();
+
+    let tempdirs = (tempdir().unwrap(), tempdir().unwrap());
+
+    new_template(tempdirs.0.path()).unwrap();
+    new_template(tempdirs.1.path()).unwrap();
+
+    append_workspace_metadata(manifest_dir.path(), [tempdirs.0.path(), tempdirs.1.path()]).unwrap();
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&manifest_dir)
+        .args(["dylint", "list", "--all"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "Error: Multiple libraries would use the same output path",
+        ));
+}
+
 // smoelius: Once `DYLINT_LIBRARY_PATH` is removed, this test will need to go away or be adjusted.
 // Re that latter, it might make sense to convert this test to one that uses `--path`.
 #[test]
@@ -225,6 +264,40 @@ fn relative_path() {
             .success()
             .stdout(predicate::str::contains(relative_path.to_string_lossy()));
     }
+}
+
+fn append_workspace_metadata<'a>(
+    manifest_dir: &Path,
+    lib_dirs: impl IntoIterator<Item = &'a Path>,
+) -> Result<()> {
+    let manifest = manifest_dir.join("Cargo.toml");
+    let mut file = OpenOptions::new()
+        .append(true)
+        .open(&manifest)
+        .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
+
+    writeln!(file, "{}", workspace_metadata(lib_dirs))
+        .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
+
+    Ok(())
+}
+
+fn workspace_metadata<'a>(lib_dirs: impl IntoIterator<Item = &'a Path>) -> String {
+    let mut metadata = String::from(
+        r"
+[workspace.metadata.dylint]
+libraries = [
+",
+    );
+    for lib_dir in lib_dirs {
+        let path = toml::Value::String(lib_dir.to_string_lossy().into_owned());
+        writeln!(&mut metadata, "    {{ path = {path} }},").unwrap();
+    }
+    metadata.push_str(
+        r"]
+",
+    );
+    metadata
 }
 
 // smoelius: This test checks that if a library path is passed to `--path`, a "No library packages
