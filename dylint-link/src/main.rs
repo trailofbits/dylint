@@ -206,7 +206,7 @@ mod not_windows {
 #[cfg(test)]
 mod tests {
     use super::env;
-    use assert_cmd::prelude::*;
+    use assert_cmd::assert::OutputAssertExt;
     use dylint_internal::{CommandExt, packaging::isolate};
     use predicates::prelude::*;
     use std::fs::{create_dir, write};

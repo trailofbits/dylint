@@ -1,4 +1,4 @@
-use assert_cmd::{assert::AssertResult, prelude::*};
+use assert_cmd::assert::{AssertResult, OutputAssertExt};
 use dylint_internal::env;
 use rustc_version::{Channel, version_meta};
 use std::sync::Mutex;

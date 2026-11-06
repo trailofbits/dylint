@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use assert_cmd::{cargo::cargo_bin_cmd, prelude::*};
+use assert_cmd::{assert::OutputAssertExt, cargo::cargo_bin_cmd};
 use std::{
     fs::{OpenOptions, read_to_string, write},
     io::Write,
