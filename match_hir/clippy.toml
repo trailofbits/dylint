@@ -1,0 +1,2 @@
+disallowed-methods = ["rustc_middle::ty::TyCtxt::hir_span"]
+disallowed-types = ["proc_macro2::Span"]
