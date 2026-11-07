@@ -15,12 +15,13 @@ use rustc_hir::{
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Span;
+use serde::Deserialize;
 use std::{
     cmp::Ordering,
     collections::{HashMap, HashSet},
 };
 
-dylint_linting::declare_late_lint! {
+dylint_linting::impl_late_lint! {
     /// ### What it does
     ///
     /// It enforces a relative order among functions defined within a module. Callers must precede
@@ -52,13 +53,29 @@ dylint_linting::declare_late_lint! {
     /// fn bar() {}
     /// ```
     ///
+    /// ### Configuration
+    ///
+    /// - `check_test_functions: bool` (default `false`): Include functions marked with `#[test]` in
+    ///   the ordering checks.
+    ///
     /// ### Known problems
     ///
     /// While the lint may seem strict, its rules do not completely dictate the order of a module's
     /// functions. Judgement must often be exercised to address the lint's warnings.
     pub NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
     Warn,
-    "Enforce callers before callees and compatible call ordering among module-local functions"
+    "Enforce callers before callees and compatible call ordering among module-local functions",
+    NonTopologicallySortedFunctions::new()
+}
+
+#[derive(Default, Deserialize)]
+#[serde(default)]
+struct Config {
+    check_test_functions: bool,
+}
+
+struct NonTopologicallySortedFunctions {
+    config: Config,
 }
 
 struct Callee {
@@ -154,6 +171,12 @@ impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
 }
 
 impl NonTopologicallySortedFunctions {
+    fn new() -> Self {
+        Self {
+            config: dylint_linting::config_or_default(env!("CARGO_PKG_NAME")),
+        }
+    }
+
     fn collect_callees_in_body(cx: &LateContext<'_>, body_id: BodyId) -> Vec<Callee> {
         let body = cx.tcx.hir_body(body_id);
         let mut finder = Finder {
@@ -292,7 +315,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
             if let ItemKind::Fn { .. } = item.kind {
                 let local_def_id = item.owner_id.def_id;
 
-                if is_test_function(cx.tcx, local_def_id) {
+                if !self.config.check_test_functions && is_test_function(cx.tcx, local_def_id) {
                     continue;
                 }
 
@@ -390,4 +413,33 @@ fn ui() {
 #[test]
 fn ui_attr() {
     dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "ui_attr");
+}
+
+#[test]
+fn ui_ignore_test_functions() {
+    dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui_ignore_test_functions")
+        .rustc_flags(["--test"])
+        .run();
+}
+
+#[test]
+fn ui_check_test_functions() {
+    dylint_testing::ui::Test::src_base(env!("CARGO_PKG_NAME"), "ui_check_test_functions")
+        .rustc_flags(["--test"])
+        .dylint_toml("non_topologically_sorted_functions.check_test_functions = true")
+        .run();
+}
+
+#[test]
+fn ui_main_rs_are_equal() {
+    let ui_ignore_test_functions_main_rs =
+        std::fs::read_to_string("ui_ignore_test_functions/main.rs").unwrap();
+
+    let ui_check_test_functions_main_rs =
+        std::fs::read_to_string("ui_check_test_functions/main.rs").unwrap();
+
+    assert_eq!(
+        ui_ignore_test_functions_main_rs,
+        ui_check_test_functions_main_rs
+    );
 }
