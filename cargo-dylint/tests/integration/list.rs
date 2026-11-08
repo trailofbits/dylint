@@ -258,7 +258,5 @@ fn list_by_path() {
 fn target_debug(dir: &Path) -> Result<PathBuf> {
     let metadata = dylint_internal::cargo::metadata(dir)?;
     let debug_dir = metadata.target_directory.join("debug");
-    debug_dir
-        .canonicalize()
-        .with_context(|| format!("Could not canonicalize {debug_dir:?}"))
+    dunce::canonicalize(&debug_dir).with_context(|| format!("Could not canonicalize `{debug_dir}`"))
 }

@@ -599,6 +599,7 @@ dependencies = [
  "anstyle",
  "anyhow",
  "cargo_metadata",
+ "dunce",
  "dylint_internal",
  "libc",
  "log",

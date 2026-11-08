@@ -168,6 +168,7 @@ dependencies = [
  "cargo_metadata",
  "clap",
  "ctor",
+ "dunce",
  "dylint",
  "dylint_internal",
  "env_logger",

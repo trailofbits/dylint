@@ -427,7 +427,7 @@ fn markdown_does_not_use_inline_links() {
         assert!(
             !re.is_match(&markdown),
             "`{}` uses inline links",
-            path.canonicalize().unwrap().to_string_lossy()
+            dunce::canonicalize(path).unwrap().to_string_lossy()
         );
     }
 }
@@ -451,7 +451,7 @@ fn markdown_reference_links_are_sorted() {
         assert!(
             links_sorted == links,
             "contents of `{}` are not what was expected:\n{}\n",
-            path.canonicalize().unwrap().to_string_lossy(),
+            dunce::canonicalize(path).unwrap().to_string_lossy(),
             links_sorted.join("\n")
         );
     }

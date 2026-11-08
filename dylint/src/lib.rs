@@ -300,7 +300,7 @@ where
 }
 
 fn name_as_path(name: &str, as_path_only: bool) -> Result<Option<(String, PathBuf)>> {
-    if let Ok(path) = PathBuf::from(name).canonicalize() {
+    if let Ok(path) = dunce::canonicalize(name) {
         if let Some((_, toolchain)) = parse_path_with_toolchain(&path) {
             return Ok(Some((toolchain, path)));
         }
@@ -482,17 +482,19 @@ fn list_lints(opts: &opts::Dylint, resolved: &ToolchainMap) -> Result<()> {
 
 fn display_location(path: &Path) -> Result<String> {
     let current_dir = current_dir().with_context(|| "Could not get current directory")?;
+    let current_dir_canonicalized = current_dir
+        .canonicalize()
+        .with_context(|| format!("Could not canonicalize `{}`", current_dir.display()))?;
     let Ok(path_buf) = path.canonicalize() else {
         return Ok("<unbuilt>".to_owned());
     };
     let parent = path_buf
         .parent()
         .ok_or_else(|| anyhow!("Could not get parent directory"))?;
-    Ok(parent
-        .strip_prefix(&current_dir)
-        .unwrap_or(parent)
-        .to_string_lossy()
-        .to_string())
+    let location = parent
+        .strip_prefix(&current_dir_canonicalized)
+        .unwrap_or(parent);
+    Ok(dunce::simplified(location).to_string_lossy().to_string())
 }
 
 fn clippy_disable_docs_links() -> Result<String> {
