@@ -532,7 +532,8 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
         );
     }
 
-    Ok(path)
+    dunce::canonicalize(&path)
+        .with_context(|| format!("Could not canonicalize `{}`", path.display()))
 }
 
 // smoelius: `pkg_dir` and `target_short_hash` are based on functions with the same names in

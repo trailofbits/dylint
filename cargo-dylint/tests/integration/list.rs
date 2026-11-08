@@ -7,7 +7,7 @@ use assert_cmd::cargo::cargo_bin_cmd;
 use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
-    env,
+    env, library_filename_with_toolchain,
     link::{debug_path_with_active_toolchain, debug_path_with_toolchain},
     msrv,
     rustup::{SanitizeEnvironment, active_toolchain},
@@ -16,9 +16,59 @@ use dylint_internal::{
 use predicates::prelude::*;
 use std::{
     env::join_paths,
+    fmt::Write as _,
+    fs::OpenOptions,
+    io::Write,
     path::{Path, PathBuf},
 };
 use tempfile::tempdir;
+
+#[test]
+fn metadata_and_lib_path_are_deduplicated() {
+    let library_dir = tempdir().unwrap();
+    let manifest_dir = tempdir().unwrap();
+    #[cfg(unix)]
+    let target_dir = tempdir().unwrap();
+
+    new_template(library_dir.path()).unwrap();
+    let toolchain = active_toolchain(library_dir.path()).unwrap();
+
+    dylint_internal::cargo::init("package `metadata_and_lib_path_test`")
+        .build()
+        .current_dir(&manifest_dir)
+        .args(["--name", "metadata_and_lib_path_test"])
+        .success()
+        .unwrap();
+
+    let library_dir_path = dunce::canonicalize(&library_dir).unwrap();
+    append_workspace_metadata(manifest_dir.path(), [library_dir_path.as_path()]).unwrap();
+
+    // On Unix, the symlink makes canonicalization change the library path. Windows symlinks or
+    // junctions can cause the same mismatch. This test does not create an alias on Windows,
+    // where symlink creation can require additional privileges. The Windows case checks
+    // deduplication without exercising alias resolution.
+    #[cfg(unix)]
+    std::os::unix::fs::symlink(&target_dir, manifest_dir.path().join("target")).unwrap();
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&manifest_dir)
+        .args(["dylint", "list", "--all"])
+        .assert()
+        .success();
+
+    let library_path = target_libraries_directory(manifest_dir.path(), &toolchain)
+        .unwrap()
+        .join(library_filename_with_toolchain("fill_me_in", &toolchain));
+
+    cargo_bin_cmd!("cargo-dylint")
+        .current_dir(&manifest_dir)
+        .args(["dylint", "list", "--all", "--no-build", "--lib-path"])
+        .arg(&library_path)
+        .assert()
+        .success()
+        // One occurrence in the library heading and one in its lint listing.
+        .stdout(predicate::str::contains("fill_me_in").count(2));
+}
 
 #[test]
 fn one_name_multiple_toolchains() {
@@ -227,6 +277,40 @@ fn relative_path() {
     }
 }
 
+fn append_workspace_metadata<'a>(
+    manifest_dir: &Path,
+    lib_dirs: impl IntoIterator<Item = &'a Path>,
+) -> Result<()> {
+    let manifest = manifest_dir.join("Cargo.toml");
+    let mut file = OpenOptions::new()
+        .append(true)
+        .open(&manifest)
+        .with_context(|| format!("Could not open `{}`", manifest.to_string_lossy()))?;
+
+    writeln!(file, "{}", workspace_metadata(lib_dirs))
+        .with_context(|| format!("Could not write to `{}`", manifest.to_string_lossy()))?;
+
+    Ok(())
+}
+
+fn workspace_metadata<'a>(lib_dirs: impl IntoIterator<Item = &'a Path>) -> String {
+    let mut metadata = String::from(
+        r"
+[workspace.metadata.dylint]
+libraries = [
+",
+    );
+    for lib_dir in lib_dirs {
+        let path = toml::Value::String(lib_dir.to_string_lossy().into_owned());
+        writeln!(&mut metadata, "    {{ path = {path} }},").unwrap();
+    }
+    metadata.push_str(
+        r"]
+",
+    );
+    metadata
+}
+
 // smoelius: This test checks that if a library path is passed to `--path`, a "No library packages
 // found in ..." message is emitted.
 #[test]
@@ -259,4 +343,19 @@ fn target_debug(dir: &Path) -> Result<PathBuf> {
     let metadata = dylint_internal::cargo::metadata(dir)?;
     let debug_dir = metadata.target_directory.join("debug");
     dunce::canonicalize(&debug_dir).with_context(|| format!("Could not canonicalize `{debug_dir}`"))
+}
+
+// smoelius: Hack. This function duplicates logic from, e.g.,
+// `dylint::library_packages::Package::library_path_with_toolchain`.
+fn target_libraries_directory(dir: &Path, toolchain: &str) -> Result<PathBuf> {
+    let target_directory = target_directory(dir)?;
+    Ok(target_directory
+        .join("dylint/libraries")
+        .join(toolchain)
+        .join("release"))
+}
+
+fn target_directory(dir: &Path) -> Result<PathBuf> {
+    let metadata = dylint_internal::cargo::metadata(dir)?;
+    Ok(metadata.target_directory.into_std_path_buf())
 }
