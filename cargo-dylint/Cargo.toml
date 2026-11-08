@@ -25,6 +25,7 @@ dylint_internal = { version = "=6.3.2", path = "../internal" }
 assert_cmd = { workspace = true }
 cargo_metadata = { workspace = true }
 ctor = { workspace = true }
+dunce = { workspace = true }
 glob = { workspace = true }
 ignore = { workspace = true }
 log = { workspace = true }
