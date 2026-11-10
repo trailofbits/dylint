@@ -512,84 +512,6 @@
         "name": "Matt Mastracci"
       }
     ],
-    "defmt": [
-      {
-        "id": 246,
-        "kind": "user",
-        "login": "japaric",
-        "name": "Jorge Aparicio"
-      },
-      {
-        "id": 2769,
-        "kind": "team",
-        "login": "github:knurling-rs:crate-owners",
-        "name": "crate-owners"
-      },
-      {
-        "id": 84779,
-        "kind": "user",
-        "login": "jonathanpallant",
-        "name": "Jonathan Pallant"
-      },
-      {
-        "id": 336166,
-        "kind": "user",
-        "login": "knurling-infra",
-        "name": null
-      }
-    ],
-    "defmt-macros": [
-      {
-        "id": 246,
-        "kind": "user",
-        "login": "japaric",
-        "name": "Jorge Aparicio"
-      },
-      {
-        "id": 2769,
-        "kind": "team",
-        "login": "github:knurling-rs:crate-owners",
-        "name": "crate-owners"
-      },
-      {
-        "id": 84779,
-        "kind": "user",
-        "login": "jonathanpallant",
-        "name": "Jonathan Pallant"
-      },
-      {
-        "id": 336166,
-        "kind": "user",
-        "login": "knurling-infra",
-        "name": null
-      }
-    ],
-    "defmt-parser": [
-      {
-        "id": 246,
-        "kind": "user",
-        "login": "japaric",
-        "name": "Jorge Aparicio"
-      },
-      {
-        "id": 2769,
-        "kind": "team",
-        "login": "github:knurling-rs:crate-owners",
-        "name": "crate-owners"
-      },
-      {
-        "id": 84779,
-        "kind": "user",
-        "login": "jonathanpallant",
-        "name": "Jonathan Pallant"
-      },
-      {
-        "id": 336166,
-        "kind": "user",
-        "login": "knurling-infra",
-        "name": null
-      }
-    ],
     "diff": [
       {
         "id": 297,
@@ -795,18 +717,6 @@
       }
     ],
     "flate2": [
-      {
-        "id": 980,
-        "kind": "user",
-        "login": "Byron",
-        "name": "Sebastian Thiel"
-      },
-      {
-        "id": 4333,
-        "kind": "user",
-        "login": "joshtriplett",
-        "name": "Josh Triplett"
-      },
       {
         "id": 55123,
         "kind": "user",
@@ -1198,24 +1108,6 @@
     ],
     "libz-sys": [
       {
-        "id": 1,
-        "kind": "user",
-        "login": "alexcrichton",
-        "name": "Alex Crichton"
-      },
-      {
-        "id": 980,
-        "kind": "user",
-        "login": "Byron",
-        "name": "Sebastian Thiel"
-      },
-      {
-        "id": 4333,
-        "kind": "user",
-        "login": "joshtriplett",
-        "name": "Josh Triplett"
-      },
-      {
         "id": 55123,
         "kind": "user",
         "login": "rust-lang-owner",
@@ -1539,12 +1431,6 @@
       }
     ],
     "rustc-stable-hash": [
-      {
-        "id": 408,
-        "kind": "team",
-        "login": "github:rust-lang:compiler",
-        "name": "compiler"
-      },
       {
         "id": 55123,
         "kind": "user",
