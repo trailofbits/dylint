@@ -36,9 +36,10 @@ const BOUNDARIES: &[(&str, &str)] = &[
     // https://github.com/rust-lang/rust/pull/157689
     // https://github.com/rust-lang/rust/commit/942ac9ce4116d4ea784c9882659372b34978b1f8
     ("nightly-2026-06-22", "nightly-2026-06-23"),
-    // https://github.com/rust-lang/rust/pull/153778
-    // https://github.com/rust-lang/rust/commit/44c87292ac (rollup merge 2026-03-18)
-    ("nightly-2026-03-18", "nightly-2026-03-19"),
+    // smoelius: `dylint@6.4.0` requires rustc 1.98.
+    // // https://github.com/rust-lang/rust/pull/153778
+    // // https://github.com/rust-lang/rust/commit/44c87292ac (rollup merge 2026-03-18)
+    // ("nightly-2026-03-18", "nightly-2026-03-19"),
     // smoelius: `cargo-platform@0.3.3` requires rustc 1.91.
     // // https://github.com/rust-lang/rust/pull/138682
     // // https://github.com/rust-lang/rust/commit/0abc6c6e9859bc6915ddc76d484117ff626481c6
