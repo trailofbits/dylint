@@ -1,0 +1,10 @@
+warning: unnecessary call that preserves trait behavior
+ --> $DIR/check_inherents.rs:3:13
+  |
+3 |     let _ = x.iter();
+  |             ^^^^^^^^
+  |
+  = help: use the macro arguments directly
+  = note: `#[warn(unnecessary_conversion_for_trait)]` on by default
+
+warning: 1 warning emitted 
