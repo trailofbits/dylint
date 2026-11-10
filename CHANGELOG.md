@@ -2,6 +2,20 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## 6.4.0
+
+- Lock the Dylint drivers directory when installing drivers ([e83aa3e](https://github.com/trailofbits/dylint/commit/e83aa3e62e41ff6bed8657bbf77978d20e0e016e))
+- Fix README.md links ([1df4b6a](https://github.com/trailofbits/dylint/commit/1df4b6acf88a6b83aad47db4c618ba161582b663))
+- Reduce build script noise for nightly builds ([0b1a273](https://github.com/trailofbits/dylint/commit/0b1a273f626b265e1796985d57e0b05f266c6605))
+- Escape paths correctly in generated TOML and Rust source ([e3d5000](https://github.com/trailofbits/dylint/commit/e3d50006c603bbd6a118b054ceace2b90904ba19))
+- Display more human-readable canonicalized paths on Windows ([9df9cd9](https://github.com/trailofbits/dylint/commit/9df9cd999a5d2484856d36fb855fb6763fce4e63))
+- Fix a bug that could cause two paths to the same library to be considered distinct ([a929d53](https://github.com/trailofbits/dylint/commit/a929d539b169dfca710d8a4dc759f9fc8cabfa86))
+- Deprecate `LibrarySelection::paths` in favor of `path` ([b673ef0](https://github.com/trailofbits/dylint/commit/b673ef0fc49e46e1f11fedffa5acd95f1ed8096e))
+- Raise the minimum supported Rust version from 1.91 to 1.98 ([d135b02](https://github.com/trailofbits/dylint/commit/d135b028d1e4817a801f610280c7fea3df036e8e))
+- FEATURE: Allow glob patterns to be passed to `--path`; ensure library packages can be referenced through symlinks ([2862775](https://github.com/trailofbits/dylint/commit/286277585d21683d3336bd55ffe08de796823f1f))
+- Error when two different library packages would be built at the same location ([45c76cc](https://github.com/trailofbits/dylint/commit/45c76cc85f4b38bb910257c4e5010d2eb8c98930))
+- Deprecate `DYLINT_LIBRARY_PATH` ([22f1e78](https://github.com/trailofbits/dylint/commit/22f1e78df4e86fff7f984e360b40bfbb4a47d9c9))
+
 ## 6.3.2
 
 - Invalidate lints when `DYLINT_RUSTFLAGS` changes ([c3c4467](https://github.com/trailofbits/dylint/commit/c3c4467b139a83ca5224cd8663785d58bcd038e1))&mdash;thanks [@jfarmer](https://github.com/jfarmer)
