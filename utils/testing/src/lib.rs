@@ -172,7 +172,6 @@ fn initialize(name: &str) -> &Result<PathBuf> {
 
         dylint_internal::cargo::build(&format!("library `{name}`"))
             .build()
-            .env(env::DYLINT_BUILDING_LIBRARIES, "1")
             .success()?;
 
         let dylint_libs = dylint_libs(name, env!("RUSTUP_TOOLCHAIN"))?;

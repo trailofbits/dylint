@@ -12,7 +12,6 @@ fn ui() {
 
     dylint_internal::cargo::build("clippy")
         .build()
-        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
         .success()
         .unwrap();
 
