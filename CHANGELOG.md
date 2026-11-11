@@ -4,6 +4,7 @@ This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dyl
 
 ## 6.4.0
 
+- FEATURE: Provide prebuilt binaries for Windows (x86-64) ([a551885](https://github.com/trailofbits/dylint/commit/a551885129c49a1d410125b212b8ea1fa7586326))
 - Lock the Dylint drivers directory when installing drivers ([e83aa3e](https://github.com/trailofbits/dylint/commit/e83aa3e62e41ff6bed8657bbf77978d20e0e016e))
 - Fix README.md links ([1df4b6a](https://github.com/trailofbits/dylint/commit/1df4b6acf88a6b83aad47db4c618ba161582b663))
 - Reduce build script noise for nightly builds ([0b1a273](https://github.com/trailofbits/dylint/commit/0b1a273f626b265e1796985d57e0b05f266c6605))
