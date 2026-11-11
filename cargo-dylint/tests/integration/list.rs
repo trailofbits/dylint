@@ -10,7 +10,7 @@ use assert_cmd::{
 use dylint_internal::{
     CommandExt,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
-    env, library_filename_with_toolchain,
+    library_filename_with_toolchain,
     link::debug_path_with_active_toolchain,
     msrv,
     rustup::{SanitizeEnvironment, active_toolchain},
@@ -142,14 +142,12 @@ fn one_name_multiple_paths() {
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdirs.0.path()))
         .build()
         .sanitize_environment()
-        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
         .current_dir(&tempdirs.0)
         .success()
         .unwrap();
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdirs.1.path()))
         .build()
         .sanitize_environment()
-        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
         .current_dir(&tempdirs.1)
         .success()
         .unwrap();
@@ -354,7 +352,6 @@ fn list_by_path() {
     dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
         .build()
         .sanitize_environment()
-        .env(env::DYLINT_BUILDING_LIBRARIES, "1")
         .current_dir(&tempdir)
         .success()
         .unwrap();

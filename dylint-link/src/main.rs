@@ -35,13 +35,9 @@ fn main() -> Result<()> {
     }
     command.args(&args[1..]).success()?;
 
-    // smoelius: `DYLINT_BUILDING_LIBRARIES` means that Dylint is building libraries and will handle
-    // the call to `copy_library`. `DYLINT_LINK_ENABLE_COPY_LIBRARY` means that `dylint-link` should
-    // call `copy_library`, even if the `__copy_library_disabled_by_default` feature is enabled. The
-    // latter environment variable trumps the former. That is, if `DYLINT_LINK_ENABLE_COPY_LIBRARY`
-    // is enabled, `dylint-link` proceeds to determine whether `copy_library` should be called, even
-    // if `DYLINT_BUILDING_LIBRARIES` is enabled.
-    if (!env::enabled(env::DYLINT_BUILDING_LIBRARIES)
+    // smoelius: `DYLINT_LINK_ENABLE_COPY_LIBRARY` means that `dylint-link` should call
+    // `copy_library`, even if the `__copy_library_disabled_by_default` feature is enabled.
+    if (!cfg!(feature = "__copy_library_disabled_by_default")
         || env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY))
         && let Some(plain_path) = output_path(args.iter())?
         && let Some(lib_name) = parse_plain_path(&plain_path)
@@ -49,13 +45,7 @@ fn main() -> Result<()> {
         && lib_name == cargo_pkg_name.replace('-', "_")
         && let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?
     {
-        if !cfg!(feature = "__copy_library_disabled_by_default")
-            || env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY)
-        {
-            copy_library(&plain_path, &lib_name, &rustup_toolchain)?;
-        } else {
-            warn("`copy_library` is disabled; enable with DYLINT_LINK_ENABLE_COPY_LIBRARY=1");
-        }
+        copy_library(&plain_path, &lib_name, &rustup_toolchain)?;
     }
 
     Ok(())
@@ -88,6 +78,7 @@ fn linker() -> Result<PathBuf> {
     }
 }
 
+#[cfg(any())]
 fn warn(msg: &str) {
     eprintln!("{}: {msg}", env!("CARGO_PKG_NAME"));
 }

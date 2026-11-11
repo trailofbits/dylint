@@ -510,7 +510,6 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
             .quiet(opts.quiet)
             .build()
             .sanitize_environment()
-            .env(env::DYLINT_BUILDING_LIBRARIES, "1")
             .env_remove(env::RUSTFLAGS)
             .current_dir(&package.root)
             .args(["--release", "--target-dir", &target_dir.to_string_lossy()])
