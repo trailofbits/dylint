@@ -46,9 +46,9 @@ enum Inner {
     Other(String),
 }
 
-static CONFIG_TABLE: OnceLock<toml::value::Table> = OnceLock::new();
+static CONFIG_TABLE: OnceLock<toml::Table> = OnceLock::new();
 
-pub fn get() -> Option<&'static toml::value::Table> {
+pub fn get() -> Option<&'static toml::Table> {
     CONFIG_TABLE.get()
 }
 
