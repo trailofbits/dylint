@@ -599,14 +599,7 @@ fn msrv() {
         }
         let manifest_dir = package.manifest_path.parent().unwrap();
         Command::new("cargo")
-            .args([
-                "msrv",
-                "verify",
-                "--",
-                "cargo",
-                "check",
-                "--no-default-features",
-            ])
+            .args(["msrv", "verify", "--", "cargo", "check"])
             .current_dir(manifest_dir)
             .assert()
             .success();
