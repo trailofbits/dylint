@@ -317,10 +317,8 @@ fn no_metadata_with_path() {
             "../examples/general",
         ])
         .assert()
-        .failure()
-        .stderr(predicate::str::contains(
-            "`--git` or `--path` cannot be used with `--no-metadata`",
-        ));
+        .success()
+        .stdout(predicate::str::contains("abs_home_path"));
 }
 
 #[test]
