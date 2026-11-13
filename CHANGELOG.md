@@ -2,6 +2,10 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## Unreleased
+
+- FEATURE: Support `DYLINT_LIBRARIES_DIR` to share compiled lint libraries across workspaces and Git worktrees, partitioned by toolchain and package/source identity so different Git revisions retain separate outputs ([#2142](https://github.com/trailofbits/dylint/issues/2142)).
+
 ## 6.4.0
 
 - FEATURE: Provide prebuilt binaries for Windows (x86-64) ([a551885](https://github.com/trailofbits/dylint/commit/a551885129c49a1d410125b212b8ea1fa7586326))

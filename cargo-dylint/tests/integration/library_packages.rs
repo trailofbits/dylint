@@ -1,7 +1,15 @@
 use assert_cmd::cargo::cargo_bin_cmd;
-use dylint_internal::{CommandExt, env, packaging::isolate, testing::copy_dir};
+use dylint_internal::{
+    CommandExt, env, library_filename_with_toolchain,
+    packaging::isolate,
+    testing::{copy_dir, new_template},
+};
 use predicates::prelude::*;
-use std::{fs::OpenOptions, io::Write, path::Path};
+use std::{
+    fs::{OpenOptions, read_dir, read_to_string, write},
+    io::Write,
+    path::Path,
+};
 use tempfile::{tempdir, tempdir_in};
 
 // smoelius: "Separate lints into categories" commit
@@ -150,6 +158,208 @@ fn library_packages_with_configured_build_directory_and_dylint_link() {
         .stderr(predicate::str::contains(
             "\nwarning: `unwrap`s that could be combined\n",
         ));
+}
+
+#[test]
+fn libraries_dir_shared_across_workspaces() {
+    libraries_dir_shared_across_workspaces_inner(false);
+}
+
+#[test]
+fn libraries_dir_with_configured_build_directory_and_dylint_link() {
+    libraries_dir_shared_across_workspaces_inner(true);
+}
+
+fn libraries_dir_shared_across_workspaces_inner(copy_with_dylint_link: bool) {
+    let cache = tempdir().unwrap();
+    let libraries_directory = cache.path().join("shared libraries");
+    let build_directory = tempdir().unwrap();
+    let toolchain = dylint_internal::rustup::active_toolchain(Path::new(
+        "../examples/restriction/collapsible_unwrap",
+    ))
+    .unwrap();
+    for first_build in [true, false] {
+        let temp_fixture = tempdir_in("../fixtures").unwrap();
+        copy_dir(
+            Path::new("../fixtures/library_packages_in_dylint_toml"),
+            temp_fixture.path(),
+        )
+        .unwrap();
+        let target_directory = temp_fixture.path().join("target");
+
+        let command = || {
+            let mut command = cargo_bin_cmd!("cargo-dylint");
+            command
+                .current_dir(&temp_fixture)
+                .env(env::CARGO_TARGET_DIR, &target_directory)
+                .env(env::DYLINT_LIBRARIES_DIR, &libraries_directory)
+                .env(
+                    env::DYLINT_LINK_ENABLE_COPY_LIBRARY,
+                    if copy_with_dylint_link { "1" } else { "0" },
+                )
+                .env_remove(env::CARGO_BUILD_BUILD_DIR);
+            if copy_with_dylint_link {
+                command.env(env::CARGO_BUILD_BUILD_DIR, build_directory.path());
+            }
+            command
+        };
+        let assert = command()
+            .args(["dylint", "--all"])
+            .assert()
+            .success()
+            .stderr(predicate::str::contains(
+                "\nwarning: `unwrap`s that could be combined\n",
+            ));
+        if first_build {
+            assert.stderr(predicate::str::contains("Compiling collapsible_unwrap"));
+        } else {
+            assert.stderr(predicate::str::contains("Compiling collapsible_unwrap").not());
+        }
+        assert!(!target_directory.join("dylint/libraries").exists());
+        let partitions = read_dir(libraries_directory.join(&toolchain))
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .collect::<Vec<_>>();
+        assert_eq!(1, partitions.len());
+        assert!(
+            partitions[0]
+                .join("release")
+                .join(library_filename_with_toolchain(
+                    "collapsible_unwrap",
+                    &toolchain
+                ),)
+                .is_file()
+        );
+
+        command()
+            .args(["dylint", "list", "--all", "--no-build"])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("collapsible_unwrap"));
+    }
+}
+
+#[test]
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+fn libraries_dir_separates_git_revisions() {
+    libraries_dir_separates_git_revisions_inner(false);
+}
+
+#[test]
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
+fn libraries_dir_separates_git_revisions_with_dylint_link() {
+    libraries_dir_separates_git_revisions_inner(true);
+}
+
+fn libraries_dir_separates_git_revisions_inner(copy_with_dylint_link: bool) {
+    let library = tempdir().unwrap();
+    new_template(library.path()).unwrap();
+    let repository = git2::Repository::init(&library).unwrap();
+    let first = commit_library(&repository);
+    repository
+        .tag_lightweight(
+            "first",
+            &repository.find_object(first, None).unwrap(),
+            false,
+        )
+        .unwrap();
+    let source = library.path().join("src/lib.rs");
+    let contents = read_to_string(&source).unwrap();
+    write(
+        &source,
+        contents.replace("description goes here", "second revision"),
+    )
+    .unwrap();
+    let second = commit_library(&repository);
+    let url = url::Url::from_directory_path(dunce::canonicalize(&library).unwrap())
+        .unwrap()
+        .to_string();
+    let cache = tempdir().unwrap();
+    let build_directory = tempdir().unwrap();
+    let toolchain = dylint_internal::rustup::active_toolchain(library.path()).unwrap();
+
+    for (flag, reference, description, fresh) in [
+        ("--rev", first.to_string(), "description goes here", true),
+        ("--tag", "first".to_owned(), "description goes here", false),
+        ("--rev", second.to_string(), "second revision", true),
+        ("--rev", first.to_string(), "description goes here", false),
+    ] {
+        let consumer = tempdir_in("../fixtures").unwrap();
+        copy_dir(
+            Path::new("../fixtures/library_packages_in_dylint_toml"),
+            consumer.path(),
+        )
+        .unwrap();
+        let command = || {
+            let mut command = cargo_bin_cmd!("cargo-dylint");
+            command
+                .current_dir(&consumer)
+                .env(env::CARGO_TARGET_DIR, consumer.path().join("target"))
+                .env(env::DYLINT_LIBRARIES_DIR, cache.path())
+                .env(
+                    env::DYLINT_LINK_ENABLE_COPY_LIBRARY,
+                    if copy_with_dylint_link { "1" } else { "0" },
+                )
+                .env_remove(env::CARGO_BUILD_BUILD_DIR)
+                .args(["dylint", "list", "--git", &url, flag, &reference]);
+            if copy_with_dylint_link {
+                command.env(env::CARGO_BUILD_BUILD_DIR, build_directory.path());
+            }
+            command
+        };
+        let assert = command()
+            .assert()
+            .success()
+            .stdout(predicate::str::contains(description));
+        if !fresh {
+            assert.stderr(predicate::str::contains("Compiling").not());
+        }
+        command()
+            .arg("--no-build")
+            .assert()
+            .success()
+            .stdout(predicate::str::contains(description));
+    }
+    let partitions = read_dir(cache.path().join(toolchain)).unwrap().count();
+    assert_eq!(2, partitions);
+}
+
+fn commit_library(repository: &git2::Repository) -> git2::Oid {
+    let mut index = repository.index().unwrap();
+    index
+        .add_all(["."], git2::IndexAddOption::DEFAULT, None)
+        .unwrap();
+    let tree = repository.find_tree(index.write_tree().unwrap()).unwrap();
+    let signature = git2::Signature::now("Dylint tests", "dylint@example.invalid").unwrap();
+    let parent = repository
+        .head()
+        .ok()
+        .map(|head| head.peel_to_commit().unwrap());
+    repository
+        .commit(
+            Some("HEAD"),
+            &signature,
+            &signature,
+            "Test library revision",
+            &tree,
+            &parent.iter().collect::<Vec<_>>(),
+        )
+        .unwrap()
+}
+
+#[test]
+fn libraries_dir_must_be_absolute() {
+    for path in ["", "relative/path"] {
+        cargo_bin_cmd!("cargo-dylint")
+            .current_dir("../fixtures/library_packages_in_dylint_toml")
+            .env(env::DYLINT_LIBRARIES_DIR, path)
+            .args(["dylint", "list"])
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(format!(
+                "DYLINT_LIBRARIES_DIR contains `{path}`, which is not absolute"
+            )));
+    }
 }
 
 #[test]
