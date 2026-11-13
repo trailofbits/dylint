@@ -4,7 +4,9 @@ This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dyl
 
 ## Unreleased
 
-- FEATURE: Support `DYLINT_LIBRARIES_DIR` to share compiled lint libraries across workspaces and Git worktrees, partitioned by toolchain and package/source identity so different Git revisions retain separate outputs ([#2142](https://github.com/trailofbits/dylint/issues/2142)).
+- FEATURE: Store compiler drivers and lint libraries under `~/.dylint/cache/<name>/<version-and-source-identity>/<toolchain>`, with a `DYLINT_CACHE_DIR` override, isolated package versions and sources, and automatic migration of compatible caches from shipped versions without removing or overwriting existing data.
+- Deprecate the driver-only `DYLINT_DRIVER_PATH` override in favor of `DYLINT_CACHE_DIR`, retaining its existing layout and precedence for drivers.
+- FEATURE: Share compiled lint libraries across workspaces and Git worktrees, partitioned by toolchain and package/source identity so different Git revisions retain separate outputs ([#2142](https://github.com/trailofbits/dylint/issues/2142)).
 
 ## 6.4.0
 

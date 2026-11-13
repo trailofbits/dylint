@@ -216,22 +216,11 @@ In addition, we recommend caching these directories:
 
 ```yaml
 ~/.cargo/git/checkouts/
-~/.dylint_drivers/
+~/.dylint/cache/
 ~/.rustup/toolchains/
 ```
 
-Also, if you do not cache `target/`, we recommend at least caching `target/dylint/libraries/`.
-
-To reuse compiled lint libraries across projects or Git worktrees without sharing their Cargo target directories, set `DYLINT_LIBRARIES_DIR` to an absolute path:
-
-```sh
-export DYLINT_LIBRARIES_DIR="$HOME/.dylint_libraries"
-cargo dylint --all
-```
-
-Shared libraries are built under `<toolchain>/<package>-<identity-hash>/release/`. The identity includes the package name and version. Git sources also include the canonical repository URL, resolved full commit ID, and package path within the repository, so different revisions have separate outputs while tags and revisions resolving to the same commit share them. Local sources use their canonical directory, allowing Cargo to track edits without creating a cache for each edit. The consuming workspace is not part of the shared identity.
-
-Configured separate Cargo build directories are partitioned by the same toolchain and source identity. Cargo still checks whether libraries need rebuilding. When the variable is unset, Dylint continues to use `target/dylint/libraries/`. In CI, cache the configured directory instead of `target/dylint/libraries/`.
+Dylint shares compiler drivers and lint libraries across projects in `~/.dylint/cache/`, isolating versions, sources, and toolchains. Override it with an absolute `DYLINT_CACHE_DIR` and cache that directory in CI. Legacy caches are preserved during automatic migration.
 
 ## Utilities
 

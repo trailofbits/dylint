@@ -2,6 +2,7 @@
 // safe to run these tests under `cargo-llvm-cov`.
 // #![cfg(not(coverage))]
 
+use super::dylint_with_home;
 use anyhow::{Context, Result};
 use assert_cmd::{
     assert::OutputAssertExt,
@@ -20,8 +21,8 @@ use predicates::prelude::*;
 use std::{
     ffi::OsStr,
     fmt::Write as _,
-    fs::{OpenOptions, create_dir_all},
-    io::Write,
+    fs::{OpenOptions, read_dir},
+    io::{Result as IoResult, Write},
     path::{Path, PathBuf},
 };
 use tempfile::{tempdir, tempdir_in};
@@ -51,19 +52,19 @@ fn metadata_and_lib_path_are_deduplicated() {
     // where symlink creation can require additional privileges. The Windows case checks
     // deduplication without exercising alias resolution.
     #[cfg(unix)]
-    std::os::unix::fs::symlink(&target_dir, manifest_dir.path().join("target")).unwrap();
+    std::os::unix::fs::symlink(&target_dir, manifest_dir.path().join(".dylint")).unwrap();
 
-    cargo_bin_cmd!("cargo-dylint")
+    dylint_with_home(manifest_dir.path())
         .current_dir(&manifest_dir)
         .args(["dylint", "list", "--all"])
         .assert()
         .success();
 
-    let library_path = target_libraries_directory(manifest_dir.path(), &toolchain)
+    let library_path = cached_libraries_directory(manifest_dir.path(), &toolchain, "fill_me_in")
         .unwrap()
         .join(library_filename_with_toolchain("fill_me_in", &toolchain));
 
-    cargo_bin_cmd!("cargo-dylint")
+    dylint_with_home(manifest_dir.path())
         .current_dir(&manifest_dir)
         .args(["dylint", "list", "--all", "--no-build", "--lib-path"])
         .arg(&library_path)
@@ -207,7 +208,7 @@ fn opts_library_package_with_wildcard() {
 }
 
 #[test]
-fn output_path_collision() {
+fn same_name_libraries_have_separate_outputs() {
     let manifest_dir = tempdir().unwrap();
 
     std::process::Command::new("cargo")
@@ -232,14 +233,12 @@ fn output_path_collision() {
 
     append_workspace_metadata(manifest_dir.path(), [tempdirs.0.path(), tempdirs.1.path()]).unwrap();
 
-    cargo_bin_cmd!("cargo-dylint")
+    dylint_with_home(manifest_dir.path())
         .current_dir(&manifest_dir)
         .args(["dylint", "list", "--all"])
         .assert()
-        .failure()
-        .stderr(predicate::str::contains(
-            "Error: Multiple libraries would use the same output path",
-        ));
+        .success()
+        .stdout(predicate::str::contains("fill_me_in (").count(2));
 }
 
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
@@ -282,29 +281,33 @@ fn relative_path() {
     )
     .unwrap();
 
-    let libraries_dir = target_libraries_directory(tempdirs.2.path(), &toolchain).unwrap();
-
-    // smoelius: `libraries_dir` might not exist yet.
-    create_dir_all(&libraries_dir).unwrap();
-
-    let canonical_path = libraries_dir.canonicalize().unwrap();
-
-    // smoelius: On Windows, `tempdir.path()` must be canonicalized to ensure it has a path
-    // prefix. Otherwise, the call to `strip_prefix` could fail.
-    let relative_path = canonical_path
-        .strip_prefix(tempdirs.2.path().canonicalize().unwrap())
-        .unwrap();
-
-    cargo_bin_cmd!("cargo-dylint")
+    let assert = dylint_with_home(tempdirs.2.path())
         .current_dir(&tempdirs.2)
         .args(["dylint", "list", "--all"])
         .assert()
-        .success()
-        .stdout(
-            predicate::str::contains(format!("fill_me_in ({})", relative_path.display())).and(
-                predicate::str::contains(format!("{lib_name} ({})", relative_path.display())),
-            ),
-        );
+        .success();
+
+    let relative_path = |name| {
+        let canonical_path = cached_libraries_directory(tempdirs.2.path(), &toolchain, name)
+            .unwrap()
+            .canonicalize()
+            .unwrap();
+        // dblock: Canonicalize both paths to preserve Windows path prefixes.
+        canonical_path
+            .strip_prefix(tempdirs.2.path().canonicalize().unwrap())
+            .unwrap()
+            .to_path_buf()
+    };
+    assert.stdout(
+        predicate::str::contains(format!(
+            "fill_me_in ({})",
+            relative_path("fill_me_in").display()
+        ))
+        .and(predicate::str::contains(format!(
+            "{lib_name} ({})",
+            relative_path(lib_name).display()
+        ))),
+    );
 }
 
 fn append_workspace_metadata<'a>(
@@ -377,12 +380,23 @@ fn target_debug(dir: &Path) -> Result<PathBuf> {
 
 // smoelius: Hack. This function duplicates logic from, e.g.,
 // `dylint::library_packages::Package::library_path_with_toolchain`.
-fn target_libraries_directory(dir: &Path, toolchain: &str) -> Result<PathBuf> {
-    let target_directory = target_directory(dir)?;
-    Ok(target_directory
-        .join("dylint/libraries")
-        .join(toolchain)
-        .join("release"))
+fn cached_libraries_directory(home: &Path, toolchain: &str, name: &str) -> Result<PathBuf> {
+    let directory = home.join(".dylint/cache").join(name);
+    let entries = read_dir(&directory)
+        .with_context(|| format!("Could not read cache directory `{}`", directory.display()))?;
+    let entries = entries
+        .collect::<IoResult<Vec<_>>>()
+        .with_context(|| format!("Could not read cache entries in `{}`", directory.display()))?;
+    let partition = entries
+        .into_iter()
+        .find(|entry| entry.path().join(toolchain).is_dir())
+        .with_context(|| {
+            format!(
+                "Could not find cache for `{name}` in `{}`",
+                directory.display()
+            )
+        })?;
+    Ok(partition.path().join(toolchain).join("release"))
 }
 
 fn target_directory(dir: &Path) -> Result<PathBuf> {

@@ -98,7 +98,7 @@ pub fn cache_key(name: &str, version: &Version, root: &Path, git: Option<&str>) 
         (None, None, root)
     };
     let hash = short_hash(&(1_u8, name, version, url, revision, path));
-    Ok(format!("{name}-{hash}"))
+    Ok(format!("{version}-{hash}"))
 }
 
 pub fn partitioned_build_directory(root: &Path, target: &Path) -> PathBuf {
