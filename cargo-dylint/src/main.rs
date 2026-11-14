@@ -20,10 +20,15 @@ enum CargoSubcommand {
     args_conflicts_with_subcommands = true,
     after_help = r#"ENVIRONMENT VARIABLES:
 
+DYLINT_CACHE_DIR (default: $HOME/.dylint/cache) is an absolute directory for all cached compiler
+drivers and lint libraries. It is created as needed and contains
+<name>/<version-and-source-identity>/<toolchain>/.
+
 DYLINT_CLIPPY_REPO (default: none) is a path to a Dylint-exclusive clone of the Clippy repository.
 
-DYLINT_DRIVER_PATH (default: $HOME/.dylint_drivers) is the directory where Dylint stores rustc
-drivers.
+DYLINT_DRIVER_PATH (deprecated, default: none) overrides only the compiler driver directory, with
+one subdirectory per toolchain. It takes precedence over DYLINT_CACHE_DIR for drivers only.
+Prefer DYLINT_CACHE_DIR to relocate all cached artifacts.
 
 DYLINT_LIBRARY_PATH (deprecated, default: none) is a colon-separated list of directories where
 Dylint searches for libraries. Prefer workspace metadata (described below) for naming libraries.

@@ -26,6 +26,7 @@ assert_cmd = { workspace = true }
 cargo_metadata = { workspace = true }
 ctor = { workspace = true }
 dunce = { workspace = true }
+git2 = { workspace = true }
 glob = { workspace = true }
 ignore = { workspace = true }
 log = { workspace = true }
@@ -38,6 +39,7 @@ snapbox = { workspace = true }
 tempfile = { workspace = true }
 toml = { workspace = true }
 toml_edit = { workspace = true }
+url = { workspace = true }
 walkdir = { workspace = true }
 
 dylint_internal = { version = "=6.4.0", path = "../internal", features = [

@@ -1,4 +1,4 @@
-use crate::{error::warn, opts};
+use crate::{cache, error::warn, flock, opts};
 use anyhow::{Context, Result, anyhow, ensure};
 use dylint_internal::{
     CommandExt, driver as dylint_driver, env,
@@ -7,12 +7,10 @@ use dylint_internal::{
 use semver::Version;
 use std::{
     env::{consts, home_dir},
-    fs::{copy, create_dir_all, rename, write},
+    fs::{copy, create_dir_all, read_to_string, rename, write},
     path::{Path, PathBuf},
 };
 use tempfile::{NamedTempFile, tempdir};
-
-mod flock;
 
 include!(concat!(env!("OUT_DIR"), "/dylint_driver_manifest_dir.rs"));
 
@@ -46,7 +44,7 @@ pub fn main() -> Result<()> {
     allow(question_mark_in_expression)
 )]
 pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
-    let dylint_drivers = dylint_drivers()?;
+    let dylint_drivers = dylint_drivers(opts, toolchain)?;
 
     let driver_dir = dylint_drivers.join(toolchain);
     if !driver_dir.is_dir() {
@@ -66,25 +64,38 @@ pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     Ok(driver)
 }
 
-fn dylint_drivers() -> Result<PathBuf> {
+fn dylint_drivers(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
+    #[allow(deprecated)]
     if let Ok(dylint_driver_path) = env::var(env::DYLINT_DRIVER_PATH) {
+        warn(
+            opts,
+            "`DYLINT_DRIVER_PATH` is deprecated; use `DYLINT_CACHE_DIR` to relocate all cached artifacts",
+        );
         let dylint_drivers = Path::new(&dylint_driver_path);
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())
     } else {
-        let home = home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
-        let dylint_drivers = Path::new(&home).join(".dylint_drivers");
-        if !dylint_drivers.is_dir() {
-            create_dir_all(&dylint_drivers).with_context(|| {
-                format!(
-                    "`create_dir_all` failed for `{}`",
-                    dylint_drivers.to_string_lossy()
-                )
+        let root = cache::directory(cache::DRIVER_PACKAGE)?;
+        if !root.is_dir() {
+            create_dir_all(&root).with_context(|| {
+                format!("`create_dir_all` failed for `{}`", root.to_string_lossy())
             })?;
-            let readme_txt = dylint_drivers.join("README.txt");
+            let readme_txt = root.join("README.txt");
             write(&readme_txt, README_TXT).with_context(|| {
                 format!("`write` failed for `{}`", readme_txt.to_string_lossy())
             })?;
+        }
+        let dylint_drivers = root.join(DYLINT_DRIVER_CACHE_KEY);
+        if let Some(home) = home_dir() {
+            cache::migrate_with(
+                &home.join(".dylint_drivers").join(toolchain),
+                &dylint_drivers.join(toolchain),
+                |staging| {
+                    let driver = staging.join("dylint-driver");
+                    let outdated = is_outdated(opts, toolchain, &driver)?;
+                    Ok(!outdated)
+                },
+            )?;
         }
         Ok(dylint_drivers)
     }
@@ -94,6 +105,7 @@ fn is_outdated(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<bo
     (|| -> Result<bool> {
         let mut command = dylint_driver(toolchain, driver)?;
         let output = command.args(["-V"]).logged_output(true)?;
+        ensure!(output.status.success(), "Could not run cached driver");
         let stdout = std::str::from_utf8(&output.stdout)?;
         let theirs = stdout
             .trim_end()
@@ -105,13 +117,22 @@ fn is_outdated(opts: &opts::Dylint, toolchain: &str, driver: &Path) -> Result<bo
             .with_context(|| format!("Could not parse driver version `{theirs}`"))?;
 
         let our_version = Version::parse(env!("CARGO_PKG_VERSION"))?;
-
-        Ok(their_version < our_version)
+        let identity = read_to_string(driver.with_file_name("dylint-build-id")).ok();
+        Ok(!driver_matches(
+            &our_version,
+            &their_version,
+            DYLINT_DRIVER_CACHE_KEY,
+            identity.as_deref(),
+        ))
     })()
     .or_else(|error| {
         warn(opts, &error.to_string());
         Ok(true)
     })
+}
+
+fn driver_matches(ours: &Version, theirs: &Version, key: &str, identity: Option<&str>) -> bool {
+    ours == theirs && identity.map_or_else(|| key == ours.to_string(), |identity| identity == key)
 }
 
 #[cfg_attr(dylint_lib = "supplementary", allow(commented_out_code))]
@@ -180,6 +201,9 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
     // smoelius: Close the writable handle (via `into_temp_path`) before renaming the file and
     // dropping the lock. If another process tries to execute the file while this one still holds a
     // writable handle, that other process will get "Text file busy".
+    let identity = driver_dir.join("dylint-build-id");
+    write(&identity, DYLINT_DRIVER_CACHE_KEY)
+        .with_context(|| format!("Could not write driver identity `{}`", identity.display()))?;
     named_temp_file.into_temp_path().persist(&driver)?;
 
     drop(lock);
@@ -248,6 +272,34 @@ components = ["llvm-tools-preview", "rustc-dev"]
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn driver_versions_and_development_identities_must_match() {
+        let version = Version::new(6, 4, 0);
+        assert!(driver_matches(&version, &version, "6.4.0", None));
+        for other in [Version::new(6, 3, 0), Version::new(6, 5, 0)] {
+            assert!(!driver_matches(&version, &other, "6.4.0", None));
+        }
+        assert!(!driver_matches(&version, &version, "6.4.0-dev-a", None));
+        assert!(!driver_matches(
+            &version,
+            &version,
+            "6.4.0-dev-a",
+            Some("6.4.0-dev-b")
+        ));
+        assert!(!driver_matches(
+            &version,
+            &version,
+            "6.4.0",
+            Some("6.4.0-dev-a")
+        ));
+        assert!(driver_matches(
+            &version,
+            &version,
+            "6.4.0-dev-a",
+            Some("6.4.0-dev-a")
+        ));
+    }
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
