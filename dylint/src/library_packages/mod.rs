@@ -17,17 +17,19 @@ use std::path::{Path, PathBuf, absolute};
 #[path = "cargo_cli/mod.rs"]
 mod impl_;
 
-use impl_::{GlobalContext, PackageId, SourceId, dependency_source_id_and_root};
+use impl_::{
+    GlobalContext, PackageId, SourceId, cache_key, dependency_source_id_and_root,
+    partitioned_build_directory,
+};
 
 type Object = serde_json::Map<String, serde_json::Value>;
 
 #[derive(Clone, Debug)]
 pub struct Package {
-    /// [`Metadata`] of the workspace being linted
-    ///
-    /// Caching a reference to the [`Metadata`] here ensures that it existed when the package was
-    /// created.
-    metadata: &'static Metadata,
+    /// Directory where the package's libraries are built, including the toolchain subdirectory
+    target_directory: PathBuf,
+    /// Whether the package uses a source-specific shared cache
+    shared: bool,
     /// Path to the package's directory
     pub root: PathBuf,
     /// The package's [`PackageId`], which includes the package's name, version, and source id
@@ -36,7 +38,7 @@ pub struct Package {
     pub lib_name: String,
     /// Toolchain the package uses
     pub toolchain: String,
-    /// Cargo's build directory when `dylint-link` performs the copy; otherwise `None`
+    /// Cargo's build directory when needed for shared builds or linker copies
     build_directory: Option<PathBuf>,
 }
 
@@ -68,11 +70,7 @@ impl PartialOrd for Package {
 
 impl Package {
     pub fn target_directory(&self) -> PathBuf {
-        self.metadata
-            .target_directory
-            .join("dylint/libraries")
-            .join(&self.toolchain)
-            .into_std_path_buf()
+        self.target_directory.clone()
     }
 
     pub fn library_plain_path(&self) -> PathBuf {
@@ -86,14 +84,18 @@ impl Package {
         // `target_directory`. But when `dylint-link` performs the copy, it does so during linking
         // and places the copy relative to the linker output, which can be under `build_directory`.
         // This is especially relevant when the user changes the build directory location.
-        self.build_directory
-            .clone()
-            .unwrap_or_else(|| self.target_directory())
-            .join("release")
-            .join(library_filename_with_toolchain(
-                &self.lib_name,
-                &self.toolchain,
-            ))
+        (if self.shared {
+            self.target_directory()
+        } else {
+            self.build_directory
+                .clone()
+                .unwrap_or_else(|| self.target_directory())
+        })
+        .join("release")
+        .join(library_filename_with_toolchain(
+            &self.lib_name,
+            &self.toolchain,
+        ))
     }
 }
 
@@ -407,19 +409,16 @@ fn library_package(
         let package_id = package_id(&package, source_id.clone());
         let lib_name = package_library_name(&package)?;
         let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
-        let build_directory = if env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY) {
-            let target_directory = metadata
-                .target_directory
-                .join("dylint/libraries")
-                .join(&toolchain);
-            let metadata =
-                dylint_internal::cargo::metadata_with_target_dir(&path, target_directory)?;
-            metadata.build_directory.map(Utf8PathBuf::into_std_path_buf)
+        let shared = std::env::var_os(env::DYLINT_LIBRARIES_DIR).is_some();
+        let target_directory = target_directory(metadata, &toolchain, &package, &path, details)?;
+        let build_directory = if shared || env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY) {
+            build_directory(&path, &target_directory, shared)?
         } else {
             None
         };
         packages.push(Package {
-            metadata,
+            target_directory,
+            shared,
             root: path,
             id: package_id,
             lib_name,
@@ -498,6 +497,62 @@ pub fn package_library_name(package: &MetadataPackage) -> Result<String> {
         })
 }
 
+fn target_directory(
+    metadata: &Metadata,
+    toolchain: &str,
+    package: &MetadataPackage,
+    root: &Path,
+    details: &TomlDetailedDependency,
+) -> Result<PathBuf> {
+    if let Some(path) = std::env::var_os(env::DYLINT_LIBRARIES_DIR) {
+        let path = PathBuf::from(path);
+        ensure!(
+            path.is_absolute(),
+            "DYLINT_LIBRARIES_DIR contains `{}`, which is not absolute",
+            path.display()
+        );
+        let key = cache_key(
+            package.name.as_str(),
+            &package.version,
+            root,
+            details.git.as_deref(),
+        )?;
+        Ok(path.join(toolchain).join(key))
+    } else {
+        Ok(metadata
+            .target_directory
+            .join("dylint/libraries")
+            .join(toolchain)
+            .into_std_path_buf())
+    }
+}
+
+fn build_directory(
+    package_root: &Path,
+    target_directory: &Path,
+    shared: bool,
+) -> Result<Option<PathBuf>> {
+    let metadata =
+        dylint_internal::cargo::metadata_with_target_dir(package_root, target_directory)?;
+    let directory = metadata.build_directory.map(Utf8PathBuf::into_std_path_buf);
+    if !shared {
+        return Ok(directory);
+    }
+    let root = match &directory {
+        Some(directory) if !directory.starts_with(target_directory) => directory.join("dylint"),
+        // dblock: MSVC's linker cannot open the deeply nested default intermediate paths.
+        _ if cfg!(windows) => {
+            let root = target_directory
+                .ancestors()
+                .nth(2)
+                .ok_or_else(|| anyhow!("Could not find shared library cache root"))?;
+            root.join(".build")
+        }
+        _ => return Ok(directory),
+    };
+    Ok(Some(partitioned_build_directory(&root, target_directory)))
+}
+
 pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> {
     let target_dir = package.target_directory();
 
@@ -506,16 +561,25 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
     if !opts.library_selection().no_build {
         // smoelius: Clear `RUSTFLAGS` so that changes to it do not cause workspace metadata entries
         // to be rebuilt.
-        dylint_internal::cargo::build(&format!("workspace metadata entry `{}`", package.id.name()))
-            .quiet(opts.quiet)
-            .build()
+        let mut command = dylint_internal::cargo::build(&format!(
+            "workspace metadata entry `{}`",
+            package.id.name()
+        ))
+        .quiet(opts.quiet)
+        .build();
+        command
             .sanitize_environment()
             .env_remove(env::RUSTFLAGS)
             .current_dir(&package.root)
-            .args(["--release", "--target-dir", &target_dir.to_string_lossy()])
-            .success()?;
+            .args(["--release", "--target-dir", &target_dir.to_string_lossy()]);
+        if package.shared
+            && let Some(directory) = &package.build_directory
+        {
+            command.env(env::CARGO_BUILD_BUILD_DIR, directory);
+        }
+        command.success()?;
 
-        if !env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY) {
+        if package.shared || !env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY) {
             let path_with_toolchain = copy_library(
                 &package.library_plain_path(),
                 &package.lib_name,
