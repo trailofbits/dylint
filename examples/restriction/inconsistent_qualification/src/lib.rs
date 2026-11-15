@@ -81,36 +81,41 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
                     ..
                 })
             )
-            && let Some(mod_def_id) = path
+        {
+            // Check only modules present in the path, not all ancestors of the resolved item.
+            for mod_def_id in path
                 .segments
                 .iter()
                 .rev()
-                .find_map(|segment| segment.res.mod_def_id())
-        {
-            let syms_mod = cx.get_def_path(mod_def_id);
-            // smoelius: Iterate over all enclosing scopes.
-            let mut current_hir_id = hir_id;
-            loop {
-                let enclosing_scope_hir_id = cx.tcx.hir_get_enclosing_scope(current_hir_id);
-                let mut visitor = UseVisitor {
-                    cx,
-                    enclosing_scope_hir_id,
-                    path,
-                    syms_mod: &syms_mod,
-                    diagnostic_emitted: false,
-                };
-                if let Some(enclosing_scope_hir_id) = enclosing_scope_hir_id {
-                    let node = cx.tcx.hir_node(enclosing_scope_hir_id);
-                    visitor.visit_scope(node);
-                    current_hir_id = enclosing_scope_hir_id;
+                .filter_map(|segment| segment.res.mod_def_id())
+            {
+                let syms_mod = cx.get_def_path(mod_def_id);
+                // smoelius: Iterate over all enclosing scopes.
+                let mut current_hir_id = hir_id;
+                loop {
+                    let enclosing_scope_hir_id = cx.tcx.hir_get_enclosing_scope(current_hir_id);
+                    let mut visitor = UseVisitor {
+                        cx,
+                        enclosing_scope_hir_id,
+                        path,
+                        syms_mod: &syms_mod,
+                        diagnostic_emitted: false,
+                    };
+                    if let Some(enclosing_scope_hir_id) = enclosing_scope_hir_id {
+                        let node = cx.tcx.hir_node(enclosing_scope_hir_id);
+                        visitor.visit_scope(node);
+                        current_hir_id = enclosing_scope_hir_id;
+                    } else {
+                        let parent_module_local_def_id = cx.tcx.parent_module(hir_id);
+                        let parent_module = cx.tcx.hir_get_module(parent_module_local_def_id);
+                        visitor.visit_mod(parent_module.0, parent_module.1, parent_module.2);
+                    }
                     if visitor.diagnostic_emitted {
+                        return;
+                    }
+                    if enclosing_scope_hir_id.is_none() {
                         break;
                     }
-                } else {
-                    let parent_module_local_def_id = cx.tcx.parent_module(hir_id);
-                    let parent_module = cx.tcx.hir_get_module(parent_module_local_def_id);
-                    visitor.visit_mod(parent_module.0, parent_module.1, parent_module.2);
-                    break;
                 }
             }
         }
@@ -156,6 +161,10 @@ impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
     }
 
     fn visit_item(&mut self, item: &'tcx Item) {
+        if self.diagnostic_emitted {
+            return;
+        }
+
         if !item.span.from_expansion()
             // smoelius: Ignore underscore imports.
             && item.kind.ident().is_none_or(|name| name.as_str() != "_")

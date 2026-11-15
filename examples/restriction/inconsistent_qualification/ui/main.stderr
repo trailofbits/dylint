@@ -95,5 +95,29 @@ note: `bar::baz` was imported here
 LL |     use bar::baz;
    |     ^^^^^^^^^^^^^
 
-warning: 8 warnings emitted
+warning: inconsistent qualification
+  --> $DIR/main.rs:147:17
+   |
+LL |         let _ = std::env::consts::EXE_SUFFIX;
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: items from `std::env` were imported here
+  --> $DIR/main.rs:143:5
+   |
+LL |     use std::env::split_paths;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: inconsistent qualification
+  --> $DIR/main.rs:157:17
+   |
+LL |         let _ = std::env::consts::EXE_SUFFIX;
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: items from `std::env` were imported here
+  --> $DIR/main.rs:152:20
+   |
+LL |     use std::env::{split_paths, var};
+   |                    ^^^^^^^^^^^
+
+warning: 10 warnings emitted
 
