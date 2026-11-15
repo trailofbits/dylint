@@ -1,7 +1,9 @@
 use anyhow::{Context, Result, bail};
 use assert_cmd::cargo::{cargo_bin, cargo_bin_cmd};
 use dylint_internal::{
-    CommandExt, cargo, env, library_plain_filename, msrv, rustup::SanitizeEnvironment,
+    CommandExt, cargo, env, library_plain_filename, msrv,
+    rustup::SanitizeEnvironment,
+    testing::{new_filled_in_template, new_template},
 };
 use glob::glob;
 use predicates::prelude::*;
@@ -25,11 +27,8 @@ fn new_package() {
 
             let tempdir = tempdir().with_context(|| "Could not create temporary directory")?;
 
-            let path_buf = dylint_internal::testing::new_filled_in_template(
-                cargo_bin!("cargo-dylint"),
-                tempdir.path(),
-                "filled_in",
-            )?;
+            let path_buf =
+                new_filled_in_template(cargo_bin!("cargo-dylint"), tempdir.path(), "filled_in")?;
 
             let mut command = cargo::build("filled-in dylint-template").build();
             command.sanitize_environment();
@@ -94,7 +93,7 @@ fn new_package() {
 fn downgrade_upgrade_package() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::testing::new_template(tempdir.path()).unwrap();
+    new_template(tempdir.path()).unwrap();
 
     // smoelius: I broke this downgrading code when I switched dylint-template from using a git tag
     // to a git revision to refer to `clippy_utils`. For now, just hardcode the downgrade version.

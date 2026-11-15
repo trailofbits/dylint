@@ -6,7 +6,8 @@ use cargo_metadata::{
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
 use dylint_internal::{
     CommandExt, cargo, config, env, library_filename_with_toolchain, library_plain_filename,
-    link::copy_library, rustup::SanitizeEnvironment,
+    link::copy_library,
+    rustup::{SanitizeEnvironment, active_toolchain},
 };
 use glob::glob;
 use once_cell::sync::OnceCell;
@@ -406,7 +407,7 @@ fn library_package(
         #[allow(clippy::clone_on_copy)]
         let package_id = package_id(&package, source_id.clone());
         let lib_name = package_library_name(&package)?;
-        let toolchain = dylint_internal::rustup::active_toolchain(&path)?;
+        let toolchain = active_toolchain(&path)?;
         let build_directory = if env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY) {
             let target_directory = metadata
                 .target_directory
