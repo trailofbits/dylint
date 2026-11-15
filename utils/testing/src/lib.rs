@@ -120,7 +120,7 @@
 use anyhow::{Context, Result, anyhow, ensure};
 use cargo_metadata::{Metadata, Package, Target, TargetKind};
 use compiletest_rs as compiletest;
-use dylint_internal::{CommandExt, env, link::dylint_libs, rustup::is_rustc};
+use dylint_internal::{CommandExt, cargo, env, link::dylint_libs, rustup::is_rustc};
 use once_cell::sync::OnceCell;
 use regex::Regex;
 use std::{
@@ -170,7 +170,7 @@ fn initialize(name: &str) -> &Result<PathBuf> {
         // smoelius: Try to order failures by how informative they are: failure to build the
         // library, failure to find the library, failure to build/find the driver.
 
-        dylint_internal::cargo::build(&format!("library `{name}`"))
+        cargo::build(&format!("library `{name}`"))
             .build()
             .success()?;
 
@@ -307,7 +307,7 @@ fn rustc_flags(_metadata: &Metadata, package: &Package, target: &Target) -> Resu
         // smoelius: Because of lazy initialization, `cargo rustc` is run only once. Seeing
         // "Building example `target`" for one example but not for others is confusing. So instead
         // say "Building `package` examples".
-        dylint_internal::cargo::rustc(&format!("`{}` examples", package.name))
+        cargo::rustc(&format!("`{}` examples", package.name))
             .build()
             .env_remove(env::CARGO_TERM_COLOR)
             .args([

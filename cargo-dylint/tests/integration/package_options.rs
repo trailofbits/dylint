@@ -1,6 +1,8 @@
 use anyhow::{Context, Result, bail};
 use assert_cmd::cargo::{cargo_bin, cargo_bin_cmd};
-use dylint_internal::{CommandExt, env, library_plain_filename, msrv, rustup::SanitizeEnvironment};
+use dylint_internal::{
+    CommandExt, cargo, env, library_plain_filename, msrv, rustup::SanitizeEnvironment,
+};
 use glob::glob;
 use predicates::prelude::*;
 use semver::Version;
@@ -29,7 +31,7 @@ fn new_package() {
                 "filled_in",
             )?;
 
-            let mut command = dylint_internal::cargo::build("filled-in dylint-template").build();
+            let mut command = cargo::build("filled-in dylint-template").build();
             command.sanitize_environment();
             if let Some(build_dir) = &build_dir {
                 command.env(env::CARGO_BUILD_BUILD_DIR, build_dir.path());
@@ -59,7 +61,7 @@ fn new_package() {
                 }
             }
 
-            let mut command = dylint_internal::cargo::test("filled-in dylint-template").build();
+            let mut command = cargo::test("filled-in dylint-template").build();
             command.sanitize_environment();
             if let Some(build_dir) = &build_dir {
                 command.env(env::CARGO_BUILD_BUILD_DIR, build_dir.path());
@@ -120,14 +122,14 @@ fn downgrade_upgrade_package() {
 
     upgrade().args(["--allow-downgrade"]).assert().success();
 
-    dylint_internal::cargo::build("downgraded dylint-template")
+    cargo::build("downgraded dylint-template")
         .build()
         .sanitize_environment()
         .current_dir(&tempdir)
         .success()
         .unwrap();
 
-    dylint_internal::cargo::test("downgraded dylint-template")
+    cargo::test("downgraded dylint-template")
         .build()
         .sanitize_environment()
         .current_dir(&tempdir)
@@ -145,14 +147,14 @@ fn downgrade_upgrade_package() {
         return;
     }
 
-    dylint_internal::cargo::build("upgraded dylint-template")
+    cargo::build("upgraded dylint-template")
         .build()
         .sanitize_environment()
         .current_dir(&tempdir)
         .success()
         .unwrap();
 
-    dylint_internal::cargo::test("upgraded dylint-template")
+    cargo::test("upgraded dylint-template")
         .build()
         .sanitize_environment()
         .current_dir(&tempdir)

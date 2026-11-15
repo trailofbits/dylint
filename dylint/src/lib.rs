@@ -7,7 +7,7 @@
 use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::{Metadata, MetadataCommand};
 use dylint_internal::{
-    CommandExt, driver as dylint_driver, env, parse_path_with_toolchain,
+    CommandExt, cargo, driver as dylint_driver, env, parse_path_with_toolchain,
     rustup::SanitizeEnvironment,
 };
 use std::{
@@ -391,9 +391,9 @@ fn check_or_fix(
             .to_string();
         let description = format!("with toolchain `{toolchain}`");
         let mut command = if check_opts.fix {
-            dylint_internal::cargo::fix(&description)
+            cargo::fix(&description)
         } else {
-            dylint_internal::cargo::check(&description)
+            cargo::check(&description)
         }
         .build();
         let mut args = vec!["--target-dir", &target_dir_str];

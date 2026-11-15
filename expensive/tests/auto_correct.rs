@@ -1,6 +1,6 @@
 use anyhow::{Context, Result, anyhow};
 use dylint_internal::{
-    CommandExt, clone, env::enabled, rustup::SanitizeEnvironment, testing::cargo_dylint,
+    CommandExt, cargo, clone, env::enabled, rustup::SanitizeEnvironment, testing::cargo_dylint,
 };
 use regex::Regex;
 use semver::Version;
@@ -86,7 +86,7 @@ fn upgrade_restriction_examples_with_auto_correct() {
             command.success().unwrap();
         }
 
-        let status = dylint_internal::cargo::check("auto-corrected, upgraded library package")
+        let status = cargo::check("auto-corrected, upgraded library package")
             .build()
             .sanitize_environment()
             .current_dir(tempdir.path().join("examples/restriction"))

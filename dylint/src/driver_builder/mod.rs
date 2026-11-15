@@ -1,7 +1,7 @@
 use crate::{error::warn, opts};
 use anyhow::{Context, Result, anyhow, ensure};
 use dylint_internal::{
-    CommandExt, driver as dylint_driver, env,
+    CommandExt, cargo, driver as dylint_driver, env,
     rustup::{SanitizeEnvironment, toolchain_path},
 };
 use semver::Version;
@@ -121,7 +121,7 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
 
     initialize(toolchain, package)?;
 
-    let metadata = dylint_internal::cargo::metadata(package)?;
+    let metadata = cargo::metadata(package)?;
 
     let toolchain_path = toolchain_path(package)?;
 
@@ -140,7 +140,7 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
         warn(opts, "In debug mode building driver from `crates.io`");
     }
 
-    dylint_internal::cargo::build(&format!("driver for toolchain `{toolchain}`"))
+    cargo::build(&format!("driver for toolchain `{toolchain}`"))
         .quiet(opts.quiet)
         .build()
         .sanitize_environment()

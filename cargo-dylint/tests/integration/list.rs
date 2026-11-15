@@ -8,7 +8,7 @@ use assert_cmd::{
     cargo::{cargo_bin, cargo_bin_cmd},
 };
 use dylint_internal::{
-    CommandExt,
+    CommandExt, cargo,
     clippy_utils::{set_clippy_utils_dependency_revision, set_toolchain_channel},
     library_filename_with_toolchain,
     link::debug_path_with_active_toolchain,
@@ -36,7 +36,7 @@ fn metadata_and_lib_path_are_deduplicated() {
     new_template(library_dir.path()).unwrap();
     let toolchain = active_toolchain(library_dir.path()).unwrap();
 
-    dylint_internal::cargo::init("package `metadata_and_lib_path_test`")
+    cargo::init("package `metadata_and_lib_path_test`")
         .build()
         .current_dir(&manifest_dir)
         .args(["--name", "metadata_and_lib_path_test"])
@@ -139,13 +139,13 @@ fn one_name_multiple_paths() {
     new_template(tempdirs.0.path()).unwrap();
     new_template(tempdirs.1.path()).unwrap();
 
-    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdirs.0.path()))
+    cargo::build(&format!("dylint-template in {:?}", tempdirs.0.path()))
         .build()
         .sanitize_environment()
         .current_dir(&tempdirs.0)
         .success()
         .unwrap();
-    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdirs.1.path()))
+    cargo::build(&format!("dylint-template in {:?}", tempdirs.1.path()))
         .build()
         .sanitize_environment()
         .current_dir(&tempdirs.1)
@@ -349,7 +349,7 @@ fn list_by_path() {
 
     new_template(tempdir.path()).unwrap();
 
-    dylint_internal::cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
+    cargo::build(&format!("dylint-template in {:?}", tempdir.path()))
         .build()
         .sanitize_environment()
         .current_dir(&tempdir)
@@ -386,6 +386,6 @@ fn target_libraries_directory(dir: &Path, toolchain: &str) -> Result<PathBuf> {
 }
 
 fn target_directory(dir: &Path) -> Result<PathBuf> {
-    let metadata = dylint_internal::cargo::metadata(dir)?;
+    let metadata = cargo::metadata(dir)?;
     Ok(metadata.target_directory.into_std_path_buf())
 }

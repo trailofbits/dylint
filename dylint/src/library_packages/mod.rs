@@ -5,7 +5,7 @@ use cargo_metadata::{
 };
 use cargo_util_schemas::manifest::{StringOrVec, TomlDetailedDependency};
 use dylint_internal::{
-    CommandExt, config, env, library_filename_with_toolchain, library_plain_filename,
+    CommandExt, cargo, config, env, library_filename_with_toolchain, library_plain_filename,
     link::copy_library, rustup::SanitizeEnvironment,
 };
 use glob::glob;
@@ -412,8 +412,7 @@ fn library_package(
                 .target_directory
                 .join("dylint/libraries")
                 .join(&toolchain);
-            let metadata =
-                dylint_internal::cargo::metadata_with_target_dir(&path, target_directory)?;
+            let metadata = cargo::metadata_with_target_dir(&path, target_directory)?;
             metadata.build_directory.map(Utf8PathBuf::into_std_path_buf)
         } else {
             None
@@ -467,7 +466,7 @@ fn package_with_root(package_root: &Path) -> Result<MetadataPackage> {
         .no_deps()
         .exec()?;
 
-    dylint_internal::cargo::package_with_root(&metadata, package_root)
+    cargo::package_with_root(&metadata, package_root)
 }
 
 fn package_id(package: &MetadataPackage, source_id: SourceId) -> PackageId {
@@ -506,7 +505,7 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
     if !opts.library_selection().no_build {
         // smoelius: Clear `RUSTFLAGS` so that changes to it do not cause workspace metadata entries
         // to be rebuilt.
-        dylint_internal::cargo::build(&format!("workspace metadata entry `{}`", package.id.name()))
+        cargo::build(&format!("workspace metadata entry `{}`", package.id.name()))
             .quiet(opts.quiet)
             .build()
             .sanitize_environment()
