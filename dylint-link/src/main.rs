@@ -9,10 +9,10 @@ use dylint_internal::{
 };
 use std::{env::args, fs::read_to_string, path::PathBuf, process::Command};
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use windows::{default_linker, needs_lld_link_flavor, output_path};
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(not(windows))]
 use not_windows::{default_linker, output_path};
 
 fn main() -> Result<()> {
@@ -29,7 +29,7 @@ fn main() -> Result<()> {
     // ahead of the linker arguments. Inject the flag here so that
     // `linker = "rust-lld"` in Cargo's configuration file works without further
     // setup.
-    #[cfg(target_os = "windows")]
+    #[cfg(windows)]
     if needs_lld_link_flavor(&linker) {
         command.args(["-flavor", "link"]);
     }
@@ -83,7 +83,7 @@ fn warn(msg: &str) {
     eprintln!("{}: {msg}", env!("CARGO_PKG_NAME"));
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 mod windows {
     use anyhow::{Result, anyhow, ensure};
     use dylint_internal::{env, rustup::parse_toolchain};
@@ -165,7 +165,7 @@ mod windows {
     }
 }
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(not(windows))]
 mod not_windows {
     #![allow(clippy::unnecessary_wraps)]
 

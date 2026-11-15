@@ -170,7 +170,7 @@ fn build(opts: &opts::Dylint, toolchain: &str, driver_dir: &Path) -> Result<()> 
     let driver = driver_dir.join("dylint-driver");
 
     // smoelius: Windows requires that the old file be moved out of the way first.
-    if cfg!(target_os = "windows") {
+    if cfg!(windows) {
         let temp_path = NamedTempFile::new_in(driver_dir)
             .map(NamedTempFile::into_temp_path)
             .with_context(|| "Could not create temporary file")?;

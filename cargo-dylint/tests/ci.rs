@@ -514,10 +514,7 @@ fn markdown_reference_links_are_valid_and_used() {
     }
 }
 
-#[cfg_attr(
-    target_os = "windows",
-    ignore = "testing on Unix-like platforms is sufficient"
-)]
+#[cfg_attr(windows, ignore = "testing on Unix-like platforms is sufficient")]
 #[test]
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[cfg_attr(dylint_lib = "supplementary", expect(commented_out_code))]
@@ -606,7 +603,7 @@ fn msrv() {
     }
 }
 
-#[cfg_attr(target_os = "windows", ignore)]
+#[cfg_attr(windows, ignore)]
 #[test]
 fn prettier_all_but_examples_and_template() {
     Command::new("prettier")
@@ -621,7 +618,7 @@ fn prettier_all_but_examples_and_template() {
         .success();
 }
 
-#[cfg_attr(target_os = "windows", ignore)]
+#[cfg_attr(windows, ignore)]
 #[test]
 fn prettier_examples_and_template() {
     Command::new("prettier")
@@ -633,7 +630,7 @@ fn prettier_examples_and_template() {
         .success();
 }
 
-#[cfg_attr(target_os = "windows", ignore)]
+#[cfg_attr(windows, ignore)]
 #[test]
 fn rustdoc_prettier() {
     Command::new("rustdoc-prettier")
