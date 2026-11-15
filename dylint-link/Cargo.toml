@@ -36,5 +36,5 @@ __copy_library_disabled_by_default = []
 [lints]
 workspace = true
 
-[target.'cfg(target_os = "windows")'.dependencies]
+[target.'cfg(windows)'.dependencies]
 cc = "1.11"

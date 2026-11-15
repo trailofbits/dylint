@@ -1,6 +1,6 @@
 // smoelius: On Windows, `rustup update nightly` generates "could not create link" errors similar to
 // this one: https://github.com/rust-lang/rustup/issues/1316
-#![cfg(not(target_os = "windows"))]
+#![cfg(not(windows))]
 
 use anyhow::Result;
 use dylint_internal::CommandExt;
