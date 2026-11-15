@@ -1,6 +1,7 @@
 use anyhow::{Context, Result, anyhow, ensure};
 use regex::Regex;
 use std::{
+    convert::identity,
     ffi::OsStr,
     fs::File,
     io::{BufRead, BufReader},
@@ -43,7 +44,7 @@ fn main() -> Result<()> {
         let () = handle
             .join()
             .map_err(|error| anyhow!("{error:?}"))
-            .and_then(std::convert::identity)?;
+            .and_then(identity)?;
     }
 
     Ok(())
