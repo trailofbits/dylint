@@ -138,3 +138,32 @@ macro_rules! check_ld_preload {
 fn foo() {
     check_ld_preload!();
 }
+
+mod qualified_nested_module {
+    use std::env::split_paths;
+
+    fn foo() {
+        let _ = split_paths("");
+        let _ = std::env::consts::EXE_SUFFIX;
+    }
+}
+
+mod qualified_nested_module_multiple_imports {
+    use std::env::{split_paths, var};
+
+    fn foo() {
+        let _ = split_paths("");
+        let _ = var("PATH");
+        let _ = std::env::consts::EXE_SUFFIX;
+    }
+}
+
+mod imported_nested_module {
+    use std::env::{consts, split_paths};
+
+    fn foo() {
+        let _ = split_paths("");
+        // negative test
+        let _ = consts::EXE_SUFFIX;
+    }
+}
