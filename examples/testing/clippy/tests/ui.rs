@@ -1,6 +1,6 @@
 use anyhow::{Result, anyhow};
 use cargo_metadata::Dependency;
-use dylint_internal::{CommandExt, clone, env, link::dylint_libs};
+use dylint_internal::{CommandExt, cargo, clone, env, link::dylint_libs};
 use std::path::Path;
 use tempfile::{tempdir, tempdir_in};
 
@@ -10,10 +10,7 @@ fn ui() {
     // smoelius: Try to order failures by how informative they are: failure to build the library,
     // failure to find the library, failure to build/find the driver.
 
-    dylint_internal::cargo::build("clippy")
-        .build()
-        .success()
-        .unwrap();
+    cargo::build("clippy").build().success().unwrap();
 
     let tempdir = tempdir().unwrap();
 
@@ -49,7 +46,7 @@ fn ui() {
     // smoelius: A non-canonical temporary current directory seems to cause problems for `ui_test`.
     let tempdir_path = tempdir.path().canonicalize().unwrap();
 
-    let mut command = dylint_internal::cargo::test("clippy").build();
+    let mut command = cargo::test("clippy").build();
     command
         .current_dir(tempdir_path)
         .envs([
@@ -91,7 +88,7 @@ fn clone_rust_clippy(path: &Path) -> Result<()> {
 }
 
 fn clippy_lints_dependency() -> Result<Dependency> {
-    let metadata = dylint_internal::cargo::current_metadata()?;
+    let metadata = cargo::current_metadata()?;
     let package = metadata
         .packages
         .into_iter()

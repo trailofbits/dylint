@@ -1,7 +1,7 @@
 #![cfg(not(coverage))]
 
 use dylint_internal::{
-    CommandExt, clippy_utils::set_toolchain_channel, env, find_and_replace,
+    CommandExt, cargo, clippy_utils::set_toolchain_channel, env, find_and_replace,
     rustup::SanitizeEnvironment, testing::new_template,
 };
 use tempfile::tempdir;
@@ -141,7 +141,7 @@ fn boundary_toolchains() {
 
             set_toolchain_channel(tempdir.path(), channel).unwrap();
 
-            dylint_internal::cargo::test(&format!("with channel `{channel}`"))
+            cargo::test(&format!("with channel `{channel}`"))
                 .build()
                 .sanitize_environment()
                 .current_dir(&tempdir)

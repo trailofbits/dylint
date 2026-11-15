@@ -1,5 +1,5 @@
 use assert_cmd::cargo::cargo_bin_cmd;
-use dylint_internal::{CommandExt, env, packaging::isolate, testing::copy_dir};
+use dylint_internal::{CommandExt, cargo, env, packaging::isolate, testing::copy_dir};
 use predicates::prelude::*;
 use std::{
     fs::{OpenOptions, remove_file, write},
@@ -72,7 +72,7 @@ fn main() {
 fn depinfo_dylint_toml() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `depinfo_dylint_toml_test`")
+    cargo::init("package `depinfo_dylint_toml_test`")
         .build()
         .current_dir(&tempdir)
         .args(["--name", "depinfo_dylint_toml_test"])

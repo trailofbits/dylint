@@ -19,7 +19,7 @@ use crate::opts;
 use anyhow::{Context, Result, anyhow, bail, ensure};
 use cargo_metadata::{Metadata, MetadataCommand};
 use cargo_util_schemas::manifest::TomlDetailedDependency;
-use dylint_internal::{CommandExt, home::cargo_home, packaging::isolate};
+use dylint_internal::{CommandExt, cargo, home::cargo_home, packaging::isolate};
 use semver::Version;
 use serde::Serialize;
 use std::{
@@ -203,7 +203,7 @@ fn create_dummy_dependency() -> Result<TempDir> {
         .tempdir()
         .with_context(|| "Could not create temporary directory")?;
 
-    dylint_internal::cargo::init("dummy dependency")
+    cargo::init("dummy dependency")
         .quiet(true)
         .stable(true)
         .build()
@@ -294,8 +294,8 @@ fn cargo_fetch(path: &Path) -> Result<std::process::Output> {
     // But the command should still be executed.
     // smoelius: Since stdout and stderr are captured, there is no need to use `.quiet(true)`.
     // smoelius: We still want to hide the "Fetching ..." message, though.
-    dylint_internal::cargo::fetch("dummy package")
-        .quiet(dylint_internal::cargo::Quiet::MESSAGE)
+    cargo::fetch("dummy package")
+        .quiet(cargo::Quiet::MESSAGE)
         .stable(true)
         .build()
         .args([
@@ -309,7 +309,7 @@ fn cargo_fetch(path: &Path) -> Result<std::process::Output> {
 
 fn cargo_metadata(path: &Path) -> Result<Metadata> {
     MetadataCommand::new()
-        .cargo_path(dylint_internal::cargo::stable_cargo_path())
+        .cargo_path(cargo::stable_cargo_path())
         .current_dir(path)
         .exec()
         .map_err(Into::into)

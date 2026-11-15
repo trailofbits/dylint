@@ -1,5 +1,5 @@
 use dylint_internal::{
-    CommandExt, driver as dylint_driver, env,
+    CommandExt, cargo, driver as dylint_driver, env,
     rustup::{SanitizeEnvironment, toolchain_path},
     testing::new_template,
 };
@@ -17,7 +17,7 @@ fn dylint_driver_path() {
 
     create_dir_all(&dylint_driver_path).unwrap();
 
-    dylint_internal::cargo::test("dylint-template")
+    cargo::test("dylint-template")
         .build()
         .sanitize_environment()
         .current_dir(&tempdir)

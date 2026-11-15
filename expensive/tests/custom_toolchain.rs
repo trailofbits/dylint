@@ -5,8 +5,8 @@
 
 use anyhow::{Context, Result, anyhow};
 use dylint_internal::{
-    CommandExt, clippy_utils::set_toolchain_channel, find_and_replace, rustup::SanitizeEnvironment,
-    testing::new_template,
+    CommandExt, cargo, clippy_utils::set_toolchain_channel, find_and_replace,
+    rustup::SanitizeEnvironment, testing::new_template,
 };
 use std::{path::Path, process::Command};
 use tempfile::{NamedTempFile, TempDir, tempdir};
@@ -30,7 +30,7 @@ fn custom_toolchain() {
 
     patch_dylint_template(tempdir.path(), &custom_toolchain).unwrap();
 
-    dylint_internal::cargo::test(&format!("with custom toolchain `{custom_toolchain}`"))
+    cargo::test(&format!("with custom toolchain `{custom_toolchain}`"))
         .build()
         .sanitize_environment()
         .current_dir(&tempdir)

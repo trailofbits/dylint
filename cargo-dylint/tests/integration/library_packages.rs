@@ -1,5 +1,5 @@
 use assert_cmd::cargo::cargo_bin_cmd;
-use dylint_internal::{CommandExt, env, packaging::isolate, testing::copy_dir};
+use dylint_internal::{CommandExt, cargo, env, packaging::isolate, testing::copy_dir};
 use predicates::prelude::*;
 use std::{fs::OpenOptions, io::Write, path::Path};
 use tempfile::{tempdir, tempdir_in};
@@ -69,7 +69,7 @@ fn invalid_pattern() {
     for pattern in ["/*", "../*"] {
         let tempdir = tempdir().unwrap();
 
-        dylint_internal::cargo::init("package `invalid_pattern_test`")
+        cargo::init("package `invalid_pattern_test`")
             .build()
             .current_dir(&tempdir)
             .args(["--name", "invalid_pattern_test"])
@@ -180,7 +180,7 @@ fn library_packages_with_rust_toolchain() {
 fn list() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `list_test`")
+    cargo::init("package `list_test`")
         .build()
         .current_dir(&tempdir)
         .args(["--name", "list_test"])
@@ -215,7 +215,7 @@ pattern = "examples/general/crate_wide_allow"
 fn metadata_change() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `metadata_change_test`")
+    cargo::init("package `metadata_change_test`")
         .build()
         .current_dir(&tempdir)
         .args(["--name", "metadata_change_test"])
@@ -327,7 +327,7 @@ fn no_metadata_with_path() {
 fn nonexistent_git_library() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `nonexistent_git_library_test`")
+    cargo::init("package `nonexistent_git_library_test`")
         .build()
         .current_dir(&tempdir)
         .args(["--name", "nonexistent_git_library_test"])
@@ -377,7 +377,7 @@ pattern = "examples/general/nonexistent_library"
 fn nonexistent_path_library() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `nonexistent_path_library_test`")
+    cargo::init("package `nonexistent_path_library_test`")
         .build()
         .current_dir(&tempdir)
         .args(["--name", "nonexistent_path_library_test"])
@@ -444,7 +444,7 @@ path = {path_spec}
 fn rustflags_change() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `rustflags_change_test`")
+    cargo::init("package `rustflags_change_test`")
         .build()
         .current_dir(&tempdir)
         .args(["--name", "rustflags_change_test"])
@@ -495,7 +495,7 @@ path = {path_spec}
 fn unknown_keys() {
     let tempdir = tempdir().unwrap();
 
-    dylint_internal::cargo::init("package `unknown_keys_test`")
+    cargo::init("package `unknown_keys_test`")
         .build()
         .current_dir(&tempdir)
         .args(["--name", "unknown_keys_test"])
