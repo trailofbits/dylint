@@ -195,10 +195,10 @@ struct LibrarySelection {
     )]
     manifest_path: Option<String>,
 
-    #[clap(long, help = "Do not build metadata entries")]
+    #[clap(long, help = "Do not build library packages")]
     no_build: bool,
 
-    #[clap(long, help = "Ignore metadata entirely")]
+    #[clap(long, help = "Ignore workspace and dylint.toml metadata")]
     no_metadata: bool,
 
     #[clap(
