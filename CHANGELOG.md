@@ -2,6 +2,11 @@
 
 This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dylint_driver`, `dylint-link`, `dylint_linting`, and `dylint_testing`. If a change to one of those packages is missing, please [open an issue](https://github.com/trailofbits/dylint/issues).
 
+## Unreleased
+
+- FEATURE: Share compiler drivers and lint libraries across projects under `~/.dylint/cache`, with a `DYLINT_CACHE_DIR` override, compatible driver isolation, and automatic legacy cache migration without removing or overwriting existing data ([#2184](https://github.com/trailofbits/dylint/pull/2184), [#2142](https://github.com/trailofbits/dylint/issues/2142)) - [@dblock](https://github.com/dblock).
+- Deprecate the driver-only `DYLINT_DRIVER_PATH` override in favor of `DYLINT_CACHE_DIR`, retaining its existing layout and precedence for drivers.
+
 ## 6.4.0
 
 - FEATURE: Provide prebuilt binaries for Windows (x86-64) ([a551885](https://github.com/trailofbits/dylint/commit/a551885129c49a1d410125b212b8ea1fa7586326))

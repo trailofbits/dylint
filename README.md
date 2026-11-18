@@ -216,11 +216,11 @@ In addition, we recommend caching these directories:
 
 ```yaml
 ~/.cargo/git/checkouts/
-~/.dylint_drivers/
+~/.dylint/cache/
 ~/.rustup/toolchains/
 ```
 
-Also, if you do not cache `target/`, we recommend at least caching `target/dylint/libraries/`.
+Dylint shares compiler drivers and lint libraries across projects in `~/.dylint/cache/`. Override it with an absolute `DYLINT_CACHE_DIR` and cache that directory in CI. Legacy caches are preserved during automatic migration. Lint libraries share one cache per toolchain; `--no-build` does not validate their source.
 
 ## Utilities
 

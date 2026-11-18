@@ -1,7 +1,15 @@
+use super::{dylint_with_home, installed_driver_directory};
 use assert_cmd::cargo::cargo_bin_cmd;
-use dylint_internal::{CommandExt, cargo, env, packaging::isolate, testing::copy_dir};
+use dylint_internal::{
+    CommandExt, cargo, env, library_filename_with_toolchain, packaging::isolate,
+    rustup::active_toolchain, testing::copy_dir,
+};
 use predicates::prelude::*;
-use std::{fs::OpenOptions, io::Write, path::Path};
+use std::{
+    fs::{OpenOptions, create_dir_all, read_to_string, rename, write},
+    io::Write,
+    path::Path,
+};
 use tempfile::{tempdir, tempdir_in};
 
 // smoelius: "Separate lints into categories" commit
@@ -153,6 +161,188 @@ fn library_packages_with_configured_build_directory_and_dylint_link() {
 }
 
 #[test]
+fn libraries_dir_shared_across_workspaces() {
+    libraries_dir_shared_across_workspaces_inner(false);
+}
+
+#[test]
+fn libraries_dir_with_configured_build_directory_and_dylint_link() {
+    libraries_dir_shared_across_workspaces_inner(true);
+}
+
+fn libraries_dir_shared_across_workspaces_inner(copy_with_dylint_link: bool) {
+    let cache = tempdir().unwrap();
+    let home = cache.path().join("shared home");
+    let libraries_directory = home.join(".dylint/cache/libraries");
+    let build_directory = tempdir().unwrap();
+    let toolchain =
+        active_toolchain(Path::new("../examples/restriction/collapsible_unwrap")).unwrap();
+    for first_build in [true, false] {
+        let temp_fixture = tempdir_in("../fixtures").unwrap();
+        copy_dir(
+            Path::new("../fixtures/library_packages_in_dylint_toml"),
+            temp_fixture.path(),
+        )
+        .unwrap();
+        let target_directory = temp_fixture.path().join("target");
+
+        let command = || {
+            let mut command = dylint_with_home(&home);
+            command
+                .current_dir(&temp_fixture)
+                .env(env::CARGO_TARGET_DIR, &target_directory)
+                .env(
+                    env::DYLINT_LINK_ENABLE_COPY_LIBRARY,
+                    if copy_with_dylint_link { "1" } else { "0" },
+                )
+                .env_remove(env::CARGO_BUILD_BUILD_DIR);
+            if copy_with_dylint_link {
+                command.env(env::CARGO_BUILD_BUILD_DIR, build_directory.path());
+            }
+            command
+        };
+        let assert = command()
+            .args(["dylint", "--all"])
+            .assert()
+            .success()
+            .stderr(predicate::str::contains(
+                "\nwarning: `unwrap`s that could be combined\n",
+            ));
+        if first_build {
+            assert.stderr(predicate::str::contains("Compiling collapsible_unwrap"));
+        } else {
+            assert.stderr(predicate::str::contains("Compiling collapsible_unwrap").not());
+        }
+        assert!(!target_directory.join("dylint/libraries").exists());
+        assert!(
+            libraries_directory
+                .join(&toolchain)
+                .join("release")
+                .join(library_filename_with_toolchain(
+                    "collapsible_unwrap",
+                    &toolchain
+                ),)
+                .is_file()
+        );
+
+        command()
+            .args(["dylint", "list", "--all", "--no-build"])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("collapsible_unwrap"));
+    }
+}
+
+#[test]
+#[allow(deprecated)]
+#[cfg_attr(
+    dylint_lib = "general",
+    allow(
+        non_thread_safe_call_in_test,
+        reason = "All writes use private temporary directories"
+    )
+)]
+fn default_cache_migration_and_reuse() {
+    let home = tempdir_in("../fixtures").unwrap();
+    let fixtures = [
+        tempdir_in("../fixtures").unwrap(),
+        tempdir_in("../fixtures").unwrap(),
+    ];
+    for fixture in &fixtures {
+        copy_dir(
+            Path::new("../fixtures/library_packages_in_dylint_toml"),
+            fixture.path(),
+        )
+        .unwrap();
+    }
+    let legacy_drivers = home.path().join(".dylint_drivers");
+    let legacy_libraries = fixtures[0].path().join("target/dylint/libraries");
+    let toolchain =
+        active_toolchain(Path::new("../examples/restriction/collapsible_unwrap")).unwrap();
+
+    let installed_drivers = installed_driver_directory();
+    let command = |fixture: &Path| {
+        let mut command = dylint_with_home(home.path());
+        command
+            .current_dir(fixture)
+            .env(env::CARGO_TARGET_DIR, fixture.join("target"))
+            .env(env::DYLINT_LINK_ENABLE_COPY_LIBRARY, "0")
+            .env_remove(env::CARGO_BUILD_BUILD_DIR)
+            .env_remove(env::DYLINT_DRIVER_PATH)
+            .args(["dylint", "--all"]);
+        command
+    };
+    command(fixtures[0].path())
+        .env(env::DYLINT_DRIVER_PATH, &installed_drivers)
+        .assert()
+        .success();
+    let legacy_driver = legacy_drivers.join(&toolchain);
+    create_dir_all(&legacy_driver).unwrap();
+    copy_dir(&installed_drivers.join(&toolchain), &legacy_driver).unwrap();
+    assert!(!home.path().join(".dylint/cache/dylint-driver").exists());
+    let other_driver = home
+        .path()
+        .join(".dylint/cache/dylint-driver/0.0.0")
+        .join(&toolchain);
+    create_dir_all(&other_driver).unwrap();
+    write(other_driver.join("dylint-driver"), "another installation").unwrap();
+
+    let legacy_toolchain = legacy_libraries.join(&toolchain);
+    let partition = home.path().join(".dylint/cache/libraries").join(&toolchain);
+    create_dir_all(&legacy_libraries).unwrap();
+    rename(&partition, &legacy_toolchain).unwrap();
+
+    command(fixtures[0].path())
+        .arg("--no-build")
+        .assert()
+        .success();
+    for (index, fixture) in fixtures.iter().enumerate() {
+        let assert = command(fixture.path()).assert().success().stderr(
+            predicate::str::contains("\nwarning: `unwrap`s that could be combined\n")
+                .and(predicate::str::contains("Building driver").not()),
+        );
+        if index == 0 {
+            assert.stderr(predicate::str::contains("Compiling clippy_utils").not());
+        } else {
+            assert.stderr(predicate::str::contains("Compiling").not());
+        }
+    }
+    let driver = Path::new(&toolchain).join("dylint-driver");
+    assert!(legacy_drivers.join(&driver).is_file());
+    let identity = read_to_string(legacy_driver.join("dylint-build-id")).unwrap();
+    assert!(
+        home.path()
+            .join(".dylint/cache/dylint-driver")
+            .join(identity)
+            .join(driver)
+            .is_file()
+    );
+    assert_eq!(
+        "another installation",
+        read_to_string(other_driver.join("dylint-driver")).unwrap()
+    );
+    let library = Path::new(&toolchain)
+        .join("release")
+        .join(library_filename_with_toolchain(
+            "collapsible_unwrap",
+            &toolchain,
+        ));
+    assert!(legacy_libraries.join(&library).is_file());
+    assert!(
+        home.path()
+            .join(".dylint/cache/libraries")
+            .join(&toolchain)
+            .join("release")
+            .join(library_filename_with_toolchain(
+                "collapsible_unwrap",
+                &toolchain,
+            ))
+            .is_file()
+    );
+    assert!(!fixtures[1].path().join("target/dylint/libraries").exists());
+}
+
+#[test]
 fn library_packages_with_rust_toolchain() {
     let tempdir = tempdir().unwrap();
 
@@ -202,7 +392,7 @@ pattern = "examples/general/crate_wide_allow"
     )
     .unwrap();
 
-    cargo_bin_cmd!("cargo-dylint")
+    dylint_with_home(tempdir.path())
         .current_dir(&tempdir)
         .args(["dylint", "list"])
         .assert()
@@ -246,14 +436,14 @@ fn metadata_change() {
     )
     .unwrap();
 
-    cargo_bin_cmd!("cargo-dylint")
+    dylint_with_home(tempdir.path())
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
         .success()
         .stderr(predicate::str::contains("Checking metadata_change_test"));
 
-    cargo_bin_cmd!("cargo-dylint")
+    dylint_with_home(tempdir.path())
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
@@ -277,7 +467,7 @@ fn metadata_change() {
     )
     .unwrap();
 
-    cargo_bin_cmd!("cargo-dylint")
+    dylint_with_home(tempdir.path())
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
@@ -475,14 +665,14 @@ path = {path_spec}
     )
     .unwrap();
 
-    cargo_bin_cmd!("cargo-dylint")
+    dylint_with_home(tempdir.path())
         .current_dir(&tempdir)
         .args(["dylint", "--all"])
         .assert()
         .success()
         .stderr(predicate::str::contains("Compiling"));
 
-    cargo_bin_cmd!("cargo-dylint")
+    dylint_with_home(tempdir.path())
         .current_dir(&tempdir)
         .env(env::RUSTFLAGS, "--verbose")
         .args(["dylint", "--all"])

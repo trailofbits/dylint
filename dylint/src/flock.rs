@@ -12,6 +12,12 @@ pub fn lock_path(path: &Path) -> Result<File> {
     Ok(file)
 }
 
+pub fn lock_file(path: &Path) -> Result<File> {
+    let file = OpenOptions::new().read(true).write(true).open(path)?;
+    sys::lock_exclusive(&file)?;
+    Ok(file)
+}
+
 pub fn try_lock_path(path: &Path) -> Result<File> {
     let file = open_lockable_file(path)?;
     sys::try_lock_exclusive(&file)?;

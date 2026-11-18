@@ -557,6 +557,7 @@ dependencies = [
  "cargo_metadata",
  "dunce",
  "dylint_internal",
+ "fs_extra",
  "libc",
  "log",
  "once_cell",
