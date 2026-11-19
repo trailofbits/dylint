@@ -12,6 +12,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # dblock: Reduce repeated fixture build costs without changing optimization or debug assertions.
+  CARGO_PROFILE_DEV_DEBUG: "0"
+  CARGO_PROFILE_TEST_DEBUG: "0"
   CARGO_TERM_COLOR: always
 
 permissions:
