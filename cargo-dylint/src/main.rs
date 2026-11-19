@@ -25,6 +25,10 @@ DYLINT_CLIPPY_REPO (default: none) is a path to a Dylint-exclusive clone of the 
 DYLINT_DRIVER_PATH (default: $HOME/.dylint_drivers) is the directory where Dylint stores rustc
 drivers.
 
+DYLINT_LIBRARIES_DIR (default: <target directory>/dylint/libraries) is an absolute path where
+Dylint builds lint libraries, using <directory>/<toolchain>/release. Set it to share builds
+across projects.
+
 DYLINT_LIBRARY_PATH (deprecated, default: none) is a colon-separated list of directories where
 Dylint searches for libraries. Prefer workspace metadata (described below) for naming libraries.
 

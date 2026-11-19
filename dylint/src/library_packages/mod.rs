@@ -24,11 +24,8 @@ type Object = serde_json::Map<String, serde_json::Value>;
 
 #[derive(Clone, Debug)]
 pub struct Package {
-    /// [`Metadata`] of the workspace being linted
-    ///
-    /// Caching a reference to the [`Metadata`] here ensures that it existed when the package was
-    /// created.
-    metadata: &'static Metadata,
+    /// Directory where the package's libraries are built, including the toolchain subdirectory
+    target_directory: PathBuf,
     /// Path to the package's directory
     pub root: PathBuf,
     /// The package's [`PackageId`], which includes the package's name, version, and source id
@@ -69,11 +66,7 @@ impl PartialOrd for Package {
 
 impl Package {
     pub fn target_directory(&self) -> PathBuf {
-        self.metadata
-            .target_directory
-            .join("dylint/libraries")
-            .join(&self.toolchain)
-            .into_std_path_buf()
+        self.target_directory.clone()
     }
 
     pub fn library_plain_path(&self) -> PathBuf {
@@ -408,18 +401,15 @@ fn library_package(
         let package_id = package_id(&package, source_id.clone());
         let lib_name = package_library_name(&package)?;
         let toolchain = active_toolchain(&path)?;
+        let target_directory = target_directory(metadata, &toolchain)?;
         let build_directory = if env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY) {
-            let target_directory = metadata
-                .target_directory
-                .join("dylint/libraries")
-                .join(&toolchain);
-            let metadata = cargo::metadata_with_target_dir(&path, target_directory)?;
+            let metadata = cargo::metadata_with_target_dir(&path, &target_directory)?;
             metadata.build_directory.map(Utf8PathBuf::into_std_path_buf)
         } else {
             None
         };
         packages.push(Package {
-            metadata,
+            target_directory,
             root: path,
             id: package_id,
             lib_name,
@@ -496,6 +486,24 @@ pub fn package_library_name(package: &MetadataPackage) -> Result<String> {
                 package.id
             )
         })
+}
+
+fn target_directory(metadata: &Metadata, toolchain: &str) -> Result<PathBuf> {
+    let root = if let Some(path) = std::env::var_os(env::DYLINT_LIBRARIES_DIR) {
+        let path = PathBuf::from(path);
+        ensure!(
+            path.is_absolute(),
+            "DYLINT_LIBRARIES_DIR contains `{}`, which is not absolute",
+            path.display()
+        );
+        path
+    } else {
+        metadata
+            .target_directory
+            .join("dylint/libraries")
+            .into_std_path_buf()
+    };
+    Ok(root.join(toolchain))
 }
 
 pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> {

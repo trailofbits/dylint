@@ -1,5 +1,8 @@
 use assert_cmd::cargo::cargo_bin_cmd;
-use dylint_internal::{CommandExt, cargo, env, packaging::isolate, testing::copy_dir};
+use dylint_internal::{
+    CommandExt, cargo, env, library_filename_with_toolchain, library_plain_filename,
+    packaging::isolate, rustup::active_toolchain, testing::copy_dir,
+};
 use predicates::prelude::*;
 use std::{fs::OpenOptions, io::Write, path::Path};
 use tempfile::{tempdir, tempdir_in};
@@ -150,6 +153,97 @@ fn library_packages_with_configured_build_directory_and_dylint_link() {
         .stderr(predicate::str::contains(
             "\nwarning: `unwrap`s that could be combined\n",
         ));
+}
+
+#[test]
+fn libraries_dir_shared_across_workspaces() {
+    libraries_dir_shared_across_workspaces_inner(false);
+}
+
+#[test]
+fn libraries_dir_with_configured_build_directory_and_dylint_link() {
+    libraries_dir_shared_across_workspaces_inner(true);
+}
+
+fn libraries_dir_shared_across_workspaces_inner(copy_with_dylint_link: bool) {
+    let libraries_directory = tempdir().unwrap();
+    let build_directory = tempdir().unwrap();
+    let toolchain =
+        active_toolchain(Path::new("../examples/restriction/collapsible_unwrap")).unwrap();
+    for first_build in [true, false] {
+        let fixture = tempdir_in("../fixtures").unwrap();
+        copy_dir(
+            Path::new("../fixtures/library_packages_in_dylint_toml"),
+            fixture.path(),
+        )
+        .unwrap();
+        let target_directory = fixture.path().join("target");
+
+        let mut command = cargo_bin_cmd!("cargo-dylint");
+        command
+            .current_dir(&fixture)
+            .env(env::CARGO_TARGET_DIR, &target_directory)
+            .env(env::DYLINT_LIBRARIES_DIR, libraries_directory.path())
+            .env(
+                env::DYLINT_LINK_ENABLE_COPY_LIBRARY,
+                if copy_with_dylint_link { "1" } else { "0" },
+            )
+            .env_remove(env::CARGO_BUILD_BUILD_DIR);
+        if copy_with_dylint_link {
+            command.env(env::CARGO_BUILD_BUILD_DIR, build_directory.path());
+        }
+        let assert =
+            command
+                .args(["dylint", "--all"])
+                .assert()
+                .success()
+                .stderr(predicate::str::contains(
+                    "\nwarning: `unwrap`s that could be combined\n",
+                ));
+        if first_build {
+            assert.stderr(predicate::str::contains("Compiling collapsible_unwrap"));
+        } else {
+            assert.stderr(predicate::str::contains("Compiling").not());
+        }
+
+        assert!(!target_directory.join("dylint/libraries").exists());
+
+        let copied_library_directory = if copy_with_dylint_link {
+            build_directory.path().join("release")
+        } else {
+            libraries_directory.path().join(&toolchain).join("release")
+        };
+        assert!(
+            copied_library_directory
+                .join(library_filename_with_toolchain(
+                    "collapsible_unwrap",
+                    &toolchain,
+                ))
+                .is_file()
+        );
+
+        let release_directory = libraries_directory.path().join(&toolchain).join("release");
+        assert!(
+            release_directory
+                .join(library_plain_filename("collapsible_unwrap"))
+                .is_file()
+        );
+    }
+}
+
+#[test]
+fn libraries_dir_must_be_absolute() {
+    for path in ["", "relative/path"] {
+        cargo_bin_cmd!("cargo-dylint")
+            .current_dir("../fixtures/library_packages_in_dylint_toml")
+            .env(env::DYLINT_LIBRARIES_DIR, path)
+            .args(["dylint", "list"])
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(format!(
+                "DYLINT_LIBRARIES_DIR contains `{path}`, which is not absolute"
+            )));
+    }
 }
 
 #[test]
