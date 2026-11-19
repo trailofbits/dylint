@@ -5,6 +5,9 @@ This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dyl
 ## Unreleased
 
 - FEATURE: Add an opt-in `DYLINT_LIBRARIES_DIR` override for sharing compiled lint libraries across projects and worktrees, preserving the existing per-toolchain layout and workspace-local default ([#2179](https://github.com/trailofbits/dylint/pull/2179), [#2142](https://github.com/trailofbits/dylint/issues/2142)) - [@dblock](https://github.com/dblock).
+- Avoid starting unused expensive CI jobs and restrict formatting, audit, and CI tools to the suites that need them ([#2185](https://github.com/trailofbits/dylint/pull/2185)) - [@dblock](https://github.com/dblock).
+- Cache compiled CI dependencies by suite, host, and installed Rust toolchains while rebuilding workspace crates ([#2186](https://github.com/trailofbits/dylint/pull/2186)) - [@dblock](https://github.com/dblock).
+- Omit debug information from CI development and test builds to reduce compilation work and artifact sizes ([#2189](https://github.com/trailofbits/dylint/pull/2189)) - [@dblock](https://github.com/dblock).
 
 ## 6.4.0
 
