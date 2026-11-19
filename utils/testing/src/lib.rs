@@ -15,7 +15,7 @@
 //! ```rust,ignore
 //! #[test]
 //! fn ui() {
-//!     dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui");
+//!     dylint_testing::ui_test(env!("CARGO_CRATE_NAME"), "ui");
 //! }
 //! ```
 //!
