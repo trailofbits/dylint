@@ -41,8 +41,8 @@ fn main() -> Result<()> {
         || env::enabled(env::DYLINT_LINK_ENABLE_COPY_LIBRARY))
         && let Some(plain_path) = output_path(args.iter())?
         && let Some(lib_name) = parse_plain_path(&plain_path)
-        && let cargo_pkg_name = env::var(env::CARGO_PKG_NAME)?
-        && lib_name == cargo_pkg_name.replace('-', "_")
+        && let cargo_crate_name = env::var(env::CARGO_CRATE_NAME)?
+        && lib_name == cargo_crate_name
         && let rustup_toolchain = env::var(env::RUSTUP_TOOLCHAIN)?
     {
         copy_library(&plain_path, &lib_name, &rustup_toolchain)?;

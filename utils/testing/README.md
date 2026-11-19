@@ -21,7 +21,7 @@ For most situations, you can add the following to your library's `lib.rs` file:
 ```rust
 #[test]
 fn ui() {
-    dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui");
+    dylint_testing::ui_test(env!("CARGO_CRATE_NAME"), "ui");
 }
 ```
 
