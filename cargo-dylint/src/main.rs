@@ -22,12 +22,15 @@ enum CargoSubcommand {
 
 DYLINT_CLIPPY_REPO (default: none) is a path to a Dylint-exclusive clone of the Clippy repository.
 
-DYLINT_DRIVER_PATH (default: $HOME/.dylint_drivers) is the directory where Dylint stores rustc
-drivers.
+DYLINT_DRIVER_PATH (deprecated, default: none) is the directory where Dylint stores rustc
+drivers. Prefer DYLINT_HOME, which stores drivers in $DYLINT_HOME/drivers.
+
+DYLINT_HOME (default: $HOME/.dylint) is an absolute path where Dylint stores rustc drivers, using
+<directory>/drivers/<toolchain>.
 
 DYLINT_LIBRARIES_DIR (default: <target directory>/dylint/libraries) is an absolute path where
 Dylint builds lint libraries, using <directory>/<toolchain>/release. Set it to share builds
-across projects.
+across projects, e.g., to $HOME/.dylint/libraries.
 
 DYLINT_LIBRARY_PATH (deprecated, default: none) is a colon-separated list of directories where
 Dylint searches for libraries. Prefer workspace metadata (described below) for naming libraries.

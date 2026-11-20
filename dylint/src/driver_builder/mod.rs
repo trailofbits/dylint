@@ -6,7 +6,8 @@ use dylint_internal::{
 };
 use semver::Version;
 use std::{
-    env::{consts, home_dir},
+    env::{consts, home_dir, var_os},
+    ffi::OsString,
     fs::{copy, create_dir_all, rename, write},
     path::{Path, PathBuf},
 };
@@ -46,7 +47,7 @@ pub fn main() -> Result<()> {
     allow(question_mark_in_expression)
 )]
 pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
-    let dylint_drivers = dylint_drivers()?;
+    let dylint_drivers = dylint_drivers(opts)?;
 
     let driver_dir = dylint_drivers.join(toolchain);
     if !driver_dir.is_dir() {
@@ -66,14 +67,20 @@ pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     Ok(driver)
 }
 
-fn dylint_drivers() -> Result<PathBuf> {
+fn dylint_drivers(opts: &opts::Dylint) -> Result<PathBuf> {
+    #[allow(deprecated)]
     if let Ok(dylint_driver_path) = env::var(env::DYLINT_DRIVER_PATH) {
+        warn(
+            opts,
+            "`DYLINT_DRIVER_PATH` is deprecated; set `DYLINT_HOME` to relocate the drivers \
+             directory to `$DYLINT_HOME/drivers`",
+        );
         let dylint_drivers = Path::new(&dylint_driver_path);
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())
     } else {
-        let home = home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
-        let dylint_drivers = Path::new(&home).join(".dylint_drivers");
+        let dylint_home = dylint_home()?;
+        let dylint_drivers = dylint_home.join("drivers");
         if !dylint_drivers.is_dir() {
             create_dir_all(&dylint_drivers).with_context(|| {
                 format!(
@@ -87,6 +94,25 @@ fn dylint_drivers() -> Result<PathBuf> {
             })?;
         }
         Ok(dylint_drivers)
+    }
+}
+
+fn dylint_home() -> Result<PathBuf> {
+    dylint_home_from(var_os(env::DYLINT_HOME))
+}
+
+fn dylint_home_from(value: Option<OsString>) -> Result<PathBuf> {
+    if let Some(path) = value {
+        let path = PathBuf::from(path);
+        ensure!(
+            path.is_absolute(),
+            "DYLINT_HOME contains `{}`, which is not absolute",
+            path.display()
+        );
+        Ok(path)
+    } else {
+        let home = home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
+        Ok(home.join(".dylint"))
     }
 }
 
@@ -248,6 +274,33 @@ components = ["llvm-tools-preview", "rustc-dev"]
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn dylint_home_defaults_to_home_dot_dylint() {
+        assert_eq!(
+            dylint_home_from(None).unwrap(),
+            home_dir().unwrap().join(".dylint")
+        );
+    }
+
+    #[test]
+    fn dylint_home_accepts_absolute_path() {
+        let tempdir = tempdir().unwrap();
+        assert_eq!(
+            dylint_home_from(Some(tempdir.path().into())).unwrap(),
+            tempdir.path()
+        );
+    }
+
+    #[test]
+    fn dylint_home_must_be_absolute() {
+        for path in ["", "relative/path"] {
+            assert_eq!(
+                dylint_home_from(Some(path.into())).unwrap_err().to_string(),
+                format!("DYLINT_HOME contains `{path}`, which is not absolute")
+            );
+        }
+    }
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
