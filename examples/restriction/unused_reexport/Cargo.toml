@@ -1,0 +1,28 @@
+[package]
+name = "unused_reexport"
+version = "6.1.0"
+edition = "2024"
+publish = false
+description = "Prefer public reexports provided by another direct dependency"
+
+[lib]
+crate-type = ["cdylib"]
+
+[[example]]
+name = "ui"
+path = "ui/main.rs"
+
+[dependencies]
+clippy_utils = { workspace = true }
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+origin = { package = "unused_reexport_origin", path = "fixtures/origin" }
+facade = { package = "unused_reexport_facade", path = "fixtures/facade" }
+
+[lints]
+workspace = true
+
+[package.metadata.rust-analyzer]
+rustc_private = true
