@@ -28,30 +28,35 @@ jobs:
       - id: main
         uses: trailofbits/check-up-to-dateness@v2
 
-  test:
+  plan:
+    name: Plan Tests
     needs: [check-up-to-dateness]
-
     if: needs.check-up-to-dateness.outputs.is-up-to-date != 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Select Suites
+        id: matrix
+        run: |
+          MATRIX="$(bash scripts/ci_matrix.sh)"
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: Test (${{ matrix.entry.environment }}, ${{ matrix.entry.package }})
+    needs: [plan]
+    if: needs.plan.result == 'success'
 
     strategy:
       fail-fast: ${{ github.event_name == 'merge_group' }}
       matrix:
-        environment: [ubuntu-latest, macos-latest, windows-latest]
-        package:
-          [
-            cargo-dylint,
-            dylint_examples,
-            expensive-auto_correct,
-            expensive-alpine,
-            expensive-boundary_toolchains,
-            expensive-custom_toolchain,
-            other,
-          ]
-        include:
-          - environment: ubuntu-latest
-            package: cargo-dylint-ci
+        entry: ${{ fromJSON(needs.plan.outputs.matrix).entry }}
 
-    runs-on: ${{ matrix.environment }}
+    runs-on: ${{ matrix.entry.environment }}
 
     defaults:
       run:
@@ -75,34 +80,38 @@ jobs:
             target/dylint/libraries/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Rustup
-        run: rustup update
+      - name: Update Stable
+        run: rustup toolchain install stable --profile minimal --no-self-update
 
       - name: Install dylint-link
         run: cargo install --path ./dylint-link --features=__copy_library_disabled_by_default --force
 
       - uses: taiki-e/install-action@v2.90.3
         with:
-          tool: cargo-hack, cargo-nested, cargo-udeps
+          tool: cargo-nested
 
-      - name: Install tools
-        run: |
-          rustup install nightly
-          rustup component add rustfmt --toolchain nightly
-          npm install -g prettier
+      - name: Install CI Tools
+        if: ${{ matrix.entry.package == 'cargo-dylint-ci' }}
+        uses: taiki-e/install-action@v2.90.3
+        with:
+          tool: cargo-hack, cargo-udeps
 
-      - name: Install CI tools
-        if: ${{ matrix.package == 'cargo-dylint-ci' }}
+      - name: Install CI Cargo Tools
+        if: ${{ matrix.entry.package == 'cargo-dylint-ci' }}
         run: |
           cargo install cargo-license        || true
           cargo install cargo-msrv --locked  || true
           cargo install cargo-rdme           || true
-          cargo install cargo-supply-chain   || true
-          cargo install cargo-unmaintained   || true
           cargo install rustdoc-prettier     || true
 
-      - name: Free up space on Ubuntu
-        if: ${{ matrix.environment == 'ubuntu-latest' }}
+      - name: Install Scheduled Tools
+        if: ${{ matrix.entry.package == 'cargo-dylint-ci' && fromJSON(needs.plan.outputs.matrix).scheduled }}
+        run: |
+          cargo install cargo-supply-chain   || true
+          cargo install cargo-unmaintained   || true
+
+      - name: Free Up Space on Ubuntu
+        if: ${{ matrix.entry.environment == 'ubuntu-latest' }}
         run: |
           # https://github.com/actions/runner-images/issues/2606#issuecomment-772683150
           # du -sh /usr/*/* 2>/dev/null | sort -h
@@ -112,44 +121,59 @@ jobs:
           sudo rm -rfv /usr/share/dotnet         | grep . >/dev/null
           sudo rm -rfv /usr/share/swift          | grep . >/dev/null
 
-      - name: Free up space on macOS
-        if: ${{ matrix.environment == 'macos-latest' }}
+      - name: Free Up Space on macOS
+        if: ${{ matrix.entry.environment == 'macos-latest' }}
         run: |
           # https://github.com/actions/runner-images/issues/2840#issuecomment-2334584217
           # du -sh /*/* 2>/dev/null | sort -h
           sudo rm -rfv /Applications/Xcode* | grep . >/dev/null
 
-      - name: Free up space on Windows
-        if: ${{ matrix.environment == 'windows-latest' }}
+      - name: Free Up Space on Windows
+        if: ${{ matrix.entry.environment == 'windows-latest' }}
         run: |
           # du -sh /c/*/* 2>/dev/null | sort -h
           rm -rfv /c/Program\ Files\ \(x86\)/Android | grep . >/dev/null
           rm -rfv /c/ghcup/ghc                       | grep . >/dev/null
           rm -rfv /c/rtools*                         | grep . >/dev/null
 
-      # smoelius: The next step avoids tests having to use `rustup` concurrently. Toolchain
-      # nightly-2026-08-05 is needed for cargo-rdme 2.2.0.
-      - name: Preinstall toolchains
+      # smoelius: The next step avoids tests having to use `rustup` concurrently.
+      - name: Preinstall Toolchains
+        run: cargo run -p dylint_internal --bin preinstall-toolchains
+
+      - name: Install Nightly Rustfmt
+        if: ${{ matrix.entry.package == 'cargo-dylint-ci' || matrix.entry.package == 'dylint_examples' }}
+        run: rustup component add rustfmt --toolchain nightly
+
+      - name: Install Formatting Tools
+        if: ${{ matrix.entry.package == 'cargo-dylint-ci' }}
         run: |
-          cargo run -p dylint_internal --bin preinstall-toolchains
+          npm install -g prettier
+          # smoelius: Toolchain nightly-2026-08-05 is needed for cargo-rdme 2.2.0.
           rustup toolchain add nightly-2026-08-05
           rustup component add llvm-tools-preview rustc-dev --toolchain nightly-2026-08-05
 
-      - name: Fetch dependencies
+      - name: Fetch Dependencies
         run: cargo nested fetch
+
+      # dblock: All toolchains must be installed before computing the compiler-aware cache key.
+      - name: Cache Rust Dependencies
+        uses: Swatinem/rust-cache@v2.9.3
+        with:
+          key: ${{ matrix.entry.package }}
+          # dblock: Keep installed tools in the existing cache and rebuild workspace crates.
+          cache-bin: "false"
+          workspaces: ". -> target"
 
       - name: Test
         run: |
-          if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
-            case '${{ matrix.package }}' in
+          if [[ '${{ matrix.entry.package }}' =~ ^cargo-dylint ]]; then
+            case '${{ matrix.entry.package }}' in
               cargo-dylint)
                 cargo test -p cargo-dylint --no-default-features --features=cargo-cli
                 ;;
               cargo-dylint-ci)
                 cargo test -p cargo-dylint --test ci
-                if [[ '${{ github.event_name }}' = 'schedule' || '${{ github.event_name }}' = 'workflow_dispatch' ]] ||
-                  git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -w 'scheduled'
-                then
+                if [[ '${{ fromJSON(needs.plan.outputs.matrix).scheduled }}' = 'true' ]]; then
                   cargo test -p scheduled
                 fi
                 ;;
@@ -157,20 +181,15 @@ jobs:
                 exit 1
                 ;;
             esac
-          elif [[ '${{ matrix.package }}' != 'other' ]]; then
+          elif [[ '${{ matrix.entry.package }}' != 'other' ]]; then
             PACKAGE=''
             TEST=''
-            if [[ '${{ matrix.package }}' =~ ^expensive- ]]; then
-              if [[ '${{ github.event_name }}' != 'schedule' && '${{ github.event_name }}' != 'workflow_dispatch' ]] &&
-                ! git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -w 'expensive'
-              then
-                exit
-              fi
+            if [[ '${{ matrix.entry.package }}' =~ ^expensive- ]]; then
               PACKAGE='expensive'
-              TEST='${{ matrix.package }}'
+              TEST='${{ matrix.entry.package }}'
               TEST="--test=${TEST#'expensive-'}"
             else
-              PACKAGE='${{ matrix.package }}'
+              PACKAGE='${{ matrix.entry.package }}'
             fi
             cargo test -p "$PACKAGE" "$TEST"
           else
@@ -199,7 +218,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
   all-checks:
-    needs: [test]
+    needs: [check-up-to-dateness, plan, test]
 
     # smoelius: From "Defining prerequisite jobs"
     # (https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs):
