@@ -14,7 +14,7 @@ use std::{
     env::{remove_var, set_current_dir, var},
     ffi::OsStr,
     fmt::Write as _,
-    fs::{read_dir, read_to_string, write},
+    fs::{create_dir_all, read_dir, read_to_string, remove_file, write},
     io::{Write, stderr},
     ops::Range,
     path::{Component, Path, PathBuf},
@@ -31,6 +31,140 @@ fn initialize() {
     set_current_dir("..").unwrap();
     unsafe {
         remove_var(env::CARGO_TERM_COLOR);
+    }
+}
+
+#[test]
+#[cfg_attr(
+    dylint_lib = "general",
+    allow(
+        non_thread_safe_call_in_test,
+        reason = "All writes use private temporary repositories"
+    )
+)]
+fn ci_matrix() {
+    let script = Path::new(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../scripts/ci_matrix.sh"
+    ));
+    for (event, operation, path, expensive, scheduled) in [
+        ("pull_request", "modify", "README.md", false, false),
+        ("pull_request", "modify", "expensive/test.rs", true, false),
+        ("pull_request", "modify", "scheduled/test.rs", false, true),
+        ("pull_request", "delete", "expensive/test.rs", true, false),
+        ("pull_request", "rename", "expensive/test.rs", true, false),
+        ("merge_group", "modify", "README.md", false, false),
+        ("merge_group", "modify", "expensive/test.rs", true, false),
+        ("merge_group", "modify", "scheduled/test.rs", false, true),
+        ("schedule", "modify", "README.md", true, true),
+        ("workflow_dispatch", "modify", "README.md", true, true),
+    ] {
+        let repository = tempfile::tempdir().unwrap();
+        let git = |args: &[&str]| {
+            Command::new("git")
+                .current_dir(&repository)
+                .args(args)
+                .assert()
+                .success()
+        };
+        git(&["init", "--quiet"]);
+        for path in ["README.md", "expensive/test.rs", "scheduled/test.rs"] {
+            let path_buf = repository.path().join(path);
+            create_dir_all(path_buf.parent().unwrap()).unwrap();
+            write(path_buf, "before\n").unwrap();
+        }
+        let commit = || {
+            git(&["add", "--all"]);
+            git(&[
+                "-c",
+                "user.name=CI Test",
+                "-c",
+                "user.email=ci@example.invalid",
+                "-c",
+                "commit.gpgsign=false",
+                "commit",
+                "--quiet",
+                "-m",
+                "Fixture",
+            ]);
+        };
+        commit();
+        let assert = git(&["rev-parse", "HEAD"]);
+        let base = std::str::from_utf8(&assert.get_output().stdout)
+            .unwrap()
+            .trim();
+        match operation {
+            "modify" => write(repository.path().join(path), "after\n").unwrap(),
+            "delete" => remove_file(repository.path().join(path)).unwrap(),
+            "rename" => {
+                git(&["mv", path, "moved.rs"]);
+            }
+            _ => unreachable!(),
+        }
+        commit();
+        let payload = if event == "merge_group" {
+            serde_json::json!({"merge_group": {"base_sha": base}})
+        } else {
+            serde_json::json!({"pull_request": {"base": {"sha": base}}})
+        };
+        let event_path = repository.path().join("event.json");
+        write(&event_path, payload.to_string()).unwrap();
+        let assert = Command::new("bash")
+            .arg(script)
+            .current_dir(&repository)
+            .env("GITHUB_EVENT_NAME", event)
+            .env("GITHUB_EVENT_PATH", &event_path)
+            .assert()
+            .success();
+        let plan: serde_json::Value = serde_json::from_slice(&assert.get_output().stdout).unwrap();
+        let entries = plan["entry"].as_array().unwrap();
+        assert_eq!(scheduled, plan["scheduled"], "{event}, {operation}, {path}");
+        assert_eq!(if expensive { 22 } else { 10 }, entries.len());
+        for environment in ["ubuntu-latest", "macos-latest", "windows-latest"] {
+            for package in ["cargo-dylint", "dylint_examples", "other"] {
+                assert!(entries.iter().any(|entry| {
+                    entry["environment"] == environment && entry["package"] == package
+                }));
+            }
+            assert_eq!(
+                if expensive { 4 } else { 0 },
+                entries
+                    .iter()
+                    .filter(|entry| {
+                        entry["environment"] == environment
+                            && entry["package"].as_str().unwrap().starts_with("expensive-")
+                    })
+                    .count()
+            );
+        }
+    }
+}
+
+#[test]
+#[cfg_attr(
+    dylint_lib = "general",
+    allow(
+        non_thread_safe_call_in_test,
+        reason = "All writes use a private temporary directory"
+    )
+)]
+fn ci_matrix_requires_valid_base() {
+    let event = tempfile::NamedTempFile::new().unwrap();
+    for payload in [
+        serde_json::json!({}),
+        serde_json::json!({"pull_request": {"base": {"sha": "not-a-commit"}}}),
+        serde_json::json!({"pull_request": {"base": {"sha": "0".repeat(40)}}}),
+    ] {
+        write(&event, payload.to_string()).unwrap();
+        Command::new("bash")
+            .arg(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/../scripts/ci_matrix.sh"
+            ))
+            .env("GITHUB_EVENT_NAME", "pull_request")
+            .env("GITHUB_EVENT_PATH", event.path())
+            .assert()
+            .failure();
     }
 }
 
