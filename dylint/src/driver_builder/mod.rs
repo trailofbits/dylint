@@ -6,7 +6,8 @@ use dylint_internal::{
 };
 use semver::Version;
 use std::{
-    env::{consts, home_dir},
+    env::{consts, home_dir, var_os},
+    ffi::OsString,
     fs::{copy, create_dir_all, rename, write},
     path::{Path, PathBuf},
 };
@@ -72,8 +73,7 @@ fn dylint_drivers() -> Result<PathBuf> {
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())
     } else {
-        let home = home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
-        let dylint_drivers = Path::new(&home).join(".dylint_drivers");
+        let dylint_drivers = default_dylint_drivers(var_os(env::DYLINT_HOME))?;
         if !dylint_drivers.is_dir() {
             create_dir_all(&dylint_drivers).with_context(|| {
                 format!(
@@ -87,6 +87,21 @@ fn dylint_drivers() -> Result<PathBuf> {
             })?;
         }
         Ok(dylint_drivers)
+    }
+}
+
+fn default_dylint_drivers(dylint_home: Option<OsString>) -> Result<PathBuf> {
+    if let Some(path) = dylint_home {
+        let path = PathBuf::from(path);
+        ensure!(
+            path.is_absolute(),
+            "DYLINT_HOME contains `{}`, which is not absolute",
+            path.display()
+        );
+        Ok(path.join("drivers"))
+    } else {
+        let home = home_dir().ok_or_else(|| anyhow!("Could not find HOME directory"))?;
+        Ok(home.join(".dylint_drivers"))
     }
 }
 
@@ -248,6 +263,35 @@ components = ["llvm-tools-preview", "rustc-dev"]
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn dylint_drivers_default_without_dylint_home() {
+        assert_eq!(
+            home_dir().unwrap().join(".dylint_drivers"),
+            default_dylint_drivers(None).unwrap()
+        );
+    }
+
+    #[test]
+    fn dylint_drivers_in_dylint_home() {
+        let tempdir = tempdir().unwrap();
+        assert_eq!(
+            tempdir.path().join("drivers"),
+            default_dylint_drivers(Some(tempdir.path().into())).unwrap()
+        );
+    }
+
+    #[test]
+    fn dylint_home_must_be_absolute() {
+        for path in ["", "relative/path"] {
+            assert_eq!(
+                format!("DYLINT_HOME contains `{path}`, which is not absolute"),
+                default_dylint_drivers(Some(path.into()))
+                    .unwrap_err()
+                    .to_string()
+            );
+        }
+    }
 
     // smoelius: `tempdir` is a temporary directory. So there should be no race here.
     #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
