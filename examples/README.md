@@ -22,6 +22,7 @@ The example libraries are separated into the following three categories:
 | [`incorrect_matches_operation`](./general/incorrect_matches_operation)                         | Incorrect operators used with matches! macros                              |
 | [`non_local_effect_before_unhandled_error`](./general/non_local_effect_before_unhandled_error) | Unhandled errors from functions with non-local effects before error return |
 | [`non_thread_safe_call_in_test`](./general/non_thread_safe_call_in_test)                       | Non-thread-safe function calls in tests                                    |
+| [`suspicious_saturating_op`](./general/suspicious_saturating_op)                               | Consecutive saturating operations                                          |
 | [`wrong_serialize_struct_arg`](./general/wrong_serialize_struct_arg)                           | Calls to serialization methods with incorrect `len` arguments              |
 
 ## Supplementary

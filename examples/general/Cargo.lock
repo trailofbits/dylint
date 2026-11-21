@@ -464,6 +464,7 @@ dependencies = [
  "incorrect_matches_operation",
  "non_local_effect_before_unhandled_error",
  "non_thread_safe_call_in_test",
+ "suspicious_saturating_op",
  "wrong_serialize_struct_arg",
 ]
 
@@ -1007,6 +1008,15 @@ name = "smallvec"
 version = "1.16.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "149309498a5f7334b12ddae0cad8aba81ce785fe91755068867e017cf98fee46"
+
+[[package]]
+name = "suspicious_saturating_op"
+version = "6.4.0"
+dependencies = [
+ "clippy_utils",
+ "dylint_linting",
+ "dylint_testing",
+]
 
 [[package]]
 name = "syn"
