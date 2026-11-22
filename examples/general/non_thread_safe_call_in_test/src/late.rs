@@ -9,9 +9,8 @@ use rustc_hir::{
     def_id::{DefId, LocalDefId},
     intravisit::{Visitor, walk_body, walk_expr},
 };
-use rustc_lint::{LateContext, LateLintPass};
+use rustc_lint::{LateContext, LateLintPass, declare_lint, impl_lint_pass};
 use rustc_middle::hir::nested_filter;
-use rustc_session::{declare_lint, impl_lint_pass};
 use std::collections::HashSet;
 
 declare_lint! {
