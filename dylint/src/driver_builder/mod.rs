@@ -47,7 +47,7 @@ pub fn main() -> Result<()> {
     allow(question_mark_in_expression)
 )]
 pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
-    let dylint_drivers = dylint_drivers()?;
+    let dylint_drivers = dylint_drivers(opts)?;
 
     let driver_dir = dylint_drivers.join(toolchain);
     if !driver_dir.is_dir() {
@@ -67,8 +67,14 @@ pub fn get(opts: &opts::Dylint, toolchain: &str) -> Result<PathBuf> {
     Ok(driver)
 }
 
-fn dylint_drivers() -> Result<PathBuf> {
+fn dylint_drivers(opts: &opts::Dylint) -> Result<PathBuf> {
+    #[allow(deprecated)]
     if let Ok(dylint_driver_path) = env::var(env::DYLINT_DRIVER_PATH) {
+        warn(
+            opts,
+            "`DYLINT_DRIVER_PATH` is deprecated; set `DYLINT_HOME` to relocate the drivers \
+             directory to `$DYLINT_HOME/drivers`",
+        );
         let dylint_drivers = Path::new(&dylint_driver_path);
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())

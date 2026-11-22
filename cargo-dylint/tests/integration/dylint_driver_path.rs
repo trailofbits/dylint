@@ -19,7 +19,8 @@ fn dylint_driver_path() {
 
     let dylint_home = tempdir.path().join("target/dylint_home");
 
-    cargo::test("dylint-template")
+    #[allow(deprecated)]
+    let output = cargo::test("dylint-template")
         .build()
         .sanitize_environment()
         .current_dir(&tempdir)
@@ -27,8 +28,13 @@ fn dylint_driver_path() {
             (env::DYLINT_DRIVER_PATH, &*dylint_driver_path),
             (env::DYLINT_HOME, &*dylint_home),
         ])
-        .success()
+        .logged_output(true)
         .unwrap();
+    assert!(output.status.success());
+    assert!(
+        String::from_utf8_lossy(&output.stderr).contains("`DYLINT_DRIVER_PATH` is deprecated"),
+        "{output:?}"
+    );
 
     // `DYLINT_DRIVER_PATH` takes precedence over `DYLINT_HOME`.
     assert!(!dylint_home.exists());
@@ -55,6 +61,7 @@ fn dylint_home() {
     // `DYLINT_HOME` need not exist beforehand.
     let dylint_home = tempdir.path().join("target/dylint home");
 
+    #[allow(deprecated)]
     cargo::test("dylint-template")
         .build()
         .sanitize_environment()

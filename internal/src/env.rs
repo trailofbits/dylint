@@ -25,7 +25,7 @@ declare_const!(CLIPPY_DISABLE_DOCS_LINKS);
 declare_const!(CLIPPY_DRIVER_PATH);
 declare_const!(DOCS_RS);
 declare_const!(DYLINT_CLIPPY_REPO);
-declare_const!(DYLINT_DRIVER_PATH);
+declare_const!(DYLINT_DRIVER_PATH, deprecated);
 declare_const!(DYLINT_HOME);
 declare_const!(DYLINT_LIBRARIES_DIR);
 declare_const!(DYLINT_LIBRARY_PATH, deprecated);
