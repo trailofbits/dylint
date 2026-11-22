@@ -1,6 +1,7 @@
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
 
+extern crate rustc_attr_ir;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_span;
@@ -10,7 +11,8 @@ use litellm_rs::{
     Choice, CompletionOptions, CompletionResponse, Message, MessageContent, MessageRole,
     completion, core::types::responses::FinishReason, user_message,
 };
-use rustc_hir::{Attribute, FnSig, Item, ItemKind, attrs::AttributeKind};
+use rustc_attr_ir::{Attribute, AttributeKind};
+use rustc_hir::{FnSig, Item, ItemKind};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_span::{BytePos, SourceFileAndLine, Span};
 use serde::Deserialize;

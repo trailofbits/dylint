@@ -3,6 +3,7 @@
 
 dylint_linting::dylint_library!();
 
+extern crate rustc_attr_ir;
 extern crate rustc_data_structures;
 extern crate rustc_errors;
 extern crate rustc_hir;
@@ -17,9 +18,10 @@ use clippy_utils::{
     ty::{implements_trait, implements_trait_with_env},
 };
 use once_cell::sync::OnceCell;
+use rustc_attr_ir::find_attr;
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_errors::Applicability;
-use rustc_hir::{Item, ItemKind, attrs::AttributeKind, def_id::DefId, find_attr};
+use rustc_hir::{Item, ItemKind, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass, LintStore};
 use rustc_middle::ty::{self, Upcast};
 use rustc_session::{Session, declare_lint, impl_lint_pass};
@@ -329,11 +331,7 @@ fn is_derived(cx: &LateContext<'_>, def_id: DefId) -> Option<Macro> {
         && matches!(outer.kind, ExpnKind::Macro(MacroKind::Derive, _))
     {
         let macro_def_id = outer.macro_def_id.unwrap();
-        if find_attr!(
-            cx.tcx,
-            macro_def_id,
-            AttributeKind::RustcBuiltinMacro { .. }
-        ) {
+        if find_attr!(cx.tcx, macro_def_id, RustcBuiltinMacro { .. }) {
             // smoelius: I'm not sure whether `SyntaxExtension::builtin_name` would be the right
             // thing to use here; regardless, I can't figure out how to retrieve that data:
             // https://github.com/rust-lang/rust/blob/d651fa78cefecefa87fa3d7dc1e1389d275afb63/compiler/rustc_expand/src/base.rs#L729-L731

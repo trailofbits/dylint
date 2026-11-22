@@ -1,10 +1,12 @@
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
 
+extern crate rustc_attr_ir;
 extern crate rustc_hir;
 
 use clippy_utils::diagnostics::span_lint_and_help;
-use rustc_hir::{Expr, ExprKind, HirId, MatchSource, Node, attrs::lang_items::LangItem};
+use rustc_attr_ir::lang_items::LangItem;
+use rustc_hir::{Expr, ExprKind, HirId, MatchSource, Node};
 use rustc_lint::{LateContext, LateLintPass};
 
 dylint_linting::declare_late_lint! {

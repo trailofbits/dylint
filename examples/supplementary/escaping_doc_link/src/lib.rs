@@ -3,7 +3,7 @@
 #![cfg_attr(dylint_lib = "supplementary", allow(nonexistent_path_in_comment))]
 #![warn(unused_extern_crates)]
 
-extern crate rustc_hir;
+extern crate rustc_attr_ir;
 extern crate rustc_resolve;
 extern crate rustc_span;
 
@@ -11,7 +11,7 @@ use cargo_metadata::{Metadata, MetadataCommand};
 use clippy_utils::diagnostics::span_lint;
 use once_cell::sync::OnceCell;
 use pulldown_cmark::{Options, Parser};
-use rustc_hir::Attribute;
+use rustc_attr_ir::Attribute;
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_resolve::rustdoc::{DocFragment, add_doc_fragment, attrs_to_doc_fragments};
 use rustc_span::RealFileName;

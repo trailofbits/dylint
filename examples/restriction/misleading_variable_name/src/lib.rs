@@ -1,15 +1,16 @@
 #![feature(rustc_private)]
 #![warn(unused_extern_crates)]
 
+extern crate rustc_attr_ir;
 extern crate rustc_hir;
 extern crate rustc_middle;
 extern crate rustc_span;
 
 use clippy_utils::{diagnostics::span_lint_and_help, res::MaybeDef, ty::implements_trait};
 use heck::ToSnakeCase;
+use rustc_attr_ir::lang_items::LangItem;
 use rustc_hir::{
     Expr, ExprKind, LetStmt, MatchSource, Pat, PatKind, Stmt, StmtKind,
-    attrs::lang_items::LangItem,
     def::{DefKind, Res},
     def_id::{DefId, ModId},
 };
