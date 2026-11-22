@@ -26,8 +26,8 @@ use rustc_index::bit_set::DenseBitSet;
 use rustc_infer::infer::TyCtxtInferExt;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
-    self, ClauseKind, EarlyBinder, FnDef, FnSig, GenericArgsRef, Param, ParamTy,
-    ProjectionPredicate, Ty,
+    self, ClauseKind, EarlyBinder, FnDef, FnSig, GenericArgsRef, Param, ParamTy, ProjectionClause,
+    Ty,
     adjustment::{Adjust, Adjustment, AutoBorrow},
 };
 use rustc_span::symbol::Symbol;
@@ -537,12 +537,12 @@ fn inner_arg_implements_traits<'tcx>(
     let destruct_trait_def_id = cx.tcx.lang_items().destruct_trait();
     let sized_trait_def_id = cx.tcx.lang_items().sized_trait();
 
-    let predicates = cx.tcx.param_env(callee_def_id).caller_bounds();
-    let projection_predicates = predicates
-        .iter()
+    let mut predicates = cx.tcx.param_env(callee_def_id).caller_bounds();
+    let projection_clauses = predicates
+        .clone()
         .filter_map(|predicate| {
-            if let ClauseKind::Projection(projection_predicate) = predicate.kind().skip_binder() {
-                Some(projection_predicate)
+            if let ClauseKind::Projection(projection_clause) = predicate.kind().skip_binder() {
+                Some(projection_clause)
             } else {
                 None
             }
@@ -551,12 +551,12 @@ fn inner_arg_implements_traits<'tcx>(
 
     // If no traits were found, or only the `Destruct`, `Sized`, or `Any` traits were found, return.
     if predicates
-        .iter()
+        .clone()
         .filter_map(|predicate| {
-            if let ClauseKind::Trait(trait_predicate) = predicate.kind().skip_binder()
-                && trait_predicate.trait_ref.self_ty() == param_ty.to_ty(cx.tcx)
+            if let ClauseKind::Trait(trait_clause) = predicate.kind().skip_binder()
+                && trait_clause.trait_ref.self_ty() == param_ty.to_ty(cx.tcx)
             {
-                Some(trait_predicate.trait_ref.def_id)
+                Some(trait_clause.trait_ref.def_id)
             } else {
                 None
             }
@@ -578,13 +578,13 @@ fn inner_arg_implements_traits<'tcx>(
         new_ty,
         fn_sig,
         arg_index,
-        &projection_predicates,
+        &projection_clauses,
         &mut substs_with_new_ty,
     ) {
         return false;
     }
 
-    predicates.iter().all(|predicate| {
+    predicates.all(|predicate| {
         let predicate = EarlyBinder::bind(cx.tcx, predicate)
             .instantiate(cx.tcx, substs_with_new_ty.as_slice())
             .skip_norm_wip();
@@ -613,7 +613,7 @@ fn replace_types<'tcx>(
     new_ty: Ty<'tcx>,
     fn_sig: FnSig<'tcx>,
     arg_index: usize,
-    projection_predicates: &[ProjectionPredicate<'tcx>],
+    projection_clauses: &[ProjectionClause<'tcx>],
     substs: &mut [ty::GenericArg<'tcx>],
 ) -> bool {
     let mut replaced = DenseBitSet::new_empty(substs.len());
@@ -633,12 +633,12 @@ fn replace_types<'tcx>(
 
         // The `replaced.insert(...)` check provides some protection against infinite loops.
         if replaced.insert(param_ty.index) {
-            for projection_predicate in projection_predicates {
-                if projection_predicate.projection_term.self_ty() == param_ty.to_ty(cx.tcx)
-                    && let Some(term_ty) = projection_predicate.term.as_type()
+            for projection_clause in projection_clauses {
+                if projection_clause.projection_term.self_ty() == param_ty.to_ty(cx.tcx)
+                    && let Some(term_ty) = projection_clause.term.as_type()
                     && let ty::Param(term_param_ty) = term_ty.kind()
                 {
-                    let projection = projection_predicate
+                    let projection = projection_clause
                         .projection_term
                         .with_replaced_self_ty(cx.tcx, new_ty)
                         .expect_ty()

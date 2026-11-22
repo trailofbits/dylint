@@ -395,23 +395,18 @@ fn typing_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> t
     }
 
     let param_env = ty::ParamEnv::new(
-        tcx.mk_clauses_from_iter(
-            ty_predicates.iter().map(|&(p, _)| p).chain(
-                params
-                    .iter()
-                    .filter(|&&(_, needs_bound)| needs_bound)
-                    .map(|&(param, _)| {
-                        ty::ClauseKind::Trait(ty::TraitPredicate {
-                            trait_ref: ty::TraitRef::new(
-                                tcx,
-                                trait_id,
-                                [tcx.mk_param_from_def(param)],
-                            ),
-                            polarity: ty::PredicatePolarity::Positive,
-                        })
-                        .upcast(tcx)
-                    }),
-            ),
+        tcx,
+        ty_predicates.iter().map(|&(p, _)| p).chain(
+            params
+                .iter()
+                .filter(|&&(_, needs_bound)| needs_bound)
+                .map(|&(param, _)| {
+                    ty::ClauseKind::Trait(ty::TraitClause {
+                        trait_ref: ty::TraitRef::new(tcx, trait_id, [tcx.mk_param_from_def(param)]),
+                        polarity: ty::ClausePolarity::Positive,
+                    })
+                    .upcast(tcx)
+                }),
         ),
     );
     ty::TypingEnv::new(param_env, ty::TypingMode::non_body_analysis())
