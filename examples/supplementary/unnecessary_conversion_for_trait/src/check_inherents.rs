@@ -273,9 +273,8 @@ fn strip_as_ref<'tcx>(
     cx.tcx
         .param_env(def_id)
         .caller_bounds()
-        .iter()
         .find_map(|predicate| {
-            if let ty::ClauseKind::Trait(ty::TraitPredicate { trait_ref, .. }) =
+            if let ty::ClauseKind::Trait(ty::TraitClause { trait_ref, .. }) =
                 predicate.kind().skip_binder()
                 && cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id)
                 && let [self_arg, subst_arg] = trait_ref.args.as_slice()
