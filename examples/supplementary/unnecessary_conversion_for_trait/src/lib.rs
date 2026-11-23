@@ -413,6 +413,16 @@ mod ui {
     }
 
     #[test]
+    fn false_positive() {
+        let _lock = MUTEX.lock().unwrap();
+
+        assert!(!enabled("COVERAGE"));
+        assert!(!enabled("CHECK_INHERENTS"));
+
+        dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui/false_positive");
+    }
+
+    #[test]
     fn unnecessary_to_owned() {
         let _lock = MUTEX.lock().unwrap();
 
