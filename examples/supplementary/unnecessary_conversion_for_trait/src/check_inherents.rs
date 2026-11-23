@@ -270,22 +270,19 @@ fn strip_as_ref<'tcx>(
     def_id: DefId,
     ty: ty::Ty<'tcx>,
 ) -> Option<ty::Ty<'tcx>> {
-    cx.tcx
-        .param_env(def_id)
-        .caller_bounds()
-        .find_map(|predicate| {
-            if let ty::ClauseKind::Trait(ty::TraitClause { trait_ref, .. }) =
-                predicate.kind().skip_binder()
-                && cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id)
-                && let [self_arg, subst_arg] = trait_ref.args.as_slice()
-                && self_arg.kind() == ty::GenericArgKind::Type(ty)
-                && let ty::GenericArgKind::Type(subst_ty) = subst_arg.kind()
-            {
-                Some(subst_ty)
-            } else {
-                None
-            }
-        })
+    cx.tcx.param_env(def_id).caller_bounds().find_map(|clause| {
+        if let ty::ClauseKind::Trait(ty::TraitClause { trait_ref, .. }) =
+            clause.kind().skip_binder()
+            && cx.tcx.get_diagnostic_item(sym::AsRef) == Some(trait_ref.def_id)
+            && let [self_arg, subst_arg] = trait_ref.args.as_slice()
+            && self_arg.kind() == ty::GenericArgKind::Type(ty)
+            && let ty::GenericArgKind::Type(subst_ty) = subst_arg.kind()
+        {
+            Some(subst_ty)
+        } else {
+            None
+        }
+    })
 }
 
 fn is_primitive_impl(path: &[&str]) -> bool {

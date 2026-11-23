@@ -287,7 +287,7 @@ fn all_params_are_lifetimes(tcx: ty::TyCtxt<'_>, trait_id: DefId) -> bool {
 // https://github.com/rust-lang/rust/blob/fbdef58414af2b3469bf4f0f83bb136945414b96/compiler/rustc_middle/src/ty/context.rs#L1582-L1606
 
 /// Computes the def-ids of the transitive supertraits of `trait_def_id`. This (intentionally) does
-/// not compute the full elaborated super-predicates but just the set of def-ids. It is used to
+/// not compute the full elaborated super-clauses but just the set of def-ids. It is used to
 /// identify which traits may define a given associated type to help avoid cycle errors. Returns a
 /// `DefId` iterator.
 fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<Item = DefId> + '_ {
@@ -298,10 +298,10 @@ fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<It
 
     iter::from_fn(move || -> Option<DefId> {
         let trait_did = stack.pop()?;
-        let generic_predicates = tcx.explicit_super_clauses_of(trait_did);
+        let super_clauses = tcx.explicit_super_clauses_of(trait_did);
 
-        for (predicate, _) in generic_predicates.skip_binder() {
-            if let ty::ClauseKind::Trait(data) = predicate.kind().skip_binder()
+        for (clause, _) in super_clauses.skip_binder() {
+            if let ty::ClauseKind::Trait(data) = clause.kind().skip_binder()
                 && set.insert(data.def_id())
             {
                 stack.push(data.def_id());
@@ -383,11 +383,11 @@ fn typing_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> t
         .map(|p| (p, matches!(p.kind, ty::GenericParamDefKind::Type { .. })))
         .collect::<Vec<_>>();
 
-    let ty_predicates = tcx.clauses_of(did).clauses;
-    for (p, _) in ty_predicates {
-        if let ty::ClauseKind::Trait(p) = p.kind().skip_binder()
-            && p.trait_ref.def_id == trait_id
-            && let ty::Param(self_ty) = p.trait_ref.self_ty().kind()
+    let ty_clauses = tcx.clauses_of(did).clauses;
+    for (clause, _) in ty_clauses {
+        if let ty::ClauseKind::Trait(trait_clause) = clause.kind().skip_binder()
+            && trait_clause.trait_ref.def_id == trait_id
+            && let ty::Param(self_ty) = trait_clause.trait_ref.self_ty().kind()
         {
             // Flag types which already have a bound.
             params[self_ty.index as usize].1 = false;
@@ -396,7 +396,7 @@ fn typing_env_with_bounds(tcx: ty::TyCtxt<'_>, did: DefId, trait_id: DefId) -> t
 
     let param_env = ty::ParamEnv::new(
         tcx,
-        ty_predicates.iter().map(|&(p, _)| p).chain(
+        ty_clauses.iter().map(|&(clause, _)| clause).chain(
             params
                 .iter()
                 .filter(|&&(_, needs_bound)| needs_bound)
