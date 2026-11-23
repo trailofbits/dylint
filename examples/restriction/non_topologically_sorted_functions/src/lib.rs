@@ -8,9 +8,9 @@ extern crate rustc_span;
 use clippy_utils::{diagnostics::span_lint_and_then, is_test_function};
 use daggy::{Dag, NodeIndex};
 use rustc_hir::{
-    BodyId, Expr, ExprKind, HirId, Item, ItemKind, Mod,
+    BodyId, Expr, ExprKind, Item, ItemKind, Mod,
     def::Res,
-    def_id::LocalDefId,
+    def_id::{LocalDefId, LocalModId},
     intravisit::{self, Visitor},
 };
 use rustc_lint::{LateContext, LateLintPass};
@@ -305,7 +305,12 @@ struct Violation {
 }
 
 impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
-    fn check_mod(&mut self, cx: &LateContext<'tcx>, module: &'tcx Mod<'tcx>, _module_id: HirId) {
+    fn check_mod(
+        &mut self,
+        cx: &LateContext<'tcx>,
+        module: &'tcx Mod<'tcx>,
+        _module_id: LocalModId,
+    ) {
         // Collect top-level functions
         let mut def_order: Vec<LocalDefId> = vec![];
         let mut functions: HashMap<LocalDefId, Span> = HashMap::new();
