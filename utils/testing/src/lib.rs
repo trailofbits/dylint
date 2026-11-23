@@ -233,9 +233,7 @@ fn run_example_test(
         )
     })?;
     for extension in ["fixed", "stderr", "stdout"] {
-        copy_with_extension(&target.src_path, &to, extension)
-            .map(|_| ())
-            .unwrap_or_default();
+        let _ = copy_with_extension(&target.src_path, &to, extension);
     }
 
     let mut config = config.clone();

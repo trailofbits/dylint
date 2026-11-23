@@ -386,8 +386,9 @@ fn check_or_fix(
         #[cfg(__library_packages)]
         let dylint_metadata = library_packages::dylint_metadata(opts)?;
         let dylint_metadata_str = dylint_metadata
-            .map(|object: &Object| serde_json::Value::from(object.clone()))
-            .unwrap_or_default()
+            .map_or(serde_json::Value::Null, |object: &Object| {
+                serde_json::Value::from(object.clone())
+            })
             .to_string();
         let description = format!("with toolchain `{toolchain}`");
         let mut command = if check_opts.fix {
