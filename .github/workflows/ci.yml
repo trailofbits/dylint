@@ -94,7 +94,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Rustup
-        run: rustup update
+        run: rustup toolchain install stable --profile minimal --no-self-update
 
       - name: Install dylint-link
         run: cargo install --path ./dylint-link --features=__copy_library_disabled_by_default --force
