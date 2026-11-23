@@ -56,7 +56,7 @@ impl CommandExt for Command {
 
 fn failure_message(command: &Command, output: Option<&Output>) -> String {
     let mut msg = format!("`{}` command failed", command.get_program().display());
-    let and_output = output.map(|_| " and output").unwrap_or_default();
+    let and_output = output.map_or("", |_| " and output");
     if crate::env::enabled(crate::env::CI) {
         msg.push('\n');
         // smoelius: Use `unwrap` when writing to a string.
