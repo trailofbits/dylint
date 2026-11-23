@@ -156,6 +156,15 @@ jobs:
       - name: Fetch dependencies
         run: cargo nested fetch
 
+      # dblock: All toolchains must be installed before computing the compiler-aware cache key.
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2.9.3
+        with:
+          key: ${{ matrix.package }}
+          # dblock: Keep installed tools in the existing cache and rebuild workspace crates.
+          cache-bin: "false"
+          workspaces: ". -> target"
+
       - name: Test
         run: |
           if [[ '${{ matrix.package }}' =~ ^cargo-dylint ]]; then
