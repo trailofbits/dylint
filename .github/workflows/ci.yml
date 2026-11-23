@@ -89,11 +89,11 @@ jobs:
         run: |
           rustup install nightly
           rustup component add rustfmt --toolchain nightly
-          npm install -g prettier
 
       - name: Install CI tools
         if: ${{ matrix.package == 'cargo-dylint-ci' }}
         run: |
+          npm install -g prettier
           cargo install cargo-license        || true
           cargo install cargo-msrv --locked  || true
           cargo install cargo-rdme           || true
