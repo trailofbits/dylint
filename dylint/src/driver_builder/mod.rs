@@ -79,7 +79,8 @@ fn dylint_drivers(opts: &opts::Dylint) -> Result<PathBuf> {
         ensure!(dylint_drivers.is_dir());
         Ok(dylint_drivers.to_path_buf())
     } else {
-        let dylint_drivers = default_dylint_drivers(var_os(env::DYLINT_HOME))?;
+        let dylint_home = var_os(env::DYLINT_HOME);
+        let dylint_drivers = dylint_drivers_default(dylint_home)?;
         if !dylint_drivers.is_dir() {
             create_dir_all(&dylint_drivers).with_context(|| {
                 format!(
@@ -96,7 +97,7 @@ fn dylint_drivers(opts: &opts::Dylint) -> Result<PathBuf> {
     }
 }
 
-fn default_dylint_drivers(dylint_home: Option<OsString>) -> Result<PathBuf> {
+fn dylint_drivers_default(dylint_home: Option<OsString>) -> Result<PathBuf> {
     if let Some(path) = dylint_home {
         let path = PathBuf::from(path);
         ensure!(
@@ -274,7 +275,7 @@ mod tests {
     fn dylint_drivers_default_without_dylint_home() {
         assert_eq!(
             home_dir().unwrap().join(".dylint_drivers"),
-            default_dylint_drivers(None).unwrap()
+            dylint_drivers_default(None).unwrap()
         );
     }
 
@@ -283,7 +284,7 @@ mod tests {
         let tempdir = tempdir().unwrap();
         assert_eq!(
             tempdir.path().join("drivers"),
-            default_dylint_drivers(Some(tempdir.path().into())).unwrap()
+            dylint_drivers_default(Some(tempdir.path().into())).unwrap()
         );
     }
 
@@ -292,7 +293,7 @@ mod tests {
         for path in ["", "relative/path"] {
             assert_eq!(
                 format!("DYLINT_HOME contains `{path}`, which is not absolute"),
-                default_dylint_drivers(Some(path.into()))
+                dylint_drivers_default(Some(path.into()))
                     .unwrap_err()
                     .to_string()
             );
