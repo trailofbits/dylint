@@ -86,10 +86,7 @@ jobs:
           tool: cargo-hack, cargo-nested, cargo-udeps
 
       - name: Install tools
-        run: |
-          rustup install nightly
-          rustup component add rustfmt --toolchain nightly
-          npm install -g prettier
+        run: npm install -g prettier
 
       - name: Install CI tools
         if: ${{ matrix.package == 'cargo-dylint-ci' }}
@@ -134,6 +131,10 @@ jobs:
           cargo run -p dylint_internal --bin preinstall-toolchains
           rustup toolchain add nightly-2026-08-05
           rustup component add llvm-tools-preview rustc-dev --toolchain nightly-2026-08-05
+
+      - name: Install nightly rustfmt
+        if: ${{ matrix.package == 'cargo-dylint-ci' || matrix.package == 'dylint_examples' }}
+        run: rustup component add rustfmt --toolchain nightly
 
       - name: Fetch dependencies
         run: cargo nested fetch
