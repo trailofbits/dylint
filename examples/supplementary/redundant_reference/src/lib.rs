@@ -14,7 +14,7 @@ use clippy_utils::{
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::{
     Expr, ExprKind, GenericParam, GenericParamKind, HirId, Item, ItemKind, Lifetime, LifetimeKind,
-    MutTy, Mutability, TyKind, VariantData,
+    Mutability, TyKind, VariantData,
     def_id::LocalDefId,
     intravisit::{Visitor, walk_generic_param, walk_lifetime},
 };
@@ -170,13 +170,7 @@ impl<'tcx> LateLintPass<'tcx> for RedundantReference {
                 && let field_def_local_def_id = field_def.def_id
                 && (!cx.tcx.visibility(*local_def_id).is_public()
                     || !cx.tcx.visibility(field_def_local_def_id).is_public())
-                && let TyKind::Ref(
-                    lifetime,
-                    MutTy {
-                        ty: _,
-                        mutbl: Mutability::Not,
-                    },
-                ) = field_def.ty.kind
+                && let TyKind::Ref(lifetime, _, Mutability::Not) = field_def.ty.kind
                 && let LifetimeKind::Param(local_def_id) = lifetime.kind
                 && (!self.config.lifetime_check || {
                     let lifetime_uses = lifetime_uses(local_def_id, item);
