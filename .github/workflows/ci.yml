@@ -127,11 +127,14 @@ jobs:
           rm -rfv /c/ghcup/ghc                       | grep . >/dev/null
           rm -rfv /c/rtools*                         | grep . >/dev/null
 
-      # smoelius: The next step avoids tests having to use `rustup` concurrently. Toolchain
-      # nightly-2026-08-05 is needed for cargo-rdme 2.2.0.
+      # smoelius: The next step avoids tests having to use `rustup` concurrently.
       - name: Preinstall toolchains
+        run: cargo run -p dylint_internal --bin preinstall-toolchains
+
+      # smoelius: Toolchain nightly-2026-08-05 is needed for cargo-rdme 2.2.0.
+      - name: Install cargo-rdme toolchain
+        if: ${{ matrix.package == 'cargo-dylint-ci' }}
         run: |
-          cargo run -p dylint_internal --bin preinstall-toolchains
           rustup toolchain add nightly-2026-08-05
           rustup component add llvm-tools-preview rustc-dev --toolchain nightly-2026-08-05
 
