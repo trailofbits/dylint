@@ -56,6 +56,9 @@ jobs:
           echo "packages=$PACKAGES" >> "$GITHUB_OUTPUT"
 
   test:
+    # Name jobs by environment and package only, rather than by every value in the matrix entry.
+    name: test (${{ matrix.environment }}, ${{ matrix.package }})
+
     needs: [check-up-to-dateness, packages]
 
     if: needs.check-up-to-dateness.outputs.is-up-to-date != 'true'
@@ -65,9 +68,28 @@ jobs:
       matrix:
         environment: [ubuntu-latest, macos-latest, windows-latest]
         package: ${{ fromJSON(needs.packages.outputs.packages) }}
+        # Per-suite setup. Every job installs `cargo-nested`; the other tools are installed only
+        # for the suites whose tests use them.
         include:
+          - tools:
+              - cargo-nested
+          - package: dylint_examples
+            rustfmt: true
           - environment: ubuntu-latest
             package: cargo-dylint-ci
+            tools:
+              - cargo-hack
+              - cargo-license
+              - cargo-msrv
+              - cargo-nested
+              - cargo-rdme
+              - cargo-supply-chain
+              - cargo-udeps
+              - cargo-unmaintained
+              - rustdoc-prettier
+            rustfmt: true
+            prettier: true
+            rdme-toolchain: true
 
     runs-on: ${{ matrix.environment }}
 
@@ -101,23 +123,11 @@ jobs:
 
       - uses: taiki-e/install-action@v2.90.6
         with:
-          tool: cargo-hack, cargo-nested, cargo-udeps
+          tool: ${{ join(matrix.tools, ', ') }}
 
-      - name: Install tools
-        run: |
-          rustup install nightly
-          rustup component add rustfmt --toolchain nightly
-          npm install -g prettier
-
-      - name: Install CI tools
-        if: ${{ matrix.package == 'cargo-dylint-ci' }}
-        run: |
-          cargo install cargo-license        || true
-          cargo install cargo-msrv --locked  || true
-          cargo install cargo-rdme           || true
-          cargo install cargo-supply-chain   || true
-          cargo install cargo-unmaintained   || true
-          cargo install rustdoc-prettier     || true
+      - name: Install Prettier
+        if: ${{ matrix.prettier }}
+        run: npm install -g prettier
 
       - name: Free up space on Ubuntu
         if: ${{ matrix.environment == 'ubuntu-latest' }}
@@ -145,11 +155,18 @@ jobs:
           rm -rfv /c/ghcup/ghc                       | grep . >/dev/null
           rm -rfv /c/rtools*                         | grep . >/dev/null
 
-      # smoelius: The next step avoids tests having to use `rustup` concurrently. Toolchain
-      # nightly-2026-08-05 is needed for cargo-rdme 2.2.0.
+      # smoelius: The next step avoids tests having to use `rustup` concurrently.
       - name: Preinstall toolchains
+        run: cargo run -p dylint_internal --bin preinstall-toolchains
+
+      - name: Install nightly rustfmt
+        if: ${{ matrix.rustfmt }}
+        run: rustup component add rustfmt --toolchain nightly
+
+      # smoelius: Toolchain nightly-2026-08-05 is needed for cargo-rdme 2.2.0.
+      - name: Install cargo-rdme toolchain
+        if: ${{ matrix.rdme-toolchain }}
         run: |
-          cargo run -p dylint_internal --bin preinstall-toolchains
           rustup toolchain add nightly-2026-08-05
           rustup component add llvm-tools-preview rustc-dev --toolchain nightly-2026-08-05
 
