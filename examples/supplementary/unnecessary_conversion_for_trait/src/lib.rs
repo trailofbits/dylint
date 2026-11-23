@@ -537,11 +537,11 @@ fn inner_arg_implements_traits<'tcx>(
     let destruct_trait_def_id = cx.tcx.lang_items().destruct_trait();
     let sized_trait_def_id = cx.tcx.lang_items().sized_trait();
 
-    let mut predicates = cx.tcx.param_env(callee_def_id).caller_bounds();
-    let projection_clauses = predicates
+    let mut clauses = cx.tcx.param_env(callee_def_id).caller_bounds();
+    let projection_clauses = clauses
         .clone()
-        .filter_map(|predicate| {
-            if let ClauseKind::Projection(projection_clause) = predicate.kind().skip_binder() {
+        .filter_map(|clause| {
+            if let ClauseKind::Projection(projection_clause) = clause.kind().skip_binder() {
                 Some(projection_clause)
             } else {
                 None
@@ -550,10 +550,10 @@ fn inner_arg_implements_traits<'tcx>(
         .collect::<Vec<_>>();
 
     // If no traits were found, or only the `Destruct`, `Sized`, or `Any` traits were found, return.
-    if predicates
+    if clauses
         .clone()
-        .filter_map(|predicate| {
-            if let ClauseKind::Trait(trait_clause) = predicate.kind().skip_binder()
+        .filter_map(|clause| {
+            if let ClauseKind::Trait(trait_clause) = clause.kind().skip_binder()
                 && trait_clause.trait_ref.self_ty() == param_ty.to_ty(cx.tcx)
             {
                 Some(trait_clause.trait_ref.def_id)
@@ -584,11 +584,16 @@ fn inner_arg_implements_traits<'tcx>(
         return false;
     }
 
-    predicates.all(|predicate| {
-        let predicate = EarlyBinder::bind(cx.tcx, predicate)
+    clauses.all(|clause| {
+        let instantiated_clause = EarlyBinder::bind(cx.tcx, clause)
             .instantiate(cx.tcx, substs_with_new_ty.as_slice())
             .skip_norm_wip();
-        let obligation = Obligation::new(cx.tcx, ObligationCause::dummy(), cx.param_env, predicate);
+        let obligation = Obligation::new(
+            cx.tcx,
+            ObligationCause::dummy(),
+            cx.param_env,
+            instantiated_clause,
+        );
         cx.tcx
             .infer_ctxt()
             .build(cx.typing_mode())
