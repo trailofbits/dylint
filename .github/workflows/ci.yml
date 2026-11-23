@@ -28,8 +28,35 @@ jobs:
       - id: main
         uses: trailofbits/check-up-to-dateness@v2
 
-  test:
+  # Deciding which packages to test before the matrix is expanded avoids starting jobs
+  # for the expensive tests only for them to exit immediately.
+  packages:
     needs: [check-up-to-dateness]
+
+    if: needs.check-up-to-dateness.outputs.is-up-to-date != 'true'
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      packages: ${{ steps.packages.outputs.packages }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: packages
+        run: |
+          PACKAGES='["cargo-dylint", "dylint_examples", "other"]'
+          if [[ '${{ github.event_name }}' = 'schedule' || '${{ github.event_name }}' = 'workflow_dispatch' ]] ||
+            git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -w 'expensive'
+          then
+            PACKAGES='["cargo-dylint", "dylint_examples", "expensive-auto_correct", "expensive-alpine", "expensive-boundary_toolchains", "expensive-custom_toolchain", "other"]'
+          fi
+          echo "packages=$PACKAGES" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: [check-up-to-dateness, packages]
 
     if: needs.check-up-to-dateness.outputs.is-up-to-date != 'true'
 
@@ -37,16 +64,7 @@ jobs:
       fail-fast: ${{ github.event_name == 'merge_group' }}
       matrix:
         environment: [ubuntu-latest, macos-latest, windows-latest]
-        package:
-          [
-            cargo-dylint,
-            dylint_examples,
-            expensive-auto_correct,
-            expensive-alpine,
-            expensive-boundary_toolchains,
-            expensive-custom_toolchain,
-            other,
-          ]
+        package: ${{ fromJSON(needs.packages.outputs.packages) }}
         include:
           - environment: ubuntu-latest
             package: cargo-dylint-ci
@@ -161,11 +179,6 @@ jobs:
             PACKAGE=''
             TEST=''
             if [[ '${{ matrix.package }}' =~ ^expensive- ]]; then
-              if [[ '${{ github.event_name }}' != 'schedule' && '${{ github.event_name }}' != 'workflow_dispatch' ]] &&
-                ! git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -w 'expensive'
-              then
-                exit
-              fi
               PACKAGE='expensive'
               TEST='${{ matrix.package }}'
               TEST="--test=${TEST#'expensive-'}"
@@ -199,7 +212,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
   all-checks:
-    needs: [test]
+    needs: [packages, test]
 
     # smoelius: From "Defining prerequisite jobs"
     # (https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs):
