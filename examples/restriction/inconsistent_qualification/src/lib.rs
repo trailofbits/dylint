@@ -7,14 +7,14 @@ extern crate rustc_span;
 
 use clippy_utils::diagnostics::span_lint_and_note;
 use rustc_hir::{
-    HirId, Item, ItemKind, Node, OwnerNode, Path, PathSegment, UseKind, UsePath,
+    HirId, Item, ItemKind, Node, OwnerNode, Path, PathSegment, UseKind, UsePath, UseTree,
     def::{DefKind, Res},
     def_id::{CRATE_DEF_ID, DefId},
     intravisit::{Visitor, walk_item},
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TyCtxt;
-use rustc_span::Symbol;
+use rustc_span::{Span, Symbol, symbol::kw};
 
 dylint_linting::declare_late_lint! {
     /// ### What it does
@@ -79,7 +79,7 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentQualification {
                 Node::Item(Item {
                     kind: ItemKind::Use(..),
                     ..
-                })
+                }) | Node::NestedUseTree(_)
             )
         {
             // Check only modules present in the path, not all ancestors of the resolved item.
@@ -153,9 +153,31 @@ impl<'tcx> UseVisitor<'_, 'tcx, '_> {
 
     fn match_use_tree<'a>(
         &'a self,
-        use_path: &'a UsePath<'tcx>,
-        use_kind: UseKind,
-    ) -> Option<PathMatch<'a>> {
+        prefix_syms: &[Symbol],
+        use_tree: &'a UseTree<'tcx>,
+    ) -> Option<(PathMatch<'a>, Span)> {
+        let mut use_syms = prefix_syms.to_vec();
+
+        use_syms.extend(
+            use_tree
+                .prefix
+                .segments
+                .iter()
+                .map(|segment| segment.ident.name),
+        );
+
+        if let UseKind::Nested { items } = use_tree.kind {
+            return items
+                .iter()
+                .find_map(|(nested_use_tree, ..)| self.match_use_tree(&use_syms, nested_use_tree));
+        }
+
+        // Ignore underscore imports, including those within a nested use tree.
+        if matches!(use_tree.kind, UseKind::Single(ident) if ident.name.as_str() == "_") {
+            return None;
+        }
+
+        let use_path = use_tree.prefix;
         let local_owner_path = if use_path.res.iter().flatten().copied().any(is_local) {
             let local_def_id = self
                 .enclosing_scope_hir_id
@@ -165,30 +187,32 @@ impl<'tcx> UseVisitor<'_, 'tcx, '_> {
         } else {
             Vec::new()
         };
+        // In `use path::{self, item}`, `self` imports `path` itself. Unlike a
+        // plain `use path::self`, lowering keeps the relative `self` segment.
+        if matches!(use_tree.kind, UseKind::Single(_))
+            && use_path
+                .segments
+                .last()
+                .is_some_and(|segment| segment.ident.name == kw::SelfLower)
+        {
+            use_syms.pop();
+        }
         let syms = local_owner_path
             .into_iter()
-            .chain(use_path.segments.iter().map(|segment| segment.ident.name))
+            .chain(use_syms)
             .collect::<Vec<_>>();
-        let path_match = {
-            match use_kind {
-                UseKind::Single(_) => {
-                    if let Some(matched_prefix) = match_path_prefix(use_path, self.path) {
-                        Some(PathMatch::Prefix(matched_prefix))
-                    } else if syms[..syms.len() - 1] == *self.syms_mod {
-                        Some(PathMatch::Mod)
-                    } else {
-                        None
-                    }
+        let path_match = match use_tree.kind {
+            UseKind::Single(_) => {
+                if let Some(matched_prefix) = match_path_prefix(use_path, self.path) {
+                    Some(PathMatch::Prefix(matched_prefix))
+                } else if !syms.is_empty() && syms[..syms.len() - 1] == *self.syms_mod {
+                    Some(PathMatch::Mod)
+                } else {
+                    None
                 }
-                UseKind::Glob => {
-                    if syms == self.syms_mod {
-                        Some(PathMatch::Mod)
-                    } else {
-                        None
-                    }
-                }
-                UseKind::ListStem => None,
             }
+            UseKind::Glob => (syms == self.syms_mod).then_some(PathMatch::Mod),
+            UseKind::Nested { .. } => None,
         };
         let path_match = path_match?;
         let use_path_is_trait = use_path
@@ -196,13 +220,11 @@ impl<'tcx> UseVisitor<'_, 'tcx, '_> {
             .iter()
             .flatten()
             .any(|res| matches!(res, Res::Def(DefKind::Trait, _)));
-        // smoelius: If `use_path` corresponds to a trait, then it must match some prefix of
-        // `self.path` exactly for a warning to be emitted.
-        if !use_path_is_trait || matches!(path_match, PathMatch::Prefix(_)) {
-            Some(path_match)
-        } else {
-            None
+        // A trait import must match a prefix of the qualified path exactly.
+        if use_path_is_trait && !matches!(path_match, PathMatch::Prefix(_)) {
+            return None;
         }
+        Some((path_match, use_path.span))
     }
 }
 
@@ -224,11 +246,9 @@ impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
         }
 
         if !item.span.from_expansion()
-            // smoelius: Ignore underscore imports.
-            && item.kind.ident().is_none_or(|name| name.as_str() != "_")
             && self.cx.tcx.hir_get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id
-            && let ItemKind::Use(use_path, use_kind) = item.kind
-            && let Some(path_match) = self.match_use_tree(use_path, use_kind)
+            && let ItemKind::Use(use_tree) = &item.kind
+            && let Some((path_match, leaf_span)) = self.match_use_tree(&[], use_tree)
         {
             let (span, msg) = match path_match {
                 PathMatch::Prefix(matched_prefix) => {
@@ -255,7 +275,11 @@ impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
                 INCONSISTENT_QUALIFICATION,
                 span,
                 "inconsistent qualification",
-                Some(item.span),
+                Some(if matches!(use_tree.kind, UseKind::Nested { .. }) {
+                    leaf_span
+                } else {
+                    item.span
+                }),
                 msg,
             );
             self.diagnostic_emitted = true;

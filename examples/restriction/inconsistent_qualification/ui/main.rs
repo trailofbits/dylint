@@ -167,3 +167,16 @@ mod imported_nested_module {
         let _ = consts::EXE_SUFFIX;
     }
 }
+
+mod nested_use_tree {
+    use std::{
+        env::{var, var_os},
+        io::sink,
+    };
+
+    fn foo() {
+        assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
+        assert_eq!(None, var_os("LD_PRELOAD"));
+        let _ = sink();
+    }
+}
