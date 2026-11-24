@@ -192,7 +192,6 @@ fn parse_format_string(s: &str) -> Option<&str> {
             if next != '}' {
                 return None;
             }
-            continue;
         }
     }
 
