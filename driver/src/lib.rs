@@ -181,8 +181,8 @@ fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
 
 #[rustversion::since(2024-03-05)]
 fn early_error(msg: impl Into<rustc_errors::DiagMessage>) -> ! {
-    let handler =
-        rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
+    #[allow(clippy::default_trait_access)]
+    let handler = rustc_session::EarlyDiagCtxt::new(Default::default());
     handler.early_fatal(msg)
 }
 
