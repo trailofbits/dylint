@@ -119,5 +119,17 @@ note: items from `std::env` were imported here
 LL |     use std::env::{split_paths, var};
    |                    ^^^^^^^^^^^
 
-warning: 10 warnings emitted
+warning: inconsistent qualification
+  --> $DIR/main.rs:178:24
+   |
+LL |         assert_eq!(Err(std::env::VarError::NotPresent), var("LD_PRELOAD"));
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: items from `std::env` were imported here
+  --> $DIR/main.rs:173:15
+   |
+LL |         env::{var, var_os},
+   |               ^^^
+
+warning: 11 warnings emitted
 
