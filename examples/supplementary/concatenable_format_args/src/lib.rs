@@ -181,8 +181,7 @@ fn parse_format_string(s: &str) -> Option<&str> {
         if c == '{' {
             let (_, next) = char_indices.next()?;
             match next {
-                '{' => {}
-                '}' => {}
+                '{' | '}' => {}
                 _ => return None,
             }
             continue;
