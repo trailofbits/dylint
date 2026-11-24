@@ -40,6 +40,9 @@ dylint_linting = { path = "../../utils/linting" }
 [package.metadata.rust-analyzer]
 rustc_private = true
 
+[lints]
+workspace = true
+
 [workspace]
 members = ["*"]
 exclude = [".cargo", "src"]

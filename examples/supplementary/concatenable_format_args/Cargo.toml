@@ -21,3 +21,6 @@ rlib = ["dylint_linting/constituent"]
 
 [package.metadata.rust-analyzer]
 rustc_private = true
+
+[lints]
+workspace = true

@@ -18,4 +18,7 @@ dylint_testing = { path = "../../../utils/testing" }
 rlib = ["dylint_linting/constituent"]
 
 [package.metadata.rust-analyzer]
-rustc_private = true 
+rustc_private = true
+
+[lints]
+workspace = true
