@@ -204,6 +204,17 @@ fn cargo_metadata(opts: &opts::Dylint) -> Result<Option<&'static Metadata>> {
                 command.manifest_path(path);
             }
 
+            // lyn1dev: Pass flags that affect lockfile and network behavior to `cargo metadata`.
+            if let opts::Operation::Check(check_opts) = &opts.operation {
+                let other_options = check_opts
+                    .args
+                    .iter()
+                    .filter(|arg| matches!(arg.as_str(), "--locked" | "--frozen" | "--offline"))
+                    .cloned()
+                    .collect::<Vec<_>>();
+                command.other_options(other_options);
+            }
+
             match command.exec() {
                 Ok(metadata) => Ok(Some(metadata)),
                 Err(err) => {
