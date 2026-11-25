@@ -99,6 +99,27 @@ impl<'tcx> LateLintPass<'tcx> for InconsistentStructPattern {
     }
 }
 
+// smoelius: `is_consistent_order` is based on:
+// https://github.com/rust-lang/rust-clippy/blob/35e8be7407198565c434b69c5b9f85c71f156539/clippy_lints/src/inconsistent_struct_constructor.rs#L120-L133
+
+// Check whether the order of the fields in the constructor is consistent with the order in the
+// definition.
+fn is_consistent_order<'tcx>(
+    fields: &'tcx [PatField<'tcx>],
+    def_order_map: &FxHashMap<Symbol, usize>,
+) -> bool {
+    let mut cur_idx = usize::MIN;
+    for f in fields {
+        let next_idx = def_order_map[&f.ident.name];
+        if cur_idx > next_idx {
+            return false;
+        }
+        cur_idx = next_idx;
+    }
+
+    true
+}
+
 fn suggestion(
     cx: &LateContext<'_>,
     fields: &[PatField],
@@ -129,27 +150,6 @@ fn suggestion(
         }
     }
     sugg
-}
-
-// smoelius: `is_consistent_order` is based on:
-// https://github.com/rust-lang/rust-clippy/blob/35e8be7407198565c434b69c5b9f85c71f156539/clippy_lints/src/inconsistent_struct_constructor.rs#L120-L133
-
-// Check whether the order of the fields in the constructor is consistent with the order in the
-// definition.
-fn is_consistent_order<'tcx>(
-    fields: &'tcx [PatField<'tcx>],
-    def_order_map: &FxHashMap<Symbol, usize>,
-) -> bool {
-    let mut cur_idx = usize::MIN;
-    for f in fields {
-        let next_idx = def_order_map[&f.ident.name];
-        if cur_idx > next_idx {
-            return false;
-        }
-        cur_idx = next_idx;
-    }
-
-    true
 }
 
 #[test]

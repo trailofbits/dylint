@@ -242,6 +242,13 @@ impl<'tcx> LateLintPass<'tcx> for MissingDocCommentLlm {
 }
 
 impl MissingDocCommentLlm {
+    fn prompt_from_snippet(&self, snippet: &str) -> String {
+        format!(
+            "```rust\n{snippet}\n```\n{}\n```rust\n",
+            self.config.prompt.as_deref().unwrap_or(DEFAULT_PROMPT)
+        )
+    }
+
     fn completion_options_from_config(&self) -> (String, CompletionOptions) {
         let model = self
             .config
@@ -261,13 +268,6 @@ impl MissingDocCommentLlm {
         };
 
         (model, options)
-    }
-
-    fn prompt_from_snippet(&self, snippet: &str) -> String {
-        format!(
-            "```rust\n{snippet}\n```\n{}\n```rust\n",
-            self.config.prompt.as_deref().unwrap_or(DEFAULT_PROMPT)
-        )
     }
 }
 
@@ -338,22 +338,6 @@ fn extract_doc_comment(response: &str) -> Option<String> {
     }
 }
 
-fn earliest_attr_span(cx: &LateContext<'_>, item: &Item<'_>) -> Span {
-    cx.tcx
-        .hir_attrs(item.hir_id())
-        .iter()
-        .filter_map(|attr| match attr {
-            Attribute::Unparsed(_) => Some(attr.span()),
-            Attribute::Parsed(_) => None,
-        })
-        .fold(
-            item.span,
-            |lhs, rhs| {
-                if lhs.lo() <= rhs.lo() { lhs } else { rhs }
-            },
-        )
-}
-
 fn skip_preceding_line_comments(cx: &LateContext<'_>, mut span: Span) -> Span {
     while span.lo() >= BytePos(1) {
         let SourceFileAndLine { sf, line } = cx
@@ -371,6 +355,22 @@ fn skip_preceding_line_comments(cx: &LateContext<'_>, mut span: Span) -> Span {
         }
     }
     span
+}
+
+fn earliest_attr_span(cx: &LateContext<'_>, item: &Item<'_>) -> Span {
+    cx.tcx
+        .hir_attrs(item.hir_id())
+        .iter()
+        .filter_map(|attr| match attr {
+            Attribute::Unparsed(_) => Some(attr.span()),
+            Attribute::Parsed(_) => None,
+        })
+        .fold(
+            item.span,
+            |lhs, rhs| {
+                if lhs.lo() <= rhs.lo() { lhs } else { rhs }
+            },
+        )
 }
 
 #[must_use]

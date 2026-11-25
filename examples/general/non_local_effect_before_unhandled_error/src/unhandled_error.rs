@@ -233,13 +233,6 @@ impl<'tcx> UnhandledErrorsAnalysis<'_, 'tcx> {
     }
 }
 
-static RESULT_EXPECT: PathLookup = value_path!(core::result::Result::expect);
-static RESULT_UNWRAP: PathLookup = value_path!(core::result::Result::unwrap);
-
-fn is_sink_function(cx: &LateContext<'_>, def_id: DefId) -> bool {
-    RESULT_EXPECT.matches(cx, def_id) || RESULT_UNWRAP.matches(cx, def_id)
-}
-
 static CONTROL_FLOW: PathLookup = type_path!(core::ops::ControlFlow);
 
 fn is_control_flow_of_result<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> bool {
@@ -256,4 +249,11 @@ fn is_control_flow_of_result<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> bool
 
 fn is_result<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> bool {
     matches!(ty.kind(), Adt(adt, _) if cx.tcx.is_diagnostic_item(sym::Result, adt.did()))
+}
+
+static RESULT_EXPECT: PathLookup = value_path!(core::result::Result::expect);
+static RESULT_UNWRAP: PathLookup = value_path!(core::result::Result::unwrap);
+
+fn is_sink_function(cx: &LateContext<'_>, def_id: DefId) -> bool {
+    RESULT_EXPECT.matches(cx, def_id) || RESULT_UNWRAP.matches(cx, def_id)
 }

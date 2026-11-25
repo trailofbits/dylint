@@ -97,94 +97,6 @@ enum ConstraintReason {
     },
 }
 
-#[derive(Default)]
-struct ConstraintGraph {
-    /// Stores function `LocalDefId`s as nodes and accepted ordering constraints as edges whose
-    /// weights explain why the constraint exists.
-    function_dag: Dag<LocalDefId, ConstraintReason>,
-    /// Maps each function's `LocalDefId` to the `NodeIndex` required by `daggy`, ensuring that all
-    /// constraints involving the same function use the same node.
-    function_node_indices: HashMap<LocalDefId, NodeIndex>,
-    /// An `impl` block moves as one unit, while each free function moves independently.
-    unit_dag: Dag<LocalDefId, ()>,
-    unit_node_indices: HashMap<LocalDefId, NodeIndex>,
-    function_unit_map: HashMap<LocalDefId, LocalDefId>,
-}
-
-impl ConstraintGraph {
-    fn new(function_unit_map: HashMap<LocalDefId, LocalDefId>) -> Self {
-        Self {
-            function_unit_map,
-            ..Self::default()
-        }
-    }
-
-    fn unit_of(&self, function: LocalDefId) -> LocalDefId {
-        // Callees outside the current module are not collected as movable units. Keep treating
-        // them as individual nodes, as the function graph already does.
-        self.function_unit_map
-            .get(&function)
-            .copied()
-            .unwrap_or(function)
-    }
-
-    fn add(&mut self, before: LocalDefId, after: LocalDefId, reason: ConstraintReason) -> bool {
-        let before_index = *self
-            .function_node_indices
-            .entry(before)
-            .or_insert_with(|| self.function_dag.add_node(before));
-        let after_index = *self
-            .function_node_indices
-            .entry(after)
-            .or_insert_with(|| self.function_dag.add_node(after));
-
-        if self
-            .function_dag
-            .find_edge(before_index, after_index)
-            .is_some()
-        {
-            return true;
-        }
-
-        let before_unit = self.unit_of(before);
-        let after_unit = self.unit_of(after);
-
-        if before_unit != after_unit {
-            let before_unit_index = *self
-                .unit_node_indices
-                .entry(before_unit)
-                .or_insert_with(|| self.unit_dag.add_node(before_unit));
-            let after_unit_index = *self
-                .unit_node_indices
-                .entry(after_unit)
-                .or_insert_with(|| self.unit_dag.add_node(after_unit));
-
-            // A function-level DAG alone can accept `method_a < free_fn < method_b`, even
-            // though both methods belong to the same indivisible `impl` block.
-            if self
-                .unit_dag
-                .find_edge(before_unit_index, after_unit_index)
-                .is_none()
-                && self
-                    .unit_dag
-                    .add_edge(before_unit_index, after_unit_index, ())
-                    .is_err()
-            {
-                return false;
-            }
-        }
-
-        // Cross-unit cycles were ruled out above, but adding a function edge could still
-        // create a cycle within one unit.
-        let added = self
-            .function_dag
-            .add_edge(before_index, after_index, reason)
-            .is_ok();
-        debug_assert!(before_unit == after_unit || added);
-        added
-    }
-}
-
 struct Finder<'a, 'tcx> {
     cx: &'a LateContext<'tcx>,
     seen: HashSet<LocalDefId>,
@@ -239,6 +151,86 @@ impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
         }
 
         intravisit::walk_expr(self, ex);
+    }
+}
+
+impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
+    fn check_mod(
+        &mut self,
+        cx: &LateContext<'tcx>,
+        module: &'tcx Mod<'tcx>,
+        _module_id: LocalModId,
+    ) {
+        // Collect module-level functions and associated functions and methods from `impl` blocks
+        // in source order.
+        let mut def_order: Vec<LocalDefId> = vec![];
+        let mut functions: HashMap<LocalDefId, Span> = HashMap::new();
+        let mut unit_spans: HashMap<LocalDefId, Span> = HashMap::new();
+        let mut function_unit_map: HashMap<LocalDefId, LocalDefId> = HashMap::new();
+        let mut add_function = |local_def_id, span, unit, unit_span| {
+            if self.config.check_test_functions || !is_test_function(cx.tcx, local_def_id) {
+                def_order.push(local_def_id);
+                functions.insert(local_def_id, span);
+                function_unit_map.insert(local_def_id, unit);
+                unit_spans.insert(unit, unit_span);
+            }
+        };
+
+        for item_id in module.item_ids {
+            let item: &Item<'tcx> = cx.tcx.hir_item(*item_id);
+            match item.kind {
+                ItemKind::Fn { .. } => add_function(
+                    item.owner_id.def_id,
+                    item.span,
+                    item.owner_id.def_id,
+                    item.span,
+                ),
+                ItemKind::Impl(impl_) => {
+                    for impl_item_id in impl_.items {
+                        let impl_item = cx.tcx.hir_impl_item(*impl_item_id);
+                        if let ImplItemKind::Fn(..) = impl_item.kind {
+                            add_function(
+                                impl_item.owner_id.def_id,
+                                impl_item.span,
+                                item.owner_id.def_id,
+                                item.span,
+                            );
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        if def_order.len() < 2 {
+            return;
+        }
+
+        let mut constraints = ConstraintGraph::new(function_unit_map);
+        let mut calls = Vec::new();
+
+        for caller_id in def_order {
+            let caller_body = cx.tcx.hir_maybe_body_owned_by(caller_id);
+
+            if let Some(caller_body) = caller_body {
+                let caller_body_id = caller_body.id();
+                let callees: Vec<Callee> = Self::collect_callees_in_body(cx, caller_body_id);
+
+                Self::build_caller_callee_constraint(caller_id, &callees, &mut constraints);
+
+                calls.push((caller_id, callees));
+            }
+        }
+
+        for (caller_id, callees) in calls {
+            Self::build_call_order_constraints(caller_id, &callees, &mut constraints);
+        }
+
+        let violations = Self::find_violations(cx, &constraints, &functions, &unit_spans);
+
+        for violation in violations {
+            Self::report_violation(cx, violation);
+        }
     }
 }
 
@@ -456,6 +448,94 @@ impl NonTopologicallySortedFunctions {
     }
 }
 
+#[derive(Default)]
+struct ConstraintGraph {
+    /// Stores function `LocalDefId`s as nodes and accepted ordering constraints as edges whose
+    /// weights explain why the constraint exists.
+    function_dag: Dag<LocalDefId, ConstraintReason>,
+    /// Maps each function's `LocalDefId` to the `NodeIndex` required by `daggy`, ensuring that all
+    /// constraints involving the same function use the same node.
+    function_node_indices: HashMap<LocalDefId, NodeIndex>,
+    /// An `impl` block moves as one unit, while each free function moves independently.
+    unit_dag: Dag<LocalDefId, ()>,
+    unit_node_indices: HashMap<LocalDefId, NodeIndex>,
+    function_unit_map: HashMap<LocalDefId, LocalDefId>,
+}
+
+impl ConstraintGraph {
+    fn new(function_unit_map: HashMap<LocalDefId, LocalDefId>) -> Self {
+        Self {
+            function_unit_map,
+            ..Self::default()
+        }
+    }
+
+    fn add(&mut self, before: LocalDefId, after: LocalDefId, reason: ConstraintReason) -> bool {
+        let before_index = *self
+            .function_node_indices
+            .entry(before)
+            .or_insert_with(|| self.function_dag.add_node(before));
+        let after_index = *self
+            .function_node_indices
+            .entry(after)
+            .or_insert_with(|| self.function_dag.add_node(after));
+
+        if self
+            .function_dag
+            .find_edge(before_index, after_index)
+            .is_some()
+        {
+            return true;
+        }
+
+        let before_unit = self.unit_of(before);
+        let after_unit = self.unit_of(after);
+
+        if before_unit != after_unit {
+            let before_unit_index = *self
+                .unit_node_indices
+                .entry(before_unit)
+                .or_insert_with(|| self.unit_dag.add_node(before_unit));
+            let after_unit_index = *self
+                .unit_node_indices
+                .entry(after_unit)
+                .or_insert_with(|| self.unit_dag.add_node(after_unit));
+
+            // A function-level DAG alone can accept `method_a < free_fn < method_b`, even
+            // though both methods belong to the same indivisible `impl` block.
+            if self
+                .unit_dag
+                .find_edge(before_unit_index, after_unit_index)
+                .is_none()
+                && self
+                    .unit_dag
+                    .add_edge(before_unit_index, after_unit_index, ())
+                    .is_err()
+            {
+                return false;
+            }
+        }
+
+        // Cross-unit cycles were ruled out above, but adding a function edge could still
+        // create a cycle within one unit.
+        let added = self
+            .function_dag
+            .add_edge(before_index, after_index, reason)
+            .is_ok();
+        debug_assert!(before_unit == after_unit || added);
+        added
+    }
+
+    fn unit_of(&self, function: LocalDefId) -> LocalDefId {
+        // Callees outside the current module are not collected as movable units. Keep treating
+        // them as individual nodes, as the function graph already does.
+        self.function_unit_map
+            .get(&function)
+            .copied()
+            .unwrap_or(function)
+    }
+}
+
 enum MoveKind {
     FunctionInModule,
     FunctionWithinImpl,
@@ -471,86 +551,6 @@ struct Violation {
     span_second_item: Span,
     move_kind: MoveKind,
     reason: ConstraintReason,
-}
-
-impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
-    fn check_mod(
-        &mut self,
-        cx: &LateContext<'tcx>,
-        module: &'tcx Mod<'tcx>,
-        _module_id: LocalModId,
-    ) {
-        // Collect module-level functions and associated functions and methods from `impl` blocks
-        // in source order.
-        let mut def_order: Vec<LocalDefId> = vec![];
-        let mut functions: HashMap<LocalDefId, Span> = HashMap::new();
-        let mut unit_spans: HashMap<LocalDefId, Span> = HashMap::new();
-        let mut function_unit_map: HashMap<LocalDefId, LocalDefId> = HashMap::new();
-        let mut add_function = |local_def_id, span, unit, unit_span| {
-            if self.config.check_test_functions || !is_test_function(cx.tcx, local_def_id) {
-                def_order.push(local_def_id);
-                functions.insert(local_def_id, span);
-                function_unit_map.insert(local_def_id, unit);
-                unit_spans.insert(unit, unit_span);
-            }
-        };
-
-        for item_id in module.item_ids {
-            let item: &Item<'tcx> = cx.tcx.hir_item(*item_id);
-            match item.kind {
-                ItemKind::Fn { .. } => add_function(
-                    item.owner_id.def_id,
-                    item.span,
-                    item.owner_id.def_id,
-                    item.span,
-                ),
-                ItemKind::Impl(impl_) => {
-                    for impl_item_id in impl_.items {
-                        let impl_item = cx.tcx.hir_impl_item(*impl_item_id);
-                        if let ImplItemKind::Fn(..) = impl_item.kind {
-                            add_function(
-                                impl_item.owner_id.def_id,
-                                impl_item.span,
-                                item.owner_id.def_id,
-                                item.span,
-                            );
-                        }
-                    }
-                }
-                _ => {}
-            }
-        }
-
-        if def_order.len() < 2 {
-            return;
-        }
-
-        let mut constraints = ConstraintGraph::new(function_unit_map);
-        let mut calls = Vec::new();
-
-        for caller_id in def_order {
-            let caller_body = cx.tcx.hir_maybe_body_owned_by(caller_id);
-
-            if let Some(caller_body) = caller_body {
-                let caller_body_id = caller_body.id();
-                let callees: Vec<Callee> = Self::collect_callees_in_body(cx, caller_body_id);
-
-                Self::build_caller_callee_constraint(caller_id, &callees, &mut constraints);
-
-                calls.push((caller_id, callees));
-            }
-        }
-
-        for (caller_id, callees) in calls {
-            Self::build_call_order_constraints(caller_id, &callees, &mut constraints);
-        }
-
-        let violations = Self::find_violations(cx, &constraints, &functions, &unit_spans);
-
-        for violation in violations {
-            Self::report_violation(cx, violation);
-        }
-    }
 }
 
 #[test]

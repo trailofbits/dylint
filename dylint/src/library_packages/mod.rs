@@ -64,33 +64,6 @@ impl PartialOrd for Package {
     }
 }
 
-impl Package {
-    pub fn target_directory(&self) -> PathBuf {
-        self.target_directory.clone()
-    }
-
-    pub fn library_plain_path(&self) -> PathBuf {
-        self.target_directory()
-            .join("release")
-            .join(library_plain_filename(&self.lib_name))
-    }
-
-    pub fn library_path_with_toolchain(&self) -> PathBuf {
-        // When Dylint copies the library, it does so after Cargo finishes and places the copy in
-        // `target_directory`. But when `dylint-link` performs the copy, it does so during linking
-        // and places the copy relative to the linker output, which can be under `build_directory`.
-        // This is especially relevant when the user changes the build directory location.
-        self.build_directory
-            .clone()
-            .unwrap_or_else(|| self.target_directory())
-            .join("release")
-            .join(library_filename_with_toolchain(
-                &self.lib_name,
-                &self.toolchain,
-            ))
-    }
-}
-
 #[derive(Debug, Deserialize)]
 struct Library {
     pattern: Option<StringOrVec>,
@@ -546,6 +519,33 @@ pub fn build_library(opts: &opts::Dylint, package: &Package) -> Result<PathBuf> 
 
     dunce::canonicalize(&path)
         .with_context(|| format!("Could not canonicalize `{}`", path.display()))
+}
+
+impl Package {
+    pub fn library_path_with_toolchain(&self) -> PathBuf {
+        // When Dylint copies the library, it does so after Cargo finishes and places the copy in
+        // `target_directory`. But when `dylint-link` performs the copy, it does so during linking
+        // and places the copy relative to the linker output, which can be under `build_directory`.
+        // This is especially relevant when the user changes the build directory location.
+        self.build_directory
+            .clone()
+            .unwrap_or_else(|| self.target_directory())
+            .join("release")
+            .join(library_filename_with_toolchain(
+                &self.lib_name,
+                &self.toolchain,
+            ))
+    }
+
+    pub fn library_plain_path(&self) -> PathBuf {
+        self.target_directory()
+            .join("release")
+            .join(library_plain_filename(&self.lib_name))
+    }
+
+    pub fn target_directory(&self) -> PathBuf {
+        self.target_directory.clone()
+    }
 }
 
 // smoelius: `pkg_dir` and `target_short_hash` are based on functions with the same names in

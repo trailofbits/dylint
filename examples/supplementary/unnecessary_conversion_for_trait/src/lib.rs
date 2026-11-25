@@ -488,6 +488,22 @@ mod ui {
     }
 }
 
+fn ancestor_addr_of_mutabilities<'tcx>(
+    cx: &LateContext<'tcx>,
+    mut expr: &'tcx Expr<'tcx>,
+) -> Option<(&'tcx Expr<'tcx>, &'tcx Expr<'tcx>, Vec<Mutability>)> {
+    let mut mutabilities = Vec::new();
+    while let Some(parent) = get_parent_expr(cx, expr) {
+        if let ExprKind::AddrOf(BorrowKind::Ref, mutability, _) = parent.kind {
+            mutabilities.push(mutability);
+            expr = parent;
+        } else {
+            return Some((parent, expr, mutabilities));
+        }
+    }
+    None
+}
+
 // smoelius: `get_callee_generic_args_and_args` was copied from:
 // https://github.com/rust-lang/rust-clippy/blob/d6d530fd0b92ccec4a22e69cdebe6c4c942c8166/clippy_lints/src/methods/unnecessary_to_owned.rs#L321-L350
 
@@ -520,6 +536,68 @@ fn get_callee_generic_args_and_args<'tcx>(
         return Some((method_def_id, generic_args, Some(recv), args));
     }
     None
+}
+
+fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
+    const WRITE_BOX_VIA_MOVE: [&str; 3] = ["alloc", "intrinsics", "write_box_via_move"];
+
+    #[cfg_attr(dylint_lib = "supplementary", expect(commented_out_code))]
+    loop {
+        // smoelius: No longer necessary since: https://github.com/rust-lang/rust/pull/108471
+        /* if let ExprKind::Box(inner_expr) = expr.kind {
+            expr = inner_expr;
+            continue;
+        } */
+
+        if let ExprKind::Call(callee, [_uninit_box, inner_arg]) = expr.kind
+            && matches!(inner_arg.kind, ExprKind::Array(_))
+            && let callee_ty = cx.typeck_results().expr_ty(callee)
+            && let FnDef(callee_def_id, _) = callee_ty.kind()
+            && match_def_path(cx, *callee_def_id, &WRITE_BOX_VIA_MOVE)
+        {
+            expr = inner_arg;
+            continue;
+        }
+
+        break;
+    }
+
+    expr
+}
+
+fn adjustment_mutabilities<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> Vec<Mutability> {
+    cx.typeck_results()
+        .expr_adjustments(expr)
+        .iter()
+        .map_while(|adjustment| {
+            if let Adjustment {
+                kind: Adjust::Borrow(AutoBorrow::Ref(mutability)),
+                target: _,
+            } = adjustment
+            {
+                Some((*mutability).into())
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
+fn build_ty_and_refs_prefix<'tcx>(
+    cx: &LateContext<'tcx>,
+    mut ty: Ty<'tcx>,
+    mutabilities: &[Mutability],
+) -> (Ty<'tcx>, String) {
+    let mut refs_prefix = String::new();
+    for &mutability in mutabilities {
+        // smoelius: If the type is already copy, don't bother adding any more refs.
+        if is_copy(cx, ty) {
+            break;
+        }
+        ty = Ty::new_ref(cx.tcx, cx.tcx.lifetimes.re_erased, ty, mutability);
+        refs_prefix = "&".to_owned() + mutability.prefix_str() + &refs_prefix;
+    }
+    (ty, refs_prefix)
 }
 
 // smoelius: `inner_arg_implements_traits` is based on `needless_borrow_impl_arg_position` from:
@@ -662,84 +740,6 @@ fn replace_types<'tcx>(
     }
 
     true
-}
-
-fn ancestor_addr_of_mutabilities<'tcx>(
-    cx: &LateContext<'tcx>,
-    mut expr: &'tcx Expr<'tcx>,
-) -> Option<(&'tcx Expr<'tcx>, &'tcx Expr<'tcx>, Vec<Mutability>)> {
-    let mut mutabilities = Vec::new();
-    while let Some(parent) = get_parent_expr(cx, expr) {
-        if let ExprKind::AddrOf(BorrowKind::Ref, mutability, _) = parent.kind {
-            mutabilities.push(mutability);
-            expr = parent;
-        } else {
-            return Some((parent, expr, mutabilities));
-        }
-    }
-    None
-}
-
-fn peel_boxes<'tcx>(cx: &LateContext<'tcx>, mut expr: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
-    const WRITE_BOX_VIA_MOVE: [&str; 3] = ["alloc", "intrinsics", "write_box_via_move"];
-
-    #[cfg_attr(dylint_lib = "supplementary", expect(commented_out_code))]
-    loop {
-        // smoelius: No longer necessary since: https://github.com/rust-lang/rust/pull/108471
-        /* if let ExprKind::Box(inner_expr) = expr.kind {
-            expr = inner_expr;
-            continue;
-        } */
-
-        if let ExprKind::Call(callee, [_uninit_box, inner_arg]) = expr.kind
-            && matches!(inner_arg.kind, ExprKind::Array(_))
-            && let callee_ty = cx.typeck_results().expr_ty(callee)
-            && let FnDef(callee_def_id, _) = callee_ty.kind()
-            && match_def_path(cx, *callee_def_id, &WRITE_BOX_VIA_MOVE)
-        {
-            expr = inner_arg;
-            continue;
-        }
-
-        break;
-    }
-
-    expr
-}
-
-fn adjustment_mutabilities<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> Vec<Mutability> {
-    cx.typeck_results()
-        .expr_adjustments(expr)
-        .iter()
-        .map_while(|adjustment| {
-            if let Adjustment {
-                kind: Adjust::Borrow(AutoBorrow::Ref(mutability)),
-                target: _,
-            } = adjustment
-            {
-                Some((*mutability).into())
-            } else {
-                None
-            }
-        })
-        .collect()
-}
-
-fn build_ty_and_refs_prefix<'tcx>(
-    cx: &LateContext<'tcx>,
-    mut ty: Ty<'tcx>,
-    mutabilities: &[Mutability],
-) -> (Ty<'tcx>, String) {
-    let mut refs_prefix = String::new();
-    for &mutability in mutabilities {
-        // smoelius: If the type is already copy, don't bother adding any more refs.
-        if is_copy(cx, ty) {
-            break;
-        }
-        ty = Ty::new_ref(cx.tcx, cx.tcx.lifetimes.re_erased, ty, mutability);
-        refs_prefix = "&".to_owned() + mutability.prefix_str() + &refs_prefix;
-    }
-    (ty, refs_prefix)
 }
 
 #[must_use]

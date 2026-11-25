@@ -134,6 +134,66 @@ struct UseVisitor<'cx, 'tcx, 'syms> {
     diagnostic_emitted: bool,
 }
 
+enum PathMatch<'hir> {
+    Prefix(&'hir [PathSegment<'hir>]),
+    Mod,
+}
+
+impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
+    type NestedFilter = rustc_middle::hir::nested_filter::All;
+
+    fn maybe_tcx(&mut self) -> Self::MaybeTyCtxt {
+        self.cx.tcx
+    }
+
+    fn visit_item(&mut self, item: &'tcx Item) {
+        if self.diagnostic_emitted {
+            return;
+        }
+
+        if !item.span.from_expansion()
+            && self.cx.tcx.hir_get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id
+            && let ItemKind::Use(use_tree) = &item.kind
+            && let Some((path_match, leaf_span)) = self.match_use_tree(&[], use_tree)
+        {
+            let (span, msg) = match path_match {
+                PathMatch::Prefix(matched_prefix) => {
+                    let span = matched_prefix
+                        .first()
+                        .unwrap()
+                        .ident
+                        .span
+                        .with_hi(matched_prefix.last().unwrap().ident.span.hi());
+                    let path =
+                        path_to_string(matched_prefix.iter().map(|segment| &segment.ident.name));
+                    (span, format!("`{path}` was imported here"))
+                }
+                PathMatch::Mod => {
+                    let path = path_to_string(self.syms_mod);
+                    (
+                        self.path.span,
+                        format!("items from `{path}` were imported here"),
+                    )
+                }
+            };
+            span_lint_and_note(
+                self.cx,
+                INCONSISTENT_QUALIFICATION,
+                span,
+                "inconsistent qualification",
+                Some(if matches!(use_tree.kind, UseKind::Nested { .. }) {
+                    leaf_span
+                } else {
+                    item.span
+                }),
+                msg,
+            );
+            self.diagnostic_emitted = true;
+        }
+        walk_item(self, item);
+    }
+}
+
 // smoelius: `visit_scope` is based on the source of:
 // https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html#method.get_enclosing_scope
 // Does something similar already exist and I am just not seeing it?
@@ -225,66 +285,6 @@ impl<'tcx> UseVisitor<'_, 'tcx, '_> {
             return None;
         }
         Some((path_match, use_path.span))
-    }
-}
-
-enum PathMatch<'hir> {
-    Prefix(&'hir [PathSegment<'hir>]),
-    Mod,
-}
-
-impl<'tcx> Visitor<'tcx> for UseVisitor<'_, 'tcx, '_> {
-    type NestedFilter = rustc_middle::hir::nested_filter::All;
-
-    fn maybe_tcx(&mut self) -> Self::MaybeTyCtxt {
-        self.cx.tcx
-    }
-
-    fn visit_item(&mut self, item: &'tcx Item) {
-        if self.diagnostic_emitted {
-            return;
-        }
-
-        if !item.span.from_expansion()
-            && self.cx.tcx.hir_get_enclosing_scope(item.hir_id()) == self.enclosing_scope_hir_id
-            && let ItemKind::Use(use_tree) = &item.kind
-            && let Some((path_match, leaf_span)) = self.match_use_tree(&[], use_tree)
-        {
-            let (span, msg) = match path_match {
-                PathMatch::Prefix(matched_prefix) => {
-                    let span = matched_prefix
-                        .first()
-                        .unwrap()
-                        .ident
-                        .span
-                        .with_hi(matched_prefix.last().unwrap().ident.span.hi());
-                    let path =
-                        path_to_string(matched_prefix.iter().map(|segment| &segment.ident.name));
-                    (span, format!("`{path}` was imported here"))
-                }
-                PathMatch::Mod => {
-                    let path = path_to_string(self.syms_mod);
-                    (
-                        self.path.span,
-                        format!("items from `{path}` were imported here"),
-                    )
-                }
-            };
-            span_lint_and_note(
-                self.cx,
-                INCONSISTENT_QUALIFICATION,
-                span,
-                "inconsistent qualification",
-                Some(if matches!(use_tree.kind, UseKind::Nested { .. }) {
-                    leaf_span
-                } else {
-                    item.span
-                }),
-                msg,
-            );
-            self.diagnostic_emitted = true;
-        }
-        walk_item(self, item);
     }
 }
 

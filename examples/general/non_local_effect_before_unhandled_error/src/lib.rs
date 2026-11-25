@@ -128,32 +128,6 @@ struct NonLocalEffectBeforeUnhandledError {
     non_local_effects: RefCell<FxHashMap<DefId, Option<NonLocalEffect>>>,
 }
 
-impl NonLocalEffectBeforeUnhandledError {
-    pub fn new() -> Self {
-        Self {
-            config: dylint_linting::config_or_default(env!("CARGO_PKG_NAME")),
-            non_local_effects: RefCell::new(FxHashMap::default()),
-        }
-    }
-
-    fn work_limit(&self) -> u64 {
-        self.config
-            .work_limit
-            .unwrap_or_else(|| Config::default().work_limit.unwrap())
-    }
-
-    fn get_non_local_effect(&self, cx: &LateContext<'_>, def_id: DefId) -> Option<NonLocalEffect> {
-        if let Some(cached) = self.non_local_effects.borrow().get(&def_id) {
-            return cached.clone();
-        }
-        let result = has_non_local_effect_before_error_return(cx, def_id, self.work_limit());
-        self.non_local_effects
-            .borrow_mut()
-            .insert(def_id, result.clone());
-        result
-    }
-}
-
 impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeUnhandledError {
     fn check_fn(
         &mut self,
@@ -252,6 +226,38 @@ impl<'tcx> LateLintPass<'tcx> for NonLocalEffectBeforeUnhandledError {
     }
 }
 
+#[must_use]
+fn enabled(opt: &str) -> bool {
+    let key = env!("CARGO_PKG_NAME").to_uppercase() + "_" + opt;
+    std::env::var(key).is_ok_and(|value| value != "0")
+}
+
+impl NonLocalEffectBeforeUnhandledError {
+    pub fn new() -> Self {
+        Self {
+            config: dylint_linting::config_or_default(env!("CARGO_PKG_NAME")),
+            non_local_effects: RefCell::new(FxHashMap::default()),
+        }
+    }
+
+    fn get_non_local_effect(&self, cx: &LateContext<'_>, def_id: DefId) -> Option<NonLocalEffect> {
+        if let Some(cached) = self.non_local_effects.borrow().get(&def_id) {
+            return cached.clone();
+        }
+        let result = has_non_local_effect_before_error_return(cx, def_id, self.work_limit());
+        self.non_local_effects
+            .borrow_mut()
+            .insert(def_id, result.clone());
+        result
+    }
+
+    fn work_limit(&self) -> u64 {
+        self.config
+            .work_limit
+            .unwrap_or_else(|| Config::default().work_limit.unwrap())
+    }
+}
+
 fn emit_warning(cx: &LateContext<'_>, callee: &str, fn_span: Span, info: &NonLocalEffect) {
     span_lint_and_then(
         cx,
@@ -278,12 +284,6 @@ fn emit_warning(cx: &LateContext<'_>, callee: &str, fn_span: Span, info: &NonLoc
             }
         },
     );
-}
-
-#[must_use]
-fn enabled(opt: &str) -> bool {
-    let key = env!("CARGO_PKG_NAME").to_uppercase() + "_" + opt;
-    std::env::var(key).is_ok_and(|value| value != "0")
 }
 
 #[test]

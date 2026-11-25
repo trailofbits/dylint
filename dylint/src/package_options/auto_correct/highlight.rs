@@ -53,62 +53,6 @@ impl std::fmt::Debug for Highlight {
     }
 }
 
-impl Highlight {
-    /// Tries to construct a [`Highlight`] from a [`DiagnosticSpan`]. Fails if the highlighted text
-    /// cannot be tokenized.
-    fn try_new(message: &str, span: DiagnosticSpan) -> Result<Self> {
-        let DiagnosticSpan {
-            file_name,
-            line_start,
-            line_end,
-            column_start,
-            column_end,
-            is_primary,
-            text,
-            ..
-        } = span;
-
-        let lines = text
-            .into_iter()
-            .map(|span_line| span_line.text)
-            .collect::<Vec<_>>();
-
-        let lines_borrowed = lines.iter().map(String::as_str).collect::<Vec<_>>();
-        let tokens_borrowed = tokenize_lines(&lines_borrowed)?;
-        let tokens = tokens_borrowed
-            .into_iter()
-            .map(ToOwned::to_owned)
-            .collect::<Vec<_>>();
-
-        assert_ne!(&[] as &[String], lines);
-
-        // smoelius: The calculations of `highlight_start` and `highlight_end` retokenize parts of
-        // the first and last lines. This is kind of ugly.
-        let highlight_start = {
-            let first_line = &lines_borrowed.first().unwrap()[..column_start - 1];
-            let first_line_tokens = tokenize_fragment(first_line)?;
-            first_line_tokens.len()
-        };
-        let highlight_end = {
-            let last_line = &lines_borrowed.last().unwrap()[column_end - 1..];
-            let last_line_tokens = tokenize_fragment(last_line)?;
-            tokens.len() - last_line_tokens.len()
-        };
-
-        Ok(Self {
-            message: message.to_owned(),
-            file_name,
-            line_start,
-            line_end,
-            lines,
-            tokens,
-            highlight_start,
-            highlight_end,
-            is_primary,
-        })
-    }
-}
-
 /// Invokes `cargo build` at `path` and returns the generated diagnostic messages as [`Highlight`]s.
 pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highlight>> {
     let start = Instant::now();
@@ -164,4 +108,60 @@ pub fn collect_highlights(opts: &opts::Dylint, path: &Path) -> Result<Vec<Highli
     );
 
     Ok(highlights)
+}
+
+impl Highlight {
+    /// Tries to construct a [`Highlight`] from a [`DiagnosticSpan`]. Fails if the highlighted text
+    /// cannot be tokenized.
+    fn try_new(message: &str, span: DiagnosticSpan) -> Result<Self> {
+        let DiagnosticSpan {
+            file_name,
+            line_start,
+            line_end,
+            column_start,
+            column_end,
+            is_primary,
+            text,
+            ..
+        } = span;
+
+        let lines = text
+            .into_iter()
+            .map(|span_line| span_line.text)
+            .collect::<Vec<_>>();
+
+        let lines_borrowed = lines.iter().map(String::as_str).collect::<Vec<_>>();
+        let tokens_borrowed = tokenize_lines(&lines_borrowed)?;
+        let tokens = tokens_borrowed
+            .into_iter()
+            .map(ToOwned::to_owned)
+            .collect::<Vec<_>>();
+
+        assert_ne!(&[] as &[String], lines);
+
+        // smoelius: The calculations of `highlight_start` and `highlight_end` retokenize parts of
+        // the first and last lines. This is kind of ugly.
+        let highlight_start = {
+            let first_line = &lines_borrowed.first().unwrap()[..column_start - 1];
+            let first_line_tokens = tokenize_fragment(first_line)?;
+            first_line_tokens.len()
+        };
+        let highlight_end = {
+            let last_line = &lines_borrowed.last().unwrap()[column_end - 1..];
+            let last_line_tokens = tokenize_fragment(last_line)?;
+            tokens.len() - last_line_tokens.len()
+        };
+
+        Ok(Self {
+            message: message.to_owned(),
+            file_name,
+            line_start,
+            line_end,
+            lines,
+            tokens,
+            highlight_start,
+            highlight_end,
+            is_primary,
+        })
+    }
 }

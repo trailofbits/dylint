@@ -169,40 +169,6 @@ fn is_receiver_of_join<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) -> 
     false
 }
 
-fn build_concat_args<'tcx>(
-    cx: &LateContext<'tcx>,
-    components: &[ComponentType<'tcx>],
-) -> Option<String> {
-    let mut result = Vec::new();
-    let mut pending_literal = String::new();
-
-    for (i, component) in components.iter().enumerate() {
-        if i != 0 {
-            pending_literal.push('/');
-        }
-        match component {
-            ComponentType::Literal(s) => {
-                pending_literal.push_str(s);
-            }
-            ComponentType::Constant(expr) => {
-                if !pending_literal.is_empty() {
-                    result.push(format!(r#""{pending_literal}""#));
-                    pending_literal.clear();
-                }
-                let snippet = snippet_opt(cx, expr.span)?;
-                result.push(snippet);
-            }
-            ComponentType::Other => return None,
-        }
-    }
-
-    if !pending_literal.is_empty() {
-        result.push(format!(r#""{pending_literal}""#));
-    }
-
-    Some(result.join(", "))
-}
-
 fn collect_components<'tcx>(
     cx: &LateContext<'tcx>,
     mut expr: &'tcx Expr<'tcx>,
@@ -263,6 +229,40 @@ fn collect_components<'tcx>(
 
     components_reversed.reverse();
     (components_reversed, ty_or_partial_span)
+}
+
+fn build_concat_args<'tcx>(
+    cx: &LateContext<'tcx>,
+    components: &[ComponentType<'tcx>],
+) -> Option<String> {
+    let mut result = Vec::new();
+    let mut pending_literal = String::new();
+
+    for (i, component) in components.iter().enumerate() {
+        if i != 0 {
+            pending_literal.push('/');
+        }
+        match component {
+            ComponentType::Literal(s) => {
+                pending_literal.push_str(s);
+            }
+            ComponentType::Constant(expr) => {
+                if !pending_literal.is_empty() {
+                    result.push(format!(r#""{pending_literal}""#));
+                    pending_literal.clear();
+                }
+                let snippet = snippet_opt(cx, expr.span)?;
+                result.push(snippet);
+            }
+            ComponentType::Other => return None,
+        }
+    }
+
+    if !pending_literal.is_empty() {
+        result.push(format!(r#""{pending_literal}""#));
+    }
+
+    Some(result.join(", "))
 }
 
 fn check_component_type<'tcx>(

@@ -89,6 +89,12 @@ impl<'tcx> LateLintPass<'tcx> for UnnecessaryBorrowMut {
     }
 }
 
+#[must_use]
+fn enabled(opt: &str) -> bool {
+    let key = env!("CARGO_PKG_NAME").to_uppercase() + "_" + opt;
+    std::env::var(key).is_ok_and(|value| value != "0")
+}
+
 fn collect_borrow_mut_locals(cx: &LateContext<'_>, mir: &Body) -> Vec<(Local, Span)> {
     mir.basic_blocks
         .iter()
@@ -217,12 +223,6 @@ impl<'tcx> Visitor<'tcx> for V<'tcx> {
             self.outcome = Some(Outcome::UsedNotForDeref);
         }
     }
-}
-
-#[must_use]
-fn enabled(opt: &str) -> bool {
-    let key = env!("CARGO_PKG_NAME").to_uppercase() + "_" + opt;
-    std::env::var(key).is_ok_and(|value| value != "0")
 }
 
 #[test]
