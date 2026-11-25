@@ -8,9 +8,8 @@ extern crate rustc_span;
 use clippy_utils::{diagnostics::span_lint_and_then, is_test_function};
 use daggy::{Dag, NodeIndex};
 use rustc_hir::{
-    BodyId, Expr, ExprKind, Item, ItemKind, Mod,
-    def::Res,
-    def_id::{LocalDefId, LocalModId},
+    BodyId, Expr, ExprKind, ImplItemKind, Item, ItemKind, Mod,
+    def_id::{DefId, LocalDefId, LocalModId},
     intravisit::{self, Visitor},
 };
 use rustc_lint::{LateContext, LateLintPass};
@@ -24,10 +23,10 @@ use std::{
 dylint_linting::impl_late_lint! {
     /// ### What it does
     ///
-    /// It enforces a relative order among functions defined within a module. Callers must precede
-    /// their module-local callees. Functions called by the same caller should appear in call order.
-    /// A constraint is rejected if it would create a cycle when combined with previously accepted
-    /// constraints.
+    /// It enforces a relative order among module-level functions and associated functions and
+    /// methods in `impl` blocks. Callers must precede their module-local callees. Functions called
+    /// by the same caller should appear in call order. A constraint is rejected if it would create
+    /// a cycle when combined with previously accepted constraints.
     ///
     /// ### Why is this bad?
     ///
@@ -60,8 +59,10 @@ dylint_linting::impl_late_lint! {
     ///
     /// ### Known problems
     ///
-    /// While the lint may seem strict, its rules do not completely dictate the order of a module's
-    /// functions. Judgement must often be exercised to address the lint's warnings.
+    /// - While the lint may seem strict, its rules do not completely dictate the order of a
+    ///   module's functions. Judgement must often be exercised to address the lint's warnings.
+    /// - Calls through trait methods may not constrain the position of their concrete
+    ///   implementation.
     pub NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
     Warn,
     "Enforce callers before callees and compatible call ordering among module-local functions",
@@ -126,17 +127,16 @@ struct Finder<'a, 'tcx> {
     cx: &'a LateContext<'tcx>,
     seen: HashSet<LocalDefId>,
     #[rustfmt::skip] // https://github.com/rust-lang/rustfmt/issues/6180
-    /// The list of callees encountered during a preorder traversal of the body.
+    /// Distinct callees in order of first occurrence during a preorder traversal of the body.
     ///
     /// Each element stores:
     ///
     /// - The `LocalDefId` of the callee
     /// - The `Span` of the call site
     ///
-    /// This ordering is significant: the first occurrence of a callee defines how constraints
-    /// between callees are derived. For example, if calls appear in the order `bar()`, then
-    /// `baz()`, this produces the ordering constraint `bar` must come before `baz` when functions
-    /// are arranged in the module.
+    /// This order determines proposed constraints between callees. For example, calls to `bar()`
+    /// followed by `baz()` propose that `bar` be defined before `baz`. A cycle may cause the
+    /// constraint to be rejected.
     ///
     /// The `Span` is later used to produce more precise diagnostics; if a function is out of order,
     /// we can point to the exact call site that implies the constraint.
@@ -151,21 +151,31 @@ impl<'tcx> Visitor<'tcx> for Finder<'_, 'tcx> {
     }
 
     fn visit_expr(&mut self, ex: &'tcx Expr<'tcx>) {
-        if let ExprKind::Call(callee, _args) = &ex.kind
-            && let ExprKind::Path(ref qpath) = callee.kind
-            && let res = self.cx.qpath_res(qpath, callee.hir_id)
-            && let Res::Def(_, def_id) = res
-            && let Some(local_def_id) = def_id.as_local()
-            && !self.seen.contains(&local_def_id)
+        let callee_def_id = match ex.kind {
+            ExprKind::Call(callee, _) => {
+                if let ExprKind::Path(ref qpath) = callee.kind {
+                    self.cx.qpath_res(qpath, callee.hir_id).opt_def_id()
+                } else {
+                    None
+                }
+            }
+            ExprKind::MethodCall(..) => self
+                .cx
+                .tcx
+                .typeck(ex.hir_id.owner.def_id)
+                .type_dependent_def_id(ex.hir_id),
+            _ => None,
+        };
+
+        if let Some(local_def_id) = callee_def_id.and_then(DefId::as_local)
+            && self.seen.insert(local_def_id)
         {
-            self.seen.insert(local_def_id);
             self.order.push(Callee {
                 callee_local_def_id: local_def_id,
                 call_span: ex.span,
             });
         }
 
-        // keep traversing
         intravisit::walk_expr(self, ex);
     }
 }
@@ -200,7 +210,7 @@ impl NonTopologicallySortedFunctions {
         } in callees
         {
             // If this constraint would introduce a cycle, keep the constraints added by
-            // earlier callers (callers are visited in module order).
+            // earlier callers (callers are visited in source order).
             let _: bool = constraints.add(
                 caller_id,
                 callee_local_def_id,
@@ -209,8 +219,8 @@ impl NonTopologicallySortedFunctions {
         }
     }
 
-    /// Build call-order constraints: if a caller calls `foo` before `bar`, then `foo` must come
-    /// before `bar` in the module.
+    /// Build call-order constraints: if a caller calls `foo` before `bar`, then `foo` must be
+    /// defined before `bar`.
     fn build_call_order_constraints(
         caller_id: LocalDefId,
         callees: &[Callee],
@@ -363,21 +373,30 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
         module: &'tcx Mod<'tcx>,
         _module_id: LocalModId,
     ) {
-        // Collect top-level functions
+        // Collect module-level functions and associated functions and methods from `impl` blocks
+        // in source order.
         let mut def_order: Vec<LocalDefId> = vec![];
         let mut functions: HashMap<LocalDefId, Span> = HashMap::new();
+        let mut add_function = |local_def_id, span| {
+            if self.config.check_test_functions || !is_test_function(cx.tcx, local_def_id) {
+                def_order.push(local_def_id);
+                functions.insert(local_def_id, span);
+            }
+        };
 
         for item_id in module.item_ids {
             let item: &Item<'tcx> = cx.tcx.hir_item(*item_id);
-            if let ItemKind::Fn { .. } = item.kind {
-                let local_def_id = item.owner_id.def_id;
-
-                if !self.config.check_test_functions && is_test_function(cx.tcx, local_def_id) {
-                    continue;
+            match item.kind {
+                ItemKind::Fn { .. } => add_function(item.owner_id.def_id, item.span),
+                ItemKind::Impl(impl_) => {
+                    for impl_item_id in impl_.items {
+                        let impl_item = cx.tcx.hir_impl_item(*impl_item_id);
+                        if let ImplItemKind::Fn(..) = impl_item.kind {
+                            add_function(impl_item.owner_id.def_id, impl_item.span);
+                        }
+                    }
                 }
-
-                def_order.push(local_def_id);
-                functions.insert(local_def_id, item.span);
+                _ => {}
             }
         }
 

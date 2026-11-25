@@ -2,10 +2,10 @@
 
 ### What it does
 
-It enforces a relative order among functions defined within a module. Callers must precede
-their module-local callees. Functions called by the same caller should appear in call order.
-A constraint is rejected if it would create a cycle when combined with previously accepted
-constraints.
+It enforces a relative order among module-level functions and associated functions and
+methods in `impl` blocks. Callers must precede their module-local callees. Functions called
+by the same caller should appear in call order. A constraint is rejected if it would create
+a cycle when combined with previously accepted constraints.
 
 ### Why is this bad?
 
@@ -38,5 +38,7 @@ fn bar() {}
 
 ### Known problems
 
-While the lint may seem strict, its rules do not completely dictate the order of a module's
-functions. Judgement must often be exercised to address the lint's warnings.
+- While the lint may seem strict, its rules do not completely dictate the order of a
+  module's functions. Judgement must often be exercised to address the lint's warnings.
+- Calls through trait methods may not constrain the position of their concrete
+  implementation.

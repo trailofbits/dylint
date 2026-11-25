@@ -1,0 +1,16 @@
+warning: function definitions are not topologically sorted
+  --> $DIR/impl_method_call.rs:6:5
+   |
+LL |     fn helper(&self) {}
+   |     ^^^^^^^^^^^^^^^^^^^ function `Calculator::helper` should be defined after `Calculator::caller`
+   |
+   = help: move Calculator::helper's definition to later in the module
+note: `Calculator::helper` is called from `Calculator::caller` here
+  --> $DIR/impl_method_call.rs:11:9
+   |
+LL |         self.helper();
+   |         ^^^^^^^^^^^^^
+   = note: `#[warn(non_topologically_sorted_functions)]` on by default
+
+warning: 1 warning emitted
+
