@@ -30,8 +30,10 @@ stores rustc drivers in <directory>/drivers unless DYLINT_DRIVER_PATH is set. Wh
 are unset, Dylint stores drivers in $HOME/.dylint_drivers.
 
 DYLINT_LIBRARIES_DIR (default: <target directory>/dylint/libraries) is an absolute path where
-Dylint builds lint libraries, using <directory>/<toolchain>/release. Set it to share builds
-across projects, e.g., to $HOME/.dylint/libraries.
+Dylint builds lint libraries. Each package uses
+<directory>/<package name>/<version>-<source hash>/<toolchain>/release. The hash distinguishes
+local package paths or Git repositories, commits, and package paths. Set this variable to share
+builds across projects, e.g., to $HOME/.dylint/libraries.
 
 DYLINT_LIBRARY_PATH (deprecated, default: none) is a colon-separated list of directories where
 Dylint searches for libraries. Prefer workspace metadata (described below) for naming libraries.

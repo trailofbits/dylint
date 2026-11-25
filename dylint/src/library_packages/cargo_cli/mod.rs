@@ -76,6 +76,35 @@ impl PackageId {
     }
 }
 
+pub fn cache_key(name: &str, version: &Version, root: &Path, git: Option<&str>) -> Result<String> {
+    let root = dunce::canonicalize(root)
+        .with_context(|| format!("Could not canonicalize `{}`", root.display()))?;
+    let (url, revision, path) = if let Some(url) = git {
+        let url = Url::parse(url)?;
+        let url = CanonicalUrl::new(&url)?;
+        let repository = git2::Repository::discover(&root)?;
+        let workdir = repository
+            .workdir()
+            .ok_or_else(|| anyhow!("Could not find Git working directory"))?;
+        let workdir = dunce::canonicalize(workdir)
+            .with_context(|| format!("Could not canonicalize `{}`", workdir.display()))?;
+        let relative_path = root.strip_prefix(workdir)?;
+        let relative_path = relative_path.to_path_buf();
+        let head = repository.head()?;
+        let commit = head.peel_to_commit()?;
+        let revision = commit.id().to_string();
+        (Some(url), Some(revision), relative_path)
+    } else {
+        (None, None, root)
+    };
+    let hash = short_hash(&(1_u8, name, version, url, revision, path));
+    Ok(format!("{version}-{hash}"))
+}
+
+pub fn partitioned_build_directory(root: &Path, target: &Path) -> PathBuf {
+    root.join(short_hash(&target))
+}
+
 pub fn dependency_source_id_and_root(
     _opts: &opts::Dylint,
     metadata: &Metadata,
@@ -403,5 +432,46 @@ fn dummy_dependency_free_suffix(dep_name: &str, s: &str) -> String {
         lines.skip(n - i).collect()
     } else {
         s.to_owned()
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[cfg_attr(
+        dylint_lib = "general",
+        allow(
+            non_thread_safe_call_in_test,
+            reason = "The test writes only to a private temporary directory"
+        )
+    )]
+    fn local_cache_identity_tracks_location_and_version_not_edits() {
+        let first = tempdir().unwrap();
+        let second = tempdir().unwrap();
+        let version = Version::new(0, 1, 0);
+        let key = cache_key("library", &version, first.path(), None).unwrap();
+        write(first.path().join("source"), "changed source").unwrap();
+        assert_eq!(
+            key,
+            cache_key("library", &version, first.path(), None).unwrap()
+        );
+        assert_ne!(
+            key,
+            cache_key("library", &version, second.path(), None).unwrap()
+        );
+        assert_ne!(
+            key,
+            cache_key("library", &Version::new(0, 2, 0), first.path(), None).unwrap()
+        );
+
+        #[cfg(unix)]
+        {
+            let alias = second.path().join("alias");
+            std::os::unix::fs::symlink(&first, &alias).unwrap();
+            assert_eq!(key, cache_key("library", &version, &alias, None).unwrap());
+        }
     }
 }

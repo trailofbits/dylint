@@ -70,7 +70,7 @@ A workspace can name the libraries it should be linted with in its `Cargo.toml` 
 
 Dylint downloads and builds each entry, similar to how Cargo downloads and builds a dependency. The resulting `target/release` directories are searched for files with names of the form that Dylint recognizes (see [Library requirements] under [How Dylint works]).
 
-By default, these builds use `<target directory>/dylint/libraries/<toolchain>/release`. Set `DYLINT_LIBRARIES_DIR` to an absolute path to reuse builds under `<directory>/<toolchain>/release` instead, e.g., `~/.dylint/libraries`. The directory is created as needed.
+By default, each library uses a Cargo target directory under `<target directory>/dylint/libraries/<package name>/<version>-<source hash>/<toolchain>`. Set `DYLINT_LIBRARIES_DIR` to an absolute path to use that directory as the root instead, e.g., `~/.dylint/libraries`, and share builds across projects. The compiled library is in the `release` subdirectory. The hash includes the package name and version, plus the canonical local package path or, for a Git dependency, the canonical repository URL, resolved commit, and package path within the repository. Directories are created as needed.
 
 As an example, if you include the following in your workspace's `Cargo.toml` or `dylint.toml` file and run `cargo dylint --all`, Dylint will run all of this repository's [example general-purpose lints], as well as the example restriction lint [`try_io_result`].
 
