@@ -4,7 +4,7 @@ warning: function definitions are not topologically sorted
 LL |     fn second(&self) {}
    |     ^^^^^^^^^^^^^^^^^^^ function `Calculator::second` should be defined after `Calculator::first`
    |
-   = help: move Calculator::second's definition to later in the module
+   = help: move Calculator::second's definition to later in the impl block
 note: `Calculator::caller` calls `Calculator::first` here
   --> $DIR/impl_call_order.rs:7:9
    |

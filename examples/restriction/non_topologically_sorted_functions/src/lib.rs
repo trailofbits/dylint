@@ -26,7 +26,7 @@ dylint_linting::impl_late_lint! {
     /// It enforces a relative order among module-level functions and associated functions and
     /// methods in `impl` blocks. Callers must precede their module-local callees. Functions called
     /// by the same caller should appear in call order. A constraint is rejected if it would create
-    /// a cycle when combined with previously accepted constraints.
+    /// a cycle among functions or movable items, where each `impl` block moves as one item.
     ///
     /// ### Why is this bad?
     ///
@@ -101,25 +101,87 @@ enum ConstraintReason {
 struct ConstraintGraph {
     /// Stores function `LocalDefId`s as nodes and accepted ordering constraints as edges whose
     /// weights explain why the constraint exists.
-    dag: Dag<LocalDefId, ConstraintReason>,
+    function_dag: Dag<LocalDefId, ConstraintReason>,
     /// Maps each function's `LocalDefId` to the `NodeIndex` required by `daggy`, ensuring that all
     /// constraints involving the same function use the same node.
-    node_indices: HashMap<LocalDefId, NodeIndex>,
+    function_node_indices: HashMap<LocalDefId, NodeIndex>,
+    /// An `impl` block moves as one unit, while each free function moves independently.
+    unit_dag: Dag<LocalDefId, ()>,
+    unit_node_indices: HashMap<LocalDefId, NodeIndex>,
+    function_unit_map: HashMap<LocalDefId, LocalDefId>,
 }
 
 impl ConstraintGraph {
+    fn new(function_unit_map: HashMap<LocalDefId, LocalDefId>) -> Self {
+        Self {
+            function_unit_map,
+            ..Self::default()
+        }
+    }
+
+    fn unit_of(&self, function: LocalDefId) -> LocalDefId {
+        // Callees outside the current module are not collected as movable units. Keep treating
+        // them as individual nodes, as the function graph already does.
+        self.function_unit_map
+            .get(&function)
+            .copied()
+            .unwrap_or(function)
+    }
+
     fn add(&mut self, before: LocalDefId, after: LocalDefId, reason: ConstraintReason) -> bool {
         let before_index = *self
-            .node_indices
+            .function_node_indices
             .entry(before)
-            .or_insert_with(|| self.dag.add_node(before));
+            .or_insert_with(|| self.function_dag.add_node(before));
         let after_index = *self
-            .node_indices
+            .function_node_indices
             .entry(after)
-            .or_insert_with(|| self.dag.add_node(after));
+            .or_insert_with(|| self.function_dag.add_node(after));
 
-        self.dag.find_edge(before_index, after_index).is_some()
-            || self.dag.add_edge(before_index, after_index, reason).is_ok()
+        if self
+            .function_dag
+            .find_edge(before_index, after_index)
+            .is_some()
+        {
+            return true;
+        }
+
+        let before_unit = self.unit_of(before);
+        let after_unit = self.unit_of(after);
+
+        if before_unit != after_unit {
+            let before_unit_index = *self
+                .unit_node_indices
+                .entry(before_unit)
+                .or_insert_with(|| self.unit_dag.add_node(before_unit));
+            let after_unit_index = *self
+                .unit_node_indices
+                .entry(after_unit)
+                .or_insert_with(|| self.unit_dag.add_node(after_unit));
+
+            // A function-level DAG alone can accept `method_a < free_fn < method_b`, even
+            // though both methods belong to the same indivisible `impl` block.
+            if self
+                .unit_dag
+                .find_edge(before_unit_index, after_unit_index)
+                .is_none()
+                && self
+                    .unit_dag
+                    .add_edge(before_unit_index, after_unit_index, ())
+                    .is_err()
+            {
+                return false;
+            }
+        }
+
+        // Cross-unit cycles were ruled out above, but adding a function edge could still
+        // create a cycle within one unit.
+        let added = self
+            .function_dag
+            .add_edge(before_index, after_index, reason)
+            .is_ok();
+        debug_assert!(before_unit == after_unit || added);
+        added
     }
 }
 
@@ -250,27 +312,50 @@ impl NonTopologicallySortedFunctions {
         cx: &LateContext<'_>,
         constraints: &ConstraintGraph,
         functions: &HashMap<LocalDefId, Span>,
+        unit_spans: &HashMap<LocalDefId, Span>,
     ) -> Vec<Violation> {
         let mut violations: Vec<Violation> = constraints
-            .dag
+            .function_dag
             .raw_edges()
             .iter()
             .filter_map(|edge| {
-                let a = constraints.dag[edge.source()];
-                let b = constraints.dag[edge.target()];
-                let span_a = functions.get(&a)?;
-                let span_b = functions.get(&b)?;
+                let a = constraints.function_dag[edge.source()];
+                let b = constraints.function_dag[edge.target()];
+                let unit_a = constraints.unit_of(a);
+                let unit_b = constraints.unit_of(b);
+                let within_unit = unit_a == unit_b;
+                // Compare whole items across units, but individual functions within one `impl`.
+                let span_a = if within_unit {
+                    functions.get(&a)?
+                } else {
+                    unit_spans.get(&unit_a)?
+                };
+                let span_b = if within_unit {
+                    functions.get(&b)?
+                } else {
+                    unit_spans.get(&unit_b)?
+                };
                 // Expanded definitions can have spans in the macro's source file. Compare their
                 // invocation locations, while retaining the original spans for diagnostics.
                 if span_a.source_callsite().lo() > span_b.source_callsite().hi() {
                     let name_a = cx.tcx.def_path_str(a.to_def_id());
                     let name_b = cx.tcx.def_path_str(b.to_def_id());
+                    let id_second_item = if within_unit { b } else { unit_b };
+                    let move_kind = if unit_b == b {
+                        MoveKind::FunctionInModule
+                    } else if within_unit {
+                        MoveKind::FunctionWithinImpl
+                    } else {
+                        MoveKind::ImplBlock
+                    };
                     let violation = Violation {
-                        span_first_fn: *span_a,
-                        span_second_fn: *span_b,
-                        id_second_fn: b,
+                        span_first_item: *span_a,
+                        span_second_item: *span_b,
+                        id_second_item,
+                        path_second_item: cx.tcx.def_path_str(id_second_item.to_def_id()),
                         name_first_fn: name_a,
                         name_second_fn: name_b,
+                        move_kind,
                         reason: edge.weight,
                     };
                     Some(violation)
@@ -280,34 +365,31 @@ impl NonTopologicallySortedFunctions {
             })
             .collect();
 
-        // Sort violations by the function that must move, then by the latest function
-        // it must follow. This ensures that the first violation for each
-        // misplaced function identifies its latest required position.
+        // Sort by the item that must move, then by its required predecessors in
+        // reverse source order.
         violations.sort_by(Self::compare_violations);
 
-        // A function can violate multiple incoming constraints, but moving it after the
-        // latest function it must follow satisfies all of them. Retain only
-        // that violation for each misplaced function.
-        violations.dedup_by_key(|violation| violation.id_second_fn);
+        // Multiple constraints can target one method or `impl` block. Keep the constraint
+        // whose required predecessor appears latest in source order.
+        violations.dedup_by_key(|violation| violation.id_second_item);
 
         violations
     }
 
     fn compare_violations(a: &Violation, b: &Violation) -> Ordering {
-        a.span_second_fn
+        a.span_second_item
             .source_callsite()
             .lo()
-            .cmp(&b.span_second_fn.source_callsite().lo())
-            // Multiple functions can share an invocation span, so group by definition path before
-            // ordering their predecessors.
-            .then(a.name_second_fn.cmp(&b.name_second_fn))
-            // Swap the comparison arguments so that, among the target function's required
-            // predecessors, the latest appears first.
+            .cmp(&b.span_second_item.source_callsite().lo())
+            // Multiple items can share an invocation span, and multiple functions can belong to
+            // one target `impl`. Group by the item that must move before comparing predecessors.
+            .then(a.path_second_item.cmp(&b.path_second_item))
+            // For each target item, sort required predecessors in reverse source order.
             .then(
-                b.span_first_fn
+                b.span_first_item
                     .source_callsite()
                     .lo()
-                    .cmp(&a.span_first_fn.source_callsite().lo()),
+                    .cmp(&a.span_first_item.source_callsite().lo()),
             )
             .then(a.name_first_fn.cmp(&b.name_first_fn))
     }
@@ -316,26 +398,35 @@ impl NonTopologicallySortedFunctions {
         let Violation {
             name_first_fn,
             name_second_fn,
-            span_second_fn,
+            span_second_item,
+            move_kind,
             reason,
             ..
         } = violation;
         span_lint_and_then(
             cx,
             NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
-            span_second_fn,
+            span_second_item,
             "function definitions are not topologically sorted",
             |diag| {
                 diag.span_label(
-                    span_second_fn,
+                    span_second_item,
                     format!(
                         "function `{name_second_fn}` should be defined after `{name_first_fn}`"
                     ),
                 );
 
-                diag.help(format!(
-                    "move {name_second_fn}'s definition to later in the module"
-                ));
+                diag.help(match move_kind {
+                    MoveKind::FunctionInModule => {
+                        format!("move {name_second_fn}'s definition to later in the module")
+                    }
+                    MoveKind::FunctionWithinImpl => {
+                        format!("move {name_second_fn}'s definition to later in the impl block")
+                    }
+                    MoveKind::ImplBlock => format!(
+                        "move the impl block containing `{name_second_fn}` to later in the module"
+                    ),
+                });
 
                 match reason {
                     ConstraintReason::CallerCallee { call_span } => {
@@ -365,12 +456,20 @@ impl NonTopologicallySortedFunctions {
     }
 }
 
+enum MoveKind {
+    FunctionInModule,
+    FunctionWithinImpl,
+    ImplBlock,
+}
+
 struct Violation {
     name_first_fn: String,
     name_second_fn: String,
-    id_second_fn: LocalDefId,
-    span_first_fn: Span,
-    span_second_fn: Span,
+    id_second_item: LocalDefId,
+    path_second_item: String,
+    span_first_item: Span,
+    span_second_item: Span,
+    move_kind: MoveKind,
     reason: ConstraintReason,
 }
 
@@ -385,22 +484,36 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
         // in source order.
         let mut def_order: Vec<LocalDefId> = vec![];
         let mut functions: HashMap<LocalDefId, Span> = HashMap::new();
-        let mut add_function = |local_def_id, span| {
+        let mut unit_spans: HashMap<LocalDefId, Span> = HashMap::new();
+        let mut function_unit_map: HashMap<LocalDefId, LocalDefId> = HashMap::new();
+        let mut add_function = |local_def_id, span, unit, unit_span| {
             if self.config.check_test_functions || !is_test_function(cx.tcx, local_def_id) {
                 def_order.push(local_def_id);
                 functions.insert(local_def_id, span);
+                function_unit_map.insert(local_def_id, unit);
+                unit_spans.insert(unit, unit_span);
             }
         };
 
         for item_id in module.item_ids {
             let item: &Item<'tcx> = cx.tcx.hir_item(*item_id);
             match item.kind {
-                ItemKind::Fn { .. } => add_function(item.owner_id.def_id, item.span),
+                ItemKind::Fn { .. } => add_function(
+                    item.owner_id.def_id,
+                    item.span,
+                    item.owner_id.def_id,
+                    item.span,
+                ),
                 ItemKind::Impl(impl_) => {
                     for impl_item_id in impl_.items {
                         let impl_item = cx.tcx.hir_impl_item(*impl_item_id);
                         if let ImplItemKind::Fn(..) = impl_item.kind {
-                            add_function(impl_item.owner_id.def_id, impl_item.span);
+                            add_function(
+                                impl_item.owner_id.def_id,
+                                impl_item.span,
+                                item.owner_id.def_id,
+                                item.span,
+                            );
                         }
                     }
                 }
@@ -412,7 +525,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
             return;
         }
 
-        let mut constraints = ConstraintGraph::default();
+        let mut constraints = ConstraintGraph::new(function_unit_map);
         let mut calls = Vec::new();
 
         for caller_id in def_order {
@@ -432,7 +545,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
             Self::build_call_order_constraints(caller_id, &callees, &mut constraints);
         }
 
-        let violations = Self::find_violations(cx, &constraints, &functions);
+        let violations = Self::find_violations(cx, &constraints, &functions, &unit_spans);
 
         for violation in violations {
             Self::report_violation(cx, violation);

@@ -5,7 +5,7 @@
 It enforces a relative order among module-level functions and associated functions and
 methods in `impl` blocks. Callers must precede their module-local callees. Functions called
 by the same caller should appear in call order. A constraint is rejected if it would create
-a cycle when combined with previously accepted constraints.
+a cycle among functions or movable items, where each `impl` block moves as one item.
 
 ### Why is this bad?
 

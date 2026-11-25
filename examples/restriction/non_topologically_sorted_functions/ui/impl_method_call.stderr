@@ -1,10 +1,12 @@
 warning: function definitions are not topologically sorted
-  --> $DIR/impl_method_call.rs:6:5
+  --> $DIR/impl_method_call.rs:5:1
    |
-LL |     fn helper(&self) {}
-   |     ^^^^^^^^^^^^^^^^^^^ function `Calculator::helper` should be defined after `Calculator::caller`
+LL | / impl Calculator {
+LL | |     fn helper(&self) {}
+LL | | }
+   | |_^ function `Calculator::helper` should be defined after `Calculator::caller`
    |
-   = help: move Calculator::helper's definition to later in the module
+   = help: move the impl block containing `Calculator::helper` to later in the module
 note: `Calculator::helper` is called from `Calculator::caller` here
   --> $DIR/impl_method_call.rs:11:9
    |
