@@ -293,6 +293,58 @@ impl NonTopologicallySortedFunctions {
             .then(b.span_first_fn.lo().cmp(&a.span_first_fn.lo()))
             .then(a.name_first_fn.cmp(&b.name_first_fn))
     }
+
+    fn report_violation(cx: &LateContext<'_>, violation: Violation) {
+        let Violation {
+            name_first_fn,
+            name_second_fn,
+            span_second_fn,
+            reason,
+            ..
+        } = violation;
+        span_lint_and_then(
+            cx,
+            NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
+            span_second_fn,
+            "function definitions are not topologically sorted",
+            |diag| {
+                diag.span_label(
+                    span_second_fn,
+                    format!(
+                        "function `{name_second_fn}` should be defined after `{name_first_fn}`"
+                    ),
+                );
+
+                diag.help(format!(
+                    "move {name_second_fn}'s definition to later in the module"
+                ));
+
+                match reason {
+                    ConstraintReason::CallerCallee { call_span } => {
+                        diag.span_note(
+                            call_span,
+                            format!("`{name_second_fn}` is called from `{name_first_fn}` here"),
+                        );
+                    }
+                    ConstraintReason::CallOrder {
+                        caller,
+                        first_call_span,
+                        second_call_span,
+                    } => {
+                        let caller_name = cx.tcx.def_path_str(caller.to_def_id());
+                        diag.span_note(
+                            first_call_span,
+                            format!("`{caller_name}` calls `{name_first_fn}` here"),
+                        );
+                        diag.span_note(
+                            second_call_span,
+                            format!("`{caller_name}` calls `{name_second_fn}` here"),
+                        );
+                    }
+                }
+            },
+        );
+    }
 }
 
 struct Violation {
@@ -356,55 +408,7 @@ impl<'tcx> LateLintPass<'tcx> for NonTopologicallySortedFunctions {
         let violations = Self::find_violations(cx, &constraints, &functions);
 
         for violation in violations {
-            let Violation {
-                name_first_fn,
-                name_second_fn,
-                span_second_fn,
-                reason,
-                ..
-            } = violation;
-            span_lint_and_then(
-                cx,
-                NON_TOPOLOGICALLY_SORTED_FUNCTIONS,
-                span_second_fn,
-                "function definitions are not topologically sorted",
-                |diag| {
-                    diag.span_label(
-                        span_second_fn,
-                        format!(
-                            "function `{name_second_fn}` should be defined after `{name_first_fn}`"
-                        ),
-                    );
-
-                    diag.help(format!(
-                        "move {name_second_fn}'s definition to later in the module"
-                    ));
-
-                    match reason {
-                        ConstraintReason::CallerCallee { call_span } => {
-                            diag.span_note(
-                                call_span,
-                                format!("`{name_second_fn}` is called from `{name_first_fn}` here"),
-                            );
-                        }
-                        ConstraintReason::CallOrder {
-                            caller,
-                            first_call_span,
-                            second_call_span,
-                        } => {
-                            let caller_name = cx.tcx.def_path_str(caller.to_def_id());
-                            diag.span_note(
-                                first_call_span,
-                                format!("`{caller_name}` calls `{name_first_fn}` here"),
-                            );
-                            diag.span_note(
-                                second_call_span,
-                                format!("`{caller_name}` calls `{name_second_fn}` here"),
-                            );
-                        }
-                    }
-                },
-            );
+            Self::report_violation(cx, violation);
         }
     }
 }
