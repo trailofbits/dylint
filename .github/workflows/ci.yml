@@ -87,8 +87,8 @@ jobs:
               - cargo-udeps
               - cargo-unmaintained
               - rustdoc-prettier
-            rustfmt: true
             prettier: true
+            rustfmt: true
             rdme-toolchain: true
 
     runs-on: ${{ matrix.environment }}
@@ -125,10 +125,6 @@ jobs:
         with:
           tool: ${{ join(matrix.tools, ', ') }}
 
-      - name: Install Prettier
-        if: ${{ matrix.prettier }}
-        run: npm install -g prettier
-
       - name: Free up space on Ubuntu
         if: ${{ matrix.environment == 'ubuntu-latest' }}
         run: |
@@ -155,13 +151,17 @@ jobs:
           rm -rfv /c/ghcup/ghc                       | grep . >/dev/null
           rm -rfv /c/rtools*                         | grep . >/dev/null
 
-      # smoelius: The next step avoids tests having to use `rustup` concurrently.
-      - name: Preinstall toolchains
-        run: cargo run -p dylint_internal --bin preinstall-toolchains
+      - name: Install Prettier
+        if: ${{ matrix.prettier }}
+        run: npm install -g prettier
 
       - name: Install nightly rustfmt
         if: ${{ matrix.rustfmt }}
         run: rustup component add rustfmt --toolchain nightly
+
+      # smoelius: The next step avoids tests having to use `rustup` concurrently.
+      - name: Preinstall toolchains
+        run: cargo run -p dylint_internal --bin preinstall-toolchains
 
       # smoelius: Toolchain nightly-2026-08-05 is needed for cargo-rdme 2.2.0.
       - name: Install cargo-rdme toolchain
