@@ -260,7 +260,9 @@ impl NonTopologicallySortedFunctions {
                 let b = constraints.dag[edge.target()];
                 let span_a = functions.get(&a)?;
                 let span_b = functions.get(&b)?;
-                if span_a.lo() > span_b.hi() {
+                // Expanded definitions can have spans in the macro's source file. Compare their
+                // invocation locations, while retaining the original spans for diagnostics.
+                if span_a.source_callsite().lo() > span_b.source_callsite().hi() {
                     let name_a = cx.tcx.def_path_str(a.to_def_id());
                     let name_b = cx.tcx.def_path_str(b.to_def_id());
                     let violation = Violation {
@@ -293,14 +295,20 @@ impl NonTopologicallySortedFunctions {
 
     fn compare_violations(a: &Violation, b: &Violation) -> Ordering {
         a.span_second_fn
+            .source_callsite()
             .lo()
-            .cmp(&b.span_second_fn.lo())
-            // Functions expanded from separate invocations of the same macro can share a span, so
-            // group by definition path before ordering their predecessors.
+            .cmp(&b.span_second_fn.source_callsite().lo())
+            // Multiple functions can share an invocation span, so group by definition path before
+            // ordering their predecessors.
             .then(a.name_second_fn.cmp(&b.name_second_fn))
             // Swap the comparison arguments so that, among the target function's required
             // predecessors, the latest appears first.
-            .then(b.span_first_fn.lo().cmp(&a.span_first_fn.lo()))
+            .then(
+                b.span_first_fn
+                    .source_callsite()
+                    .lo()
+                    .cmp(&a.span_first_fn.source_callsite().lo()),
+            )
             .then(a.name_first_fn.cmp(&b.name_first_fn))
     }
 

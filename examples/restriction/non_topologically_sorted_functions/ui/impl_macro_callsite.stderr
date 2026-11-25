@@ -1,0 +1,21 @@
+warning: function definitions are not topologically sorted
+  --> $DIR/impl_macro_callsite.rs:13:1
+   |
+LL | macro_rules! define_caller {
+...
+LL | fn advance_chars() {}
+   | ^^^^^^^^^^^^^^^^^^^^^ function `advance_chars` should be defined after `Calculator::offset_from_line_column`
+   |
+   = help: move advance_chars's definition to later in the module
+note: `advance_chars` is called from `Calculator::offset_from_line_column` here
+  --> $DIR/impl_macro_callsite.rs:5:17
+   |
+LL |                 advance_chars();
+   |                 ^^^^^^^^^^^^^^^
+...
+LL | define_caller!();
+   | ---------------- in this macro invocation
+   = note: `#[warn(non_topologically_sorted_functions)]` on by default
+
+warning: 1 warning emitted
+
