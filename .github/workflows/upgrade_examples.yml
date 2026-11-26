@@ -12,7 +12,8 @@ env:
   CARGO_TERM_COLOR: always
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
   upgrade:
@@ -39,9 +40,3 @@ jobs:
           branch: upgrade-examples
           branch-suffix: random
           commit-message: Upgrade examples
-          # smoelius: Using a PAT causes the PR to trigger the `ci.yml` workflow. Note that if the
-          # PAT is classic, it must have `repo` scope; if the PAT is fine-grained, it must have
-          # permissions `contents: write` and `pull-requests: write`. See:
-          # - https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
-          # - https://github.com/peter-evans/create-pull-request#token
-          token: ${{ secrets.REPO_TOKEN }}
