@@ -1,7 +1,8 @@
 // smoelius: Please keep these entries sorted by path.
 
-// smoelius: Please try to use the last two path entries for a constant's name. (Note that there are
-// some exceptions below.)
+// smoelius: For `std` and `core` paths, please try to use the path's last two entries for a
+// constant's name. For paths from other crates, please try to use the crate's name and the path's
+// last entry for a constant's name. (Note that there are some exceptions below.)
 
 pub const CAMINO_UTF8_PATH_JOIN: [&str; 3] = ["camino", "Utf8Path", "join"];
 pub const CAMINO_UTF8_PATH_NEW: [&str; 3] = ["camino", "Utf8Path", "new"];
@@ -75,6 +76,8 @@ pub const PATH_PATH_BUF: [&str; 3] = ["std", "path", "PathBuf"];
 pub const COMMAND_NEW: [&str; 4] = ["std", "process", "Command", "new"];
 pub const COMMAND_ARG: [&str; 4] = ["std", "process", "Command", "arg"];
 pub const COMMAND_ARGS: [&str; 4] = ["std", "process", "Command", "args"];
+
+pub const TEMPFILE_TEMP_DIR: [&str; 3] = ["tempfile", "dir", "TempDir"];
 
 pub const TEST_DESC_AND_FN: [&str; 3] = ["test", "types", "TestDescAndFn"];
 

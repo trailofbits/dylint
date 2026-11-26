@@ -1,0 +1,63 @@
+warning: calling `std::fs::copy` in a test could affect the outcome of other tests
+  --> $DIR/tempfile_paths.rs:17:9
+   |
+LL |         std::fs::copy(named.path(), "shared-copy").unwrap();
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the call is reachable from at least this test
+  --> $DIR/tempfile_paths.rs:8:8
+   |
+LL |     fn positive_paths() {
+   |        ^^^^^^^^^^^^^^
+   = note: `#[warn(non_thread_safe_call_in_test)]` on by default
+
+warning: calling `std::fs::write` in a test could affect the outcome of other tests
+  --> $DIR/tempfile_paths.rs:20:9
+   |
+LL |         std::fs::write(named_from_parts.path(), "value").unwrap();
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the call is reachable from at least this test
+  --> $DIR/tempfile_paths.rs:8:8
+   |
+LL |     fn positive_paths() {
+   |        ^^^^^^^^^^^^^^
+
+warning: calling `std::fs::write` in a test could affect the outcome of other tests
+  --> $DIR/tempfile_paths.rs:23:9
+   |
+LL |         std::fs::write(&named_from_parts, "value").unwrap();
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the call is reachable from at least this test
+  --> $DIR/tempfile_paths.rs:8:8
+   |
+LL |     fn positive_paths() {
+   |        ^^^^^^^^^^^^^^
+
+warning: calling `std::fs::write` in a test could affect the outcome of other tests
+  --> $DIR/tempfile_paths.rs:26:9
+   |
+LL |         std::fs::write(&temp_path, "value").unwrap();
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the call is reachable from at least this test
+  --> $DIR/tempfile_paths.rs:8:8
+   |
+LL |     fn positive_paths() {
+   |        ^^^^^^^^^^^^^^
+
+warning: calling `std::fs::write` in a test could affect the outcome of other tests
+  --> $DIR/tempfile_paths.rs:29:9
+   |
+LL |         std::fs::write("shared", "value").unwrap();
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the call is reachable from at least this test
+  --> $DIR/tempfile_paths.rs:8:8
+   |
+LL |     fn positive_paths() {
+   |        ^^^^^^^^^^^^^^
+
+warning: 5 warnings emitted
+
