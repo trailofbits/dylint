@@ -5,6 +5,7 @@ use std::{
 };
 use tempfile::tempdir;
 
+#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn locked_and_frozen_do_not_rewrite_lockfile() {
     let tempdir = tempdir().unwrap();
@@ -33,7 +34,7 @@ edition = "2024"
 "#,
     )
     .unwrap();
-    write(a_dir.join("src").join("lib.rs"), "").unwrap();
+    write(a_dir.join("src/lib.rs"), "").unwrap();
 
     write(
         b_dir.join("Cargo.toml"),
@@ -44,7 +45,7 @@ edition = "2024"
 "#,
     )
     .unwrap();
-    write(b_dir.join("src").join("lib.rs"), "").unwrap();
+    write(b_dir.join("src/lib.rs"), "").unwrap();
 
     let status = Command::new("cargo")
         .args(["generate-lockfile", "--quiet"])
@@ -56,7 +57,7 @@ edition = "2024"
     let lock_path = ws.join("Cargo.lock");
     let orig_lock = read_to_string(&lock_path).unwrap();
 
-    // lyn1dev: Add dependency to `a` without updating the lockfile.
+    // Add dependency to `a` without updating the lockfile.
     write(
         a_dir.join("Cargo.toml"),
         r#"[package]
