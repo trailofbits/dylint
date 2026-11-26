@@ -90,6 +90,10 @@ jobs:
             prettier: true
             rustfmt: true
             rdme-toolchain: true
+          - environment: ubuntu-latest
+            package: cargo-dylint-markdown-link-check
+            tools:
+              - cargo-nested
 
     runs-on: ${{ matrix.environment }}
 
@@ -187,6 +191,9 @@ jobs:
                 then
                   cargo test -p scheduled
                 fi
+                ;;
+              cargo-dylint-markdown-link-check)
+                cargo test -p cargo-dylint --test markdown_link_check
                 ;;
               *)
                 exit 1
