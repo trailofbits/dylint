@@ -207,7 +207,6 @@ mod tests {
         not(all(target_arch = "x86_64", target_os = "linux")),
         ignore = "x64_64-linux only"
     )]
-    #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
     #[test]
     fn global_config() {
         let cargo_home = tempdir().unwrap();

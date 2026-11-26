@@ -68,7 +68,6 @@ fn main() {
 
 /// Verify that creating, changing, and removing `dylint.toml` rerun lints only when necessary.
 #[allow(clippy::too_many_lines)]
-#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn depinfo_dylint_toml() {
     let tempdir = tempdir().unwrap();
