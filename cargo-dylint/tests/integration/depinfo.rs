@@ -67,6 +67,7 @@ fn main() {
 ";
 
 /// Verify that creating, changing, and removing `dylint.toml` rerun lints only when necessary.
+#[allow(clippy::too_many_lines)]
 #[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn depinfo_dylint_toml() {
@@ -127,7 +128,13 @@ path = {path_spec}
 
     let dylint_toml = tempdir.path().join("dylint.toml");
 
-    write(&dylint_toml, "[unnamed_constant]\nthreshold = 100\n").unwrap();
+    write(
+        &dylint_toml,
+        r"[unnamed_constant]
+threshold = 100
+",
+    )
+    .unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
@@ -149,7 +156,13 @@ path = {path_spec}
                 .and(predicate::str::contains("Checking depinfo_dylint_toml_test").not()),
         );
 
-    write(&dylint_toml, "[unnamed_constant]\nthreshold = 1\n").unwrap();
+    write(
+        &dylint_toml,
+        r"[unnamed_constant]
+threshold = 1
+",
+    )
+    .unwrap();
 
     cargo_bin_cmd!("cargo-dylint")
         .current_dir(&tempdir)
