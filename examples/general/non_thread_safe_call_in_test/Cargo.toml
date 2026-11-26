@@ -21,6 +21,10 @@ path = "ui/one_test.rs"
 name = "set_current_dir"
 path = "ui/set_current_dir.rs"
 
+[[example]]
+name = "tempfile_paths"
+path = "ui/tempfile_paths.rs"
+
 [dependencies]
 clippy_utils = { workspace = true }
 
@@ -29,6 +33,7 @@ dylint_linting = { path = "../../../utils/linting" }
 
 [dev-dependencies]
 dylint_testing = { path = "../../../utils/testing" }
+tempfile = "3.27"
 
 [features]
 rlib = ["dylint_linting/constituent"]

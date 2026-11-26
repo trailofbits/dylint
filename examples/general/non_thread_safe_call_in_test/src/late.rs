@@ -10,7 +10,7 @@ use rustc_hir::{
     intravisit::{Visitor, walk_body, walk_expr},
 };
 use rustc_lint::{LateContext, LateLintPass, declare_lint, impl_lint_pass};
-use rustc_middle::hir::nested_filter;
+use rustc_middle::{hir::nested_filter, ty};
 use std::collections::HashSet;
 
 declare_lint! {
@@ -162,7 +162,10 @@ impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
                 return;
             };
 
-            if let Some(path) = is_blacklisted_function(self.cx, callee_def_id, callee, args) {
+            if let Some((path, observable_path_args)) =
+                is_blacklisted_function(self.cx, callee_def_id, callee, args)
+                && !self.all_observable_path_args_are_temporary(observable_path_args, args)
+            {
                 span_lint_and_note(
                     self.cx,
                     NON_THREAD_SAFE_CALL_IN_TEST,
@@ -191,23 +194,75 @@ impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
     }
 }
 
+impl<'tcx> Checker<'_, 'tcx> {
+    fn all_observable_path_args_are_temporary(
+        &self,
+        observable_path_args: Option<&[usize]>,
+        args: &[Expr<'tcx>],
+    ) -> bool {
+        observable_path_args.is_some_and(|indices| {
+            indices.iter().all(|&index| {
+                args.get(index)
+                    .is_some_and(|arg| self.is_temporary_path(arg))
+            })
+        })
+    }
+
+    fn is_temporary_path(&self, expr: &Expr<'tcx>) -> bool {
+        let expr = self.cx.expr_or_init(expr);
+        if self.is_tempdir(expr) {
+            return true;
+        }
+        match expr.kind {
+            ExprKind::AddrOf(_, _, inner) => self.is_temporary_path(inner),
+            ExprKind::MethodCall(method, receiver, args, _) => {
+                let typeck = self.cx.tcx.typeck(self.body_owner);
+                if args.len() == 1
+                    && typeck
+                        .type_dependent_def_id(expr.hir_id)
+                        .is_some_and(|def_id| match_def_path(self.cx, def_id, &paths::PATH_JOIN))
+                {
+                    self.is_temporary_path(receiver)
+                } else {
+                    args.is_empty() && method.ident.as_str() == "path" && self.is_tempdir(receiver)
+                }
+            }
+            _ => false,
+        }
+    }
+
+    fn is_tempdir(&self, expr: &Expr<'tcx>) -> bool {
+        let ty = self
+            .cx
+            .tcx
+            .typeck(self.body_owner)
+            .expr_ty(expr)
+            .peel_refs();
+        if let ty::Adt(adt, _) = ty.kind() {
+            match_def_path(self.cx, adt.did(), &paths::TEMPFILE_TEMP_DIR)
+        } else {
+            false
+        }
+    }
+}
+
 fn is_blacklisted_function<'tcx>(
     cx: &LateContext<'tcx>,
     callee_def_id: DefId,
     callee: &Expr<'tcx>,
     args: &[Expr<'tcx>],
-) -> Option<&'static [&'static str]> {
-    let path = crate::blacklist::BLACKLIST
+) -> Option<(&'static [&'static str], Option<&'static [usize]>)> {
+    let (path, observable_path_args) = crate::blacklist::BLACKLIST
         .iter()
         .copied()
-        .find(|path| match_def_path(cx, callee_def_id, path));
+        .find(|(path, _)| match_def_path(cx, callee_def_id, path))?;
 
     // smoelius: Hack, until we can come up with a more general solution.
-    if path == Some(&paths::COMMAND_NEW) && !command_new_additional_checks(cx, callee, args) {
+    if path == paths::COMMAND_NEW && !command_new_additional_checks(cx, callee, args) {
         return None;
     }
 
-    path
+    Some((path, observable_path_args))
 }
 
 #[cfg_attr(dylint_lib = "supplementary", expect(commented_out_code))]
