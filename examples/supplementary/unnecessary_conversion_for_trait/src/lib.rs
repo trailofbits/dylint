@@ -412,7 +412,6 @@ mod ui {
         assert_eq!(combined_watchlist.len(), coverage_lines.len());
     }
 
-    #[cfg_attr(dylint_lib = "general", expect(non_thread_safe_call_in_test))]
     #[test]
     fn check_inherents() {
         let _lock = MUTEX.lock().unwrap();

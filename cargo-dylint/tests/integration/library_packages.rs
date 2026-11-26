@@ -25,7 +25,6 @@ fn array_pattern() {
 }
 
 #[cfg(unix)]
-#[cfg_attr(dylint_lib = "general", allow(non_thread_safe_call_in_test))]
 #[test]
 fn edition_2021() {
     use assert_cmd::assert::OutputAssertExt;
