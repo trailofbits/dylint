@@ -11,6 +11,10 @@ repository = "https://github.com/trailofbits/dylint"
 name = "ci"
 required-features = ["__ci"]
 
+[[test]]
+name = "markdown_link_check"
+required-features = ["__ci"]
+
 [dependencies]
 anyhow = { workspace = true, features = ["backtrace"] }
 clap = { workspace = true, features = ["cargo", "derive", "wrap_help"] }
