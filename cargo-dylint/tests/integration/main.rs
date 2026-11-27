@@ -13,6 +13,7 @@ mod dylint_driver_path;
 mod fix;
 mod library_packages;
 mod list;
+mod locked;
 mod nightly_toolchain;
 mod no_deps;
 mod package_options;
