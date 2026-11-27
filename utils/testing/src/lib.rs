@@ -129,7 +129,7 @@ use std::{
     fs::copy,
     io::BufRead,
     path::{Path, PathBuf},
-    sync::{LazyLock, Mutex},
+    sync::{LazyLock, Mutex, MutexGuard, PoisonError},
 };
 
 pub mod ui;
@@ -383,7 +383,7 @@ fn copy_with_extension<P: AsRef<Path>, Q: AsRef<Path>>(
 static MUTEX: Mutex<()> = Mutex::new(());
 
 fn run_tests(driver: &Path, src_base: &Path, config: &ui::Config) {
-    let _lock = MUTEX.lock().unwrap();
+    let _lock = lock_mutex();
 
     // smoelius: There doesn't seem to be a way to set environment variables using `compiletest`'s
     // [`Config`](https://docs.rs/compiletest_rs/0.7.1/compiletest_rs/common/struct.Config.html)
@@ -416,6 +416,13 @@ fn run_tests(driver: &Path, src_base: &Path, config: &ui::Config) {
     };
 
     compiletest::run_tests(&config);
+}
+
+// zerone0x: `compiletest` reports a failing test by panicking, which poisons `MUTEX` while it is
+// held. The mutex holds no data and only serializes runs, so recover from the poison rather than
+// failing every later test in the same process with a `PoisonError`.
+fn lock_mutex() -> MutexGuard<'static, ()> {
+    MUTEX.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
 // smoelius: `VarGuard` was copied from:
@@ -512,5 +519,19 @@ mod tests {
             ],
             rustc_flags_from_line(LINE, "ui").unwrap().as_slice()
         );
+    }
+
+    #[test]
+    fn lock_mutex_after_panic() {
+        std::thread::spawn(|| {
+            let _lock = lock_mutex();
+            panic!("poison `MUTEX`");
+        })
+        .join()
+        .unwrap_err();
+
+        assert!(MUTEX.is_poisoned());
+
+        let _lock = lock_mutex();
     }
 }
