@@ -69,10 +69,10 @@ pub struct LibrarySelection {
     /// appear before `--`, not after.
     pub manifest_path: Option<String>,
 
-    /// Do not build metadata entries.
+    /// Do not build library packages.
     pub no_build: bool,
 
-    /// Ignore metadata entirely.
+    /// Ignore workspace and dylint.toml metadata.
     pub no_metadata: bool,
 
     /// Path containing library packages.
