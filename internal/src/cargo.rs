@@ -178,7 +178,12 @@ pub fn metadata_with_target_dir(
     dir: impl Into<PathBuf>,
     target_dir: impl Into<std::ffi::OsString>,
 ) -> Result<Metadata> {
+    // Select the toolchain for `dir` instead of inheriting the caller's Cargo settings.
     MetadataCommand::new()
+        .cargo_path("cargo")
+        .env_remove(crate::env::CARGO)
+        .env_remove(crate::env::RUSTC)
+        .env_remove(crate::env::RUSTUP_TOOLCHAIN)
         .current_dir(dir)
         .no_deps()
         .env(crate::env::CARGO_TARGET_DIR, target_dir)

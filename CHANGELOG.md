@@ -4,7 +4,8 @@ This file records user-facing changes to packages `cargo_dylint`, `dylint`, `dyl
 
 ## Unreleased
 
-- FEATURE: Add an opt-in `DYLINT_LIBRARIES_DIR` override for sharing compiled lint libraries across projects and worktrees, preserving the existing per-toolchain layout and workspace-local default ([#2179](https://github.com/trailofbits/dylint/pull/2179), [#2142](https://github.com/trailofbits/dylint/issues/2142)) - [@dblock](https://github.com/dblock).
+- FEATURE: Add an opt-in `DYLINT_LIBRARIES_DIR` override for sharing compiled lint libraries across projects and worktrees, with a workspace-local default ([#2179](https://github.com/trailofbits/dylint/pull/2179), [#2142](https://github.com/trailofbits/dylint/issues/2142)) - [@dblock](https://github.com/dblock).
+- Organize lint library build directories by package name, version, source identity, and toolchain, within the existing workspace-local or configured libraries root.
 - FEATURE: Add an opt-in `DYLINT_HOME` that stores rustc drivers in `$DYLINT_HOME/drivers`; drivers remain in `~/.dylint_drivers` when it is unset, and `DYLINT_DRIVER_PATH` still takes precedence ([#2180](https://github.com/trailofbits/dylint/pull/2180)) - [@dblock](https://github.com/dblock).
 - Deprecate `DYLINT_DRIVER_PATH` in favor of `DYLINT_HOME` ([#2180](https://github.com/trailofbits/dylint/pull/2180)) - [@dblock](https://github.com/dblock).
 

@@ -166,6 +166,7 @@ dependencies = [
  "dylint",
  "dylint_internal",
  "env_logger",
+ "git2",
  "glob",
  "ignore",
  "log",
@@ -178,6 +179,7 @@ dependencies = [
  "tempfile",
  "toml",
  "toml_edit",
+ "url",
  "walkdir",
 ]
 
@@ -522,6 +524,7 @@ dependencies = [
  "dylint_internal",
  "env_logger",
  "fs_extra",
+ "git2",
  "glob",
  "heck",
  "hex",
