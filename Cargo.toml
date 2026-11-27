@@ -1,8 +1,8 @@
-# smoelius: `dylint_driver`, `dylint_linting`, and the library template are in their own workspaces
-# because they require specific Rust components.
+# smoelius: `dylint_driver`, `dylint_linting`, the library template, and `match_hir` are in their
+# own workspaces because they require a nightly toolchain.
 
 [workspace]
-exclude = ["driver", "internal/template", "utils/linting"]
+exclude = ["driver", "internal/template", "match_hir", "utils/linting"]
 members = [
     "cargo-dylint",
     "dylint",
