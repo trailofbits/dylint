@@ -127,17 +127,6 @@ impl EscapingDocLink {
     }
 }
 
-// smoelius: `assemble_doc_fragments` is based on code from Clippy's `doc-markdown` lint:
-// https://github.com/rust-lang/rust-clippy/blob/e88a556124189e3ee23841238252b3831b3af966/clippy_lints/src/doc.rs#L483-L487
-fn assemble_doc_fragments(fragments: impl IntoIterator<Item = DocFragment>) -> String {
-    let mut doc = String::new();
-    for fragment in fragments {
-        add_doc_fragment(&mut doc, &fragment);
-    }
-    doc.pop();
-    doc
-}
-
 fn find_package<'a>(metadata: &'a Metadata, source_dir: &Path) -> Option<&'a Path> {
     metadata.packages.iter().fold(None, |closest_dir, package| {
         if let Some(manifest_dir) = package.manifest_path.parent() {
@@ -158,6 +147,17 @@ fn find_package<'a>(metadata: &'a Metadata, source_dir: &Path) -> Option<&'a Pat
             closest_dir
         }
     })
+}
+
+// smoelius: `assemble_doc_fragments` is based on code from Clippy's `doc-markdown` lint:
+// https://github.com/rust-lang/rust-clippy/blob/e88a556124189e3ee23841238252b3831b3af966/clippy_lints/src/doc.rs#L483-L487
+fn assemble_doc_fragments(fragments: impl IntoIterator<Item = DocFragment>) -> String {
+    let mut doc = String::new();
+    for fragment in fragments {
+        add_doc_fragment(&mut doc, &fragment);
+    }
+    doc.pop();
+    doc
 }
 
 fn absolutize(base: &Path, path: &Path, normalize: bool) -> PathBuf {

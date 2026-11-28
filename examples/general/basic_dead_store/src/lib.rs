@@ -53,56 +53,6 @@ pub struct BasicDeadStore {
     arr_and_idx_vec: Vec<(String, u128, Span)>,
 }
 
-impl BasicDeadStore {
-    /// Removes all stored values of the given array
-    fn clear_stores_of(&mut self, string: &str) {
-        self.arr_and_idx_vec
-            .retain(|(arr_string, _idx, _span)| arr_string != string);
-    }
-
-    /// Returns all instances where the given array is indexed at `idx`
-    fn get_pairs_with_same_name_idx(
-        &self,
-        string: &String,
-        idx: &u128,
-    ) -> Vec<&(String, u128, Span)> {
-        self.arr_and_idx_vec
-            .iter()
-            .filter(|(arr_string, arr_idx, _span)| arr_string == string && arr_idx == idx)
-            .collect()
-    }
-}
-
-/// Checks if the given expression is an assignment to an array indexed by a literal. This consists
-/// in starting with `expr` and checking that the other nodes in the tree are of the correct kind:
-///
-/// ```ignore
-///                 assign_expr is ExprKind::Assign
-///                      |
-///                   index_expr is ExprKind::Index
-///                  /         \
-///      |start|-> expr        lit is ExprKind::Lit && LitKind::Int
-/// ```
-///
-/// Returns the tuple (indexed position, span)
-fn is_assignment_to_array_indexed_by_literal(
-    expr: &Expr,
-    tcx: &LateContext<'_>,
-) -> Option<(u128, Span)> {
-    let index_expr = get_parent_expr(tcx, expr)?;
-    if let ExprKind::Index(array, index, _span) = index_expr.kind
-        && array.hir_id == expr.hir_id
-        && let assign_expr = get_parent_expr(tcx, index_expr)?
-        && let ExprKind::Assign(target, _value, assignment_span) = assign_expr.kind
-        && target.hir_id == index_expr.hir_id
-        && let ExprKind::Lit(lit) = index.kind
-        && let LitKind::Int(index, _type) = lit.node
-    {
-        return Some((index.get(), assignment_span));
-    }
-    None
-}
-
 impl<'tcx> LateLintPass<'tcx> for BasicDeadStore {
     // Given an Expression:
     //  - If we are looking at an array being indexed by a literal:
@@ -140,6 +90,56 @@ impl<'tcx> LateLintPass<'tcx> for BasicDeadStore {
                 self.clear_stores_of(&array_name);
             }
         }
+    }
+}
+
+/// Checks if the given expression is an assignment to an array indexed by a literal. This consists
+/// in starting with `expr` and checking that the other nodes in the tree are of the correct kind:
+///
+/// ```ignore
+///                 assign_expr is ExprKind::Assign
+///                      |
+///                   index_expr is ExprKind::Index
+///                  /         \
+///      |start|-> expr        lit is ExprKind::Lit && LitKind::Int
+/// ```
+///
+/// Returns the tuple (indexed position, span)
+fn is_assignment_to_array_indexed_by_literal(
+    expr: &Expr,
+    tcx: &LateContext<'_>,
+) -> Option<(u128, Span)> {
+    let index_expr = get_parent_expr(tcx, expr)?;
+    if let ExprKind::Index(array, index, _span) = index_expr.kind
+        && array.hir_id == expr.hir_id
+        && let assign_expr = get_parent_expr(tcx, index_expr)?
+        && let ExprKind::Assign(target, _value, assignment_span) = assign_expr.kind
+        && target.hir_id == index_expr.hir_id
+        && let ExprKind::Lit(lit) = index.kind
+        && let LitKind::Int(index, _type) = lit.node
+    {
+        return Some((index.get(), assignment_span));
+    }
+    None
+}
+
+impl BasicDeadStore {
+    /// Returns all instances where the given array is indexed at `idx`
+    fn get_pairs_with_same_name_idx(
+        &self,
+        string: &String,
+        idx: &u128,
+    ) -> Vec<&(String, u128, Span)> {
+        self.arr_and_idx_vec
+            .iter()
+            .filter(|(arr_string, arr_idx, _span)| arr_string == string && arr_idx == idx)
+            .collect()
+    }
+
+    /// Removes all stored values of the given array
+    fn clear_stores_of(&mut self, string: &str) {
+        self.arr_and_idx_vec
+            .retain(|(arr_string, _idx, _span)| arr_string != string);
     }
 }
 

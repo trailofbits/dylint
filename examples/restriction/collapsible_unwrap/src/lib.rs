@@ -202,16 +202,6 @@ fn suggest_name_from_type(cx: &LateContext<'_>, ty: ty::Ty<'_>) -> String {
     .map_or_else(|| String::from("value"), |sym| sym.as_str().to_snake_case())
 }
 
-fn is_option(cx: &LateContext<'_>, ty: ty::Ty<'_>) -> bool {
-    if let ty::Adt(adt_def, _) = ty.kind()
-        && cx.tcx.is_diagnostic_item(sym::Option, adt_def.did())
-    {
-        true
-    } else {
-        false
-    }
-}
-
 fn result_err_ty<'tcx>(cx: &LateContext<'tcx>, ty: ty::Ty<'tcx>) -> Option<ty::Ty<'tcx>> {
     if let ty::Adt(adt_def, substs) = ty.kind()
         && cx.tcx.is_diagnostic_item(sym::Result, adt_def.did())
@@ -219,6 +209,16 @@ fn result_err_ty<'tcx>(cx: &LateContext<'tcx>, ty: ty::Ty<'tcx>) -> Option<ty::T
         Some(substs[1].expect_ty())
     } else {
         None
+    }
+}
+
+fn is_option(cx: &LateContext<'_>, ty: ty::Ty<'_>) -> bool {
+    if let ty::Adt(adt_def, _) = ty.kind()
+        && cx.tcx.is_diagnostic_item(sym::Option, adt_def.did())
+    {
+        true
+    } else {
+        false
     }
 }
 

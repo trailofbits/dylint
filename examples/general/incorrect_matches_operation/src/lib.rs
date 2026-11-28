@@ -63,54 +63,6 @@ dylint_linting::declare_pre_expansion_lint! {
     "inefficient `matches!` macro use"
 }
 
-fn is_matches_macro(expr: &Expr) -> Option<&MacCall> {
-    if let ExprKind::MacCall(mac) = &expr.kind // must be a macro call
-        && mac.path == Symbol::intern("matches")
-    // must be a matches! symbol
-    {
-        return Some(mac);
-    }
-    None
-}
-
-/// Finds out if first arguments of two macro calls matches This is done by finding all tokens that
-/// belong to first argument, and comparing them without considering the span information (since
-/// span info would always differ for the two different macro calls arguments)
-fn macro_call_first_arg_equals(m1: &MacCall, m2: &MacCall) -> bool {
-    let t1 = m1.args.tokens.iter();
-    let t2 = m2.args.tokens.iter();
-
-    for (t1, t2) in std::iter::zip(t1, t2) {
-        // If any of the tokens are a comma, that means we are past the first argument
-        // on one of the macros. At this point, we must check if both args have the same number
-        // of tokens (because we verified the match of those tokens already)
-        let c1 = is_comma_token(t1);
-        let c2 = is_comma_token(t2);
-        if c1 || c2 {
-            return c1 && c2;
-        }
-        // If neither token is a comma, make sure they match: if they don't return false!
-        else if !t1.eq_unspanned(t2) {
-            return false;
-        }
-    }
-    unreachable!("This should never happen: matches! macro did not have a comma token?");
-}
-
-/// Returns whether a given token is a comma
-const fn is_comma_token(tree: &TokenTree) -> bool {
-    matches!(
-        tree,
-        TokenTree::Token(
-            Token {
-                kind: TokenKind::Comma,
-                ..
-            },
-            _
-        )
-    )
-}
-
 impl EarlyLintPass for IncorrectMatchesOperation {
     fn check_expr(&mut self, cx: &EarlyContext, expr: &Expr) {
         if let ExprKind::Binary(op, left, right) = &expr.kind
@@ -157,6 +109,54 @@ impl EarlyLintPass for IncorrectMatchesOperation {
             }
         }
     }
+}
+
+fn is_matches_macro(expr: &Expr) -> Option<&MacCall> {
+    if let ExprKind::MacCall(mac) = &expr.kind // must be a macro call
+        && mac.path == Symbol::intern("matches")
+    // must be a matches! symbol
+    {
+        return Some(mac);
+    }
+    None
+}
+
+/// Finds out if first arguments of two macro calls matches This is done by finding all tokens that
+/// belong to first argument, and comparing them without considering the span information (since
+/// span info would always differ for the two different macro calls arguments)
+fn macro_call_first_arg_equals(m1: &MacCall, m2: &MacCall) -> bool {
+    let t1 = m1.args.tokens.iter();
+    let t2 = m2.args.tokens.iter();
+
+    for (t1, t2) in std::iter::zip(t1, t2) {
+        // If any of the tokens are a comma, that means we are past the first argument
+        // on one of the macros. At this point, we must check if both args have the same number
+        // of tokens (because we verified the match of those tokens already)
+        let c1 = is_comma_token(t1);
+        let c2 = is_comma_token(t2);
+        if c1 || c2 {
+            return c1 && c2;
+        }
+        // If neither token is a comma, make sure they match: if they don't return false!
+        else if !t1.eq_unspanned(t2) {
+            return false;
+        }
+    }
+    unreachable!("This should never happen: matches! macro did not have a comma token?");
+}
+
+/// Returns whether a given token is a comma
+const fn is_comma_token(tree: &TokenTree) -> bool {
+    matches!(
+        tree,
+        TokenTree::Token(
+            Token {
+                kind: TokenKind::Comma,
+                ..
+            },
+            _
+        )
+    )
 }
 
 #[test]

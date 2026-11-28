@@ -31,12 +31,6 @@ type DylintVersionFunc = unsafe fn() -> *mut std::os::raw::c_char;
 type RegisterLintsFunc =
     unsafe fn(sess: &rustc_session::Session, store: &mut rustc_lint::LintStore);
 
-/// A library that has been loaded but whose lints have not necessarily been registered.
-struct LoadedLibrary {
-    path: PathBuf,
-    lib: libloading::Library,
-}
-
 #[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
 struct Lint {
     name: &'static str,
@@ -54,136 +48,8 @@ impl From<&rustc_lint::Lint> for Lint {
     }
 }
 
-impl LoadedLibrary {
-    fn register_lints(
-        &self,
-        sess: &rustc_session::Session,
-        lint_store: &mut rustc_lint::LintStore,
-    ) {
-        (|| unsafe {
-            if let Ok(func) = self.lib.get::<DylintVersionFunc>(b"dylint_version") {
-                let dylint_version = CString::from_raw(func()).into_string()?;
-                ensure!(
-                    dylint_version == DYLINT_VERSION,
-                    "`{}` has dylint version `{dylint_version}`, but `{DYLINT_VERSION}` was expected",
-                    self.path.to_string_lossy()
-                );
-            } else {
-                bail!(
-                    "could not find `dylint_version` in `{}`",
-                    self.path.to_string_lossy()
-                );
-            }
-            if let Ok(func) = self.lib.get::<RegisterLintsFunc>(b"register_lints") {
-                func(sess, lint_store);
-            } else {
-                bail!(
-                    "could not find `register_lints` in `{}`",
-                    self.path.to_string_lossy()
-                );
-            }
-            Ok(())
-        })()
-        .unwrap_or_else(|err| {
-            session_err(sess, &err);
-        });
-    }
-}
-
-#[rustversion::before(2023-12-18)]
-fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span::ErrorGuaranteed {
-    sess.diagnostic().err(err.to_string())
-}
-
-#[rustversion::since(2023-12-18)]
-fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span::ErrorGuaranteed {
-    sess.dcx().err(err.to_string())
-}
-
 struct Callbacks {
     loaded_libs: Vec<LoadedLibrary>,
-}
-
-// smoelius: Use of thread local storage was added to Clippy by:
-// https://github.com/rust-lang/rust-clippy/commit/3c06e0b1ce003912f8fe0536d3a7fe22558e38cf
-// This results in a segfault after the Clippy library has been unloaded; see the following issue
-// for an explanation as to why: https://github.com/nagisa/rust_libloading/issues/5
-// The workaround I've chosen is:
-// https://github.com/nagisa/rust_libloading/issues/5#issuecomment-244195096
-impl Callbacks {
-    // smoelius: Load the libraries when `Callbacks` is created and not later (e.g., in `config`)
-    // to ensure that the libraries live long enough.
-    fn new(paths: Vec<PathBuf>) -> Self {
-        let mut loaded_libs = Vec::new();
-        for path in paths {
-            unsafe {
-                // smoelius: `libloading` does not define `RTLD_NODELETE`.
-                #[cfg(unix)]
-                let result = libloading::os::unix::Library::open(
-                    Some(&path),
-                    libloading::os::unix::RTLD_LAZY
-                        | libloading::os::unix::RTLD_LOCAL
-                        | libc::RTLD_NODELETE,
-                )
-                .map(Into::into);
-
-                #[cfg(not(unix))]
-                let result = libloading::Library::new(&path);
-
-                let lib = result.unwrap_or_else(|err| {
-                    // smoelius: rust-lang/rust#111633 changed the type of `early_error`'s `msg`
-                    // argument from `&str` to `impl Into<DiagnosticMessage>`.
-                    // smoelius: And rust-lang/rust#111748 made it that `msg` is borrowed for
-                    // `'static`. Since the program is about to exit, it's probably fine to leak the
-                    // string.
-                    let msg = format!("could not load library `{}`: {err}", path.to_string_lossy());
-                    early_error(msg);
-                });
-
-                loaded_libs.push(LoadedLibrary { path, lib });
-            }
-        }
-        Self { loaded_libs }
-    }
-}
-
-#[rustversion::before(2023-06-28)]
-fn early_error(msg: String) -> ! {
-    rustc_session::early_error(
-        rustc_session::config::ErrorOutputType::default(),
-        Box::leak(msg.into_boxed_str()) as &str,
-    )
-}
-
-#[rustversion::since(2023-06-28)]
-extern crate rustc_errors;
-
-#[rustversion::all(since(2023-06-28), before(2023-12-18))]
-fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
-    let handler =
-        rustc_session::EarlyErrorHandler::new(rustc_session::config::ErrorOutputType::default());
-    handler.early_error(msg)
-}
-
-#[rustversion::all(since(2023-12-18), before(2023-12-23))]
-fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
-    let handler =
-        rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
-    handler.early_error(msg)
-}
-
-#[rustversion::all(since(2023-12-23), before(2024-03-05))]
-fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
-    let handler =
-        rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
-    handler.early_fatal(msg)
-}
-
-#[rustversion::since(2024-03-05)]
-fn early_error(msg: impl Into<rustc_errors::DiagMessage>) -> ! {
-    #[allow(clippy::default_trait_access)]
-    let handler = rustc_session::EarlyDiagCtxt::new(Default::default());
-    handler.early_fatal(msg)
 }
 
 trait EnvDepInfo {
@@ -255,37 +121,6 @@ impl FileDepInfo for rustc_session::Session {
     }
 }
 
-#[rustversion::before(2022-07-14)]
-fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
-    trait Zeroable {
-        fn zero(&mut self);
-    }
-
-    impl Zeroable for usize {
-        fn zero(&mut self) {
-            *self = 0;
-        }
-    }
-
-    impl Zeroable for Option<usize> {
-        fn zero(&mut self) {
-            *self = Some(0);
-        }
-    }
-
-    // smoelius: `Zeroable` is a hack to make the next line compile for different Rust versions:
-    // https://github.com/rust-lang/rust-clippy/commit/0941fc0bb5d655cdd0816f862af8cfe70556dad6
-    config.opts.debugging_opts.mir_opt_level.zero();
-}
-
-// smoelius: Relevant PR and merge commit:
-// - https://github.com/rust-lang/rust/pull/98975
-// - https://github.com/rust-lang/rust/commit/0ed9c64c3e63acac9bd77abce62501696c390450
-#[rustversion::since(2022-07-14)]
-const fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
-    config.opts.unstable_opts.mir_opt_level = Some(0);
-}
-
 impl rustc_driver::Callbacks for Callbacks {
     fn config(&mut self, config: &mut rustc_interface::Config) {
         let previous = config.register_lints.take();
@@ -350,6 +185,58 @@ fn list_enabled() -> bool {
     env::var(env::DYLINT_LIST).is_ok_and(|value| value != "0")
 }
 
+/// A library that has been loaded but whose lints have not necessarily been registered.
+struct LoadedLibrary {
+    path: PathBuf,
+    lib: libloading::Library,
+}
+
+impl LoadedLibrary {
+    fn register_lints(
+        &self,
+        sess: &rustc_session::Session,
+        lint_store: &mut rustc_lint::LintStore,
+    ) {
+        (|| unsafe {
+            if let Ok(func) = self.lib.get::<DylintVersionFunc>(b"dylint_version") {
+                let dylint_version = CString::from_raw(func()).into_string()?;
+                ensure!(
+                    dylint_version == DYLINT_VERSION,
+                    "`{}` has dylint version `{dylint_version}`, but `{DYLINT_VERSION}` was expected",
+                    self.path.to_string_lossy()
+                );
+            } else {
+                bail!(
+                    "could not find `dylint_version` in `{}`",
+                    self.path.to_string_lossy()
+                );
+            }
+            if let Ok(func) = self.lib.get::<RegisterLintsFunc>(b"register_lints") {
+                func(sess, lint_store);
+            } else {
+                bail!(
+                    "could not find `register_lints` in `{}`",
+                    self.path.to_string_lossy()
+                );
+            }
+            Ok(())
+        })()
+        .unwrap_or_else(|err| {
+            session_err(sess, &err);
+        });
+    }
+}
+
+#[rustversion::before(2023-12-18)]
+fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span::ErrorGuaranteed {
+    sess.diagnostic().err(err.to_string())
+}
+
+#[rustversion::since(2023-12-18)]
+fn session_err(sess: &rustc_session::Session, err: &impl ToString) -> rustc_span::ErrorGuaranteed {
+    sess.dcx().err(err.to_string())
+}
+
 fn list_lints(before: &BTreeSet<Lint>, after: &BTreeSet<Lint>) {
     let difference: Vec<Lint> = after.difference(before).cloned().collect();
 
@@ -383,6 +270,37 @@ include!(concat!(env!("OUT_DIR"), "/extra_symbols.rs"));
 #[rustversion::since(2025-05-14)]
 fn register_extra_symbols(config: &mut rustc_interface::Config) {
     config.extra_symbols = EXTRA_SYMBOLS.into();
+}
+
+#[rustversion::before(2022-07-14)]
+fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
+    trait Zeroable {
+        fn zero(&mut self);
+    }
+
+    impl Zeroable for usize {
+        fn zero(&mut self) {
+            *self = 0;
+        }
+    }
+
+    impl Zeroable for Option<usize> {
+        fn zero(&mut self) {
+            *self = Some(0);
+        }
+    }
+
+    // smoelius: `Zeroable` is a hack to make the next line compile for different Rust versions:
+    // https://github.com/rust-lang/rust-clippy/commit/0941fc0bb5d655cdd0816f862af8cfe70556dad6
+    config.opts.debugging_opts.mir_opt_level.zero();
+}
+
+// smoelius: Relevant PR and merge commit:
+// - https://github.com/rust-lang/rust/pull/98975
+// - https://github.com/rust-lang/rust/commit/0ed9c64c3e63acac9bd77abce62501696c390450
+#[rustversion::since(2022-07-14)]
+const fn zero_mir_opt_level(config: &mut rustc_interface::Config) {
+    config.opts.unstable_opts.mir_opt_level = Some(0);
 }
 
 pub fn dylint_driver<T: AsRef<OsStr>>(args: &[T]) -> Result<()> {
@@ -490,6 +408,88 @@ fn rustc_args<T: AsRef<OsStr>, U: AsRef<str>, V: AsRef<Path>>(
     );
 
     Ok(rustc_args)
+}
+
+// smoelius: Use of thread local storage was added to Clippy by:
+// https://github.com/rust-lang/rust-clippy/commit/3c06e0b1ce003912f8fe0536d3a7fe22558e38cf
+// This results in a segfault after the Clippy library has been unloaded; see the following issue
+// for an explanation as to why: https://github.com/nagisa/rust_libloading/issues/5
+// The workaround I've chosen is:
+// https://github.com/nagisa/rust_libloading/issues/5#issuecomment-244195096
+impl Callbacks {
+    // smoelius: Load the libraries when `Callbacks` is created and not later (e.g., in `config`)
+    // to ensure that the libraries live long enough.
+    fn new(paths: Vec<PathBuf>) -> Self {
+        let mut loaded_libs = Vec::new();
+        for path in paths {
+            unsafe {
+                // smoelius: `libloading` does not define `RTLD_NODELETE`.
+                #[cfg(unix)]
+                let result = libloading::os::unix::Library::open(
+                    Some(&path),
+                    libloading::os::unix::RTLD_LAZY
+                        | libloading::os::unix::RTLD_LOCAL
+                        | libc::RTLD_NODELETE,
+                )
+                .map(Into::into);
+
+                #[cfg(not(unix))]
+                let result = libloading::Library::new(&path);
+
+                let lib = result.unwrap_or_else(|err| {
+                    // smoelius: rust-lang/rust#111633 changed the type of `early_error`'s `msg`
+                    // argument from `&str` to `impl Into<DiagnosticMessage>`.
+                    // smoelius: And rust-lang/rust#111748 made it that `msg` is borrowed for
+                    // `'static`. Since the program is about to exit, it's probably fine to leak the
+                    // string.
+                    let msg = format!("could not load library `{}`: {err}", path.to_string_lossy());
+                    early_error(msg);
+                });
+
+                loaded_libs.push(LoadedLibrary { path, lib });
+            }
+        }
+        Self { loaded_libs }
+    }
+}
+
+#[rustversion::before(2023-06-28)]
+fn early_error(msg: String) -> ! {
+    rustc_session::early_error(
+        rustc_session::config::ErrorOutputType::default(),
+        Box::leak(msg.into_boxed_str()) as &str,
+    )
+}
+
+#[rustversion::since(2023-06-28)]
+extern crate rustc_errors;
+
+#[rustversion::all(since(2023-06-28), before(2023-12-18))]
+fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
+    let handler =
+        rustc_session::EarlyErrorHandler::new(rustc_session::config::ErrorOutputType::default());
+    handler.early_error(msg)
+}
+
+#[rustversion::all(since(2023-12-18), before(2023-12-23))]
+fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
+    let handler =
+        rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
+    handler.early_error(msg)
+}
+
+#[rustversion::all(since(2023-12-23), before(2024-03-05))]
+fn early_error(msg: impl Into<rustc_errors::DiagnosticMessage>) -> ! {
+    let handler =
+        rustc_session::EarlyDiagCtxt::new(rustc_session::config::ErrorOutputType::default());
+    handler.early_fatal(msg)
+}
+
+#[rustversion::since(2024-03-05)]
+fn early_error(msg: impl Into<rustc_errors::DiagMessage>) -> ! {
+    #[allow(clippy::default_trait_access)]
+    let handler = rustc_session::EarlyDiagCtxt::new(Default::default());
+    handler.early_fatal(msg)
 }
 
 #[rustversion::before(2024-12-09)]

@@ -1,0 +1,16 @@
+warning: function definitions are not topologically sorted
+  --> $DIR/impl_trait_method_calls_free.rs:3:1
+   |
+LL | fn advance_chars() {}
+   | ^^^^^^^^^^^^^^^^^^^^^ function `advance_chars` should be defined after `<Calculator as Interface>::offset_from_line_column`
+   |
+   = help: move advance_chars's definition to later in the module
+note: `advance_chars` is called from `<Calculator as Interface>::offset_from_line_column` here
+  --> $DIR/impl_trait_method_calls_free.rs:13:9
+   |
+LL |         advance_chars();
+   |         ^^^^^^^^^^^^^^^
+   = note: `#[warn(non_topologically_sorted_functions)]` on by default
+
+warning: 1 warning emitted
+

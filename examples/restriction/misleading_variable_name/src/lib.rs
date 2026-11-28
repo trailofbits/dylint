@@ -124,33 +124,6 @@ impl<'tcx> LateLintPass<'tcx> for MisleadingVariableName {
     }
 }
 
-fn peel_refs_and_rcs<'tcx>(
-    cx: &LateContext<'tcx>,
-    module_def_id: DefId,
-    mut ty: ty::Ty<'tcx>,
-) -> ty::Ty<'tcx> {
-    loop {
-        match ty.kind() {
-            ty::Ref(_, referent_ty, _) => {
-                ty = *referent_ty;
-            }
-            // smoelius: If the initializer originates from the same module as `Arc` or `Rc`, don't
-            // peel them.
-            ty::Adt(adt_def, substs)
-                if module_def_id != parent_module(cx.tcx, adt_def.did())
-                    && (ty.is_diag_item(cx, sym::Arc) || ty.is_diag_item(cx, sym::Rc)) =>
-            {
-                ty = substs[0].expect_ty();
-            }
-            _ => {
-                break;
-            }
-        }
-    }
-
-    ty
-}
-
 fn peel_try_unwrap_and_similar<'tcx>(
     cx: &LateContext<'_>,
     mut expr: &'tcx Expr<'tcx>,
@@ -210,6 +183,33 @@ fn callee_def_id(cx: &LateContext<'_>, expr: &Expr<'_>) -> Option<DefId> {
         ExprKind::MethodCall(..) => cx.typeck_results().type_dependent_def_id(expr.hir_id),
         _ => None,
     }
+}
+
+fn peel_refs_and_rcs<'tcx>(
+    cx: &LateContext<'tcx>,
+    module_def_id: DefId,
+    mut ty: ty::Ty<'tcx>,
+) -> ty::Ty<'tcx> {
+    loop {
+        match ty.kind() {
+            ty::Ref(_, referent_ty, _) => {
+                ty = *referent_ty;
+            }
+            // smoelius: If the initializer originates from the same module as `Arc` or `Rc`, don't
+            // peel them.
+            ty::Adt(adt_def, substs)
+                if module_def_id != parent_module(cx.tcx, adt_def.did())
+                    && (ty.is_diag_item(cx, sym::Arc) || ty.is_diag_item(cx, sym::Rc)) =>
+            {
+                ty = substs[0].expect_ty();
+            }
+            _ => {
+                break;
+            }
+        }
+    }
+
+    ty
 }
 
 fn parent_module(tcx: ty::TyCtxt<'_>, mut def_id: DefId) -> DefId {

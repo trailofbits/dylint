@@ -1,0 +1,21 @@
+warning: function definitions are not topologically sorted
+  --> $DIR/impl_call_order.rs:11:5
+   |
+LL |     fn second(&self) {}
+   |     ^^^^^^^^^^^^^^^^^^^ function `Calculator::second` should be defined after `Calculator::first`
+   |
+   = help: move Calculator::second's definition to later in the impl block
+note: `Calculator::caller` calls `Calculator::first` here
+  --> $DIR/impl_call_order.rs:7:9
+   |
+LL |         self.first();
+   |         ^^^^^^^^^^^^
+note: `Calculator::caller` calls `Calculator::second` here
+  --> $DIR/impl_call_order.rs:8:9
+   |
+LL |         self.second();
+   |         ^^^^^^^^^^^^^
+   = note: `#[warn(non_topologically_sorted_functions)]` on by default
+
+warning: 1 warning emitted
+

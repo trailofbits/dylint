@@ -194,6 +194,25 @@ impl<'tcx> Visitor<'tcx> for Checker<'_, 'tcx> {
     }
 }
 
+fn is_blacklisted_function<'tcx>(
+    cx: &LateContext<'tcx>,
+    callee_def_id: DefId,
+    callee: &Expr<'tcx>,
+    args: &[Expr<'tcx>],
+) -> Option<(&'static [&'static str], Option<&'static [usize]>)> {
+    let (path, observable_path_args) = crate::blacklist::BLACKLIST
+        .iter()
+        .copied()
+        .find(|(path, _)| match_def_path(cx, callee_def_id, path))?;
+
+    // smoelius: Hack, until we can come up with a more general solution.
+    if path == paths::COMMAND_NEW && !command_new_additional_checks(cx, callee, args) {
+        return None;
+    }
+
+    Some((path, observable_path_args))
+}
+
 impl<'tcx> Checker<'_, 'tcx> {
     fn all_observable_path_args_are_temporary(
         &self,
@@ -244,25 +263,6 @@ impl<'tcx> Checker<'_, 'tcx> {
             false
         }
     }
-}
-
-fn is_blacklisted_function<'tcx>(
-    cx: &LateContext<'tcx>,
-    callee_def_id: DefId,
-    callee: &Expr<'tcx>,
-    args: &[Expr<'tcx>],
-) -> Option<(&'static [&'static str], Option<&'static [usize]>)> {
-    let (path, observable_path_args) = crate::blacklist::BLACKLIST
-        .iter()
-        .copied()
-        .find(|(path, _)| match_def_path(cx, callee_def_id, path))?;
-
-    // smoelius: Hack, until we can come up with a more general solution.
-    if path == paths::COMMAND_NEW && !command_new_additional_checks(cx, callee, args) {
-        return None;
-    }
-
-    Some((path, observable_path_args))
 }
 
 #[cfg_attr(dylint_lib = "supplementary", expect(commented_out_code))]

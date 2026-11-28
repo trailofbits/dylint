@@ -269,49 +269,6 @@ impl<'tcx> DeriveOpportunity<'tcx> {
     }
 }
 
-fn all_params_are_lifetimes(tcx: ty::TyCtxt<'_>, trait_id: DefId) -> bool {
-    iter::once(trait_id)
-        .chain(super_traits_of(tcx, trait_id))
-        .all(|trait_id| {
-            let generics = tcx.generics_of(trait_id);
-            generics.count() == generics.own_params.len()
-                && generics
-                    .own_params
-                    .iter()
-                    .skip(1)
-                    .all(|param| matches!(param.kind, ty::GenericParamDefKind::Lifetime))
-        })
-}
-
-// smoelius: `super_traits_of` is a near carbon copy of the method of the same name here:
-// https://github.com/rust-lang/rust/blob/fbdef58414af2b3469bf4f0f83bb136945414b96/compiler/rustc_middle/src/ty/context.rs#L1582-L1606
-
-/// Computes the def-ids of the transitive supertraits of `trait_def_id`. This (intentionally) does
-/// not compute the full elaborated super-clauses but just the set of def-ids. It is used to
-/// identify which traits may define a given associated type to help avoid cycle errors. Returns a
-/// `DefId` iterator.
-fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<Item = DefId> + '_ {
-    let mut set = FxHashSet::default();
-    let mut stack = vec![trait_def_id];
-
-    set.insert(trait_def_id);
-
-    iter::from_fn(move || -> Option<DefId> {
-        let trait_did = stack.pop()?;
-        let super_clauses = tcx.explicit_super_clauses_of(trait_did);
-
-        for (clause, _) in super_clauses.skip_binder() {
-            if let ty::ClauseKind::Trait(data) = clause.kind().skip_binder()
-                && set.insert(data.def_id())
-            {
-                stack.push(data.def_id());
-            }
-        }
-
-        Some(trait_did)
-    })
-}
-
 /// Determines whether `trait_id` is derivable by checking whether any of its _known_ impls is
 /// derived. (smoelius: Not ideal, but it's the best I've got for now.)
 fn is_derivable(cx: &LateContext<'_>, trait_id: DefId) -> Option<Macro> {
@@ -424,6 +381,49 @@ impl Macro {
                 .join("::"),
         }
     }
+}
+
+fn all_params_are_lifetimes(tcx: ty::TyCtxt<'_>, trait_id: DefId) -> bool {
+    iter::once(trait_id)
+        .chain(super_traits_of(tcx, trait_id))
+        .all(|trait_id| {
+            let generics = tcx.generics_of(trait_id);
+            generics.count() == generics.own_params.len()
+                && generics
+                    .own_params
+                    .iter()
+                    .skip(1)
+                    .all(|param| matches!(param.kind, ty::GenericParamDefKind::Lifetime))
+        })
+}
+
+// smoelius: `super_traits_of` is a near carbon copy of the method of the same name here:
+// https://github.com/rust-lang/rust/blob/fbdef58414af2b3469bf4f0f83bb136945414b96/compiler/rustc_middle/src/ty/context.rs#L1582-L1606
+
+/// Computes the def-ids of the transitive supertraits of `trait_def_id`. This (intentionally) does
+/// not compute the full elaborated super-clauses but just the set of def-ids. It is used to
+/// identify which traits may define a given associated type to help avoid cycle errors. Returns a
+/// `DefId` iterator.
+fn super_traits_of(tcx: ty::TyCtxt<'_>, trait_def_id: DefId) -> impl Iterator<Item = DefId> + '_ {
+    let mut set = FxHashSet::default();
+    let mut stack = vec![trait_def_id];
+
+    set.insert(trait_def_id);
+
+    iter::from_fn(move || -> Option<DefId> {
+        let trait_did = stack.pop()?;
+        let super_clauses = tcx.explicit_super_clauses_of(trait_did);
+
+        for (clause, _) in super_clauses.skip_binder() {
+            if let ty::ClauseKind::Trait(data) = clause.kind().skip_binder()
+                && set.insert(data.def_id())
+            {
+                stack.push(data.def_id());
+            }
+        }
+
+        Some(trait_did)
+    })
 }
 
 #[test]

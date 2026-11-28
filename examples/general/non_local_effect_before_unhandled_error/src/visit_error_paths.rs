@@ -49,66 +49,6 @@ pub fn visit_error_paths<'tcx>(
     }
 }
 
-#[derive(Clone, Debug)]
-struct State {
-    local: Option<Local>,
-    possible_variants: DenseBitSet<VariantIdx>,
-    confirmed_variant: Option<VariantIdx>,
-    span: Option<Span>,
-}
-
-impl State {
-    fn new() -> Self {
-        Self {
-            local: Some(RETURN_PLACE),
-            possible_variants: DenseBitSet::new_filled(2),
-            confirmed_variant: None,
-            span: None,
-        }
-    }
-    fn on_error_path(&self) -> bool {
-        if let Some(variant) = self.confirmed_variant {
-            // smoelius: The variant indices of both `Result::Err` and `ControlFlow::Break` are
-            // 1. But this check should be made more robust.
-            variant == VariantIdx::from_u32(1)
-        } else {
-            // smoelius: The next condition intentionally ignores `self.local`. Note that if
-            // `self.local` is `None`, then the local was removed and not replaced. One can
-            // interpret this to mean: the source of the error was found.
-            self.possible_variants.contains(VariantIdx::from_u32(1))
-        }
-    }
-    fn is_local(&self, local: Local) -> bool {
-        self.local == Some(local)
-    }
-    fn remove_local(&mut self, local: Local) -> bool {
-        if self.is_local(local) {
-            self.local = None;
-            true
-        } else {
-            false
-        }
-    }
-    fn set_local(&mut self, local: Local) {
-        assert!(self.local.is_none());
-        self.local = Some(local);
-    }
-    fn remove_possible_variant(&mut self, variant: VariantIdx, span: Span) {
-        if self.confirmed_variant.is_none() {
-            self.possible_variants.remove(variant);
-            self.span = self.span.or(Some(span));
-        }
-    }
-    fn set_confirmed_variant(&mut self, variant: VariantIdx, span: Span) {
-        if self.possible_variants.contains(variant) {
-            // smoelius: Once the variant is confirmed, there is no point in tracking the local.
-            self.local = None;
-            self.confirmed_variant = self.confirmed_variant.or(Some(variant));
-            self.span = self.span.or(Some(span));
-        }
-    }
-}
-
 struct Guide<'cx, 'tcx, V> {
     work_limit: u64,
     cx: &'cx LateContext<'tcx>,
@@ -187,6 +127,22 @@ where
         assert!(self.blocks_visited.remove(index));
     }
 
+    // Emits a warning and returns true if work limit has been reached.
+    fn work(&mut self) -> bool {
+        if self.work >= self.work_limit {
+            let name = format!("`{}`", self.cx.tcx.def_path_str(self.def_id));
+            self.cx.sess().dcx().warn(format!(
+                "reached work limit ({}) while checking {name}; set `{}.work_limit` in `dylint.toml` \
+                 to override",
+                self.work_limit,
+                env!("CARGO_PKG_NAME")
+            ));
+            return true;
+        }
+        self.work += 1;
+        false
+    }
+
     fn visit_error_paths_to_block_entry(&mut self, state: &State, index: BasicBlock) {
         assert!(self.blocks_visited.contains(index));
         if index == START_BLOCK {
@@ -249,21 +205,65 @@ where
             self.contributing_calls.remove(predecessor);
         }
     }
+}
 
-    // Emits a warning and returns true if work limit has been reached.
-    fn work(&mut self) -> bool {
-        if self.work >= self.work_limit {
-            let name = format!("`{}`", self.cx.tcx.def_path_str(self.def_id));
-            self.cx.sess().dcx().warn(format!(
-                "reached work limit ({}) while checking {name}; set `{}.work_limit` in `dylint.toml` \
-                 to override",
-                self.work_limit,
-                env!("CARGO_PKG_NAME")
-            ));
-            return true;
+#[derive(Clone, Debug)]
+struct State {
+    local: Option<Local>,
+    possible_variants: DenseBitSet<VariantIdx>,
+    confirmed_variant: Option<VariantIdx>,
+    span: Option<Span>,
+}
+
+impl State {
+    fn new() -> Self {
+        Self {
+            local: Some(RETURN_PLACE),
+            possible_variants: DenseBitSet::new_filled(2),
+            confirmed_variant: None,
+            span: None,
         }
-        self.work += 1;
-        false
+    }
+    fn remove_local(&mut self, local: Local) -> bool {
+        if self.is_local(local) {
+            self.local = None;
+            true
+        } else {
+            false
+        }
+    }
+    fn is_local(&self, local: Local) -> bool {
+        self.local == Some(local)
+    }
+    fn set_confirmed_variant(&mut self, variant: VariantIdx, span: Span) {
+        if self.possible_variants.contains(variant) {
+            // smoelius: Once the variant is confirmed, there is no point in tracking the local.
+            self.local = None;
+            self.confirmed_variant = self.confirmed_variant.or(Some(variant));
+            self.span = self.span.or(Some(span));
+        }
+    }
+    fn set_local(&mut self, local: Local) {
+        assert!(self.local.is_none());
+        self.local = Some(local);
+    }
+    fn on_error_path(&self) -> bool {
+        if let Some(variant) = self.confirmed_variant {
+            // smoelius: The variant indices of both `Result::Err` and `ControlFlow::Break` are
+            // 1. But this check should be made more robust.
+            variant == VariantIdx::from_u32(1)
+        } else {
+            // smoelius: The next condition intentionally ignores `self.local`. Note that if
+            // `self.local` is `None`, then the local was removed and not replaced. One can
+            // interpret this to mean: the source of the error was found.
+            self.possible_variants.contains(VariantIdx::from_u32(1))
+        }
+    }
+    fn remove_possible_variant(&mut self, variant: VariantIdx, span: Span) {
+        if self.confirmed_variant.is_none() {
+            self.possible_variants.remove(variant);
+            self.span = self.span.or(Some(span));
+        }
     }
 }
 

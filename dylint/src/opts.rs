@@ -156,17 +156,17 @@ impl Dylint {
         self.operation.has_library_selection()
     }
 
-    #[must_use]
-    pub fn library_selection(&self) -> &LibrarySelection {
-        self.operation.library_selection()
-    }
-
     pub const fn library_selection_mut(&mut self) -> &mut LibrarySelection {
         self.operation.library_selection_mut()
     }
 
     pub(crate) fn git_or_path(&self) -> bool {
         self.library_selection().git_or_path()
+    }
+
+    #[must_use]
+    pub fn library_selection(&self) -> &LibrarySelection {
+        self.operation.library_selection()
     }
 }
 
