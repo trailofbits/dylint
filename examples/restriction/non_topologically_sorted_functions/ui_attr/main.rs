@@ -2,7 +2,7 @@ fn main() {
     foo();
 }
 
-// smoelius: False negative.
+// False negative: `bar` has an attribute macro and appears before its caller, `foo`.
 #[attr::attr]
 fn bar() {}
 

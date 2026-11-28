@@ -558,7 +558,7 @@ fn ui() {
     dylint_testing::ui_test(env!("CARGO_PKG_NAME"), "ui");
 }
 
-// smoelius: False negative.
+// False negative: `bar` has an attribute macro and appears before its caller, `foo`.
 #[test]
 fn ui_attr() {
     dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), "ui_attr");
